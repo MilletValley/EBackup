@@ -1,7 +1,10 @@
 <template>
   <el-container style="height: 100%;">
-    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-menu router>
+    <el-aside width="200px" style="background-color: #545c64">
+      <div class="logo">
+        <img src="../assets/elogo.png" alt="信服易备" height="40px">
+      </div>
+      <el-menu background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" router>
         <el-menu-item index="/dashboard">
           <i class="el-icon-menu"></i>
           <span slot="title">主页</span>
@@ -65,13 +68,20 @@ export default {
 </script>
 
 <style>
+.logo {
+  padding: 10px 10px;
+}
 .el-header {
-  background-color: #b3c0d1;
+  background-color: #ffffff;
   color: #333;
   line-height: 60px;
+  box-shadow: 1px 1px #eeeeee;
 }
 .el-aside {
   color: #333;
+}
+.el-menu {
+  border: none;
 }
 
 .el-dropdown-link {
