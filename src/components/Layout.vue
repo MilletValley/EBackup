@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   name: 'Layout',
@@ -62,7 +62,21 @@ export default {
     }),
   },
   methods: {
-    handleCommand(command) {},
+    ...mapActions(['logout']),
+    handleCommand(command) {
+      if (command === 'logout') {
+        this._logout();
+      }
+    },
+    _logout() {
+      this.logout().then(message => {
+        this.$message({
+          type: 'success',
+          message,
+        });
+        this.$router.push('/login');
+      });
+    },
   },
 };
 </script>

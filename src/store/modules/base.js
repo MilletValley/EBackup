@@ -1,5 +1,10 @@
 import types from '../type';
-import { login, fetchUsersByToken, fetchRolesByUserId } from '../../api/user';
+import {
+  login,
+  fetchUsersByToken,
+  fetchRolesByUserId,
+  logout,
+} from '../../api/user';
 import { userToken } from '../../utils/storage';
 import { basicRouters, asyncRouters } from '../../router';
 
@@ -32,6 +37,7 @@ const mutations = {
     state.token = '';
     state.userInfo = {};
     state.roles = [];
+    state.routers = [];
   },
   [types.SET_ROUTERS](state, routers) {
     state.routers = [...basicRouters, ...routers];
@@ -137,6 +143,14 @@ const actions = {
     return dispatch('loginForToken', loginData).then(token =>
       dispatch('loginByToken', { token })
     );
+  },
+  logout({ commit }, token) {
+    return logout({ token }).then(res => {
+      const { message } = res.data;
+      commit(types.CLEAR_LOGININFO);
+      userToken.remove();
+      return message;
+    });
   },
 };
 
