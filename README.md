@@ -1,27 +1,21 @@
 # ebackup-frontend
 
-> A Vue.js project
+> 信服易备，前端项目，主要使用的技术栈包括 Vue，Vuex，Vue-router，组件库使用 Element-ui，Ajax 调用使用 axios。
 
-## Build Setup
+## 使用步骤
 
-``` bash
-# install dependencies
+开发阶段，使用 NEI 作为模拟数据源，然后执行以下命令
+
+```bash
+# 安装依赖
 npm install
 
-# serve with hot reload at localhost:8080
+# 在8080端口启动一个热重启服务
 npm run dev
 
-# build for production with minification
+# 构建生产环境的代码
 npm run build
 
-# build for production and view the bundle analyzer report
+# 构建生产环境的代码，并生成分析报告
 npm run build --report
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
