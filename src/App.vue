@@ -21,4 +21,12 @@ body {
   color: #2c3e50;
   height: 100vh;
 }
+.icon {
+  width: 1.5em;
+  height: 1.5em;
+  /* vertical-align: -0.15em; */
+  margin-right: 5px;
+  fill: rgb(208, 208, 208);
+  overflow: hidden;
+}
 </style>
