@@ -27,6 +27,7 @@ export const basicRouters = [
         component: Dashboard,
         meta: {
           title: '主页',
+          icon: 'dashboard',
         },
       },
     ],
@@ -43,6 +44,7 @@ export const asyncRouters = [
     component: Layout,
     meta: {
       title: '数据库',
+      icon: 'database',
       roles: ['admin'],
     },
     children: [
@@ -74,6 +76,7 @@ export const asyncRouters = [
     component: Layout,
     meta: {
       title: '虚拟机',
+      icon: 'vm',
       roles: ['admin'],
     },
     children: [
@@ -92,6 +95,7 @@ export const asyncRouters = [
     component: Layout,
     meta: {
       title: '系统管理',
+      icon: 'setting',
       roles: ['admin'],
     },
     children: [

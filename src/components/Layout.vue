@@ -6,12 +6,12 @@
       </div>
       <el-menu background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" router>
         <el-menu-item index="/dashboard">
-          <i class="el-icon-menu"></i>
+          <IIcon name="dashboard"></IIcon>
           <span slot="title">主页</span>
         </el-menu-item>
         <el-submenu v-for="menu in menus" :key="menu.path" :index="menu.path">
           <template slot="title">
-            <icon name="database"></icon>
+            <IIcon :name="menu.meta.icon"></IIcon>
             <span>{{ menu.meta.title }}</span>
           </template>
           <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)" :key="submenu.path" :index="`${menu.path}/${submenu.path}`">
@@ -42,11 +42,15 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import IIcon from './IIcon.vue';
 
 export default {
   name: 'Layout',
   data() {
     return {};
+  },
+  components: {
+    IIcon,
   },
   computed: {
     ...mapState({
@@ -104,11 +108,5 @@ export default {
 }
 .el-icon-arrow-down {
   font-size: 12px;
-}
-.fa-icon {
-  color: #909399;
-  width: 24px;
-  font-size: 1em;
-  margin-right: 5px;
 }
 </style>

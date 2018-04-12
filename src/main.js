@@ -3,16 +3,14 @@
 import Vue from 'vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import 'vue-awesome/icons'; // #TODO: 引入优化
-import Icon from 'vue-awesome/components/Icon';
 import App from './App';
 import store from './store/index';
 import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
+import './utils/icon-svg';
 
 Vue.use(ElementUI);
-Vue.component('icon', Icon);
 Vue.config.productionTip = false;
 
 router.beforeEach((to, from, next) => {
