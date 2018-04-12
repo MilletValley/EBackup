@@ -43,12 +43,7 @@ export default {
     },
   }),
   methods: {
-    ...mapActions([
-      'loginForToken',
-      'getUserInfo',
-      'getUserRoles',
-      'loginForAll',
-    ]),
+    ...mapActions(['loginForAll']),
     login2(loginName, password) {
       this.loginForAll({ loginName, password })
         .then(() => {

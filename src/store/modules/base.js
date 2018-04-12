@@ -1,10 +1,5 @@
 import types from '../type';
-import {
-  login,
-  fetchUsersByToken,
-  fetchRolesByUserId,
-  logout,
-} from '../../api/user';
+import { login, fetchUsersByToken, logout } from '../../api/user';
 import { userToken } from '../../utils/storage';
 import { basicRouters, asyncRouters } from '../../router';
 
@@ -29,9 +24,6 @@ const mutations = {
   },
   [types.SET_USERINFO](state, payload) {
     state.userInfo = payload;
-  },
-  [types.SET_ROLES](state, { roles }) {
-    state.roles = roles;
   },
   [types.CLEAR_LOGININFO](state) {
     state.token = '';
@@ -82,28 +74,18 @@ const actions = {
       return users[0];
     });
   },
-  /**
-   * 根据用户id获取角色
-   * @param {*} param0
-   * @param {*} param1
-   */
-  getUserRoles({ commit }, { id }) {
-    return fetchRolesByUserId(id).then(res => {
-      const { data } = res.data;
-      // data: { id, roles }
-      commit(types.SET_ROLES, data);
-      return data.roles;
-    });
-  },
+
   /**
    * 使用Token登陆
    * @param {*} param0
    * @param {*} param1
    */
   loginByToken({ dispatch }, { token }) {
-    return dispatch('getUserInfo', { token })
-      .then(user => dispatch('getUserRoles', user))
-      .then(roles => dispatch('generateRoutes', { roles }));
+    return (
+      dispatch('getUserInfo', { token })
+        // .then(user => dispatch('getUserRoles', user))
+        .then(user => dispatch('generateRoutes', user))
+    );
   },
   /**
    * 根据角色，以及静态的router meta，生成动态的路由
@@ -111,15 +93,16 @@ const actions = {
    * @param {*} param1
    */
   generateRoutes(context, { roles }) {
+    const roleIds = roles.map(role => role.id);
     return new Promise(resolve => {
       let accessedRouters;
-      if (roles.indexOf('admin') >= 0) accessedRouters = asyncRouters;
+      if (roleIds.indexOf('admin') >= 0) accessedRouters = asyncRouters;
       else {
         accessedRouters = asyncRouters.filter(v => {
-          if (hasPermission(roles, v)) {
+          if (hasPermission(roleIds, v)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
-                if (hasPermission(roles, childRouter)) {
+                if (hasPermission(roleIds, childRouter)) {
                   return childRouter;
                 }
                 return false;

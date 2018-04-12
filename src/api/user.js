@@ -29,10 +29,4 @@ const fetchUsersByToken = token =>
     },
   });
 
-const fetchRolesByUserId = userId =>
-  baseApi.request({
-    method: 'get',
-    url: `/users/${userId}/roles`,
-  });
-
-export { login, logout, fetchUsersByToken, fetchRolesByUserId };
+export { login, logout, fetchUsersByToken };
