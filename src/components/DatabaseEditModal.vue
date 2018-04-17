@@ -1,11 +1,11 @@
 <template>
   <section>
-    <el-dialog :visible.sync="dialogVisible" :before-close="beforeClose">
+    <el-dialog :visible.sync="_visible" :before-close="beforeClose">
       <span slot="title">
         {{ updateOrCreate }}数据库
       </span>
       <el-form :model="selectedDb" label-width="100px" ref="theForm">
-        <el-form-item label="ID" v-if="type.substr(type.indexOf(':') + 1) === 'update'">
+        <el-form-item label="ID" v-if="operationType === 'update'">
           <el-input v-model="selectedDb.id" disabled></el-input>
         </el-form-item>
         <el-form-item label="主机名" prop="hostName">
@@ -45,10 +45,6 @@ import isEqual from 'lodash/isEqual';
 import clone from 'lodash/clone';
 import { modifyOne, createOne } from '../api/oracle';
 
-const updateCreateMapping = {
-  update: '更新',
-  create: '新建',
-};
 const requestMapping = {
   'oracle:update': data => modifyOne(data),
   'oracle:create': data => createOne(data),
@@ -58,41 +54,46 @@ const requestMapping = {
 const vm = {
   name: 'DatabaseEditModal',
   props: {
-    type: String,
-    visible: {
-      type: Boolean,
-      default: false,
-    },
+    dbType: String,
+    operationType: String,
     selectedDb: Object,
     onCreateComplete: Function,
+    onUpdateComplete: Function,
   },
   data() {
     return {
-      dialogVisible: this.visible,
+      // dialogVisible: this.visible,
       originData: {}, // 原始值
     };
   },
   computed: {
     updateOrCreate() {
-      return updateCreateMapping[this.type.substr(this.type.indexOf(':') + 1)];
+      const updateCreateMapping = {
+        update: '更新',
+        create: '新建',
+      };
+      return updateCreateMapping[this.operationType];
     },
-    dbType() {
-      return this.type.substr(0, this.type.indexOf(':'));
+    type() {
+      return `${this.dbType}:${this.operationType}`;
     },
-    operationType() {
-      return this.type.substr(this.type.indexOf(':') + 1);
+    _visible: {
+      get() {
+        return this.operationType === '' ? false : true;
+      },
+      set(value) {
+        if (!value) {
+          this.$emit('update:operationType', '');
+        }
+      },
     },
   },
   watch: {
-    // 不得已做的一个双向绑定 暂时没有更好的选择
-    dialogVisible(value) {
-      this.$emit('update:visible', value);
-    },
-    visible(value) {
-      this.dialogVisible = value;
-      // modal可见时，初始化originData
+    operationType(value) {
       if (value) {
         this.originData = { ...this.selectedDb };
+      } else {
+        this.originData = {};
       }
     },
   },
@@ -102,11 +103,19 @@ const vm = {
         .then(res => {
           if (this.operationType === 'create') {
             const { data: db } = res.data;
+            // this.$refs['theForm'].resetFields();
+            // this.$emit('update:selectedDb', this.originData);
             this.onCreateComplete(db);
+          } else {
+            const { data: db } = res.data;
+            // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+            db.id = this.selectedDb.id;
+            this.onUpdateComplete(db);
           }
         })
         .then(() => {
-          this.$emit('update:visible', false);
+          this.$emit('update:operationType', '');
+          // this.$emit('update:visible', false);
         })
         .catch(error => {
           this.$message({
@@ -116,8 +125,12 @@ const vm = {
         });
     },
     cancel() {
-      this.$refs['theForm'].resetFields();
-      this.$emit('update:visible', false);
+      if (this.operationType === 'update') {
+        this.$emit('update:selectedDb', this.originData);
+        // this.$refs['theForm'].resetFields();
+      }
+      this.$emit('update:operationType', '');
+      // this.$emit('update:visible', false);
     },
     // 退出之前，判断是否有未保存的修改
     beforeClose(done) {
@@ -130,7 +143,8 @@ const vm = {
           cancelButtonText: '取消',
         })
           .then(() => {
-            this.$refs['theForm'].resetFields();
+            this.$emit('update:selectedDb', this.originData);
+            // this.$refs['theForm'].resetFields();
             done();
           })
           .catch(() => {});
