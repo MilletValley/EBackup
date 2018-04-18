@@ -8,7 +8,9 @@
     <el-table :data="oracles" style="width: 100%">
       <el-table-column label="数据库名称" width="200">
         <template slot-scope="scope">
-          <el-button type="text">{{scope.row.instanceName}}</el-button>
+          <el-button type="text">
+            <router-link :to="`/db/oracle/${scope.row.id}`">{{scope.row.instanceName}}</router-link>
+          </el-button>
         </template>
       </el-table-column>
       <el-table-column prop="hostName" label="主机名" width="200"></el-table-column>

@@ -94,6 +94,10 @@ export default {
   color: #333;
   line-height: 60px;
   box-shadow: 1px 1px #eeeeee;
+  position: relative;
+}
+.el-main {
+  background-color: #f0f2f5;
 }
 .el-aside {
   color: #333;

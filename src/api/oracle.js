@@ -39,4 +39,25 @@ const deleteSome = ids =>
     data: ids,
   });
 
-export { fetchAll, fetchOne, createOne, deleteOne, deleteSome, modifyOne };
+const fetchBackupPlans = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${id}/backup-plans`,
+  });
+
+const fetchBackupResults = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${id}/results`,
+  });
+
+export {
+  fetchAll,
+  fetchOne,
+  createOne,
+  deleteOne,
+  deleteSome,
+  modifyOne,
+  fetchBackupPlans,
+  fetchBackupResults,
+};
