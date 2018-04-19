@@ -6,14 +6,14 @@
       </el-form-item>
     </el-form>
     <el-table :data="oracles" style="width: 100%">
-      <el-table-column label="数据库名称" width="200">
+      <el-table-column label="数据库名称" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`/db/oracle/${scope.row.id}`">{{scope.row.instanceName}}</router-link>
+            <router-link :to="`/db/oracle/${scope.row.id}`" class="name-link">{{scope.row.instanceName}}</router-link>
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="hostName" label="主机名" width="200"></el-table-column>
+      <el-table-column prop="hostName" label="主机名" width="200" align="center"></el-table-column>
       <el-table-column prop="hostIp" label="主机IP" width="200"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -112,6 +112,10 @@ export default {
 };
 </script>
 <style>
+.name-link {
+  color: #409eff;
+  text-decoration: none;
+}
 .cell button.ws-mini {
   padding: 7px;
 }

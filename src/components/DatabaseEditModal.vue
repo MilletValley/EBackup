@@ -4,7 +4,7 @@
       <span slot="title">
         {{ updateOrCreate }}数据库
       </span>
-      <el-form :model="selectedDb" label-width="100px" ref="theForm">
+      <el-form :model="selectedDb" :rules="rules" label-width="110px" ref="theForm">
         <el-form-item label="ID" v-if="operationType === 'update'">
           <el-input v-model="selectedDb.id" disabled></el-input>
         </el-form-item>
@@ -20,7 +20,7 @@
         <el-form-item label="所属业务系统" prop="application">
           <el-input v-model="selectedDb.application"></el-input>
         </el-form-item>
-        <el-form-item label="数据库实例名" prop="instanceName">
+        <el-form-item label="实例名" prop="instanceName">
           <el-input v-model="selectedDb.instanceName"></el-input>
         </el-form-item>
         <el-form-item label="数据库版本" prop="dbVersion">
@@ -64,6 +64,32 @@ const vm = {
     return {
       // dialogVisible: this.visible,
       originData: {}, // 原始值
+      rules: {
+        hostName: [
+          { required: true, message: '请输入主机名', trigger: 'blur' },
+          { min: 3, max: 20, message: '长度在3到20个字符', trigger: 'blur' },
+        ],
+        hostIp: [
+          { required: true, message: '请输入主机IP', trigger: 'blur' },
+          {
+            pattern:
+              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+            message: 'IP地址不正确',
+            trigger: 'blur',
+          },
+        ],
+        instanceName: [
+          { required: true, message: '请输入数据库实例名', trigger: 'blur' },
+          { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
+        ],
+        loginName: [
+          { required: true, message: '请输入数据库登录账号', trigger: 'blur' },
+          { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
+        ],
+        password: [
+          { required: true, message: '请输入数据库登录密码', trigger: 'blur' },
+        ],
+      },
     };
   },
   computed: {
@@ -99,30 +125,37 @@ const vm = {
   },
   methods: {
     confirm() {
-      requestMapping[this.type](this.selectedDb)
-        .then(res => {
-          if (this.operationType === 'create') {
-            const { data: db } = res.data;
-            // this.$refs['theForm'].resetFields();
-            // this.$emit('update:selectedDb', this.originData);
-            this.onCreateComplete(db);
-          } else {
-            const { data: db } = res.data;
-            // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-            db.id = this.selectedDb.id;
-            this.onUpdateComplete(db);
-          }
-        })
-        .then(() => {
-          this.$emit('update:operationType', '');
-          // this.$emit('update:visible', false);
-        })
-        .catch(error => {
-          this.$message({
-            type: 'error',
-            error,
-          });
-        });
+      this.$refs['theForm'].validate(valid => {
+        if (valid) {
+          requestMapping[this.type](this.selectedDb)
+            .then(res => {
+              if (this.operationType === 'create') {
+                const { data: db } = res.data;
+                // this.$emit('update:selectedDb', this.originData);
+                this.onCreateComplete(db);
+                this.$refs['theForm'].clearValidate();
+              } else if (this.operationType === 'update') {
+                const { data: db } = res.data;
+                // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+                db.id = this.selectedDb.id;
+                this.onUpdateComplete(db);
+                this.$refs['theForm'].clearValidate();
+              }
+            })
+            .then(() => {
+              this.$emit('update:operationType', '');
+              // this.$emit('update:visible', false);
+            })
+            .catch(error => {
+              this.$message({
+                type: 'error',
+                error,
+              });
+            });
+        } else {
+          return false;
+        }
+      });
     },
     cancel() {
       if (this.operationType === 'update') {
@@ -130,11 +163,12 @@ const vm = {
         // this.$refs['theForm'].resetFields();
       }
       this.$emit('update:operationType', '');
-      // this.$emit('update:visible', false);
+      this.$refs['theForm'].clearValidate();
     },
     // 退出之前，判断是否有未保存的修改
     beforeClose(done) {
       if (isEqual(this.selectedDb, this.originData)) {
+        this.$refs['theForm'].clearValidate();
         done();
       } else {
         this.$confirm('有未保存的修改，是否退出？', {
@@ -144,7 +178,7 @@ const vm = {
         })
           .then(() => {
             this.$emit('update:selectedDb', this.originData);
-            // this.$refs['theForm'].resetFields();
+            this.$refs['theForm'].clearValidate();
             done();
           })
           .catch(() => {});
