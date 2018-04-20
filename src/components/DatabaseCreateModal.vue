@@ -2,11 +2,11 @@
   <section>
     <el-dialog :visible.sync="_visible" :before-close="beforeClose">
       <span slot="title">
-        {{ updateOrCreate }}数据库
+        添加数据库
       </span>
       <el-form :model="theData" :rules="rules" label-width="110px" ref="theForm">
-        <el-form-item label="ID" v-if="operationType === 'update'">
-          <el-input v-model="theData.id" disabled></el-input>
+        <el-form-item label="数据库名" prop="name">
+          <el-input v-model="theData.name"></el-input>
         </el-form-item>
         <el-form-item label="主机名" prop="hostName">
           <el-input v-model="theData.hostName"></el-input>
@@ -47,13 +47,12 @@ import InputToggle from '@/components/InputToggle';
 import { modifyOne, createOne } from '../api/oracle';
 
 const requestMapping = {
-  'oracle:update': data => modifyOne(data),
-  'oracle:create': data => createOne(data),
-  'sqlserver:update': () => {},
-  'sqlserver:create': () => {},
+  oracle: data => createOne(data),
+
+  sqlserver: () => {},
 };
 const vm = {
-  name: 'DatabaseEditModal',
+  name: 'DatabaseCreateModal',
   model: {
     prop: 'selectedDb',
     event: 'change-selectedDb',
@@ -63,8 +62,8 @@ const vm = {
       type: String,
       required: true,
     },
-    operationType: {
-      type: String,
+    visible: {
+      type: Boolean,
       required: true,
     },
     selectedDb: Object,
@@ -74,6 +73,10 @@ const vm = {
       originData: {}, // 原始值
       theData: {},
       rules: {
+        name: [
+          { required: true, message: '请输入数据库名', trigger: 'blur' },
+          { min: 3, max: 20, message: '长度在3到20个字符', trigger: 'blur' },
+        ],
         hostName: [
           { required: true, message: '请输入主机名', trigger: 'blur' },
           { min: 3, max: 20, message: '长度在3到20个字符', trigger: 'blur' },
@@ -102,44 +105,15 @@ const vm = {
     };
   },
   computed: {
-    updateOrCreate() {
-      const updateCreateMapping = {
-        update: '更新',
-        create: '新建',
-      };
-      return updateCreateMapping[this.operationType];
-    },
-    type() {
-      return `${this.dbType}:${this.operationType}`;
-    },
     _visible: {
       get() {
-        return this.operationType === '' ? false : true;
+        return this.visible;
       },
       set(value) {
         if (!value) {
-          this.$emit('update:operationType', '');
+          this.$emit('update:visible', value);
         }
       },
-    },
-  },
-  watch: {
-    operationType(value) {
-      if (value) {
-        // modal显示
-        this.originData = { ...this.selectedDb };
-        this.theData = this.selectedDb;
-      } else {
-        // modal隐藏
-        this.originData = {};
-        this.theData = {};
-      }
-    },
-    selectedDb: {
-      handler(val, oldVal) {
-        // this.theData = val;
-      },
-      // deep: true,
     },
   },
   methods: {
@@ -147,22 +121,15 @@ const vm = {
     confirm() {
       this.$refs['theForm'].validate(valid => {
         if (valid) {
-          requestMapping[this.type](this.selectedDb)
+          requestMapping[this.dbType](this.theData)
             .then(res => {
-              if (this.operationType === 'create') {
-                const { data: db } = res.data;
-                this.$emit('createConfirm', db);
-              } else if (this.operationType === 'update') {
-                const { data: db } = res.data;
-                // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-                db.id = this.selectedDb.id;
-                this.$emit('updateConfirm', db);
-              }
-              this.$refs['theForm'].clearValidate();
+              const { data: db } = res.data;
+              this.$emit('confirm', db);
+              this.$refs['theForm'].resetFields();
             })
             .then(() => {
-              this.$emit('update:operationType', '');
-              this.$emit('change-selectedDb', this.originData);
+              this.$emit('update:visible', false);
+              // this.$emit('change-selectedDb', this.originData);
               this.theData = {};
             })
             .catch(error => {
@@ -179,7 +146,7 @@ const vm = {
     // 点击取消按钮触发
     cancel() {
       this.hasModifiedBeforeClose(() => {
-        this.$emit('update:operationType', ''); // 关闭modal
+        this.$emit('update:visible', false); // 关闭modal
       });
     },
     // 退出之前，判断是否有未保存的修改
@@ -188,20 +155,19 @@ const vm = {
     },
     hasModifiedBeforeClose(fn) {
       if (isEqual(this.theData, this.originData)) {
-        this.$emit('change-selectedDb', this.originData); // 清空数据
         this.theData = {};
-        this.$refs['theForm'].clearValidate();
+        this.$refs['theForm'].resetFields();
         fn();
       } else {
+        console.log(!this.theDate, Object.keys(this.theData));
         this.$confirm('有未保存的修改，是否退出？', {
           type: 'warning',
           confirmButtonText: '确定',
           cancelButtonText: '取消',
         })
           .then(() => {
-            this.$emit('change-selectedDb', this.originData); // 清空数据
             this.theData = {};
-            this.$refs['theForm'].clearValidate();
+            this.$refs['theForm'].resetFields();
             fn();
           })
           .catch(() => {});

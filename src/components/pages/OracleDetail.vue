@@ -53,7 +53,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <db-edit-modal db-type="oracle" :operation-type.sync="dbEditModal" v-model="oracleEdit" @updateConfirm="updateOracle"></db-edit-modal>
+        <db-update-modal db-type="oracle" :visible.sync="dbEditModal" :database-info="oracle" @confirm="updateOracle"></db-update-modal>
       </div>
     </header>
     <el-tabs v-model="activeTab">
@@ -95,7 +95,7 @@
                   </el-form-item>
                   <el-form-item label="间隔" v-if="backupConfig.timeStrategy === 4" style="width: 100%">
                     <div>
-                      <el-tag>{{backupConfig.timeInterval}}</el-tag>
+                      <el-tag size="small">{{backupConfig.timeInterval}}小时</el-tag>
                     </div>
                   </el-form-item>
                   <el-form-item label="备份路径">
@@ -115,7 +115,8 @@
                   </li>
                   <li>
                     <h5>已持续时间</h5>
-                    <div>{{backupOperation.consume || '-'}}</div>
+                    <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div>
+                    <div v-else>-</div>
                   </li>
                   <li>
                     <h5>已备份大小</h5>
@@ -154,7 +155,7 @@
                   <span>{{ stateConverter(scope.row.state) }}</span>
                 </el-form-item>
                 <el-form-item label="持续时间">
-                  <span>{{ scope.row.consume }}</span>
+                  <span>{{ scope.row.consume | durationFilter }}</span>
                 </el-form-item>
               </el-form>
             </template>
@@ -163,7 +164,7 @@
           <el-table-column label="文件名" prop="fileName" width="180px" align="center"></el-table-column>
           <el-table-column label="开始时间" prop="startTime" min-width="200px" align="center"></el-table-column>
           <el-table-column label="结束时间" prop="endTime" min-width="200px" align="center"></el-table-column>
-          <el-table-column label="大小" prop="size" width="70px" :formatter="sizeFormatter" align="center"></el-table-column>
+          <el-table-column label="大小" prop="size" width="70px" align="center"></el-table-column>
           <el-table-column label="状态" prop="state" width="70px" align="center">
             <template slot-scope="scope">
               <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
@@ -181,8 +182,9 @@
   </section>
 </template>
 <script>
+import moment from 'moment';
 import IIcon from '@/components/IIcon';
-import DatabaseEditModal from '@/components/DatabaseEditModal';
+import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import { deleteBackupPlan } from '../../api/database';
 import {
   fetchOne,
@@ -208,7 +210,7 @@ export default {
       backupConfig: {}, // 备份配置数据
       backupOperation: {}, // 备份操作数据
       results: [], // 备份集
-      dbEditModal: '',
+      dbEditModal: false,
     };
   },
   computed: {
@@ -226,7 +228,7 @@ export default {
     },
     oracleEdit: {
       get() {
-        return Object.assign({}, this.oracle);
+        return this.oracle;
       },
       set(value) {},
     },
@@ -259,9 +261,6 @@ export default {
           });
         });
     },
-    sizeFormatter(row, column, cellValue) {
-      return `${(cellValue / 1024).toFixed(2)}M`;
-    },
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
     },
@@ -284,15 +283,26 @@ export default {
         .catch(() => {});
     },
     dbEditBtnClick() {
-      this.dbEditModal = 'update';
+      this.dbEditModal = true;
     },
     updateOracle(db) {
       this.oracle = db;
     },
   },
+  filters: {
+    durationFilter(value) {
+      const duration = moment.duration(value, 's');
+      const h = duration.get('h');
+      const m = duration.get('m');
+      const s = duration.get('s');
+      return `${h ? h + '小时' : ''} ${m ? m + '分' : ''} ${
+        s ? s + '秒' : ''
+      } `;
+    },
+  },
   components: {
     'i-icon': IIcon,
-    'db-edit-modal': DatabaseEditModal,
+    'db-update-modal': DatabaseUpdateModal,
   },
 };
 </script>

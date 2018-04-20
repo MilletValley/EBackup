@@ -23,20 +23,24 @@
         </template>
       </el-table-column>
     </el-table>
-    <db-edit-modal db-type="oracle" :operation-type.sync="operationType" v-model="selectedDb" @createConfirm="createOracle" @updateConfirm="updateOracle"></db-edit-modal>
+    <db-create-modal db-type="oracle" :visible.sync="createModalVisible" @confirm="createOracle"></db-create-modal>
+    <db-update-modal db-type="oracle" :visible.sync="updateModalVisible" :database-info="selectedDb" @confirm="updateOracle"></db-update-modal>
   </section>
 </template>
 <script>
-import DatabaseEditForm from '../DatabaseEditModal.vue';
+import DatabaseCreateModal from '@/components/DatabaseCreateModal';
+import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import { fetchAll, deleteOne } from '../../api/oracle';
+
 export default {
   name: 'Oracle',
   props: {},
   data() {
     return {
       oracles: [],
-      operationType: '', // update or create
       selectedId: '',
+      createModalVisible: false,
+      updateModalVisible: false,
     };
   },
   computed: {
@@ -45,12 +49,9 @@ export default {
       get() {
         return this.selectedId === ''
           ? {}
-          : Object.assign(
-              {},
-              this.oracles.filter(db => db.id === this.selectedId)[0]
-            );
+          : this.oracles.filter(db => db.id === this.selectedId)[0];
       },
-      set(data) {
+      set() {
         this.selectedId = '';
       },
     },
@@ -74,17 +75,15 @@ export default {
         });
     },
     selectOne({ row: db }) {
-      this.operationType = 'update';
       this.selectedId = db.id;
+      this.updateModalVisible = true;
     },
     showModalForCreate() {
-      this.operationType = 'create';
-      // this.selectedId = '';
+      this.createModalVisible = true;
     },
     // 新增成功后的回调
     createOracle(data) {
       this.oracles.push(data);
-      this.selectedId = '';
     },
     deleteOracle({ row: db, $index }) {
       this.$confirm('确认删除此数据库?', '提示', {
@@ -107,10 +106,14 @@ export default {
       const { id } = data;
       // 使用splice替换oracles列表中被选中的记录
       this.oracles.splice(this.oracles.findIndex(db => db.id === id), 1, data);
-      // this.selectedId = '';
+      this.selectedId = '';
     },
   },
-  components: { 'db-edit-modal': DatabaseEditForm },
+  components: {
+    // 'db-edit-modal': DatabaseEditForm,
+    'db-create-modal': DatabaseCreateModal,
+    'db-update-modal': DatabaseUpdateModal,
+  },
 };
 </script>
 <style>
