@@ -7,10 +7,10 @@
 export default {
   name: 'IIcon',
   props: ['name'],
-  data() {
-    return {
-      iconName: `#icon-${this.name}`,
-    };
+  computed: {
+    iconName() {
+      return `#icon-${this.name}`;
+    },
   },
 };
 </script>
