@@ -3,6 +3,11 @@ const operationStateMapping = {
   2: '状态2',
 };
 
+const backupResultMapping = {
+  0: '成功',
+  1: '失败',
+};
+
 const backupStrategyMapping = {
   0: '全备',
   1: '全备+增备',
@@ -32,4 +37,5 @@ export {
   backupStrategyMapping,
   timeStrategyMapping,
   weekMapping,
+  backupResultMapping,
 };
