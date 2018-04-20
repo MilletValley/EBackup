@@ -2,180 +2,133 @@
   <section>
     <header class="detail-header">
       <div class="db-content">
-        <el-row type="flex" align="middle">
-          <el-col :span="8" class="title">
-            <h1>数据库名称标识</h1>
+        <!-- <div style="width: 50px; float: left;">
+          <i-icon name="oracle"></i-icon>
+        </div> -->
+        <el-row type="flex" justify="end">
+          <el-col :span="1">
+            <i-icon name="oracle"></i-icon>
           </el-col>
-          <el-col :span="8" :offset="16" class="action">
-            <el-button-group>
-              <el-button size="mini">操作1</el-button>
-              <el-button size="mini">操作2</el-button>
-            </el-button-group>
+          <el-col :span="23">
+            <el-row type="flex" align="middle">
+              <el-col :span="8" class="title">
+                <h1>{{oracle.name}}</h1>
+              </el-col>
+              <el-col :span="12" :offset="12" class="action">
+                <el-button-group>
+                  <el-button size="mini">操作1</el-button>
+                  <el-button size="mini">操作2</el-button>
+                </el-button-group>
+                <el-button size="mini" type="primary" @click="dbEditBtnClick">编辑</el-button>
+              </el-col>
+            </el-row>
+            <el-form v-loading="databaseInfoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
+              <el-form-item label="Oracle版本">
+                <span>{{ oracle.dbVersion }}</span>
+              </el-form-item>
+              <el-form-item label="数据库实例">
+                <span>{{ oracle.instanceName }}</span>
+              </el-form-item>
+              <el-form-item label="归档模式：">
+                <span>ARCHIVELOG</span>
+              </el-form-item>
+              <el-form-item label="数据库账号：">
+                <span>{{ oracle.loginName }}</span>
+              </el-form-item>
+              <el-form-item label="数据库密码：">
+                <span>{{ oracle.password }}</span>
+              </el-form-item>
+              <el-form-item label="主机名：">
+                <span>{{ oracle.hostName }}</span>
+              </el-form-item>
+              <el-form-item label="操作系统：">
+                <span>{{ oracle.osName }}</span>
+              </el-form-item>
+              <el-form-item label="主机IP：">
+                <span>{{ oracle.hostIp }}</span>
+              </el-form-item>
+              <el-form-item label="所属系统：">
+                <span>{{ oracle.application }}</span>
+              </el-form-item>
+            </el-form>
           </el-col>
         </el-row>
-        <el-form v-loading="databaseInfoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
-          <el-form-item label="Oracle版本">
-            <span>{{ oracle.dbVersion }}</span>
-          </el-form-item>
-          <el-form-item label="数据库实例">
-            <span>{{ oracle.instanceName }}</span>
-          </el-form-item>
-          <el-form-item label="归档模式：">
-            <span>ARCHIVELOG</span>
-          </el-form-item>
-          <el-form-item label="数据库账号：">
-            <span>{{ oracle.loginName }}</span>
-          </el-form-item>
-          <el-form-item label="数据库密码：">
-            <span>{{ oracle.password }}</span>
-          </el-form-item>
-          <el-form-item label="主机名：">
-            <span>{{ oracle.hostName }}</span>
-          </el-form-item>
-          <el-form-item label="操作系统：">
-            <span>{{ oracle.osName }}</span>
-          </el-form-item>
-          <el-form-item label="主机IP：">
-            <span>{{ oracle.hostIp }}</span>
-          </el-form-item>
-          <el-form-item label="所属系统：">
-            <span>{{ oracle.application }}</span>
-          </el-form-item>
-        </el-form>
-        <!-- <el-row type="flex">
-          <el-col :span="8">
-            <div class="info">
-              <h4>Oracle版本：</h4>
-              <span>{{oracle.dbVersion}}</span>
-            </div>
-            <div class="info">
-              <h4>数据库实例：</h4>
-              <span>{{oracle.instanceName}}</span>
-            </div>
-            <div class="info">
-              <h4>归档模式：</h4>
-              <span>ARCHIVELOG</span>
-            </div>
-            <div class="info">
-              <h4>数据库账号：</h4>
-              <span>{{oracle.loginName}}</span>
-            </div>
-            <div class="info">
-              <h4>数据库密码：</h4>
-              <span>{{oracle.password}}</span>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div class="info">
-              <h4>主机名：</h4>
-              <span>{{oracle.hostName}}</span>
-            </div>
-            <div class="info">
-              <h4>操作系统：</h4>
-              <span>{{oracle.osName}}</span>
-            </div>
-            <div class="info">
-              <h4>主机IP：</h4>
-              <span>{{oracle.hostIp}}</span>
-            </div>
-            <div class="info">
-              <h4>所属系统：</h4>
-              <span>{{oracle.application}}</span>
-            </div>
-          </el-col>
-          <el-col :span="8"></el-col>
-        </el-row> -->
+        <db-edit-modal db-type="oracle" :operation-type.sync="dbEditModal" v-model="oracleEdit" @updateConfirm="updateOracle"></db-edit-modal>
       </div>
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
         <main>
-          <el-card class="backup-card">
+          <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id">
             <div slot="header" class="clearfix">
-              <span>备份配置001</span>
-              <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+              <span>{{backupOperation.name}}</span>
+              <el-button style="float: right; padding: 3px 0" type="text" @click="planDeleteBtnClick">删除</el-button>
+              <el-button style="float: right; padding: 3px 3px" type="text">编辑</el-button>
             </div>
+
             <el-row type="flex">
               <el-col :span="18">
-                <div class="info" style="margin-bottom: 15px">
-                  <h4>计划开始时间:</h4>
-                  <span>{{backupConfig.startTime}}</span>
-                </div>
-                <el-row type="flex">
-                  <!-- <el-col :span="8">
-                
-              </el-col> -->
-                  <el-col :span="10">
-                    <div class="info">
-                      <h4>备份策略:</h4>
-                      <span>{{backupStrategy}}</span>
+                <el-form inline label-width="100px" size="mini">
+                  <el-form-item label="计划开始时间" style="width: 100%">
+                    <span>{{ backupConfig.startTime }}</span>
+                  </el-form-item>
+                  <el-form-item label="备份策略" style="width: 40%">
+                    <span>{{ backupStrategy }}</span>
+                  </el-form-item>
+                  <el-form-item label="时间策略" style="width: 40%">
+                    <span>{{ timeStrateg }}</span>
+                  </el-form-item>
+                  <el-form-item label="星期" v-if="backupConfig.timeStrategy === 2" style="width: 100%">
+                    <div>
+                      <el-tag v-for="point in weekPoints" :key="point" size="small">{{point}}</el-tag>
                     </div>
-                  </el-col>
-                  <el-col :span="10">
-                    <div class="info">
-                      <h4>时间策略:</h4>
-                      <span>{{timeStrateg}}</span>
+                  </el-form-item>
+                  <el-form-item label="日期" v-if="backupConfig.timeStrategy === 3" style="width: 100%">
+                    <div>
+                      <el-tag v-for="point in backupConfig.datePoints" :key="point" size="small">{{point}}</el-tag>
                     </div>
-                  </el-col>
-                </el-row>
-                <div v-if="backupConfig.timeStrategy === 0" class="single points">
-                  <h4>星期：</h4>
-                  <div>
-                    <el-tag>2018-04-21 14:00</el-tag>
-                  </div>
-                </div>
-                <div v-if="backupConfig.timeStrategy === 2" class="weeks points">
-                  <h4>星期：</h4>
-                  <div>
-                    <el-tag v-for="point in weekPoints" :key="point" size="small">{{point}}</el-tag>
-                  </div>
-                </div>
-                <div v-if="backupConfig.timeStrategy === 3" class="days points">
-                  <h4>日期：</h4>
-                  <div>
-                    <el-tag v-for="point in backupConfig.datePoints" :key="point" size="small">{{point}}</el-tag>
-                  </div>
-                </div>
-                <div v-if="[1,2,3].indexOf(backupConfig.timeStrategy) >= 0" class="times points">
-                  <h4>时间：</h4>
-                  <div>
-                    <el-tag v-for="point in backupConfig.timePoints" :key="point" size="small">{{point}}</el-tag>
-                  </div>
-                </div>
-                <div v-if="backupConfig.timeStrategy === 4" class="interval points">
-                  <h4>间隔：</h4>
-                  <div>
-                    <el-tag>{{backupConfig.timeInterval}}</el-tag>
-                  </div>
-                </div>
+                  </el-form-item>
+                  <el-form-item label="时间" v-if="[1,2,3].indexOf(backupConfig.timeStrategy) >= 0" style="width: 100%">
+                    <div>
+                      <el-tag v-for="point in backupConfig.timePoints" :key="point" size="small">{{point}}</el-tag>
+                    </div>
+                  </el-form-item>
+                  <el-form-item label="间隔" v-if="backupConfig.timeStrategy === 4" style="width: 100%">
+                    <div>
+                      <el-tag>{{backupConfig.timeInterval}}</el-tag>
+                    </div>
+                  </el-form-item>
+                  <el-form-item label="备份路径">
+                    <span>{{ backupConfig.backupUrl }}</span>
+                  </el-form-item>
+                </el-form>
               </el-col>
               <el-col :span="6" class="operation-info">
                 <ul style="list-style: none">
                   <li>
                     <h5>当前状态</h5>
-                    <div>{{operationState}}</div>
+                    <div>{{operationState || '-'}}</div>
                   </li>
                   <li>
                     <h5>备份开始时间</h5>
-                    <div>{{backupOperation.startTime}}</div>
+                    <div>{{backupOperation.startTime || '备份未开始'}}</div>
                   </li>
                   <li>
                     <h5>已持续时间</h5>
-                    <div>{{backupOperation.consume}}</div>
+                    <div>{{backupOperation.consume || '-'}}</div>
                   </li>
                   <li>
                     <h5>已备份大小</h5>
-                    <div>{{backupOperation.size}}</div>
+                    <div>{{backupOperation.size || '-'}}</div>
                   </li>
                 </ul>
-
               </el-col>
             </el-row>
           </el-card>
         </main>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
-        <el-table :data="results" style="width: 100%; margin-top: 15px">
+        <el-table :data="results" style="width: 100%; margin-top: 15px" :default-sort="{ prop: 'startTime', order: 'descending' }">
           <el-table-column type="expand">
             <template slot-scope="scope">
               <el-form inline label-width="70px" size="small" class="result-detail-form">
@@ -198,7 +151,7 @@
                   <span>{{ scope.row.endTime }}</span>
                 </el-form-item>
                 <el-form-item label="状态">
-                  <span>{{ scope.row.state }}</span>
+                  <span>{{ stateConverter(scope.row.state) }}</span>
                 </el-form-item>
                 <el-form-item label="持续时间">
                   <span>{{ scope.row.consume }}</span>
@@ -228,6 +181,9 @@
   </section>
 </template>
 <script>
+import IIcon from '@/components/IIcon';
+import DatabaseEditModal from '@/components/DatabaseEditModal';
+import { deleteBackupPlan } from '../../api/database';
 import {
   fetchOne,
   fetchBackupPlans,
@@ -238,18 +194,21 @@ import {
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
+  backupResultMapping,
 } from '../../utils/constant';
+
 export default {
   name: 'OracleDetail',
   props: ['id'],
   data() {
     return {
-      databaseInfoLoading: true,
-      activeTab: 'plans',
-      oracle: {},
-      backupConfig: {},
-      backupOperation: {},
-      results: [],
+      databaseInfoLoading: true, // 数据库信息loading
+      activeTab: 'plans', // 激活的tab页
+      oracle: {}, // 数据库信息
+      backupConfig: {}, // 备份配置数据
+      backupOperation: {}, // 备份操作数据
+      results: [], // 备份集
+      dbEditModal: '',
     };
   },
   computed: {
@@ -264,6 +223,12 @@ export default {
     },
     operationState() {
       return operationStateMapping[this.backupOperation.state];
+    },
+    oracleEdit: {
+      get() {
+        return Object.assign({}, this.oracle);
+      },
+      set(value) {},
     },
   },
   created() {
@@ -295,8 +260,39 @@ export default {
         });
     },
     sizeFormatter(row, column, cellValue) {
-      return (cellValue / 1024).toFixed(2) + 'M';
+      return `${(cellValue / 1024).toFixed(2)}M`;
     },
+    stateConverter(stateCode) {
+      return backupResultMapping[stateCode];
+    },
+    planDeleteBtnClick() {
+      this.$confirm('即将删除该备份计划，是否继续？', '提示', {
+        type: 'warning',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      })
+        .then(() => {
+          deleteBackupPlan(this.id).then(() => {
+            this.backupConfig = {};
+            this.backupOperation = {};
+            this.$message({
+              type: 'success',
+              message: '删除成功',
+            });
+          });
+        })
+        .catch(() => {});
+    },
+    dbEditBtnClick() {
+      this.dbEditModal = 'update';
+    },
+    updateOracle(db) {
+      this.oracle = db;
+    },
+  },
+  components: {
+    'i-icon': IIcon,
+    'db-edit-modal': DatabaseEditModal,
   },
 };
 </script>
@@ -305,6 +301,12 @@ export default {
   background-color: #ffffff;
   margin: -20px -20px 0 -20px;
   padding: 10px 10px 50px 10px;
+}
+.icon {
+  position: relative;
+  top: 12px;
+  right: 10px;
+  font-size: 1.7em;
 }
 .db-content {
   margin-left: 20px;
@@ -318,32 +320,16 @@ export default {
   margin-bottom: 0;
   width: 40%;
 }
-h4 {
-  font-weight: 400;
-  margin: 5px;
-  width: 100px;
-  display: inline-block;
-}
 .el-tabs {
   margin-top: -39px;
 }
 .backup-card {
   margin-top: 15px;
 }
-.backup-card h4 {
-  width: 110px;
-  text-align: center;
-}
-.points {
-  margin-top: 15px;
-}
-.points div {
-  display: inline-block;
-}
 .operation-info h5 {
   font-weight: 400;
   color: #888888;
-  margin: 5px 0;
+  margin: 4px 0;
   text-align: right;
 }
 .operation-info div {
@@ -355,7 +341,7 @@ h4 {
   margin: 0;
 }
 .operation-info li {
-  margin: 5px 0;
+  margin: 10px 0;
 }
 /* 标签之间的间隔在for循环下消失了 */
 .el-tag {

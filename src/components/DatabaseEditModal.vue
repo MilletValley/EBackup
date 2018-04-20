@@ -4,33 +4,33 @@
       <span slot="title">
         {{ updateOrCreate }}数据库
       </span>
-      <el-form :model="selectedDb" :rules="rules" label-width="110px" ref="theForm">
+      <el-form :model="theData" :rules="rules" label-width="110px" ref="theForm">
         <el-form-item label="ID" v-if="operationType === 'update'">
-          <el-input v-model="selectedDb.id" disabled></el-input>
+          <el-input v-model="theData.id" disabled></el-input>
         </el-form-item>
         <el-form-item label="主机名" prop="hostName">
-          <el-input v-model="selectedDb.hostName"></el-input>
+          <el-input v-model="theData.hostName"></el-input>
         </el-form-item>
         <el-form-item label="主机IP" prop="hostIp">
-          <el-input v-model="selectedDb.hostIp"></el-input>
+          <el-input v-model="theData.hostIp"></el-input>
         </el-form-item>
         <el-form-item label="操作系统" prop="osName">
-          <el-input v-model="selectedDb.osName"></el-input>
+          <el-input v-model="theData.osName"></el-input>
         </el-form-item>
         <el-form-item label="所属业务系统" prop="application">
-          <el-input v-model="selectedDb.application"></el-input>
+          <el-input v-model="theData.application"></el-input>
         </el-form-item>
         <el-form-item label="实例名" prop="instanceName">
-          <el-input v-model="selectedDb.instanceName"></el-input>
+          <el-input v-model="theData.instanceName"></el-input>
         </el-form-item>
         <el-form-item label="数据库版本" prop="dbVersion">
-          <el-input v-model="selectedDb.dbVersion"></el-input>
+          <el-input v-model="theData.dbVersion"></el-input>
         </el-form-item>
         <el-form-item label="数据库登录名" prop="loginName">
-          <el-input v-model="selectedDb.loginName"></el-input>
+          <el-input v-model="theData.loginName"></el-input>
         </el-form-item>
         <el-form-item label="数据库密码" prop="password">
-          <el-input v-model="selectedDb.password"></el-input>
+          <input-toggle v-model="theData.password"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -43,6 +43,7 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import clone from 'lodash/clone';
+import InputToggle from '@/components/InputToggle';
 import { modifyOne, createOne } from '../api/oracle';
 
 const requestMapping = {
@@ -53,17 +54,25 @@ const requestMapping = {
 };
 const vm = {
   name: 'DatabaseEditModal',
+  model: {
+    prop: 'selectedDb',
+    event: 'change-selectedDb',
+  },
   props: {
-    dbType: String,
-    operationType: String,
+    dbType: {
+      type: String,
+      required: true,
+    },
+    operationType: {
+      type: String,
+      required: true,
+    },
     selectedDb: Object,
-    onCreateComplete: Function,
-    onUpdateComplete: Function,
   },
   data() {
     return {
-      // dialogVisible: this.visible,
       originData: {}, // 原始值
+      theData: {},
       rules: {
         hostName: [
           { required: true, message: '请输入主机名', trigger: 'blur' },
@@ -117,13 +126,24 @@ const vm = {
   watch: {
     operationType(value) {
       if (value) {
+        // modal显示
         this.originData = { ...this.selectedDb };
+        this.theData = this.selectedDb;
       } else {
+        // modal隐藏
         this.originData = {};
+        this.theData = {};
       }
+    },
+    selectedDb: {
+      handler(val, oldVal) {
+        // this.theData = val;
+      },
+      // deep: true,
     },
   },
   methods: {
+    // 点击确认按钮触发
     confirm() {
       this.$refs['theForm'].validate(valid => {
         if (valid) {
@@ -131,20 +151,19 @@ const vm = {
             .then(res => {
               if (this.operationType === 'create') {
                 const { data: db } = res.data;
-                // this.$emit('update:selectedDb', this.originData);
-                this.onCreateComplete(db);
-                this.$refs['theForm'].clearValidate();
+                this.$emit('createConfirm', db);
               } else if (this.operationType === 'update') {
                 const { data: db } = res.data;
                 // FIXME: mock数据保持id一致，生产环境必须删除下面一行
                 db.id = this.selectedDb.id;
-                this.onUpdateComplete(db);
-                this.$refs['theForm'].clearValidate();
+                this.$emit('updateConfirm', db);
               }
+              this.$refs['theForm'].clearValidate();
             })
             .then(() => {
               this.$emit('update:operationType', '');
-              // this.$emit('update:visible', false);
+              this.$emit('change-selectedDb', this.originData);
+              this.theData = {};
             })
             .catch(error => {
               this.$message({
@@ -157,19 +176,22 @@ const vm = {
         }
       });
     },
+    // 点击取消按钮触发
     cancel() {
-      if (this.operationType === 'update') {
-        this.$emit('update:selectedDb', this.originData);
-        // this.$refs['theForm'].resetFields();
-      }
-      this.$emit('update:operationType', '');
-      this.$refs['theForm'].clearValidate();
+      this.hasModifiedBeforeClose(() => {
+        this.$emit('update:operationType', ''); // 关闭modal
+      });
     },
     // 退出之前，判断是否有未保存的修改
     beforeClose(done) {
-      if (isEqual(this.selectedDb, this.originData)) {
+      this.hasModifiedBeforeClose(done);
+    },
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.theData, this.originData)) {
+        this.$emit('change-selectedDb', this.originData); // 清空数据
+        this.theData = {};
         this.$refs['theForm'].clearValidate();
-        done();
+        fn();
       } else {
         this.$confirm('有未保存的修改，是否退出？', {
           type: 'warning',
@@ -177,13 +199,17 @@ const vm = {
           cancelButtonText: '取消',
         })
           .then(() => {
-            this.$emit('update:selectedDb', this.originData);
+            this.$emit('change-selectedDb', this.originData); // 清空数据
+            this.theData = {};
             this.$refs['theForm'].clearValidate();
-            done();
+            fn();
           })
           .catch(() => {});
       }
     },
+  },
+  components: {
+    'input-toggle': InputToggle,
   },
 };
 export default vm;

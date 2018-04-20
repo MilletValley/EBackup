@@ -6,23 +6,24 @@
       </el-form-item>
     </el-form>
     <el-table :data="oracles" style="width: 100%">
-      <el-table-column label="数据库名称" width="200" align="center">
+      <el-table-column label="数据库名称" min-width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`/db/oracle/${scope.row.id}`" class="name-link">{{scope.row.instanceName}}</router-link>
+            <router-link :to="`/db/oracle/${scope.row.id}`" class="name-link">{{scope.row.name}}</router-link>
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="hostName" label="主机名" width="200" align="center"></el-table-column>
-      <el-table-column prop="hostIp" label="主机IP" width="200"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column prop="instanceName" label="数据库实例名" width="150" align="center"></el-table-column>
+      <el-table-column prop="hostName" label="主机名" min-width="200" align="center"></el-table-column>
+      <el-table-column prop="hostIp" label="主机IP" width="200" align="center"></el-table-column>
+      <el-table-column label="操作" width="100" header-align="center" align="right">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" circle size="mini" class="ws-mini" @click="selectOne(scope)"></el-button>
           <el-button type="danger" icon="el-icon-delete" circle size="mini" class="ws-mini" @click="deleteOracle(scope)"></el-button>
         </template>
       </el-table-column>
     </el-table>
-    <DatabaseEditForm db-type="oracle" :operation-type.sync="operationType" :selected-db.sync="selectedDb" :onCreateComplete="createOracle" :onUpdateComplete="updateOracle"></DatabaseEditForm>
+    <db-edit-modal db-type="oracle" :operation-type.sync="operationType" v-model="selectedDb" @createConfirm="createOracle" @updateConfirm="updateOracle"></db-edit-modal>
   </section>
 </template>
 <script>
@@ -78,11 +79,12 @@ export default {
     },
     showModalForCreate() {
       this.operationType = 'create';
-      this.selectedId = '';
+      // this.selectedId = '';
     },
     // 新增成功后的回调
     createOracle(data) {
       this.oracles.push(data);
+      this.selectedId = '';
     },
     deleteOracle({ row: db, $index }) {
       this.$confirm('确认删除此数据库?', '提示', {
@@ -92,7 +94,6 @@ export default {
       })
         .then(() => deleteOne(db.id))
         .then(() => {
-          console.log($index);
           this.oracles.splice($index, 1);
           this.$message({
             type: 'success',
@@ -106,9 +107,10 @@ export default {
       const { id } = data;
       // 使用splice替换oracles列表中被选中的记录
       this.oracles.splice(this.oracles.findIndex(db => db.id === id), 1, data);
+      // this.selectedId = '';
     },
   },
-  components: { DatabaseEditForm },
+  components: { 'db-edit-modal': DatabaseEditForm },
 };
 </script>
 <style>
