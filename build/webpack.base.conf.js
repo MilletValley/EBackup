@@ -11,10 +11,13 @@ function resolve(dir) {
 const createLintingRule = () => ({
   test: /\.(js|vue)$/,
   loader: 'eslint-loader',
+  // 保险起见，检测原始代码，而不是被其它loader修改后的代码
   enforce: 'pre',
   include: [resolve('src'), resolve('test')],
   options: {
     formatter: require('eslint-friendly-formatter'),
+    // If you're using hot module replacement, you may wish to enable this in development,
+    // or else updates will be skipped when there's an eslint error.
     emitWarning: !config.dev.showEslintErrorsInOverlay,
   },
 });
@@ -41,6 +44,7 @@ module.exports = {
   },
   module: {
     rules: [
+      // 先使用eslint检验代码
       ...(config.dev.useEslint ? [createLintingRule()] : []),
       {
         test: /\.vue$/,
@@ -54,7 +58,6 @@ module.exports = {
           resolve('src'),
           resolve('test'),
           resolve('node_modules/webpack-dev-server/client'),
-          resolve('node_modules/vue-awesome'),
         ],
       },
       {
