@@ -178,6 +178,8 @@
 </template>
 
 <script>
+import { createUserInfo, getUsersInfo, updateUserInfo, resetPassword, deleteUserInfo, deleteUsersInfo } from '../../api/user';
+
 const rolesUser = [
   {
     id: 'role1',
@@ -233,6 +235,7 @@ export default {
       updateLoading: false,
       dialogCreateVisible: false, // 创建弹框的显示状态
       dialogUpdateVisible: false, // 编辑弹框的显示状态
+      listIndex: '', // s索引
       rules: {
         loginName: [
           { required: true, message: '请输入账户', trigger: 'blur' },
@@ -292,17 +295,16 @@ export default {
       }
       this.update.roles = arr;
       // console.log(index, row);
+      // 记录索引
+      this.listIndex = index;
     },
     // 重置密码
     handlereset(value) {
       this.$confirm(`此操作将对账户 ${this.update.loginName} 的密码重置，是否继续？`, '提示', { type: 'warning' })
         .then(() => {
           // 向请求服务端删除
-          this.$axios({
-            method: 'patch',
-            url: `http://localhost:8002/api/v1/users/${value}`,
-            data: { id: value, password: '111111' }
-          }).then((response) => {
+          const password = '111111';
+          resetPassword(value, password).then((response) => {
             console.log(response.data.message);
             this.$message.success('重置密码成功!');
             this.passDisable = true;
@@ -316,13 +318,10 @@ export default {
     },
     // 删除单个
     handleDelete(index, row) {
-      this.$confirm(`此操作将永久删除账户 ${row.loginName} ，是否继续？`, '提示', {type: 'warning'})
+      this.$confirm(`此操作将永久删除账户 ${row.loginName} ，是否继续？`, '提示', { type: 'warning' })
         .then(() => {
           // 向请求服务端删除
-          this.$axios({
-            method: 'delete',
-            url: `http://localhost:8002/api/v1/users/${row.id}`,
-          }).then((response) => {
+          deleteUserInfo(row.id).then((response) => {
             console.log(response.data.message);
             this.$message.success(`成功删除了用户 ${row.loginName}!`);
             this.tableUsers.splice(index, 1);
@@ -343,18 +342,17 @@ export default {
     // 获取用户列表
     getUsers() {
       this.loading = true;
-      this.$axios.get(['http://localhost:8002/api/v1/users'])
-        .then((response) => {
-          console.log(response.data.message);
-          console.log(response);
-          this.tableUsers = response.data.data;
-          // this.pagination.tableRows = this.tableUsers.length;
-          this.loading = false;
-        }).catch((error) => {
-          console.log('获取用户列表失败:')
-          console.log(error);
-          this.loading = false;
-        });
+      getUsersInfo().then((response) => {
+        console.log(response.data.message);
+        console.log(response);
+        this.tableUsers = response.data.data;
+        // this.pagination.tableRows = this.tableUsers.length;
+        this.loading = false;
+      }).catch((error) => {
+        console.log('获取用户列表失败:')
+        console.log(error);
+        this.loading = false;
+      });
     },
     // 重置表单
     resetCreateUser() {
@@ -368,7 +366,7 @@ export default {
           this.createLoading = true;
           // console.log("创建用户数据:")
           // console.log(this.create);
-          this.$axios.post(['http://localhost:8002/api/v1/users'], this.create)
+          createUserInfo(this.create)
             .then((response) => {
               console.log(response.data.message);
               this.$message.success('创建用户成功！');
@@ -400,16 +398,20 @@ export default {
       this.updateLoading = true;
       // console.log("编辑用户数据:")
       // console.log(this.update);
-      this.$axios({
-        method: 'patch',
-        url: `http://localhost:8002/api/v1/users/${this.update.id}`,
-        data: this.update
-      }).then((response) => {
+      updateUserInfo(this.update.id, this.update).then((response) => {
         console.log(response.data.message);
         this.$message.success('编辑用户成功！');
         this.dialogUpdateVisible = false;
         this.updateLoading = false;
-        this.getUsers();
+        // 根据索引，赋值到list制定的数
+        let index = this.listIndex
+        let data = response.data.data;
+        // this.tableUsers[index] = data;
+        this.tableUsers[index].id = data.id;
+        this.tableUsers[index].loginName = data.loginName;
+        this.tableUsers[index].userName = data.userName;
+        this.tableUsers[index].state = data.state;
+        this.tableUsers[index].roles = data.roles;
       }).catch((error) => {
         console.log('编辑用户失败:')
         console.log(error);
@@ -422,19 +424,12 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          const arr = [];
-          // 提取选中项的id
-          const data = this.multipleSelection;
-          console.log(this.multipleSelection)
-          for (let i = 0; i < data.length; i++) {
-            arr.push(data[i].id);
-          }
+          let ids = [];
+          this.multipleSelection.map((item)=> {
+            ids.push(item.id);
+          })
           // 向请求服务端删除
-          this.$axios({
-            method: 'delete',
-            url: 'http://localhost:8002/api/v1/users',
-            data: { ids: arr }
-          }).then((response) => {
+          deleteUsersInfo(ids).then((response) => {
             // console.log("删除用户成功:")
             console.log(response.data.message);
             this.$message.success(`删除了 ${this.multipleSelection.length} 条用户信息!`);
