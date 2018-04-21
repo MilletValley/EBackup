@@ -9,6 +9,7 @@ import SqlServer from '@/components/pages/SqlServer';
 import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import VMware from '@/components/pages/Vmware';
+import BackupPlans from '@/components/pages/BackupPlans';
 
 Vue.use(Router);
 
@@ -68,6 +69,14 @@ export const asyncRouters = [
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
+      },
+      {
+        path: 'backupplans',
+        component: BackupPlans,
+        meta: {
+          title: 'Backup Plans',
+          roles: ['admin'],
+        },
       },
     ],
   },
