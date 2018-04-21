@@ -51,6 +51,15 @@ const fetchBackupResults = id =>
     url: `/oracles/${id}/results`,
   });
 
+const createOracleBackupPlans = ({ id, oracle }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/oracles/${id}/backup-plans`,
+    data: {
+      oracle
+    },
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -60,4 +69,5 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
+  createOracleBackupPlans,
 };
