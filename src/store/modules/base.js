@@ -93,16 +93,16 @@ const actions = {
    * @param {*} param1
    */
   generateRoutes(context, { roles }) {
-    const roleIds = roles.map(role => role.id);
+    // const roles = roles.map(role => role.id);
     return new Promise(resolve => {
       let accessedRouters;
-      if (roleIds.indexOf('admin') >= 0) accessedRouters = asyncRouters;
+      if (roles.indexOf('admin') >= 0) accessedRouters = asyncRouters;
       else {
         accessedRouters = asyncRouters.filter(v => {
-          if (hasPermission(roleIds, v)) {
+          if (hasPermission(roles, v)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
-                if (hasPermission(roleIds, childRouter)) {
+                if (hasPermission(roles, childRouter)) {
                   return childRouter;
                 }
                 return false;
