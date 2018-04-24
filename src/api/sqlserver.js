@@ -3,59 +3,58 @@ import baseApi from './base';
 const fetchAll = () =>
   baseApi.request({
     method: 'get',
-    url: '/oracles',
+    url: '/sqlservers',
   });
 
 const fetchOne = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}`,
+    url: `/sqlservers/${id}`,
   });
 
-const createOne = oracleData =>
+const createOne = sqlServerData =>
   baseApi.request({
     method: 'post',
-    url: '/oracles',
-    data: oracleData,
+    url: '/sqlservers',
+    data: sqlServerData,
   });
 
 const deleteOne = id =>
   baseApi.request({
     method: 'delete',
-    url: `/oracles/${id}`,
+    url: `/sqlservers/${id}`,
   });
 
-const modifyOne = oracleData =>
+const modifyOne = sqlServerData =>
   baseApi.request({
     method: 'patch',
-    url: `/oracles/${oracleData.id}`,
-    data: oracleData,
+    url: `/sqlservers/${sqlServerData.id}`,
+    data: sqlServerData,
   });
 
 const deleteSome = ids =>
   baseApi.request({
     method: 'delete',
-    url: '/oracles',
+    url: '/sqlservers',
     data: ids,
   });
 
 const fetchBackupPlans = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}/backup-plans`,
+    url: `/sqlservers/${id}/backup-plans`,
   });
 
 const fetchBackupResults = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}/results`,
+    url: `/sqlservers/${id}/results`,
   });
 
-// API https://nei.netease.com/interface/detail/?pid=28187&id=88119
-const createOracleBackupPlans = ({ id, plan }) =>
+const createSqlServerBackupPlans = ({ id, plan }) =>
   baseApi.request({
     method: 'post',
-    url: `/oracles/${id}/backup-plans`,
+    url: `/sqlservers/${id}/backup-plans`,
     data: plan,
   });
 
@@ -68,5 +67,5 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
-  createOracleBackupPlans,
+  createSqlServerBackupPlans,
 };

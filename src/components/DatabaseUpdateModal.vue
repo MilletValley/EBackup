@@ -46,11 +46,12 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-import { modifyOne } from '../api/oracle';
+import { modifyOne as oracleModify } from '../api/oracle';
+import { modifyOne as sqlModify } from '../api/sqlserver';
 
 const requestMapping = {
-  oracle: data => modifyOne(data),
-  sqlserver: () => {},
+  oracle: data => oracleModify(data),
+  sqlserver: data => sqlModify(data),
 };
 
 export default {
