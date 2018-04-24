@@ -93,6 +93,7 @@ const actions = {
    * @param {*} param1
    */
   generateRoutes(context, { roles }) {
+    // TODO: 角色返回类型是对象则需要加上下面这句
     // const roles = roles.map(role => role.id);
     return new Promise(resolve => {
       let accessedRouters;
