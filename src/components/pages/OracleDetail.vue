@@ -2,9 +2,6 @@
   <section>
     <header class="detail-header">
       <div class="db-content">
-        <!-- <div style="width: 50px; float: left;">
-          <i-icon name="oracle"></i-icon>
-        </div> -->
         <el-row type="flex" justify="end">
           <el-col :span="1">
             <i-icon name="oracle"></i-icon>
@@ -36,6 +33,7 @@
                 <span>{{ oracle.loginName }}</span>
               </el-form-item>
               <el-form-item label="数据库密码：">
+                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
                 <span>{{ oracle.password }}</span>
               </el-form-item>
               <el-form-item label="主机名：">
@@ -53,79 +51,13 @@
             </el-form>
           </el-col>
         </el-row>
-        <db-update-modal db-type="oracle" :visible.sync="dbEditModal" :database-info="oracle" @confirm="updateOracle"></db-update-modal>
+        <database-update-modal db-type="oracle" :visible.sync="dbEditModal" :database-info="oracle" @confirm="updateOracle"></database-update-modal>
       </div>
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
         <main>
-          <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id">
-            <div slot="header" class="clearfix">
-              <span>{{backupOperation.name}}</span>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="planDeleteBtnClick">删除</el-button>
-              <el-button style="float: right; padding: 3px 3px" type="text">编辑</el-button>
-            </div>
-
-            <el-row type="flex">
-              <el-col :span="18">
-                <el-form inline label-width="100px" size="mini">
-                  <el-form-item label="计划开始时间" style="width: 100%">
-                    <span>{{ backupConfig.startTime }}</span>
-                  </el-form-item>
-                  <el-form-item label="备份策略" style="width: 40%">
-                    <span>{{ backupStrategy }}</span>
-                  </el-form-item>
-                  <el-form-item label="时间策略" style="width: 40%">
-                    <span>{{ timeStrateg }}</span>
-                  </el-form-item>
-                  <el-form-item label="星期" v-if="backupConfig.timeStrategy === 2" style="width: 100%">
-                    <div>
-                      <el-tag v-for="point in weekPoints" :key="point" size="small">{{point}}</el-tag>
-                    </div>
-                  </el-form-item>
-                  <el-form-item label="日期" v-if="backupConfig.timeStrategy === 3" style="width: 100%">
-                    <div>
-                      <el-tag v-for="point in backupConfig.datePoints" :key="point" size="small">{{point}}</el-tag>
-                    </div>
-                  </el-form-item>
-                  <el-form-item label="时间" v-if="[1,2,3].indexOf(backupConfig.timeStrategy) >= 0" style="width: 100%">
-                    <div>
-                      <el-tag v-for="point in backupConfig.timePoints" :key="point" size="small">{{point}}</el-tag>
-                    </div>
-                  </el-form-item>
-                  <el-form-item label="间隔" v-if="backupConfig.timeStrategy === 4" style="width: 100%">
-                    <div>
-                      <el-tag size="small">{{backupConfig.timeInterval}}小时</el-tag>
-                    </div>
-                  </el-form-item>
-                  <el-form-item label="备份路径">
-                    <span>{{ backupConfig.backupUrl }}</span>
-                  </el-form-item>
-                </el-form>
-              </el-col>
-              <el-col :span="6" class="operation-info">
-                <ul style="list-style: none">
-                  <li>
-                    <h5>当前状态</h5>
-                    <div>{{operationState || '-'}}</div>
-                  </li>
-                  <li>
-                    <h5>备份开始时间</h5>
-                    <div>{{backupOperation.startTime || '备份未开始'}}</div>
-                  </li>
-                  <li>
-                    <h5>已持续时间</h5>
-                    <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div>
-                    <div v-else>-</div>
-                  </li>
-                  <li>
-                    <h5>已备份大小</h5>
-                    <div>{{backupOperation.size || '-'}}</div>
-                  </li>
-                </ul>
-              </el-col>
-            </el-row>
-          </el-card>
+          <backup-card :id="id" :backupPlan="backupPlan" @deletePlan="deletePlan"></backup-card>
         </main>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
@@ -159,7 +91,6 @@
                 </el-form-item>
               </el-form>
             </template>
-
           </el-table-column>
           <el-table-column label="文件名" prop="fileName" width="180px" align="center"></el-table-column>
           <el-table-column label="开始时间" prop="startTime" min-width="200px" align="center"></el-table-column>
@@ -178,54 +109,38 @@
         </el-table>
       </el-tab-pane>
     </el-tabs>
-
   </section>
 </template>
 <script>
 import moment from 'moment';
 import IIcon from '@/components/IIcon';
+import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
+import BackupCard from '@/components/BackupCard';
 import { deleteBackupPlan } from '../../api/database';
+import backupMixin from '../mixins/backupMixins';
 import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
 } from '../../api/oracle';
-import {
-  backupStrategyMapping,
-  timeStrategyMapping,
-  weekMapping,
-  operationStateMapping,
-  backupResultMapping,
-} from '../../utils/constant';
+import { backupResultMapping } from '../../utils/constant';
 
 export default {
   name: 'OracleDetail',
+  mixins: [backupMixin],
   props: ['id'],
   data() {
     return {
       databaseInfoLoading: true, // 数据库信息loading
       activeTab: 'plans', // 激活的tab页
       oracle: {}, // 数据库信息
-      backupConfig: {}, // 备份配置数据
-      backupOperation: {}, // 备份操作数据
+      backupPlan: {}, // 备份计划 { config, ...operation }
       results: [], // 备份集
       dbEditModal: false,
     };
   },
   computed: {
-    backupStrategy() {
-      return backupStrategyMapping[this.backupConfig.backupStrategy];
-    },
-    timeStrateg() {
-      return timeStrategyMapping[this.backupConfig.timeStrategy];
-    },
-    weekPoints() {
-      return this.backupConfig.weekPoints.map(p => weekMapping[p]);
-    },
-    operationState() {
-      return operationStateMapping[this.backupOperation.state];
-    },
     oracleEdit: {
       get() {
         return this.oracle;
@@ -235,6 +150,10 @@ export default {
   },
   created() {
     this.fetchData();
+  },
+  beforeRouteUpdate(to, from, next) {
+    this.fetchData();
+    next();
   },
   methods: {
     fetchData() {
@@ -248,9 +167,7 @@ export default {
           fetchBackupPlans(this.id).then(res => {
             const { data: plans } = res.data;
             if (plans.length > 0) {
-              const { config, ...operation } = plans[0];
-              this.backupOperation = operation;
-              this.backupConfig = config;
+              this.backupPlan = plans[0];
             }
           });
         })
@@ -261,48 +178,27 @@ export default {
           });
         });
     },
+    // 备份集状态码转文字
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
     },
-    planDeleteBtnClick() {
-      this.$confirm('即将删除该备份计划，是否继续？', '提示', {
-        type: 'warning',
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-      })
-        .then(() => {
-          deleteBackupPlan(this.id).then(() => {
-            this.backupConfig = {};
-            this.backupOperation = {};
-            this.$message({
-              type: 'success',
-              message: '删除成功',
-            });
-          });
-        })
-        .catch(() => {});
+    deletePlan() {
+      this.backupPlan = {};
     },
+    // 点击数据库编辑按钮
     dbEditBtnClick() {
       this.dbEditModal = true;
     },
+    // 更新Oracle回调
     updateOracle(db) {
       this.oracle = db;
     },
   },
-  filters: {
-    durationFilter(value) {
-      const duration = moment.duration(value, 's');
-      const h = duration.get('h');
-      const m = duration.get('m');
-      const s = duration.get('s');
-      return `${h ? h + '小时' : ''} ${m ? m + '分' : ''} ${
-        s ? s + '秒' : ''
-      } `;
-    },
-  },
   components: {
-    'i-icon': IIcon,
-    'db-update-modal': DatabaseUpdateModal,
+    IIcon,
+    DatabaseUpdateModal,
+    SpanToggle,
+    BackupCard,
   },
 };
 </script>
@@ -332,30 +228,6 @@ export default {
 }
 .el-tabs {
   margin-top: -39px;
-}
-.backup-card {
-  margin-top: 15px;
-}
-.operation-info h5 {
-  font-weight: 400;
-  color: #888888;
-  margin: 4px 0;
-  text-align: right;
-}
-.operation-info div {
-  margin-left: 5px;
-  text-align: right;
-}
-.operation-info ul {
-  list-style: none;
-  margin: 0;
-}
-.operation-info li {
-  margin: 10px 0;
-}
-/* 标签之间的间隔在for循环下消失了 */
-.el-tag {
-  margin: 0 2px;
 }
 .result-detail-form .el-form-item {
   margin-right: 0;
