@@ -20,14 +20,11 @@
               </el-col>
             </el-row>
             <el-form v-loading="databaseInfoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
-              <el-form-item label="Oracle版本">
+              <el-form-item label="数据库版本">
                 <span>{{ dbInfo.dbVersion }}</span>
               </el-form-item>
               <el-form-item label="数据库实例">
                 <span>{{ dbInfo.instanceName }}</span>
-              </el-form-item>
-              <el-form-item label="归档模式：">
-                <span>ARCHIVELOG</span>
               </el-form-item>
               <el-form-item label="数据库账号：">
                 <span>{{ dbInfo.loginName }}</span>
@@ -51,7 +48,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="oracle" :visible.sync="dbEditModal" :database-info="dbInfo" @confirm="dbInfo = arguments[0]"></database-update-modal>
+        <database-update-modal db-type="sqlserver" :visible.sync="dbEditModal" :database-info="dbInfo" @confirm="dbInfo = arguments[0]"></database-update-modal>
       </div>
     </header>
     <el-tabs v-model="activeTab">
@@ -78,11 +75,11 @@ import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
-} from '../../api/oracle';
+} from '../../api/sqlserver';
 import { backupResultMapping } from '../../utils/constant';
 
 export default {
-  name: 'OracleDetail',
+  name: 'SqlServerDetail',
   mixins: [databaseDetailMixin],
   methods: {
     fetchData() {

@@ -4,10 +4,11 @@ import Login from '@/components/Login';
 import Layout from '@/components/Layout';
 import Dashboard from '@/components/pages/Dashboard';
 import Users from '@/components/pages/Users';
-import Oracle from '@/components/pages/Oracle';
-import SqlServer from '@/components/pages/SqlServer';
+import OracleList from '@/components/pages/OracleList';
+import SqlServerList from '@/components/pages/SqlServerList';
 import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
+import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
 import BackupPlans from '@/components/pages/BackupPlans';
 
@@ -51,7 +52,7 @@ export const asyncRouters = [
     children: [
       {
         path: 'oracle',
-        component: Oracle,
+        component: OracleList,
         meta: {
           title: 'Oracle',
           roles: ['admin'],
@@ -59,7 +60,7 @@ export const asyncRouters = [
       },
       {
         path: 'sqlserver',
-        component: SqlServer,
+        component: SqlServerList,
         meta: {
           title: 'SQL Server',
           roles: ['admin'],
@@ -69,6 +70,11 @@ export const asyncRouters = [
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
+      },
+      {
+        path: 'sqlserver/:id',
+        props: true,
+        component: SqlServerDetail,
       },
       {
         path: 'backupplans',
