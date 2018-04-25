@@ -44,12 +44,13 @@
 import isEqual from 'lodash/isEqual';
 import clone from 'lodash/clone';
 import InputToggle from '@/components/InputToggle';
-import { modifyOne, createOne } from '../api/oracle';
+import { createOne as oracleCreate } from '../api/oracle';
+import { createOne as sqlCreate } from '../api/sqlserver';
 
 const requestMapping = {
-  oracle: data => createOne(data),
+  oracle: data => oracleCreate(data),
 
-  sqlserver: () => {},
+  sqlserver: data => sqlCreate(data),
 };
 const vm = {
   name: 'DatabaseCreateModal',
