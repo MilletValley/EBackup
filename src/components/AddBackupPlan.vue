@@ -113,8 +113,10 @@
 import _ from 'lodash';
 import {
   createOracleBackupPlans,
+} from '../api/oracle';
+import {
   createSqlserverBackupPlans,
-} from '../../api/oracle';
+} from '../api/sqlserver';
 const requestMapping = {
   oracle: data => createOracleBackupPlans(data),
   sqlserver: data => createSqlserverBackupPlans(data),
@@ -438,7 +440,6 @@ export default {
             return item.value
           });
           const postdata = {
-            id: this.dbId,
             startTime: this.create.startTime,
             backupStrategy: this.create.backupStrategy,
             timeIntervel: this.create.timeIntervel,
@@ -452,7 +453,7 @@ export default {
           console.log('POSE数据:');
           console.log(postdata);
           // 向请求服务端
-          requestMapping[this.dbType](postdata)
+          requestMapping[this.dbType](this.dbId,postdata)
             .then(response => {
               console.log(response.data.message);
               this.$emit('confirm', response.data.data);

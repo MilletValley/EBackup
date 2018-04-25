@@ -5,7 +5,7 @@
   </section>
 </template>
 <script>
-import AddBackupPlan from './AddBackupPlan.vue';
+import AddBackupPlan from '../AddBackupPlan.vue';
 export default {
   data() {
     return {

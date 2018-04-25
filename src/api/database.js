@@ -6,4 +6,11 @@ const deleteBackupPlan = id =>
     url: `backup-plans/${id}`,
   });
 
-export { deleteBackupPlan };
+  const updateBackupPlans = ({ id, plan }) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/backup-plans/${id}`,
+    data: plan,
+  });
+
+export { deleteBackupPlan, updateBackupPlans };

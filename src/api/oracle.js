@@ -60,25 +60,6 @@ const createOracleBackupPlans = ({ id, plan }) =>
     data: plan,
   });
 
-const createSqlserverBackupPlans = backupDate =>
-  baseApi.request({
-    method: 'post',
-    url: `/sqlserver/${backupDate.id}/backup-plans`,
-    data: {
-      backupDate
-    },
-  });
-
-const updateBackupPlans = ({ id, backupDate }) =>
-  baseApi.request({
-    method: 'patch',
-    url: `/backup-plans/${id}`,
-    data: {
-      backupDate
-    },
-
-  });
-
 export {
   fetchAll,
   fetchOne,
@@ -89,6 +70,4 @@ export {
   fetchBackupPlans,
   fetchBackupResults,
   createOracleBackupPlans,
-  createSqlserverBackupPlans,
-  updateBackupPlans,
 };
