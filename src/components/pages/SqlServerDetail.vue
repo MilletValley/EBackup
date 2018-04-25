@@ -4,7 +4,7 @@
       <div class="db-content">
         <el-row type="flex" justify="end">
           <el-col :span="1">
-            <i-icon name="oracle"></i-icon>
+            <i-icon name="sqlserver"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex" align="middle">
@@ -122,8 +122,8 @@ export default {
 }
 .icon {
   position: relative;
-  top: 12px;
-  right: 10px;
+  top: 17px;
+  right: 0;
   font-size: 1.7em;
 }
 .db-content {

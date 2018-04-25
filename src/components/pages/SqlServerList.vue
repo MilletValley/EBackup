@@ -9,7 +9,7 @@
       <el-table-column label="数据库名称" min-width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`/db/sqlserver/${scope.row.id}`" class="name-link">{{scope.row.name}}</router-link>
+            <router-link :to="`${scope.row.id}`" append class="name-link">{{scope.row.name}}</router-link>
           </el-button>
         </template>
       </el-table-column>

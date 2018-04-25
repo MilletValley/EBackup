@@ -22,9 +22,9 @@ body {
   height: 100vh;
 }
 .icon {
-  width: 1.5em;
-  height: 1.5em;
-  /* vertical-align: -0.15em; */
+  width: 1.3em;
+  height: 1.3em;
+  vertical-align: -0.45em;
   margin-right: 5px;
   fill: rgb(208, 208, 208);
   overflow: hidden;

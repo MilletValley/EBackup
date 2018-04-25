@@ -1,10 +1,10 @@
 <template>
   <el-container style="height: 100%;">
-    <el-aside width="200px" style="background-color: #545c64">
+    <el-aside width="250px" style="background-color: #00264a">
       <div class="logo">
         <img src="../assets/elogo.png" alt="信服易备" height="40px">
       </div>
-      <el-menu background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" router>
+      <el-menu background-color="#00264a" text-color="#fff" active-text-color="#fff">
         <el-menu-item index="/dashboard">
           <IIcon name="dashboard"></IIcon>
           <span slot="title">主页</span>
@@ -15,7 +15,7 @@
             <span>{{ menu.meta.title }}</span>
           </template>
           <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)" :key="submenu.path" :index="`${menu.path}/${submenu.path}`">
-            {{ submenu.meta.title }}
+            <router-link :to="`${menu.path}/${submenu.path}`" tag="li">{{ submenu.meta.title }}</router-link>
           </el-menu-item>
         </el-submenu>
 
@@ -112,5 +112,9 @@ export default {
 }
 .el-icon-arrow-down {
   font-size: 12px;
+}
+.router-link-active {
+  color: #ffd04b;
+  font-weight: 600;
 }
 </style>

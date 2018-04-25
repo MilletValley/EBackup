@@ -125,8 +125,8 @@ export default {
 }
 .icon {
   position: relative;
-  top: 12px;
-  right: 10px;
+  top: 17px;
+  right: 0;
   font-size: 1.7em;
 }
 .db-content {
