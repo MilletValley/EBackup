@@ -189,20 +189,24 @@ import {
 
 const rolesUser = [
   {
-    id: 'role1',
-    name: '普通1',
-  },
-  {
-    id: 'role2',
-    name: '普通',
-  },
-  {
     id: 'admin',
     name: '超级管理员',
   },
   {
-    id: 'oracle-dba',
-    name: 'oracle管理员',
+    id: 'file admin',
+    name: '文件管理员',
+  },
+  {
+    id: 'oracle dba',
+    name: 'Oracle管理员',
+  },
+  {
+    id: 'sql server dba',
+    name: 'SQL Server管理员',
+  },
+  {
+    id: 'vm admin',
+    name: '虚拟机管理员',
   },
 ];
 
@@ -438,12 +442,13 @@ export default {
         }
       )
         .then(() => {
-          let ids = [];
+          const ids = [];
           this.multipleSelection.map(item => {
             ids.push(item.id);
           });
+          const data = { ids: ids}
           // 向请求服务端删除
-          deleteUsersInfo(ids)
+          deleteUsersInfo(data)
             .then(response => {
               // console.log("删除用户成功:")
               console.log(response.data.message);
@@ -464,13 +469,15 @@ export default {
     },
     // 转换Roles结构
     transformRoles(newVal){
-      this.create.roles = newVal.map(i=> {
+      /* this.create.roles = newVal.map(i=> {
         for(let j=0; j< rolesUser.length; j++){
           if(rolesUser[j].id === i){
              return rolesUser[j]
           }    
         }   
-      });
+      }); */
+      this.create.roles = newVal;
+      this.update.roles = newVal;
     },
   },
   watch:{
