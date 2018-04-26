@@ -1,17 +1,17 @@
 <template>
   <section>
-    <!-- 创建数据库备份配置页面 begin-->
-    <el-dialog :title="'添加'+dbType+'备份配置'"
+    <!-- 修改数据库备份配置页面 begin-->
+    <el-dialog :title="'修改'+dbType+'备份配置'"
                :visible.sync="_visible"
                :close-on-click-modal="false"
                :close-on-press-escape="false">
-      <el-form id="#create"
-               :model="create"
+      <el-form id="#update"
+               :model="update"
                :rules="rules"
-               ref="create" label-width="100px">
+               ref="update" label-width="100px">
         <el-form-item label="计划时间" prop="startTime">
           <el-date-picker
-            v-model="create.startTime"
+            v-model="update.startTime"
             :picker-options="pickerStartTime"
             type="datetime"
             placeholder="选择日期时间"
@@ -19,10 +19,10 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="备份路径" prop="backupUrl">
-          <el-input v-model="create.backupUrl"></el-input>
+          <el-input v-model="update.backupUrl"></el-input>
         </el-form-item>
         <el-form-item label="备份机制">
-          <el-radio-group v-model="create.backupStrategy">
+          <el-radio-group v-model="update.backupStrategy">
             <el-radio
               v-for="item in _backupStrategys"
               :key="item.label"
@@ -45,7 +45,7 @@
         </el-form-item>
         <el-form-item label="单次备份" v-show="isShowOnce" prop="singleTime">
           <el-date-picker
-            v-model="create.singleTime"
+            v-model="update.singleTime"
             type="datetime"
             :picker-options="pickerSingleTime"
             placeholder="请选择日期时间"
@@ -53,7 +53,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="isShowDay" prop="datePoints">
-          <el-select v-model="create.datePoints" multiple placeholder="请选择日期">
+          <el-select v-model="update.datePoints" multiple placeholder="请选择日期">
             <el-option
               v-for="item in datePointsInfo"
               :key="item.value"
@@ -63,7 +63,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="每周备份" v-show="isShowWeek" prop="weekPoints">
-          <el-select v-model="create.weekPoints" multiple placeholder="请选择周几">
+          <el-select v-model="update.weekPoints" multiple placeholder="请选择周几">
             <el-option
               v-for="item in weekPointsInfo"
               :key="item.value"
@@ -73,10 +73,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="间隔小时" v-show="isShowTimeRate">
-          <el-input-number v-model="create.timeIntervel" :step="2" :min="2" :max="24"></el-input-number>
+          <el-input-number v-model="update.timeIntervel" :step="2" :min="2" :max="24"></el-input-number>
         </el-form-item>
         <el-form-item
-          v-for="(domain, index) in create.timePoints"
+          v-for="(domain, index) in update.timePoints"
           :label="'备份时间'"
           :key="domain.key"
           prop="timePoints"
@@ -103,23 +103,21 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="_visible = false">取 消</el-button>
-        <el-button type="primary" :loading="createLoading" @click="createBackupPlan">确 定</el-button>
+        <el-button type="primary" :loading="updateLoading" @click="updateBackupPlan">确 定</el-button>
       </div>
     </el-dialog>
-    <!-- 创建数据库备份配置页面 end-->
+    <!-- 修改数据库备份配置页面 end-->
   </section>
 </template>
 <script>
 import _ from 'lodash';
 import {
-  createOracleBackupPlans,
-} from '../api/oracle';
-import {
-  createSqlServerBackupPlans,
-} from '../api/sqlserver';
+  updateBackupPlans,
+} from '../api/database';
+
 const requestMapping = {
-  oracle: (id, data) => createOracleBackupPlans({ id, plan: data }),
-  sqlserver: (id, data) => createSqlServerBackupPlans({ id, plan:data }),
+  oracle: (id, data) => updateBackupPlans({ id, plan: data }),
+  sqlserver: (id, data) => updateBackupPlans({ id, plan:data }),
 };
 const backupStrategys = {
   oracle: [
@@ -301,6 +299,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    backupPlan: {
+      type: Object,
+      required: true,
+    },
   },
   name: 'AddBackupPlan',
   data() {
@@ -358,7 +360,7 @@ export default {
       }
     };
     return {
-      createLoading: false,
+      updateLoading: false,
       isShowOnce: false,
       isShowTime: true,
       isShowTimeRate: false,
@@ -366,7 +368,7 @@ export default {
       isShowWeek: false,
       weekPointsInfo: weekPoints,
       datePointsInfo: datePoints,
-      create: {
+      update: {
         timePoints: [
           {
             value: '',
@@ -391,7 +393,7 @@ export default {
       },
       pickerSingleTime: {
         disabledDate: time => {
-          return time.getTime() < new Date(this.create.startTime).getTime();
+          return time.getTime() < new Date(this.update.startTime).getTime();
         },
       },
       pickerStartTime: {
@@ -406,10 +408,11 @@ export default {
       return backupStrategys[this.dbType];
     },
     _timeStrategys: function() {
-      return backupStrategys[this.dbType][this.create.backupStrategy].timeStrategys;
+      return backupStrategys[this.dbType][this.update.backupStrategy].timeStrategys;
     },
     _visible: {
       get: function() {
+        this.initUpdate();
         return this.visible;
       },
       set: function(value) {
@@ -418,37 +421,43 @@ export default {
     },
   },
   methods: {
-    // 重置表单
-    resetCreate() {
-      // this.$refs.create.resetFields(); 重置后数据不匹配
-      this.$refs.create.clearValidate();
-      this.tmpTimeStrategy = 1;
-      this.create.backupStrategy = 0;
-      this.create.startTime = '';
-      this.create.backupUrl = '';
-      this.create.singleTime = '';
-      this.create.datePoints = [];
-      this.create.weekPoints = [];
-      this.create.timeInterval = 2;
-      this.create.timePoints[0].value = '';
+    // 赋值表单
+    initUpdate() {
+      //this.$refs.update.clearValidate();
+      // 需要浅复制吗？
+      this.tmpTimeStrategy = this.backupPlan.timeStrategy;
+      this.update.backupStrategy = this.backupPlan.backupStrategy;
+      this.update.startTime = this.backupPlan.startTime;
+      this.update.backupUrl = this.backupPlan.backupUrl;
+      this.update.singleTime = this.backupPlan.singleTime;
+      this.update.datePoints = this.backupPlan.datePoints;
+      this.update.weekPoints = this.backupPlan.weekPoints;
+      this.update.timeInterval = this.backupPlan.timeInterval;
+      this.update.timePoints = this.backupPlan.timePoints.map(i => {
+            return { value: i }
+          });
     },
-    createBackupPlan() {
-      this.$refs.create.validate(valid => {
+    // 重置表单清空验证
+    resetUpdate() {
+      this.$refs.update.clearValidate();
+    },
+    updateBackupPlan() {
+      this.$refs.update.validate(valid => {
         if (valid) {
-          this.createLoading = true;
-          const arr = this.create.timePoints.map(item => {
+          this.updateLoading = true;
+          const arr = this.update.timePoints.map(item => {
             return item.value
           });
           const postdata = {
-            startTime: this.create.startTime,
-            backupStrategy: this.create.backupStrategy,
-            timeIntervel: this.create.timeIntervel,
+            startTime: this.update.startTime,
+            backupStrategy: this.update.backupStrategy,
+            timeIntervel: this.update.timeIntervel,
             timeStrategy: this.tmpTimeStrategy,
-            singleTime: this.create.singleTime,
-            weekPoints: this.create.weekPoints,
-            datePoints: this.create.datePoints,
+            singleTime: this.update.singleTime,
+            weekPoints: this.update.weekPoints,
+            datePoints: this.update.datePoints,
             timePoints: arr,
-            backupUrl: this.create.backupUrl,
+            backupUrl: this.update.backupUrl,
           };
           console.log('POSE数据:'+ this.dbId);
           console.log(postdata);
@@ -457,19 +466,19 @@ export default {
             .then(response => {
               console.log(response.data.message);
               this.$emit('confirm', response.data.data);
-              this.create.timePoints.splice(
+              this.update.timePoints.splice(
                 1,
-                this.create.timePoints.length - 1
+                this.update.timePoints.length - 1
               );
-              this.$message.success('创建备份配置成功!');
+              this.$message.success('修改备份配置成功!');
               this._visible = false;
-              this.createLoading = false;
-              this.resetCreate();
+              this.updateLoading = false;
+              this.resetUpdate();
             })
             .catch(error => {
-              console.log('创建备份配置失败:');
+              console.log('修改备份配置失败:');
               console.log(error);
-              this.createLoading = false;
+              this.updateLoading = false;
             });
         } else {
           console.log('error submit!!');
@@ -478,38 +487,38 @@ export default {
       });
     },
     removeTimePoint(item) {
-      let index = this.create.timePoints.indexOf(item);
+      let index = this.update.timePoints.indexOf(item);
       if (index !== -1) {
-        this.create.timePoints.splice(index, 1);
+        this.update.timePoints.splice(index, 1);
       }
     },
     addTimePoint() {
-      this.create.timePoints.push({
+      this.update.timePoints.push({
         value: '',
         key: Date.now(),
       });
     },
     getTimeStrategy(val) {
       if (val === 0) {
-        this.emptyCreateInfo();
+        this.emptyUpdateInfo();
         this.isShowOnce = true;
       } else if (val === 1) {
-        this.emptyCreateInfo();
+        this.emptyUpdateInfo();
         this.isShowTime = true;
       } else if (val === 2) {
-        this.emptyCreateInfo();
+        this.emptyUpdateInfo();
         this.isShowTime = true;
         this.isShowWeek = true;
       } else if (val === 3) {
-        this.emptyCreateInfo();
+        this.emptyUpdateInfo();
         this.isShowTime = true;
         this.isShowDay = true;
       } else if (val === 4) {
-        this.emptyCreateInfo();
+        this.emptyUpdateInfo();
         this.isShowTimeRate = true;
       }
     },
-    emptyCreateInfo() {
+    emptyUpdateInfo() {
       this.isShowOnce = false;
       this.isShowTime = false;
       this.isShowTimeRate = false;
