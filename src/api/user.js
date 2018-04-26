@@ -67,11 +67,11 @@ const deleteUserInfo = id =>
     data: {},
   });
 
-const deleteUsersInfo = ids =>
+const deleteUsersInfo = data =>
   baseApi.request({
     method: 'delete',
     url: '/users',
-    data: ids
+    data: data
   });
 
 export {
