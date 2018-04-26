@@ -11,6 +11,8 @@ const databaseModalMixin = {
   },
   data() {
     return {
+      // trigger增加change更方便 但是再次打开modal会显示出验证结果
+      // 猜测是因为初始化时，触发了change事件
       rules: {
         name: [
           { required: true, message: '请输入数据库名', trigger: 'blur' },
