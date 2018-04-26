@@ -7,7 +7,11 @@ const state = {
 /* eslint no-shadow: 0 */
 const mutations = {
   [types.SET_BREADCRUMB](state, breadcrumb) {
-    state.breadcrumb = breadcrumb;
+    if (breadcrumb) {
+      state.breadcrumb = breadcrumb;
+    } else {
+      state.breadcrumb = [];
+    }
   },
 };
 

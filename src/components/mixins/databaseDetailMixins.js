@@ -9,6 +9,7 @@ const databaseDetailMixin = {
       results: [], // 备份集
       dbEditModal: false,
       planCreateModal: false,
+      planUpdateModal: false,
     };
   },
   computed: {
@@ -30,6 +31,9 @@ const databaseDetailMixin = {
       }
     },
     addBackupPlan(data) {
+      this.backupPlan = data;
+    },
+    updateBackupPlan(data) {
       this.backupPlan = data;
     },
   },

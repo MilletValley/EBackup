@@ -39,9 +39,7 @@ router.beforeEach((to, from, next) => {
 });
 
 router.afterEach(to => {
-  if (to.meta.breadcrumb) {
-    store.commit(types.SET_BREADCRUMB, to.meta.breadcrumb);
-  }
+  store.commit(types.SET_BREADCRUMB, to.meta.breadcrumb);
 });
 
 /* eslint-disable no-new */
