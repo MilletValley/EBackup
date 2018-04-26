@@ -4,7 +4,7 @@
       <el-col :span="19">用户管理</el-col>
       <el-col :span="5">
         <!-- 操作 -->
-        <el-button type="primary" @click="dialogCreateVisible = true">添加用户</el-button>
+        <el-button type="primary" @click="handleCreate()">添加用户</el-button>
         <el-button type="primary" icon="el-icon-delete" :disabled="delDisabled" @click="delAll()">删除
         </el-button>
       </el-col>
@@ -92,7 +92,7 @@
         <el-form-item label="权限">
           <el-col :span="12">
             <el-form-item>
-              <el-select v-model="update.roles" multiple collapse-tags placeholder="请选择">
+              <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
                 <el-option
                   v-for="item in rolesAll"
                   :key="item.id"
@@ -142,7 +142,7 @@
         <el-form-item label="权限">
           <el-col :span="12">
             <el-form-item>
-              <el-select v-model="create.roles" multiple collapse-tags placeholder="请选择">
+              <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
                 <el-option
                   v-for="item in rolesAll"
                   :key="item.id"
@@ -178,25 +178,32 @@
 </template>
 
 <script>
-import { createUserInfo, getUsersInfo, updateUserInfo, resetPassword, deleteUserInfo, deleteUsersInfo } from '../../api/user';
+import {
+  createUserInfo,
+  getUsersInfo,
+  updateUserInfo,
+  resetPassword,
+  deleteUserInfo,
+  deleteUsersInfo,
+} from '../../api/user';
 
 const rolesUser = [
   {
     id: 'role1',
-    name: '普通1'
+    name: '普通1',
   },
   {
     id: 'role2',
-    name: '普通'
+    name: '普通',
   },
   {
     id: 'admin',
-    name: '超级管理员'
+    name: '超级管理员',
   },
   {
     id: 'oracle-dba',
-    name: 'oracle管理员'
-  }
+    name: 'oracle管理员',
+  },
 ];
 
 export default {
@@ -241,21 +248,22 @@ export default {
           { required: true, message: '请输入账户', trigger: 'blur' },
           { min: 3, max: 15, message: '长度在 3 到 15 个字符' },
           { pattern: /^[A-Za-z0-9]+$/, message: '账户只能为字母和数字' },
-          { validator: validateName }
+          { validator: validateName },
         ],
         userName: [
           { required: false, message: '请输入姓名', trigger: 'blur' },
-          { min: 3, max: 25, message: '长度在 3 到 25 个字符' }
+          { min: 3, max: 25, message: '长度在 3 到 25 个字符' },
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 25, message: '长度在 6 到 25 个字符' }
+          { min: 6, max: 25, message: '长度在 6 到 25 个字符' },
         ],
         checkpass: [
           { required: true, validator: validatePass, trigger: 'blur' },
-        ]
+        ],
       },
       rolesAll: rolesUser,
+      rolesSelected: [],
       tableUsers: [],
       multipleSelection: [], // 列表复选框
       update: {
@@ -263,7 +271,7 @@ export default {
         loginName: '',
         userName: '',
         state: '',
-        roles: []
+        roles: [],
       },
       create: {
         loginName: '',
@@ -271,8 +279,8 @@ export default {
         state: 1,
         password: '',
         checkpass: '',
-        roles: []
-      }
+        roles: [],
+      },
     };
   },
   methods: {
@@ -280,37 +288,46 @@ export default {
     filterState(value, row) {
       return row.state === value;
     },
+    //创建
+    handleCreate() {
+      this.rolesSelected = [];
+      this.dialogCreateVisible = true;
+      this.$nextTick(() => {
+        //等待dom同步后打开模态框
+        this.$refs['create'].resetFields();
+      });
+    },
     // 编辑
     handleEdit(index, row) {
-      this.update.id = row.id;
-      this.update.loginName = row.loginName;
-      this.update.userName = row.userName;
-      this.update.state = row.state;
+      const newRow = Object.assign({},row)
+      this.update = newRow;
       this.dialogUpdateVisible = true;
       this.passDisable = false;
-      const data = row.roles;
-      const arr = [];
-      for (let i = 0; i < data.length; i++) {
-        arr.push(data[i].id);
-      }
-      this.update.roles = arr;
-      // console.log(index, row);
+      this.rolesSelected = newRow.roles.map(item =>{
+        return item.id
+      })
       // 记录索引
       this.listIndex = index;
     },
     // 重置密码
     handlereset(value) {
-      this.$confirm(`此操作将对账户 ${this.update.loginName} 的密码重置，是否继续？`, '提示', { type: 'warning' })
+      this.$confirm(
+        `此操作将对账户 ${this.update.loginName} 的密码重置，是否继续？`,
+        '提示',
+        { type: 'warning' }
+      )
         .then(() => {
           // 向请求服务端删除
           const password = '111111';
-          resetPassword(value, password).then((response) => {
-            console.log(response.data.message);
-            this.$message.success('重置密码成功!');
-            this.passDisable = true;
-          }).catch((error) => {
-            console.log(error);
-          });
+          resetPassword(value, password)
+            .then(response => {
+              console.log(response.data.message);
+              this.$message.success('重置密码成功!');
+              this.passDisable = true;
+            })
+            .catch(error => {
+              console.log(error);
+            });
         })
         .catch(() => {
           this.$message.info('已取消操作!');
@@ -318,17 +335,22 @@ export default {
     },
     // 删除单个
     handleDelete(index, row) {
-      this.$confirm(`此操作将永久删除账户 ${row.loginName} ，是否继续？`, '提示', { type: 'warning' })
+      this.$confirm(
+        `此操作将永久删除账户 ${row.loginName} ，是否继续？`,
+        '提示',
+        { type: 'warning' }
+      )
         .then(() => {
           // 向请求服务端删除
-          deleteUserInfo(row.id).then((response) => {
-            console.log(response.data.message);
-            this.$message.success(`成功删除了用户 ${row.loginName}!`);
-            this.tableUsers.splice(index, 1);
-            // this.getUsers();
-          }).catch((error) => {
-            console.log(error);
-          });
+          deleteUserInfo(row.id)
+            .then(response => {
+              this.$message.success(`成功删除了用户 ${row.loginName}!`);
+              this.tableUsers.splice(index, 1);
+              // this.getUsers();
+            })
+            .catch(error => {
+              console.log(error);
+            });
         })
         .catch(() => {
           this.$message.info('已取消操作!');
@@ -342,49 +364,39 @@ export default {
     // 获取用户列表
     getUsers() {
       this.loading = true;
-      getUsersInfo().then((response) => {
-        console.log(response.data.message);
-        console.log(response);
-        this.tableUsers = response.data.data;
-        // this.pagination.tableRows = this.tableUsers.length;
-        this.loading = false;
-      }).catch((error) => {
-        console.log('获取用户列表失败:')
-        console.log(error);
-        this.loading = false;
-      });
-    },
-    // 重置表单
-    resetCreateUser() {
-      this.$refs.create.resetFields();
-      this.create.roles = [];
+      getUsersInfo()
+        .then(response => {
+          console.log(response.data.message);
+          console.log(response);
+          this.tableUsers = response.data.data;
+          // this.pagination.tableRows = this.tableUsers.length;
+          this.loading = false;
+        })
+        .catch(error => {
+          console.log('获取用户列表失败:');
+          console.log(error);
+          this.loading = false;
+        });
     },
     // 创建用户
     createUser() {
-      this.$refs.create.validate((valid) => {
+      this.$refs.create.validate(valid => {
         if (valid) {
           this.createLoading = true;
-          // console.log("创建用户数据:")
-          // console.log(this.create);
+          console.log('创建用户数据:');
+          console.log(this.create);
           createUserInfo(this.create)
-            .then((response) => {
-              console.log(response.data.message);
+            .then(response => {
               this.$message.success('创建用户成功！');
               this.dialogCreateVisible = false;
               this.createLoading = false;
               const data = response.data.data;
-              const user = {
-                id: data.id,
-                loginName: data.loginName,
-                userName: data.userName,
-                state: data.state,
-                roles: data.roles
-              };
-              this.tableUsers.push(user);
-              console.log(user)
-              this.resetCreateUser();
-            }).catch((error) => {
-              console.log('创建用户失败:')
+              console.log('创建成功返回数据:');
+              console.log(response);
+              this.tableUsers.push(response.data.data);
+            })
+            .catch(error => {
+              console.log('创建用户失败:');
               console.log(error);
               this.createLoading = false;
             });
@@ -396,54 +408,75 @@ export default {
     // 编辑用户
     updateUser() {
       this.updateLoading = true;
-      // console.log("编辑用户数据:")
-      // console.log(this.update);
-      updateUserInfo(this.update.id, this.update).then((response) => {
-        console.log(response.data.message);
-        this.$message.success('编辑用户成功！');
-        this.dialogUpdateVisible = false;
-        this.updateLoading = false;
-        // 根据索引，赋值到list制定的数
-        let index = this.listIndex
-        let data = response.data.data;
-        // this.tableUsers[index] = data;
-        this.tableUsers[index].id = data.id;
-        this.tableUsers[index].loginName = data.loginName;
-        this.tableUsers[index].userName = data.userName;
-        this.tableUsers[index].state = data.state;
-        this.tableUsers[index].roles = data.roles;
-      }).catch((error) => {
-        console.log('编辑用户失败:')
-        console.log(error);
-        this.updateLoading = false;
-      });
+      console.log("编辑用户数据:")
+      console.log(this.update.id)
+      updateUserInfo(this.update)
+        .then(response => {
+          this.$message.success('编辑用户成功！');
+          this.dialogUpdateVisible = false;
+          this.updateLoading = false;
+          // 根据索引，赋值到list制定的数
+          this.tableUsers.splice(this.listIndex, 1, response.data.data);
+          console.log("编辑成功回调数据:")
+          console.log(response);
+        })
+        .catch(error => {
+          console.log('编辑用户失败:');
+          console.log(error);
+          this.updateLoading = false;
+        });
     },
     // 批量删除
     delAll() {
-      this.$confirm(`此操作将永久删除 ${this.multipleSelection.length} 条用户信息, 是否继续?`, '提示', {
-        type: 'warning'
-      })
+      this.$confirm(
+        `此操作将永久删除 ${
+          this.multipleSelection.length
+        } 条用户信息, 是否继续?`,
+        '提示',
+        {
+          type: 'warning',
+        }
+      )
         .then(() => {
           let ids = [];
-          this.multipleSelection.map((item)=> {
+          this.multipleSelection.map(item => {
             ids.push(item.id);
-          })
-          // 向请求服务端删除
-          deleteUsersInfo(ids).then((response) => {
-            // console.log("删除用户成功:")
-            console.log(response.data.message);
-            this.$message.success(`删除了 ${this.multipleSelection.length} 条用户信息!`);
-            this.getUsers();
-          }).catch((error) => {
-            console.log('删除用户失败:')
-            console.log(error);
-            this.$message.error('删除失败!');
           });
+          // 向请求服务端删除
+          deleteUsersInfo(ids)
+            .then(response => {
+              // console.log("删除用户成功:")
+              console.log(response.data.message);
+              this.$message.success(
+                `删除了 ${this.multipleSelection.length} 条用户信息!`
+              );
+              this.getUsers();
+            })
+            .catch(error => {
+              console.log('删除用户失败:');
+              console.log(error);
+              this.$message.error('删除失败!');
+            });
         })
         .catch(() => {
           this.$message.info('已取消操作!');
         });
-    }
+    },
+    // 转换Roles结构
+    transformRoles(newVal){
+      this.create.roles = newVal.map(i=> {
+        for(let j=0; j< rolesUser.length; j++){
+          if(rolesUser[j].id === i){
+             return rolesUser[j]
+          }    
+        }   
+      });
+    },
   },
+  watch:{
+    rolesSelected: function(newVal, oldVal) {
+      this.transformRoles(newVal);
+    }
+  }
 };
 </script>

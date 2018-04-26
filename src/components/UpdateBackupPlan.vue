@@ -424,16 +424,16 @@ export default {
     // 赋值表单
     initUpdate() {
       //this.$refs.update.clearValidate();
-      // 需要浅复制吗？
-      this.tmpTimeStrategy = this.backupPlan.timeStrategy;
-      this.update.backupStrategy = this.backupPlan.backupStrategy;
-      this.update.startTime = this.backupPlan.startTime;
-      this.update.backupUrl = this.backupPlan.backupUrl;
-      this.update.singleTime = this.backupPlan.singleTime;
-      this.update.datePoints = this.backupPlan.datePoints;
-      this.update.weekPoints = this.backupPlan.weekPoints;
-      this.update.timeInterval = this.backupPlan.timeInterval;
-      this.update.timePoints = this.backupPlan.timePoints.map(i => {
+      const newObj = Object.assign({},this.backupPlan)
+      this.tmpTimeStrategy = newObj.timeStrategy;
+      this.update.backupStrategy = newObj.backupStrategy;
+      this.update.startTime = newObj.startTime;
+      this.update.backupUrl = newObj.backupUrl;
+      this.update.singleTime = newObj.singleTime;
+      this.update.datePoints = newObj.datePoints;
+      this.update.weekPoints = newObj.weekPoints;
+      this.update.timeInterval = newObj.timeInterval;
+      this.update.timePoints = newObj.timePoints.map(i => {
             return { value: i }
           });
     },

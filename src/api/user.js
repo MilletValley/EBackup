@@ -29,13 +29,11 @@ const fetchUsersByToken = token =>
     },
   });
 
-const createUserInfo = ({ user }) =>
+const createUserInfo = user =>
   baseApi.request({
     method: 'post',
     url: '/users',
-    data: {
-      user,
-    },
+    data: user
   });
 
 const getUsersInfo = () =>
@@ -45,13 +43,11 @@ const getUsersInfo = () =>
     data: {},
   });
 
-const updateUserInfo = ({ id, user }) =>
+const updateUserInfo = user =>
   baseApi.request({
     method: 'patch',
-    url: `/users/${id}`,
-    data: {
-      user,
-    },
+    url: `/users/${user.id}`,
+    data: user
   });
 
 const resetPassword = ({ id, password }) =>
@@ -64,20 +60,18 @@ const resetPassword = ({ id, password }) =>
     },
   });
 
-const deleteUserInfo = ({ id }) =>
+const deleteUserInfo = id =>
   baseApi.request({
     method: 'delete',
     url: `/users/${id}`,
     data: {},
   });
 
-const deleteUsersInfo = ({ ids }) =>
+const deleteUsersInfo = ids =>
   baseApi.request({
     method: 'delete',
     url: '/users',
-    data: {
-      ids,
-    },
+    data: ids
   });
 
 export {
