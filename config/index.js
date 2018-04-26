@@ -11,7 +11,9 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api/v1': {
-        target: 'http://localhost:8002',
+        // target: 'http://localhost:8002',
+        // target: 'http://145.170.27.128:8089', // 个人设备 会修改
+        target: 'http://145.170.23.128:8089', // 服务器
         // changeOrigin: true,
         // pathRewrite: { '^/api/v1': '/api/v1' },
       },

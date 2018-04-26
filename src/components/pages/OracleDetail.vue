@@ -12,10 +12,15 @@
                 <h1>{{dbInfo.name}}</h1>
               </el-col>
               <el-col :span="12" :offset="12" class="action">
-                <el-button-group>
-                  <el-button size="mini">操作1</el-button>
-                  <el-button size="mini">操作2</el-button>
-                </el-button-group>
+                <el-dropdown size="mini" trigger="click" placement="bottom" @command="addPlanBtnClick">
+                  <el-button size="mini" plain>添加计划
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item :disabled="hasBackupPlan" command="backup">备份计划</el-dropdown-item>
+                    <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
                 <el-button size="mini" type="primary" @click="dbEditModal = true">编辑</el-button>
               </el-col>
             </el-row>
@@ -57,13 +62,14 @@
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
         <main>
-          <backup-card :id="id" :backupPlan="backupPlan" @deletePlan="this.backupPlan = {}"></backup-card>
+          <backup-card :id="id" :backupPlan="backupPlan" @deletePlan="backupPlan = {}"></backup-card>
         </main>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
         <backup-result-list :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
+    <add-backup-plan db-type="oracle" :db-id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
   </section>
 </template>
 <script>
@@ -72,6 +78,7 @@ import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
+import AddBackupPlan from '@/components/AddBackupPlan';
 import { deleteBackupPlan } from '../../api/database';
 import databaseDetailMixin from '../mixins/databaseDetailMixins';
 import {
@@ -114,6 +121,7 @@ export default {
     SpanToggle,
     BackupCard,
     BackupResultList,
+    AddBackupPlan,
   },
 };
 </script>

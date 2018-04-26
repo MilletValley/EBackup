@@ -3,8 +3,8 @@ import Cookies from 'js-cookie';
 const TOKEN = 'TOKEN';
 
 const userToken = {
-  save(token) {
-    Cookies.set(TOKEN, token);
+  save(token, expires) {
+    Cookies.set(TOKEN, token, { expires });
   },
   get() {
     return Cookies.get(TOKEN);
@@ -13,5 +13,5 @@ const userToken = {
     Cookies.remove(TOKEN);
   },
 };
-
+// eslint-disable-next-line
 export { userToken };

@@ -73,7 +73,7 @@ export default {
       }
     },
     _logout() {
-      this.logout().then(message => {
+      this.logout(this.$store.state.base.token).then(message => {
         this.$message({
           type: 'success',
           message,

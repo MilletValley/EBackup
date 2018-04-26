@@ -1,13 +1,13 @@
 import baseApi from './base';
 
-const login = ({ loginName, password, remeberMe }) =>
+const login = ({ loginName, password, rememberMe }) =>
   baseApi.request({
     method: 'post',
     url: '/login',
     data: {
       loginName,
       password,
-      remeberMe,
+      rememberMe,
     },
   });
 
@@ -34,7 +34,7 @@ const createUserInfo = ({ user }) =>
     method: 'post',
     url: '/users',
     data: {
-      user
+      user,
     },
   });
 
@@ -42,7 +42,7 @@ const getUsersInfo = () =>
   baseApi.request({
     method: 'get',
     url: '/users',
-    data: { },
+    data: {},
   });
 
 const updateUserInfo = ({ id, user }) =>
@@ -50,7 +50,7 @@ const updateUserInfo = ({ id, user }) =>
     method: 'patch',
     url: `/users/${id}`,
     data: {
-      user
+      user,
     },
   });
 
@@ -76,10 +76,18 @@ const deleteUsersInfo = ({ ids }) =>
     method: 'delete',
     url: '/users',
     data: {
-      ids
+      ids,
     },
   });
 
-export { login, logout, fetchUsersByToken, createUserInfo, getUsersInfo, updateUserInfo, resetPassword, deleteUserInfo, deleteUsersInfo };
-
-
+export {
+  login,
+  logout,
+  fetchUsersByToken,
+  createUserInfo,
+  getUsersInfo,
+  updateUserInfo,
+  resetPassword,
+  deleteUserInfo,
+  deleteUsersInfo,
+};

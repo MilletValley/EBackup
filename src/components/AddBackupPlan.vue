@@ -1,21 +1,10 @@
 <template>
   <section>
     <!-- 创建数据库备份配置页面 begin-->
-    <el-dialog :title="'添加'+dbType+'备份配置'"
-               :visible.sync="_visible"
-               :close-on-click-modal="false"
-               :close-on-press-escape="false">
-      <el-form id="#create"
-               :model="create"
-               :rules="rules"
-               ref="create" label-width="100px">
+    <el-dialog :title="'添加'+dbType+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
+      <el-form id="#create" :model="create" :rules="rules" ref="create" label-width="100px">
         <el-form-item label="计划时间" prop="startTime">
-          <el-date-picker
-            v-model="create.startTime"
-            :picker-options="pickerStartTime"
-            type="datetime"
-            placeholder="选择日期时间"
-            default-time="00:00:00">
+          <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="备份路径" prop="backupUrl">
@@ -23,74 +12,44 @@
         </el-form-item>
         <el-form-item label="备份机制">
           <el-radio-group v-model="create.backupStrategy">
-            <el-radio
-              v-for="item in _backupStrategys"
-              :key="item.label"
-              :label="item.label"
-              :disabled="item.disabled">
+            <el-radio v-for="item in _backupStrategys" :key="item.label" :label="item.label" :disabled="item.disabled">
               {{item.name}}
             </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备份策略">
           <el-radio-group v-model="tmpTimeStrategy">
-            <el-radio
-              v-for="item in _timeStrategys"
-              :key="item.label"
-              :label="item.label"
-              :disabled="item.disabled">
+            <el-radio v-for="item in _timeStrategys" :key="item.label" :label="item.label" :disabled="item.disabled">
               {{item.name}}
             </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="单次备份" v-show="isShowOnce" prop="singleTime">
-          <el-date-picker
-            v-model="create.singleTime"
-            type="datetime"
-            :picker-options="pickerSingleTime"
-            placeholder="请选择日期时间"
-            default-time="00:00:00">
+          <el-date-picker v-model="create.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="isShowDay" prop="datePoints">
           <el-select v-model="create.datePoints" multiple placeholder="请选择日期">
-            <el-option
-              v-for="item in datePointsInfo"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+            <el-option v-for="item in datePointsInfo" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="每周备份" v-show="isShowWeek" prop="weekPoints">
           <el-select v-model="create.weekPoints" multiple placeholder="请选择周几">
-            <el-option
-              v-for="item in weekPointsInfo"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+            <el-option v-for="item in weekPointsInfo" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="间隔小时" v-show="isShowTimeRate">
           <el-input-number v-model="create.timeIntervel" :step="2" :min="2" :max="24"></el-input-number>
         </el-form-item>
-        <el-form-item
-          v-for="(domain, index) in create.timePoints"
-          :label="'备份时间'"
-          :key="domain.key"
-          prop="timePoints"
-          v-show="isShowTime"
-        >
+        <el-form-item v-for="(domain, index) in create.timePoints" :label="'备份时间'" :key="domain.key" prop="timePoints" v-show="isShowTime">
           <el-col :span="11">
-            <el-time-select
-              v-model="domain.value"
-              :picker-options="{
+            <el-time-select v-model="domain.value" :picker-options="{
               start: '08:30',
               step: '00:15',
               end: '18:30'
-            }"
-              placeholder="请选择时间点">
+            }" placeholder="请选择时间点">
             </el-time-select>
           </el-col>
           <el-col :span="11">
@@ -111,15 +70,11 @@
 </template>
 <script>
 import _ from 'lodash';
-import {
-  createOracleBackupPlans,
-} from '../api/oracle';
-import {
-  createSqlServerBackupPlans,
-} from '../api/sqlserver';
+import { createOracleBackupPlans } from '../api/oracle';
+import { createSqlServerBackupPlans } from '../api/sqlserver';
 const requestMapping = {
   oracle: (id, data) => createOracleBackupPlans({ id, plan: data }),
-  sqlserver: (id, data) => createSqlServerBackupPlans({ id, plan:data }),
+  sqlserver: (id, data) => createSqlServerBackupPlans({ id, plan: data }),
 };
 const backupStrategys = {
   oracle: [
@@ -382,12 +337,16 @@ export default {
       },
       tmpTimeStrategy: 1,
       rules: {
-        startTime: [{ required: true, message: '开始时间不能为空', trigger: 'change' }],
+        startTime: [
+          { required: true, message: '开始时间不能为空', trigger: 'change' },
+        ],
         singleTime: [{ validator: valiSingleTime, trigger: 'change' }],
         weekPoints: [{ validator: valiWeekPoints, trigger: 'change' }],
         timePoints: [{ validator: valiTimePoints, trigger: 'change' }],
         datePoints: [{ validator: valiDatePoints, trigger: 'change' }],
-        backupUrl: [{ required: true, message: '备份路径不能为空', trigger: 'blur' }],
+        backupUrl: [
+          { required: true, message: '备份路径不能为空', trigger: 'blur' },
+        ],
       },
       pickerSingleTime: {
         disabledDate: time => {
@@ -406,7 +365,8 @@ export default {
       return backupStrategys[this.dbType];
     },
     _timeStrategys: function() {
-      return backupStrategys[this.dbType][this.create.backupStrategy].timeStrategys;
+      return backupStrategys[this.dbType][this.create.backupStrategy]
+        .timeStrategys;
     },
     _visible: {
       get: function() {
@@ -437,7 +397,7 @@ export default {
         if (valid) {
           this.createLoading = true;
           const arr = this.create.timePoints.map(item => {
-            return item.value
+            return item.value;
           });
           const postdata = {
             startTime: this.create.startTime,
@@ -450,10 +410,10 @@ export default {
             timePoints: arr,
             backupUrl: this.create.backupUrl,
           };
-          console.log('POSE数据:'+ this.dbId);
+          console.log('POSE数据:' + this.dbId);
           console.log(postdata);
           // 向请求服务端
-          requestMapping[this.dbType](this.dbId,postdata)
+          requestMapping[this.dbType](this.dbId, postdata)
             .then(response => {
               console.log(response.data.message);
               this.$emit('confirm', response.data.data);

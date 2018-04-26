@@ -2,7 +2,7 @@
   <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id">
     <div slot="header" class="clearfix">
       <span>{{backupOperation.name}}</span>
-      <el-button style="float: right; padding: 3px 0" type="text" @click="planDeleteBtnClick">删除</el-button>
+      <el-button style="float: right; padding: 3px 0; color: #f56c6c;" type="text" @click="planDeleteBtnClick">删除</el-button>
       <el-button style="float: right; padding: 3px 3px" type="text">编辑</el-button>
     </div>
     <el-row type="flex">

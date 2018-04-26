@@ -8,7 +8,13 @@ const databaseDetailMixin = {
       backupPlan: {}, // 备份计划 { config, ...operation }
       results: [], // 备份集
       dbEditModal: false,
+      planCreateModal: false,
     };
+  },
+  computed: {
+    hasBackupPlan() {
+      return Object.keys(this.backupPlan).length !== 0;
+    },
   },
   created() {
     this.fetchData();
@@ -16,6 +22,16 @@ const databaseDetailMixin = {
   beforeRouteUpdate(to, from, next) {
     this.fetchData();
     next();
+  },
+  methods: {
+    addPlanBtnClick(command) {
+      if (command === 'backup') {
+        this.planCreateModal = true;
+      }
+    },
+    addBackupPlan(data) {
+      this.backupPlan = data;
+    },
   },
 };
 

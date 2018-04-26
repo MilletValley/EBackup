@@ -12,10 +12,10 @@
             </el-input>
           </el-form-item>
           <el-form-item label="记住我">
-            <el-switch v-model="rememberMe"></el-switch>
+            <el-switch v-model="rememberMe" :active-value="1" :inactive-value="0"></el-switch>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="login2(loginName, password)">登陆</el-button>
+            <el-button type="primary" @click="login2">登陆</el-button>
           </el-form-item>
         </el-form>
       </section>
@@ -31,7 +31,7 @@ export default {
     return {
       loginName: '',
       password: '',
-      rememberMe: false,
+      rememberMe: 0,
     };
   },
   computed: mapState({
@@ -45,18 +45,17 @@ export default {
   }),
   methods: {
     ...mapActions(['loginForAll']),
-    login2(loginName, password) {
-      this.loginForAll({ loginName, password })
-        .then(() => {
-          this.$message({
-            message: '登陆成功',
-            type: 'success',
+    login2() {
+      this.loginForAll(this.$data)
+        .then(responseData => {
+          const { message } = responseData;
+          this.$message.success({
+            message,
           });
           this.$router.replace('/');
         })
         .catch(error => {
-          this.$message({
-            type: 'error',
+          this.$message.error({
             message: '权限获取失败' + error,
           });
         });

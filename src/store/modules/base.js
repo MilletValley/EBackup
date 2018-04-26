@@ -50,12 +50,12 @@ const actions = {
    * @param {*} loginData
    */
   loginForToken({ commit }, loginData) {
-    // loginData: { loginName, password, remeberMe }
+    // loginData: { loginName, password, rememberMe }
     return login(loginData).then(res => {
-      const { data } = res;
-      userToken.save(data.token);
+      const { data } = res.data;
+      userToken.save(data.token, loginData.rememberMe ? 7 : undefined);
       commit(types.SET_TOKEN, data);
-      return data.token;
+      return res.data;
     });
   },
   /**
@@ -94,16 +94,16 @@ const actions = {
    */
   generateRoutes(context, { roles }) {
     // TODO: 角色返回类型是对象则需要加上下面这句
-    // const roles = roles.map(role => role.id);
+    const _roles = roles.map(role => role.id);
     return new Promise(resolve => {
       let accessedRouters;
-      if (roles.indexOf('admin') >= 0) accessedRouters = asyncRouters;
+      if (_roles.indexOf('admin') >= 0) accessedRouters = asyncRouters;
       else {
         accessedRouters = asyncRouters.filter(v => {
-          if (hasPermission(roles, v)) {
+          if (hasPermission(_roles, v)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
-                if (hasPermission(roles, childRouter)) {
+                if (hasPermission(_roles, childRouter)) {
                   return childRouter;
                 }
                 return false;
@@ -124,8 +124,8 @@ const actions = {
    * @param {*} loginData
    */
   loginForAll({ dispatch }, loginData) {
-    return dispatch('loginForToken', loginData).then(token =>
-      dispatch('loginByToken', { token })
+    return dispatch('loginForToken', loginData).then(({ data }) =>
+      dispatch('loginByToken', { token: data.token })
     );
   },
   logout({ commit }, token) {
