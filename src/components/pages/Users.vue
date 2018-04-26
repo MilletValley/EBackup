@@ -42,10 +42,10 @@
             filter-placement="bottom-end">
             <template slot-scope="scope">
               <span v-if="scope.row.state === 1">
-                <el-tooltip content="Bottom center" placement="bottom" effect="light">
+                <!-- <el-tooltip content="Bottom center" placement="bottom" effect="light"> -->
                   <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
                   </i>
-                </el-tooltip>
+                <!-- </el-tooltip> -->
               </span>
               <span v-else>
                 <i class="el-icon-remove" style="color: #909399;font-size: 18px"></i>
