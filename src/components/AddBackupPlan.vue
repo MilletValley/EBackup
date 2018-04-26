@@ -41,7 +41,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="间隔小时" v-show="isShowTimeRate">
-          <el-input-number v-model="create.timeIntervel" :step="2" :min="2" :max="24"></el-input-number>
+          <el-input-number v-model="create.timeInterval" :step="2" :min="2" :max="24"></el-input-number>
         </el-form-item>
         <el-form-item v-for="(domain, index) in create.timePoints" :label="'备份时间'" :key="domain.key" prop="timePoints" v-show="isShowTime">
           <el-col :span="11">
@@ -328,7 +328,7 @@ export default {
           },
         ],
         startTime: '',
-        timeIntervel: '',
+        timeInterval: '',
         singleTime: '',
         weekPoints: [],
         datePoints: [],
@@ -402,7 +402,7 @@ export default {
           const postdata = {
             startTime: this.create.startTime,
             backupStrategy: this.create.backupStrategy,
-            timeIntervel: this.create.timeIntervel,
+            timeInterval: this.create.timeInterval,
             timeStrategy: this.tmpTimeStrategy,
             singleTime: this.create.singleTime,
             weekPoints: this.create.weekPoints,
