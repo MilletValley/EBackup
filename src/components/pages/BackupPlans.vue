@@ -16,32 +16,23 @@ export default {
       dialogUpdateVisible: false,
        // 从oracle列表中筛选出对应的一条记录
       backupPlanDb: {
-        "startTime": "2006-03-28 03:53:38",
-        "backupStrategy": 0,
-        "timeStrategy": 3,
-        "singleTime": "2018-09-15 12:00:00",
-        "timePoints": [
-          "09:27",
-          "13:04",
-          "08:29",
-          "03:35",
-          "15:20"
-        ],
-        "weekPoints": [
-          1,
-          3,
-          5
-        ],
-        "datePoints": [
-          1,
-          5,
-          15,
-          20,
-          25
-        ],
-        "timeInterval": 21,
-        "backupUrl": "mid://fhvr.mn/uju"
-      }, 
+        "id": 117,
+        "nama": "一条需要修改的数据库备份计划",
+        	"config": {
+            "startTime": "2006-03-28 03:53:38",
+            "backupStrategy": 0,
+            "timeStrategy": 3,
+            "singleTime": "2018-09-15 12:00:00",
+            "timePoints": [
+              "23:47",
+	        		"04:04",
+            ],
+            "weekPoints": [],
+            "datePoints": [],
+            "timeInterval": 21,
+            "backupUrl": "mid://fhvr.mn/uju"
+          }, 
+      },
     };
   },
   components: {

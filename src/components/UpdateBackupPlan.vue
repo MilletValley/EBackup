@@ -1,11 +1,11 @@
 <template>
   <section>
     <!-- 修改数据库备份配置页面 begin-->
-    <el-dialog :title="'修改'+dbType+'备份配置'"
+    <el-dialog :title="_name"
                :visible.sync="_visible"
                :close-on-click-modal="false"
                :close-on-press-escape="false">
-      <el-form id="#update"
+      <el-form :id="_id"
                :model="update"
                :rules="rules"
                ref="update" label-width="100px">
@@ -73,7 +73,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="间隔小时" v-show="isShowTimeRate">
-          <el-input-number v-model="update.timeIntervel" :step="2" :min="2" :max="24"></el-input-number>
+          <el-input-number v-model="update.timeInterval" :step="2" :min="2" :max="24"></el-input-number>
         </el-form-item>
         <el-form-item
           v-for="(domain, index) in update.timePoints"
@@ -304,7 +304,7 @@ export default {
       required: true,
     },
   },
-  name: 'AddBackupPlan',
+  name: 'UpdateBackupPlan',
   data() {
     const valiSingleTime = (rule, value, callback) => {
       if (this.tmpTimeStrategy === 0) {
@@ -375,7 +375,7 @@ export default {
           },
         ],
         startTime: '',
-        timeIntervel: '',
+        timeInterval: '',
         singleTime: '',
         weekPoints: [],
         datePoints: [],
@@ -410,6 +410,12 @@ export default {
     _timeStrategys: function() {
       return backupStrategys[this.dbType][this.update.backupStrategy].timeStrategys;
     },
+    _name: function() {
+      return this.backupPlan.name;
+    },
+    _id: function() {
+      return this.backupPlan.id;
+    },
     _visible: {
       get: function() {
         this.initUpdate();
@@ -424,7 +430,8 @@ export default {
     // 赋值表单
     initUpdate() {
       //this.$refs.update.clearValidate();
-      const newObj = Object.assign({},this.backupPlan)
+      const assignObj = Object.assign({},this.backupPlan)
+      const newObj = assignObj.config;
       this.tmpTimeStrategy = newObj.timeStrategy;
       this.update.backupStrategy = newObj.backupStrategy;
       this.update.startTime = newObj.startTime;
@@ -451,7 +458,7 @@ export default {
           const postdata = {
             startTime: this.update.startTime,
             backupStrategy: this.update.backupStrategy,
-            timeIntervel: this.update.timeIntervel,
+            timeInterval: this.update.timeInterval,
             timeStrategy: this.tmpTimeStrategy,
             singleTime: this.update.singleTime,
             weekPoints: this.update.weekPoints,
