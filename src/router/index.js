@@ -56,6 +56,16 @@ export const asyncRouters = [
         meta: {
           title: 'Oracle',
           roles: ['admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '',
+            },
+          ],
         },
       },
       {
@@ -64,17 +74,59 @@ export const asyncRouters = [
         meta: {
           title: 'SQL Server',
           roles: ['admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '',
+            },
+          ],
         },
       },
       {
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
+        meta: {
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
       },
       {
         path: 'sqlserver/:id',
         props: true,
         component: SqlServerDetail,
+        meta: {
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '/db/sqlserver',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
       },
       {
         path: 'backupplans',

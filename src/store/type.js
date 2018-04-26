@@ -8,6 +8,8 @@ const CLEAR_LOGININFO = 'CLEARLOGININFO';
 
 const SET_ROUTERS = 'SETROUTERS';
 
+const SET_BREADCRUMB = 'SETBREADCRUMB';
+
 export default {
   SET_TOKEN,
   CLEAR_TOKEN,
@@ -17,4 +19,5 @@ export default {
   CLEAR_ROLES,
   CLEAR_LOGININFO,
   SET_ROUTERS,
+  SET_BREADCRUMB,
 };

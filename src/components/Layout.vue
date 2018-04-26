@@ -22,16 +22,22 @@
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header style="text-align: right; font-size: 12px">
-        <el-dropdown @command="handleCommand">
-          <span class="el-dropdown-link">
-            {{ userName }}
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="logout">退出</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+      <el-header style="font-size: 12px">
+        <el-breadcrumb separator="/" class="bread-crumb">
+          <el-breadcrumb-item v-for="nav in breadcrumb" :key="nav.path" :to="{ path: nav.path}">{{ nav.name }}</el-breadcrumb-item>
+        </el-breadcrumb>
+        <div class="user-info">
+          <el-dropdown @command="handleCommand">
+            <span class="el-dropdown-link">
+              {{ userName }}
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="logout">退出</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+
       </el-header>
       <el-main>
         <router-view/>
@@ -63,6 +69,7 @@ export default {
       menus: state =>
         state.base.routers.filter(router => router.meta && router.meta.title),
       // [],
+      breadcrumb: state => state.nav.breadcrumb,
     }),
   },
   methods: {
@@ -74,8 +81,7 @@ export default {
     },
     _logout() {
       this.logout(this.$store.state.base.token).then(message => {
-        this.$message({
-          type: 'success',
+        this.$message.success({
           message,
         });
         this.$router.push('/login');
@@ -105,7 +111,13 @@ export default {
 .el-menu {
   border: none;
 }
-
+.bread-crumb {
+  display: inline-block;
+  line-height: 0.6;
+}
+.user-info {
+  float: right;
+}
 .el-dropdown-link {
   cursor: pointer;
   color: #409eff;
