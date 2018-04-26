@@ -45,9 +45,8 @@ export default {
           this.dbs = oracles;
         })
         .catch(error => {
-          this.$message({
-            type: 'error',
-            message: error,
+          this.$message.error({
+            message: error.message,
           });
         });
     },
@@ -60,8 +59,7 @@ export default {
         .then(() => deleteOne(db.id))
         .then(() => {
           this.dbs.splice($index, 1);
-          this.$message({
-            type: 'success',
+          this.$message.success({
             message: '删除成功!',
           });
         })

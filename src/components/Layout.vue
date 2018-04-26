@@ -74,8 +74,7 @@ export default {
     },
     _logout() {
       this.logout(this.$store.state.base.token).then(message => {
-        this.$message({
-          type: 'success',
+        this.$message.success({
           message,
         });
         this.$router.push('/login');
