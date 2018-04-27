@@ -3,6 +3,9 @@
     <!-- 创建数据库备份配置页面 begin-->
     <el-dialog :title="'添加'+dbType+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form id="#create" :model="create" :rules="rules" ref="create" label-width="100px">
+        <el-form-item label="备份标题" prop="name">
+          <el-input v-model="create.name"></el-input>
+        </el-form-item>
         <el-form-item label="计划时间" prop="startTime">
           <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00">
           </el-date-picker>
@@ -322,6 +325,7 @@ export default {
       weekPointsInfo: weekPoints,
       datePointsInfo: datePoints,
       create: {
+        name: '',
         timePoints: [
           {
             value: '',
@@ -346,6 +350,9 @@ export default {
         datePoints: [{ validator: valiDatePoints, trigger: 'change' }],
         backupUrl: [
           { required: true, message: '备份路径不能为空', trigger: 'blur' },
+        ],
+        name: [
+          { required: true, message: '备份名称不能为空', trigger: 'blur' },
         ],
       },
       pickerSingleTime: {
@@ -383,6 +390,7 @@ export default {
       // this.$refs.create.resetFields(); 重置后数据不匹配
       this.$refs.create.clearValidate();
       this.tmpTimeStrategy = 1;
+      this.create.name = '';
       this.create.backupStrategy = 0;
       this.create.startTime = '';
       this.create.backupUrl = '';
@@ -400,6 +408,7 @@ export default {
             return item.value;
           });
           const postdata = {
+            name: this.create.name,
             startTime: this.create.startTime,
             backupStrategy: this.create.backupStrategy,
             timeInterval: this.create.timeInterval,
