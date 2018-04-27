@@ -291,10 +291,6 @@ export default {
       type: String,
       required: true,
     },
-    dbId: {
-      type: Number,
-      required: true,
-    },
     visible: {
       type: Boolean,
       required: true,
@@ -418,7 +414,9 @@ export default {
     },
     _visible: {
       get: function() {
-        this.initUpdate();
+        if(this.visible === true){
+            this.initUpdate();
+        }
         return this.visible;
       },
       set: function(value) {
@@ -466,10 +464,10 @@ export default {
             timePoints: arr,
             backupUrl: this.update.backupUrl,
           };
-          console.log('POSE数据:'+ this.dbId);
+          console.log('POSE数据:');
           console.log(postdata);
           // 向请求服务端
-          requestMapping[this.dbType](this.dbId,postdata)
+          requestMapping[this.dbType](this.backupPlan.id,postdata)
             .then(response => {
               console.log(response.data.message);
               this.$emit('confirm', response.data.data);
