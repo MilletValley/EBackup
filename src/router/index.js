@@ -10,7 +10,6 @@ import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
-import BackupPlans from '@/components/pages/BackupPlans';
 
 Vue.use(Router);
 
@@ -127,15 +126,7 @@ export const asyncRouters = [
             },
           ],
         },
-      },
-      {
-        path: 'backupplans',
-        component: BackupPlans,
-        meta: {
-          title: 'Backup Plans',
-          roles: ['admin'],
-        },
-      },
+      }
     ],
   },
   {
