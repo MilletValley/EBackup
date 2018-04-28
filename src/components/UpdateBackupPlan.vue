@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- 修改数据库备份配置页面 begin-->
-    <el-dialog :title="_name"
+    <el-dialog :title="'修改'+dbType+'备份配置'"
                :visible.sync="_visible"
                :close-on-click-modal="false"
                :close-on-press-escape="false">
@@ -9,13 +9,17 @@
                :model="update"
                :rules="rules"
                ref="update" label-width="100px">
+        <el-form-item label="备份标题" prop="name">
+          <el-input v-model="update.name"></el-input>
+        </el-form-item>
         <el-form-item label="计划时间" prop="startTime">
           <el-date-picker
             v-model="update.startTime"
             :picker-options="pickerStartTime"
             type="datetime"
             placeholder="选择日期时间"
-            default-time="00:00:00">
+            default-time="00:00:00"
+            value-format="yyyy-MM-dd HH-mm-ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="备份路径" prop="backupUrl">
@@ -49,7 +53,8 @@
             type="datetime"
             :picker-options="pickerSingleTime"
             placeholder="请选择日期时间"
-            default-time="00:00:00">
+            default-time="00:00:00"
+            value-format="yyyy-MM-dd HH-mm-ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="isShowDay" prop="datePoints">
@@ -62,7 +67,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="每周备份" v-show="isShowWeek" prop="weekPoints">
+        <el-form-item label="每周备份" v-show="isShowWeek" prop="weekPoints" min-width="560">
           <el-select v-model="update.weekPoints" multiple placeholder="请选择周几">
             <el-option
               v-for="item in weekPointsInfo"
@@ -72,8 +77,11 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="间隔小时" v-show="isShowTimeRate">
-          <el-input-number v-model="update.timeInterval" :step="2" :min="2" :max="24"></el-input-number>
+        <el-form-item label="间隔小时" v-show="isShowTimeRateH">
+          <el-input-number v-model="update.timeIntervalH" :min="1" :max="23"></el-input-number>
+        </el-form-item>
+        <el-form-item label="间隔分钟" v-show="isShowTimeRateM">
+          <el-input-number v-model="update.timeIntervalM" :step="10" :min="10" :max="60"></el-input-number>
         </el-form-item>
         <el-form-item
           v-for="(domain, index) in update.timePoints"
@@ -111,140 +119,102 @@
 </template>
 <script>
 import _ from 'lodash';
-import {
-  updateBackupPlans,
-} from '../api/database';
+import { updateBackupPlans } from '../api/database';
 
 const requestMapping = {
   oracle: (id, data) => updateBackupPlans({ id, plan: data }),
-  sqlserver: (id, data) => updateBackupPlans({ id, plan:data }),
+  sqlserver: (id, data) => updateBackupPlans({ id, plan: data }),
 };
 const backupStrategys = {
   oracle: [
-    {
-      label: 0,
-      name: '全备',
-      timeStrategys: [
-        {
-          label: 0,
-          name: '单次',
-          disabled: false,
-        },
-        {
-          label: 1,
-          name: '每天',
-          disabled: false,
-        },
-        {
-          label: 2,
-          name: '每周',
-          disabled: false,
-        },
-        {
-          label: 3,
-          name: '每月',
-          disabled: false,
-        },
-        {
-          label: 4,
-          name: '间隔',
-          disabled: false,
-        },
-      ],
-    },
     {
       label: 1,
       name: '全备+增备',
       timeStrategys: [
         {
-          label: 1,
-          name: '每天',
-          disabled: false,
+          label: 0,
+          name: '单次',
         },
         {
           label: 2,
-          name: '每周',
-          disabled: false,
+          name: '按小时',
         },
         {
           label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按天',
+        },
+        {
+          label: 4,
+          name: '按周',
+        },
+        {
+          label: 5,
+          name: '按月',
         },
       ],
-    },
+    }
+  ],
+  sqlserver: [
     {
+      label: 1,
+      name: '全备+增备',
+      timeStrategys: [
+        {
+          label: 0,
+          name: '单次',
+        },
+        {
+          label: 2,
+          name: '按小时',
+        },
+        {
+          label: 3,
+          name: '按天',
+        },
+        {
+          label: 4,
+          name: '按周',
+        },
+        {
+          label: 5,
+          name: '按月',
+        },
+      ],
+    },{
       label: 2,
       name: '全备+日志',
       timeStrategys: [
         {
           label: 1,
-          name: '每天',
-          disabled: false,
-        },
-        {
-          label: 2,
-          name: '每周',
-          disabled: false,
-        },
-        {
-          label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按分钟',
         },
       ],
     },
   ],
-  sqlserver: [
-    {
-      label: 0,
-      name: '全备',
-      timeStrategys: [
-        {
-          label: 0,
-          name: '单次',
-          disabled: false,
-        },
-        {
-          label: 1,
-          name: '每天',
-          disabled: false,
-        },
-        {
-          label: 2,
-          name: '每周',
-          disabled: false,
-        },
-        {
-          label: 3,
-          name: '每月',
-          disabled: false,
-        },
-        {
-          label: 4,
-          name: '间隔',
-          disabled: false,
-        },
-      ],
-    },
+  file: [
     {
       label: 1,
       name: '全备+增备',
       timeStrategys: [
         {
+          label: 0,
+          name: '单次',
+        },
+        {
           label: 1,
-          name: '每天',
-          disabled: false,
+          name: '按分钟',
         },
         {
           label: 2,
-          name: '每周',
-          disabled: false,
+          name: '按小时',
         },
         {
           label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按天',
+        },
+        {
+          label: 4,
+          name: '按周',
         },
       ],
     },
@@ -315,9 +285,9 @@ export default {
     };
     const valiTimePoints = (rule, value, callback) => {
       if (
-        this.tmpTimeStrategy === 1 ||
-        this.tmpTimeStrategy === 2 ||
-        this.tmpTimeStrategy === 3
+        this.tmpTimeStrategy === 3 ||
+        this.tmpTimeStrategy === 4 ||
+        this.tmpTimeStrategy === 5
       ) {
         let i = 0;
         value.map(item => {
@@ -334,7 +304,7 @@ export default {
       }
     };
     const valiWeekPoints = (rule, value, callback) => {
-      if (this.tmpTimeStrategy === 2) {
+      if (this.tmpTimeStrategy === 4) {
         if (value.length === 0) {
           callback(new Error('每周请至少选择一天'));
         } else {
@@ -345,7 +315,7 @@ export default {
       }
     };
     const valiDatePoints = (rule, value, callback) => {
-      if (this.tmpTimeStrategy === 3) {
+      if (this.tmpTimeStrategy === 5) {
         if (value.length === 0) {
           callback(new Error('每月请至少选择一天'));
         } else {
@@ -357,35 +327,46 @@ export default {
     };
     return {
       updateLoading: false,
-      isShowOnce: false,
-      isShowTime: true,
-      isShowTimeRate: false,
+      isShowOnce: true,
+      isShowTime: false,
+      isShowTimeRateH: false,
+      isShowTimeRateM: false,
       isShowDay: false,
       isShowWeek: false,
       weekPointsInfo: weekPoints,
       datePointsInfo: datePoints,
+      tmpName: '',
       update: {
+        name:'',
         timePoints: [
           {
             value: '',
           },
         ],
         startTime: '',
-        timeInterval: '',
+        timeIntervalH: 1,
+        timeIntervalM: 10,
         singleTime: '',
         weekPoints: [],
         datePoints: [],
-        backupStrategy: 0,
+        backupStrategy: 1,
         backupUrl: '',
       },
-      tmpTimeStrategy: 1,
+      tmpTimeStrategy: 0,
       rules: {
-        startTime: [{ required: true, message: '开始时间不能为空', trigger: 'change' }],
+        startTime: [
+          { required: true, message: '开始时间不能为空', trigger: 'change' },
+        ],
         singleTime: [{ validator: valiSingleTime, trigger: 'change' }],
         weekPoints: [{ validator: valiWeekPoints, trigger: 'change' }],
         timePoints: [{ validator: valiTimePoints, trigger: 'change' }],
         datePoints: [{ validator: valiDatePoints, trigger: 'change' }],
-        backupUrl: [{ required: true, message: '备份路径不能为空', trigger: 'blur' }],
+        backupUrl: [
+          { required: true, message: '备份路径不能为空', trigger: 'blur' },
+        ],
+        name:[{
+          required: true, message: '备份标题不能为空', trigger: 'change'
+        }]
       },
       pickerSingleTime: {
         disabledDate: time => {
@@ -403,20 +384,30 @@ export default {
     _backupStrategys: function() {
       return backupStrategys[this.dbType];
     },
-    _timeStrategys: function() {
-      return backupStrategys[this.dbType][this.update.backupStrategy].timeStrategys;
+    _timeStrategys:  function() {
+      const valBackupStrategy = this.update.backupStrategy;
+      for( let i=0; i<backupStrategys[this.dbType].length; i++){
+        if(backupStrategys[this.dbType][i].label === valBackupStrategy){
+          const valtimeStrategys = backupStrategys[this.dbType][i].timeStrategys;
+          this.tmpTimeStrategy = valtimeStrategys[0].label;
+          return valtimeStrategys;
+        }
+      }
     },
-    _name: function() {
-      return this.backupPlan.name;
+    _timeInterval: function() {
+      if(this.tmpTimeStrategy === 1){
+        return this.update.timeIntervalM  
+      }else if(this.tmpTimeStrategy === 2){
+        return this.update.timeIntervalH*60
+      }else{
+        return ''
+      }     
     },
     _id: function() {
       return this.backupPlan.id;
     },
     _visible: {
       get: function() {
-        if(this.visible === true){
-            this.initUpdate();
-        }
         return this.visible;
       },
       set: function(value) {
@@ -428,8 +419,9 @@ export default {
     // 赋值表单
     initUpdate() {
       //this.$refs.update.clearValidate();
-      const assignObj = Object.assign({},this.backupPlan)
+      const assignObj = Object.assign({}, this.backupPlan);
       const newObj = assignObj.config;
+      this.update.name = this.backupPlan.name;
       this.tmpTimeStrategy = newObj.timeStrategy;
       this.update.backupStrategy = newObj.backupStrategy;
       this.update.startTime = newObj.startTime;
@@ -437,10 +429,19 @@ export default {
       this.update.singleTime = newObj.singleTime;
       this.update.datePoints = newObj.datePoints;
       this.update.weekPoints = newObj.weekPoints;
-      this.update.timeInterval = newObj.timeInterval;
+      if(this.tmpTimeStrategy === 1){
+        this.update.timeIntervalM = newObj.timeInterval;
+        this.update.timeIntervalH = 1; 
+      }else if(this.tmpTimeStrategy === 2){
+        this.update.timeIntervalM = 10;
+        this.update.timeIntervalH = parseInt(newObj.timeInterval/60);
+      }else{
+        this.update.timeIntervalM = 10;
+        this.update.timeIntervalH = 1;
+      }
       this.update.timePoints = newObj.timePoints.map(i => {
-            return { value: i }
-          });
+        return { value: i };
+      });
     },
     // 重置表单清空验证
     resetUpdate() {
@@ -451,25 +452,47 @@ export default {
         if (valid) {
           this.updateLoading = true;
           const arr = this.update.timePoints.map(item => {
-            return item.value
+            return item.value;
           });
-          const postdata = {
+          let emptydata = {
+            timeInterval: '',
+            singleTime: '',
+            weekPoints: [],
+            datePoints: [],
+            timePoints: [],
+          };
+          if(this.tmpTimeStrategy === 0){
+            emptydata.singleTime = this.update.singleTime;
+          }else if(this.tmpTimeStrategy === 1){
+            emptydata.timeInterval = this._timeInterval;      
+          }else if(this.tmpTimeStrategy === 2){
+            emptydata.timeInterval = this._timeInterval;
+          }else if(this.tmpTimeStrategy === 3){
+            emptydata.timePoints = arr;
+          }else if(this.tmpTimeStrategy === 4){
+            emptydata.weekPoints = this.update.weekPoints;
+            emptydata.timePoints = arr;
+          }else if(this.tmpTimeStrategy === 5){
+            emptydata.datePoints = this.update.datePoints;
+            emptydata.timePoints = arr;
+          }
+
+          const tmpdata = {
+            id: this.backupPlan.config.id,
             startTime: this.update.startTime,
             backupStrategy: this.update.backupStrategy,
-            timeInterval: this.update.timeInterval,
             timeStrategy: this.tmpTimeStrategy,
-            singleTime: this.update.singleTime,
-            weekPoints: this.update.weekPoints,
-            datePoints: this.update.datePoints,
-            timePoints: arr,
             backupUrl: this.update.backupUrl,
           };
-          console.log('POSE数据:');
-          console.log(postdata);
+          const postdata = Object.assign({},emptydata,tmpdata)
+          const data = {
+            id: this._id,
+            name: this.update.name,
+            config: postdata
+          }
           // 向请求服务端
-          requestMapping[this.dbType](this.backupPlan.id,postdata)
+          requestMapping[this.dbType](this.backupPlan.id, data)
             .then(response => {
-              console.log(response.data.message);
               this.$emit('confirm', response.data.data);
               this.update.timePoints.splice(
                 1,
@@ -509,24 +532,28 @@ export default {
         this.isShowOnce = true;
       } else if (val === 1) {
         this.emptyUpdateInfo();
-        this.isShowTime = true;
+        this.isShowTimeRateM = true;
       } else if (val === 2) {
         this.emptyUpdateInfo();
-        this.isShowTime = true;
-        this.isShowWeek = true;
+        this.isShowTimeRateH = true;
       } else if (val === 3) {
         this.emptyUpdateInfo();
         this.isShowTime = true;
-        this.isShowDay = true;
       } else if (val === 4) {
         this.emptyUpdateInfo();
-        this.isShowTimeRate = true;
+        this.isShowTime = true;
+        this.isShowWeek = true;
+      }else if (val === 5) {
+        this.emptyUpdateInfo();
+        this.isShowTime = true;
+        this.isShowDay = true;
       }
     },
     emptyUpdateInfo() {
       this.isShowOnce = false;
       this.isShowTime = false;
-      this.isShowTimeRate = false;
+      this.isShowTimeRateH = false;
+      this.isShowTimeRateM = false;
       this.isShowDay = false;
       this.isShowWeek = false;
     },
@@ -534,6 +561,12 @@ export default {
   watch: {
     tmpTimeStrategy: function(newVal, oldVal) {
       this.getTimeStrategy(newVal);
+    },
+    visible(value) {
+      if (value) {
+        // modal显示
+        this.initUpdate() 
+      }
     },
   },
 };

@@ -7,7 +7,7 @@
           <el-input v-model="create.name"></el-input>
         </el-form-item>
         <el-form-item label="计划时间" prop="startTime">
-          <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00">
+          <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH-mm-ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="备份路径" prop="backupUrl">
@@ -28,7 +28,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="单次备份" v-show="isShowOnce" prop="singleTime">
-          <el-date-picker v-model="create.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00">
+          <el-date-picker v-model="create.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH-mm-ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="isShowDay" prop="datePoints">
@@ -43,8 +43,11 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="间隔小时" v-show="isShowTimeRate">
-          <el-input-number v-model="create.timeInterval" :step="2" :min="2" :max="24"></el-input-number>
+        <el-form-item label="间隔小时" v-show="isShowTimeRateH">
+          <el-input-number v-model="create.timeIntervalH" :min="1" :max="23"></el-input-number>
+        </el-form-item>
+        <el-form-item label="间隔分钟" v-show="isShowTimeRateM">
+          <el-input-number v-model="create.timeIntervalM" :step="10" :min="10" :max="60"></el-input-number>
         </el-form-item>
         <el-form-item v-for="(domain, index) in create.timePoints" :label="'备份时间'" :key="domain.key" prop="timePoints" v-show="isShowTime">
           <el-col :span="11">
@@ -82,129 +85,93 @@ const requestMapping = {
 const backupStrategys = {
   oracle: [
     {
-      label: 0,
-      name: '全备',
+      label: 1,
+      name: '全备+增备',
       timeStrategys: [
         {
           label: 0,
           name: '单次',
-          disabled: false,
-        },
-        {
-          label: 1,
-          name: '每天',
-          disabled: false,
         },
         {
           label: 2,
-          name: '每周',
-          disabled: false,
+          name: '按小时',
         },
         {
           label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按天',
         },
         {
           label: 4,
-          name: '间隔',
-          disabled: false,
+          name: '按周',
+        },
+        {
+          label: 5,
+          name: '按月',
         },
       ],
-    },
+    }
+  ],
+  sqlserver: [
     {
       label: 1,
       name: '全备+增备',
       timeStrategys: [
         {
-          label: 1,
-          name: '每天',
-          disabled: false,
+          label: 0,
+          name: '单次',
         },
         {
           label: 2,
-          name: '每周',
-          disabled: false,
+          name: '按小时',
         },
         {
           label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按天',
+        },
+        {
+          label: 4,
+          name: '按周',
+        },
+        {
+          label: 5,
+          name: '按月',
         },
       ],
-    },
-    {
+    },{
       label: 2,
       name: '全备+日志',
       timeStrategys: [
         {
           label: 1,
-          name: '每天',
-          disabled: false,
-        },
-        {
-          label: 2,
-          name: '每周',
-          disabled: false,
-        },
-        {
-          label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按分钟',
         },
       ],
     },
   ],
-  sqlserver: [
-    {
-      label: 0,
-      name: '全备',
-      timeStrategys: [
-        {
-          label: 0,
-          name: '单次',
-          disabled: false,
-        },
-        {
-          label: 1,
-          name: '每天',
-          disabled: false,
-        },
-        {
-          label: 2,
-          name: '每周',
-          disabled: false,
-        },
-        {
-          label: 3,
-          name: '每月',
-          disabled: false,
-        },
-        {
-          label: 4,
-          name: '间隔',
-          disabled: false,
-        },
-      ],
-    },
+  file: [
     {
       label: 1,
       name: '全备+增备',
       timeStrategys: [
         {
+          label: 0,
+          name: '单次',
+        },
+        {
           label: 1,
-          name: '每天',
-          disabled: false,
+          name: '按分钟',
         },
         {
           label: 2,
-          name: '每周',
-          disabled: false,
+          name: '按小时',
         },
         {
           label: 3,
-          name: '每月',
-          disabled: false,
+          name: '按天',
+        },
+        {
+          label: 4,
+          name: '按周',
         },
       ],
     },
@@ -275,9 +242,9 @@ export default {
     };
     const valiTimePoints = (rule, value, callback) => {
       if (
-        this.tmpTimeStrategy === 1 ||
-        this.tmpTimeStrategy === 2 ||
-        this.tmpTimeStrategy === 3
+        this.tmpTimeStrategy === 3 ||
+        this.tmpTimeStrategy === 4 ||
+        this.tmpTimeStrategy === 5
       ) {
         let i = 0;
         value.map(item => {
@@ -294,7 +261,7 @@ export default {
       }
     };
     const valiWeekPoints = (rule, value, callback) => {
-      if (this.tmpTimeStrategy === 2) {
+      if (this.tmpTimeStrategy === 4) {
         if (value.length === 0) {
           callback(new Error('每周请至少选择一天'));
         } else {
@@ -305,7 +272,7 @@ export default {
       }
     };
     const valiDatePoints = (rule, value, callback) => {
-      if (this.tmpTimeStrategy === 3) {
+      if (this.tmpTimeStrategy === 5) {
         if (value.length === 0) {
           callback(new Error('每月请至少选择一天'));
         } else {
@@ -317,9 +284,10 @@ export default {
     };
     return {
       createLoading: false,
-      isShowOnce: false,
-      isShowTime: true,
-      isShowTimeRate: false,
+      isShowOnce: true,
+      isShowTime: false,
+      isShowTimeRateH: false,
+      isShowTimeRateM: false,
       isShowDay: false,
       isShowWeek: false,
       weekPointsInfo: weekPoints,
@@ -332,14 +300,15 @@ export default {
           },
         ],
         startTime: '',
-        timeInterval: '',
+        timeIntervalH: 1,
+        timeIntervalM: 10,
         singleTime: '',
         weekPoints: [],
         datePoints: [],
-        backupStrategy: 0,
+        backupStrategy: 1,
         backupUrl: '',
       },
-      tmpTimeStrategy: 1,
+      tmpTimeStrategy: 0,
       rules: {
         startTime: [
           { required: true, message: '开始时间不能为空', trigger: 'change' },
@@ -372,8 +341,23 @@ export default {
       return backupStrategys[this.dbType];
     },
     _timeStrategys: function() {
-      return backupStrategys[this.dbType][this.create.backupStrategy]
-        .timeStrategys;
+      const valBackupStrategy = this.create.backupStrategy;
+      for( let i=0; i<backupStrategys[this.dbType].length; i++){
+        if(backupStrategys[this.dbType][i].label === valBackupStrategy){
+          const valtimeStrategys = backupStrategys[this.dbType][i].timeStrategys;
+          this.tmpTimeStrategy = valtimeStrategys[0].label;
+          return valtimeStrategys;
+        }
+      }
+    },
+    _timeInterval: function() {
+      if(this.tmpTimeStrategy === 1){
+        return this.create.timeIntervalM  
+      }else if(this.tmpTimeStrategy === 2){
+        return this.create.timeIntervalH*60
+      }else{
+        return ''
+      }    
     },
     _visible: {
       get: function() {
@@ -391,13 +375,14 @@ export default {
       this.$refs.create.clearValidate();
       this.tmpTimeStrategy = 1;
       this.create.name = '';
-      this.create.backupStrategy = 0;
+      this.create.backupStrategy = 1;
       this.create.startTime = '';
       this.create.backupUrl = '';
       this.create.singleTime = '';
       this.create.datePoints = [];
       this.create.weekPoints = [];
-      this.create.timeInterval = 2;
+      this.create.timeIntervalH = 1;
+      this.create.timeIntervalM = 10;
       this.create.timePoints[0].value = '';
     },
     createBackupPlan() {
@@ -407,24 +392,39 @@ export default {
           const arr = this.create.timePoints.map(item => {
             return item.value;
           });
-          const postdata = {
-            name: this.create.name,
+          let emptydata = {
+            timeInterval: '',
+            singleTime: '',
+            weekPoints: [],
+            datePoints: [],
+            timePoints: [],
+          };
+          if(this.tmpTimeStrategy === 0){
+            emptydata.singleTime = this.create.singleTime;
+          }else if(this.tmpTimeStrategy === 1){
+            emptydata.timeInterval = this._timeInterval;      
+          }else if(this.tmpTimeStrategy === 2){
+            emptydata.timeInterval = this._timeInterval;
+          }else if(this.tmpTimeStrategy === 3){
+            emptydata.timePoints = arr;
+          }else if(this.tmpTimeStrategy === 4){
+            emptydata.weekPoints = this.create.weekPoints;
+            emptydata.timePoints = arr;
+          }else if(this.tmpTimeStrategy === 5){
+            emptydata.datePoints = this.create.datePoints;
+            emptydata.timePoints = arr;
+          }
+          const tmpdata = {
             startTime: this.create.startTime,
             backupStrategy: this.create.backupStrategy,
-            timeInterval: this.create.timeInterval,
             timeStrategy: this.tmpTimeStrategy,
-            singleTime: this.create.singleTime,
-            weekPoints: this.create.weekPoints,
-            datePoints: this.create.datePoints,
-            timePoints: arr,
             backupUrl: this.create.backupUrl,
           };
-          console.log('POSE数据:' + this.dbId);
-          console.log(postdata);
+          const configdata = Object.assign({},emptydata,tmpdata)
+          const postdata = {name: this.create.name, config:configdata}
           // 向请求服务端
           requestMapping[this.dbType](this.dbId, postdata)
             .then(response => {
-              console.log(response.data.message);
               this.$emit('confirm', response.data.data);
               this.create.timePoints.splice(
                 1,
@@ -464,24 +464,28 @@ export default {
         this.isShowOnce = true;
       } else if (val === 1) {
         this.emptyCreateInfo();
-        this.isShowTime = true;
+        this.isShowTimeRateM = true;
       } else if (val === 2) {
         this.emptyCreateInfo();
-        this.isShowTime = true;
-        this.isShowWeek = true;
+        this.isShowTimeRateH = true;
       } else if (val === 3) {
         this.emptyCreateInfo();
         this.isShowTime = true;
-        this.isShowDay = true;
       } else if (val === 4) {
         this.emptyCreateInfo();
-        this.isShowTimeRate = true;
-      }
+        this.isShowTime = true;
+        this.isShowWeek = true;
+      }else if (val === 5) {
+        this.emptyCreateInfo();
+        this.isShowTime = true;
+        this.isShowDay = true;
+      } 
     },
     emptyCreateInfo() {
       this.isShowOnce = false;
       this.isShowTime = false;
-      this.isShowTimeRate = false;
+      this.isShowTimeRateH = false;
+      this.isShowTimeRateM = false;
       this.isShowDay = false;
       this.isShowWeek = false;
     },

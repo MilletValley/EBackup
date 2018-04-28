@@ -21,22 +21,21 @@
 
           <el-table-column
             type="selection"
-            width="55">
+          >
           </el-table-column>
           <el-table-column
             prop="loginName"
             label="账户"
-            width="180">
+          >
           </el-table-column>
           <el-table-column
             prop="userName"
             label="姓名"
-            width="180">
+          >
           </el-table-column>
           <el-table-column
             prop="state"
             label="状态"
-            width="180"
             :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]"
             :filter-method="filterState"
             filter-placement="bottom-end">
@@ -54,7 +53,7 @@
           </el-table-column>
           <el-table-column
             label="角色"
-            width="300">
+          >
             <template slot-scope="scope">
               <span  v-for="item in scope.row.roles"
                      :key="item.id"
@@ -62,7 +61,7 @@
                      :value="item.id">&nbsp;&nbsp;{{ item.name }}&nbsp;&nbsp;</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" min-width="130" header-align="center" align="center">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -322,8 +321,12 @@ export default {
       )
         .then(() => {
           // 向请求服务端删除
-          const password = '111111';
-          resetPassword(value, password)
+          const resetUpdate= {
+            id: value,
+            password: '111111'
+          };
+          // resetPassword(value, password)
+          updateUserInfo(resetUpdate)
             .then(response => {
               console.log(response.data.message);
               this.$message.success('重置密码成功!');
