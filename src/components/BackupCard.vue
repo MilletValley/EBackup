@@ -22,29 +22,29 @@
               <el-tag size="small">{{ backupConfig.singleTime }}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="星期" v-if="backupConfig.timeStrategy === 2" style="width: 100%">
+          <el-form-item label="星期" v-if="backupConfig.timeStrategy === 4" style="width: 100%">
             <div>
               <el-tag v-for="point in weekPoints" :key="point" size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="日期" v-if="backupConfig.timeStrategy === 3" style="width: 100%">
+          <el-form-item label="日期" v-if="backupConfig.timeStrategy === 5" style="width: 100%">
             <div>
               <el-tag v-for="point in backupConfig.datePoints" :key="point" size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="时间" v-if="[1,2,3].indexOf(backupConfig.timeStrategy) >= 0" style="width: 100%">
+          <el-form-item label="时间" v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0" style="width: 100%">
             <div>
               <el-tag v-for="point in backupConfig.timePoints" :key="point" size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="间隔" v-if="backupConfig.timeStrategy === 4" style="width: 100%">
+          <el-form-item label="间隔" v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2" style="width: 100%">
             <div>
-              <el-tag size="small">{{backupConfig.timeInterval}}小时</el-tag>
+              <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="备份路径">
+          <!-- <el-form-item label="备份路径">
             <span>{{ backupConfig.backupUrl }}</span>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
       </el-col>
       <el-col :span="6" class="operation-info">
