@@ -28,8 +28,7 @@ router.beforeEach((to, from, next) => {
     store.dispatch('loginByToken', { token }).then(accessedRouters => {
       store.commit(types.SET_TOKEN, { token });
       router.addRoutes(accessedRouters);
-      // store.commit(types.SET_ROUTERS, accessedRouters);
-      next(to);
+      next({ ...to, replace: true });
     });
   } else if (to.path === '/login') {
     next();

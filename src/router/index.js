@@ -46,7 +46,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['admin'],
+      roles: ['admin', 'oracle dba'],
     },
     children: [
       {
@@ -54,7 +54,7 @@ export const asyncRouters = [
         component: OracleList,
         meta: {
           title: 'Oracle',
-          roles: ['admin'],
+          roles: ['admin', 'oracle dba'],
           breadcrumb: [
             {
               name: '首页',

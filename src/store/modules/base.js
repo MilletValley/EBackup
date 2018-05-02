@@ -51,12 +51,16 @@ const actions = {
    */
   loginForToken({ commit }, loginData) {
     // loginData: { loginName, password, rememberMe }
-    return login(loginData).then(res => {
-      const { data } = res.data;
-      userToken.save(data.token, loginData.rememberMe ? 7 : undefined);
-      commit(types.SET_TOKEN, data);
-      return res.data;
-    });
+    return login(loginData)
+      .then(res => {
+        const { data } = res.data;
+        userToken.save(data.token, loginData.rememberMe ? 7 : undefined);
+        commit(types.SET_TOKEN, data);
+        return res.data;
+      })
+      .catch(error => {
+        Promise.reject(error);
+      });
   },
   /**
    * 根据Token获取用户信息
@@ -93,17 +97,16 @@ const actions = {
    * @param {*} param1
    */
   generateRoutes(context, { roles }) {
-    // TODO: 角色返回类型是对象则需要加上下面这句
-    const _roles = roles.map(role => role.id);
+    const roleIds = roles.map(role => role.id);
     return new Promise(resolve => {
       let accessedRouters;
-      if (_roles.indexOf('admin') >= 0) accessedRouters = asyncRouters;
+      if (roleIds.indexOf('admin') >= 0) accessedRouters = asyncRouters;
       else {
         accessedRouters = asyncRouters.filter(v => {
-          if (hasPermission(_roles, v)) {
+          if (hasPermission(roleIds, v)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
-                if (hasPermission(_roles, childRouter)) {
+                if (hasPermission(roleIds, childRouter)) {
                   return childRouter;
                 }
                 return false;

@@ -47,12 +47,11 @@ export default {
     ...mapActions(['loginForAll']),
     login2() {
       this.loginForAll(this.$data)
-        .then(responseData => {
-          const { message } = responseData;
-          this.$message.success({
-            message,
-          });
-          this.$router.replace('/');
+        .then(accessedRouters => {
+          this.$router.addRoutes(accessedRouters);
+          this.$message.success('登陆成功');
+          // this.$router.replace('/');
+          this.$router.push('/dashboard');
         })
         .catch(error => {
           this.$message.error({
