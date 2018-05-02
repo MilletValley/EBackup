@@ -1,5 +1,5 @@
 import types from '../type';
-import { login, fetchUsersByToken, logout } from '../../api/user';
+import { login, validateToken, logout } from '../../api/user';
 import { userToken } from '../../utils/storage';
 import { basicRouters, asyncRouters } from '../../router';
 
@@ -51,12 +51,16 @@ const actions = {
    */
   loginForToken({ commit }, loginData) {
     // loginData: { loginName, password, rememberMe }
-    return login(loginData).then(res => {
-      const { data } = res.data;
-      userToken.save(data.token, loginData.rememberMe ? 7 : undefined);
-      commit(types.SET_TOKEN, data);
-      return res.data;
-    });
+    return login(loginData)
+      .then(res => {
+        const { data } = res.data;
+        userToken.save(data.token, loginData.rememberMe ? 7 : undefined);
+        commit(types.SET_TOKEN, data);
+        return res.data;
+      })
+      .catch(error => {
+        Promise.reject(error);
+      });
   },
   /**
    * 根据Token获取用户信息
@@ -64,14 +68,13 @@ const actions = {
    * @param {*} param1
    */
   getUserInfo({ commit }, { token }) {
-    return fetchUsersByToken(token).then(res => {
-      const { data: users } = res.data;
-      if (users.length === 0) {
-        // TODO: 理论上 应该不需要这个判断，如果Token失效，后端应该返回错误，被拦截
+    return validateToken(token).then(res => {
+      const { data: user } = res.data;
+      if (!user) {
         return Promise.reject('Token无效');
       }
-      commit(types.SET_USERINFO, users[0]);
-      return users[0];
+      commit(types.SET_USERINFO, user);
+      return user;
     });
   },
 
@@ -93,17 +96,16 @@ const actions = {
    * @param {*} param1
    */
   generateRoutes(context, { roles }) {
-    // TODO: 角色返回类型是对象则需要加上下面这句
-    const _roles = roles.map(role => role.id);
+    const roleIds = roles.map(role => role.id);
     return new Promise(resolve => {
       let accessedRouters;
-      if (_roles.indexOf('admin') >= 0) accessedRouters = asyncRouters;
+      if (roleIds.indexOf('admin') >= 0) accessedRouters = asyncRouters;
       else {
         accessedRouters = asyncRouters.filter(v => {
-          if (hasPermission(_roles, v)) {
+          if (hasPermission(roleIds, v)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
-                if (hasPermission(_roles, childRouter)) {
+                if (hasPermission(roleIds, childRouter)) {
                   return childRouter;
                 }
                 return false;

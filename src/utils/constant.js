@@ -17,7 +17,7 @@ const backupStrategyMapping = {
 const timeStrategyMapping = {
   0: '单次执行',
   1: '按分钟循环',
-  2: '按小时循环', 
+  2: '按小时循环',
   3: '按天循环',
   4: '按周循环',
   5: '按月循环',

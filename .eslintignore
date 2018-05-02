@@ -3,3 +3,4 @@
 /dist/
 /*.js
 /src/utils/icon-svg.js
+/test/

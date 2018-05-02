@@ -58,13 +58,14 @@
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
-        <backup-card :id="id" :backupPlan="backupPlan" @deletePlan="backupPlan = {}"></backup-card>
+        <backup-card :id="id" :backupPlan="backupPlan" @deletePlan="backupPlan = {}" @updatePlan="planUpdateModal = true"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
         <backup-result-list :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
     <add-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
+    <update-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="backupPlan" @confirm="updateBackupPlan"></update-backup-plan>
   </section>
 </template>
 <script>
@@ -74,6 +75,7 @@ import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
 import AddBackupPlan from '@/components/AddBackupPlan';
+import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import { deleteBackupPlan } from '../../api/database';
 import databaseDetailMixin from '../mixins/databaseDetailMixins';
 import {
@@ -89,6 +91,7 @@ export default {
   methods: {
     fetchData() {
       fetchOne(this.id)
+        // TODO: 使用Promise.all重构 Oracle一样
         .then(res => {
           const { data: db } = res.data;
           this.dbInfo = db;
@@ -117,6 +120,7 @@ export default {
     BackupCard,
     BackupResultList,
     AddBackupPlan,
+    UpdateBackupPlan,
   },
 };
 </script>
