@@ -48,15 +48,14 @@ export default {
     login2() {
       this.loginForAll(this.$data)
         .then(accessedRouters => {
+          // 登陆成功后，必须马上添加允许登陆的路由
           this.$router.addRoutes(accessedRouters);
           this.$message.success('登陆成功');
-          // this.$router.replace('/');
-          this.$router.push('/dashboard');
+          this.$router.replace('/');
+          // this.$router.push('/dashboard');
         })
         .catch(error => {
-          this.$message.error({
-            message: '权限获取失败' + error,
-          });
+          this.$message.error(error);
         });
     },
   },

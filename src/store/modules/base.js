@@ -1,5 +1,5 @@
 import types from '../type';
-import { login, fetchUsersByToken, logout } from '../../api/user';
+import { login, validateToken, logout } from '../../api/user';
 import { userToken } from '../../utils/storage';
 import { basicRouters, asyncRouters } from '../../router';
 
@@ -68,14 +68,13 @@ const actions = {
    * @param {*} param1
    */
   getUserInfo({ commit }, { token }) {
-    return fetchUsersByToken(token).then(res => {
-      const { data: users } = res.data;
-      if (users.length === 0) {
-        // TODO: 理论上 应该不需要这个判断，如果Token失效，后端应该返回错误，被拦截
+    return validateToken(token).then(res => {
+      const { data: user } = res.data;
+      if (!user) {
         return Promise.reject('Token无效');
       }
-      commit(types.SET_USERINFO, users[0]);
-      return users[0];
+      commit(types.SET_USERINFO, user);
+      return user;
     });
   },
 

@@ -20,10 +20,10 @@ const logout = ({ token }) =>
     },
   });
 
-const fetchUsersByToken = token =>
+const validateToken = token =>
   baseApi.request({
     method: 'get',
-    url: '/users',
+    url: '/validate',
     params: {
       token,
     },
@@ -33,7 +33,7 @@ const createUserInfo = user =>
   baseApi.request({
     method: 'post',
     url: '/users',
-    data: user
+    data: user,
   });
 
 const getUsersInfo = () =>
@@ -47,7 +47,7 @@ const updateUserInfo = user =>
   baseApi.request({
     method: 'patch',
     url: `/users/${user.id}`,
-    data: user
+    data: user,
   });
 
 const resetPassword = ({ id, password }) =>
@@ -71,13 +71,13 @@ const deleteUsersInfo = data =>
   baseApi.request({
     method: 'delete',
     url: '/users',
-    data: data
+    data: data,
   });
 
 export {
   login,
   logout,
-  fetchUsersByToken,
+  validateToken,
   createUserInfo,
   getUsersInfo,
   updateUserInfo,
