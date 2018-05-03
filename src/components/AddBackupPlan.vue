@@ -446,11 +446,7 @@ export default {
             })
             .catch(error => {
               this.createLoading = false;
-          console.log('进入登录失败1：')
-          console.log(error)
-          console.log('进入登录失败2：')
-
-                this.$message.error('Error'+error.code+':'+ error.message);
+              this.$message.error('Error!'+error.code+':'+ error.message);
             });
         } else {
           this.$message.success('创建备份配置失败!');

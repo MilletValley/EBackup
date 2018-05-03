@@ -66,14 +66,7 @@ export default {
         })
         .catch(error => {
           this.isLoading = false;
-          console.log('进入登录失败1：')
-          console.log(error)
-          console.log('进入登录失败2：')
-          if (error.response) {
-            this.$message.error(error.response.status+': '+error.response.data.message)
-          } else {
-            this.$message.error('Error', error.message);
-          }
+          this.$message.error('Error!'+error.code+':'+ error.message);
         });
     },
     doPassword() {
