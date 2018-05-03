@@ -326,12 +326,15 @@ export default {
           };
           updateUserInfo(resetUpdate)
             .then(response => {
-              console.log(response.data.message);
               this.$message.success('重置密码成功!');
               this.passDisable = true;
             })
             .catch(error => {
-              console.log(error);
+              if (error.response) {
+                this.$message.error(error.response.status+': '+error.response.data.message)
+              } else {
+                this.$message.error('Error', error.message);
+              }
             });
         })
         .catch(() => {
@@ -354,13 +357,16 @@ export default {
               // this.getUsers();
             })
             .catch(error => {
-              console.log(error);
+              if (error.response) {
+                this.$message.error(error.response.status+': '+error.response.data.message)
+              } else {
+                this.$message.error('Error', error.message);
+              }
             });
         })
         .catch(() => {
           this.$message.info('已取消操作!');
         });
-      // console.log(index, row);
     },
     // 复选框
     handleSelectionChange(val) {
@@ -371,16 +377,17 @@ export default {
       this.loading = true;
       getUsersInfo()
         .then(response => {
-          console.log(response.data.message);
-          console.log(response);
           this.tableUsers = response.data.data;
           // this.pagination.tableRows = this.tableUsers.length;
           this.loading = false;
         })
         .catch(error => {
-          console.log('获取用户列表失败:');
-          console.log(error);
           this.loading = false;
+          if (error.response) {
+            this.$message.error(error.response.status+': '+error.response.data.message)
+          } else {
+            this.$message.error('Error', error.message);
+          }
         });
     },
     // 创建用户
@@ -388,22 +395,21 @@ export default {
       this.$refs.create.validate(valid => {
         if (valid) {
           this.createLoading = true;
-          console.log('创建用户数据:');
-          console.log(this.create);
           createUserInfo(this.create)
             .then(response => {
               this.$message.success('创建用户成功！');
               this.dialogCreateVisible = false;
               this.createLoading = false;
               const data = response.data.data;
-              console.log('创建成功返回数据:');
-              console.log(response);
               this.tableUsers.push(response.data.data);
             })
             .catch(error => {
-              console.log('创建用户失败:');
-              console.log(error);
               this.createLoading = false;
+              if (error.response) {
+                this.$message.error(error.response.status+': '+error.response.data.message)
+              } else {
+                this.$message.error('Error', error.message);
+              }
             });
         } else {
           return false;
@@ -413,8 +419,6 @@ export default {
     // 编辑用户
     updateUser() {
       this.updateLoading = true;
-      console.log("编辑用户数据:")
-      console.log(this.update.id)
       updateUserInfo(this.update)
         .then(response => {
           this.$message.success('编辑用户成功！');
@@ -422,13 +426,14 @@ export default {
           this.updateLoading = false;
           // 根据索引，赋值到list制定的数
           this.tableUsers.splice(this.listIndex, 1, response.data.data);
-          console.log("编辑成功回调数据:")
-          console.log(response);
         })
         .catch(error => {
-          console.log('编辑用户失败:');
-          console.log(error);
           this.updateLoading = false;
+          if (error.response) {
+            this.$message.error(error.response.status+': '+error.response.data.message)
+          } else {
+            this.$message.error('Error', error.message);
+          }
         });
     },
     // 批量删除
@@ -451,17 +456,17 @@ export default {
           // 向请求服务端删除
           deleteUsersInfo(data)
             .then(response => {
-              // console.log("删除用户成功:")
-              console.log(response.data.message);
               this.$message.success(
                 `删除了 ${this.multipleSelection.length} 条用户信息!`
               );
               this.getUsers();
             })
             .catch(error => {
-              console.log('删除用户失败:');
-              console.log(error);
-              this.$message.error('删除失败!');
+              if (error.response) {
+                this.$message.error(error.response.status+': '+error.response.data.message)
+              } else {
+                this.$message.error('Error', error.message);
+              }
             });
         })
         .catch(() => {

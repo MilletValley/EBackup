@@ -513,12 +513,11 @@ export default {
               this.resetUpdate();
             })
             .catch(error => {
-              console.log('修改备份配置失败:');
-              console.log(error);
               this.updateLoading = false;
+              this.$message.error('Error!'+error.code+':'+ error.message);
             });
         } else {
-          console.log('error submit!!');
+          this.$message.success('修改备份配置失败!');
           return false;
         }
       });
