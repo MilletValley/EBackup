@@ -1,26 +1,33 @@
 <template>
-  <el-row :gutter="20">
-    <el-col :span="12" :offset="6">
-      <section>
-        <el-form label-position="left">
+  <div>
+    <section class="material-half-bg">
+      <div class="cover"></div>
+    </section>
+    <section class="login-content">
+      <div class="logo">
+        <h1>WHStone</h1>
+      </div>
+      <div class="login-box">
+        <el-form class="login-form" label-position="left">
+          <h2 class="login-head"> <img src="../assets/elogo.png" class="login-img">信服易备</h2>
           <el-form-item label="用户名" props="loginName">
-            <el-input type="text" required v-model="loginName" auto-complete="off">
+            <el-input type="text" required v-model="loginName" auto-complete="off" @keyup.enter.native="doPassword">
             </el-input>
           </el-form-item>
           <el-form-item label="密码">
-            <el-input type="password" required v-model="password" auto-complete="off">
+            <el-input type="password" required v-model="password" auto-complete="off" ref="isAutofocus" @keyup.enter.native="doLogin">
             </el-input>
           </el-form-item>
           <el-form-item label="记住我">
             <el-switch v-model="rememberMe" :active-value="1" :inactive-value="0"></el-switch>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="login2">登陆</el-button>
+            <el-button type="primary" @click="login2" :loading="isLoading">登&emsp;陆</el-button>
           </el-form-item>
-        </el-form>
-      </section>
-    </el-col>
-  </el-row>
+      </el-form>
+    </div>
+  </section>
+</div>
 </template>
 <script>
 import { mapState, mapActions } from 'vuex';
@@ -32,6 +39,7 @@ export default {
       loginName: '',
       password: '',
       rememberMe: 0,
+      isLoading: false,
     };
   },
   computed: mapState({
@@ -46,8 +54,10 @@ export default {
   methods: {
     ...mapActions(['loginForAll']),
     login2() {
+      this.isLoading = true;
       this.loginForAll(this.$data)
         .then(accessedRouters => {
+          this.isLoading = false;
           // 登陆成功后，必须马上添加允许登陆的路由
           this.$router.addRoutes(accessedRouters);
           this.$message.success('登陆成功');
@@ -55,12 +65,148 @@ export default {
           // this.$router.push('/dashboard');
         })
         .catch(error => {
+          this.isLoading = false;
           this.$message.error(error);
         });
     },
+    doPassword() {
+      if(!this.loginName){
+        this.$message.error('用户名不能为空');
+      }else{
+        this.$refs.isAutofocus.focus();
+      }
+    },
+    doLogin() {
+      if(!this.password){
+        this.$message.error('密码不能为空');
+      }else if(!this.loginName){
+        this.$message.error('用户名不能为空');
+      }else{
+        this.login2();
+      }
+    }
   },
 };
 </script>
 <style>
+@import url(https://fonts.googleapis.com/css?family=Niconne);
 
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+input:-webkit-autofill,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+ }
+.material-half-bg {
+  height: 100vh;
+  background-color: #e7e7e7;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.material-half-bg .cover {
+  background-color: #003366;
+  height: 50vh;
+}
+
+.login-content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  min-height: 100vh;
+}
+
+.login-content .logo {
+  
+  margin-bottom: 40px;
+  font-family: "Niconne";
+  color: #fff;
+}
+
+.login-content .logo h1 {
+  font-size: 52px;
+  font-weight: 400;
+}
+
+.login-content .login-box {
+  position: relative;
+  min-width: 390px;
+  min-height: 430px;
+  font-weight: 700;
+  background-color: #fff;
+  -webkit-box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
+          box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
+  -webkit-perspective: 800px;
+          perspective: 800px;
+  -webkit-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+
+.login-content .login-box .login-head {
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.login-content .login-box .login-img {
+  height: 40px;
+  padding-right: 20px;
+  line-height: .75em;
+  vertical-align: -35%;
+}
+
+.login-content .login-box .login-button {
+  width: 310px;
+}
+
+.login-content .login-box .login-form, .login-content .login-box .forget-form {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 40px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+} 
+
+@media (max-width: 351px) {
+  .login-content .login-box {
+    min-width: 100%;
+  }
+  .login-content .login-box .login-form, .login-content .login-box .forget-form {
+    width: 100%;
+  }
+}
+
+.el-form-item {
+    margin-bottom: 10px;
+}
+
+.el-button {
+    font-weight: 700;
+}
 </style>
