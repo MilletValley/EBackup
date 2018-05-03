@@ -7,7 +7,7 @@
           <el-input v-model="create.name"></el-input>
         </el-form-item>
         <el-form-item label="计划时间" prop="startTime">
-          <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH-mm-ss">
+          <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
         <!-- <el-form-item label="备份路径" prop="backupUrl">
@@ -28,7 +28,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="单次备份" v-show="isShowOnce" prop="singleTime">
-          <el-date-picker v-model="create.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH-mm-ss">
+          <el-date-picker v-model="create.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="isShowDay" prop="datePoints">
