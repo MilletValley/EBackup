@@ -330,11 +330,7 @@ export default {
               this.passDisable = true;
             })
             .catch(error => {
-              if (error.response) {
-                this.$message.error(error.response.status+': '+error.response.data.message)
-              } else {
-                this.$message.error('Error', error.message);
-              }
+              this.$message.error('Error!'+error.code+':'+ error.message);
             });
         })
         .catch(() => {
@@ -357,11 +353,7 @@ export default {
               // this.getUsers();
             })
             .catch(error => {
-              if (error.response) {
-                this.$message.error(error.response.status+': '+error.response.data.message)
-              } else {
-                this.$message.error('Error', error.message);
-              }
+              this.$message.error('Error!'+error.code+':'+ error.message);
             });
         })
         .catch(() => {
@@ -383,11 +375,7 @@ export default {
         })
         .catch(error => {
           this.loading = false;
-          if (error.response) {
-            this.$message.error(error.response.status+': '+error.response.data.message)
-          } else {
-            this.$message.error('Error', error.message);
-          }
+          this.$message.error('Error!'+error.code+':'+ error.message);
         });
     },
     // 创建用户
@@ -405,11 +393,7 @@ export default {
             })
             .catch(error => {
               this.createLoading = false;
-              if (error.response) {
-                this.$message.error(error.response.status+': '+error.response.data.message)
-              } else {
-                this.$message.error('Error', error.message);
-              }
+              this.$message.error('Error!'+error.code+':'+ error.message);
             });
         } else {
           return false;
@@ -429,11 +413,7 @@ export default {
         })
         .catch(error => {
           this.updateLoading = false;
-          if (error.response) {
-            this.$message.error(error.response.status+': '+error.response.data.message)
-          } else {
-            this.$message.error('Error', error.message);
-          }
+          this.$message.error('Error!'+error.code+':'+ error.message);
         });
     },
     // 批量删除
@@ -462,11 +442,7 @@ export default {
               this.getUsers();
             })
             .catch(error => {
-              if (error.response) {
-                this.$message.error(error.response.status+': '+error.response.data.message)
-              } else {
-                this.$message.error('Error', error.message);
-              }
+              this.$message.error('Error!'+error.code+':'+ error.message);
             });
         })
         .catch(() => {
