@@ -22,7 +22,7 @@
             <el-switch v-model="rememberMe" :active-value="1" :inactive-value="0"></el-switch>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="login2" :loading="isLoading">登&emsp;陆</el-button>
+            <el-button type="primary" class="login-button" @click="login2" :loading="isLoading">登&emsp;&emsp;录</el-button>
           </el-form-item>
       </el-form>
     </div>
@@ -89,7 +89,12 @@ export default {
 };
 </script>
 <style>
-@import url(https://fonts.googleapis.com/css?family=Niconne);
+@font-face {
+  font-family: 'Niconne';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../assets/Niconne-Regular.ttf');
+}
 
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
@@ -134,7 +139,6 @@ input:-webkit-autofill,
 }
 
 .login-content .logo {
-  
   margin-bottom: 40px;
   font-family: "Niconne";
   color: #fff;
@@ -172,14 +176,14 @@ input:-webkit-autofill,
   height: 40px;
   padding-right: 20px;
   line-height: .75em;
-  vertical-align: -35%;
+  vertical-align: -40%;
 }
 
 .login-content .login-box .login-button {
   width: 310px;
 }
 
-.login-content .login-box .login-form, .login-content .login-box .forget-form {
+.login-content .login-box .login-form {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -197,7 +201,7 @@ input:-webkit-autofill,
   .login-content .login-box {
     min-width: 100%;
   }
-  .login-content .login-box .login-form, .login-content .login-box .forget-form {
+  .login-content .login-box .login-form {
     width: 100%;
   }
 }
