@@ -445,12 +445,15 @@ export default {
               this.resetCreate();
             })
             .catch(error => {
-              console.log('创建备份配置失败:');
-              console.log(error);
               this.createLoading = false;
+          console.log('进入登录失败1：')
+          console.log(error)
+          console.log('进入登录失败2：')
+
+                this.$message.error('Error'+error.code+':'+ error.message);
             });
         } else {
-          console.log('error submit!!');
+          this.$message.success('创建备份配置失败!');
           return false;
         }
       });
