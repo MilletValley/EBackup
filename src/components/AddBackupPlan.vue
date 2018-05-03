@@ -10,9 +10,9 @@
           <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH-mm-ss">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="备份路径" prop="backupUrl">
+        <!-- <el-form-item label="备份路径" prop="backupUrl">
           <el-input v-model="create.backupUrl"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="备份机制">
           <el-radio-group v-model="create.backupStrategy">
             <el-radio v-for="item in _backupStrategys" :key="item.label" :label="item.label" :disabled="item.disabled">
@@ -179,35 +179,35 @@ const backupStrategys = {
 };
 const datePoints = [];
 for (let i = 1; i < 32; i++) {
-  datePoints.push({ value: i, label: i + '号' });
+  datePoints.push({ value: ''+i+'', label: i + '号' });
 }
 const weekPoints = [
   {
-    value: 1,
+    value: '1',
     label: '周一',
   },
   {
-    value: 2,
+    value: '2',
     label: '周二',
   },
   {
-    value: 3,
+    value: '3',
     label: '周三',
   },
   {
-    value: 4,
+    value: '4',
     label: '周四',
   },
   {
-    value: 5,
+    value: '5',
     label: '周五',
   },
   {
-    value: 6,
+    value: '6',
     label: '周六',
   },
   {
-    value: 7,
+    value: '7',
     label: '周日',
   },
 ];
@@ -306,7 +306,7 @@ export default {
         weekPoints: [],
         datePoints: [],
         backupStrategy: 1,
-        backupUrl: '',
+        // backupUrl: '',
       },
       tmpTimeStrategy: 0,
       rules: {
@@ -317,9 +317,9 @@ export default {
         weekPoints: [{ validator: valiWeekPoints, trigger: 'change' }],
         timePoints: [{ validator: valiTimePoints, trigger: 'change' }],
         datePoints: [{ validator: valiDatePoints, trigger: 'change' }],
-        backupUrl: [
+        /* backupUrl: [
           { required: true, message: '备份路径不能为空', trigger: 'blur' },
-        ],
+        ], */
         name: [
           { required: true, message: '备份名称不能为空', trigger: 'blur' },
         ],
@@ -377,7 +377,7 @@ export default {
       this.create.name = '';
       this.create.backupStrategy = 1;
       this.create.startTime = '';
-      this.create.backupUrl = '';
+      // this.create.backupUrl = '';
       this.create.singleTime = '';
       this.create.datePoints = [];
       this.create.weekPoints = [];
@@ -389,9 +389,14 @@ export default {
       this.$refs.create.validate(valid => {
         if (valid) {
           this.createLoading = true;
-          const arr = this.create.timePoints.map(item => {
-            return item.value;
-          });
+          const data = this.create.timePoints;
+          const arr1 = [];
+          for(let i=0; i<data.length; i++){
+            if(data[i].value !== ''){
+              arr1.push(data[i].value)
+            }
+          }
+          let arr = [...new Set(arr1)];       
           let emptydata = {
             timeInterval: '',
             singleTime: '',
@@ -406,19 +411,23 @@ export default {
           }else if(this.tmpTimeStrategy === 2){
             emptydata.timeInterval = this._timeInterval;
           }else if(this.tmpTimeStrategy === 3){
-            emptydata.timePoints = arr;
+            emptydata.timePoints = arr.sort();
           }else if(this.tmpTimeStrategy === 4){
-            emptydata.weekPoints = this.create.weekPoints;
-            emptydata.timePoints = arr;
+            emptydata.weekPoints = this.create.weekPoints.sort();
+            emptydata.timePoints = arr.sort();
           }else if(this.tmpTimeStrategy === 5){
-            emptydata.datePoints = this.create.datePoints;
-            emptydata.timePoints = arr;
+            emptydata.datePoints = this.create.datePoints.sort(
+              function sortNumber(a,b)
+                {
+                    return a - b
+                });
+            emptydata.timePoints = arr.sort();
           }
           const tmpdata = {
             startTime: this.create.startTime,
             backupStrategy: this.create.backupStrategy,
             timeStrategy: this.tmpTimeStrategy,
-            backupUrl: this.create.backupUrl,
+            // backupUrl: this.create.backupUrl,
           };
           const configdata = Object.assign({},emptydata,tmpdata)
           const postdata = {name: this.create.name, config:configdata}

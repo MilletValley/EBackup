@@ -181,7 +181,6 @@ import {
   createUserInfo,
   getUsersInfo,
   updateUserInfo,
-  resetPassword,
   deleteUserInfo,
   deleteUsersInfo,
 } from '../../api/user';
@@ -325,7 +324,6 @@ export default {
             id: value,
             password: '111111'
           };
-          // resetPassword(value, password)
           updateUserInfo(resetUpdate)
             .then(response => {
               console.log(response.data.message);

@@ -22,9 +22,9 @@
             value-format="yyyy-MM-dd HH-mm-ss">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="备份路径" prop="backupUrl">
+       <!--  <el-form-item label="备份路径" prop="backupUrl">
           <el-input v-model="update.backupUrl"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="备份机制">
           <el-radio-group v-model="update.backupStrategy">
             <el-radio
@@ -222,35 +222,35 @@ const backupStrategys = {
 };
 const datePoints = [];
 for (let i = 1; i < 32; i++) {
-  datePoints.push({ value: i, label: i + '号' });
+  datePoints.push({ value: ''+i+'', label: i + '号' });
 }
 const weekPoints = [
   {
-    value: 1,
+    value: '1',
     label: '周一',
   },
   {
-    value: 2,
+    value: '2',
     label: '周二',
   },
   {
-    value: 3,
+    value: '3',
     label: '周三',
   },
   {
-    value: 4,
+    value: '4',
     label: '周四',
   },
   {
-    value: 5,
+    value: '5',
     label: '周五',
   },
   {
-    value: 6,
+    value: '6',
     label: '周六',
   },
   {
-    value: 7,
+    value: '7',
     label: '周日',
   },
 ];
@@ -350,7 +350,7 @@ export default {
         weekPoints: [],
         datePoints: [],
         backupStrategy: 1,
-        backupUrl: '',
+        // backupUrl: '',
       },
       tmpTimeStrategy: 0,
       rules: {
@@ -361,9 +361,9 @@ export default {
         weekPoints: [{ validator: valiWeekPoints, trigger: 'change' }],
         timePoints: [{ validator: valiTimePoints, trigger: 'change' }],
         datePoints: [{ validator: valiDatePoints, trigger: 'change' }],
-        backupUrl: [
+        /* backupUrl: [
           { required: true, message: '备份路径不能为空', trigger: 'blur' },
-        ],
+        ], */
         name:[{
           required: true, message: '备份标题不能为空', trigger: 'change'
         }]
@@ -425,7 +425,7 @@ export default {
       this.tmpTimeStrategy = newObj.timeStrategy;
       this.update.backupStrategy = newObj.backupStrategy;
       this.update.startTime = newObj.startTime;
-      this.update.backupUrl = newObj.backupUrl;
+      // this.update.backupUrl = newObj.backupUrl;
       this.update.singleTime = newObj.singleTime;
       this.update.datePoints = newObj.datePoints;
       this.update.weekPoints = newObj.weekPoints;
@@ -451,9 +451,14 @@ export default {
       this.$refs.update.validate(valid => {
         if (valid) {
           this.updateLoading = true;
-          const arr = this.update.timePoints.map(item => {
-            return item.value;
-          });
+          const data = this.update.timePoints;
+          const arr1 = [];
+          for(let i=0; i<data.length; i++){
+            if(data[i].value !== ''){
+              arr1.push(data[i].value)
+            }
+          }
+          let arr = [...new Set(arr1)];  
           let emptydata = {
             timeInterval: '',
             singleTime: '',
@@ -468,13 +473,17 @@ export default {
           }else if(this.tmpTimeStrategy === 2){
             emptydata.timeInterval = this._timeInterval;
           }else if(this.tmpTimeStrategy === 3){
-            emptydata.timePoints = arr;
+            emptydata.timePoints = arr.sort();
           }else if(this.tmpTimeStrategy === 4){
-            emptydata.weekPoints = this.update.weekPoints;
-            emptydata.timePoints = arr;
+            emptydata.weekPoints = this.update.weekPoints.sort();
+            emptydata.timePoints = arr.sort();
           }else if(this.tmpTimeStrategy === 5){
-            emptydata.datePoints = this.update.datePoints;
-            emptydata.timePoints = arr;
+            emptydata.datePoints = this.update.datePoints.sort(
+              function sortNumber(a,b)
+                {
+                    return a - b
+                });
+            emptydata.timePoints = arr.sort();
           }
 
           const tmpdata = {
@@ -482,16 +491,16 @@ export default {
             startTime: this.update.startTime,
             backupStrategy: this.update.backupStrategy,
             timeStrategy: this.tmpTimeStrategy,
-            backupUrl: this.update.backupUrl,
+            // backupUrl: this.update.backupUrl,
           };
-          const postdata = Object.assign({},emptydata,tmpdata)
-          const data = {
+          const tmpdata1 = Object.assign({},emptydata,tmpdata)
+          const postdata = {
             id: this._id,
             name: this.update.name,
-            config: postdata
+            config: tmpdata1
           }
           // 向请求服务端
-          requestMapping[this.dbType](this.backupPlan.id, data)
+          requestMapping[this.dbType](this.backupPlan.id, postdata)
             .then(response => {
               this.$emit('confirm', response.data.data);
               this.update.timePoints.splice(
