@@ -1,7 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
-import ElementUI from 'element-ui';
+import ElementUI, { Message } from 'element-ui';
 import moment from 'moment';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App';
@@ -25,11 +25,19 @@ router.beforeEach((to, from, next) => {
     }
   } else if (userToken.get()) {
     const token = userToken.get();
-    store.dispatch('loginByToken', { token }).then(accessedRouters => {
-      store.commit(types.SET_TOKEN, { token });
-      router.addRoutes(accessedRouters);
-      next({ ...to, replace: true });
-    });
+    store
+      .dispatch('loginByToken', { token })
+      .then(accessedRouters => {
+        store.commit(types.SET_TOKEN, { token });
+        router.addRoutes(accessedRouters);
+        next({ ...to, replace: true });
+      })
+      .catch(error => {
+        Message.error(error);
+        store.commit(types.CLEAR_TOKEN);
+        userToken.remove();
+        next('/login');
+      });
   } else if (to.path === '/login') {
     next();
   } else {

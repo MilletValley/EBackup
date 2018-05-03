@@ -46,7 +46,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['admin', 'oracle dba'],
+      roles: ['admin', 'oracle dba', 'sql server dba'],
     },
     children: [
       {
@@ -72,7 +72,7 @@ export const asyncRouters = [
         component: SqlServerList,
         meta: {
           title: 'SQL Server',
-          roles: ['admin'],
+          roles: ['admin', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -126,7 +126,7 @@ export const asyncRouters = [
             },
           ],
         },
-      }
+      },
     ],
   },
   {
