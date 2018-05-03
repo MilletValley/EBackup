@@ -50,16 +50,6 @@ const updateUserInfo = user =>
     data: user,
   });
 
-const resetPassword = ({ id, password }) =>
-  baseApi.request({
-    method: 'patch',
-    url: `/users/${id}`,
-    data: {
-      id,
-      password,
-    },
-  });
-
 const deleteUserInfo = id =>
   baseApi.request({
     method: 'delete',
@@ -81,7 +71,6 @@ export {
   createUserInfo,
   getUsersInfo,
   updateUserInfo,
-  resetPassword,
   deleteUserInfo,
   deleteUsersInfo,
 };
