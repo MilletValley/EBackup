@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty';
 import types from '../type';
 import { login, validateToken, logout } from '../../api/user';
 import { userToken } from '../../utils/storage';
@@ -69,9 +70,9 @@ const actions = {
    */
   getUserInfo({ commit }, { token }) {
     return validateToken(token).then(res => {
-      const { data: user } = res.data;
-      if (!user) {
-        return Promise.reject('Token无效');
+      const { data: user, message } = res.data;
+      if (isEmpty(user)) {
+        return Promise.reject(message);
       }
       commit(types.SET_USERINFO, user);
       return user;
@@ -84,10 +85,8 @@ const actions = {
    * @param {*} param1
    */
   loginByToken({ dispatch }, { token }) {
-    return (
-      dispatch('getUserInfo', { token })
-        // .then(user => dispatch('getUserRoles', user))
-        .then(user => dispatch('generateRoutes', user))
+    return dispatch('getUserInfo', { token }).then(user =>
+      dispatch('generateRoutes', user)
     );
   },
   /**

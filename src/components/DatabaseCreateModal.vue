@@ -86,9 +86,7 @@ const vm = {
               this.theData = {};
             })
             .catch(error => {
-              this.$message.error({
-                message: error.message,
-              });
+              this.$message.error(error);
               return false;
             });
         } else {

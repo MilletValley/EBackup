@@ -61,7 +61,7 @@ const deleteUsersInfo = data =>
   baseApi.request({
     method: 'delete',
     url: '/users',
-    data: data,
+    data,
   });
 
 export {

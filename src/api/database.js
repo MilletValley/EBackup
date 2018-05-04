@@ -6,7 +6,7 @@ const deleteBackupPlan = id =>
     url: `backup-plans/${id}`,
   });
 
-  const updateBackupPlans = ({ id, plan }) =>
+const updateBackupPlans = ({ id, plan }) =>
   baseApi.request({
     method: 'patch',
     url: `/backup-plans/${id}`,

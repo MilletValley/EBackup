@@ -14,6 +14,7 @@ module.exports = {
         // target: 'http://localhost:8002',
         // target: 'http://145.170.27.128:8089', // 个人设备 会修改
         target: 'http://145.170.23.128:8089', // 服务器
+        // target: 'http://145.170.24.163:8089',
         // changeOrigin: true,
         // pathRewrite: { '^/api/v1': '/api/v1' },
       },
