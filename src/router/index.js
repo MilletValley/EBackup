@@ -4,10 +4,11 @@ import Login from '@/components/Login';
 import Layout from '@/components/Layout';
 import Dashboard from '@/components/pages/Dashboard';
 import Users from '@/components/pages/Users';
-import Oracle from '@/components/pages/Oracle';
-import SqlServer from '@/components/pages/SqlServer';
+import OracleList from '@/components/pages/OracleList';
+import SqlServerList from '@/components/pages/SqlServerList';
 import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
+import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
 
 Vue.use(Router);
@@ -27,6 +28,7 @@ export const basicRouters = [
         component: Dashboard,
         meta: {
           title: '主页',
+          icon: 'dashboard',
         },
       },
     ],
@@ -43,29 +45,87 @@ export const asyncRouters = [
     component: Layout,
     meta: {
       title: '数据库',
-      roles: ['admin'],
+      icon: 'database',
+      roles: ['admin', 'oracle dba', 'sql server dba'],
     },
     children: [
       {
         path: 'oracle',
-        component: Oracle,
+        component: OracleList,
         meta: {
           title: 'Oracle',
-          roles: ['admin'],
+          roles: ['admin', 'oracle dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '',
+            },
+          ],
         },
       },
       {
         path: 'sqlserver',
-        component: SqlServer,
+        component: SqlServerList,
         meta: {
           title: 'SQL Server',
-          roles: ['admin'],
+          roles: ['admin', 'sql server dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '',
+            },
+          ],
         },
       },
       {
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
+        meta: {
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'sqlserver/:id',
+        props: true,
+        component: SqlServerDetail,
+        meta: {
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '/db/sqlserver',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
       },
     ],
   },
@@ -74,6 +134,7 @@ export const asyncRouters = [
     component: Layout,
     meta: {
       title: '虚拟机',
+      icon: 'vm',
       roles: ['admin'],
     },
     children: [
@@ -92,6 +153,7 @@ export const asyncRouters = [
     component: Layout,
     meta: {
       title: '系统管理',
+      icon: 'setting',
       roles: ['admin'],
     },
     children: [

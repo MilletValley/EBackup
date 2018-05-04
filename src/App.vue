@@ -15,10 +15,18 @@ body {
   margin: 0;
 }
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   height: 100vh;
+}
+.icon {
+  width: 1.3em;
+  height: 1.3em;
+  vertical-align: -0.45em;
+  margin-right: 5px;
+  fill: rgb(208, 208, 208);
+  overflow: hidden;
 }
 </style>

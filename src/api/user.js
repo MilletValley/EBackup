@@ -1,13 +1,13 @@
 import baseApi from './base';
 
-const login = ({ loginName, password, remeberMe }) =>
+const login = ({ loginName, password, rememberMe }) =>
   baseApi.request({
     method: 'post',
     url: '/login',
     data: {
       loginName,
       password,
-      remeberMe,
+      rememberMe,
     },
   });
 
@@ -20,19 +20,57 @@ const logout = ({ token }) =>
     },
   });
 
-const fetchUsersByToken = token =>
+const validateToken = token =>
   baseApi.request({
     method: 'get',
-    url: '/users',
+    url: '/validate',
     params: {
       token,
     },
   });
 
-const fetchRolesByUserId = userId =>
+const createUserInfo = user =>
   baseApi.request({
-    method: 'get',
-    url: `/users/${userId}/roles`,
+    method: 'post',
+    url: '/users',
+    data: user,
   });
 
-export { login, logout, fetchUsersByToken, fetchRolesByUserId };
+const getUsersInfo = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/users',
+    data: {},
+  });
+
+const updateUserInfo = user =>
+  baseApi.request({
+    method: 'patch',
+    url: `/users/${user.id}`,
+    data: user,
+  });
+
+const deleteUserInfo = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/users/${id}`,
+    data: {},
+  });
+
+const deleteUsersInfo = data =>
+  baseApi.request({
+    method: 'delete',
+    url: '/users',
+    data,
+  });
+
+export {
+  login,
+  logout,
+  validateToken,
+  createUserInfo,
+  getUsersInfo,
+  updateUserInfo,
+  deleteUserInfo,
+  deleteUsersInfo,
+};
