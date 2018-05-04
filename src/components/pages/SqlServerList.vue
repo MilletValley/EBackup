@@ -45,9 +45,7 @@ export default {
           this.dbs = sqlservers;
         })
         .catch(error => {
-          this.$message.error({
-            message: error.message,
-          });
+          this.$message.error(error);
         });
     },
     deleteDb({ row: db, $index }) {
@@ -63,7 +61,9 @@ export default {
             message: '删除成功!',
           });
         })
-        .catch(() => {});
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
   },
   components: {

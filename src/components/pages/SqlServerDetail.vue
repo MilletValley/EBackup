@@ -91,25 +91,31 @@ export default {
   methods: {
     fetchData() {
       fetchOne(this.id)
-        // TODO: 使用Promise.all重构 Oracle一样
         .then(res => {
           const { data: db } = res.data;
           this.dbInfo = db;
           this.databaseInfoLoading = false;
         })
-        .then(() => {
-          fetchBackupPlans(this.id).then(res => {
-            const { data: plans } = res.data;
-            if (plans.length > 0) {
-              this.backupPlan = plans[0];
-            }
-          });
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchBackupPlans(this.id)
+        .then(res => {
+          const { data: plans } = res.data;
+          if (plans.length > 0) {
+            this.backupPlan = plans[0];
+          }
         })
-        .then(() => {
-          fetchBackupResults(this.id).then(res => {
-            const { data: result } = res.data;
-            this.results = result;
-          });
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchBackupResults(this.id)
+        .then(res => {
+          const { data: result } = res.data;
+          this.results = result;
+        })
+        .catch(error => {
+          this.$message.error(error);
         });
     },
   },

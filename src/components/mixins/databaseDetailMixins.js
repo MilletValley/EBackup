@@ -30,9 +30,11 @@ const databaseDetailMixin = {
         this.planCreateModal = true;
       }
     },
+    // 添加备份计划Modal确认后回调
     addBackupPlan(data) {
       this.backupPlan = data;
     },
+    // 更新备份计划Modal确认后回调
     updateBackupPlan(data) {
       this.backupPlan = data;
     },

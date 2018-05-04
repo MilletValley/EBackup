@@ -15,8 +15,7 @@ const baseApi = axios.create({
 // eslint-disable-next-line
 baseApi.interceptors.response.use(undefined, error => {
   if (error.message.indexOf('timeout') >= 0) {
-    Message.error('请求超时');
-    return Promise.reject();
+    return Promise.reject('请求超时，请检查网络连接');
   }
   const { data, status } = error.response;
   if (status === 401) {
@@ -37,8 +36,11 @@ baseApi.interceptors.response.use(undefined, error => {
     });
     return Promise.reject();
   }
+  const errorMsg = `${error.response.data.message}(${
+    error.response.data.code
+  })`;
   // eslint-disable-next-line
-  return Promise.reject(error.response.data);
+  return Promise.reject(errorMsg);
 });
 
 export default baseApi;

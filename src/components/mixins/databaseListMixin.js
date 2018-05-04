@@ -15,9 +15,9 @@ const databaseListMixin = {
           ? {}
           : this.dbs.filter(db => db.id === this.selectedId)[0];
       },
-      set() {
-        this.selectedId = '';
-      },
+      // set() {
+      //   this.selectedId = '';
+      // },
     },
   },
   created() {
