@@ -17,7 +17,7 @@
                     <i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :disabled="hasBackupPlan" command="backup">备份计划</el-dropdown-item>
+                    <el-dropdown-item :disabled="backupAddBtnDisable" command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -58,14 +58,14 @@
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
-        <backup-card :id="id" :backupPlan="backupPlan" @deletePlan="backupPlan = {}" @updatePlan="planUpdateModal = true"></backup-card>
+        <backup-card :id="plan.id" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
         <backup-result-list :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
     <add-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
-    <update-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="backupPlan" @confirm="updateBackupPlan"></update-backup-plan>
+    <update-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="selectedPlan" @confirm="updateBackupPlan"></update-backup-plan>
   </section>
 </template>
 <script>
@@ -102,9 +102,7 @@ export default {
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          if (plans.length > 0) {
-            this.backupPlan = plans[0];
-          }
+          this.backupPlans = plans;
         })
         .catch(error => {
           this.$message.error(error);
