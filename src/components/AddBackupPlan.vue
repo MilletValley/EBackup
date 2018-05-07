@@ -75,12 +75,12 @@
   </section>
 </template>
 <script>
-import _ from 'lodash';
-import { createOracleBackupPlans } from '../api/oracle';
-import { createSqlServerBackupPlans } from '../api/sqlserver';
+import _ from 'lodash'; // lodash按需加载 05/07
+import { createOracleBackupPlan } from '../api/oracle';
+import { createSqlServerBackupPlan } from '../api/sqlserver';
 const requestMapping = {
-  oracle: (id, data) => createOracleBackupPlans({ id, plan: data }),
-  sqlserver: (id, data) => createSqlServerBackupPlans({ id, plan: data }),
+  oracle: (id, data) => createOracleBackupPlan({ id, plan: data }),
+  sqlserver: (id, data) => createSqlServerBackupPlan({ id, plan: data }),
 };
 const backupStrategys = {
   oracle: [
@@ -109,7 +109,7 @@ const backupStrategys = {
           name: '按月',
         },
       ],
-    }
+    },
   ],
   sqlserver: [
     {
@@ -137,7 +137,8 @@ const backupStrategys = {
           name: '按月',
         },
       ],
-    },{
+    },
+    {
       label: 2,
       name: '全备+日志',
       timeStrategys: [
@@ -179,7 +180,7 @@ const backupStrategys = {
 };
 const datePoints = [];
 for (let i = 1; i < 32; i++) {
-  datePoints.push({ value: ''+i+'', label: i + '号' });
+  datePoints.push({ value: '' + i + '', label: i + '号' });
 }
 const weekPoints = [
   {
@@ -342,22 +343,23 @@ export default {
     },
     _timeStrategys: function() {
       const valBackupStrategy = this.create.backupStrategy;
-      for( let i=0; i<backupStrategys[this.dbType].length; i++){
-        if(backupStrategys[this.dbType][i].label === valBackupStrategy){
-          const valtimeStrategys = backupStrategys[this.dbType][i].timeStrategys;
+      for (let i = 0; i < backupStrategys[this.dbType].length; i++) {
+        if (backupStrategys[this.dbType][i].label === valBackupStrategy) {
+          const valtimeStrategys =
+            backupStrategys[this.dbType][i].timeStrategys;
           this.tmpTimeStrategy = valtimeStrategys[0].label;
           return valtimeStrategys;
         }
       }
     },
     _timeInterval: function() {
-      if(this.tmpTimeStrategy === 1){
-        return this.create.timeIntervalM  
-      }else if(this.tmpTimeStrategy === 2){
-        return this.create.timeIntervalH*60
-      }else{
-        return ''
-      }    
+      if (this.tmpTimeStrategy === 1) {
+        return this.create.timeIntervalM;
+      } else if (this.tmpTimeStrategy === 2) {
+        return this.create.timeIntervalH * 60;
+      } else {
+        return '';
+      }
     },
     _visible: {
       get: function() {
@@ -391,12 +393,12 @@ export default {
           this.createLoading = true;
           const data = this.create.timePoints;
           const arr1 = [];
-          for(let i=0; i<data.length; i++){
-            if(data[i].value !== ''){
-              arr1.push(data[i].value)
+          for (let i = 0; i < data.length; i++) {
+            if (data[i].value !== '') {
+              arr1.push(data[i].value);
             }
           }
-          let arr = [...new Set(arr1)];       
+          let arr = [...new Set(arr1)];
           let emptydata = {
             timeInterval: '',
             singleTime: '',
@@ -404,23 +406,23 @@ export default {
             datePoints: [],
             timePoints: [],
           };
-          if(this.tmpTimeStrategy === 0){
+          if (this.tmpTimeStrategy === 0) {
             emptydata.singleTime = this.create.singleTime;
-          }else if(this.tmpTimeStrategy === 1){
-            emptydata.timeInterval = this._timeInterval;      
-          }else if(this.tmpTimeStrategy === 2){
+          } else if (this.tmpTimeStrategy === 1) {
             emptydata.timeInterval = this._timeInterval;
-          }else if(this.tmpTimeStrategy === 3){
+          } else if (this.tmpTimeStrategy === 2) {
+            emptydata.timeInterval = this._timeInterval;
+          } else if (this.tmpTimeStrategy === 3) {
             emptydata.timePoints = arr.sort();
-          }else if(this.tmpTimeStrategy === 4){
+          } else if (this.tmpTimeStrategy === 4) {
             emptydata.weekPoints = this.create.weekPoints.sort();
             emptydata.timePoints = arr.sort();
-          }else if(this.tmpTimeStrategy === 5){
+          } else if (this.tmpTimeStrategy === 5) {
             emptydata.datePoints = this.create.datePoints.sort(
-              function sortNumber(a,b)
-                {
-                    return a - b
-                });
+              function sortNumber(a, b) {
+                return a - b;
+              }
+            );
             emptydata.timePoints = arr.sort();
           }
           const tmpdata = {
@@ -429,8 +431,8 @@ export default {
             timeStrategy: this.tmpTimeStrategy,
             // backupUrl: this.create.backupUrl,
           };
-          const configdata = Object.assign({},emptydata,tmpdata)
-          const postdata = {name: this.create.name, config:configdata}
+          const configdata = Object.assign({}, emptydata, tmpdata);
+          const postdata = { name: this.create.name, config: configdata };
           // 向请求服务端
           requestMapping[this.dbType](this.dbId, postdata)
             .then(response => {
@@ -446,7 +448,7 @@ export default {
             })
             .catch(error => {
               this.createLoading = false;
-              this.$message.error('Error!'+error.code+':'+ error.message);
+              this.$message.error('Error!' + error.code + ':' + error.message);
             });
         } else {
           this.$message.success('创建备份配置失败!');
@@ -483,11 +485,11 @@ export default {
         this.emptyCreateInfo();
         this.isShowTime = true;
         this.isShowWeek = true;
-      }else if (val === 5) {
+      } else if (val === 5) {
         this.emptyCreateInfo();
         this.isShowTime = true;
         this.isShowDay = true;
-      } 
+      }
     },
     emptyCreateInfo() {
       this.isShowOnce = false;

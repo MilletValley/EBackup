@@ -42,7 +42,7 @@ const deleteSome = ids =>
 const fetchBackupPlans = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}/backup-plans`,
+    url: `/oracles/${id}/oracle-backup-plans`,
   });
 
 const fetchBackupResults = id =>
@@ -51,12 +51,24 @@ const fetchBackupResults = id =>
     url: `/oracles/${id}/results`,
   });
 
-
 // API https://nei.netease.com/interface/detail/?pid=28187&id=88119
-const createOracleBackupPlans = ({ id, plan }) =>
+const createOracleBackupPlan = ({ id, plan }) =>
   baseApi.request({
     method: 'post',
-    url: `/oracles/${id}/backup-plans`,
+    url: `/oracles/${id}/oracle-backup-plans`,
+    data: plan,
+  });
+
+const deleteOracleBackupPlan = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/oracle-backup-plans/${id}`,
+  });
+
+const updateOracleBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/oracle-backup-plans/${id}`,
     data: plan,
   });
 
@@ -69,5 +81,7 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
-  createOracleBackupPlans,
+  createOracleBackupPlan,
+  deleteOracleBackupPlan,
+  updateOracleBackupPlan,
 };
