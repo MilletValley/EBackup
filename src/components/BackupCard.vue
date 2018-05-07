@@ -74,7 +74,8 @@
 </template>
 <script>
 import backupMixin from './mixins/backupMixins';
-import { deleteBackupPlan } from '../api/database';
+import { deleteOracleBackupPlan } from '../api/oracle';
+import { deleteSqlServerBackupPlan } from '../api/sqlserver';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -82,12 +83,21 @@ import {
   operationStateMapping,
 } from '../utils/constant';
 
+const deleteMethods = {
+  oracle: deleteOracleBackupPlan,
+  sqlserver: deleteSqlServerBackupPlan,
+};
+
 export default {
   name: 'BackupCard',
   mixins: [backupMixin],
   props: {
     id: {
       type: Number,
+      required: true,
+    },
+    type: {
+      type: String,
       required: true,
     },
     backupPlan: {
@@ -118,7 +128,7 @@ export default {
     },
     // 单次／多次
     backupStrategyType() {
-      return this.backupConfig.timeStrategy === 0 ? '单次' : '多次';
+      return this.backupConfig.timeStrategy === 0 ? '单次' : '循环';
     },
   },
   methods: {
@@ -129,9 +139,7 @@ export default {
         cancelButtonText: '取消',
       })
         .then(() => {
-          deleteBackupPlan(this.backupPlan.id).then(() => {
-            // this.backupConfig = {};
-            // this.backupOperation = {};
+          deleteMethods[this.type](this.backupPlan.id).then(() => {
             this.$emit('deletePlan');
             this.$message.success('删除成功');
           });

@@ -42,7 +42,7 @@ const deleteSome = ids =>
 const fetchBackupPlans = id =>
   baseApi.request({
     method: 'get',
-    url: `/sqlservers/${id}/backup-plans`,
+    url: `/sqlservers/${id}/sqlserver-backup-plans`,
   });
 
 const fetchBackupResults = id =>
@@ -51,10 +51,23 @@ const fetchBackupResults = id =>
     url: `/sqlservers/${id}/results`,
   });
 
-const createSqlServerBackupPlans = ({ id, plan }) =>
+const createSqlServerBackupPlan = ({ id, plan }) =>
   baseApi.request({
     method: 'post',
-    url: `/sqlservers/${id}/backup-plans`,
+    url: `/sqlservers/${id}/sqlserver-backup-plans`,
+    data: plan,
+  });
+
+const deleteSqlServerBackupPlan = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/sqlserver-backup-plans/${id}`,
+  });
+
+const updateSqlServerBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/sqlserver-backup-plans/${id}`,
     data: plan,
   });
 
@@ -67,5 +80,7 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
-  createSqlServerBackupPlans,
+  createSqlServerBackupPlan,
+  deleteSqlServerBackupPlan,
+  updateSqlServerBackupPlan,
 };
