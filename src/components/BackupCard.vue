@@ -1,6 +1,7 @@
 <template>
   <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id">
     <div slot="header" class="clearfix">
+      <el-tag size="mini">{{ backupStrategyType }}</el-tag>
       <span>{{backupOperation.name}}</span>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;" type="text" @click="planDeleteBtnClick">删除</el-button>
       <el-button style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
@@ -86,7 +87,7 @@ export default {
   mixins: [backupMixin],
   props: {
     id: {
-      type: String,
+      type: Number,
       required: true,
     },
     backupPlan: {
@@ -114,6 +115,10 @@ export default {
     },
     operationState() {
       return operationStateMapping[this.backupPlan.state];
+    },
+    // 单次／多次
+    backupStrategyType() {
+      return this.backupConfig.timeStrategy === 0 ? '单次' : '多次';
     },
   },
   methods: {
