@@ -10,6 +10,7 @@ import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
+import FileHostList from '@/components/pages/FileHostList';
 
 Vue.use(Router);
 
@@ -144,6 +145,25 @@ export const asyncRouters = [
         meta: {
           title: 'VMware',
           roles: ['admin'],
+        },
+      },
+    ],
+  },
+  {
+    path: '/file',
+    component: Layout,
+    meta: {
+      title: '文件系统',
+      icon: 'file',
+      roles: ['admin', 'file admin'],
+    },
+    children: [
+      {
+        path: 'windows',
+        component: FileHostList,
+        meta: {
+          title: 'Windows系统',
+          roles: ['admin', 'file admin'],
         },
       },
     ],
