@@ -146,7 +146,7 @@ const fileHostModalMixin = {
           },
         ],
         loginName: [
-          { required: true, message: '请输入数据库登录账号', trigger: 'blur' },
+          { required: true, message: '请输入服务器登录账号', trigger: 'blur' },
           { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {
             pattern: '^[^\\s]*$',
@@ -155,7 +155,7 @@ const fileHostModalMixin = {
           },
         ],
         password: [
-          { required: true, message: '请输入数据库登录密码', trigger: 'blur' },
+          { required: true, message: '请输入服务器登录密码', trigger: 'blur' },
           {
             pattern: '^[^\\s]*$',
             message: '不能包含空格',

@@ -44,6 +44,32 @@ const fetchBackupResults = id =>
     url: `/file-hosts/${id}/results`,
   });
 
+const createBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/file-hosts/${id}/fiel-host-backup-plans`,
+    data: plan,
+  });
+
+const deleteBackupPlan = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/file-host-backup-plans/${id}`,
+  });
+
+const updateBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/file-host-backup-plans/${id}`,
+    data: plan,
+  });
+
+const fetchBackupOperation = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/file-host-backup-plans/${id}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -52,4 +78,8 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
+  createBackupPlan,
+  deleteBackupPlan,
+  updateBackupPlan,
+  fetchBackupOperation,
 };

@@ -52,7 +52,7 @@
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
-        <backup-card :id="plan.id" type="oracle" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
+        <backup-card :id="plan.id" :type="systemType" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
         <backup-result-list :data="results"></backup-result-list>
@@ -111,6 +111,13 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+    },
+  },
+  computed: {
+    systemType() {
+      return this.details && this.details.osName
+        ? this.details.osName.toLowerCase()
+        : '';
     },
   },
   components: {

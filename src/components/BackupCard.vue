@@ -3,14 +3,18 @@
     <div slot="header" class="clearfix">
       <el-tag size="mini">{{ backupStrategyType }}</el-tag>
       <span>{{backupOperation.name}}</span>
+      <i style="float: right; margin: 3px 0 3px 10px;" class="el-icon-refresh state-refresh" @click="refreshBackupPlan"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;" type="text" @click="planDeleteBtnClick">删除</el-button>
       <el-button style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
     </div>
     <el-row type="flex">
       <el-col :span="18">
         <el-form inline label-width="100px" size="mini">
-          <el-form-item label="计划开始时间" style="width: 100%">
+          <el-form-item label="计划开始时间" :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
             <span>{{ backupConfig.startTime }}</span>
+          </el-form-item>
+          <el-form-item v-if="type === 'windows'" label="是否备份系统" style="width: 40%">
+            <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
           </el-form-item>
           <el-form-item label="备份策略" style="width: 40%">
             <span>{{ backupStrategy }}</span>
@@ -73,9 +77,20 @@
   </el-card>
 </template>
 <script>
+import throttle from 'lodash/throttle';
 import backupMixin from './mixins/backupMixins';
-import { deleteOracleBackupPlan } from '../api/oracle';
-import { deleteSqlServerBackupPlan } from '../api/sqlserver';
+import {
+  deleteOracleBackupPlan,
+  fetchBackupOperation as refreshOraclePlan,
+} from '../api/oracle';
+import {
+  deleteSqlServerBackupPlan,
+  fetchBackupOperation as refreshSqlServerPlan,
+} from '../api/sqlserver';
+import {
+  deleteBackupPlan as deleteFileHostPlan,
+  fetchBackupOperation as refreshFileHostPlan,
+} from '../api/fileHost';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -86,6 +101,7 @@ import {
 const deleteMethods = {
   oracle: deleteOracleBackupPlan,
   sqlserver: deleteSqlServerBackupPlan,
+  filehost: deleteFileHostPlan,
 };
 
 export default {
@@ -149,6 +165,32 @@ export default {
     planUpdateBtnClick() {
       this.$emit('updatePlan');
     },
+    refreshBackupPlan: throttle(
+      function() {
+        const requestMapping = {
+          oracle: refreshOraclePlan,
+          sqlserver: refreshSqlServerPlan,
+          windows: refreshFileHostPlan,
+          linux: refreshFileHostPlan,
+        };
+        requestMapping[this.type](this.id)
+          .then(response => {
+            const { data, message } = response.data;
+            const { state, startTime, consume, size } = data;
+            this.backupPlan = Object.assign(this.backupPlan, {
+              state,
+              startTime,
+              consume,
+              size,
+            });
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      },
+      5000,
+      { leading: true, trailing: false }
+    ),
   },
 };
 </script>
@@ -176,5 +218,13 @@ export default {
 /* 标签之间的间隔在for循环下消失了 */
 .el-tag {
   margin: 0 2px;
+}
+
+.state-refresh {
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+.state-refresh:hover {
+  transform: rotate(180deg);
 }
 </style>

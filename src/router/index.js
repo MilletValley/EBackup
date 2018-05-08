@@ -72,9 +72,9 @@ export const asyncRouters = [
       {
         path: ':id',
         component: FileHostDetail,
+        props: true,
         meta: {
           roles: ['file admin'],
-          porps: true,
           breadcrumb: [
             {
               name: '首页',
