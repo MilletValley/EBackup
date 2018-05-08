@@ -2,14 +2,14 @@ const databaseDetailMixin = {
   props: ['id'],
   data() {
     return {
-      databaseInfoLoading: true, // 数据库信息loading
+      infoLoading: true, // 信息loading
       activeTab: 'plans', // 激活的tab页
-      dbInfo: {}, // 数据库信息
-      backupPlan: {}, // 备份计划 { config, ...operation }
+      details: {}, // 对象详情信息
+      // backupPlan: {}, // 备份计划 { config, ...operation }
       backupPlans: [],
-      selectedIndex: -1,
+      selectedPlanIndex: -1,
       results: [], // 备份集
-      dbEditModal: false,
+      detailsEditModal: false,
       planCreateModal: false,
       planUpdateModal: false,
     };
@@ -23,9 +23,9 @@ const databaseDetailMixin = {
       // return Object.keys(this.backupPlan).length !== 0;
     },
     selectedPlan() {
-      return this.selectedIndex === -1
+      return this.selectedPlanIndex === -1
         ? {}
-        : this.backupPlans[this.selectedIndex];
+        : this.backupPlans[this.selectedPlanIndex];
     },
   },
   created() {
@@ -49,13 +49,13 @@ const databaseDetailMixin = {
     // 更新备份计划Modal确认后回调
     updateBackupPlan(data) {
       // this.backupPlan = data;
-      this.backupPlans.splice(this.selectedIndex, 1, data);
-      this.selectedIndex = -1;
+      this.backupPlans.splice(this.selectedPlanIndex, 1, data);
+      this.selectedPlanIndex = -1;
     },
     // 选择一个备份计划 点击计划编辑按钮时绑定
     selectPlan(planIndex) {
       this.planUpdateModal = true;
-      this.selectedIndex = planIndex;
+      this.selectedPlanIndex = planIndex;
     },
     // 删除一个备份计划
     deleteBackupPlan(planIndex) {
@@ -65,4 +65,8 @@ const databaseDetailMixin = {
   },
 };
 
-export default databaseDetailMixin;
+const fileHostDetailMixin = {
+  ...databaseDetailMixin,
+};
+
+export { databaseDetailMixin, fileHostDetailMixin };

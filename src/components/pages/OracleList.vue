@@ -31,11 +31,11 @@
 import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import { fetchAll, deleteOne } from '../../api/oracle';
-import databaseListMixin from '../mixins/databaseListMixin';
+import { listMixin } from '../mixins/databaseListMixin';
 
 export default {
   name: 'Oracle',
-  mixins: [databaseListMixin],
+  mixins: [listMixin],
   methods: {
     // 从服务器获取所有的Oracle数据库
     fetchData() {

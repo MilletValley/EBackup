@@ -48,25 +48,24 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { modifyOne as oracleModify } from '../api/oracle';
 import { modifyOne as sqlModify } from '../api/sqlserver';
-import databaseModalMinxin from './mixins/databaseModalMixins';
-
-const requestMapping = {
-  oracle: data => oracleModify(data),
-  sqlserver: data => sqlModify(data),
-};
+import { databaseModalMixin } from './mixins/modalMixins';
 
 export default {
   name: 'DatabaseUpdateModal',
-  mixins: [databaseModalMinxin],
+  mixins: [databaseModalMixin],
   props: {
     databaseInfo: {
       type: Object,
-      required: true,
+      default: {},
     },
   },
   data() {
     return {
       theData: {},
+      requestMapping: {
+        oracle: data => oracleModify(data),
+        sqlserver: data => sqlModify(data),
+      },
     };
   },
   watch: {
@@ -88,17 +87,18 @@ export default {
     confirm() {
       this.$refs.theForm.validate(valid => {
         if (valid) {
-          requestMapping[this.dbType](this.theData)
+          this.requestMapping[this.dbType](this.theData)
             .then(res => {
-              const { data: db } = res.data;
+              const { data: db, message } = res.data;
               // FIXME: mock数据保持id一致，生产环境必须删除下面一行
               db.id = this.databaseInfo.id;
               this.$emit('confirm', db);
               this.$refs.theForm.clearValidate();
-            })
-            .then(() => {
               this.$emit('update:visible', false);
-              this.theData = {};
+              return message;
+            })
+            .then(message => {
+              this.$message.success(message);
             })
             .catch(error => {
               this.$message.error(message);
@@ -110,8 +110,6 @@ export default {
     },
     hasModifiedBeforeClose(fn) {
       if (isEqual(this.theData, this.originData)) {
-        // this.$emit('change-db', this.originData); // 清空数据
-        this.theData = {};
         this.$refs.theForm.clearValidate();
         fn();
       } else {
@@ -121,8 +119,6 @@ export default {
           cancelButtonText: '取消',
         })
           .then(() => {
-            // this.$emit('change-db', this.originData); // 清空数据
-            this.theData = {};
             this.$refs.theForm.clearValidate();
             fn();
           })
@@ -131,7 +127,7 @@ export default {
     },
   },
   components: {
-    'input-toggle': InputToggle,
+    InputToggle,
   },
 };
 </script>

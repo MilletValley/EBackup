@@ -42,31 +42,33 @@
 </template>
 <script>
 import isEqual from 'lodash/isEqual';
-import clone from 'lodash/clone';
 import InputToggle from '@/components/InputToggle';
 import { createOne as oracleCreate } from '../api/oracle';
 import { createOne as sqlCreate } from '../api/sqlserver';
-import databaseModalMinxin from './mixins/databaseModalMixins';
+import { databaseModalMixin } from './mixins/modalMixins';
 
-const requestMapping = {
-  oracle: data => oracleCreate(data),
-
-  sqlserver: data => sqlCreate(data),
-};
+// const requestMapping = {
+//   oracle: data => oracleCreate(data),
+//   sqlserver: data => sqlCreate(data),
+// };
 const vm = {
   name: 'DatabaseCreateModal',
-  mixins: [databaseModalMinxin],
-  model: {
-    prop: 'selectedDb',
-    event: 'change-selectedDb',
-  },
-  props: {
-    selectedDb: Object,
-  },
+  mixins: [databaseModalMixin],
+  // model: {
+  //   prop: 'selectedDb',
+  //   event: 'change-selectedDb',
+  // },
+  // props: {
+  //   selectedDb: Object,
+  // },
   data() {
     return {
       originData: {}, // 原始值
       theData: {},
+      requestMapping: {
+        oracle: data => oracleCreate(data),
+        sqlserver: data => sqlCreate(data),
+      },
     };
   },
   methods: {
@@ -74,7 +76,7 @@ const vm = {
     confirm() {
       this.$refs['theForm'].validate(valid => {
         if (valid) {
-          requestMapping[this.dbType](this.theData)
+          this.requestMapping[this.dbType](this.theData)
             .then(res => {
               const { data: db } = res.data;
               this.$emit('confirm', db);
@@ -115,7 +117,7 @@ const vm = {
     },
   },
   components: {
-    'input-toggle': InputToggle,
+    InputToggle,
   },
 };
 export default vm;

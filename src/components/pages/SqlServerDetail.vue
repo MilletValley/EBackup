@@ -9,7 +9,7 @@
           <el-col :span="23">
             <el-row type="flex" align="middle">
               <el-col :span="8" class="title">
-                <h1>{{dbInfo.name}}</h1>
+                <h1>{{details.name}}</h1>
               </el-col>
               <el-col :span="12" :offset="12" class="action">
                 <el-dropdown size="mini" trigger="click" placement="bottom" @command="addPlanBtnClick">
@@ -21,39 +21,39 @@
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button size="mini" type="primary" @click="dbEditModal = true">编辑</el-button>
+                <el-button size="mini" type="primary" @click="detailsEditModal = true">编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="databaseInfoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
               <el-form-item label="数据库版本">
-                <span>{{ dbInfo.dbVersion }}</span>
+                <span>{{ details.dbVersion }}</span>
               </el-form-item>
               <el-form-item label="数据库实例">
-                <span>{{ dbInfo.instanceName }}</span>
+                <span>{{ details.instanceName }}</span>
               </el-form-item>
               <el-form-item label="数据库账号：">
-                <span>{{ dbInfo.loginName }}</span>
+                <span>{{ details.loginName }}</span>
               </el-form-item>
               <el-form-item label="数据库密码：">
                 <!-- <span-toggle :value="oracle.password"></span-toggle> -->
-                <span>{{ dbInfo.password }}</span>
+                <span>{{ details.password }}</span>
               </el-form-item>
               <el-form-item label="主机名：">
-                <span>{{ dbInfo.hostName }}</span>
+                <span>{{ details.hostName }}</span>
               </el-form-item>
               <el-form-item label="操作系统：">
-                <span>{{ dbInfo.osName }}</span>
+                <span>{{ details.osName }}</span>
               </el-form-item>
               <el-form-item label="主机IP：">
-                <span>{{ dbInfo.hostIp }}</span>
+                <span>{{ details.hostIp }}</span>
               </el-form-item>
               <el-form-item label="所属系统：">
-                <span>{{ dbInfo.application }}</span>
+                <span>{{ details.application }}</span>
               </el-form-item>
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="sqlserver" :visible.sync="dbEditModal" :database-info="dbInfo" @confirm="dbInfo = arguments[0]"></database-update-modal>
+        <database-update-modal db-type="sqlserver" :visible.sync="detailsEditModal" :database-info="details" @confirm="details = arguments[0]"></database-update-modal>
       </div>
     </header>
     <el-tabs v-model="activeTab">
@@ -76,7 +76,8 @@ import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
-import databaseDetailMixin from '../mixins/databaseDetailMixins';
+import { databaseDetailMixin } from '../mixins/detailPageMixins';
+
 import {
   fetchOne,
   fetchBackupPlans,
@@ -92,7 +93,7 @@ export default {
       fetchOne(this.id)
         .then(res => {
           const { data: db } = res.data;
-          this.dbInfo = db;
+          this.details = db;
           this.databaseInfoLoading = false;
         })
         .catch(error => {
