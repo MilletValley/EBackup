@@ -14,6 +14,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="hostIp" label="主机IP" width="200" align="center"></el-table-column>
+      <el-table-column prop="osName" label="操作系统" width="200" align="center"></el-table-column>
       <el-table-column prop="application" label="所属业务系统" min-width="200" align="center"></el-table-column>
       <el-table-column label="操作" width="100" header-align="center" align="right">
         <template slot-scope="scope">
@@ -22,15 +23,19 @@
         </template>
       </el-table-column>
     </el-table>
+    <file-host-create-modal host-type="windows" :visible.sync="createModalVisible" @confirm="dbs.push(arguments[0])"></file-host-create-modal>
+    <file-host-update-modal host-type="windows" :visible.sync="updateModalVisible" @confirm="updateDb" :file-host-info="selectedDb"></file-host-update-modal>
   </section>
 </template>
 <script>
-import databaseListMixin from '../mixins/databaseListMixin';
-import { fetchAll, deleteOne } from '../../api/windows';
+import { listMixin } from '../mixins/databaseListMixin';
+import { fetchAll, deleteOne } from '../../api/fileHost';
+import FileHostCreateModal from '../modal/FileHostCreateModal';
+import FileHostUpdateModal from '../modal/FileHostUpdateModal';
 
 export default {
   name: 'FileHostList',
-  mixins: [databaseListMixin],
+  mixins: [listMixin],
   methods: {
     fetchData() {
       fetchAll()
@@ -59,6 +64,10 @@ export default {
           this.$message.error(error);
         });
     },
+  },
+  components: {
+    FileHostCreateModal,
+    FileHostUpdateModal,
   },
 };
 </script>
