@@ -2,37 +2,46 @@
   <el-table :data="data" style="width: 100%; margin-top: 15px" :default-sort="{ prop: 'startTime', order: 'descending' }">
     <el-table-column type="expand">
       <template slot-scope="scope">
-        <el-form inline label-width="70px" size="small" class="result-detail-form">
+        <el-form inline label-width="90px" size="small" class="result-detail-form">
           <el-form-item label="ID">
             <span>{{ scope.row.id }}</span>
           </el-form-item>
-          <el-form-item label="备份路径">
+          <el-form-item label="存储路径">
             <span>{{ scope.row.path }}</span>
-          </el-form-item>
-          <el-form-item label="文件名">
-            <span>{{ scope.row.fileName }}</span>
           </el-form-item>
           <el-form-item label="开始时间">
             <span>{{ scope.row.startTime }}</span>
           </el-form-item>
-          <el-form-item label="大小">
-            <span>{{ scope.row.size }}</span>
+          <el-form-item label="文件名">
+            <span>{{ scope.row.fileName }}</span>
           </el-form-item>
           <el-form-item label="结束时间">
             <span>{{ scope.row.endTime }}</span>
           </el-form-item>
+          <el-form-item label="文件标识符" v-if="isFileBackupResult">
+            <span>{{ scope.row.identifier }}</span>
+          </el-form-item>
+          <el-form-item label="大小">
+            <span>{{ scope.row.size }}</span>
+          </el-form-item>
           <el-form-item label="状态">
-            <span>{{ stateConverter(scope.row.state) }}</span>
+            <span>
+              <el-tag size="mini" :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
+            </span>
           </el-form-item>
           <el-form-item label="持续时间">
             <span>{{ scope.row.consume | durationFilter }}</span>
           </el-form-item>
+          <el-form-item label="信息" v-if="isFileBackupResult && scope.row.state === 1">
+            <span>{{ scope.row.errorMsg }}</span>
+          </el-form-item>
         </el-form>
       </template>
     </el-table-column>
-    <el-table-column label="文件名" prop="fileName" width="180px" align="center"></el-table-column>
-    <el-table-column label="开始时间" prop="startTime" min-width="200px" align="center"></el-table-column>
-    <el-table-column label="结束时间" prop="endTime" min-width="200px" align="center"></el-table-column>
+    <el-table-column label="文件标识符" prop="identifier" v-if="isFileBackupResult" width="200px" align="center"></el-table-column>
+    <el-table-column label="备份文件名" prop="fileName" min-width="180px" align="left" header-align="center"></el-table-column>
+    <el-table-column label="开始时间" prop="startTime" width="200px" align="center"></el-table-column>
+    <el-table-column label="结束时间" prop="endTime" width="200px" align="center"></el-table-column>
     <el-table-column label="大小" prop="size" width="70px" align="center"></el-table-column>
     <el-table-column label="状态" prop="state" width="70px" align="center">
       <template slot-scope="scope">
@@ -58,11 +67,20 @@ export default {
       type: Array,
       required: true,
     },
+    type: {
+      type: String,
+      default: '',
+    },
   },
   methods: {
     // 备份集状态码转文字
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
+    },
+  },
+  computed: {
+    isFileBackupResult() {
+      return this.type === 'filebackup';
     },
   },
 };

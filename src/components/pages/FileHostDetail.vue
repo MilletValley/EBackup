@@ -55,7 +55,7 @@
         <backup-card :id="plan.id" :type="systemType" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
-        <backup-result-list :data="results"></backup-result-list>
+        <backup-result-list :data="results" type="filebackup"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
   </section>

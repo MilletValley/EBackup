@@ -24,7 +24,7 @@
                 <el-button size="mini" type="primary" @click="detailsEditModal = true">编辑</el-button>
               </el-col>
             </el-row>
-            <el-form v-loading="databaseInfoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
+            <el-form v-loading="infoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
               <el-form-item label="数据库版本">
                 <span>{{ details.dbVersion }}</span>
               </el-form-item>
@@ -94,7 +94,7 @@ export default {
         .then(res => {
           const { data: db } = res.data;
           this.details = db;
-          this.databaseInfoLoading = false;
+          this.infoLoading = false;
         })
         .catch(error => {
           this.$message.error(error);

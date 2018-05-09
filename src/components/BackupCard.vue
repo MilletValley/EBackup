@@ -127,8 +127,7 @@ export default {
       return operation;
     },
     backupConfig() {
-      const { config, ...backupOperation } = this.backupPlan;
-      return config;
+      return this.backupPlan.config;
     },
     backupStrategy() {
       return backupStrategyMapping[this.backupPlan.config.backupStrategy];
@@ -175,7 +174,7 @@ export default {
         };
         requestMapping[this.type](this.id)
           .then(response => {
-            const { data, message } = response.data;
+            const { data } = response.data;
             const { state, startTime, consume, size } = data;
             this.backupPlan = Object.assign(this.backupPlan, {
               state,
