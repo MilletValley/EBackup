@@ -58,6 +58,8 @@
         <backup-result-list :data="results" type="filebackup"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
+    <add-backup-plan type="windows" :id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
+    <update-backup-plan type="windows" :id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="selectedPlan" @confirm="updateBackupPlan"></update-backup-plan>
   </section>
 </template>
 <script>

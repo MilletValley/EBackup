@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- 创建数据库备份配置页面 begin-->
-    <el-dialog :title="'添加'+dbType+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :title="'添加'+Type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form id="#create" :model="create" :rules="rules" ref="create" label-width="100px">
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="create.name"></el-input>
@@ -10,9 +10,15 @@
           <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
-        <!-- <el-form-item label="备份路径" prop="backupUrl">
-          <el-input v-model="create.backupUrl"></el-input>
-        </el-form-item> -->
+        <el-form-item label="备份路径" prop="backupPath" v-show="Type === 'windows' || Type === 'linux'">
+          <el-input v-model="create.backupPath"></el-input>
+        </el-form-item>
+        <el-form-item label="备份系统" prop="backupSystem" v-show="Type === 'windows'">
+          <el-radio-group v-model="update.backupSystem">
+            <el-radio label="sys">是</el-radio>
+            <el-radio label="nosys">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="备份机制">
           <el-radio-group v-model="create.backupStrategy">
             <el-radio v-for="item in _backupStrategys" :key="item.label" :label="item.label" :disabled="item.disabled">
@@ -78,148 +84,87 @@
 import _ from 'lodash'; // lodash按需加载 05/07
 import { createOracleBackupPlan } from '../api/oracle';
 import { createSqlServerBackupPlan } from '../api/sqlserver';
+import { createBackupPlan } from '../api/fileHost';
+import {
+  backupStrategyMapping,
+  timeStrategyMapping,
+  weekMapping,
+} from '../utils/constant';
 const requestMapping = {
   oracle: (id, data) => createOracleBackupPlan({ id, plan: data }),
   sqlserver: (id, data) => createSqlServerBackupPlan({ id, plan: data }),
+  windows: (id, data) => createBackupPlan({ id, plan: data }),
+  linux: (id, data) => createBackupPlan({ id, plan: data }),
+};
+// 转换方法pick、objToArr、objToArr1、convert
+const pick = (obj, arr) =>
+  arr.reduce((iter, val) => (val in obj && (iter[val] = obj[val]), iter), {});
+const objToArr = obj => {
+  let arr = [];
+  for (var key in obj) {
+    arr.push({
+      label: parseInt(key),
+      name: obj[key],
+    });
+  }
+  return arr;
+};
+const objToArr1 = obj => {
+  let arr = [];
+  for (var key in obj) {
+    arr.push({
+      value: key,
+      label: obj[key],
+    });
+  }
+  return arr;
+};
+const convert = type => {
+  let backup = type.backupStrategy;
+  let time = type.timeStrategy;
+  const backupBB = objToArr(backup);
+  for (let i = 0; i < backupBB.length; i++) {
+    const timeTT = objToArr(time[i]);
+    backupBB[i].timeStrategys = timeTT;
+  }
+  return backupBB;
+};
+const config = {
+  oracle: {
+    backupStrategy: pick(backupStrategyMapping, [1]),
+    timeStrategy: [pick(timeStrategyMapping, [0, 2, 3, 4, 5])],
+  },
+  sqlserver: {
+    backupStrategy: pick(backupStrategyMapping, ['1', '2']),
+    timeStrategy: [
+      pick(timeStrategyMapping, ['0', '2', '3', '4', '5']),
+      pick(timeStrategyMapping, ['1']),
+    ],
+  },
+  file: {
+    backupStrategy: pick(backupStrategyMapping, ['1']),
+    timeStrategy: [pick(timeStrategyMapping, ['0', '1', '2', '3', '4'])],
+  },
 };
 const backupStrategys = {
-  oracle: [
-    {
-      label: 1,
-      name: '全备+增备',
-      timeStrategys: [
-        {
-          label: 0,
-          name: '单次',
-        },
-        {
-          label: 2,
-          name: '按小时',
-        },
-        {
-          label: 3,
-          name: '按天',
-        },
-        {
-          label: 4,
-          name: '按周',
-        },
-        {
-          label: 5,
-          name: '按月',
-        },
-      ],
-    },
-  ],
-  sqlserver: [
-    {
-      label: 1,
-      name: '全备+增备',
-      timeStrategys: [
-        {
-          label: 0,
-          name: '单次',
-        },
-        {
-          label: 2,
-          name: '按小时',
-        },
-        {
-          label: 3,
-          name: '按天',
-        },
-        {
-          label: 4,
-          name: '按周',
-        },
-        {
-          label: 5,
-          name: '按月',
-        },
-      ],
-    },
-    {
-      label: 2,
-      name: '全备+日志',
-      timeStrategys: [
-        {
-          label: 1,
-          name: '按分钟',
-        },
-      ],
-    },
-  ],
-  file: [
-    {
-      label: 1,
-      name: '全备+增备',
-      timeStrategys: [
-        {
-          label: 0,
-          name: '单次',
-        },
-        {
-          label: 1,
-          name: '按分钟',
-        },
-        {
-          label: 2,
-          name: '按小时',
-        },
-        {
-          label: 3,
-          name: '按天',
-        },
-        {
-          label: 4,
-          name: '按周',
-        },
-      ],
-    },
-  ],
+  oracle: convert(config.oracle),
+  sqlserver: convert(config.sqlserver),
+  windows: convert(config.file),
+  linux: convert(config.file),
 };
 const datePoints = [];
 for (let i = 1; i < 32; i++) {
   datePoints.push({ value: '' + i + '', label: i + '号' });
 }
-const weekPoints = [
-  {
-    value: '1',
-    label: '周一',
-  },
-  {
-    value: '2',
-    label: '周二',
-  },
-  {
-    value: '3',
-    label: '周三',
-  },
-  {
-    value: '4',
-    label: '周四',
-  },
-  {
-    value: '5',
-    label: '周五',
-  },
-  {
-    value: '6',
-    label: '周六',
-  },
-  {
-    value: '7',
-    label: '周日',
-  },
-];
+const weekPoints = objToArr1(weekMapping);
 
 export default {
   props: {
-    dbType: {
+    Type: {
       type: String,
       required: true,
     },
-    dbId: {
+    Id: {
       type: Number,
       required: true,
     },
@@ -294,6 +239,8 @@ export default {
       weekPointsInfo: weekPoints,
       datePointsInfo: datePoints,
       create: {
+        backupPath: '',
+        backupSystem: 'sys',
         name: '',
         timePoints: [
           {
@@ -307,22 +254,24 @@ export default {
         weekPoints: [],
         datePoints: [],
         backupStrategy: 1,
-        // backupUrl: '',
       },
       tmpTimeStrategy: 0,
       rules: {
         startTime: [
-          { required: true, message: '开始时间不能为空', trigger: 'change' },
+          { required: true, message: '计划时间不能为空', trigger: 'change' },
         ],
         singleTime: [{ validator: valiSingleTime, trigger: 'change' }],
         weekPoints: [{ validator: valiWeekPoints, trigger: 'change' }],
         timePoints: [{ validator: valiTimePoints, trigger: 'change' }],
         datePoints: [{ validator: valiDatePoints, trigger: 'change' }],
-        /* backupUrl: [
+        backupPath: [
           { required: true, message: '备份路径不能为空', trigger: 'blur' },
-        ], */
+        ],
         name: [
           { required: true, message: '备份名称不能为空', trigger: 'blur' },
+        ],
+        backupSystem: [
+          { required: true, message: '备份系统不能为空', trigger: 'blur' },
         ],
       },
       pickerSingleTime: {
@@ -339,14 +288,13 @@ export default {
   },
   computed: {
     _backupStrategys: function() {
-      return backupStrategys[this.dbType];
+      return backupStrategys[this.Type];
     },
     _timeStrategys: function() {
       const valBackupStrategy = this.create.backupStrategy;
-      for (let i = 0; i < backupStrategys[this.dbType].length; i++) {
-        if (backupStrategys[this.dbType][i].label === valBackupStrategy) {
-          const valtimeStrategys =
-            backupStrategys[this.dbType][i].timeStrategys;
+      for (let i = 0; i < backupStrategys[this.Type].length; i++) {
+        if (backupStrategys[this.Type][i].label === valBackupStrategy) {
+          const valtimeStrategys = backupStrategys[this.Type][i].timeStrategys;
           this.tmpTimeStrategy = valtimeStrategys[0].label;
           return valtimeStrategys;
         }
@@ -379,7 +327,8 @@ export default {
       this.create.name = '';
       this.create.backupStrategy = 1;
       this.create.startTime = '';
-      // this.create.backupUrl = '';
+      this.create.backupPath = '';
+      this.create.backupSystem = 'sys';
       this.create.singleTime = '';
       this.create.datePoints = [];
       this.create.weekPoints = [];
@@ -388,6 +337,10 @@ export default {
       this.create.timePoints[0].value = '';
     },
     createBackupPlan() {
+      if (this.Type === 'oracle' || this.Type === 'sqlserver') {
+        this.create.backupPath = 'value';
+        this.create.backupSystem = 'sys';
+      }
       this.$refs.create.validate(valid => {
         if (valid) {
           this.createLoading = true;
@@ -432,9 +385,24 @@ export default {
             // backupUrl: this.create.backupUrl,
           };
           const configdata = Object.assign({}, emptydata, tmpdata);
-          const postdata = { name: this.create.name, config: configdata };
+          const postdata = {
+            oracle: { name: this.create.name, config: configdata },
+            sqlserver: { name: this.create.name, config: configdata },
+            windows: {
+              name: this.create.name,
+              backupPath: this.create.backupPath,
+              backupSystem: this.create.backupSystem,
+              config: configdata,
+            },
+            linux: {
+              name: this.create.name,
+              backupPath: this.create.backupPath,
+              backupSystem: '',
+              config: configdata,
+            },
+          };
           // 向请求服务端
-          requestMapping[this.dbType](this.dbId, postdata)
+          requestMapping[this.Type](this.Id, postdata[this.Type])
             .then(response => {
               this.$emit('confirm', response.data.data);
               this.create.timePoints.splice(
@@ -448,7 +416,7 @@ export default {
             })
             .catch(error => {
               this.createLoading = false;
-              this.$message.error('Error!' + error.code + ':' + error.message);
+              this.$message.error(error);
             });
         } else {
           this.$message.success('创建备份配置失败!');
