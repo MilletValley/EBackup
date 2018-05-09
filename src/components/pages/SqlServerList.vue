@@ -13,9 +13,9 @@
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="instanceName" label="数据库实例名" width="150" align="center"></el-table-column>
-      <el-table-column prop="hostName" label="主机名" min-width="200" align="center"></el-table-column>
-      <el-table-column prop="hostIp" label="主机IP" width="200" align="center"></el-table-column>
+      <el-table-column prop="instanceName" label="数据库实例" min-width="150" align="center"></el-table-column>
+      <el-table-column prop="hostIp" label="主机IP" width="250" align="center"></el-table-column>
+      <el-table-column prop="loginName" label="数据库登陆账号" width="200" align="center"></el-table-column>
       <el-table-column label="操作" width="100" header-align="center" align="right">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" circle size="mini" class="ws-mini" @click="selectOne(scope)"></el-button>

@@ -23,20 +23,20 @@ const databaseModalMixin = {
             trigger: ['blur'],
           },
         ],
-        hostName: [
-          { required: true, message: '请输入主机名', trigger: 'blur' },
-          {
-            min: 3,
-            max: 20,
-            message: '长度在3到20个字符',
-            trigger: 'blur',
-          },
-          {
-            pattern: '^[^\\s]*$',
-            message: '不能包含空格',
-            trigger: ['blur'],
-          },
-        ],
+        // hostName: [
+        //   { required: true, message: '请输入主机名', trigger: 'blur' },
+        //   {
+        //     min: 3,
+        //     max: 20,
+        //     message: '长度在3到20个字符',
+        //     trigger: 'blur',
+        //   },
+        //   {
+        //     pattern: '^[^\\s]*$',
+        //     message: '不能包含空格',
+        //     trigger: ['blur'],
+        //   },
+        // ],
         hostIp: [
           { required: true, message: '请输入主机IP', trigger: 'blur' },
           {
@@ -78,6 +78,8 @@ const databaseModalMixin = {
           },
         ],
       },
+      collapseName: '',
+      confirmBtnLoading: false,
     };
   },
   computed: {
