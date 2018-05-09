@@ -1,11 +1,11 @@
 <template>
-  <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id">
+  <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id" :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
     <div slot="header" class="clearfix">
       <el-tag size="mini">{{ backupStrategyType }}</el-tag>
       <span>{{backupOperation.name}}</span>
-      <i style="float: right; margin: 3px 0 3px 10px;" class="el-icon-refresh state-refresh" @click="refreshBackupPlan"></i>
+      <i v-if="backupOperation.state !== 2" style="float: right; margin: 3px 0 3px 10px;" class="el-icon-refresh state-refresh" @click="refreshBackupPlan"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;" type="text" @click="planDeleteBtnClick">删除</el-button>
-      <el-button style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
+      <el-button v-if="backupOperation.state !== 2" style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
     </div>
     <el-row type="flex">
       <el-col :span="18">

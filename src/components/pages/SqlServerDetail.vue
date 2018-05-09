@@ -58,7 +58,12 @@
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
-        <backup-card :id="plan.id" type="sqlserver" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
+        <el-form inline :model="filterForm" class="filter-form">
+          <el-form-item label="隐藏已完成计划">
+            <el-switch v-model="filterForm.hiddenCompletePlan"></el-switch>
+          </el-form-item>
+        </el-form>
+        <backup-card :id="plan.id" type="sqlserver" v-for="(plan, index) in filteredBackupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
         <backup-result-list :data="results"></backup-result-list>
@@ -153,5 +158,12 @@ export default {
 }
 .el-tabs {
   margin-top: -39px;
+}
+.filter-form {
+  background-color: #ffffff;
+  padding-left: 20px;
+}
+.filter-form .el-form-item {
+  margin-bottom: 0;
 }
 </style>

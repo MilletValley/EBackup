@@ -1,3 +1,6 @@
+const applyFilterMethods = (originData, methods) =>
+  methods.reduce((a, b) => a.filter(b), originData);
+
 const databaseDetailMixin = {
   props: ['id'],
   data() {
@@ -12,6 +15,9 @@ const databaseDetailMixin = {
       detailsEditModal: false,
       planCreateModal: false,
       planUpdateModal: false,
+      filterForm: {
+        hiddenCompletePlan: false,
+      },
     };
   },
   computed: {
@@ -26,6 +32,13 @@ const databaseDetailMixin = {
       return this.selectedPlanIndex === -1
         ? {}
         : this.backupPlans[this.selectedPlanIndex];
+    },
+    filteredBackupPlans() {
+      const filterMethods = [];
+      if (this.filterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.backupPlans, filterMethods);
     },
   },
   created() {

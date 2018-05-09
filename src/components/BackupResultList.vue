@@ -42,13 +42,13 @@
     <el-table-column label="备份文件名" prop="fileName" min-width="180px" align="left" header-align="center"></el-table-column>
     <el-table-column label="开始时间" prop="startTime" width="200px" align="center"></el-table-column>
     <el-table-column label="结束时间" prop="endTime" width="200px" align="center"></el-table-column>
-    <el-table-column label="大小" prop="size" width="70px" align="center"></el-table-column>
+    <el-table-column label="大小" prop="size" width="120px" align="center"></el-table-column>
     <el-table-column label="状态" prop="state" width="70px" align="center">
       <template slot-scope="scope">
         <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
       </template>
     </el-table-column>
-    <el-table-column label="操作" width="150px">
+    <el-table-column label="操作" width="100px">
       <template slot-scope="scope">
         <el-button type="text" size="small">恢复</el-button>
       </template>
