@@ -92,7 +92,7 @@ export default {
   width: 30%;
 }
 .result-detail-form .el-form-item:nth-child(2n) {
-  width: 40%;
+  width: 69%;
 }
 .el-icon-success {
   color: rgb(39, 202, 39);

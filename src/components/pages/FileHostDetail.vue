@@ -4,12 +4,12 @@
       <div class="detail-panel">
         <el-row type="flex" justify="end">
           <el-col :span="1">
-            <i-icon name="oracle"></i-icon>
+            <i-icon :name="systemType"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex" align="middle">
               <el-col :span="8" class="title">
-                <h1>{{details.name}}</h1>
+                <h1>{{details.hostName}}</h1>
               </el-col>
               <el-col :span="12" :offset="12" class="action">
                 <el-dropdown size="mini" trigger="click" placement="bottom" @command="addPlanBtnClick">
@@ -25,21 +25,18 @@
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading" label-position="left" label-width="100px" inline size="small" class="detail-form">
+              <el-form-item label="操作系统：">
+                <span>{{ details.osName }}</span>
+              </el-form-item>
+              <el-form-item label="主机IP：">
+                <span>{{ details.hostIp }}</span>
+              </el-form-item>
               <el-form-item label="服务器账号：">
                 <span>{{ details.loginName }}</span>
               </el-form-item>
               <el-form-item label="服务器密码：">
                 <!-- <span-toggle :value="oracle.password"></span-toggle> -->
                 <span>{{ details.password }}</span>
-              </el-form-item>
-              <el-form-item label="主机名：">
-                <span>{{ details.hostName }}</span>
-              </el-form-item>
-              <el-form-item label="操作系统：">
-                <span>{{ details.osName }}</span>
-              </el-form-item>
-              <el-form-item label="主机IP：">
-                <span>{{ details.hostIp }}</span>
               </el-form-item>
               <el-form-item label="所属系统：">
                 <span>{{ details.application }}</span>
@@ -50,16 +47,21 @@
         <file-host-update-modal host-type="windows" :visible.sync="detailsEditModal" @confirm="details = arguments[0]" :file-host-info="details"></file-host-update-modal>
       </div>
     </header>
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-click="switchPane">
       <el-tab-pane label="操作计划" name="plans">
-        <el-form inline :model="filterForm" class="filter-form">
+        <el-form inline :model="planFilterForm" class="filter-form">
           <el-form-item label="隐藏已完成计划">
-            <el-switch v-model="filterForm.hiddenCompletePlan"></el-switch>
+            <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
           </el-form-item>
         </el-form>
         <backup-card :id="plan.id" :type="systemType" v-for="(plan, index) in filteredBackupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
+        <el-form inline :model="resultFilterForm" class="filter-form" style="text-align: right;">
+          <el-form-item>
+            <el-button size="medium" type="text" @click="updateResults()">刷新</el-button>
+          </el-form-item>
+        </el-form>
         <backup-result-list :data="results" type="filebackup"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
@@ -68,6 +70,7 @@
   </section>
 </template>
 <script>
+import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import SpanToggle from '@/components/SpanToggle';
 import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
@@ -86,6 +89,11 @@ import { backupResultMapping } from '../../utils/constant';
 export default {
   name: 'FileHostDetail',
   mixins: [fileHostDetailMixin],
+  data() {
+    return {
+      updateResults: this.throttleMethod(fetchBackupResults),
+    };
+  },
   methods: {
     fetchData() {
       fetchOne(this.id)
@@ -118,6 +126,11 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+    },
+    switchPane({ name }) {
+      if (name === 'results') {
+        this.updateResults();
+      }
     },
   },
   computed: {

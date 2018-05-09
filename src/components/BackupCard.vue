@@ -47,9 +47,9 @@
               <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <!-- <el-form-item label="备份路径">
-            <span>{{ backupConfig.backupUrl }}</span>
-          </el-form-item> -->
+          <el-form-item label="备份路径" v-if="type === 'windows' || type === 'linux'">
+            <span>{{ backupOperation.backupPath }}</span>
+          </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="6" class="operation-info">

@@ -59,16 +59,21 @@
         <database-update-modal db-type="oracle" :visible.sync="detailsEditModal" :database-info="details" @confirm="details = arguments[0]"></database-update-modal>
       </div>
     </header>
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-click="switchPane">
       <el-tab-pane label="操作计划" name="plans">
-        <el-form inline :model="filterForm" class="filter-form">
+        <el-form inline :model="planFilterForm" class="filter-form">
           <el-form-item label="隐藏已完成计划">
-            <el-switch v-model="filterForm.hiddenCompletePlan"></el-switch>
+            <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
           </el-form-item>
         </el-form>
         <backup-card :id="plan.id" type="oracle" v-for="(plan, index) in filteredBackupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
+        <el-form inline :model="resultFilterForm" class="filter-form" style="text-align: right;">
+          <el-form-item>
+            <el-button size="medium" type="text" @click="updateResults()">刷新</el-button>
+          </el-form-item>
+        </el-form>
         <backup-result-list :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
@@ -77,6 +82,7 @@
   </section>
 </template>
 <script>
+import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
@@ -95,6 +101,11 @@ import { backupResultMapping } from '../../utils/constant';
 export default {
   name: 'OracleDetail',
   mixins: [databaseDetailMixin],
+  data() {
+    return {
+      updateResults: this.throttleMethod(fetchBackupResults),
+    };
+  },
   methods: {
     fetchData() {
       fetchOne(this.id)
@@ -127,6 +138,11 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+    },
+    switchPane({ name }) {
+      if (name === 'results') {
+        this.updateResults();
+      }
     },
   },
   components: {
