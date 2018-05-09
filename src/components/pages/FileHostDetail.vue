@@ -1,10 +1,10 @@
 <template>
   <section>
     <header class="detail-header">
-      <div class="db-content">
+      <div class="detail-panel">
         <el-row type="flex" justify="end">
           <el-col :span="1">
-            <i-icon name="sqlserver"></i-icon>
+            <i-icon name="oracle"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex" align="middle">
@@ -24,17 +24,11 @@
                 <el-button size="mini" type="primary" @click="detailsEditModal = true">编辑</el-button>
               </el-col>
             </el-row>
-            <el-form v-loading="infoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
-              <el-form-item label="数据库版本">
-                <span>{{ details.dbVersion }}</span>
-              </el-form-item>
-              <el-form-item label="数据库实例">
-                <span>{{ details.instanceName }}</span>
-              </el-form-item>
-              <el-form-item label="数据库账号：">
+            <el-form v-loading="infoLoading" label-position="left" label-width="100px" inline size="small" class="detail-form">
+              <el-form-item label="服务器账号：">
                 <span>{{ details.loginName }}</span>
               </el-form-item>
-              <el-form-item label="数据库密码：">
+              <el-form-item label="服务器密码：">
                 <!-- <span-toggle :value="oracle.password"></span-toggle> -->
                 <span>{{ details.password }}</span>
               </el-form-item>
@@ -53,41 +47,38 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="sqlserver" :visible.sync="detailsEditModal" :database-info="details" @confirm="details = arguments[0]"></database-update-modal>
+        <file-host-update-modal host-type="windows" :visible.sync="detailsEditModal" @confirm="details = arguments[0]" :file-host-info="details"></file-host-update-modal>
       </div>
     </header>
     <el-tabs v-model="activeTab">
       <el-tab-pane label="操作计划" name="plans">
-        <backup-card :id="plan.id" type="sqlserver" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
+        <backup-card :id="plan.id" :type="systemType" v-for="(plan, index) in backupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集" name="results">
-        <backup-result-list :data="results"></backup-result-list>
+        <backup-result-list :data="results" type="filebackup"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
-    <add-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
-    <update-backup-plan db-type="sqlserver" :db-id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="selectedPlan" @confirm="updateBackupPlan"></update-backup-plan>
   </section>
 </template>
 <script>
 import IIcon from '@/components/IIcon';
 import SpanToggle from '@/components/SpanToggle';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
+import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
-import { databaseDetailMixin } from '../mixins/detailPageMixins';
-
+import { fileHostDetailMixin } from '../mixins/detailPageMixins';
 import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
-} from '../../api/sqlserver';
+} from '../../api/fileHost';
 import { backupResultMapping } from '../../utils/constant';
 
 export default {
-  name: 'SqlServerDetail',
-  mixins: [databaseDetailMixin],
+  name: 'FileHostDetail',
+  mixins: [fileHostDetailMixin],
   methods: {
     fetchData() {
       fetchOne(this.id)
@@ -99,14 +90,19 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
           this.backupPlans = plans;
+          // if (plans.length > 0) {
+          //   this.backupPlan = plans[0];
+          // }
         })
         .catch(error => {
           this.$message.error(error);
         });
+
       fetchBackupResults(this.id)
         .then(res => {
           const { data: result } = res.data;
@@ -117,9 +113,16 @@ export default {
         });
     },
   },
+  computed: {
+    systemType() {
+      return this.details && this.details.osName
+        ? this.details.osName.toLowerCase()
+        : '';
+    },
+  },
   components: {
     IIcon,
-    DatabaseUpdateModal,
+    FileHostUpdateModal,
     SpanToggle,
     BackupCard,
     BackupResultList,
@@ -140,13 +143,13 @@ export default {
   right: 0;
   font-size: 1.7em;
 }
-.db-content {
+.detail-panel {
   margin-left: 20px;
 }
 .action {
   text-align: right;
 }
-.database-info .el-form-item {
+.detail-form .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
   width: 40%;

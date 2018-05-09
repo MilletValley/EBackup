@@ -10,6 +10,8 @@ import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
+import FileHostList from '@/components/pages/FileHostList';
+import FileHostDetail from '@/components/pages/FileHostDetail';
 
 Vue.use(Router);
 
@@ -41,12 +43,63 @@ export default new Router({
 
 export const asyncRouters = [
   {
+    path: '/filehost',
+    component: Layout,
+    meta: {
+      title: '文件系统',
+      icon: 'file',
+      roles: ['file admin'],
+    },
+    children: [
+      {
+        path: '',
+        component: FileHostList,
+        meta: {
+          title: '服务器列表',
+          roles: ['file admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '文件服务器列表',
+              path: '/filehost',
+            },
+          ],
+        },
+      },
+      {
+        path: ':id',
+        component: FileHostDetail,
+        props: true,
+        meta: {
+          roles: ['file admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '文件服务器列表',
+              path: '/filehost',
+            },
+            {
+              name: '服务器详情',
+              path: '',
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
     path: '/db',
     component: Layout,
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['admin', 'oracle dba', 'sql server dba'],
+      roles: ['oracle dba', 'sql server dba'],
     },
     children: [
       {
@@ -54,7 +107,7 @@ export const asyncRouters = [
         component: OracleList,
         meta: {
           title: 'Oracle',
-          roles: ['admin', 'oracle dba'],
+          roles: ['oracle dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -72,7 +125,7 @@ export const asyncRouters = [
         component: SqlServerList,
         meta: {
           title: 'SQL Server',
-          roles: ['admin', 'sql server dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -148,6 +201,25 @@ export const asyncRouters = [
       },
     ],
   },
+  // {
+  //   path: '/file',
+  //   component: Layout,
+  //   meta: {
+  //     title: '文件系统',
+  //     icon: 'file',
+  //     roles: ['file admin'],
+  //   },
+  //   children: [
+  //     {
+  //       path: 'windows',
+  //       component: FileHostList,
+  //       meta: {
+  //         title: 'Windows系统',
+  //         roles: ['file admin'],
+  //       },
+  //     },
+  //   ],
+  // },
   {
     path: '/settings',
     component: Layout,

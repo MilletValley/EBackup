@@ -1,4 +1,4 @@
-const databaseListMixin = {
+const listMixin = {
   data() {
     return {
       dbs: [],
@@ -38,4 +38,4 @@ const databaseListMixin = {
   },
 };
 
-export default databaseListMixin;
+export { listMixin };

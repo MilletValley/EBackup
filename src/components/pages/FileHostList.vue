@@ -6,16 +6,16 @@
       </el-form-item>
     </el-form>
     <el-table :data="dbs" style="width: 100%">
-      <el-table-column label="数据库名称" min-width="200" align="center">
+      <el-table-column label="主机名" min-width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`${scope.row.id}`" append class="name-link">{{scope.row.name}}</router-link>
+            <router-link :to="`${scope.row.id}`" append class="name-link">{{scope.row.hostName}}</router-link>
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="instanceName" label="数据库实例" min-width="150" align="center"></el-table-column>
-      <el-table-column prop="hostIp" label="主机IP" width="250" align="center"></el-table-column>
-      <el-table-column prop="loginName" label="数据库登陆账号" width="200" align="center"></el-table-column>
+      <el-table-column prop="hostIp" label="主机IP" width="200" align="center"></el-table-column>
+      <el-table-column prop="osName" label="操作系统" width="200" align="center"></el-table-column>
+      <el-table-column prop="application" label="所属业务系统" min-width="200" align="center"></el-table-column>
       <el-table-column label="操作" width="100" header-align="center" align="right">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" circle size="mini" class="ws-mini" @click="selectOne(scope)"></el-button>
@@ -23,38 +23,37 @@
         </template>
       </el-table-column>
     </el-table>
-    <database-create-modal db-type="sqlserver" :visible.sync="createModalVisible" @confirm="dbs.push(arguments[0])"></database-create-modal>
-    <database-update-modal db-type="sqlserver" :visible.sync="updateModalVisible" :database-info="selectedDb" @confirm="updateDb"></database-update-modal>
+    <file-host-create-modal host-type="windows" :visible.sync="createModalVisible" @confirm="dbs.push(arguments[0])"></file-host-create-modal>
+    <file-host-update-modal host-type="windows" :visible.sync="updateModalVisible" @confirm="updateDb" :file-host-info="selectedDb"></file-host-update-modal>
   </section>
 </template>
 <script>
-import DatabaseCreateModal from '@/components/DatabaseCreateModal';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import { fetchAll, deleteOne } from '../../api/sqlserver';
 import { listMixin } from '../mixins/databaseListMixin';
+import { fetchAll, deleteOne } from '../../api/fileHost';
+import FileHostCreateModal from '../modal/FileHostCreateModal';
+import FileHostUpdateModal from '../modal/FileHostUpdateModal';
 
 export default {
-  name: 'SqlServer',
+  name: 'FileHostList',
   mixins: [listMixin],
   methods: {
-    // 从服务器获取所有的Oracle数据库
     fetchData() {
       fetchAll()
         .then(res => {
-          const { data: sqlservers } = res.data;
-          this.dbs = sqlservers;
+          const { data: infos } = res.data;
+          this.dbs = infos;
         })
         .catch(error => {
           this.$message.error(error);
         });
     },
-    deleteDb({ row: db, $index }) {
+    deleteDb({ row: info, $index }) {
       this.$confirm('确认删除此数据库?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => deleteOne(db.id))
+        .then(() => deleteOne(info.id))
         .then(() => {
           this.dbs.splice($index, 1);
           this.$message.success({
@@ -67,12 +66,12 @@ export default {
     },
   },
   components: {
-    DatabaseCreateModal,
-    DatabaseUpdateModal,
+    FileHostCreateModal,
+    FileHostUpdateModal,
   },
 };
 </script>
-<style scoped>
+<style>
 .name-link {
   color: #409eff;
   text-decoration: none;
