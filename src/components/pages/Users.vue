@@ -330,7 +330,7 @@ export default {
               this.passDisable = true;
             })
             .catch(error => {
-              this.$message.error('Error!'+error.code+':'+ error.message);
+              this.$message.error(error);
             });
         })
         .catch(() => {
@@ -353,7 +353,7 @@ export default {
               // this.getUsers();
             })
             .catch(error => {
-              this.$message.error('Error!'+error.code+':'+ error.message);
+              this.$message.error(error);
             });
         })
         .catch(() => {
@@ -375,7 +375,7 @@ export default {
         })
         .catch(error => {
           this.loading = false;
-          this.$message.error('Error!'+error.code+':'+ error.message);
+          this.$message.error(error);
         });
     },
     // 创建用户
@@ -393,7 +393,7 @@ export default {
             })
             .catch(error => {
               this.createLoading = false;
-              this.$message.error('Error!'+error.code+':'+ error.message);
+              this.$message.error(error);
             });
         } else {
           return false;
@@ -413,7 +413,7 @@ export default {
         })
         .catch(error => {
           this.updateLoading = false;
-          this.$message.error('Error!'+error.code+':'+ error.message);
+          this.$message.error(error);
         });
     },
     // 批量删除
@@ -442,7 +442,7 @@ export default {
               this.getUsers();
             })
             .catch(error => {
-              this.$message.error('Error!'+error.code+':'+ error.message);
+              this.$message.error(error);
             });
         })
         .catch(() => {

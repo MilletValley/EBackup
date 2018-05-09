@@ -67,8 +67,8 @@
         <backup-result-list :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
-    <add-backup-plan db-type="oracle" :db-id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
-    <update-backup-plan db-type="oracle" :db-id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="selectedPlan" @confirm="updateBackupPlan"></update-backup-plan>
+    <add-backup-plan type="oracle" :id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
+    <update-backup-plan type="oracle" :id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="selectedPlan" @confirm="updateBackupPlan"></update-backup-plan>
   </section>
 </template>
 <script>

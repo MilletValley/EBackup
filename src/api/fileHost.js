@@ -47,7 +47,7 @@ const fetchBackupResults = id =>
 const createBackupPlan = ({ id, plan }) =>
   baseApi.request({
     method: 'post',
-    url: `/file-hosts/${id}/fiel-host-backup-plans`,
+    url: `/file-hosts/${id}/file-host-backup-plans`,
     data: plan,
   });
 
