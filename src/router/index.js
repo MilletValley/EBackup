@@ -53,6 +53,7 @@ export const asyncRouters = [
     children: [
       {
         path: '',
+        name: 'fileHostList',
         component: FileHostList,
         meta: {
           title: '服务器列表',
@@ -104,6 +105,7 @@ export const asyncRouters = [
     children: [
       {
         path: 'oracle',
+        name: 'oracleList',
         component: OracleList,
         meta: {
           title: 'Oracle',
@@ -122,6 +124,7 @@ export const asyncRouters = [
       },
       {
         path: 'sqlserver',
+        name: 'sqlserverList',
         component: SqlServerList,
         meta: {
           title: 'SQL Server',

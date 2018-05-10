@@ -154,10 +154,14 @@ export default {
         cancelButtonText: '取消',
       })
         .then(() => {
-          deleteMethods[this.type](this.backupPlan.id).then(() => {
-            this.$emit('deletePlan');
-            this.$message.success('删除成功');
-          });
+          deleteMethods[this.type](this.backupPlan.id)
+            .then(() => {
+              this.$emit('deletePlan');
+              this.$message.success('删除成功');
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         })
         .catch(() => {});
     },

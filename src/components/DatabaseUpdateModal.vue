@@ -107,7 +107,7 @@ export default {
             })
             .catch(error => {
               this.confirmBtnLoading = false;
-              this.$message.error(message);
+              this.$message.error(error);
               return false;
             });
         } else {
