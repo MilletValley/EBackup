@@ -14,7 +14,7 @@
           <el-input v-model="create.backupPath"></el-input>
         </el-form-item>
         <el-form-item label="备份系统" prop="backupSystem" v-show="Type === 'windows'">
-          <el-radio-group v-model="update.backupSystem">
+          <el-radio-group v-model="create.backupSystem">
             <el-radio label="sys">是</el-radio>
             <el-radio label="nosys">否</el-radio>
           </el-radio-group>
@@ -291,13 +291,21 @@ export default {
       return backupStrategys[this.Type];
     },
     _timeStrategys: function() {
+     
       const valBackupStrategy = this.create.backupStrategy;
-      for (let i = 0; i < backupStrategys[this.Type].length; i++) {
+      
+      if(Array.isArray(backupStrategys[this.Type]) === true){
+        for (let i = 0; i < backupStrategys[this.Type].length; i++) {
         if (backupStrategys[this.Type][i].label === valBackupStrategy) {
           const valtimeStrategys = backupStrategys[this.Type][i].timeStrategys;
           this.tmpTimeStrategy = valtimeStrategys[0].label;
           return valtimeStrategys;
+          }
         }
+        console.log(valBackupStrategy)
+       console.log('backupStrategys[this.Type]')
+      console.log(backupStrategys[this.Type].length)
+      console.log(backupStrategys[this.Type])
       }
     },
     _timeInterval: function() {
