@@ -104,15 +104,13 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+          this.$router.push({ name: 'fileHostList' });
         });
 
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
           this.backupPlans = plans;
-          // if (plans.length > 0) {
-          //   this.backupPlan = plans[0];
-          // }
         })
         .catch(error => {
           this.$message.error(error);

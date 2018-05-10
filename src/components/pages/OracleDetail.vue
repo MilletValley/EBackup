@@ -31,9 +31,9 @@
               <el-form-item label="数据库实例">
                 <span>{{ details.instanceName }}</span>
               </el-form-item>
-              <el-form-item label="归档模式：">
+              <!-- <el-form-item label="归档模式：">
                 <span>ARCHIVELOG</span>
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item label="数据库账号：">
                 <span>{{ details.loginName }}</span>
               </el-form-item>
@@ -116,15 +116,13 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+          this.$router.push({ name: 'oracleList' });
         });
 
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
           this.backupPlans = plans;
-          // if (plans.length > 0) {
-          //   this.backupPlan = plans[0];
-          // }
         })
         .catch(error => {
           this.$message.error(error);
