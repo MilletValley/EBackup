@@ -85,9 +85,11 @@ import _ from 'lodash';
 import { updateOracleBackupPlan } from '../api/oracle';
 import { updateSqlServerBackupPlan } from '../api/sqlserver';
 import { updateBackupPlan } from '../api/fileHost';
-import { backupStrategyMapping,
+import {
+  backupStrategyMapping,
   timeStrategyMapping,
-  weekMapping } from '../utils/constant';
+  weekMapping,
+} from '../utils/constant';
 const requestMapping = {
   oracle: (id, data) => updateOracleBackupPlan({ id, plan: data }),
   sqlserver: (id, data) => updateSqlServerBackupPlan({ id, plan: data }),
@@ -96,60 +98,63 @@ const requestMapping = {
 };
 // 转换方法pick、objToArr、objToArr1、convert
 const pick = (obj, arr) =>
-    arr.reduce((iter, val) => (val in obj && (iter[val] = obj[val]), iter), {});
-const objToArr = obj =>{
-    let arr = [];
-    for(var key in obj){
-      arr.push({
-        label: parseInt(key),
-        name: obj[key],
-      })
-    }
-    return arr
-  } 
-const objToArr1 = obj =>{
-    let arr = [];
-    for(var key in obj){
-      arr.push({
-        value: key,
-        label: obj[key],
-      })
-    }
-    return arr
-  } 
+  arr.reduce((iter, val) => (val in obj && (iter[val] = obj[val]), iter), {});
+const objToArr = obj => {
+  const arr = [];
+  for (var key in obj) {
+    arr.push({
+      label: parseInt(key),
+      name: obj[key],
+    });
+  }
+  return arr;
+};
+const objToArr1 = obj => {
+  const arr = [];
+  for (var key in obj) {
+    arr.push({
+      value: key,
+      label: obj[key],
+    });
+  }
+  return arr;
+};
 const convert = type => {
-  let backup = type.backupStrategy;
-  let time = type.timeStrategy;
+  const backup = type.backupStrategy;
+  const time = type.timeStrategy;
   const backupBB = objToArr(backup);
-  for(let i=0; i< backupBB.length; i++){
+  for (let i = 0; i < backupBB.length; i++) {
     const timeTT = objToArr(time[i]);
     backupBB[i].timeStrategys = timeTT;
   }
-  return backupBB
- }
+  return backupBB;
+};
 const config = {
   oracle: {
     backupStrategy: pick(backupStrategyMapping, [1]),
-    timeStrategy: [pick(timeStrategyMapping, [0,2,3,4,5])]
+    timeStrategy: [pick(timeStrategyMapping, [0, 2, 3, 4, 5])],
   },
- sqlserver: {
-    backupStrategy: pick(backupStrategyMapping, ['1','2']),
-    timeStrategy: [pick(timeStrategyMapping, ['0','2','3','4','5']),pick(timeStrategyMapping, ['1'])]
+  sqlserver: {
+    backupStrategy: pick(backupStrategyMapping, ['1', '2']),
+    timeStrategy: [
+      pick(timeStrategyMapping, ['0', '2', '3', '4', '5']),
+      pick(timeStrategyMapping, ['1']),
+    ],
   },
- file: {
+  file: {
     backupStrategy: pick(backupStrategyMapping, ['1']),
-    timeStrategy: [pick(timeStrategyMapping, ['0','1','2','3','4'])]
-  }
-}
+    timeStrategy: [pick(timeStrategyMapping, ['0', '1', '2', '3', '4'])],
+  },
+};
 const backupStrategys = {
   oracle: convert(config.oracle),
   sqlserver: convert(config.sqlserver),
-  windows:convert(config.file),
-  linux:convert(config.file),
+  windows: convert(config.file),
+  linux: convert(config.file),
 };
 const datePoints = [];
 for (let i = 1; i < 32; i++) {
-  datePoints.push({ value: ''+i+'', label: i + '号' });
+  datePoints.push({ value: '' + i + '', label: i + '号' });
 }
 const weekPoints = objToArr1(weekMapping);
 
@@ -189,7 +194,7 @@ export default {
       ) {
         let i = 0;
         value.map(item => {
-          if (item.value != '') {
+          if (item.value !== '') {
             callback();
             i = 1;
           }
@@ -267,9 +272,9 @@ export default {
         name: [
           { required: true, message: '备份名称不能为空', trigger: 'blur' },
         ],
-        backupSystem:[
+        backupSystem: [
           { required: true, message: '备份系统不能为空', trigger: 'blur' },
-        ]
+        ],
       },
       pickerSingleTime: {
         disabledDate: time => {
@@ -289,7 +294,7 @@ export default {
     },
     _timeStrategys: function() {
       const valBackupStrategy = this.update.backupStrategy;
-      if(Array.isArray(backupStrategys[this.type]) === true){
+      if (Array.isArray(backupStrategys[this.type]) === true) {
         for (let i = 0; i < backupStrategys[this.type].length; i++) {
           if (backupStrategys[this.type][i].label === valBackupStrategy) {
             const valtimeStrategys =
@@ -324,11 +329,11 @@ export default {
   methods: {
     // 赋值表单
     initUpdate() {
-      //this.$refs.update.clearValidate();
-      if(this.type === 'oracle'||this.type === 'sqlserver'){
+      // this.$refs.update.clearValidate();
+      if (this.type === 'oracle' || this.type === 'sqlserver') {
         this.update.backupPath = 'value';
         this.update.backupSystem = 'sys';
-      }else{
+      } else {
         this.update.backupPath = this.backupPlan.backupPath;
         this.update.backupSystem = this.backupPlan.backupSystem;
       }
@@ -351,9 +356,13 @@ export default {
         this.update.timeIntervalM = 10;
         this.update.timeIntervalH = 1;
       }
-      this.update.timePoints = newObj.timePoints.map(i => {
-        return { value: i };
-      });
+      if (newObj.timePoints.length === 0) {
+        this.update.timePoints = [{ value: '' }];
+      } else {
+        this.update.timePoints = newObj.timePoints.map(i => {
+          return { value: i };
+        });
+      }
     },
     // 重置表单清空验证
     resetUpdate() {
@@ -370,8 +379,8 @@ export default {
               arr1.push(data[i].value);
             }
           }
-          let arr = [...new Set(arr1)];
-          let emptydata = {
+          const arr = [...new Set(arr1)];
+          const emptydata = {
             timeInterval: '',
             singleTime: '',
             weekPoints: [],
@@ -390,11 +399,7 @@ export default {
             emptydata.weekPoints = this.update.weekPoints.sort();
             emptydata.timePoints = arr.sort();
           } else if (this.tmpTimeStrategy === 5) {
-            emptydata.datePoints = this.update.datePoints.sort(
-              function sortNumber(a, b) {
-                return a - b;
-              }
-            );
+            emptydata.datePoints = this.update.datePoints.sort((a, b) => a - b);
             emptydata.timePoints = arr.sort();
           }
 
@@ -403,14 +408,29 @@ export default {
             startTime: this.update.startTime,
             backupStrategy: this.update.backupStrategy,
             timeStrategy: this.tmpTimeStrategy,
-    
           };
           const tmpdata1 = Object.assign({}, emptydata, tmpdata);
           const postdata = {
             oracle: { id: this._id, name: this.update.name, config: tmpdata1 },
-            sqlserver: { id: this._id, name: this.update.name, config: tmpdata1 },
-            windows: { id: this._id, name: this.update.name, backupPath: this.update.backupPath, backupSystem: this.update.backupSystem, config: tmpdata1 },
-            linux: { id: this._id, name: this.update.name, backupPath: this.update.backupPath, backupSystem: '', config: tmpdata1 },
+            sqlserver: {
+              id: this._id,
+              name: this.update.name,
+              config: tmpdata1,
+            },
+            windows: {
+              id: this._id,
+              name: this.update.name,
+              backupPath: this.update.backupPath,
+              backupSystem: this.update.backupSystem,
+              config: tmpdata1,
+            },
+            linux: {
+              id: this._id,
+              name: this.update.name,
+              backupPath: this.update.backupPath,
+              backupSystem: '',
+              config: tmpdata1,
+            },
           };
           // 向请求服务端
           requestMapping[this.type](this.backupPlan.id, postdata[this.type])
@@ -430,13 +450,12 @@ export default {
               this.$message.error(error);
             });
         } else {
-          this.$message.success(response.data.message);
           return false;
         }
       });
     },
     removeTimePoint(item) {
-      let index = this.update.timePoints.indexOf(item);
+      const index = this.update.timePoints.indexOf(item);
       if (index !== -1) {
         this.update.timePoints.splice(index, 1);
       }
@@ -480,7 +499,7 @@ export default {
     },
   },
   watch: {
-    tmpTimeStrategy: function(newVal, oldVal) {
+    tmpTimeStrategy: function(newVal) {
       this.getTimeStrategy(newVal);
     },
     visible(value) {
