@@ -1,3 +1,8 @@
+import throttle from 'lodash/throttle';
+
+const applyFilterMethods = (originData, methods) =>
+  methods.reduce((a, b) => a.filter(b), originData);
+
 const databaseDetailMixin = {
   props: ['id'],
   data() {
@@ -12,6 +17,10 @@ const databaseDetailMixin = {
       detailsEditModal: false,
       planCreateModal: false,
       planUpdateModal: false,
+      planFilterForm: {
+        hiddenCompletePlan: false,
+      },
+      resultFilterForm: {},
     };
   },
   computed: {
@@ -26,6 +35,13 @@ const databaseDetailMixin = {
       return this.selectedPlanIndex === -1
         ? {}
         : this.backupPlans[this.selectedPlanIndex];
+    },
+    filteredBackupPlans() {
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.backupPlans, filterMethods);
     },
   },
   created() {
@@ -61,6 +77,22 @@ const databaseDetailMixin = {
     deleteBackupPlan(planIndex) {
       this.backupPlans.splice(planIndex, 1);
       // this.backupPlans.splice(this.backupPlans.findIndex(plan => plan.id === planId), 1);
+    },
+    throttleMethod(func) {
+      return throttle(
+        () => {
+          func(this.id)
+            .then(res => {
+              const { data: result } = res.data;
+              this.results = result;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        },
+        5000,
+        { leading: true, trailing: false }
+      );
     },
   },
 };

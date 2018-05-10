@@ -1,11 +1,11 @@
 <template>
-  <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id">
+  <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id" :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
     <div slot="header" class="clearfix">
       <el-tag size="mini">{{ backupStrategyType }}</el-tag>
       <span>{{backupOperation.name}}</span>
-      <i style="float: right; margin: 3px 0 3px 10px;" class="el-icon-refresh state-refresh" @click="refreshBackupPlan"></i>
+      <i v-if="backupOperation.state !== 2" style="float: right; margin: 3px 0 3px 10px;" class="el-icon-refresh state-refresh" @click="refreshBackupPlan"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;" type="text" @click="planDeleteBtnClick">删除</el-button>
-      <el-button style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
+      <el-button v-if="backupOperation.state !== 2" style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
     </div>
     <el-row type="flex">
       <el-col :span="18">
@@ -47,9 +47,9 @@
               <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <!-- <el-form-item label="备份路径">
-            <span>{{ backupConfig.backupUrl }}</span>
-          </el-form-item> -->
+          <el-form-item label="备份路径" v-if="type === 'windows' || type === 'linux'">
+            <span>{{ backupOperation.backupPath }}</span>
+          </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="6" class="operation-info">
