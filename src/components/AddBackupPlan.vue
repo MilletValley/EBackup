@@ -474,3 +474,9 @@ export default {
   },
 };
 </script>
+<style>
+.el-picker-panel__footer .el-button--text {
+  display:none;
+}
+</style>
+
