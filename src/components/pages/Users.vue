@@ -385,7 +385,7 @@ export default {
           this.createLoading = true;
           createUserInfo(this.create)
             .then(response => {
-              this.$message.success('创建用户成功！');
+              this.$message.success(response.data.message);
               this.dialogCreateVisible = false;
               this.createLoading = false;
               const data = response.data.data;
@@ -405,7 +405,7 @@ export default {
       this.updateLoading = true;
       updateUserInfo(this.update)
         .then(response => {
-          this.$message.success('编辑用户成功！');
+          this.$message.success(response.data.message);
           this.dialogUpdateVisible = false;
           this.updateLoading = false;
           // 根据索引，赋值到list制定的数

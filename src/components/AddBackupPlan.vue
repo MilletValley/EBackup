@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- 创建数据库备份配置页面 begin-->
-    <el-dialog :title="'添加'+Type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :title="'添加'+type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form id="#create" :model="create" :rules="rules" ref="create" label-width="100px">
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="create.name"></el-input>
@@ -10,10 +10,10 @@
           <el-date-picker v-model="create.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="备份路径" prop="backupPath" v-show="Type === 'windows' || Type === 'linux'">
+        <el-form-item label="备份路径" prop="backupPath" v-show="type === 'windows' || type === 'linux'">
           <el-input v-model="create.backupPath"></el-input>
         </el-form-item>
-        <el-form-item label="备份系统" prop="backupSystem" v-show="Type === 'windows'">
+        <el-form-item label="备份系统" prop="backupSystem" v-show="type === 'windows'">
           <el-radio-group v-model="create.backupSystem">
             <el-radio label="sys">是</el-radio>
             <el-radio label="nosys">否</el-radio>
@@ -160,11 +160,11 @@ const weekPoints = objToArr1(weekMapping);
 
 export default {
   props: {
-    Type: {
+    type: {
       type: String,
       required: true,
     },
-    Id: {
+    id: {
       type: Number,
       required: true,
     },
@@ -288,24 +288,19 @@ export default {
   },
   computed: {
     _backupStrategys: function() {
-      return backupStrategys[this.Type];
+      return backupStrategys[this.type];
     },
     _timeStrategys: function() {
-     
+
       const valBackupStrategy = this.create.backupStrategy;
-      
-      if(Array.isArray(backupStrategys[this.Type]) === true){
-        for (let i = 0; i < backupStrategys[this.Type].length; i++) {
-        if (backupStrategys[this.Type][i].label === valBackupStrategy) {
-          const valtimeStrategys = backupStrategys[this.Type][i].timeStrategys;
+      if(Array.isArray(backupStrategys[this.type]) === true){
+        for (let i = 0; i < backupStrategys[this.type].length; i++) {
+        if (backupStrategys[this.type][i].label === valBackupStrategy) {
+          const valtimeStrategys = backupStrategys[this.type][i].timeStrategys;
           this.tmpTimeStrategy = valtimeStrategys[0].label;
           return valtimeStrategys;
           }
         }
-        console.log(valBackupStrategy)
-       console.log('backupStrategys[this.Type]')
-      console.log(backupStrategys[this.Type].length)
-      console.log(backupStrategys[this.Type])
       }
     },
     _timeInterval: function() {
@@ -345,7 +340,7 @@ export default {
       this.create.timePoints[0].value = '';
     },
     createBackupPlan() {
-      if (this.Type === 'oracle' || this.Type === 'sqlserver') {
+      if (this.type === 'oracle' || this.type === 'sqlserver') {
         this.create.backupPath = 'value';
         this.create.backupSystem = 'sys';
       }
@@ -410,7 +405,7 @@ export default {
             },
           };
           // 向请求服务端
-          requestMapping[this.Type](this.Id, postdata[this.Type])
+          requestMapping[this.type](this.id, postdata[this.type])
             .then(response => {
               this.$emit('confirm', response.data.data);
               this.create.timePoints.splice(

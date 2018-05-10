@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- 修改数据库备份配置页面 begin-->
-    <el-dialog :title="'修改'+Type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :title="'修改'+type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form :id="_id" :model="update" :rules="rules" ref="update" label-width="100px">
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="update.name"></el-input>
@@ -10,10 +10,10 @@
           <el-date-picker v-model="update.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="备份路径" prop="backupPath" v-show="Type === 'windows' || Type === 'linux'">
+        <el-form-item label="备份路径" prop="backupPath" v-show="type === 'windows' || type === 'linux'">
           <el-input v-model="update.backupPath"></el-input>
         </el-form-item>
-        <el-form-item label="备份系统" prop="backupSystem" v-show="Type === 'windows'">
+        <el-form-item label="备份系统" prop="backupSystem" v-show="type === 'windows'">
           <el-radio-group v-model="update.backupSystem">
             <el-radio label="sys">是</el-radio>
             <el-radio label="nosys">否</el-radio>
@@ -155,7 +155,7 @@ const weekPoints = objToArr1(weekMapping);
 
 export default {
   props: {
-    Type: {
+    type: {
       type: String,
       required: true,
     },
@@ -285,15 +285,15 @@ export default {
   },
   computed: {
     _backupStrategys: function() {
-      return backupStrategys[this.Type];
+      return backupStrategys[this.type];
     },
     _timeStrategys: function() {
       const valBackupStrategy = this.update.backupStrategy;
-      if(Array.isArray(backupStrategys[this.Type]) === true){
-        for (let i = 0; i < backupStrategys[this.Type].length; i++) {
-          if (backupStrategys[this.Type][i].label === valBackupStrategy) {
+      if(Array.isArray(backupStrategys[this.type]) === true){
+        for (let i = 0; i < backupStrategys[this.type].length; i++) {
+          if (backupStrategys[this.type][i].label === valBackupStrategy) {
             const valtimeStrategys =
-              backupStrategys[this.Type][i].timeStrategys;
+              backupStrategys[this.type][i].timeStrategys;
             this.tmpTimeStrategy = valtimeStrategys[0].label;
             return valtimeStrategys;
           }
@@ -325,7 +325,7 @@ export default {
     // 赋值表单
     initUpdate() {
       //this.$refs.update.clearValidate();
-      if(this.Type === 'oracle'||this.Type === 'sqlserver'){
+      if(this.type === 'oracle'||this.type === 'sqlserver'){
         this.update.backupPath = 'value';
         this.update.backupSystem = 'sys';
       }else{
@@ -413,14 +413,14 @@ export default {
             linux: { id: this._id, name: this.update.name, backupPath: this.update.backupPath, backupSystem: '', config: tmpdata1 },
           };
           // 向请求服务端
-          requestMapping[this.Type](this.backupPlan.id, postdata[this.Type])
+          requestMapping[this.type](this.backupPlan.id, postdata[this.type])
             .then(response => {
               this.$emit('confirm', response.data.data);
               this.update.timePoints.splice(
                 1,
                 this.update.timePoints.length - 1
               );
-              this.$message.success('修改备份配置成功!');
+              this.$message.success(response.data.message);
               this._visible = false;
               this.updateLoading = false;
               this.resetUpdate();
@@ -430,7 +430,7 @@ export default {
               this.$message.error(error);
             });
         } else {
-          this.$message.success('修改备份配置失败!');
+          this.$message.success(response.data.message);
           return false;
         }
       });
