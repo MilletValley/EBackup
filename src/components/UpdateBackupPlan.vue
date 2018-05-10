@@ -289,12 +289,14 @@ export default {
     },
     _timeStrategys: function() {
       const valBackupStrategy = this.update.backupStrategy;
-      for (let i = 0; i < backupStrategys[this.Type].length; i++) {
-        if (backupStrategys[this.Type][i].label === valBackupStrategy) {
-          const valtimeStrategys =
-            backupStrategys[this.Type][i].timeStrategys;
-          this.tmpTimeStrategy = valtimeStrategys[0].label;
-          return valtimeStrategys;
+      if(Array.isArray(backupStrategys[this.Type]) === true){
+        for (let i = 0; i < backupStrategys[this.Type].length; i++) {
+          if (backupStrategys[this.Type][i].label === valBackupStrategy) {
+            const valtimeStrategys =
+              backupStrategys[this.Type][i].timeStrategys;
+            this.tmpTimeStrategy = valtimeStrategys[0].label;
+            return valtimeStrategys;
+          }
         }
       }
     },
