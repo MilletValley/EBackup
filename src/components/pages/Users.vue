@@ -290,24 +290,22 @@ export default {
     filterState(value, row) {
       return row.state === value;
     },
-    //创建
+    // 创建
     handleCreate() {
       this.rolesSelected = [];
       this.dialogCreateVisible = true;
       this.$nextTick(() => {
-        //等待dom同步后打开模态框
-        this.$refs['create'].resetFields();
+        // 等待dom同步后打开模态框
+        this.$refs.create.resetFields();
       });
     },
     // 编辑
     handleEdit(index, row) {
-      const newRow = Object.assign({},row)
+      const newRow = Object.assign({}, row);
       this.update = newRow;
       this.dialogUpdateVisible = true;
       this.passDisable = false;
-      this.rolesSelected = newRow.roles.map(item =>{
-        return item.id
-      })
+      this.rolesSelected = newRow.roles.map(item => item.id);
       // 记录索引
       this.listIndex = index;
     },
@@ -320,13 +318,13 @@ export default {
       )
         .then(() => {
           // 向请求服务端删除
-          const resetUpdate= {
+          const resetUpdate = {
             id: value,
-            password: '111111'
+            password: '111111',
           };
           updateUserInfo(resetUpdate)
             .then(response => {
-              this.$message.success('重置密码成功!');
+              this.$message.success(response.data.message);
               this.passDisable = true;
             })
             .catch(error => {
@@ -348,7 +346,7 @@ export default {
           // 向请求服务端删除
           deleteUserInfo(row.id)
             .then(response => {
-              this.$message.success(`成功删除了用户 ${row.loginName}!`);
+              this.$message.success(`成功删除了用户 ${row.loginName}!${response.data.message}`);
               this.tableUsers.splice(index, 1);
               // this.getUsers();
             })
@@ -388,7 +386,6 @@ export default {
               this.$message.success(response.data.message);
               this.dialogCreateVisible = false;
               this.createLoading = false;
-              const data = response.data.data;
               this.tableUsers.push(response.data.data);
             })
             .catch(error => {
@@ -410,8 +407,7 @@ export default {
           this.updateLoading = false;
           // 根据索引，赋值到list制定的数
           this.tableUsers.splice(this.listIndex, 1, response.data.data);
-        })
-        .catch(error => {
+        }).catch(error => {
           this.updateLoading = false;
           this.$message.error(error);
         });
@@ -432,12 +428,12 @@ export default {
           this.multipleSelection.map(item => {
             ids.push(item.id);
           });
-          const data = { ids: ids}
+          const data = { ids };
           // 向请求服务端删除
           deleteUsersInfo(data)
             .then(response => {
               this.$message.success(
-                `删除了 ${this.multipleSelection.length} 条用户信息!`
+                `删除了 ${this.multipleSelection.length} 条用户信息! ${response.data.message}`
               );
               this.getUsers();
             })
@@ -450,22 +446,22 @@ export default {
         });
     },
     // 转换Roles结构
-    transformRoles(newVal){
+    transformRoles(newVal) {
       /* this.create.roles = newVal.map(i=> {
         for(let j=0; j< rolesUser.length; j++){
           if(rolesUser[j].id === i){
              return rolesUser[j]
-          }    
-        }   
+          }
+        }
       }); */
       this.create.roles = newVal;
       this.update.roles = newVal;
     },
   },
-  watch:{
-    rolesSelected: function(newVal, oldVal) {
+  watch: {
+    rolesSelected: function(newVal) {
       this.transformRoles(newVal);
-    }
-  }
+    },
+  },
 };
 </script>

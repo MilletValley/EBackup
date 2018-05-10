@@ -100,8 +100,8 @@ const requestMapping = {
 const pick = (obj, arr) =>
   arr.reduce((iter, val) => (val in obj && (iter[val] = obj[val]), iter), {});
 const objToArr = obj => {
-  let arr = [];
-  for (var key in obj) {
+  const arr = [];
+  for (const key in obj) {
     arr.push({
       label: parseInt(key),
       name: obj[key],
@@ -110,8 +110,8 @@ const objToArr = obj => {
   return arr;
 };
 const objToArr1 = obj => {
-  let arr = [];
-  for (var key in obj) {
+  const arr = [];
+  for (const key in obj) {
     arr.push({
       value: key,
       label: obj[key],
@@ -120,8 +120,8 @@ const objToArr1 = obj => {
   return arr;
 };
 const convert = type => {
-  let backup = type.backupStrategy;
-  let time = type.timeStrategy;
+  const backup = type.backupStrategy;
+  const time = type.timeStrategy;
   const backupBB = objToArr(backup);
   for (let i = 0; i < backupBB.length; i++) {
     const timeTT = objToArr(time[i]);
@@ -194,7 +194,7 @@ export default {
       ) {
         let i = 0;
         value.map(item => {
-          if (item.value != '') {
+          if (item.value !== '') {
             callback();
             i = 1;
           }
@@ -291,14 +291,14 @@ export default {
       return backupStrategys[this.type];
     },
     _timeStrategys: function() {
-
       const valBackupStrategy = this.create.backupStrategy;
-      if(Array.isArray(backupStrategys[this.type]) === true){
+      if (Array.isArray(backupStrategys[this.type]) === true) {
         for (let i = 0; i < backupStrategys[this.type].length; i++) {
-        if (backupStrategys[this.type][i].label === valBackupStrategy) {
-          const valtimeStrategys = backupStrategys[this.type][i].timeStrategys;
-          this.tmpTimeStrategy = valtimeStrategys[0].label;
-          return valtimeStrategys;
+          if (backupStrategys[this.type][i].label === valBackupStrategy) {
+            const valtimeStrategys =
+              backupStrategys[this.type][i].timeStrategys;
+            this.tmpTimeStrategy = valtimeStrategys[0].label;
+            return valtimeStrategys;
           }
         }
       }
@@ -354,8 +354,8 @@ export default {
               arr1.push(data[i].value);
             }
           }
-          let arr = [...new Set(arr1)];
-          let emptydata = {
+          const arr = [...new Set(arr1)];
+          const emptydata = {
             timeInterval: '',
             singleTime: '',
             weekPoints: [],
@@ -374,10 +374,7 @@ export default {
             emptydata.weekPoints = this.create.weekPoints.sort();
             emptydata.timePoints = arr.sort();
           } else if (this.tmpTimeStrategy === 5) {
-            emptydata.datePoints = this.create.datePoints.sort(
-              function sortNumber(a, b) {
-                return a - b;
-              }
+            emptydata.datePoints = this.create.datePoints.sort((a, b) => a - b
             );
             emptydata.timePoints = arr.sort();
           }
@@ -412,7 +409,7 @@ export default {
                 1,
                 this.create.timePoints.length - 1
               );
-              this.$message.success('创建备份配置成功!');
+              this.$message.success(response.data.message);
               this._visible = false;
               this.createLoading = false;
               this.resetCreate();
@@ -422,13 +419,12 @@ export default {
               this.$message.error(error);
             });
         } else {
-          this.$message.success('创建备份配置失败!');
           return false;
         }
       });
     },
     removeTimePoint(item) {
-      let index = this.create.timePoints.indexOf(item);
+      const index = this.create.timePoints.indexOf(item);
       if (index !== -1) {
         this.create.timePoints.splice(index, 1);
       }
@@ -472,9 +468,15 @@ export default {
     },
   },
   watch: {
-    tmpTimeStrategy: function(newVal, oldVal) {
+    tmpTimeStrategy: function(newVal) {
       this.getTimeStrategy(newVal);
     },
   },
 };
 </script>
+<style>
+.el-picker-panel__footer .el-button--text {
+  display:none;
+}
+</style>
+
