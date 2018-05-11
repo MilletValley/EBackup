@@ -59,9 +59,7 @@ const actions = {
         commit(types.SET_TOKEN, data);
         return res.data;
       })
-      .catch(error => {
-        Promise.reject(error);
-      });
+      .catch(error => Promise.reject(error));
   },
   /**
    * 根据Token获取用户信息

@@ -1,11 +1,17 @@
 <template>
   <section>
-    <el-form inline>
-      <el-form-item>
+    <el-form inline size="small">
+      <el-form-item label="筛选操作系统">
+        <el-checkbox-group v-model="sysTypeFilter">
+          <el-checkbox-button label="Windows"></el-checkbox-button>
+          <el-checkbox-button label="Linux"></el-checkbox-button>
+        </el-checkbox-group>
+      </el-form-item>
+      <el-form-item style="float: right;">
         <el-button type="primary" @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dbs" style="width: 100%">
+    <el-table :data="filteredInfos" style="width: 100%">
       <el-table-column label="主机名" min-width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text">
@@ -32,10 +38,23 @@ import { listMixin } from '../mixins/databaseListMixin';
 import { fetchAll, deleteOne } from '../../api/fileHost';
 import FileHostCreateModal from '../modal/FileHostCreateModal';
 import FileHostUpdateModal from '../modal/FileHostUpdateModal';
+import { applyFilterMethods } from '../../utils/common';
 
 export default {
   name: 'FileHostList',
   mixins: [listMixin],
+  data() {
+    return {
+      sysTypeFilter: ['Windows', 'Linux'],
+    };
+  },
+  computed: {
+    filteredInfos() {
+      const filterMethods = [];
+      filterMethods.push(info => this.sysTypeFilter.indexOf(info.osName) >= 0);
+      return applyFilterMethods(this.dbs, filterMethods);
+    },
+  },
   methods: {
     fetchData() {
       fetchAll()
@@ -61,7 +80,9 @@ export default {
           });
         })
         .catch(error => {
-          this.$message.error(error);
+          if (error !== 'cancel')
+            // element-ui Message组件取消会进入catch 避免这种弹窗
+            this.$message.error(error);
         });
     },
   },

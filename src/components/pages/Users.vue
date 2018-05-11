@@ -11,39 +11,20 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-table
-          v-loading="loading"
-          element-loading-text="拼命加载中..."
-          :data="tableUsers"
-          stripe
-          style="width: 100%"
-          @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" element-loading-text="拼命加载中..." :data="tableUsers" stripe style="width: 100%" @selection-change="handleSelectionChange">
 
-          <el-table-column
-            type="selection"
-          >
+          <el-table-column type="selection">
           </el-table-column>
-          <el-table-column
-            prop="loginName"
-            label="账户"
-          >
+          <el-table-column prop="loginName" label="账户">
           </el-table-column>
-          <el-table-column
-            prop="userName"
-            label="姓名"
-          >
+          <el-table-column prop="userName" label="姓名">
           </el-table-column>
-          <el-table-column
-            prop="state"
-            label="状态"
-            :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]"
-            :filter-method="filterState"
-            filter-placement="bottom-end">
+          <el-table-column prop="state" label="状态" :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]" :filter-method="filterState" filter-placement="bottom-end">
             <template slot-scope="scope">
               <span v-if="scope.row.state === 1">
                 <!-- <el-tooltip content="Bottom center" placement="bottom" effect="light"> -->
-                  <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
-                  </i>
+                <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
+                </i>
                 <!-- </el-tooltip> -->
               </span>
               <span v-else>
@@ -51,25 +32,15 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column
-            label="角色"
-          >
+          <el-table-column label="角色">
             <template slot-scope="scope">
-              <span  v-for="item in scope.row.roles"
-                     :key="item.id"
-                     :label="item.name"
-                     :value="item.id">&nbsp;&nbsp;{{ item.name }}&nbsp;&nbsp;</span>
+              <span v-for="item in scope.row.roles" :key="item.id" :label="item.name" :value="item.id">&nbsp;&nbsp;{{ item.name }}&nbsp;&nbsp;</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" min-width="130" header-align="center" align="center">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -77,10 +48,7 @@
     </el-row>
 
     <!-- 编辑用户 begin-->
-    <el-dialog title="修改用户信息"
-               :visible.sync="dialogUpdateVisible"
-               :close-on-click-modal="false"
-               :close-on-press-escape="false">
+    <el-dialog title="修改用户信息" :visible.sync="dialogUpdateVisible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form id="#update" :model="update" ref="update" label-width="100px">
         <el-form-item label="账户" prop="loginName">
           <el-input v-model="update.loginName" :disabled="true"></el-input>
@@ -92,11 +60,7 @@
           <el-col :span="12">
             <el-form-item>
               <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
-                <el-option
-                  v-for="item in rolesAll"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
+                <el-option v-for="item in rolesAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -104,16 +68,15 @@
           <el-col :span="12">
             <el-form-item>
               <el-radio-group v-model="update.state">
-                <el-radio  :label="1">启用</el-radio>
-                <el-radio  :label="0">禁用</el-radio>
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="0">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
         </el-form-item>
         <el-form-item label="密码">
           <el-tooltip content="重置后密码为：111111" placement="right">
-            <el-button
-              @click="handlereset(update.id)" :disabled="passDisable">重置密码</el-button>
+            <el-button @click="handlereset(update.id)" :disabled="passDisable">重置密码</el-button>
           </el-tooltip>
         </el-form-item>
       </el-form>
@@ -124,16 +87,10 @@
     </el-dialog>
     <!-- 编辑用户 end-->
     <!-- 创建用户 begin-->
-    <el-dialog title="创建用户"
-               :visible.sync="dialogCreateVisible"
-               :close-on-click-modal="false"
-               :close-on-press-escape="false">
-      <el-form id="#create"
-               :model="create"
-               status-icon :rules="rules"
-               ref="create" label-width="100px">
+    <el-dialog title="创建用户" :visible.sync="dialogCreateVisible" :close-on-click-modal="false" :close-on-press-escape="false">
+      <el-form id="#create" :model="create" status-icon :rules="rules" ref="create" label-width="100px">
         <el-form-item label="账户" prop="loginName">
-          <el-input v-model="create.loginName" ></el-input>
+          <el-input v-model="create.loginName"></el-input>
         </el-form-item>
         <el-form-item label="姓名" prop="userName">
           <el-input v-model="create.userName"></el-input>
@@ -142,11 +99,7 @@
           <el-col :span="12">
             <el-form-item>
               <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
-                <el-option
-                  v-for="item in rolesAll"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
+                <el-option v-for="item in rolesAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -154,8 +107,8 @@
           <el-col :span="12">
             <el-form-item>
               <el-radio-group v-model="create.state">
-                <el-radio  :label="1">启用</el-radio>
-                <el-radio  :label="0">禁用</el-radio>
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="0">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -169,7 +122,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogCreateVisible = false">取 消</el-button>
-        <el-button type="primary" :loading="createLoading"  @click="createUser">确 定</el-button>
+        <el-button type="primary" :loading="createLoading" @click="createUser">确 定</el-button>
       </div>
     </el-dialog>
     <!-- 创建用户 end-->
@@ -248,7 +201,7 @@ export default {
       rules: {
         loginName: [
           { required: true, message: '请输入账户', trigger: 'blur' },
-          { min: 3, max: 15, message: '长度在 3 到 15 个字符' },
+          { max: 15, message: '长度在 15 个字符以内' },
           { pattern: /^[A-Za-z0-9]+$/, message: '账户只能为字母和数字' },
           { validator: validateName },
         ],
@@ -346,7 +299,9 @@ export default {
           // 向请求服务端删除
           deleteUserInfo(row.id)
             .then(response => {
-              this.$message.success(`成功删除了用户 ${row.loginName}!${response.data.message}`);
+              this.$message.success(
+                `成功删除了用户 ${row.loginName}!${response.data.message}`
+              );
               this.tableUsers.splice(index, 1);
               // this.getUsers();
             })
@@ -407,7 +362,8 @@ export default {
           this.updateLoading = false;
           // 根据索引，赋值到list制定的数
           this.tableUsers.splice(this.listIndex, 1, response.data.data);
-        }).catch(error => {
+        })
+        .catch(error => {
           this.updateLoading = false;
           this.$message.error(error);
         });
@@ -433,7 +389,9 @@ export default {
           deleteUsersInfo(data)
             .then(response => {
               this.$message.success(
-                `删除了 ${this.multipleSelection.length} 条用户信息! ${response.data.message}`
+                `删除了 ${this.multipleSelection.length} 条用户信息! ${
+                  response.data.message
+                }`
               );
               this.getUsers();
             })

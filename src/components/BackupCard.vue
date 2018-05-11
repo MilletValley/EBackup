@@ -101,7 +101,8 @@ import {
 const deleteMethods = {
   oracle: deleteOracleBackupPlan,
   sqlserver: deleteSqlServerBackupPlan,
-  filehost: deleteFileHostPlan,
+  windows: deleteFileHostPlan,
+  linux: deleteFileHostPlan,
 };
 
 export default {

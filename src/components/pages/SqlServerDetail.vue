@@ -177,7 +177,7 @@ export default {
   margin-top: -39px;
 }
 .filter-form {
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   padding-left: 20px;
 }
 .filter-form .el-form-item {

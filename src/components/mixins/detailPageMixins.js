@@ -1,7 +1,5 @@
 import throttle from 'lodash/throttle';
-
-const applyFilterMethods = (originData, methods) =>
-  methods.reduce((a, b) => a.filter(b), originData);
+import { applyFilterMethods } from '../../utils/common';
 
 const databaseDetailMixin = {
   props: ['id'],

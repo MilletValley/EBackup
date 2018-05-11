@@ -13,7 +13,7 @@
         </el-form-item>
         <el-form-item label="操作系统" prop="osName">
           <el-select v-model="theData.osName" placeholder="请选择">
-            <el-option v-for="item in ['windows', 'linux']" :key="item.value" :value="item"></el-option>
+            <el-option v-for="item in ['Windows', 'Linux']" :key="item.value" :value="item"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="所属业务系统" prop="application">

@@ -1,7 +1,7 @@
 <template>
   <section>
-    <el-form inline>
-      <el-form-item>
+    <el-form inline size="small">
+      <el-form-item style="float: right;">
         <el-button type="primary" @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
@@ -53,17 +53,20 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
-      })
-        .then(() => deleteOne(db.id))
-        .then(() => {
-          this.dbs.splice($index, 1);
-          this.$message.success({
-            message: '删除成功!',
-          });
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
+      }).then(() =>
+        deleteOne(db.id)
+          .then(() => {
+            this.dbs.splice($index, 1);
+            this.$message.success({
+              message: '删除成功!',
+            });
+          })
+          .catch(error => {
+            if (error !== 'cancel')
+              // element-ui Message组件取消会进入catch 避免这种弹窗
+              this.$message.error(error);
+          })
+      );
     },
   },
   components: {

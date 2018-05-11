@@ -1,7 +1,7 @@
 <template>
   <section>
-    <el-form inline>
-      <el-form-item>
+    <el-form inline size="small">
+      <el-form-item style="float: right;">
         <el-button type="primary" @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
@@ -62,7 +62,9 @@ export default {
           });
         })
         .catch(error => {
-          this.$message.error(error);
+          if (error !== 'cancel')
+            // element-ui Message组件取消会进入catch 避免这种弹窗
+            this.$message.error(error);
         });
     },
   },
