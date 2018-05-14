@@ -4,15 +4,15 @@
       <span slot="title">
         添加数据库
       </span>
-      <el-form :model="theData" :rules="rules" label-width="110px" ref="theForm" size="small">
+      <el-form :model="theData" :rules="rules" label-width="110px" ref="createForm" size="small">
         <div class="form-header">主要信息</div>
-        <el-form-item label="数据库名称" prop="name">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="theData.name" placeholder="请输入一个用来标识此数据库的名称"></el-input>
         </el-form-item>
         <el-form-item label="主机IP" prop="hostIp">
           <el-input v-model="theData.hostIp" placeholder="请输入服务器IP"></el-input>
         </el-form-item>
-        <el-form-item label="数据库实例" prop="instanceName">
+        <el-form-item :label="dbType === 'oracle' ? '实例名' : '数据库名'" prop="instanceName">
           <el-input v-model="theData.instanceName" placeholder="请输入要备份的数据库实例"></el-input>
         </el-form-item>
         <el-form-item label="数据库登录名" prop="loginName">
@@ -52,20 +52,9 @@ import { createOne as oracleCreate } from '../api/oracle';
 import { createOne as sqlCreate } from '../api/sqlserver';
 import { databaseModalMixin } from './mixins/modalMixins';
 
-// const requestMapping = {
-//   oracle: data => oracleCreate(data),
-//   sqlserver: data => sqlCreate(data),
-// };
 const vm = {
   name: 'DatabaseCreateModal',
   mixins: [databaseModalMixin],
-  // model: {
-  //   prop: 'selectedDb',
-  //   event: 'change-selectedDb',
-  // },
-  // props: {
-  //   selectedDb: Object,
-  // },
   data() {
     return {
       originData: {}, // 原始值
@@ -79,14 +68,14 @@ const vm = {
   methods: {
     // 点击确认按钮触发
     confirm() {
-      this.$refs['theForm'].validate(valid => {
+      this.$refs.createForm.validate(valid => {
         if (valid) {
           this.confirmBtnLoading = true;
           this.requestMapping[this.dbType](this.theData)
             .then(res => {
               const { data: db } = res.data;
               this.$emit('confirm', db);
-              this.$refs['theForm'].resetFields();
+              this.$refs.createForm.resetFields();
               this.confirmBtnLoading = false;
             })
             .then(() => {
@@ -106,7 +95,7 @@ const vm = {
     hasModifiedBeforeClose(fn) {
       if (isEqual(this.theData, this.originData)) {
         this.theData = {};
-        this.$refs['theForm'].resetFields();
+        this.$refs.createForm.resetFields();
         fn();
       } else {
         this.$confirm('有未保存的修改，是否退出？', {
@@ -116,7 +105,7 @@ const vm = {
         })
           .then(() => {
             this.theData = {};
-            this.$refs['theForm'].resetFields();
+            this.$refs.createForm.resetFields();
             fn();
           })
           .catch(() => {});

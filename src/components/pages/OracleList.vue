@@ -41,8 +41,8 @@ export default {
     fetchData() {
       fetchAll()
         .then(res => {
-          const { data: oracles } = res.data;
-          this.dbs = oracles;
+          const { data } = res.data;
+          this.dbs = data;
         })
         .catch(error => {
           this.$message.error(error);

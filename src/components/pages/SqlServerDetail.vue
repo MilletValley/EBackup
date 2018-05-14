@@ -36,7 +36,7 @@
               </el-form-item>
               <el-form-item label="数据库密码：">
                 <!-- <span-toggle :value="oracle.password"></span-toggle> -->
-                <span>{{ details.password }}</span>
+                <span>●●●●●●●●</span>
               </el-form-item>
               <el-form-item label="主机名：">
                 <span>{{ details.hostName }}</span>

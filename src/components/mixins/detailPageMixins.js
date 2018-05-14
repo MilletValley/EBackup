@@ -1,7 +1,7 @@
 import throttle from 'lodash/throttle';
 import { applyFilterMethods } from '../../utils/common';
 
-const databaseDetailMixin = {
+const baseMixin = {
   props: ['id'],
   data() {
     return {
@@ -95,8 +95,8 @@ const databaseDetailMixin = {
   },
 };
 
-const fileHostDetailMixin = {
-  ...databaseDetailMixin,
-};
+const databaseDetailMixin = Object.assign({}, baseMixin);
+
+const fileHostDetailMixin = Object.assign({}, baseMixin);
 
 export { databaseDetailMixin, fileHostDetailMixin };

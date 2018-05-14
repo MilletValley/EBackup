@@ -16,7 +16,7 @@ const databaseModalMixin = {
       rules: {
         name: [
           { required: true, message: '请输入数据库名', trigger: 'blur' },
-          { min: 3, max: 20, message: '长度在3到20个字符', trigger: 'blur' },
+          { max: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {
             pattern: '^[^\\s]*$',
             message: '不能包含空格',
