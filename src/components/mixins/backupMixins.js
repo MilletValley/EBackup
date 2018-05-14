@@ -2,8 +2,8 @@ import moment from 'moment';
 
 const backupMixin = {
   filters: {
-    durationFilter(value) {
-      const duration = moment.duration(value, 's');
+    durationFilter(value = 0) {
+      const duration = moment.duration(Number(value), 's');
       const h = duration.get('h');
       const m = duration.get('m');
       const s = duration.get('s');

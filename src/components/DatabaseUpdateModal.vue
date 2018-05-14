@@ -7,13 +7,13 @@
       </span>
       <el-form :model="theData" :rules="rules" label-width="110px" ref="theForm" size="small">
         <div class="form-header">主要信息</div>
-        <el-form-item label="数据库名称" prop="name">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="theData.name" placeholder="请输入一个用来标识此数据库的名称"></el-input>
         </el-form-item>
         <el-form-item label="主机IP" prop="hostIp">
           <el-input v-model="theData.hostIp" placeholder="请输入服务器IP"></el-input>
         </el-form-item>
-        <el-form-item label="数据库实例" prop="instanceName">
+        <el-form-item :label="dbType === 'oracle' ? '实例名' : '数据库名'" prop="instanceName">
           <el-input v-model="theData.instanceName" placeholder="请输入要备份的数据库实例"></el-input>
         </el-form-item>
         <el-form-item label="数据库登录名" prop="loginName">
