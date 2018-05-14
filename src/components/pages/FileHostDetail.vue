@@ -17,7 +17,8 @@
                     <i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :disabled="backupAddBtnDisable" command="backup">备份计划</el-dropdown-item>
+                    <!-- 文件系统备份计划 可以多次添加 -->
+                    <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
