@@ -12,7 +12,7 @@ module.exports = {
   // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
   extends: ['plugin:vue/essential', 'airbnb-base'],
   // required to lint *.vue files
-  plugins: ['vue'],
+  plugins: ['vue', 'html'],
   // check if imports actually resolve
   settings: {
     'import/resolver': {
@@ -20,6 +20,7 @@ module.exports = {
         config: 'build/webpack.base.conf.js',
       },
     },
+    'html/html-extensions': ['.html', '.vue'],
   },
   // add your custom rules here
   rules: {
@@ -62,5 +63,6 @@ module.exports = {
     'no-mixed-operators': 0,
     'max-len': 0,
     'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'consistent-return': 0,
   },
 };
