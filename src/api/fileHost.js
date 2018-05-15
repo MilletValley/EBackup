@@ -70,6 +70,13 @@ const fetchBackupOperation = id =>
     url: `/file-host-backup-plans/${id}`,
   });
 
+const createSingleRestorePlan = ({ id, data }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/file-host-backup-results/${id}/file-host-restore-plans`,
+    data,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -82,4 +89,5 @@ export {
   deleteBackupPlan,
   updateBackupPlan,
   fetchBackupOperation,
+  createSingleRestorePlan,
 };

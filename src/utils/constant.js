@@ -34,10 +34,17 @@ const weekMapping = {
   7: '周日',
 };
 
+const restoreTimeStrategyMapping = {
+  1: '单次执行',
+  2: '按周循环',
+  3: '按月循环',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   backupResultMapping,
+  restoreTimeStrategyMapping,
 };
