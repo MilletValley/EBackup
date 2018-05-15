@@ -62,9 +62,10 @@ export default {
             });
           })
           .catch(error => {
-            if (error !== 'cancel')
+            if (error !== 'cancel') {
               // element-ui Message组件取消会进入catch 避免这种弹窗
               this.$message.error(error);
+            }
           })
       );
     },

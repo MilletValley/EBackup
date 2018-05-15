@@ -170,7 +170,7 @@ export default {
       this.$emit('updatePlan');
     },
     refreshBackupPlan: throttle(
-      function() {
+      function refresh() {
         const requestMapping = {
           oracle: refreshOraclePlan,
           sqlserver: refreshSqlServerPlan,

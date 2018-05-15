@@ -71,7 +71,7 @@
             <el-button size="medium" type="text" @click="updateResults()">刷新</el-button>
           </el-form-item>
         </el-form>
-        <backup-result-list :data="results"></backup-result-list>
+        <backup-result-list type="sqlserver" :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
     <add-backup-plan type="sqlserver" :id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
@@ -79,7 +79,6 @@
   </section>
 </template>
 <script>
-import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
@@ -94,7 +93,6 @@ import {
   fetchBackupPlans,
   fetchBackupResults,
 } from '../../api/sqlserver';
-import { backupResultMapping } from '../../utils/constant';
 
 export default {
   name: 'SqlServerDetail',

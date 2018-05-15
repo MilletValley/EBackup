@@ -59,7 +59,9 @@ export default {
   props: {
     databaseInfo: {
       type: Object,
-      default: {},
+      default() {
+        return {};
+      },
     },
   },
   data() {
