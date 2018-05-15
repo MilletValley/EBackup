@@ -11,6 +11,8 @@ const baseMixin = {
       // backupPlan: {}, // 备份计划 { config, ...operation }
       backupPlans: [],
       selectedPlanIndex: -1,
+      restorePlans: [], // 恢复计划
+      restoreRecords: [], // 恢复记录
       results: [], // 备份集
       detailsEditModal: false,
       planCreateModal: false,
@@ -40,6 +42,10 @@ const baseMixin = {
         filterMethods.push(plan => plan.state !== 2);
       }
       return applyFilterMethods(this.backupPlans, filterMethods);
+    },
+    // 正在进行中的恢复计划
+    ongoingRestorePlan() {
+      return this.restorePlans.filter(plan => plan.state === 0);
     },
   },
   created() {
@@ -91,6 +97,9 @@ const baseMixin = {
         5000,
         { leading: true, trailing: false }
       );
+    },
+    addSingleRestore(restorePlan) {
+      this.restorePlans.push(restorePlan);
     },
   },
 };
