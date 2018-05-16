@@ -1,9 +1,14 @@
 <template>
   <section>
-    <el-table :data="data" style="width: 100%; margin-top: 15px" :default-sort="{ prop: 'startTime', order: 'descending' }">
+    <el-table :data="data"
+              style="width: 100%; margin-top: 15px"
+              :default-sort="{ prop: 'startTime', order: 'descending' }">
       <el-table-column type="expand">
         <template slot-scope="scope">
-          <el-form inline label-width="90px" size="small" class="result-detail-form">
+          <el-form inline
+                   label-width="90px"
+                   size="small"
+                   class="result-detail-form">
             <el-form-item label="ID">
               <span>{{ scope.row.id }}</span>
             </el-form-item>
@@ -13,13 +18,19 @@
             <el-form-item label="开始时间">
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
-            <el-form-item label="文件名">
+            <el-form-item label="原文件路径"
+                          v-if="isFileBackupResult">
+              <span>{{ scope.row.fileResource }}</span>
+            </el-form-item>
+            <el-form-item label="文件名"
+                          v-else>
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             <el-form-item label="结束时间">
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
-            <el-form-item label="文件标识符" v-if="isFileBackupResult">
+            <el-form-item label="文件标识符"
+                          v-if="isFileBackupResult">
               <span>{{ scope.row.identifier }}</span>
             </el-form-item>
             <el-form-item label="大小">
@@ -27,38 +38,74 @@
             </el-form-item>
             <el-form-item label="状态">
               <span>
-                <el-tag size="mini" :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
+                <el-tag size="mini"
+                        :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
               </span>
             </el-form-item>
             <el-form-item label="持续时间">
               <span>{{ scope.row.consume | durationFilter }}</span>
             </el-form-item>
-            <el-form-item label="信息" v-if="isFileBackupResult && scope.row.state === 1">
+            <el-form-item label="错误信息"
+                          v-if="isFileBackupResult && scope.row.state === 1">
               <span>{{ scope.row.errorMsg }}</span>
             </el-form-item>
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column label="文件标识符" prop="identifier" v-if="isFileBackupResult" width="200px" align="center"></el-table-column>
-      <el-table-column label="备份文件名" prop="fileName" min-width="180px" align="left" header-align="center"></el-table-column>
-      <el-table-column label="开始时间" prop="startTime" width="200px" align="center"></el-table-column>
-      <el-table-column label="结束时间" prop="endTime" width="200px" align="center"></el-table-column>
-      <el-table-column label="大小" prop="size" width="120px" align="center"></el-table-column>
-      <el-table-column label="状态" prop="state" width="70px" align="center">
+      <el-table-column label="文件标识符"
+                       prop="identifier"
+                       v-if="isFileBackupResult"
+                       width="200px"
+                       align="center"></el-table-column>
+      <el-table-column v-if="isFileBackupResult"
+                       label="原文件路径"
+                       prop="fileResource"
+                       min-width="180px"
+                       align="left"
+                       header-align="center"></el-table-column>
+      <el-table-column v-else
+                       label="备份文件名"
+                       prop="fileName"
+                       min-width="180px"
+                       align="left"
+                       header-align="center"></el-table-column>
+      <el-table-column label="开始时间"
+                       prop="startTime"
+                       width="200px"
+                       align="center"></el-table-column>
+      <el-table-column label="结束时间"
+                       prop="endTime"
+                       width="200px"
+                       align="center"></el-table-column>
+      <el-table-column label="大小"
+                       prop="size"
+                       width="120px"
+                       align="center"></el-table-column>
+      <el-table-column label="状态"
+                       prop="state"
+                       width="70px"
+                       align="center">
         <template slot-scope="scope">
           <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="140px" header-align="center">
+      <el-table-column label="操作"
+                       width="140px"
+                       header-align="center">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="restoreBtnClick(scope.row)">恢复</el-button>
+          <el-button type="text"
+                     size="small"
+                     @click="restoreBtnClick(scope.row)">恢复</el-button>
           <span style="cursor: pointer">
             <i class="el-icon-loading"></i>正在恢复
           </span>
         </template>
       </el-table-column>
     </el-table>
-    <single-restore-create-modal :type="type" :id="selectedId" :visible.sync="singleRestoreModalVisible" @confirm="confirmCallback"></single-restore-create-modal>
+    <single-restore-create-modal :type="type"
+                                 :id="selectedId"
+                                 :visible.sync="singleRestoreModalVisible"
+                                 @confirm="confirmCallback"></single-restore-create-modal>
   </section>
 </template>
 <script>
