@@ -96,6 +96,12 @@ const fetchRestoreRecords = id =>
     url: `/sqlservers/${id}/restore-records`,
   });
 
+const createRestorePlan = ({ id, data }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/sqlservers/${id}/sqlserver-restore-plans`,
+    data,
+  });
 export {
   fetchAll,
   fetchOne,
@@ -112,4 +118,5 @@ export {
   createSingleRestorePlan,
   fetchRestorePlans,
   fetchRestoreRecords,
+  createRestorePlan,
 };

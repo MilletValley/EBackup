@@ -15,7 +15,7 @@ const databaseModalMixin = {
       // 猜测是因为初始化时，触发了change事件
       rules: {
         name: [
-          { required: true, message: '请输入数据库名', trigger: 'blur' },
+          { required: true, message: '请输入名称', trigger: 'blur' },
           { max: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {
             pattern: '^[^\\s]*$',
@@ -23,20 +23,6 @@ const databaseModalMixin = {
             trigger: ['blur'],
           },
         ],
-        // hostName: [
-        //   { required: true, message: '请输入主机名', trigger: 'blur' },
-        //   {
-        //     min: 3,
-        //     max: 20,
-        //     message: '长度在3到20个字符',
-        //     trigger: 'blur',
-        //   },
-        //   {
-        //     pattern: '^[^\\s]*$',
-        //     message: '不能包含空格',
-        //     trigger: ['blur'],
-        //   },
-        // ],
         hostIp: [
           { required: true, message: '请输入主机IP', trigger: 'blur' },
           {
@@ -47,11 +33,14 @@ const databaseModalMixin = {
           },
         ],
         instanceName: [
-          { required: true, message: '请输入数据库实例名', trigger: 'blur' },
           {
-            min: 3,
+            required: true,
+            message: `请输入${instanceNameRuleMessage}`,
+            trigger: 'blur',
+          },
+          {
             max: 20,
-            message: '长度在3到20个字符',
+            message: '长度在20个字符以内',
             trigger: 'blur',
           },
           {
@@ -92,6 +81,10 @@ const databaseModalMixin = {
           this.$emit('update:visible', value);
         }
       },
+    },
+    // 区分不同数据库都提示信息
+    instanceNameRuleMessage() {
+      return this.dbType === 'sqlserver' ? '数据库名' : '实例名';
     },
   },
   methods: {

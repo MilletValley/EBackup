@@ -17,6 +17,7 @@ const baseMixin = {
       detailsEditModal: false,
       planCreateModal: false,
       planUpdateModal: false,
+      restorePlanCreateModalVisible: false,
       planFilterForm: {
         hiddenCompletePlan: false,
       },
@@ -25,6 +26,7 @@ const baseMixin = {
   },
   computed: {
     // 备份计划只能存在一个未开始(0) 或 进行中(1)
+    // 05.16 讨论放开权限 可以任意时间添加计划
     backupAddBtnDisable() {
       return this.backupPlans.some(
         plan => plan.state === 0 || plan.state === 1
@@ -59,6 +61,8 @@ const baseMixin = {
     addPlanBtnClick(command) {
       if (command === 'backup') {
         this.planCreateModal = true;
+      } else if (command === 'restore') {
+        this.restorePlanCreateModalVisible = true;
       }
     },
     // 添加备份计划Modal确认后回调
