@@ -35,7 +35,9 @@ const databaseModalMixin = {
         instanceName: [
           {
             required: true,
-            message: `请输入${instanceNameRuleMessage}`,
+            message: `请输入${
+              this.dbType === 'sqlserver' ? '数据库名' : '实例名'
+            }`,
             trigger: 'blur',
           },
           {
@@ -83,7 +85,7 @@ const databaseModalMixin = {
       },
     },
     // 区分不同数据库都提示信息
-    instanceNameRuleMessage() {
+    databaseOrInstance() {
       return this.dbType === 'sqlserver' ? '数据库名' : '实例名';
     },
   },

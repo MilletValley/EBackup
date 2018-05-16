@@ -41,10 +41,10 @@
                      inline
                      size="small"
                      class="database-info">
-              <el-form-item label="数据库版本">
+              <el-form-item label="数据库版本：">
                 <span>{{ details.dbVersion }}</span>
               </el-form-item>
-              <el-form-item label="数据库">
+              <el-form-item label="数据库：">
                 <span>{{ details.instanceName }}</span>
               </el-form-item>
               <el-form-item label="数据库账号：">

@@ -41,10 +41,10 @@
                      inline
                      size="small"
                      class="database-info">
-              <el-form-item label="Oracle版本">
+              <el-form-item label="Oracle版本：">
                 <span>{{ details.dbVersion }}</span>
               </el-form-item>
-              <el-form-item label="实例名">
+              <el-form-item label="实例名：">
                 <span>{{ details.instanceName }}</span>
               </el-form-item>
               <!-- <el-form-item label="归档模式：">
