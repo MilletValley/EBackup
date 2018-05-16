@@ -78,6 +78,24 @@ const fetchBackupOperation = id =>
     url: `/oracle-backup-plans/${id}`,
   });
 
+const createSingleRestorePlan = ({ id, data }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/oracle-backup-results/${id}/oracle-restore-plans`,
+    data,
+  });
+const fetchRestorePlans = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${id}/oracle-restore-plans`,
+  });
+
+const fetchRestoreRecords = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${id}/restore-records`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -91,4 +109,7 @@ export {
   deleteOracleBackupPlan,
   updateOracleBackupPlan,
   fetchBackupOperation,
+  createSingleRestorePlan,
+  fetchRestorePlans,
+  fetchRestoreRecords,
 };

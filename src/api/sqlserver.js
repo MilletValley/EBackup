@@ -77,6 +77,25 @@ const fetchBackupOperation = id =>
     url: `/sqlserver-backup-plans/${id}`,
   });
 
+const createSingleRestorePlan = ({ id, data }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/sqlserver-backup-results/${id}/sqlserver-restore-plans`,
+    data,
+  });
+
+const fetchRestorePlans = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlservers/${id}/sqlserver-restore-plans`,
+  });
+
+const fetchRestoreRecords = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlservers/${id}/restore-records`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -90,4 +109,7 @@ export {
   deleteSqlServerBackupPlan,
   updateSqlServerBackupPlan,
   fetchBackupOperation,
+  createSingleRestorePlan,
+  fetchRestorePlans,
+  fetchRestoreRecords,
 };

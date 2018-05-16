@@ -71,7 +71,10 @@
             <el-button size="medium" type="text" @click="updateResults()">刷新</el-button>
           </el-form-item>
         </el-form>
-        <backup-result-list :data="results"></backup-result-list>
+        <backup-result-list type="sqlserver" :data="results" @add-restore="addSingleRestore"></backup-result-list>
+      </el-tab-pane>
+      <el-tab-pane label="恢复记录" name="restore">
+        <restore-records :plans="ongoingRestorePlan" :records="restoreRecords"></restore-records>
       </el-tab-pane>
     </el-tabs>
     <add-backup-plan type="sqlserver" :id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
@@ -79,12 +82,12 @@
   </section>
 </template>
 <script>
-import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
+import RestoreRecords from '@/components/RestoreRecords';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import { databaseDetailMixin } from '../mixins/detailPageMixins';
@@ -93,8 +96,9 @@ import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
+  fetchRestorePlans,
+  fetchRestoreRecords,
 } from '../../api/sqlserver';
-import { backupResultMapping } from '../../utils/constant';
 
 export default {
   name: 'SqlServerDetail',
@@ -132,6 +136,14 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+      fetchRestorePlans(this.id).then(res => {
+        const { data: plans } = res.data;
+        this.restorePlans = plans;
+      });
+      fetchRestoreRecords(this.id).then(res => {
+        const { data: records } = res.data;
+        this.restoreRecords = records;
+      });
     },
     switchPane({ name }) {
       if (name === 'results') {
@@ -147,6 +159,7 @@ export default {
     BackupResultList,
     AddBackupPlan,
     UpdateBackupPlan,
+    RestoreRecords,
   },
 };
 </script>

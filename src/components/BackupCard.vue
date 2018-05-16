@@ -78,7 +78,7 @@
 </template>
 <script>
 import throttle from 'lodash/throttle';
-import backupMixin from './mixins/backupMixins';
+import baseMixin from './mixins/baseMixins';
 import {
   deleteOracleBackupPlan,
   fetchBackupOperation as refreshOraclePlan,
@@ -107,7 +107,7 @@ const deleteMethods = {
 
 export default {
   name: 'BackupCard',
-  mixins: [backupMixin],
+  mixins: [baseMixin],
   props: {
     id: {
       type: Number,
@@ -170,7 +170,7 @@ export default {
       this.$emit('updatePlan');
     },
     refreshBackupPlan: throttle(
-      function() {
+      function refresh() {
         const requestMapping = {
           oracle: refreshOraclePlan,
           sqlserver: refreshSqlServerPlan,

@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-const backupMixin = {
+const baseMixin = {
   filters: {
     durationFilter(value = 0) {
       const duration = moment.duration(Number(value), 's');
@@ -14,4 +14,4 @@ const backupMixin = {
   },
 };
 
-export default backupMixin;
+export default baseMixin;

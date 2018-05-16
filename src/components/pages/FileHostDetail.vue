@@ -63,7 +63,7 @@
             <el-button size="medium" type="text" @click="updateResults()">刷新</el-button>
           </el-form-item>
         </el-form>
-        <backup-result-list :data="results" type="filebackup"></backup-result-list>
+        <backup-result-list :data="results" type="filehost"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
     <add-backup-plan :type="systemType" :id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
@@ -71,7 +71,6 @@
   </section>
 </template>
 <script>
-import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import SpanToggle from '@/components/SpanToggle';
 import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
@@ -85,7 +84,6 @@ import {
   fetchBackupPlans,
   fetchBackupResults,
 } from '../../api/fileHost';
-import { backupResultMapping } from '../../utils/constant';
 
 export default {
   name: 'FileHostDetail',
