@@ -11,6 +11,7 @@ const databaseModalMixin = {
   },
   data() {
     return {
+      originData: {}, // 原始值
       // trigger增加change更方便 但是再次打开modal会显示出验证结果
       // 猜测是因为初始化时，触发了change事件
       rules: {

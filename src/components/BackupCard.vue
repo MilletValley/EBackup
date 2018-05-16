@@ -1,58 +1,97 @@
 <template>
-  <el-card class="backup-card" v-if="backupOperation.id && backupConfig.id" :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
-    <div slot="header" class="clearfix">
-      <el-tag size="mini">{{ backupStrategyType }}</el-tag>
+  <el-card class="backup-card"
+           v-if="backupOperation.id && backupConfig.id"
+           :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
+    <div slot="header"
+         class="clearfix">
+      <el-tag size="mini"
+              color="#8465ff"
+              style="color: #ffffff">备份</el-tag>
+      <!-- {{ backupStrategyType }} -->
       <span>{{backupOperation.name}}</span>
-      <i v-if="backupOperation.state !== 2" style="float: right; margin: 3px 0 3px 10px;" class="el-icon-refresh state-refresh" @click="refreshBackupPlan"></i>
-      <el-button style="float: right; padding: 3px 0; color: #f56c6c;" type="text" @click="planDeleteBtnClick">删除</el-button>
-      <el-button v-if="backupOperation.state !== 2" style="float: right; padding: 3px 3px" type="text" @click="planUpdateBtnClick">编辑</el-button>
+      <i v-if="backupOperation.state !== 2"
+         style="float: right; margin: 3px 0 3px 10px;"
+         class="el-icon-refresh state-refresh"
+         @click="refreshBackupPlan"></i>
+      <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
+                 type="text"
+                 @click="planDeleteBtnClick">删除</el-button>
+      <el-button v-if="backupOperation.state !== 2"
+                 style="float: right; padding: 3px 3px"
+                 type="text"
+                 @click="planUpdateBtnClick">编辑</el-button>
     </div>
     <el-row type="flex">
       <el-col :span="18">
-        <el-form inline label-width="100px" size="mini">
-          <el-form-item label="计划开始时间" :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
+        <el-form inline
+                 label-width="100px"
+                 size="mini">
+          <el-form-item label="计划开始时间"
+                        :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
             <span>{{ backupConfig.startTime }}</span>
           </el-form-item>
-          <el-form-item v-if="type === 'windows'" label="是否备份系统" style="width: 40%">
+          <el-form-item v-if="type === 'windows'"
+                        label="是否备份系统"
+                        style="width: 40%">
             <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
           </el-form-item>
-          <el-form-item label="备份策略" style="width: 40%">
+          <el-form-item label="备份策略"
+                        style="width: 40%">
             <span>{{ backupStrategy }}</span>
           </el-form-item>
-          <el-form-item label="时间策略" style="width: 40%">
+          <el-form-item label="时间策略"
+                        style="width: 40%">
             <span>{{ timeStrateg }}</span>
           </el-form-item>
-          <el-form-item label="时间" v-if="backupConfig.timeStrategy === 0" style="width: 100%">
+          <el-form-item label="时间"
+                        v-if="backupConfig.timeStrategy === 0"
+                        style="width: 100%">
             <div>
               <el-tag size="small">{{ backupConfig.singleTime }}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="星期" v-if="backupConfig.timeStrategy === 4" style="width: 100%">
+          <el-form-item label="星期"
+                        v-if="backupConfig.timeStrategy === 4"
+                        style="width: 100%">
             <div>
-              <el-tag v-for="point in weekPoints" :key="point" size="small">{{point}}</el-tag>
+              <el-tag v-for="point in weekPoints"
+                      :key="point"
+                      size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="日期" v-if="backupConfig.timeStrategy === 5" style="width: 100%">
+          <el-form-item label="日期"
+                        v-if="backupConfig.timeStrategy === 5"
+                        style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.datePoints" :key="point" size="small">{{point}}</el-tag>
+              <el-tag v-for="point in backupConfig.datePoints"
+                      :key="point"
+                      size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="时间" v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0" style="width: 100%">
+          <el-form-item label="时间"
+                        v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
+                        style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.timePoints" :key="point" size="small">{{point}}</el-tag>
+              <el-tag v-for="point in backupConfig.timePoints"
+                      :key="point"
+                      size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="间隔" v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2" style="width: 100%">
+          <el-form-item label="间隔"
+                        v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
+                        style="width: 100%">
             <div>
               <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="备份路径" v-if="type === 'windows' || type === 'linux'">
+          <el-form-item label="备份路径"
+                        v-if="type === 'windows' || type === 'linux'">
             <span>{{ backupOperation.backupPath }}</span>
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="6" class="operation-info">
+      <el-col :span="6"
+              class="operation-info">
         <ul style="list-style: none">
           <li>
             <h5>当前状态</h5>
@@ -116,6 +155,9 @@ export default {
     type: {
       type: String,
       required: true,
+      validator(value) {
+        return ['oracle', 'sqlserver', 'windows', 'linux'].includes(value);
+      },
     },
     backupPlan: {
       type: Object,

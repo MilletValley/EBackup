@@ -92,7 +92,14 @@
                      :key="plan.id"
                      :backupPlan="plan"
                      @deletePlan="deleteBackupPlan(index)"
-                     @updatePlan="selectPlan(index)"></backup-card>
+                     @updatePlan="selectBackupPlan(index)"></backup-card>
+        <restore-card :id="plan.id"
+                      type="sqlserver"
+                      v-for="(plan, index) in restorePlans"
+                      :key="plan.id"
+                      :restorePlan="plan"
+                      @deletePlan="deleteRestorePlan(index)"
+                      @updatePlan="selectRestorePlan(index)"></restore-card>
       </el-tab-pane>
       <el-tab-pane label="备份集"
                    name="results">
@@ -127,19 +134,16 @@
                         @confirm="updateBackupPlan"></update-backup-plan>
     <restore-plan-create-modal type="sqlserver"
                                :id="Number(id)"
-                               :visible.sync="restorePlanCreateModalVisible"></restore-plan-create-modal>
+                               :visible.sync="restorePlanCreateModalVisible"
+                               @confirm="restorePlanAdded"></restore-plan-create-modal>
+    <restore-plan-update-modal type="sqlserver"
+                               :id="Number(id)"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="restorePlanUpdated"></restore-plan-update-modal>
   </section>
 </template>
 <script>
-import IIcon from '@/components/IIcon';
-import SpanToggle from '@/components/SpanToggle';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import BackupCard from '@/components/BackupCard';
-import BackupResultList from '@/components/BackupResultList';
-import RestoreRecords from '@/components/RestoreRecords';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
-import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
 import { databaseDetailMixin } from '../mixins/detailPageMixins';
 
 import {
@@ -188,6 +192,9 @@ export default {
         });
       fetchRestorePlans(this.id).then(res => {
         const { data: plans } = res.data;
+        plans.forEach(plan => {
+          plan.config.timePoints = plan.config.timePoints.map(p => ({value: p, key: p}));
+        })
         this.restorePlans = plans;
       });
       fetchRestoreRecords(this.id).then(res => {
@@ -200,17 +207,6 @@ export default {
         this.updateResults();
       }
     },
-  },
-  components: {
-    IIcon,
-    DatabaseUpdateModal,
-    SpanToggle,
-    BackupCard,
-    BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
-    RestoreRecords,
-    RestorePlanCreateModal,
   },
 };
 </script>

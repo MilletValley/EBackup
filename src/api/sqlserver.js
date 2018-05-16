@@ -102,6 +102,20 @@ const createRestorePlan = ({ id, data }) =>
     url: `/sqlservers/${id}/sqlserver-restore-plans`,
     data,
   });
+
+const deleteRestorePlan = planId =>
+  baseApi.request({
+    method: 'delete',
+    url: `/sqlserver-restore-plans/${planId}`,
+  });
+
+const updateRestorePlan = restorePlan =>
+  baseApi.request({
+    method: 'patch',
+    url: `/sqlserver-restore-plans/${restorePlan.id}`,
+    data: restorePlan,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -119,4 +133,6 @@ export {
   fetchRestorePlans,
   fetchRestoreRecords,
   createRestorePlan,
+  deleteRestorePlan,
+  updateRestorePlan,
 };
