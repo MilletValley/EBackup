@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Login from '@/components/Login';
 import Layout from '@/components/Layout';
 import Dashboard from '@/components/pages/Dashboard';
+import Profile from '@/components/pages/Profile';
 import Users from '@/components/pages/Users';
 import OracleList from '@/components/pages/OracleList';
 import SqlServerList from '@/components/pages/SqlServerList';
@@ -32,6 +33,11 @@ export const basicRouters = [
           title: '主页',
           icon: 'dashboard',
         },
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: Profile,
       },
     ],
   },

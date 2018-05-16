@@ -17,9 +17,12 @@ const getters = {
   loginName(state) {
     return state.userInfo.loginName;
   },
-  passWord(state) {
+  userName(state) {
+    return state.userInfo.userName;
+  },
+  password(state) {
     return state.userInfo.password;
-  }
+  },
 };
 /* eslint no-shadow: 0 */
 const mutations = {
@@ -42,8 +45,8 @@ const mutations = {
     state.routers = [...basicRouters, ...routers];
   },
   [types.UPDATE_USERINFO](state, form) {
-    state.userInfo.loginName=form.newUsername;
-    state.userInfo.password=form.newPassword;
+    state.userInfo.loginName = form.newUsername;
+    state.userInfo.password = form.newPassword;
   },
 };
 
@@ -88,11 +91,11 @@ const actions = {
   },
   /**
    * 更新用户信息
-   * @param {*} param0 
-   * @param {*} param1 
+   * @param {*} param0
+   * @param {*} param1
    */
-  updateUserInfo({commit},form) {
-    commit('types.UPDATE_USERINFO',form);
+  updateUserInfo({ commit }, form) {
+    commit('types.UPDATE_USERINFO', form);
   },
   /**
    * 使用Token登陆
