@@ -91,14 +91,14 @@
       </el-table-column>
       <el-table-column label="操作"
                        width="140px"
-                       header-align="center">
+                       align="center">
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
-          <span style="cursor: pointer">
+          <!-- <span style="cursor: pointer">
             <i class="el-icon-loading"></i>正在恢复
-          </span>
+          </span> -->
         </template>
       </el-table-column>
     </el-table>

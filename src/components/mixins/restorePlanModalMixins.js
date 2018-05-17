@@ -135,14 +135,12 @@ const modalMixin = {
   methods: {
     // 时间点去重排序
     filteredTimePoints(timePoints) {
-      return Array.from(
-        new Set(timePoints.map(p => p.value).filter(p => p))
-      ).sort(
+      return Array.from(new Set(timePoints.filter(p => p.value))).sort(
         (a, b) =>
-          a.slice(0, 2) * 60 +
-          a.slice(3, 5) -
-          b.slice(0, 2) * 60 +
-          b.slice(3, 5)
+          a.value.slice(0, 2) * 60 +
+          a.value.slice(3, 5) -
+          b.value.slice(0, 2) * 60 +
+          b.value.slice(3, 5)
       );
     },
     pruneData() {

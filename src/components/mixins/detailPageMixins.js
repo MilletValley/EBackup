@@ -130,10 +130,6 @@ const baseMixin = {
     },
     // 添加恢复计划后
     restorePlanAdded(plan) {
-      plan.config.timePoints = plan.config.timePoints.map(p => ({
-        value: p,
-        key: p,
-      }));
       this.restorePlans.push(plan);
     },
     deleteRestorePlan(index) {

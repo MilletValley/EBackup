@@ -119,7 +119,6 @@ export default {
   watch: {
     visible(value) {
       if (value) {
-        // this.restorePlan.config.timePoints = this.restorePlan.config.timePoints.map(p => ({ value: p, key: p }));
         // modal显示
         this.originFormData = {
           name: this.restorePlan.name,

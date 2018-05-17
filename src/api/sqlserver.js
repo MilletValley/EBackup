@@ -77,18 +77,38 @@ const fetchBackupOperation = id =>
     url: `/sqlserver-backup-plans/${id}`,
   });
 
+// 将时间字符串数组转为对象数组
+const timePoints2Obj = timePoints =>
+  timePoints.map(p => ({ value: p, key: p }));
+
 const createSingleRestorePlan = ({ id, data }) =>
-  baseApi.request({
-    method: 'post',
-    url: `/sqlserver-backup-results/${id}/sqlserver-restore-plans`,
-    data,
-  });
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlserver-backup-results/${id}/sqlserver-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config = timePoints2Obj(timePoints);
+      return res;
+    });
 
 const fetchRestorePlans = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/sqlservers/${id}/sqlserver-restore-plans`,
-  });
+  baseApi
+    .request({
+      method: 'get',
+      url: `/sqlservers/${id}/sqlserver-restore-plans`,
+    })
+    .then(res => {
+      const { data: plans } = res.data;
+      plans.forEach(p => {
+        if (p.config.timePoints) {
+          p.config.timePoints = timePoints2Obj(p.config.timePoints);
+        }
+      });
+      return res;
+    });
 
 const fetchRestoreRecords = id =>
   baseApi.request({
@@ -97,11 +117,17 @@ const fetchRestoreRecords = id =>
   });
 
 const createRestorePlan = ({ id, data }) =>
-  baseApi.request({
-    method: 'post',
-    url: `/sqlservers/${id}/sqlserver-restore-plans`,
-    data,
-  });
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlservers/${id}/sqlserver-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
 
 const deleteRestorePlan = planId =>
   baseApi.request({
@@ -110,11 +136,17 @@ const deleteRestorePlan = planId =>
   });
 
 const updateRestorePlan = restorePlan =>
-  baseApi.request({
-    method: 'patch',
-    url: `/sqlserver-restore-plans/${restorePlan.id}`,
-    data: restorePlan,
-  });
+  baseApi
+    .request({
+      method: 'patch',
+      url: `/sqlserver-restore-plans/${restorePlan.id}`,
+      data: restorePlan,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config = timePoints2Obj(timePoints);
+      return res;
+    });
 
 export {
   fetchAll,

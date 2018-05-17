@@ -1,8 +1,12 @@
 <template>
   <section>
-    <el-dialog :visible.sync="modalVisible" width="30%">
+    <el-dialog :visible.sync="modalVisible"
+               width="30%">
       <span slot="title">执行恢复操作</span>
-      <el-form :model="formDate" label-width="110px" ref="singleRestoreForm" size="small">
+      <el-form :model="formDate"
+               label-width="110px"
+               ref="singleRestoreForm"
+               size="small">
         <el-form-item label="恢复主机IP">
           <el-input v-model="formDate.hostIp"></el-input>
         </el-form-item>
@@ -18,7 +22,8 @@
       </el-form>
       <span slot="footer">
         <el-button>取消</el-button>
-        <el-button type="primary" @click="confirm">确定</el-button>
+        <el-button type="primary"
+                   @click="confirm">确定</el-button>
       </span>
     </el-dialog>
   </section>
@@ -75,6 +80,9 @@ export default {
       requestMapping[this.type]({ id: this.id, data })
         .then(res => {
           const { data: restorePlan } = res.data;
+          // restorePlan.config.timePoints = this.timePoints2Obj(
+          //   restorePlan.config.timePoints
+          // );
           this.$emit('confirm', restorePlan);
           this.$emit('update:visible', false);
         })

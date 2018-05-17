@@ -192,9 +192,6 @@ export default {
         });
       fetchRestorePlans(this.id).then(res => {
         const { data: plans } = res.data;
-        plans.forEach(plan => {
-          plan.config.timePoints = plan.config.timePoints.map(p => ({value: p, key: p}));
-        })
         this.restorePlans = plans;
       });
       fetchRestoreRecords(this.id).then(res => {
