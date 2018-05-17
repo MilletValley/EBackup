@@ -1,7 +1,11 @@
 <template>
-  <el-dialog :visible.sync="modalVisible">
+  <el-dialog :visible.sync="modalVisible"
+             :before-close="beforeModalClose"
+             @open="modalOpened"
+             @close="modalClosed">
     <span slot="title">
       更新恢复计划
+      <span style="color: #999999"> (ID: {{restorePlan.id}})</span>
     </span>
     <el-form size="small"
              label-position="right"
@@ -9,27 +13,42 @@
              :model="formData"
              :rules="rules"
              ref="restorePlanUpdateForm">
-      <el-form-item label="计划名称"
-                    prop="name">
-        <el-input v-model="formData.name"></el-input>
-      </el-form-item>
-      <el-form-item label="恢复设备IP"
-                    prop="hostIp">
-        <el-input v-model="formData.hostIp"></el-input>
-      </el-form-item>
-      <el-form-item :label="detailInfoLabelName"
-                    prop="detailInfo">
-        <el-input v-model="formData.detailInfo"></el-input>
-      </el-form-item>
-      <el-form-item label="登录名"
-                    prop="loginName">
-        <el-input v-model="formData.loginName"></el-input>
-      </el-form-item>
-      <el-form-item label="登录密码"
-                    prop="password">
-        <input-toggle v-model="formData.password"></input-toggle>
-      </el-form-item>
-      <el-form-item label="时间策略">
+      <el-row>
+        <el-form-item label="计划名称"
+                      prop="name">
+          <el-input v-model="formData.name"></el-input>
+        </el-form-item>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="恢复设备IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item :label="detailInfoLabelName"
+                        prop="detailInfo">
+            <el-input v-model="formData.detailInfo"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="登录名"
+                        prop="loginName">
+            <el-input v-model="formData.loginName"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="登录密码"
+                        prop="password">
+            <input-toggle v-model="formData.password"></input-toggle>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-form-item label="时间策略"
+                    style="width: 100%">
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
                     v-for="s in Object.keys(strategys)"
@@ -48,7 +67,6 @@
                     prop="startTime"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
         <el-date-picker type="datetime"
-                        style="width: 50%"
                         format="yyyy-MM-dd HH:mm:ss"
                         value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.startTime"></el-date-picker>
@@ -66,7 +84,6 @@
                     prop="datePoints"
                     v-show="formData.timeStrategy == 3">
         <el-select v-model="formData.datePoints"
-                   style="width: 50%"
                    multiple>
           <el-option v-for="day in Array.from(new Array(31), (val, index) => index + 1)"
                      :key="day"
@@ -75,6 +92,7 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="`时间点${index+1}`"
+                    style="width: 100%"
                     v-for="(p, index) in formData.timePoints"
                     :key="p.key"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
@@ -92,13 +110,14 @@
 
     </el-form>
     <span slot="footer">
-      <el-button>取消</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
                  @click="confirmBtnClick">确定</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
+import isEqual from 'lodash/isEqual';
 import modalMixin from '../mixins/restorePlanModalMixins';
 import { updateRestorePlan as updateSqlserverRestorePlan } from '../../api/sqlserver';
 
@@ -113,33 +132,6 @@ export default {
     restorePlan: {
       type: Object,
       required: true,
-    },
-  },
-  data() {
-    return {};
-  },
-  watch: {
-    visible(value) {
-      if (value) {
-        // modal显示
-        this.originFormData = {
-          name: this.restorePlan.name,
-          ...this.restorePlan.config,
-        };
-        this.formData = {
-          name: this.restorePlan.name,
-          ...this.restorePlan.config,
-        };
-        // this.$refs.theForm.clearValidate();
-      } else {
-        // modal隐藏
-        // this.originFormData = {};
-        // this.formData = {
-        //   timePoints: [{ value: '00:00', key: Date.now() }],
-        //   weekPoints: [], // 必须初始化为数组，checkbox group才能识别
-        //   timeStrategy: 1, // 默认单次执行
-        // };
-      }
     },
   },
   methods: {
@@ -169,6 +161,19 @@ export default {
           return false;
         }
       });
+    },
+    modalOpened() {
+      this.originFormData = {
+        name: this.restorePlan.name,
+        ...this.restorePlan.config,
+      };
+      this.formData = {
+        name: this.restorePlan.name,
+        ...this.restorePlan.config,
+      };
+    },
+    modalClosed() {
+      this.$refs.restorePlanUpdateForm.clearValidate();
     },
   },
 };

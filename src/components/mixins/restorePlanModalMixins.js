@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 
 import {
@@ -57,13 +58,23 @@ const modalMixin = {
         callback();
       }
     };
+    const baseFormData = {
+      name: '',
+      hostIp: '',
+      loginName: '',
+      password: '',
+      detailInfo: '',
+      startTime: '',
+      singleTime: '',
+      datePoints: [],
+      timePoints: [{ value: '00:00', key: Date.now() }],
+      weekPoints: [], // 必须初始化为数组，checkbox group才能识别
+      timeStrategy: 1, // 默认单次执行
+    };
     return {
-      originFormData: {}, // 原始表单值
-      formData: {
-        timePoints: [{ value: '00:00', key: Date.now() }],
-        weekPoints: [], // 必须初始化为数组，checkbox group才能识别
-        timeStrategy: 1, // 默认单次执行
-      },
+      // 原始表单值
+      originFormData: Object.assign({}, baseFormData),
+      formData: Object.assign({}, baseFormData),
       strategys, // 时间策略
       weekMapping, // 星期映射
       rules: {
@@ -184,6 +195,31 @@ const modalMixin = {
         config.timePoints = this.filteredTimePoints(timePoints);
       }
       return { name, config };
+    },
+    // 点击取消按钮
+    cancelButtonClick() {
+      this.hasModifiedBeforeClose(() => {
+        this.modalVisible = false;
+      });
+    },
+    // 关闭之前 验证是否有修改
+    beforeModalClose(done) {
+      this.hasModifiedBeforeClose(done);
+    },
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => {});
+      }
     },
   },
   components: {

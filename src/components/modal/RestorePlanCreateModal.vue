@@ -1,5 +1,8 @@
 <template>
-  <el-dialog :visible.sync="modalVisible">
+  <el-dialog class="restore-plan-modal"
+             :before-close="beforeModalClose"
+             @close="modalClosed"
+             :visible.sync="modalVisible">
     <span slot="title">
       添加恢复计划
     </span>
@@ -9,27 +12,42 @@
              :model="formData"
              :rules="rules"
              ref="restorePlanCreateForm">
-      <el-form-item label="计划名称"
-                    prop="name">
-        <el-input v-model="formData.name"></el-input>
-      </el-form-item>
-      <el-form-item label="恢复设备IP"
-                    prop="hostIp">
-        <el-input v-model="formData.hostIp"></el-input>
-      </el-form-item>
-      <el-form-item :label="detailInfoLabelName"
-                    prop="detailInfo">
-        <el-input v-model="formData.detailInfo"></el-input>
-      </el-form-item>
-      <el-form-item label="登录名"
-                    prop="loginName">
-        <el-input v-model="formData.loginName"></el-input>
-      </el-form-item>
-      <el-form-item label="登录密码"
-                    prop="password">
-        <input-toggle v-model="formData.password"></input-toggle>
-      </el-form-item>
-      <el-form-item label="时间策略">
+      <el-row>
+        <el-form-item label="计划名称"
+                      prop="name">
+          <el-input v-model="formData.name"></el-input>
+        </el-form-item>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="恢复设备IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item :label="detailInfoLabelName"
+                        prop="detailInfo">
+            <el-input v-model="formData.detailInfo"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="登录名"
+                        prop="loginName">
+            <el-input v-model="formData.loginName"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="登录密码"
+                        prop="password">
+            <input-toggle v-model="formData.password"></input-toggle>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-form-item label="时间策略"
+                    style="width: 100%">
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
                     v-for="s in Object.keys(strategys)"
@@ -73,6 +91,7 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="`时间点${index+1}`"
+                    style="width: 100%"
                     v-for="(p, index) in formData.timePoints"
                     :key="p.key"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
@@ -90,13 +109,14 @@
 
     </el-form>
     <span slot="footer">
-      <el-button>取消</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
                  @click="confirmBtnClick">确定</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
+import isEqual from 'lodash/isEqual';
 import {
   restoreTimeStrategyMapping as strategys,
   weekMapping,
@@ -108,12 +128,6 @@ import modalMixin from '../mixins/restorePlanModalMixins';
 const requestMapping = {
   sqlserver: createRestorePlan,
 };
-
-// const mapping = {
-//   oracle: '实例',
-//   sqlserver: '数据库',
-//   filehost: '恢复路径',
-// };
 
 export default {
   name: 'RestorePlanCreateModal',
@@ -131,18 +145,27 @@ export default {
               const { data: plan } = res.data;
               this.$emit('confirm', plan);
               this.modalVisible = false;
+              this.formData = { ...this.originFormData };
             })
             .catch(error => {
               this.$message.error(error);
               return false;
+            })
+            .then(() => {
+              // 无论成功或失败 提交后清除验证状态
+              this.$refs.restorePlanCreateForm.clearValidate();
             });
         } else {
           return false;
         }
       });
     },
+    modalClosed() {
+      this.formData = { ...this.originFormData };
+      this.$refs.restorePlanCreateForm.clearValidate();
+    },
   },
 };
 </script>
-<style>
+<style >
 </style>
