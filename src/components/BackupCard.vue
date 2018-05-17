@@ -156,7 +156,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux'].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
       },
     },
     backupPlan: {

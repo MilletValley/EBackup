@@ -59,7 +59,7 @@
               </el-form-item>
               <el-form-item label="操作系统：">
                 <span>{{ details.osName }}</span>
-              </el-form-item>
+              </el-form-item>·
               <el-form-item label="主机IP：">
                 <span>{{ details.hostIp }}</span>
               </el-form-item>

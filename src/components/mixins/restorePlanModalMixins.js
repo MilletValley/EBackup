@@ -17,7 +17,7 @@ const modalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'hostfile'].indexOf(value) !== -1;
+        return ['oracle', 'sqlserver', 'filehost'].indexOf(value) !== -1;
       },
     },
     id: {
@@ -71,6 +71,10 @@ const modalMixin = {
       weekPoints: [], // 必须初始化为数组，checkbox group才能识别
       timeStrategy: 1, // 默认单次执行
     };
+    // 文件单次恢复 增加覆盖策略
+    if (this.type === 'filehost') {
+      baseFormData.recoveringStrategy = 1;
+    }
     return {
       // 原始表单值
       originFormData: Object.assign({}, baseFormData),
@@ -165,11 +169,12 @@ const modalMixin = {
         timePoints,
         weekPoints,
         datePoints,
+        recoveringStrategy,
         ...other
       } = formData;
       let config;
       if (timeStrategy === 1) {
-        config = { timeStrategy, singleTime, ...other };
+        config = { timeStrategy, recoveringStrategy, singleTime, ...other };
       } else {
         if (timePoints.every(p => !p.value)) {
           this.$message.error('请至少输入一个时间点');

@@ -108,9 +108,10 @@ import {
   operationStateMapping,
 } from '../utils/constant';
 import { deleteRestorePlan as deleteSqlServerRestorePlan } from '../api/sqlserver';
+import { deleteRestorePlan as deleteOracleRestorePlan } from '../api/oracle';
 
 const deleteMethods = {
-  oracle: () => {},
+  oracle: deleteOracleRestorePlan,
   sqlserver: deleteSqlServerRestorePlan,
   windows: () => {},
   linux: () => {},
@@ -128,7 +129,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux'].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
       },
     },
     restorePlan: {

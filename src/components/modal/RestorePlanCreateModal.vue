@@ -56,10 +56,10 @@
       </el-form-item>
       <el-form-item label="恢复时间"
                     prop="singleTime"
-                    format="yyyy-MM-dd HH:mm:ss"
-                    value-format="yyyy-MM-dd HH:mm:ss"
                     v-show="formData.timeStrategy == 1">
         <el-date-picker type="datetime"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.singleTime"></el-date-picker>
       </el-form-item>
       <el-form-item label="计划时间"
@@ -121,12 +121,13 @@ import {
   restoreTimeStrategyMapping as strategys,
   weekMapping,
 } from '../../utils/constant';
-import { createRestorePlan } from '../../api/sqlserver';
-import { validateToken } from '../../api/user';
+import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
+import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
 import modalMixin from '../mixins/restorePlanModalMixins';
 
 const requestMapping = {
-  sqlserver: createRestorePlan,
+  sqlserver: createSqlserverRestorePlan,
+  oracle: createOracleRestorePlan,
 };
 
 export default {

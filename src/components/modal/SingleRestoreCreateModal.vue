@@ -24,9 +24,18 @@
                       prop="detailInfo">
           <el-input v-model="formData.detailInfo"></el-input>
         </el-form-item>
+        <el-form-item v-if="type === 'filehost'"
+                      label="覆盖策略"
+                      prop="reveringStrategy">
+          <el-radio-group v-model="formData.recoveringStrategy">
+            <el-radio v-for="s in Object.keys(recoveringStrategys)"
+                      :key="s"
+                      :label="Number(s)">{{ recoveringStrategys[s] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button>取消</el-button>
+        <el-button @click="cancelButtonClick">取消</el-button>
         <el-button type="primary"
                    @click="confirm">确定</el-button>
       </span>
@@ -35,16 +44,26 @@
 </template>
 <script>
 import moment from 'moment';
-import { createSingleRestorePlan } from '../../api/sqlserver';
+import { createSingleRestorePlan as createSqlserverSingleRestorePlan } from '../../api/sqlserver';
+import { createSingleRestorePlan as createOracleSingleRestorePlan } from '../../api/oracle';
+import { createSingleRestorePlan as createFileHosteRestorePlan } from '../../api/fileHost';
 import modalMixin from '../mixins/restorePlanModalMixins';
+import { recoveringStrategyMapping } from '../../utils/constant';
 
 const requestMapping = {
-  sqlserver: createSingleRestorePlan,
+  oracle: createOracleSingleRestorePlan,
+  sqlserver: createSqlserverSingleRestorePlan,
+  filehost: createFileHosteRestorePlan,
 };
 
 export default {
   name: 'SingleRestoreCreateModal',
   mixins: [modalMixin],
+  data() {
+    return {
+      recoveringStrategys: recoveringStrategyMapping,
+    };
+  },
   methods: {
     confirm() {
       this.formData.name = moment().format('YYYYMMDDHHmmss');
@@ -53,7 +72,7 @@ export default {
         .then(res => {
           const { data: restorePlan } = res.data;
           this.$emit('confirm', restorePlan);
-          this.$emit('update:visible', false);
+          this.modalVisible = false;
         })
         .catch(error => {
           this.$message.error(error);

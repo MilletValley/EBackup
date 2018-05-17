@@ -120,8 +120,10 @@
 import isEqual from 'lodash/isEqual';
 import modalMixin from '../mixins/restorePlanModalMixins';
 import { updateRestorePlan as updateSqlserverRestorePlan } from '../../api/sqlserver';
+import { updateRestorePlan as updateOracleRestorePlan } from '../../api/oracle';
 
 const requestMapping = {
+  oracle: updateOracleRestorePlan,
   sqlserver: updateSqlserverRestorePlan,
 };
 

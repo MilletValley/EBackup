@@ -95,7 +95,14 @@
                      :key="plan.id"
                      :backupPlan="plan"
                      @deletePlan="deleteBackupPlan(index)"
-                     @updatePlan="selectPlan(index)"></backup-card>
+                     @updatePlan="selectBackupPlan(index)"></backup-card>
+        <restore-card :id="plan.id"
+                      type="oracle"
+                      v-for="(plan, index) in restorePlans"
+                      :key="plan.id"
+                      :restorePlan="plan"
+                      @deletePlan="deleteRestorePlan(index)"
+                      @updatePlan="selectRestorePlan(index)"></restore-card>
       </el-tab-pane>
       <el-tab-pane label="备份集"
                    name="results">
@@ -110,7 +117,13 @@
           </el-form-item>
         </el-form>
         <backup-result-list type="oracle"
-                            :data="results"></backup-result-list>
+                            :data="results"
+                            @add-restore="addSingleRestore"></backup-result-list>
+      </el-tab-pane>
+      <el-tab-pane label="恢复记录"
+                   name="restore">
+        <restore-records :plans="ongoingRestorePlan"
+                         :records="restoreRecords"></restore-records>
       </el-tab-pane>
     </el-tabs>
     <add-backup-plan type="oracle"
@@ -122,21 +135,26 @@
                         :visible.sync="planUpdateModal"
                         :backup-plan="selectedPlan"
                         @confirm="updateBackupPlan"></update-backup-plan>
+    <restore-plan-create-modal type="oracle"
+                               :id="Number(id)"
+                               :visible.sync="restorePlanCreateModalVisible"
+                               @confirm="restorePlanAdded"></restore-plan-create-modal>
+    <restore-plan-update-modal type="oracle"
+                               :id="Number(id)"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="restorePlanUpdated"></restore-plan-update-modal>
   </section>
 </template>
 <script>
-import IIcon from '@/components/IIcon';
-import SpanToggle from '@/components/SpanToggle';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import BackupCard from '@/components/BackupCard';
-import BackupResultList from '@/components/BackupResultList';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import { databaseDetailMixin } from '../mixins/detailPageMixins';
+
 import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
+  fetchRestorePlans,
+  fetchRestoreRecords,
 } from '../../api/oracle';
 
 export default {
@@ -168,7 +186,6 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-
       fetchBackupResults(this.id)
         .then(res => {
           const { data: result } = res.data;
@@ -177,21 +194,20 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+      fetchRestorePlans(this.id).then(res => {
+        const { data: plans } = res.data;
+        this.restorePlans = plans;
+      });
+      fetchRestoreRecords(this.id).then(res => {
+        const { data: records } = res.data;
+        this.restoreRecords = records;
+      });
     },
     switchPane({ name }) {
       if (name === 'results') {
         this.updateResults();
       }
     },
-  },
-  components: {
-    IIcon,
-    DatabaseUpdateModal,
-    SpanToggle,
-    BackupCard,
-    BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
   },
 };
 </script>
