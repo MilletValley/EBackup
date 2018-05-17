@@ -78,8 +78,8 @@ const fetchBackupOperation = id =>
   });
 
 // 将时间字符串数组转为对象数组
-const timePoints2Obj = timePoints =>
-  timePoints.map(p => ({ value: p, key: p }));
+const timePoints2Obj = timePointsStrArr =>
+  timePointsStrArr.map(p => ({ value: p, key: p }));
 
 const createSingleRestorePlan = ({ id, data }) =>
   baseApi
@@ -135,19 +135,18 @@ const deleteRestorePlan = planId =>
     url: `/sqlserver-restore-plans/${planId}`,
   });
 
-const updateRestorePlan = restorePlan =>
+const updateRestorePlan = data =>
   baseApi
     .request({
       method: 'patch',
-      url: `/sqlserver-restore-plans/${restorePlan.id}`,
-      data: restorePlan,
+      url: `/sqlserver-restore-plans/${data.id}`,
+      data,
     })
     .then(res => {
       const { timePoints } = res.data.data.config;
       res.data.data.config = timePoints2Obj(timePoints);
       return res;
     });
-
 export {
   fetchAll,
   fetchOne,

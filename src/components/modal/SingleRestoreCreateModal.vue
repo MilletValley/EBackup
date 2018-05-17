@@ -3,21 +3,26 @@
     <el-dialog :visible.sync="modalVisible"
                width="30%">
       <span slot="title">执行恢复操作</span>
-      <el-form :model="formDate"
+      <el-form :model="formData"
+               :rules="rules"
                label-width="110px"
                ref="singleRestoreForm"
                size="small">
-        <el-form-item label="恢复主机IP">
-          <el-input v-model="formDate.hostIp"></el-input>
+        <el-form-item label="恢复主机IP"
+                      prop="hostIp">
+          <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
-        <el-form-item label="登录名">
-          <el-input v-model="formDate.loginName"></el-input>
+        <el-form-item label="登录名"
+                      prop="loginName">
+          <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="formDate.password"></el-input>
+        <el-form-item label="密码"
+                      prop="password">
+          <el-input v-model="formData.password"></el-input>
         </el-form-item>
-        <el-form-item label="详细信息">
-          <el-input v-model="formDate.detailInfo"></el-input>
+        <el-form-item label="详细信息"
+                      prop="detailInfo">
+          <el-input v-model="formData.detailInfo"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -31,6 +36,7 @@
 <script>
 import moment from 'moment';
 import { createSingleRestorePlan } from '../../api/sqlserver';
+import modalMixin from '../mixins/restorePlanModalMixins';
 
 const requestMapping = {
   sqlserver: createSingleRestorePlan,
@@ -38,51 +44,14 @@ const requestMapping = {
 
 export default {
   name: 'SingleRestoreCreateModal',
-  props: {
-    id: {
-      type: Number,
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-    },
-    visible: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      formDate: {
-        timeStrategy: 1, // 单次恢复时间策略固定
-      },
-    };
-  },
-  computed: {
-    modalVisible: {
-      get() {
-        return this.visible;
-      },
-      set(value) {
-        if (!value) {
-          this.$emit('update:visible', value);
-        }
-      },
-    },
-  },
+  mixins: [modalMixin],
   methods: {
     confirm() {
-      const data = {
-        name: moment().format('YYYYMMDDHHmmss'),
-        config: this.formDate,
-      };
-      requestMapping[this.type]({ id: this.id, data })
+      this.formData.name = moment().format('YYYYMMDDHHmmss');
+      const { name, config } = this.pruneData(this.formData);
+      requestMapping[this.type]({ id: this.id, data: { name, config } })
         .then(res => {
           const { data: restorePlan } = res.data;
-          // restorePlan.config.timePoints = this.timePoints2Obj(
-          //   restorePlan.config.timePoints
-          // );
           this.$emit('confirm', restorePlan);
           this.$emit('update:visible', false);
         })

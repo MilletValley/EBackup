@@ -47,7 +47,8 @@
       <el-form-item label="计划时间"
                     prop="startTime"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
-        <el-date-picker type="datetime" style="width: 50%"
+        <el-date-picker type="datetime"
+                        style="width: 50%"
                         format="yyyy-MM-dd HH:mm:ss"
                         value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.startTime"></el-date-picker>
@@ -61,10 +62,11 @@
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>
-      <el-form-item label="选择日期" 
+      <el-form-item label="选择日期"
                     prop="datePoints"
                     v-show="formData.timeStrategy == 3">
-        <el-select v-model="formData.datePoints" style="width: 50%"
+        <el-select v-model="formData.datePoints"
+                   style="width: 50%"
                    multiple>
           <el-option v-for="day in Array.from(new Array(31), (val, index) => index + 1)"
                      :key="day"
@@ -144,7 +146,7 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanUpdateForm.validate(valid => {
         if (valid) {
-          const { name, config } = this.pruneData();
+          const { name, config } = this.pruneData(this.formData);
 
           requestMapping[this.type]({
             id: this.restorePlan.id,

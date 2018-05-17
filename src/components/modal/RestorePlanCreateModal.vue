@@ -122,8 +122,7 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
-          const { name, config } = this.pruneData();
-
+          const { name, config } = this.pruneData(this.formData);
           requestMapping[this.type]({
             id: this.id,
             data: { name, config },
