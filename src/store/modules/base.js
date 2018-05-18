@@ -47,8 +47,8 @@ const mutations = {
   [types.SET_ROUTERS](state, routers) {
     state.routers = [...basicRouters, ...routers];
   },
-  [types.UPDATE_USERINFO](state, data) {
-    state.userInfo = data;
+  [types.UPDATE_USERINFO](state, user) {
+    state.userInfo = user;
   },
 };
 
@@ -96,10 +96,10 @@ const actions = {
    * @param {*} param0
    * @param {*} param1
    */
-  updateUserInfo({ commit }) {
-    return changeUserInfo(userInfo).then(res => {
-      const { data } = res.data;
-        commit(types.UPDATE_USERINFO, data);
+  updateUserInfo({ commit }, form) {
+    return changeUserInfo(form).then(res => {
+      const { data: user } = res.data;
+        commit(types.UPDATE_USERINFO, user);
     })
     .catch(error => Promise.reject(error));
   },

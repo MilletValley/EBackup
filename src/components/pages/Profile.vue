@@ -1,13 +1,9 @@
 <template>
     <div>
-      <el-row type="flex" class="row-bg" justify="end">
-        <el-col :span="21">个人中心</el-col>
-        <el-col :span="3">
-          <!-- 操作 -->
-          <el-button type="primary"
-              @click="update()">修改信息</el-button>
-        </el-col>
-      </el-row>
+      <div style="overflow: hidden; margin-top: -10px; margin-bottom: 10px;">
+        <el-button type="primary"
+            @click="update()" style="float: right; padding: 10px 15px;">修改信息</el-button>
+      </div>
       <el-form label-position="left" inline class="demo-table-expand">
         <el-form-item label="用户ID">
             <span>{{ userId }}</span>
@@ -152,7 +148,7 @@ export default {
       this.dialogVisible = false;
       this.$refs[form].validate((valid) => {
         if (valid) {
-          this.$store.dispatch("updateUserInfo");
+          this.$store.dispatch("updateUserInfo",this.form);
         } else {
           console.log('error submit!!');
           return false;
@@ -180,7 +176,7 @@ export default {
   .demo-table-expand .el-form-item {
     margin-right: 0;
     margin-bottom: 0;
-    width: 50%;
+    width: 280px;
     display: block;
     margin:0 auto;
   }
