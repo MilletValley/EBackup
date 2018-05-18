@@ -138,7 +138,6 @@ export default {
     return {
       singleRestoreModalVisible: false,
       selectedId: -1,
-      _data: this.data.map(result => {}),
     };
   },
   methods: {
@@ -164,11 +163,8 @@ export default {
     },
     handleData() {
       const data = this.data.map((r, i, arr) => {
-        if (i < arr.length / 2)
-          return Object.assign({}, r, { fileResource: 'xxx' });
-        else return Object.assign({}, r, { fileResource: 'yyy' });
+        return Object.assign({}, r);
       });
-
       const map = {};
       data.forEach((result, index) => {
         if (!map[result.fileResource]) {

@@ -1,46 +1,58 @@
 <template>
-  <section>
-    <el-dialog :visible.sync="modalVisible"
-               width="30%">
-      <span slot="title">执行恢复操作</span>
-      <el-form :model="formData"
-               :rules="rules"
-               label-width="110px"
-               ref="singleRestoreForm"
-               size="small">
-        <el-form-item label="恢复主机IP"
-                      prop="hostIp">
-          <el-input v-model="formData.hostIp"></el-input>
-        </el-form-item>
-        <el-form-item label="登录名"
-                      prop="loginName">
-          <el-input v-model="formData.loginName"></el-input>
-        </el-form-item>
-        <el-form-item label="密码"
-                      prop="password">
-          <el-input v-model="formData.password"></el-input>
-        </el-form-item>
-        <el-form-item label="详细信息"
-                      prop="detailInfo">
-          <el-input v-model="formData.detailInfo"></el-input>
-        </el-form-item>
-        <el-form-item v-if="type === 'filehost'"
-                      label="覆盖策略"
-                      prop="reveringStrategy">
-          <el-radio-group v-model="formData.recoveringStrategy">
-            <el-radio v-for="s in Object.keys(recoveringStrategys)"
-                      :key="s"
-                      :label="Number(s)">{{ recoveringStrategys[s] }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </el-form>
-      <span slot="footer">
-        <el-button @click="cancelButtonClick">取消</el-button>
-        <el-button type="primary"
-                   @click="confirm">确定</el-button>
-      </span>
-    </el-dialog>
-  </section>
+  <el-dialog :visible.sync="modalVisible"
+             :before-close="beforeModalClose"
+             @close="modalClosed"
+             width="40%">
+    <span slot="title">执行恢复操作</span>
+    <el-form :model="formData"
+             :rules="rules"
+             label-width="110px"
+             ref="singleRestoreForm"
+             size="small">
+      <el-row>
+        <el-col :span=12>
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span=12>
+          <el-form-item label="详细信息"
+                        prop="detailInfo">
+            <el-input v-model="formData.detailInfo"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="登录名"
+                        prop="loginName">
+            <el-input v-model="formData.loginName"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="密码"
+                        prop="password">
+            <el-input v-model="formData.password"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-form-item v-if="type === 'filehost'"
+                    label="覆盖策略"
+                    prop="reveringStrategy">
+        <el-radio-group v-model="formData.recoveringStrategy">
+          <el-radio v-for="s in Object.keys(recoveringStrategys)"
+                    :key="s"
+                    :label="Number(s)">{{ recoveringStrategys[s] }}</el-radio>
+        </el-radio-group>
+      </el-form-item>
+    </el-form>
+    <span slot="footer">
+      <el-button @click="cancelButtonClick">取消</el-button>
+      <el-button type="primary"
+                 @click="confirmBtnClick">确定</el-button>
+    </span>
+  </el-dialog>
 </template>
 <script>
 import moment from 'moment';
@@ -65,18 +77,29 @@ export default {
     };
   },
   methods: {
-    confirm() {
-      this.formData.name = moment().format('YYYYMMDDHHmmss');
-      const { name, config } = this.pruneData(this.formData);
-      requestMapping[this.type]({ id: this.id, data: { name, config } })
-        .then(res => {
-          const { data: restorePlan } = res.data;
-          this.$emit('confirm', restorePlan);
-          this.modalVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
+    confirmBtnClick() {
+      this.$refs.singleRestoreForm.validate(valid => {
+        if (valid) {
+          this.formData.name = moment().format('YYYYMMDDHHmmss');
+          const { name, config } = this.pruneData(this.formData);
+          requestMapping[this.type]({ id: this.id, data: { name, config } })
+            .then(res => {
+              const { data: restorePlan } = res.data;
+              this.$emit('confirm', restorePlan);
+              this.modalVisible = false;
+            })
+            .catch(error => {
+              this.$message.error(error);
+              return false;
+            });
+        } else {
+          return false;
+        }
+      });
+    },
+    modalClosed() {
+      this.formData = { ...this.originFormData };
+      this.$refs.singleRestoreForm.clearValidate();
     },
   },
 };

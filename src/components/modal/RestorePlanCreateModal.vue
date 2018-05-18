@@ -146,7 +146,6 @@ export default {
               const { data: plan } = res.data;
               this.$emit('confirm', plan);
               this.modalVisible = false;
-              this.formData = { ...this.originFormData };
             })
             .catch(error => {
               this.$message.error(error);
