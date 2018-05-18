@@ -51,8 +51,8 @@
                   </el-form-item>
                   <el-form-item>
                     <el-button type="primary"
-                              @click="submitForm('form')">提 交</el-button>
-                    <el-button @click="resetForm('form')">重 置</el-button>
+                              @click="submitForm('form')">提交</el-button>
+                    <el-button @click="dialogVisible = false">取消</el-button>
                   </el-form-item>
               </el-form>
           </el-dialog>
@@ -110,25 +110,51 @@ export default {
           {
             validator:checkName,
             trigger: 'blur'
-          },
+          },{
+            required: true,
+            message: '请输入新用户名',
+          }, {
+              pattern: /^[\u4E00-\u9FA5]+$/,
+              message: '用户名只能为中文'
+          }, {
+              min: 2,
+              max: 4,
+              message: '长度在 2 到 4 个字符'
+          }
         ],
         oldPassword: [
           {
             validator:checkOldpass,
             trigger: 'blur'
-          },
+          }, {
+            required: true,
+            message: '请输入原始密码',
+          }, 
         ],
         newPassword: [
           { 
             validator: validatePass,
             trigger: 'blur' 
-          },
+          }, {
+            required: true,
+            message: '请输入新密码',
+          }, {
+            min: 6,
+            max: 30,
+            message: '长度在 6 到 30 个字符'
+          }, {
+            pattern: /^(\w){6,20}$/,
+            message: '只能输入字母、数字、下划线'
+          }
         ],
         checkPass: [
           {
             validator: validatePass2,
             trigger: 'blur'
-          },
+          }, {
+            required: true,
+            message: '请确认新密码',
+          }
         ],
       },
     };
@@ -154,9 +180,6 @@ export default {
           return false;
         }
       });
-    },
-    resetForm(form) {
-      this.$refs[form].resetFields();
     },
   },
   computed:{
