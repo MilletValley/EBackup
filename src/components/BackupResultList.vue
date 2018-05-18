@@ -1,8 +1,8 @@
 <template>
   <section>
-    <el-table :data="data"
+    <el-table :data="type === 'filehost' ? handleData : data"
               style="width: 100%; margin-top: 15px"
-              :default-sort="{ prop: 'startTime', order: 'descending' }">
+              :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
         <template slot-scope="scope">
           <el-form inline
@@ -26,7 +26,8 @@
                           v-else>
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
-            <el-form-item label="结束时间">
+            <el-form-item label="结束时间"
+                          :sort-method="endTimeSortMethod">
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
             <el-form-item label="文件标识符"
@@ -95,6 +96,8 @@
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
+                     :disabled="scope.row.state === 1"
+                     v-show="!(type === 'filehost' && scope.row.allowRestore === 0)"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
           <!-- <span style="cursor: pointer">
             <i class="el-icon-loading"></i>正在恢复
@@ -109,6 +112,7 @@
   </section>
 </template>
 <script>
+import moment from 'moment';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import baseMixin from './mixins/baseMixins';
 import { backupResultMapping } from '../utils/constant';
@@ -134,6 +138,7 @@ export default {
     return {
       singleRestoreModalVisible: false,
       selectedId: -1,
+      _data: this.data.map(result => {}),
     };
   },
   methods: {
@@ -149,10 +154,39 @@ export default {
     confirmCallback(restorePlan) {
       this.$emit('add-restore', restorePlan);
     },
+    endTimeSortMethod(a, b) {
+      return moment(a) - moment(b);
+    },
   },
   computed: {
     isFileBackupResult() {
       return this.type === 'filehost';
+    },
+    handleData() {
+      const data = this.data.map((r, i, arr) => {
+        if (i < arr.length / 2)
+          return Object.assign({}, r, { fileResource: 'xxx' });
+        else return Object.assign({}, r, { fileResource: 'yyy' });
+      });
+
+      const map = {};
+      data.forEach((result, index) => {
+        if (!map[result.fileResource]) {
+          map[result.fileResource] = index;
+        } else {
+          const lastIndex = map[result.fileResource];
+          if (moment(data[lastIndex].endTime) < moment(result.endTime)) {
+            map[result.fileResource] = index;
+          }
+        }
+      });
+      return data.map((result, index) => {
+        if (map[result.fileResource] === index) {
+          return Object.assign({}, result, { allowRestore: 1 });
+        } else {
+          return Object.assign({}, result, { allowRestore: 0 });
+        }
+      });
     },
   },
   components: {
