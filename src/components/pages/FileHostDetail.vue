@@ -122,11 +122,12 @@
 <script>
 import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
 import { fileHostDetailMixin } from '../mixins/detailPageMixins';
-import { fetchRestoreRecords } from '../../api/fileHost';
 import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
+  fetchRestorePlans,
+  fetchRestoreRecords
 } from '../../api/fileHost';
 
 export default {
@@ -167,6 +168,10 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+      fetchRestorePlans(this.id).then(res => {
+        const { data: plans } = res.data;
+        this.restorePlans = plans;
+      });
       fetchRestoreRecords(this.id).then(res => {
         const { data: records } = res.data;
         this.restoreRecords = records;

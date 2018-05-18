@@ -17,7 +17,7 @@
           </el-form-item>
         </el-col>
         <el-col :span=12>
-          <el-form-item :label="detailInfoDisplayLabel"
+          <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
@@ -77,7 +77,7 @@ export default {
     };
   },
   computed: {
-    detailInfoDisplayLabel() {
+    detailInfoDisplayName() {
       const mapping = {
         oracle: '恢复实例名',
         sqlserver: '恢复数据库名',
