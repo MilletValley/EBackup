@@ -50,6 +50,13 @@ const updateUserInfo = user =>
     data: user,
   });
 
+const changeUserInfo = user =>
+  baseApi.request({
+    method: 'patch',
+    url: '/profile',
+    data: user,
+  })
+
 const deleteUserInfo = id =>
   baseApi.request({
     method: 'delete',
@@ -73,4 +80,5 @@ export {
   updateUserInfo,
   deleteUserInfo,
   deleteUsersInfo,
+  changeUserInfo,
 };
