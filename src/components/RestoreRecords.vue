@@ -14,7 +14,7 @@
               <span class="restore-start-time">{{item.startTime}}</span>
             </div>
             <p>恢复设备IP: {{ item.config.hostIp }}</p>
-            <p>恢复数据库: {{item.config.detailInfo }}</p>
+            <p>{{detailInfoDisplayName}}: {{item.config.detailInfo }}</p>
           </el-card>
         </el-col>
       </el-row>
@@ -39,7 +39,7 @@
                          width="150px">
         </el-table-column>
         <el-table-column prop="detailInfo"
-                         label="详情"
+                         :label="detailInfoDisplayName"
                          header-align="center"
                          min-width="200px">
         </el-table-column>
@@ -62,6 +62,12 @@ export default {
   name: 'RestoreRecords',
   mixins: [baseMixin],
   props: {
+    type: {
+      type: String,
+      validator(value) {
+        return ['oracle', 'sqlserver', 'filehost'].includes(value);
+      },
+    },
     plans: {
       type: Array,
       required: true,
@@ -71,6 +77,16 @@ export default {
       required: true,
     },
   },
+  computed: {
+    detailInfoDisplayName() {
+      const mapping = {
+        oracle: '恢复实例名',
+        sqlserver: '恢复数据库名',
+        filehost: '恢复路径',
+      };
+      return mapping[this.type];
+    }
+  }
 };
 </script>
 <style>
