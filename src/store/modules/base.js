@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import types from '../type';
-import { login, validateToken, logout } from '../../api/user';
+import { login, validateToken, logout, changeUserInfo } from '../../api/user';
 import { userToken } from '../../utils/storage';
 import { basicRouters, asyncRouters } from '../../router';
 
@@ -17,11 +17,14 @@ const getters = {
   loginName(state) {
     return state.userInfo.loginName;
   },
+  roles(state) {
+    return state.userInfo.roles;
+  },
+  state(state) {
+    return state.userInfo.state;
+  },
   userName(state) {
     return state.userInfo.userName;
-  },
-  password(state) {
-    return state.userInfo.password;
   },
 };
 /* eslint no-shadow: 0 */
@@ -44,9 +47,8 @@ const mutations = {
   [types.SET_ROUTERS](state, routers) {
     state.routers = [...basicRouters, ...routers];
   },
-  [types.UPDATE_USERINFO](state, form) {
-    state.userInfo.loginName = form.newUsername;
-    state.userInfo.password = form.newPassword;
+  [types.UPDATE_USERINFO](state, data) {
+    state.userInfo = data;
   },
 };
 
@@ -94,8 +96,12 @@ const actions = {
    * @param {*} param0
    * @param {*} param1
    */
-  updateUserInfo({ commit }, form) {
-    commit('types.UPDATE_USERINFO', form);
+  updateUserInfo({ commit }) {
+    return changeUserInfo(userInfo).then(res => {
+      const { data } = res.data;
+        commit(types.UPDATE_USERINFO, data);
+    })
+    .catch(error => Promise.reject(error));
   },
   /**
    * 使用Token登陆
