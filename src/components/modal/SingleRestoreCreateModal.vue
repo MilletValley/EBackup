@@ -17,7 +17,7 @@
           </el-form-item>
         </el-col>
         <el-col :span=12>
-          <el-form-item label="详细信息"
+          <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
@@ -75,6 +75,16 @@ export default {
     return {
       recoveringStrategys: recoveringStrategyMapping,
     };
+  },
+  computed: {
+    detailInfoDisplayName() {
+      const mapping = {
+        oracle: '恢复实例名',
+        sqlserver: '恢复数据库名',
+        filehost: '恢复路径',
+      };
+      return mapping[this.type];
+    }
   },
   methods: {
     confirmBtnClick() {

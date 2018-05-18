@@ -119,7 +119,7 @@
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
                    name="restore">
-        <restore-records :plans="ongoingRestorePlan"
+        <restore-records type="sqlserver" :plans="ongoingRestorePlan"
                          :records="restoreRecords"></restore-records>
       </el-tab-pane>
     </el-tabs>
