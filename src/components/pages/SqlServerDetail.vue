@@ -75,76 +75,29 @@
                                @confirm="details = arguments[0]"></database-update-modal>
       </div>
     </header>
-    <el-tabs v-model="activeTab"
-             @tab-click="switchPane">
-      <el-tab-pane label="操作计划"
-                   name="plans">
-        <el-form inline
-                 :model="planFilterForm"
-                 class="filter-form">
-          <el-form-item label="隐藏已完成计划">
-            <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
-          </el-form-item>
-        </el-form>
-        <backup-card :id="plan.id"
-                     type="sqlserver"
-                     v-for="(plan, index) in filteredBackupPlans"
-                     :key="plan.id"
-                     :backupPlan="plan"
-                     @deletePlan="deleteBackupPlan(index)"
-                     @updatePlan="selectBackupPlan(index)"></backup-card>
-        <restore-card :id="plan.id"
-                      type="sqlserver"
-                      v-for="(plan, index) in restorePlans"
-                      :key="plan.id"
-                      :restorePlan="plan"
-                      @deletePlan="deleteRestorePlan(index)"
-                      @updatePlan="selectRestorePlan(index)"></restore-card>
-      </el-tab-pane>
-      <el-tab-pane label="备份集"
-                   name="results">
-        <el-form inline
-                 :model="resultFilterForm"
-                 class="filter-form"
-                 style="text-align: right;">
-          <el-form-item>
-            <el-button size="medium"
-                       type="text"
-                       @click="updateResults()">刷新</el-button>
-          </el-form-item>
-        </el-form>
-        <backup-result-list type="sqlserver"
-                            :data="results"
-                            @add-restore="addSingleRestore"></backup-result-list>
-      </el-tab-pane>
-      <el-tab-pane label="恢复记录"
-                   name="restore">
-        <restore-records type="sqlserver" :plans="ongoingRestorePlan"
-                         :records="restoreRecords"></restore-records>
-      </el-tab-pane>
-    </el-tabs>
+    <tab-panels :id="Number(id)"
+                type="sqlserver"
+                :backup-plans="backupPlans"
+                :restore-plans="restorePlans"
+                :results="results"
+                @backupplan:update="updateBackupPlan"
+                @backupplan:delete="deleteBackupPlan"
+                @restoreplan:add="addRestorePlan"
+                @restoreplan:update="updateRestorePlan"
+                @restoreplan:delete="deleteRestorePlan"
+                :restoreRecords="restoreRecords"></tab-panels>
     <add-backup-plan type="sqlserver"
                      :id="Number(id)"
-                     :visible.sync="planCreateModal"
+                     :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
-    <update-backup-plan type="sqlserver"
-                        :id="Number(id)"
-                        :visible.sync="planUpdateModal"
-                        :backup-plan="selectedPlan"
-                        @confirm="updateBackupPlan"></update-backup-plan>
     <restore-plan-create-modal type="sqlserver"
                                :id="Number(id)"
                                :visible.sync="restorePlanCreateModalVisible"
-                               @confirm="restorePlanAdded"></restore-plan-create-modal>
-    <restore-plan-update-modal type="sqlserver"
-                               :id="Number(id)"
-                               :visible.sync="restorePlanUpdateModalVisible"
-                               :restore-plan="selectedRestorePlan"
-                               @confirm="restorePlanUpdated"></restore-plan-update-modal>
+                               @confirm="addRestorePlan"></restore-plan-create-modal>
   </section>
 </template>
 <script>
-import { databaseDetailMixin } from '../mixins/detailPageMixins';
+import { detailPageMixin } from '../mixins/detailPageMixins';
 
 import {
   fetchOne,
@@ -156,7 +109,7 @@ import {
 
 export default {
   name: 'SqlServerDetail',
-  mixins: [databaseDetailMixin],
+  mixins: [detailPageMixin],
   data() {
     return {
       updateResults: this.throttleMethod(fetchBackupResults),
@@ -198,11 +151,6 @@ export default {
         const { data: records } = res.data;
         this.restoreRecords = records;
       });
-    },
-    switchPane({ name }) {
-      if (name === 'results') {
-        this.updateResults();
-      }
     },
   },
 };

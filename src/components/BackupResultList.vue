@@ -1,6 +1,6 @@
 <template>
   <section>
-    <el-table :data="type === 'filehost' ? handleData : data"
+    <el-table :data="isFileBackupResult ? handleData : data"
               style="width: 100%; margin-top: 15px"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
@@ -97,7 +97,7 @@
           <el-button type="text"
                      size="small"
                      :disabled="scope.row.state === 1"
-                     v-show="!(type === 'filehost' && scope.row.allowRestore === 0)"
+                     v-show="!(isFileBackupResult && scope.row.allowRestore === 0)"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
           <!-- <span style="cursor: pointer">
             <i class="el-icon-loading"></i>正在恢复
@@ -130,7 +130,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'filehost'].indexOf(value) !== -1;
+        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
       },
     },
   },
@@ -159,7 +159,7 @@ export default {
   },
   computed: {
     isFileBackupResult() {
-      return this.type === 'filehost';
+      return this.type === 'windows' || this.type === 'linux';
     },
     handleData() {
       const data = this.data.map((r, i, arr) => {

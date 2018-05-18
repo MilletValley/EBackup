@@ -28,7 +28,8 @@
                   <el-dropdown-menu slot="dropdown">
                     <!-- 文件系统备份计划 可以多次添加 -->
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
-                    <el-dropdown-item disabled command="restore">恢复计划</el-dropdown-item>
+                    <el-dropdown-item disabled
+                                      command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <el-button size="mini"
@@ -67,72 +68,37 @@
                                 :file-host-info="details"></file-host-update-modal>
       </div>
     </header>
-    <el-tabs v-model="activeTab"
-             @tab-click="switchPane">
-      <el-tab-pane label="操作计划"
-                   name="plans">
-        <el-form inline
-                 :model="planFilterForm"
-                 class="filter-form">
-          <el-form-item label="隐藏已完成计划">
-            <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
-          </el-form-item>
-        </el-form>
-        <backup-card :id="plan.id"
-                     :type="systemType"
-                     v-for="(plan, index) in filteredBackupPlans"
-                     :key="plan.id"
-                     :backupPlan="plan"
-                     @deletePlan="deleteBackupPlan(index)"
-                     @updatePlan="selectBackupPlan(index)"></backup-card>
-      </el-tab-pane>
-      <el-tab-pane label="备份集"
-                   name="results">
-        <el-form inline
-                 :model="resultFilterForm"
-                 class="filter-form"
-                 style="text-align: right;">
-          <el-form-item>
-            <el-button size="medium"
-                       type="text"
-                       @click="updateResults()">刷新</el-button>
-          </el-form-item>
-        </el-form>
-        <backup-result-list :data="results"
-                            type="filehost"
-                            @add-restore="addSingleRestore"></backup-result-list>
-      </el-tab-pane>
-      <el-tab-pane label="恢复记录"
-                   name="restore">
-        <restore-records type="filehost" :plans="ongoingRestorePlan"
-                         :records="restoreRecords"></restore-records>
-      </el-tab-pane>
-    </el-tabs>
+    <tab-panels :id="Number(id)"
+                :type="systemType"
+                :backup-plans="backupPlans"
+                :restore-plans="restorePlans"
+                :results="results"
+                @backupplan:update="updateBackupPlan"
+                @backupplan:delete="deleteBackupPlan"
+                @restoreplan:add="addRestorePlan"
+                @restoreplan:update="updateRestorePlan"
+                @restoreplan:delete="deleteRestorePlan"
+                :restoreRecords="restoreRecords"></tab-panels>
     <add-backup-plan :type="systemType"
                      :id="Number(id)"
-                     :visible.sync="planCreateModal"
+                     :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
-    <update-backup-plan :type="systemType"
-                        :id="Number(id)"
-                        :visible.sync="planUpdateModal"
-                        :backup-plan="selectedPlan"
-                        @confirm="updateBackupPlan"></update-backup-plan>
   </section>
 </template>
 <script>
 import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
-import { fileHostDetailMixin } from '../mixins/detailPageMixins';
+import { detailPageMixin } from '../mixins/detailPageMixins';
 import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
   fetchRestorePlans,
-  fetchRestoreRecords
+  fetchRestoreRecords,
 } from '../../api/fileHost';
 
 export default {
   name: 'FileHostDetail',
-  mixins: [fileHostDetailMixin],
+  mixins: [detailPageMixin],
   data() {
     return {
       updateResults: this.throttleMethod(fetchBackupResults),
@@ -176,11 +142,6 @@ export default {
         const { data: records } = res.data;
         this.restoreRecords = records;
       });
-    },
-    switchPane({ name }) {
-      if (name === 'results') {
-        this.updateResults();
-      }
     },
   },
   computed: {
