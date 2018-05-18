@@ -40,6 +40,12 @@ const restoreTimeStrategyMapping = {
   3: '按月循环',
 };
 
+const recoveringStrategyMapping = {
+  1: '覆盖',
+  2: '创建副本',
+  3: '跳过',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -47,4 +53,5 @@ export {
   weekMapping,
   backupResultMapping,
   restoreTimeStrategyMapping,
+  recoveringStrategyMapping,
 };

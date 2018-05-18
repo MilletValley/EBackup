@@ -3,8 +3,11 @@
     <div>
       <h4>正在执行的恢复</h4>
       <el-row :gutter="20">
-        <el-col :span="6" v-for="item in plans" :key="item.id">
-          <el-card shadow="hover" class="ongoing-restore-card">
+        <el-col :span="6"
+                v-for="item in plans"
+                :key="item.id">
+          <el-card shadow="hover"
+                   class="ongoing-restore-card">
             <div>
               <span>
                 <i class="el-icon-time"></i> {{ item.consume | durationFilter }}</span>
@@ -18,16 +21,32 @@
     </div>
     <div>
       <h4>已完成恢复记录</h4>
-      <el-table :data="records">
-        <el-table-column prop="startTime" label="开始时间" align="center" width="200px">
+      <el-table :data="records"
+                :default-sort="{ prop: 'startTime', order: 'descending' }">
+        <el-table-column prop="startTime"
+                         label="开始时间"
+                         align="center"
+                         width="200px">
         </el-table-column>
-        <el-table-column prop="endTime" label="结束时间" align="center" width="200px">
+        <el-table-column prop="endTime"
+                         label="结束时间"
+                         align="center"
+                         width="200px">
         </el-table-column>
-        <el-table-column prop="hostIp" label="恢复设备IP" align="center" width="150px">
+        <el-table-column prop="hostIp"
+                         label="恢复设备IP"
+                         align="center"
+                         width="150px">
         </el-table-column>
-        <el-table-column prop="detailInfo" label="详情" header-align="center" min-width="200px">
+        <el-table-column prop="detailInfo"
+                         label="详情"
+                         header-align="center"
+                         min-width="200px">
         </el-table-column>
-        <el-table-column prop="state" label="状态" align="center" width="100px">
+        <el-table-column prop="state"
+                         label="状态"
+                         align="center"
+                         width="100px">
           <template slot-scope="scope">
             <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
           </template>

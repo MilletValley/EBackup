@@ -1,30 +1,64 @@
 <template>
   <section>
-    <el-form inline size="small">
+    <el-form inline
+             size="small">
       <el-form-item style="float: right;">
-        <el-button type="primary" @click="createModalVisible = true">添加</el-button>
+        <el-button type="primary"
+                   @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dbs" style="width: 100%">
-      <el-table-column label="数据库名称" min-width="200" align="center">
+    <el-table :data="dbs"
+              style="width: 100%">
+      <el-table-column label="名称"
+                       min-width="200"
+                       align="center">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`${scope.row.id}`" append class="name-link">{{scope.row.name}}</router-link>
+            <router-link :to="`${scope.row.id}`"
+                         append
+                         class="name-link">{{scope.row.name}}</router-link>
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="instanceName" label="数据库实例" min-width="150" align="center"></el-table-column>
-      <el-table-column prop="hostIp" label="主机IP" width="200" align="center"></el-table-column>
-      <el-table-column prop="loginName" label="数据库登陆账号" width="250" align="center"></el-table-column>
-      <el-table-column label="操作" width="100" header-align="center" align="right">
+      <el-table-column prop="instanceName"
+                       label="实例名"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="hostIp"
+                       label="主机IP"
+                       width="200"
+                       align="center"></el-table-column>
+      <el-table-column prop="loginName"
+                       label="登陆账号"
+                       width="250"
+                       align="center"></el-table-column>
+      <el-table-column label="操作"
+                       width="100"
+                       header-align="center"
+                       align="right">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle size="mini" class="ws-mini" @click="selectOne(scope)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle size="mini" class="ws-mini" @click="deleteDb(scope)"></el-button>
+          <el-button type="primary"
+                     icon="el-icon-edit"
+                     circle
+                     size="mini"
+                     class="ws-mini"
+                     @click="selectOne(scope)"></el-button>
+          <el-button type="danger"
+                     icon="el-icon-delete"
+                     circle
+                     size="mini"
+                     class="ws-mini"
+                     @click="deleteDb(scope)"></el-button>
         </template>
       </el-table-column>
     </el-table>
-    <database-create-modal db-type="oracle" :visible.sync="createModalVisible" @confirm="dbs.push(arguments[0])"></database-create-modal>
-    <database-update-modal db-type="oracle" :visible.sync="updateModalVisible" :database-info="selectedDb" @confirm="updateDb"></database-update-modal>
+    <database-create-modal db-type="oracle"
+                           :visible.sync="createModalVisible"
+                           @confirm="dbs.push(arguments[0])"></database-create-modal>
+    <database-update-modal db-type="oracle"
+                           :visible.sync="updateModalVisible"
+                           :database-info="selectedDb"
+                           @confirm="updateDb"></database-update-modal>
   </section>
 </template>
 <script>

@@ -2,33 +2,49 @@
   <section>
     <header class="detail-header">
       <div class="db-content">
-        <el-row type="flex" justify="end">
+        <el-row type="flex"
+                justify="end">
           <el-col :span="1">
             <i-icon name="sqlserver"></i-icon>
           </el-col>
           <el-col :span="23">
-            <el-row type="flex" align="middle">
-              <el-col :span="8" class="title">
+            <el-row type="flex"
+                    align="middle">
+              <el-col :span="8"
+                      class="title">
                 <h1>{{details.name}}</h1>
               </el-col>
-              <el-col :span="12" :offset="12" class="action">
-                <el-dropdown size="mini" trigger="click" placement="bottom" @command="addPlanBtnClick">
-                  <el-button size="mini" plain>添加计划
+              <el-col :span="12"
+                      :offset="12"
+                      class="action">
+                <el-dropdown size="mini"
+                             trigger="click"
+                             placement="bottom"
+                             @command="addPlanBtnClick">
+                  <el-button size="mini"
+                             plain>添加计划
                     <i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :disabled="backupAddBtnDisable" command="backup">备份计划</el-dropdown-item>
+                    <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button size="mini" type="primary" @click="detailsEditModal = true">编辑</el-button>
+                <el-button size="mini"
+                           type="primary"
+                           @click="detailsEditModal = true">编辑</el-button>
               </el-col>
             </el-row>
-            <el-form v-loading="infoLoading" label-position="left" label-width="100px" inline size="small" class="database-info">
-              <el-form-item label="数据库版本">
+            <el-form v-loading="infoLoading"
+                     label-position="left"
+                     label-width="100px"
+                     inline
+                     size="small"
+                     class="database-info">
+              <el-form-item label="数据库版本：">
                 <span>{{ details.dbVersion }}</span>
               </el-form-item>
-              <el-form-item label="数据库实例">
+              <el-form-item label="数据库：">
                 <span>{{ details.instanceName }}</span>
               </el-form-item>
               <el-form-item label="数据库账号：">
@@ -43,7 +59,7 @@
               </el-form-item>
               <el-form-item label="操作系统：">
                 <span>{{ details.osName }}</span>
-              </el-form-item>
+              </el-form-item>·
               <el-form-item label="主机IP：">
                 <span>{{ details.hostIp }}</span>
               </el-form-item>
@@ -53,43 +69,81 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="sqlserver" :visible.sync="detailsEditModal" :database-info="details" @confirm="details = arguments[0]"></database-update-modal>
+        <database-update-modal db-type="sqlserver"
+                               :visible.sync="detailsEditModal"
+                               :database-info="details"
+                               @confirm="details = arguments[0]"></database-update-modal>
       </div>
     </header>
-    <el-tabs v-model="activeTab" @tab-click="switchPane">
-      <el-tab-pane label="操作计划" name="plans">
-        <el-form inline :model="planFilterForm" class="filter-form">
+    <el-tabs v-model="activeTab"
+             @tab-click="switchPane">
+      <el-tab-pane label="操作计划"
+                   name="plans">
+        <el-form inline
+                 :model="planFilterForm"
+                 class="filter-form">
           <el-form-item label="隐藏已完成计划">
             <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
           </el-form-item>
         </el-form>
-        <backup-card :id="plan.id" type="sqlserver" v-for="(plan, index) in filteredBackupPlans" :key="plan.id" :backupPlan="plan" @deletePlan="deleteBackupPlan(index)" @updatePlan="selectPlan(index)"></backup-card>
+        <backup-card :id="plan.id"
+                     type="sqlserver"
+                     v-for="(plan, index) in filteredBackupPlans"
+                     :key="plan.id"
+                     :backupPlan="plan"
+                     @deletePlan="deleteBackupPlan(index)"
+                     @updatePlan="selectBackupPlan(index)"></backup-card>
+        <restore-card :id="plan.id"
+                      type="sqlserver"
+                      v-for="(plan, index) in restorePlans"
+                      :key="plan.id"
+                      :restorePlan="plan"
+                      @deletePlan="deleteRestorePlan(index)"
+                      @updatePlan="selectRestorePlan(index)"></restore-card>
       </el-tab-pane>
-      <el-tab-pane label="备份集" name="results">
-        <el-form inline :model="resultFilterForm" class="filter-form" style="text-align: right;">
+      <el-tab-pane label="备份集"
+                   name="results">
+        <el-form inline
+                 :model="resultFilterForm"
+                 class="filter-form"
+                 style="text-align: right;">
           <el-form-item>
-            <el-button size="medium" type="text" @click="updateResults()">刷新</el-button>
+            <el-button size="medium"
+                       type="text"
+                       @click="updateResults()">刷新</el-button>
           </el-form-item>
         </el-form>
-        <backup-result-list type="sqlserver" :data="results" @add-restore="addSingleRestore"></backup-result-list>
+        <backup-result-list type="sqlserver"
+                            :data="results"
+                            @add-restore="addSingleRestore"></backup-result-list>
       </el-tab-pane>
-      <el-tab-pane label="恢复记录" name="restore">
-        <restore-records :plans="ongoingRestorePlan" :records="restoreRecords"></restore-records>
+      <el-tab-pane label="恢复记录"
+                   name="restore">
+        <restore-records :plans="ongoingRestorePlan"
+                         :records="restoreRecords"></restore-records>
       </el-tab-pane>
     </el-tabs>
-    <add-backup-plan type="sqlserver" :id="Number(id)" :visible.sync="planCreateModal" @confirm="addBackupPlan"></add-backup-plan>
-    <update-backup-plan type="sqlserver" :id="Number(id)" :visible.sync="planUpdateModal" :backup-plan="selectedPlan" @confirm="updateBackupPlan"></update-backup-plan>
+    <add-backup-plan type="sqlserver"
+                     :id="Number(id)"
+                     :visible.sync="planCreateModal"
+                     @confirm="addBackupPlan"></add-backup-plan>
+    <update-backup-plan type="sqlserver"
+                        :id="Number(id)"
+                        :visible.sync="planUpdateModal"
+                        :backup-plan="selectedPlan"
+                        @confirm="updateBackupPlan"></update-backup-plan>
+    <restore-plan-create-modal type="sqlserver"
+                               :id="Number(id)"
+                               :visible.sync="restorePlanCreateModalVisible"
+                               @confirm="restorePlanAdded"></restore-plan-create-modal>
+    <restore-plan-update-modal type="sqlserver"
+                               :id="Number(id)"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="restorePlanUpdated"></restore-plan-update-modal>
   </section>
 </template>
 <script>
-import IIcon from '@/components/IIcon';
-import SpanToggle from '@/components/SpanToggle';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import BackupCard from '@/components/BackupCard';
-import BackupResultList from '@/components/BackupResultList';
-import RestoreRecords from '@/components/RestoreRecords';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import { databaseDetailMixin } from '../mixins/detailPageMixins';
 
 import {
@@ -150,16 +204,6 @@ export default {
         this.updateResults();
       }
     },
-  },
-  components: {
-    IIcon,
-    DatabaseUpdateModal,
-    SpanToggle,
-    BackupCard,
-    BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
-    RestoreRecords,
   },
 };
 </script>

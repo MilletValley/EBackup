@@ -77,18 +77,38 @@ const fetchBackupOperation = id =>
     url: `/sqlserver-backup-plans/${id}`,
   });
 
+// 将时间字符串数组转为对象数组
+const timePoints2Obj = timePointsStrArr =>
+  timePointsStrArr.map(p => ({ value: p, key: p }));
+
 const createSingleRestorePlan = ({ id, data }) =>
-  baseApi.request({
-    method: 'post',
-    url: `/sqlserver-backup-results/${id}/sqlserver-restore-plans`,
-    data,
-  });
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlserver-backup-results/${id}/sqlserver-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config = timePoints2Obj(timePoints);
+      return res;
+    });
 
 const fetchRestorePlans = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/sqlservers/${id}/sqlserver-restore-plans`,
-  });
+  baseApi
+    .request({
+      method: 'get',
+      url: `/sqlservers/${id}/sqlserver-restore-plans`,
+    })
+    .then(res => {
+      const { data: plans } = res.data;
+      plans.forEach(p => {
+        if (p.config.timePoints) {
+          p.config.timePoints = timePoints2Obj(p.config.timePoints);
+        }
+      });
+      return res;
+    });
 
 const fetchRestoreRecords = id =>
   baseApi.request({
@@ -96,6 +116,37 @@ const fetchRestoreRecords = id =>
     url: `/sqlservers/${id}/restore-records`,
   });
 
+const createRestorePlan = ({ id, data }) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlservers/${id}/sqlserver-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const deleteRestorePlan = planId =>
+  baseApi.request({
+    method: 'delete',
+    url: `/sqlserver-restore-plans/${planId}`,
+  });
+
+const updateRestorePlan = data =>
+  baseApi
+    .request({
+      method: 'patch',
+      url: `/sqlserver-restore-plans/${data.id}`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config = timePoints2Obj(timePoints);
+      return res;
+    });
 export {
   fetchAll,
   fetchOne,
@@ -112,4 +163,7 @@ export {
   createSingleRestorePlan,
   fetchRestorePlans,
   fetchRestoreRecords,
+  createRestorePlan,
+  deleteRestorePlan,
+  updateRestorePlan,
 };

@@ -1,4 +1,15 @@
 import throttle from 'lodash/throttle';
+import IIcon from '@/components/IIcon';
+import SpanToggle from '@/components/SpanToggle';
+import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
+import BackupCard from '@/components/BackupCard';
+import RestoreCard from '@/components/RestoreCard';
+import BackupResultList from '@/components/BackupResultList';
+import RestoreRecords from '@/components/RestoreRecords';
+import AddBackupPlan from '@/components/AddBackupPlan';
+import UpdateBackupPlan from '@/components/UpdateBackupPlan';
+import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
+import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import { applyFilterMethods } from '../../utils/common';
 
 const baseMixin = {
@@ -11,12 +22,15 @@ const baseMixin = {
       // backupPlan: {}, // 备份计划 { config, ...operation }
       backupPlans: [],
       selectedPlanIndex: -1,
+      selectedRestorePlanIndex: -1,
       restorePlans: [], // 恢复计划
       restoreRecords: [], // 恢复记录
       results: [], // 备份集
       detailsEditModal: false,
       planCreateModal: false,
       planUpdateModal: false,
+      restorePlanCreateModalVisible: false,
+      restorePlanUpdateModalVisible: false,
       planFilterForm: {
         hiddenCompletePlan: false,
       },
@@ -25,6 +39,7 @@ const baseMixin = {
   },
   computed: {
     // 备份计划只能存在一个未开始(0) 或 进行中(1)
+    // 05.16 讨论放开权限 可以任意时间添加计划
     backupAddBtnDisable() {
       return this.backupPlans.some(
         plan => plan.state === 0 || plan.state === 1
@@ -36,6 +51,11 @@ const baseMixin = {
         ? {}
         : this.backupPlans[this.selectedPlanIndex];
     },
+    selectedRestorePlan() {
+      return this.selectedRestorePlanIndex === -1
+        ? {}
+        : this.restorePlans[this.selectedRestorePlanIndex];
+    },
     filteredBackupPlans() {
       const filterMethods = [];
       if (this.planFilterForm.hiddenCompletePlan) {
@@ -45,7 +65,7 @@ const baseMixin = {
     },
     // 正在进行中的恢复计划
     ongoingRestorePlan() {
-      return this.restorePlans.filter(plan => plan.state === 0);
+      return this.restorePlans.filter(plan => plan.state === 1);
     },
   },
   created() {
@@ -59,6 +79,8 @@ const baseMixin = {
     addPlanBtnClick(command) {
       if (command === 'backup') {
         this.planCreateModal = true;
+      } else if (command === 'restore') {
+        this.restorePlanCreateModalVisible = true;
       }
     },
     // 添加备份计划Modal确认后回调
@@ -73,9 +95,14 @@ const baseMixin = {
       this.selectedPlanIndex = -1;
     },
     // 选择一个备份计划 点击计划编辑按钮时绑定
-    selectPlan(planIndex) {
+    selectBackupPlan(planIndex) {
       this.planUpdateModal = true;
       this.selectedPlanIndex = planIndex;
+    },
+    // 选择一个恢复计划 点击计划编辑按钮时绑定
+    selectRestorePlan(planIndex) {
+      this.restorePlanUpdateModalVisible = true;
+      this.selectedRestorePlanIndex = planIndex;
     },
     // 删除一个备份计划
     deleteBackupPlan(planIndex) {
@@ -101,6 +128,30 @@ const baseMixin = {
     addSingleRestore(restorePlan) {
       this.restorePlans.push(restorePlan);
     },
+    // 添加恢复计划后
+    restorePlanAdded(plan) {
+      this.restorePlans.push(plan);
+    },
+    deleteRestorePlan(index) {
+      this.restorePlans.splice(index, 1);
+    },
+    restorePlanUpdated(plan) {
+      this.restorePlans.splice(this.selectedRestorePlanIndex, 1, plan);
+      this.selectedRestorePlanIndex = -1;
+    },
+  },
+  components: {
+    IIcon,
+    DatabaseUpdateModal,
+    SpanToggle,
+    BackupCard,
+    RestoreCard,
+    BackupResultList,
+    AddBackupPlan,
+    UpdateBackupPlan,
+    RestoreRecords,
+    RestorePlanCreateModal,
+    RestorePlanUpdateModal,
   },
 };
 
