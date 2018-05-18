@@ -1,52 +1,69 @@
 <template>
-  <el-tabs v-model="activeTab"
-           @tab-click="switchPane">
-    <el-tab-pane label="操作计划"
-                 name="plans">
-      <el-form inline
-               :model="backupPlanFilterForm"
-               class="filter-form">
-        <el-form-item label="隐藏已完成计划">
-          <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
-        </el-form-item>
-      </el-form>
-      <backup-card :id="plan.id"
-                   type="sqlserver"
-                   v-for="(plan, index) in filteredBackupPlans"
-                   :key="plan.id"
-                   :backupPlan="plan"
-                   @deletePlan="deleteBackupPlan(index)"
-                   @updatePlan="selectBackupPlan(index)"></backup-card>
-      <restore-card :id="plan.id"
-                    type="sqlserver"
-                    v-for="(plan, index) in restorePlans"
-                    :key="plan.id"
-                    :restorePlan="plan"
-                    @deletePlan="deleteRestorePlan(index)"
-                    @updatePlan="selectRestorePlan(index)"></restore-card>
-    </el-tab-pane>
-    <el-tab-pane label="备份集"
-                 name="results">
-      <el-form inline
-               :model="resultFilterForm"
-               class="filter-form"
-               style="text-align: right;">
-        <el-form-item>
-          <el-button size="medium"
-                     type="text"
-                     @click="updateResults()">刷新</el-button>
-        </el-form-item>
-      </el-form>
-      <backup-result-list type="sqlserver"
-                          :data="results"
-                          @add-restore="addSingleRestore"></backup-result-list>
-    </el-tab-pane>
-    <el-tab-pane label="恢复记录"
-                 name="restore">
-      <restore-records :plans="ongoingRestorePlan"
-                       :records="restoreRecords"></restore-records>
-    </el-tab-pane>
-  </el-tabs>
+  <section>
+    <el-tabs v-model="activeTab"
+             @tab-click="switchPane">
+      <el-tab-pane label="操作计划"
+                   name="plans">
+        <el-form inline
+                 :model="backupPlanFilterForm"
+                 class="filter-form">
+          <el-form-item label="隐藏已完成计划">
+            <el-switch v-model="backupPlanFilterForm.hiddenCompletePlan"></el-switch>
+          </el-form-item>
+        </el-form>
+        <backup-card :id="plan.id"
+                     :type="type"
+                     v-for="(plan, index) in filteredBackupPlans"
+                     :key="plan.id"
+                     :backupPlan="plan"
+                     @deletePlan="backupPlanDeleted(index)"
+                     @updatePlan="selectBackupPlan(index)"></backup-card>
+        <template v-if="!isFileBackupResult">
+          <restore-card :id="plan.id"
+                        :type="type"
+                        v-for="(plan, index) in restorePlans"
+                        :key="plan.id"
+                        :restorePlan="plan"
+                        @deletePlan="restorePlanDeleted(index)"
+                        @updatePlan="selectRestorePlan(index)"></restore-card>
+        </template>
+
+      </el-tab-pane>
+      <el-tab-pane label="备份集"
+                   name="results">
+        <el-form inline
+                 :model="restorePlanFilterForm"
+                 class="filter-form"
+                 style="text-align: right;">
+          <el-form-item>
+            <el-button size="medium"
+                       type="text"
+                       @click="updateResults()">刷新</el-button>
+          </el-form-item>
+        </el-form>
+        <backup-result-list :type="type"
+                            :data="results"
+                            @add-restore="singleRestoreAdded"></backup-result-list>
+      </el-tab-pane>
+      <el-tab-pane label="恢复记录"
+                   name="restore">
+        <restore-records :type="type"
+                         :plans="ongoingRestorePlan"
+                         :records="restoreRecords"></restore-records>
+      </el-tab-pane>
+    </el-tabs>
+    <update-backup-plan :type="type"
+                        :id="id"
+                        :visible.sync="backupPlanUpdateModalVisible"
+                        :backup-plan="selectedBackupPlan"
+                        @confirm="backupPlanUpdated"></update-backup-plan>
+    <restore-plan-update-modal :type="type"
+                               :id="id"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="restorePlanUpdated"></restore-plan-update-modal>
+  </section>
+
 </template>
 <script>
 import throttle from 'lodash/throttle';
@@ -61,32 +78,56 @@ import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
-import { applyFilterMethods } from '../../utils/common';
+import { applyFilterMethods } from '../utils/common';
 
 export default {
   name: 'TabPanels',
+  props: {
+    id: {
+      type: Number,
+    },
+    type: {
+      type: String,
+      validator(value) {
+        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
+      },
+    },
+    backupPlans: {
+      type: Array,
+    },
+    restorePlans: {
+      type: Array,
+    },
+    results: {
+      type: Array,
+    },
+    restoreRecords: {
+      type: Array,
+    },
+  },
   data() {
     return {
       activeTab: 'plans', // 激活的tab页
-      backupPlans: [],
+      // backupPlans: [],
       selectedBackupPlanIndex: -1,
-      restorePlans: [], // 恢复计划
+      // restorePlans: [], // 恢复计划
       selectedRestorePlanIndex: -1,
-      restoreRecords: [], // 恢复记录
-      results: [], // 备份集
-      backupPlanCreateModalVisible: false,
+      // restoreRecords: [], // 恢复记录
+      // results: [], // 备份集
+      // backupPlanCreateModalVisible: false,
       backupPlanUpdateModalVisible: false,
-      restorePlanCreateModalVisible: false,
+      // restorePlanCreateModalVisible: false,
       restorePlanUpdateModalVisible: false,
+      // 备份计划筛选条件
       backupPlanFilterForm: {
-        // 备份计划筛选条件
         hiddenCompletePlan: false,
       },
+      // 恢复计划筛选条件
       restorePlanFilterForm: {
-        // 恢复计划筛选条件
         hiddenCompletePlan: false,
       },
-      bakupResultFilterForm: {}, //备份集筛选条件
+      //备份集筛选条件
+      bakupResultFilterForm: {},
     };
   },
   computed: {
@@ -94,7 +135,7 @@ export default {
     selectedBackupPlan() {
       return this.selectedBackupPlanIndex === -1
         ? {}
-        : this.backupPlans[this.selectedPlanIndex];
+        : this.backupPlans[this.selectedBackupPlanIndex];
     },
     // 选择的恢复计划 for update
     selectedRestorePlan() {
@@ -114,12 +155,8 @@ export default {
     ongoingRestorePlan() {
       return this.restorePlans.filter(plan => plan.state === 1);
     },
-    created() {
-      // fetch data
-    },
-    beforeRouteUpdate(to, from, next) {
-      // fetch data
-      next();
+    isFileBackupResult() {
+      return this.type === 'windows' || this.type === 'linux';
     },
   },
   methods: {
@@ -129,12 +166,15 @@ export default {
       }
     },
     // 添加备份计划后的cb
-    backupPlanAdded(data) {
-      this.backupPlans.unshift(data);
-    },
+    // backupPlanAdded(data) {
+    //   this.$emit('addBackupPlan', data);
+    //   this.backupPlans.unshift(data);
+    // },
     // 更新备份计划后的cb
     backupPlanUpdated(data) {
-      this.backupPlans.splice(this.selectedBackupPlanIndex, 1, data);
+      this.$emit('backupplan:update', this.selectedBackupPlanIndex, data);
+      this.selectedBackupPlanIndex = -1;
+      // this.backupPlans.splice(this.selectedBackupPlanIndex, 1, data);
     },
     // 选择一个备份计划 点击计划编辑按钮时调用
     selectBackupPlan(planIndex) {
@@ -147,24 +187,29 @@ export default {
       this.selectedRestorePlanIndex = planIndex;
     },
     // 删除一个备份计划
-    deleteBackupPlan(planIndex) {
-      this.backupPlans.splice(planIndex, 1);
+    backupPlanDeleted(deleteIndex) {
+      this.$emit('backupplan:delete', deleteIndex);
+      // this.backupPlans.splice(planIndex, 1);
     },
     // 添加一个单次恢复后得cb
     singleRestoreAdded(restorePlan) {
-      this.restorePlans.push(restorePlan);
+      this.$emit('restoreplan:add', restorePlan);
+      // this.restorePlans.unshift(restorePlan);
     },
     // 添加恢复计划后
-    restorePlanAdded(plan) {
-      this.restorePlans.unshift(plan);
-    },
+    // restorePlanAdded(plan) {
+    //   this.$emit('restoreplan:add', restorePlan);
+    //   this.restorePlans.unshift(plan);
+    // },
     // 删除一个恢复计划
-    deleteRestorePlan(index) {
-      this.restorePlans.splice(index, 1);
+    restorePlanDeleted(deleteIndex) {
+      this.$emit('restoreplan:delete', deleteIndex);
+      // this.restorePlans.splice(index, 1);
     },
     // 更新恢复计划后的cb
     restorePlanUpdated(plan) {
-      this.restorePlans.splice(this.selectedRestorePlanIndex, 1, plan);
+      this.$emit('restoreplan:update', this.selectedRestorePlanIndex, plan);
+      // this.restorePlans.splice(this.selectedRestorePlanIndex, 1, plan);
       this.selectedRestorePlanIndex = -1;
     },
   },
@@ -183,5 +228,37 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
+.detail-header {
+  background-color: #ffffff;
+  margin: -20px -20px 0 -20px;
+  padding: 10px 10px 50px 10px;
+}
+.icon {
+  position: relative;
+  top: 17px;
+  right: 0;
+  font-size: 1.7em;
+}
+.db-content {
+  margin-left: 20px;
+}
+.action {
+  text-align: right;
+}
+.database-info .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 40%;
+}
+.el-tabs {
+  margin-top: -39px;
+}
+.filter-form {
+  /* background-color: #ffffff; */
+  padding-left: 20px;
+}
+.filter-form .el-form-item {
+  margin-bottom: 0;
+}
 </style>

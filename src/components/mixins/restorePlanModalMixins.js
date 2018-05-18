@@ -9,7 +9,8 @@ import {
 const mapping = {
   oracle: '实例',
   sqlserver: '数据库',
-  filehost: '恢复路径',
+  windows: '恢复路径',
+  linux: '恢复路径',
 };
 
 const modalMixin = {
@@ -17,7 +18,7 @@ const modalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'filehost'].indexOf(value) !== -1;
+        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
       },
     },
     id: {
@@ -72,7 +73,7 @@ const modalMixin = {
       timeStrategy: 1, // 默认单次执行
     };
     // 文件单次恢复 增加覆盖策略
-    if (this.type === 'filehost') {
+    if (this.isFileBackupResult) {
       baseFormData.recoveringStrategy = 1;
     }
     return {
@@ -145,6 +146,9 @@ const modalMixin = {
     },
     detailInfoLabelName() {
       return mapping[this.type];
+    },
+    isFileBackupResult() {
+      return this.type === 'windows' || this.type === 'linux';
     },
   },
   methods: {

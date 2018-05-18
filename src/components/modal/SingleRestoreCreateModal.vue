@@ -37,7 +37,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item v-if="type === 'filehost'"
+      <el-form-item v-if="isFileBackupResult"
                     label="覆盖策略"
                     prop="reveringStrategy">
         <el-radio-group v-model="formData.recoveringStrategy">
@@ -65,7 +65,8 @@ import { recoveringStrategyMapping } from '../../utils/constant';
 const requestMapping = {
   oracle: createOracleSingleRestorePlan,
   sqlserver: createSqlserverSingleRestorePlan,
-  filehost: createFileHosteRestorePlan,
+  windows: createFileHosteRestorePlan,
+  linux: createFileHosteRestorePlan,
 };
 
 export default {
@@ -81,10 +82,11 @@ export default {
       const mapping = {
         oracle: '恢复实例名',
         sqlserver: '恢复数据库名',
-        filehost: '恢复路径',
+        windows: '恢复路径',
+        linux: '恢复路径',
       };
       return mapping[this.type];
-    }
+    },
   },
   methods: {
     confirmBtnClick() {

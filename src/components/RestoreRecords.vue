@@ -65,7 +65,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'filehost'].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
       },
     },
     plans: {
@@ -80,13 +80,14 @@ export default {
   computed: {
     detailInfoDisplayName() {
       const mapping = {
-        oracle: '恢复实例名',
-        sqlserver: '恢复数据库名',
-        filehost: '恢复路径',
+        oracle: '实例',
+        sqlserver: '数据库',
+        windows: '恢复路径',
+        linux: '恢复路径',
       };
       return mapping[this.type];
-    }
-  }
+    },
+  },
 };
 </script>
 <style>

@@ -8,6 +8,7 @@ import BackupResultList from '@/components/BackupResultList';
 import RestoreRecords from '@/components/RestoreRecords';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
+import TabPanels from '@/components/TabPanels';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import { applyFilterMethods } from '../../utils/common';
@@ -159,4 +160,94 @@ const databaseDetailMixin = Object.assign({}, baseMixin);
 
 const fileHostDetailMixin = Object.assign({}, baseMixin);
 
-export { databaseDetailMixin, fileHostDetailMixin };
+const detailPageMixin = {
+  props: ['id'],
+  data() {
+    return {
+      infoLoading: true, // 信息loading
+      details: {},
+      detailsEditModal: false,
+      backupPlans: [],
+      restorePlans: [], // 恢复计划
+      restoreRecords: [], // 恢复记录
+      results: [], // 备份集
+      backupPlanCreateModalVisible: false,
+      restorePlanCreateModalVisible: false,
+    };
+  },
+  created() {
+    this.fetchData();
+  },
+  beforeRouteUpdate(to, from, next) {
+    this.fetchData();
+    next();
+  },
+  methods: {
+    switchPane({ name }) {
+      if (name === 'results') {
+        this.updateResults();
+      }
+    },
+    // 节流函数 5s只触发一次
+    throttleMethod(func) {
+      return throttle(
+        () => {
+          func(this.id)
+            .then(res => {
+              const { data: result } = res.data;
+              this.results = result;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        },
+        5000,
+        { leading: true, trailing: false }
+      );
+    },
+    addPlanBtnClick(command) {
+      if (command === 'backup') {
+        this.backupPlanCreateModalVisible = true;
+      } else if (command === 'restore') {
+        this.restorePlanCreateModalVisible = true;
+      }
+    },
+    // 添加备份计划
+    addBackupPlan(data) {
+      this.backupPlans.unshift(data);
+    },
+    // 更新备份计划
+    updateBackupPlan(updateIndex, plan) {
+      this.backupPlans.splice(updateIndex, 1, plan);
+    },
+    // 添加恢复计划后
+    restorePlanAdded(plan) {
+      this.restorePlans.push(plan);
+    },
+    // 删除备份计划事件
+    deleteBackupPlan(deleteIndex) {
+      this.backupPlans.splice(deleteIndex, 1);
+    },
+    // 添加一个单次恢复
+    addRestorePlan(restorePlan) {
+      this.restorePlans.unshift(restorePlan);
+    },
+    // 删除一个恢复计划
+    deleteRestorePlan(deleteIndex) {
+      this.restorePlans.splice(deleteIndex, 1);
+    },
+    // 更新恢复计划
+    updateRestorePlan(updateIndex, plan) {
+      this.restorePlans.splice(updateIndex, 1, plan);
+    },
+  },
+  components: {
+    IIcon,
+    DatabaseUpdateModal,
+    AddBackupPlan,
+    RestorePlanCreateModal,
+    TabPanels,
+  },
+};
+
+export { databaseDetailMixin, fileHostDetailMixin, detailPageMixin };
