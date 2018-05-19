@@ -1,8 +1,8 @@
 <template>
     <div>
-      <div style="overflow: hidden; margin-top: -10px; margin-bottom: 10px;">
+      <div style="overflow: hidden;  margin-bottom: 20px;">
         <el-button type="primary"
-            @click="update()" style="float: right; padding: 10px 15px;">修改信息</el-button>
+            @click="update()" style="float: right; padding: 9px 15px;">修改</el-button>
       </div>
       <el-form label-position="left" inline class="demo-table-expand">
         <el-form-item label="用户ID">
@@ -22,9 +22,9 @@
         </el-form-item>
       </el-form>
           <el-dialog title="更改信息"
-                    :visible.sync="dialogVisible"
-                    width="30%"
-                    @close="closeDialog('form')">
+                    :visible.sync = "dialogVisible"
+                    width = "30%"
+                    :before-close = "closeDialog">
               <el-form ref="form"
                       status-icon
                       :model="form"
@@ -51,7 +51,7 @@
                   </el-form-item>
                   <el-form-item>
                     <el-button type="primary"
-                              @click="submitForm('form')">提交</el-button>
+                              @click="submitForm('form')">确认</el-button>
                     <el-button @click="dialogVisible = false">取消</el-button>
                   </el-form-item>
               </el-form>
@@ -100,10 +100,13 @@ export default {
     };       
     return {
       dialogVisible: false,
+      isEdit: false,
+      isClose: false,
       form: {
         newUsername: '',
         newPassword: '',
         oldPassword: '',
+        checkPass: '',
       },
       rules: {
         newUsername: [
@@ -114,12 +117,12 @@ export default {
             required: true,
             message: '请输入新用户名',
           }, {
-              pattern: /^[\u4E00-\u9FA5]+$/,
-              message: '用户名只能为中文'
+              pattern: /^[0-9a-zA-Z\u4E00-\u9FA5]+$/,
+              message: '只支持数字、大小写字母和中文字符'
           }, {
               min: 2,
-              max: 4,
-              message: '长度在 2 到 4 个字符'
+              max: 8,
+              message: '长度在 2 到 8 个字符'
           }
         ],
         oldPassword: [
@@ -162,25 +165,57 @@ export default {
   methods: {
     update(){
       if(this.$store.getters.state==0)
-        this.$message.error('无法修改');
+        this.$message({
+          showClose: true,
+          message: '无法修改',
+          center: true,
+          type: 'error'
+        });
       else
         this.dialogVisible = true;
     },
-    closeDialog(form) {
-      this.dialogVisible=false;
-      this.$refs['form'].resetFields();
+    closeDialog() {   
+      if(this.isEdit && (this.form.newUsername!=""||this.form.newPassword!=""||this.form.oldPassword!=""||this.form.checkPass!="")){
+        this.isEdit = false;
+        this.isClose = false;
+        this.$confirm('有未保存的修改，是否退出?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => { 
+          this.dialogVisible = false;
+          this.$refs['form'].resetFields();
+          this.isClose = true;
+        }).catch(() => {});
+      } else {
+        this.dialogVisible = false;
+        this.$refs['form'].resetFields();
+      }
     },
     submitForm(form) {
-      this.dialogVisible = false;
       this.$refs[form].validate((valid) => {
         if (valid) {
+          this.dialogVisible = false;
           this.$store.dispatch("updateUserInfo",this.form);
         } else {
-          console.log('error submit!!');
           return false;
         }
       });
     },
+  },
+  watch: {
+    'form':{
+    handler:function(newForm,oldForm){ 
+      if(!this.isClose)
+      {
+        this.isEdit = true;
+        //alert();
+      }             
+      else
+        this.isClose = false;
+    },
+    deep:true,
+    }
   },
   computed:{
     ...mapGetters(['userId','loginName','roles','state','userName']),
