@@ -1,5 +1,7 @@
 # ebackup-frontend
 
+[![Build Status](https://travis-ci.com/chenzhq/EBackup.svg)](https://travis-ci.com/chenzhq/EBackup)
+
 > 信服易备，前端项目，主要使用的技术栈包括 Vue，Vuex，Vue-router，组件库使用 Element-ui，Ajax 调用使用 axios。
 
 ## 使用步骤
