@@ -7,12 +7,14 @@ import Profile from '@/components/pages/Profile';
 import Users from '@/components/pages/Users';
 import OracleList from '@/components/pages/OracleList';
 import SqlServerList from '@/components/pages/SqlServerList';
-import NotFound from '@/components/pages/NotFound';
+// import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
 import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
+import NoFound from '@/components/pages/NoFound';
+import ServerError from '@/components/pages/ServerError';
 
 Vue.use(Router);
 
@@ -249,10 +251,20 @@ export const asyncRouters = [
     ],
   },
   {
-    path: '*',
-    component: NotFound,
-    meta: {
-      isMenu: false,
-    },
-  },
+    path: '/error',
+    component: Layout,
+    children: [
+      {
+        path: 'servererror',
+        component: ServerError,
+      },
+      {
+        path: '/*',
+        component: NoFound,
+        meta: {
+          isMenu: false,
+        },
+      },
+    ]
+  }
 ];
