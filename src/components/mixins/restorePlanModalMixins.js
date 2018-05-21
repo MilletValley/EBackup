@@ -59,6 +59,7 @@ const modalMixin = {
         callback();
       }
     };
+    const detailInfoDisplayName = mapping[this.type];
     const baseFormData = {
       name: '',
       hostIp: '',
@@ -96,7 +97,7 @@ const modalMixin = {
         detailInfo: [
           {
             required: true,
-            message: `请输入${mapping[this.type]}`,
+            message: `请输入${detailInfoDisplayName}`,
             trigger: 'blur',
           },
         ],
@@ -144,7 +145,7 @@ const modalMixin = {
         }
       },
     },
-    detailInfoLabelName() {
+    detailInfoDisplayName() {
       return mapping[this.type];
     },
     isFileBackupResult() {
@@ -164,6 +165,7 @@ const modalMixin = {
           b.slice(3, 5)
       );
     },
+    // 精简计划数据，返回不同时间策略下所需要的数据
     pruneData(formData) {
       const {
         name,
