@@ -77,17 +77,7 @@ export default {
       recoveringStrategys: recoveringStrategyMapping,
     };
   },
-  computed: {
-    detailInfoDisplayName() {
-      const mapping = {
-        oracle: '恢复实例名',
-        sqlserver: '恢复数据库名',
-        windows: '恢复路径',
-        linux: '恢复路径',
-      };
-      return mapping[this.type];
-    },
-  },
+  computed: {},
   methods: {
     confirmBtnClick() {
       this.$refs.singleRestoreForm.validate(valid => {
