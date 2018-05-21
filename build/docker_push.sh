@@ -1,3 +1,9 @@
 #!/bin/bash
-# echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker push chenzhq/ebackup:dev-latest
+branch=$1
+if [ $branch = "develop" ]
+then
+  docker push chenzhq/ebackup:dev-latest
+elif [ $branch = "master" ]
+then
+  docker push chenzhq/ebackup:latest
+fi
