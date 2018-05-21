@@ -78,6 +78,7 @@
                 @restoreplan:add="addRestorePlan"
                 @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
+                @switchpane="switchPane"
                 :restoreRecords="restoreRecords"></tab-panels>
     <add-backup-plan :type="systemType"
                      :id="Number(id)"
@@ -178,15 +179,5 @@ export default {
   margin-right: 0;
   margin-bottom: 0;
   width: 40%;
-}
-.el-tabs {
-  margin-top: -39px;
-}
-.filter-form {
-  /* background-color: #ffffff; */
-  padding-left: 20px;
-}
-.filter-form .el-form-item {
-  margin-bottom: 0;
 }
 </style>

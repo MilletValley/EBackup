@@ -183,7 +183,7 @@ const detailPageMixin = {
     next();
   },
   methods: {
-    switchPane({ name }) {
+    switchPane(name) {
       if (name === 'results') {
         this.updateResults();
       }

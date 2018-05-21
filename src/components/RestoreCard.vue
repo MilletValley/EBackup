@@ -101,14 +101,21 @@
   </el-card>
 </template>
 <script>
+import throttle from 'lodash/throttle';
 import baseMixin from './mixins/baseMixins';
 import {
   restoreTimeStrategyMapping,
   weekMapping,
   operationStateMapping,
 } from '../utils/constant';
-import { deleteRestorePlan as deleteSqlServerRestorePlan } from '../api/sqlserver';
-import { deleteRestorePlan as deleteOracleRestorePlan } from '../api/oracle';
+import {
+  deleteRestorePlan as deleteSqlServerRestorePlan,
+  fetchRestoreOperation as refreshSqlserverPlan,
+} from '../api/sqlserver';
+import {
+  deleteRestorePlan as deleteOracleRestorePlan,
+  fetchRestoreOperation as refreshOraclePlan,
+} from '../api/oracle';
 
 const deleteMethods = {
   oracle: deleteOracleRestorePlan,
@@ -147,6 +154,9 @@ export default {
     restoreConfig() {
       return this.restorePlan.config;
     },
+    isFileBackupResult() {
+      return this.type === 'windows' || this.type === 'linux';
+    },
   },
   methods: {
     weekPointMaping(num) {
@@ -180,7 +190,34 @@ export default {
     planUpdateBtnClick() {
       this.$emit('updatePlan');
     },
-    refreshBackupPlan() {},
+    refreshBackupPlan: throttle(
+      function refresh() {
+        if (this.isFileBackupResult) {
+          // 文件服务器 暂时没有恢复计划
+          return void 0;
+        }
+        const requestMapping = {
+          oracle: refreshOraclePlan,
+          sqlserver: refreshSqlserverPlan,
+        };
+
+        requestMapping[this.type](this.id)
+          .then(response => {
+            const { data } = response.data;
+            const { state, startTime, consume } = data;
+            this.restorePlan = Object.assign(this.restorePlan, {
+              state,
+              startTime,
+              consume,
+            });
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      },
+      5000,
+      { leading: true, trailing: false }
+    ),
   },
 };
 </script>

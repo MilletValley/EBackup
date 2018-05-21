@@ -147,6 +147,12 @@ const updateRestorePlan = data =>
       res.data.data.config = timePoints2Obj(timePoints);
       return res;
     });
+
+const fetchRestoreOperation = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlserver-restore-plans/${id}`,
+  });
 export {
   fetchAll,
   fetchOne,
@@ -166,4 +172,5 @@ export {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
+  fetchRestoreOperation,
 };
