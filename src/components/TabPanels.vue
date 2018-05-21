@@ -5,11 +5,22 @@
       <el-tab-pane label="操作计划"
                    name="plans">
         <el-form inline
-                 :model="backupPlanFilterForm"
+                 size="small"
+                 :model="planFilterForm"
                  class="filter-form">
-          <el-form-item label="隐藏已完成计划">
-            <el-switch v-model="backupPlanFilterForm.hiddenCompletePlan"></el-switch>
+          <el-form-item>
+            <el-radio border
+                      v-model="planFilterForm.planType"
+                      label="backup">备份计划</el-radio>
+            <el-radio border
+                      :disabled="isFileBackupResult"
+                      v-model="planFilterForm.planType"
+                      label="restore">恢复计划</el-radio>
           </el-form-item>
+          <el-form-item label="隐藏已完成计划">
+            <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
+          </el-form-item>
+
         </el-form>
         <backup-card :id="plan.id"
                      :type="type"
@@ -21,9 +32,9 @@
         <template v-if="!isFileBackupResult">
           <restore-card :id="plan.id"
                         :type="type"
-                        v-for="(plan, index) in restorePlans"
+                        v-for="(plan, index) in filteredRestorePlans"
                         :key="plan.id"
-                        :restorePlan="plan"
+                        :restore-plan="plan"
                         @deletePlan="restorePlanDeleted(index)"
                         @updatePlan="selectRestorePlan(index)"></restore-card>
         </template>
@@ -36,9 +47,9 @@
                  class="filter-form"
                  style="text-align: right;">
           <el-form-item>
-            <el-button size="medium"
+            <!-- <el-button size="medium"
                        type="text"
-                       @click="updateResults()">刷新</el-button>
+                       @click="this.$emit('result:refresh')">刷新</el-button> -->
           </el-form-item>
         </el-form>
         <backup-result-list :type="type"
@@ -108,19 +119,14 @@ export default {
   data() {
     return {
       activeTab: 'plans', // 激活的tab页
-      // backupPlans: [],
       selectedBackupPlanIndex: -1,
-      // restorePlans: [], // 恢复计划
       selectedRestorePlanIndex: -1,
-      // restoreRecords: [], // 恢复记录
-      // results: [], // 备份集
-      // backupPlanCreateModalVisible: false,
       backupPlanUpdateModalVisible: false,
-      // restorePlanCreateModalVisible: false,
       restorePlanUpdateModalVisible: false,
       // 备份计划筛选条件
-      backupPlanFilterForm: {
+      planFilterForm: {
         hiddenCompletePlan: false,
+        planType: 'backup',
       },
       // 恢复计划筛选条件
       restorePlanFilterForm: {
@@ -145,11 +151,24 @@ export default {
     },
     // 筛选后得备份计划
     filteredBackupPlans() {
+      if (this.planFilterForm.planType !== 'backup') {
+        return [];
+      }
       const filterMethods = [];
-      if (this.backupPlanFilterForm.hiddenCompletePlan) {
+      if (this.planFilterForm.hiddenCompletePlan) {
         filterMethods.push(plan => plan.state !== 2);
       }
       return applyFilterMethods(this.backupPlans, filterMethods);
+    },
+    filteredRestorePlans() {
+      if (this.planFilterForm.planType !== 'restore') {
+        return [];
+      }
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.restorePlans, filterMethods);
     },
     // 正在进行中的恢复计划
     ongoingRestorePlan() {
@@ -161,9 +180,7 @@ export default {
   },
   methods: {
     switchPane({ name }) {
-      if (name === 'results') {
-        // this.updateResults();
-      }
+      this.$emit('switchpane', name);
     },
     // 添加备份计划后的cb
     // backupPlanAdded(data) {
@@ -204,12 +221,10 @@ export default {
     // 删除一个恢复计划
     restorePlanDeleted(deleteIndex) {
       this.$emit('restoreplan:delete', deleteIndex);
-      // this.restorePlans.splice(index, 1);
     },
     // 更新恢复计划后的cb
     restorePlanUpdated(plan) {
       this.$emit('restoreplan:update', this.selectedRestorePlanIndex, plan);
-      // this.restorePlans.splice(this.selectedRestorePlanIndex, 1, plan);
       this.selectedRestorePlanIndex = -1;
     },
   },
@@ -229,28 +244,6 @@ export default {
 };
 </script>
 <style scoped>
-.detail-header {
-  background-color: #ffffff;
-  margin: -20px -20px 0 -20px;
-  padding: 10px 10px 50px 10px;
-}
-.icon {
-  position: relative;
-  top: 17px;
-  right: 0;
-  font-size: 1.7em;
-}
-.db-content {
-  margin-left: 20px;
-}
-.action {
-  text-align: right;
-}
-.database-info .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 40%;
-}
 .el-tabs {
   margin-top: -39px;
 }

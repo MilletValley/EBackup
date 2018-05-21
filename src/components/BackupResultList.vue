@@ -47,7 +47,7 @@
               <span>{{ scope.row.consume | durationFilter }}</span>
             </el-form-item>
             <el-form-item label="错误信息"
-                          v-if="isFileBackupResult && scope.row.state === 1">
+                          v-if="scope.row.state === 1">
               <span>{{ scope.row.errorMsg }}</span>
             </el-form-item>
           </el-form>
