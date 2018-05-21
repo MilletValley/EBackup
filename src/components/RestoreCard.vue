@@ -1,22 +1,20 @@
 <template>
-  <el-card class="backup-card"
-           v-if="backupOperation.id && backupConfig.id"
-           :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
-    <div slot="header"
-         class="clearfix">
+  <el-card class="restore-card"
+           v-if="restoreOperation.id && restoreConfig.id"
+           :style="restoreOperation.state === 2 ? 'color: #999999;' : ''">
+    <div slot="header">
       <el-tag size="mini"
-              color="#8465ff"
-              style="color: #ffffff">备份</el-tag>
-      <!-- {{ backupStrategyType }} -->
-      <span>{{backupOperation.name}}</span>
-      <i v-if="backupOperation.state !== 2"
+              color="#fa4211"
+              style="color: #ffffff">恢复</el-tag>
+      <span>{{restoreOperation.name}}</span>
+      <i v-if="restoreOperation.state !== 2"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
          @click="refreshBackupPlan"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
-      <el-button v-if="backupOperation.state !== 2"
+      <el-button v-if="restoreOperation.state !== 2"
                  style="float: right; padding: 3px 3px"
                  type="text"
                  @click="planUpdateBtnClick">编辑</el-button>
@@ -27,67 +25,54 @@
                  label-width="100px"
                  size="mini">
           <el-form-item label="计划开始时间"
+                        v-if="restoreConfig.timeStrategy !== 1"
                         :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
-            <span>{{ backupConfig.startTime }}</span>
+            <span>{{ restoreConfig.startTime }}</span>
           </el-form-item>
-          <el-form-item v-if="type === 'windows'"
-                        label="是否备份系统"
-                        style="width: 40%">
-            <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
-          </el-form-item>
-          <el-form-item label="备份策略"
-                        style="width: 40%">
-            <span>{{ backupStrategy }}</span>
-          </el-form-item>
+          <!-- <el-form-item v-if="type === 'windows'" label="是否备份系统" style="width: 40%">
+            <span>{{ restoreOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
+          </el-form-item> -->
           <el-form-item label="时间策略"
                         style="width: 40%">
-            <span>{{ timeStrateg }}</span>
+            <span>{{ timeStrategy(restoreConfig.timeStrategy) }}</span>
           </el-form-item>
           <el-form-item label="时间"
-                        v-if="backupConfig.timeStrategy === 0"
+                        v-if="restoreConfig.timeStrategy === 1"
                         style="width: 100%">
             <div>
-              <el-tag size="small">{{ backupConfig.singleTime }}</el-tag>
+              <el-tag size="small">{{ restoreConfig.singleTime }}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="星期"
-                        v-if="backupConfig.timeStrategy === 4"
+                        v-if="restoreConfig.timeStrategy === 2"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in weekPoints"
+              <el-tag v-for="point in restoreConfig.weekPoints"
                       :key="point"
-                      size="small">{{point}}</el-tag>
+                      size="small">{{ weekPointMaping(point) }}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="日期"
-                        v-if="backupConfig.timeStrategy === 5"
+                        v-if="restoreConfig.timeStrategy === 3"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.datePoints"
+              <el-tag v-for="point in restoreConfig.datePoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="时间"
-                        v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
+                        v-if="[2, 3].includes(restoreConfig.timeStrategy)"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.timePoints"
-                      :key="point"
-                      size="small">{{point}}</el-tag>
+              <el-tag v-for="point in restoreConfig.timePoints"
+                      :key="point.key"
+                      size="small">{{point.value}}</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="间隔"
-                        v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
-                        style="width: 100%">
-            <div>
-              <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
-            </div>
-          </el-form-item>
-          <el-form-item label="备份路径"
-                        v-if="type === 'windows' || type === 'linux'">
-            <span>{{ backupOperation.backupPath }}</span>
-          </el-form-item>
+          <!-- <el-form-item label="备份路径" v-if="type === 'windows' || type === 'linux'">
+            <span>{{ restoreOperation.backupPath }}</span>
+          </el-form-item> -->
         </el-form>
       </el-col>
       <el-col :span="6"
@@ -95,21 +80,21 @@
         <ul style="list-style: none">
           <li>
             <h5>当前状态</h5>
-            <div>{{operationState || '-'}}</div>
+            <div>{{operationState(restoreOperation.state) || '-'}}</div>
           </li>
           <li>
             <h5>备份开始时间</h5>
-            <div>{{backupOperation.startTime || '备份未开始'}}</div>
+            <div>{{restoreOperation.startTime || '等待下次操作'}}</div>
           </li>
           <li>
             <h5>已持续时间</h5>
-            <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div>
+            <div v-if="restoreOperation.consume">{{restoreOperation.consume | durationFilter}}</div>
             <div v-else>-</div>
           </li>
-          <li>
+          <!-- <li>
             <h5>已备份大小</h5>
-            <div>{{backupOperation.size || '-'}}</div>
-          </li>
+            <div>{{restoreOperation.size || '-'}}</div>
+          </li> -->
         </ul>
       </el-col>
     </el-row>
@@ -119,33 +104,28 @@
 import throttle from 'lodash/throttle';
 import baseMixin from './mixins/baseMixins';
 import {
-  deleteOracleBackupPlan,
-  fetchBackupOperation as refreshOraclePlan,
-} from '../api/oracle';
-import {
-  deleteSqlServerBackupPlan,
-  fetchBackupOperation as refreshSqlServerPlan,
-} from '../api/sqlserver';
-import {
-  deleteBackupPlan as deleteFileHostPlan,
-  fetchBackupOperation as refreshFileHostPlan,
-} from '../api/fileHost';
-import {
-  backupStrategyMapping,
-  timeStrategyMapping,
+  restoreTimeStrategyMapping,
   weekMapping,
   operationStateMapping,
 } from '../utils/constant';
+import {
+  deleteRestorePlan as deleteSqlServerRestorePlan,
+  fetchRestoreOperation as refreshSqlserverPlan,
+} from '../api/sqlserver';
+import {
+  deleteRestorePlan as deleteOracleRestorePlan,
+  fetchRestoreOperation as refreshOraclePlan,
+} from '../api/oracle';
 
 const deleteMethods = {
-  oracle: deleteOracleBackupPlan,
-  sqlserver: deleteSqlServerBackupPlan,
-  windows: deleteFileHostPlan,
-  linux: deleteFileHostPlan,
+  oracle: deleteOracleRestorePlan,
+  sqlserver: deleteSqlServerRestorePlan,
+  windows: () => {},
+  linux: () => {},
 };
 
 export default {
-  name: 'BackupCard',
+  name: 'RestoreCard',
   mixins: [baseMixin],
   props: {
     id: {
@@ -159,45 +139,44 @@ export default {
         return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
       },
     },
-    backupPlan: {
+    restorePlan: {
       type: Object,
       required: true,
     },
   },
   computed: {
-    backupOperation() {
-      const { config, ...operation } = this.backupPlan;
+    // 恢复操作信息
+    restoreOperation() {
+      const { config, ...operation } = this.restorePlan;
       return operation;
     },
-    backupConfig() {
-      return this.backupPlan.config;
+    // 恢复配置信息
+    restoreConfig() {
+      return this.restorePlan.config;
     },
-    backupStrategy() {
-      return backupStrategyMapping[this.backupPlan.config.backupStrategy];
-    },
-    timeStrateg() {
-      return timeStrategyMapping[this.backupPlan.config.timeStrategy];
-    },
-    weekPoints() {
-      return this.backupPlan.config.weekPoints.map(p => weekMapping[p]);
-    },
-    operationState() {
-      return operationStateMapping[this.backupPlan.state];
-    },
-    // 单次／多次
-    backupStrategyType() {
-      return this.backupConfig.timeStrategy === 0 ? '单次' : '循环';
+    isFileBackupResult() {
+      return this.type === 'windows' || this.type === 'linux';
     },
   },
   methods: {
+    weekPointMaping(num) {
+      return weekMapping[num];
+    },
+    timeStrategy(key) {
+      return restoreTimeStrategyMapping[key];
+    },
+    operationState(key) {
+      return operationStateMapping[key];
+    },
     planDeleteBtnClick() {
-      this.$confirm('即将删除该备份计划，是否继续？', '提示', {
+      this.$confirm('即将删除该恢复计划，是否继续？', '提示', {
         type: 'warning',
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       })
         .then(() => {
-          deleteMethods[this.type](this.backupPlan.id)
+          console.log(deleteMethods[this.type]);
+          deleteMethods[this.type](this.restoreOperation.id)
             .then(() => {
               this.$emit('deletePlan');
               this.$message.success('删除成功');
@@ -213,21 +192,23 @@ export default {
     },
     refreshBackupPlan: throttle(
       function refresh() {
+        if (this.isFileBackupResult) {
+          // 文件服务器 暂时没有恢复计划
+          return void 0;
+        }
         const requestMapping = {
           oracle: refreshOraclePlan,
-          sqlserver: refreshSqlServerPlan,
-          windows: refreshFileHostPlan,
-          linux: refreshFileHostPlan,
+          sqlserver: refreshSqlserverPlan,
         };
+
         requestMapping[this.type](this.id)
           .then(response => {
             const { data } = response.data;
-            const { state, startTime, consume, size } = data;
-            this.backupPlan = Object.assign(this.backupPlan, {
+            const { state, startTime, consume } = data;
+            this.restorePlan = Object.assign(this.restorePlan, {
               state,
               startTime,
               consume,
-              size,
             });
           })
           .catch(error => {
@@ -241,7 +222,7 @@ export default {
 };
 </script>
 <style scoped>
-.backup-card {
+.restore-card {
   margin-top: 15px;
 }
 .operation-info h5 {

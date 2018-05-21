@@ -42,7 +42,7 @@ const deleteSome = ids =>
 const fetchBackupPlans = id =>
   baseApi.request({
     method: 'get',
-    url: `/sqlservers/${id}/backup-plans`,
+    url: `/sqlservers/${id}/sqlserver-backup-plans`,
   });
 
 const fetchBackupResults = id =>
@@ -51,13 +51,108 @@ const fetchBackupResults = id =>
     url: `/sqlservers/${id}/results`,
   });
 
-const createSqlServerBackupPlans = ({ id, plan }) =>
+const createSqlServerBackupPlan = ({ id, plan }) =>
   baseApi.request({
     method: 'post',
-    url: `/sqlservers/${id}/backup-plans`,
+    url: `/sqlservers/${id}/sqlserver-backup-plans`,
     data: plan,
   });
 
+const deleteSqlServerBackupPlan = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/sqlserver-backup-plans/${id}`,
+  });
+
+const updateSqlServerBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/sqlserver-backup-plans/${id}`,
+    data: plan,
+  });
+
+const fetchBackupOperation = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlserver-backup-plans/${id}`,
+  });
+
+// 将时间字符串数组转为对象数组
+const timePoints2Obj = timePointsStrArr =>
+  timePointsStrArr.map(p => ({ value: p, key: p }));
+
+const createSingleRestorePlan = ({ id, data }) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlserver-backup-results/${id}/sqlserver-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const fetchRestorePlans = id =>
+  baseApi
+    .request({
+      method: 'get',
+      url: `/sqlservers/${id}/sqlserver-restore-plans`,
+    })
+    .then(res => {
+      const { data: plans } = res.data;
+      plans.forEach(p => {
+        if (p.config.timePoints) {
+          p.config.timePoints = timePoints2Obj(p.config.timePoints);
+        }
+      });
+      return res;
+    });
+
+const fetchRestoreRecords = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlservers/${id}/restore-records`,
+  });
+
+const createRestorePlan = ({ id, data }) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlservers/${id}/sqlserver-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const deleteRestorePlan = planId =>
+  baseApi.request({
+    method: 'delete',
+    url: `/sqlserver-restore-plans/${planId}`,
+  });
+
+const updateRestorePlan = data =>
+  baseApi
+    .request({
+      method: 'patch',
+      url: `/sqlserver-restore-plans/${data.id}`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const fetchRestoreOperation = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlserver-restore-plans/${id}`,
+  });
 export {
   fetchAll,
   fetchOne,
@@ -67,5 +162,15 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
-  createSqlServerBackupPlans,
+  createSqlServerBackupPlan,
+  deleteSqlServerBackupPlan,
+  updateSqlServerBackupPlan,
+  fetchBackupOperation,
+  createSingleRestorePlan,
+  fetchRestorePlans,
+  fetchRestoreRecords,
+  createRestorePlan,
+  deleteRestorePlan,
+  updateRestorePlan,
+  fetchRestoreOperation,
 };

@@ -1,21 +1,31 @@
 <template>
   <el-container style="height: 100%;">
-    <el-aside width="250px" style="background-color: #00264a">
+    <el-aside width="250px"
+              style="background-color: #00264a">
       <div class="logo">
-        <img src="../assets/elogo.png" alt="信服易备" height="40px">
+        <img src="../assets/elogo.png"
+             alt="信服易备"
+             height="40px">
       </div>
-      <el-menu background-color="#00264a" text-color="#fff" active-text-color="#fff">
+      <el-menu background-color="#00264a"
+               text-color="#fff"
+               active-text-color="#fff">
         <el-menu-item index="/dashboard">
           <IIcon name="dashboard"></IIcon>
           <span slot="title">主页</span>
         </el-menu-item>
-        <el-submenu v-for="menu in menus" :key="menu.path" :index="menu.path">
+        <el-submenu v-for="menu in menus"
+                    :key="menu.path"
+                    :index="menu.path">
           <template slot="title">
             <IIcon :name="menu.meta.icon"></IIcon>
             <span>{{ menu.meta.title }}</span>
           </template>
-          <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)" :key="submenu.path" :index="`${menu.path}/${submenu.path}`">
-            <router-link :to="`${menu.path}/${submenu.path}`" tag="li">{{ submenu.meta.title }}</router-link>
+          <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
+                        :key="submenu.path"
+                        :index="`${menu.path}/${submenu.path}`">
+            <router-link :to="`${menu.path}/${submenu.path}`"
+                         tag="li">{{ submenu.meta.title }}</router-link>
           </el-menu-item>
         </el-submenu>
 
@@ -23,8 +33,11 @@
     </el-aside>
     <el-container>
       <el-header style="font-size: 12px">
-        <el-breadcrumb separator="/" class="bread-crumb">
-          <el-breadcrumb-item v-for="nav in breadcrumb" :key="nav.path" :to="{ path: nav.path}">{{ nav.name }}</el-breadcrumb-item>
+        <el-breadcrumb separator="/"
+                       class="bread-crumb">
+          <el-breadcrumb-item v-for="nav in breadcrumb"
+                              :key="nav.path"
+                              :to="{ path: nav.path}">{{ nav.name }}</el-breadcrumb-item>
         </el-breadcrumb>
         <div class="user-info">
           <el-dropdown @command="handleCommand">
@@ -33,6 +46,7 @@
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item command="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -77,6 +91,8 @@ export default {
     handleCommand(command) {
       if (command === 'logout') {
         this._logout();
+      } else if (command === 'profile') {
+        this.$router.push({ name: 'profile' });
       }
     },
     _logout() {

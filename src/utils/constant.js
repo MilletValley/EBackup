@@ -1,6 +1,7 @@
 const operationStateMapping = {
-  1: '状态1',
-  2: '状态2',
+  0: '未开始',
+  1: '进行中',
+  2: '已结束',
 };
 
 const backupResultMapping = {
@@ -33,10 +34,24 @@ const weekMapping = {
   7: '周日',
 };
 
+const restoreTimeStrategyMapping = {
+  1: '单次执行',
+  2: '按周循环',
+  3: '按月循环',
+};
+
+const recoveringStrategyMapping = {
+  1: '覆盖',
+  2: '创建副本',
+  3: '跳过',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   backupResultMapping,
+  restoreTimeStrategyMapping,
+  recoveringStrategyMapping,
 };

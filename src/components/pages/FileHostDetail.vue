@@ -1,18 +1,18 @@
 <template>
   <section>
     <header class="detail-header">
-      <div class="db-content">
+      <div class="detail-panel">
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="sqlserver"></i-icon>
+            <i-icon :name="systemType"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1>{{details.name}}</h1>
+                <h1>{{details.hostName}}</h1>
               </el-col>
               <el-col :span="12"
                       :offset="12"
@@ -26,8 +26,10 @@
                     <i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
+                    <!-- 文件系统备份计划 可以多次添加 -->
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
-                    <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
+                    <el-dropdown-item disabled
+                                      command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <el-button size="mini"
@@ -40,28 +42,19 @@
                      label-width="100px"
                      inline
                      size="small"
-                     class="database-info">
-              <el-form-item label="数据库版本：">
-                <span>{{ details.dbVersion }}</span>
-              </el-form-item>
-              <el-form-item label="数据库：">
-                <span>{{ details.instanceName }}</span>
-              </el-form-item>
-              <el-form-item label="数据库账号：">
-                <span>{{ details.loginName }}</span>
-              </el-form-item>
-              <el-form-item label="数据库密码：">
-                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
-                <span>●●●●●●●●</span>
-              </el-form-item>
-              <el-form-item label="主机名：">
-                <span>{{ details.hostName }}</span>
-              </el-form-item>
+                     class="detail-form">
               <el-form-item label="操作系统：">
                 <span>{{ details.osName }}</span>
-              </el-form-item>·
+              </el-form-item>
               <el-form-item label="主机IP：">
                 <span>{{ details.hostIp }}</span>
+              </el-form-item>
+              <el-form-item label="服务器账号：">
+                <span>{{ details.loginName }}</span>
+              </el-form-item>
+              <el-form-item label="服务器密码：">
+                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
+                <span>●●●●●●●●</span>
               </el-form-item>
               <el-form-item label="所属系统：">
                 <span>{{ details.application }}</span>
@@ -69,14 +62,14 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="sqlserver"
-                               :visible.sync="detailsEditModal"
-                               :database-info="details"
-                               @confirm="details = arguments[0]"></database-update-modal>
+        <file-host-update-modal host-type="windows"
+                                :visible.sync="detailsEditModal"
+                                @confirm="details = arguments[0]"
+                                :file-host-info="details"></file-host-update-modal>
       </div>
     </header>
     <tab-panels :id="Number(id)"
-                type="sqlserver"
+                :type="systemType"
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
@@ -87,29 +80,25 @@
                 @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <add-backup-plan type="sqlserver"
+    <add-backup-plan :type="systemType"
                      :id="Number(id)"
                      :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
-    <restore-plan-create-modal type="sqlserver"
-                               :id="Number(id)"
-                               :visible.sync="restorePlanCreateModalVisible"
-                               @confirm="addRestorePlan"></restore-plan-create-modal>
   </section>
 </template>
 <script>
+import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
 import { detailPageMixin } from '../mixins/detailPageMixins';
-
 import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
   fetchRestorePlans,
   fetchRestoreRecords,
-} from '../../api/sqlserver';
+} from '../../api/fileHost';
 
 export default {
-  name: 'SqlServerDetail',
+  name: 'FileHostDetail',
   mixins: [detailPageMixin],
   data() {
     return {
@@ -126,8 +115,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
-          this.$router.push({ name: 'sqlserverList' });
+          this.$router.push({ name: 'fileHostList' });
         });
+
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
@@ -136,6 +126,7 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+
       fetchBackupResults(this.id)
         .then(res => {
           const { data: result } = res.data;
@@ -154,6 +145,16 @@ export default {
       });
     },
   },
+  computed: {
+    systemType() {
+      return this.details && this.details.osName
+        ? this.details.osName.toLowerCase()
+        : '';
+    },
+  },
+  components: {
+    FileHostUpdateModal,
+  },
 };
 </script>
 <style scoped>
@@ -168,13 +169,13 @@ export default {
   right: 0;
   font-size: 1.7em;
 }
-.db-content {
+.detail-panel {
   margin-left: 20px;
 }
 .action {
   text-align: right;
 }
-.database-info .el-form-item {
+.detail-form .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
   width: 40%;

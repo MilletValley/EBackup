@@ -66,7 +66,7 @@ export default {
         })
         .catch(error => {
           this.isLoading = false;
-          this.$message.error('Error!'+error.code+':'+ error.message);
+          this.$message.error(error);
         });
     },
     doPassword() {
