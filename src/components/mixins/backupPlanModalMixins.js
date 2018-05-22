@@ -9,20 +9,20 @@ const pick = (obj, arr) =>
   arr.reduce((iter, val) => (val in obj && (iter[val] = obj[val]), iter), {});
 const objToArr = obj => {
   const arr = [];
-  for (const key in obj) {
+  for (let i = 0; i < Object.keys(obj).length; i++) {
     arr.push({
-      label: parseInt(key),
-      name: obj[key],
+      label: parseInt(Object.keys(obj)[i], 0),
+      name: Object.values(obj)[i],
     });
   }
   return arr;
 };
 const objToArr1 = obj => {
   const arr = [];
-  for (const key in obj) {
+  for (let i = 0; i < Object.keys(obj).length; i++) {
     arr.push({
-      value: key,
-      label: obj[key],
+      value: parseInt(Object.keys(obj)[i], 0),
+      label: Object.values(obj)[i],
     });
   }
   return arr;
@@ -54,6 +54,7 @@ const config = {
     timeStrategy: [pick(timeStrategyMapping, ['0', '1', '2', '3', '4'])],
   },
 };
+// console.log(config)
 const backupStrategys = {
   oracle: convert(config.oracle),
   sqlserver: convert(config.sqlserver),
@@ -62,7 +63,7 @@ const backupStrategys = {
 };
 const datePoints = [];
 for (let i = 1; i < 32; i++) {
-  datePoints.push({ value: '' + i + '', label: i + '号' });
+  datePoints.push({ value: `${i}`, label: `${i}号` });
 }
 const weekPoints = objToArr1(weekMapping);
 
@@ -162,55 +163,45 @@ const backupPlanModalMixin = {
           { required: true, message: '备份系统不能为空', trigger: 'blur' },
         ],
         backupStrategy: [
-          { required: true, message: '请选择备份机制', trigger: 'change' }
+          { required: true, message: '请选择备份机制', trigger: 'change' },
         ],
         timeStrategy: [
-          { required: true, message: '请选择备份策略', trigger: 'change' }
+          { required: true, message: '请选择备份策略', trigger: 'change' },
         ],
-      },
-      pickerSingleTime: {
-        disabledDate: time => {
-          return time.getTime() < new Date(this.theData.startTime).getTime();
-        },
-      },
-      pickerStartTime: {
-        disabledDate: time => {
-          return time.getTime() < new Date().getTime();
-        },
       },
     };
   },
   computed: {
-    _backupStrategys: function() {
+    _backupStrategys() {
       return backupStrategys[this.type];
     },
-    _timeStrategys: function() {
+    _timeStrategys() {
       const valBackupStrategy = this.theData.backupStrategy;
+      let value;
       if (Array.isArray(backupStrategys[this.type]) === true) {
         for (let i = 0; i < backupStrategys[this.type].length; i++) {
           if (backupStrategys[this.type][i].label === valBackupStrategy) {
-            const valtimeStrategys =
-              backupStrategys[this.type][i].timeStrategys;
-              this.theData.timeStrategy = valtimeStrategys[0].label;
-            return valtimeStrategys;
+            value = backupStrategys[this.type][i].timeStrategys;
+            this.theData.timeStrategy = value[0].label;
           }
         }
       }
+      return value;
     },
-    _timeInterval: function() {
+    isTimeInterval() {
+      let value;
       if (this.theData.timeStrategy === 1) {
-        return this.theData.timeIntervalM;
+        value = this.theData.timeIntervalM;
       } else if (this.theData.timeStrategy === 2) {
-        return this.theData.timeIntervalH * 60;
-      } else {
-        return '';
+        value = this.theData.timeIntervalH * 60;
       }
+      return value;
     },
     _visible: {
-      get: function() {
+      get() {
         return this.visible;
       },
-      set: function(value) {
+      set(value) {
         this.$emit('update:visible', value);
       },
     },
@@ -247,9 +238,9 @@ const backupPlanModalMixin = {
       if (this.theData.timeStrategy === 0) {
         emptydata.singleTime = this.theData.singleTime;
       } else if (this.theData.timeStrategy === 1) {
-        emptydata.timeInterval = this._timeInterval;
+        emptydata.timeInterval = this.isTimeInterval;
       } else if (this.theData.timeStrategy === 2) {
-        emptydata.timeInterval = this._timeInterval;
+        emptydata.timeInterval = this.isTimeInterval;
       } else if (this.theData.timeStrategy === 3) {
         emptydata.timePoints = arr.sort();
       } else if (this.theData.timeStrategy === 4) {
@@ -261,10 +252,31 @@ const backupPlanModalMixin = {
       }
       return emptydata;
     },
+    valiTime() {
+      // 验证计划时间、单次时间，大于当前时间
+      let x = false;
+      if (new Date(this.theData.startTime).getTime() < new Date().getTime()) {
+        this.theFormLoading = false;
+        this.$message.error('计划时间必须大于当前时间');
+        x = false;
+      } else if (
+        this.theData.timeStrategy === 0 &&
+        (new Date(this.theData.singleTime).getTime() < new Date().getTime() ||
+          new Date(this.theData.singleTime).getTime() <
+            new Date(this.theData.startTime).getTime())
+      ) {
+        this.theFormLoading = false;
+        this.$message.error('单次时间必须大于计划时间和当前时间');
+        x = false;
+      } else {
+        x = true;
+      }
+      return x;
+    },
   },
-  created: function () {
+  created() {
     this.theData = { ...this.originData };
- }
+  },
 };
 
 export { backupStrategys, datePoints, weekPoints, backupPlanModalMixin };
