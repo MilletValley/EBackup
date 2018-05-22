@@ -41,6 +41,7 @@
         <el-table-column prop="detailInfo"
                          :label="detailInfoDisplayName"
                          header-align="center"
+                         align="left"
                          min-width="200px">
         </el-table-column>
         <el-table-column prop="state"
@@ -48,7 +49,12 @@
                          align="center"
                          width="100px">
           <template slot-scope="scope">
-            <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
+            <el-tooltip :disabled="scope.row.state === 0"
+                        :content="scope.row.errorMsg"
+                        placement="right"
+                        effect="light">
+              <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>

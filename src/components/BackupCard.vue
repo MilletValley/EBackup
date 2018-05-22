@@ -95,7 +95,22 @@
         <ul style="list-style: none">
           <li>
             <h5>当前状态</h5>
-            <div>{{operationState || '-'}}</div>
+            <div>
+              <el-tooltip :disabled="!isFileBackupResult || backupOperation.state !== 1"
+                          :content="backupOperation.process"
+                          placement="left"
+                          effect="light">
+                <div style="display: inline-block">
+                  <i v-if="backupOperation.state === 0"
+                     class="el-icon-time"
+                     :style="operationStateStyle"></i>
+                  <i v-else-if="backupOperation.state === 1"
+                     class="el-icon-loading"
+                     :style="operationStateStyle"></i>
+                  <span :style="operationStateStyle">{{operationState || '-'}}</span>
+                </div>
+              </el-tooltip>
+            </div>
           </li>
           <li>
             <h5>备份开始时间</h5>
@@ -106,7 +121,7 @@
             <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div>
             <div v-else>-</div>
           </li>
-          <li>
+          <li v-if="!isFileBackupResult">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
@@ -187,6 +202,17 @@ export default {
     // 单次／多次
     backupStrategyType() {
       return this.backupConfig.timeStrategy === 0 ? '单次' : '循环';
+    },
+    // 是否为文件备份
+    isFileBackupResult() {
+      return this.type === 'windows' || this.type === 'linux';
+    },
+    operationStateStyle() {
+      if (this.backupOperation.state === 0) {
+        return { color: '#cab01b' };
+      } else if (this.backupOperation.state === 1) {
+        return { color: '#27ca27' };
+      } else return {};
     },
   },
   methods: {

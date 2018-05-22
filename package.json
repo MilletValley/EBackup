@@ -16,7 +16,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.3.2",
-    "eslint-plugin-html": "^4.0.3",
     "js-cookie": "^2.2.0",
     "lodash": "^4.17.5",
     "moment": "^2.22.1",
@@ -46,6 +45,7 @@
     "eslint-friendly-formatter": "^3.0.0",
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-loader": "^1.7.1",
+    "eslint-plugin-html": "^4.0.3",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-vue": "^4.0.0",
     "extract-text-webpack-plugin": "^3.0.0",
