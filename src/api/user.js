@@ -55,7 +55,7 @@ const changeUserInfo = user =>
     method: 'patch',
     url: '/profile',
     data: user,
-  })
+  });
 
 const deleteUserInfo = id =>
   baseApi.request({

@@ -7,7 +7,7 @@
                    @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dbs"
+    <el-table :data="items"
               style="width: 100%">
       <el-table-column label="名称"
                        min-width="200"
@@ -52,10 +52,10 @@
         </template>
       </el-table-column>
     </el-table>
-    <database-create-modal db-type="sqlserver"
+    <database-create-modal type="sqlserver"
                            :visible.sync="createModalVisible"
-                           @confirm="dbs.push(arguments[0])"></database-create-modal>
-    <database-update-modal db-type="sqlserver"
+                           @confirm="items.push(arguments[0])"></database-create-modal>
+    <database-update-modal type="sqlserver"
                            :visible.sync="updateModalVisible"
                            :database-info="selectedDb"
                            @confirm="updateDb"></database-update-modal>
@@ -76,7 +76,7 @@ export default {
       fetchAll()
         .then(res => {
           const { data: sqlservers } = res.data;
-          this.dbs = sqlservers;
+          this.items = sqlservers;
         })
         .catch(error => {
           this.$message.error(error);
@@ -90,7 +90,7 @@ export default {
       })
         .then(() => deleteOne(db.id))
         .then(() => {
-          this.dbs.splice($index, 1);
+          this.items.splice($index, 1);
           this.$message.success({
             message: '删除成功!',
           });
