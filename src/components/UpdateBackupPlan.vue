@@ -7,7 +7,7 @@
           <el-input v-model="theData.name"></el-input>
         </el-form-item>
         <el-form-item label="计划时间" prop="startTime">
-          <el-date-picker v-model="theData.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
+          <el-date-picker v-model="theData.startTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="备份路径" prop="backupPath" v-show="type === 'windows' || type === 'linux'">
@@ -34,7 +34,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="单次备份" v-show="theData.timeStrategy === 0" prop="singleTime">
-          <el-date-picker v-model="theData.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
+          <el-date-picker v-model="theData.singleTime" type="datetime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="theData.timeStrategy === 5" prop="datePoints">
@@ -85,7 +85,12 @@ import _ from 'lodash';
 import { updateOracleBackupPlan } from '../api/oracle';
 import { updateSqlServerBackupPlan } from '../api/sqlserver';
 import { updateBackupPlan } from '../api/fileHost';
-import { backupStrategys, datePoints, weekPoints, backupPlanModalMixin } from './mixins/backupPlanModalMixins';
+import {
+  backupStrategys,
+  datePoints,
+  weekPoints,
+  backupPlanModalMixin,
+} from './mixins/backupPlanModalMixins';
 
 const requestMapping = {
   oracle: (id, data) => updateOracleBackupPlan({ id, plan: data }),
@@ -165,53 +170,58 @@ export default {
       this.$refs['theForm'].validate(valid => {
         if (valid) {
           this.theFormLoading = true;
-
-          const tmpdata = {
-            id: this.backupPlan.config.id,
-            startTime: this.theData.startTime,
-            backupStrategy: this.theData.backupStrategy,
-            timeStrategy: this.theData.timeStrategy,
-          };
-          const tmpdata1 = Object.assign({}, this.emptydata(), tmpdata);
-          const postdata = {
-            oracle: { id: this._id, name: this.theData.name, config: tmpdata1 },
-            sqlserver: {
-              id: this._id,
-              name: this.theData.name,
-              config: tmpdata1,
-            },
-            windows: {
-              id: this._id,
-              name: this.theData.name,
-              backupPath: this.theData.backupPath,
-              backupSystem: this.theData.backupSystem,
-              config: tmpdata1,
-            },
-            linux: {
-              id: this._id,
-              name: this.theData.name,
-              backupPath: this.theData.backupPath,
-              backupSystem: '',
-              config: tmpdata1,
-            },
-          };
-          // 向请求服务端
-          requestMapping[this.type](this.backupPlan.id, postdata[this.type])
-            .then(response => {
-              this.$emit('confirm', response.data.data);
-              this.theData.timePoints.splice(
-                1,
-                this.theData.timePoints.length - 1
-              );
-              this.$message.success(response.data.message);
-              this._visible = false;
-              this.theFormLoading = false;
-              this.resetUpdate();
-            })
-            .catch(error => {
-              this.theFormLoading = false;
-              this.$message.error(error);
-            });
+          if (this.valiTime() === true) {
+            const tmpdata = {
+              id: this.backupPlan.config.id,
+              startTime: this.theData.startTime,
+              backupStrategy: this.theData.backupStrategy,
+              timeStrategy: this.theData.timeStrategy,
+            };
+            const tmpdata1 = Object.assign({}, this.emptydata(), tmpdata);
+            const postdata = {
+              oracle: {
+                id: this._id,
+                name: this.theData.name,
+                config: tmpdata1,
+              },
+              sqlserver: {
+                id: this._id,
+                name: this.theData.name,
+                config: tmpdata1,
+              },
+              windows: {
+                id: this._id,
+                name: this.theData.name,
+                backupPath: this.theData.backupPath,
+                backupSystem: this.theData.backupSystem,
+                config: tmpdata1,
+              },
+              linux: {
+                id: this._id,
+                name: this.theData.name,
+                backupPath: this.theData.backupPath,
+                backupSystem: '',
+                config: tmpdata1,
+              },
+            };
+            // 向请求服务端
+            requestMapping[this.type](this.backupPlan.id, postdata[this.type])
+              .then(response => {
+                this.$emit('confirm', response.data.data);
+                this.theData.timePoints.splice(
+                  1,
+                  this.theData.timePoints.length - 1
+                );
+                this.$message.success(response.data.message);
+                this._visible = false;
+                this.theFormLoading = false;
+                this.resetUpdate();
+              })
+              .catch(error => {
+                this.theFormLoading = false;
+                this.$message.error(error);
+              });
+          }
         } else {
           return false;
         }
@@ -229,6 +239,6 @@ export default {
 </script>
 <style>
 .el-picker-panel__footer .el-button--text {
-  display:none;
+  display: none;
 }
 </style>
