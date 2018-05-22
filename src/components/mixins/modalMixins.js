@@ -1,3 +1,5 @@
+import isEqual from 'lodash/isEqual';
+
 const databaseModalMixin = {
   props: {
     visible: {
@@ -7,11 +9,27 @@ const databaseModalMixin = {
     dbType: {
       type: String,
       required: true,
+      validator(value) {
+        return ['oracle', 'sqlserver'].includes(value);
+      },
     },
   },
   data() {
+    const baseFormData = {
+      id: '',
+      name: '',
+      hostIp: '',
+      instanceName: '',
+      loginName: '',
+      password: '',
+      hostName: '',
+      osName: '',
+      application: '',
+      dbVersion: '',
+    };
     return {
-      originData: {}, // 原始值
+      originFormData: Object.assign({}, baseFormData), // 原始值
+      formData: Object.assign({}, baseFormData),
       // trigger增加change更方便 但是再次打开modal会显示出验证结果
       // 猜测是因为初始化时，触发了change事件
       rules: {
@@ -75,7 +93,7 @@ const databaseModalMixin = {
     };
   },
   computed: {
-    _visible: {
+    modalVisible: {
       get() {
         return this.visible;
       },
@@ -92,14 +110,30 @@ const databaseModalMixin = {
   },
   methods: {
     // 点击取消按钮触发
-    cancel() {
+    cancelBtnClick() {
       this.hasModifiedBeforeClose(() => {
         this.$emit('update:visible', false); // 关闭modal
       });
     },
     // 退出之前，判断是否有未保存的修改
-    beforeClose(done) {
+    beforeModalClose(done) {
       this.hasModifiedBeforeClose(done);
+    },
+    // 关闭之前 验证是否有修改
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => {});
+      }
     },
   },
 };

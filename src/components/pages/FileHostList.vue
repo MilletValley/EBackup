@@ -60,7 +60,7 @@
     </el-table>
     <file-host-create-modal host-type="windows"
                             :visible.sync="createModalVisible"
-                            @confirm="dbs.push(arguments[0])"></file-host-create-modal>
+                            @confirm="items.push(arguments[0])"></file-host-create-modal>
     <file-host-update-modal host-type="windows"
                             :visible.sync="updateModalVisible"
                             @confirm="updateDb"
@@ -86,7 +86,7 @@ export default {
     filteredInfos() {
       const filterMethods = [];
       filterMethods.push(info => this.sysTypeFilter.indexOf(info.osName) >= 0);
-      return applyFilterMethods(this.dbs, filterMethods);
+      return applyFilterMethods(this.items, filterMethods);
     },
   },
   methods: {
@@ -94,7 +94,7 @@ export default {
       fetchAll()
         .then(res => {
           const { data: infos } = res.data;
-          this.dbs = infos;
+          this.items = infos;
         })
         .catch(error => {
           this.$message.error(error);
@@ -108,7 +108,7 @@ export default {
       })
         .then(() => deleteOne(info.id))
         .then(() => {
-          this.dbs.splice($index, 1);
+          this.items.splice($index, 1);
           this.$message.success({
             message: '删除成功!',
           });
