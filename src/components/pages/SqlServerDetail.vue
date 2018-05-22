@@ -69,7 +69,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="sqlserver"
+        <database-update-modal type="sqlserver"
                                :visible.sync="detailsEditModal"
                                :database-info="details"
                                @confirm="details = arguments[0]"></database-update-modal>

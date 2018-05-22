@@ -97,11 +97,12 @@ const actions = {
    * @param {*} param1
    */
   updateUserInfo({ commit }, form) {
-    return changeUserInfo(form).then(res => {
-      const { data: user } = res.data;
+    return changeUserInfo(form)
+      .then(res => {
+        const { data: user } = res.data;
         commit(types.UPDATE_USERINFO, user);
-    })
-    .catch(error => Promise.reject(error));
+      })
+      .catch(error => Promise.reject(error));
   },
   /**
    * 使用Token登陆

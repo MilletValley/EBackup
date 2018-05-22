@@ -58,13 +58,13 @@
         </template>
       </el-table-column>
     </el-table>
-    <file-host-create-modal host-type="windows"
+    <file-host-create-modal type="filehost"
                             :visible.sync="createModalVisible"
                             @confirm="items.push(arguments[0])"></file-host-create-modal>
-    <file-host-update-modal host-type="windows"
+    <file-host-update-modal type="filehost"
                             :visible.sync="updateModalVisible"
                             @confirm="updateDb"
-                            :file-host-info="selectedDb"></file-host-update-modal>
+                            :item-info="selectedDb"></file-host-update-modal>
   </section>
 </template>
 <script>

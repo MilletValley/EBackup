@@ -71,11 +71,11 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { createOne as oracleCreate } from '../api/oracle';
 import { createOne as sqlCreate } from '../api/sqlserver';
-import { databaseModalMixin } from './mixins/modalMixins';
+import { genModalMixin } from './mixins/modalMixins';
 
 const vm = {
   name: 'DatabaseCreateModal',
-  mixins: [databaseModalMixin],
+  mixins: [genModalMixin('database')],
   data() {
     return {
       // formData: {},

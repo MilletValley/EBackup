@@ -52,10 +52,10 @@
         </template>
       </el-table-column>
     </el-table>
-    <database-create-modal db-type="oracle"
+    <database-create-modal type="oracle"
                            :visible.sync="createModalVisible"
                            @confirm="items.push(arguments[0])"></database-create-modal>
-    <database-update-modal db-type="oracle"
+    <database-update-modal type="oracle"
                            :visible.sync="updateModalVisible"
                            :item-info="selectedDb"
                            @confirm="updateDb"></database-update-modal>

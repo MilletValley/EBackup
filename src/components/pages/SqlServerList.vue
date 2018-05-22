@@ -52,10 +52,10 @@
         </template>
       </el-table-column>
     </el-table>
-    <database-create-modal db-type="sqlserver"
+    <database-create-modal type="sqlserver"
                            :visible.sync="createModalVisible"
                            @confirm="items.push(arguments[0])"></database-create-modal>
-    <database-update-modal db-type="sqlserver"
+    <database-update-modal type="sqlserver"
                            :visible.sync="updateModalVisible"
                            :database-info="selectedDb"
                            @confirm="updateDb"></database-update-modal>

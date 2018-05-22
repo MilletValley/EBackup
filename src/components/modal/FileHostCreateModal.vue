@@ -1,34 +1,50 @@
 <template>
   <section>
-    <el-dialog :visible.sync="_visible" :before-close="beforeClose">
+    <el-dialog :visible.sync="modalVisible"
+               :before-close="beforeModalClose"
+               @close="modalClosed">
       <span slot="title">
-        添加Windows服务器
+        添加服务器
       </span>
-      <el-form :model="theData" :rules="rules" label-width="110px" ref="createForm" size="small">
-        <el-form-item label="主机名" prop="hostName">
-          <el-input v-model="theData.hostName"></el-input>
+      <el-form :model="formData"
+               :rules="rules"
+               label-width="110px"
+               ref="createForm"
+               size="small">
+        <el-form-item label="主机名"
+                      prop="hostName">
+          <el-input v-model="formData.hostName"></el-input>
         </el-form-item>
-        <el-form-item label="主机IP" prop="hostIp">
-          <el-input v-model="theData.hostIp"></el-input>
+        <el-form-item label="主机IP"
+                      prop="hostIp">
+          <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
-        <el-form-item label="操作系统" prop="osName">
-          <el-select v-model="theData.osName" placeholder="请选择">
-            <el-option v-for="item in ['Windows', 'Linux']" :key="item.value" :value="item"></el-option>
+        <el-form-item label="操作系统"
+                      prop="osName">
+          <el-select v-model="formData.osName"
+                     placeholder="请选择">
+            <el-option v-for="item in ['Windows', 'Linux']"
+                       :key="item.value"
+                       :value="item"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="所属业务系统" prop="application">
-          <el-input v-model="theData.application"></el-input>
+        <el-form-item label="所属业务系统"
+                      prop="application">
+          <el-input v-model="formData.application"></el-input>
         </el-form-item>
-        <el-form-item label="系统登录名" prop="loginName">
-          <el-input v-model="theData.loginName"></el-input>
+        <el-form-item label="系统登录名"
+                      prop="loginName">
+          <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
-        <el-form-item label="登陆密码" prop="password">
-          <input-toggle v-model="theData.password"></input-toggle>
+        <el-form-item label="登陆密码"
+                      prop="password">
+          <input-toggle v-model="formData.password"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary" @click="confirm()">确定</el-button>
-        <el-button @click="cancel()">取消</el-button>
+        <el-button type="primary"
+                   @click="confirm">确定</el-button>
+        <el-button @click="cancelBtnClick">取消</el-button>
       </span>
     </el-dialog>
   </section>
@@ -37,39 +53,25 @@
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { createOne } from '../../api/fileHost';
-import { fileHostModalMixin } from '../mixins/modalMixins';
+import { genModalMixin } from '../mixins/modalMixins';
 
 export default {
   name: 'FileHostCreateModal',
-  mixins: [fileHostModalMixin],
-  data() {
-    return {
-      originData: {}, // 原始值
-      theData: {},
-      // requestMapping: {
-      //   windows: data => createWindows(data),
-      //   linux: data => {},
-      // },
-    };
-  },
+  mixins: [genModalMixin('filehost')],
   methods: {
     // 点击确认按钮触发
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          createOne(this.theData)
+          createOne(this.formData)
             .then(res => {
               const { data: db } = res.data;
               this.$emit('confirm', db);
-              this.$refs.createForm.resetFields();
-            })
-            .then(() => {
-              this.$emit('update:visible', false);
-              // this.$emit('change-selectedDb', this.originData);
-              this.theData = {};
+              this.modalVisible = false;
             })
             .catch(error => {
               this.$message.error(error);
+              this.$refs.createForm.clearValidate();
               return false;
             });
         } else {
@@ -77,24 +79,9 @@ export default {
         }
       });
     },
-    hasModifiedBeforeClose(fn) {
-      if (isEqual(this.theData, this.originData)) {
-        this.theData = {};
-        this.$refs.createForm.resetFields();
-        fn();
-      } else {
-        this.$confirm('有未保存的修改，是否退出？', {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-        })
-          .then(() => {
-            this.theData = {};
-            this.$refs.createForm.resetFields();
-            fn();
-          })
-          .catch(() => {});
-      }
+    modalClosed() {
+      this.formData = { ...this.originFormData };
+      this.$refs.createForm.clearValidate();
     },
   },
   components: {
@@ -103,5 +90,4 @@ export default {
 };
 </script>
 <style>
-
 </style>

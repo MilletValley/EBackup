@@ -72,11 +72,11 @@
 import InputToggle from '@/components/InputToggle';
 import { modifyOne as oracleModify } from '../api/oracle';
 import { modifyOne as sqlModify } from '../api/sqlserver';
-import { databaseModalMixin } from './mixins/modalMixins';
+import { genModalMixin } from './mixins/modalMixins';
 
 export default {
   name: 'DatabaseUpdateModal',
-  mixins: [databaseModalMixin],
+  mixins: [genModalMixin('database')],
   props: {
     itemInfo: {
       type: Object,

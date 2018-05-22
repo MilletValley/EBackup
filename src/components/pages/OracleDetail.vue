@@ -72,7 +72,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="oracle"
+        <database-update-modal type="oracle"
                                :visible.sync="detailsEditModal"
                                :database-info="details"
                                @confirm="details = arguments[0]"></database-update-modal>

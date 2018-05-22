@@ -62,10 +62,10 @@
             </el-form>
           </el-col>
         </el-row>
-        <file-host-update-modal host-type="windows"
+        <file-host-update-modal type="filehost"
                                 :visible.sync="detailsEditModal"
                                 @confirm="details = arguments[0]"
-                                :file-host-info="details"></file-host-update-modal>
+                                :item-info="details"></file-host-update-modal>
       </div>
     </header>
     <tab-panels :id="Number(id)"
