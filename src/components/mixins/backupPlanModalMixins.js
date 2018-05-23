@@ -255,18 +255,20 @@ const backupPlanModalMixin = {
     valiTime() {
       // 验证计划时间、单次时间，大于当前时间
       let x = false;
-      if (new Date(this.theData.startTime).getTime() < new Date().getTime()) {
-        this.theFormLoading = false;
-        this.$message.error('计划时间必须大于当前时间');
-        x = false;
-      } else if (
+      if (
         this.theData.timeStrategy === 0 &&
         (new Date(this.theData.singleTime).getTime() < new Date().getTime() ||
           new Date(this.theData.singleTime).getTime() <
             new Date(this.theData.startTime).getTime())
       ) {
         this.theFormLoading = false;
-        this.$message.error('单次时间必须大于计划时间和当前时间');
+        this.$message.error('单次时间必须大于当前时间');
+        x = false;
+      } else if (
+        new Date(this.theData.startTime).getTime() < new Date().getTime()
+      ) {
+        this.theFormLoading = false;
+        this.$message.error('计划时间必须大于当前时间');
         x = false;
       } else {
         x = true;
