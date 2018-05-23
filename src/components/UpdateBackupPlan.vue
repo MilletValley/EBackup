@@ -6,10 +6,6 @@
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="theData.name"></el-input>
         </el-form-item>
-        <el-form-item label="计划时间" prop="startTime">
-          <el-date-picker v-model="theData.startTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
-          </el-date-picker>
-        </el-form-item>
         <el-form-item label="备份路径" prop="backupPath" v-show="type === 'windows' || type === 'linux'">
           <el-input v-model="theData.backupPath"></el-input>
         </el-form-item>
@@ -32,6 +28,10 @@
               {{item.name}}
             </el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item label="计划时间" prop="startTime" v-show="theData.timeStrategy !== 0">
+          <el-date-picker v-model="theData.startTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="单次备份" v-show="theData.timeStrategy === 0" prop="singleTime">
           <el-date-picker v-model="theData.singleTime" type="datetime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
@@ -130,6 +130,9 @@ export default {
       } else {
         this.theData.backupPath = this.backupPlan.backupPath;
         this.theData.backupSystem = this.backupPlan.backupSystem;
+      }
+      if (this.theData.timeStrategy === 0){
+        this.theData.startTime = this.theData.singleTime;
       }
       const assignObj = Object.assign({}, this.backupPlan);
       const newObj = assignObj.config;
