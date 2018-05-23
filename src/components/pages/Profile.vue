@@ -97,7 +97,7 @@ export default {
       } else {
         callback();
       }
-    };       
+    };
     return {
       dialogVisible: false,
       isEdit: false,
@@ -132,12 +132,12 @@ export default {
           }, {
             required: true,
             message: '请输入原始密码',
-          }, 
+          },
         ],
         newPassword: [
-          { 
+          {
             validator: validatePass,
-            trigger: 'blur' 
+            trigger: 'blur'
           }, {
             required: true,
             message: '请输入新密码',
@@ -174,7 +174,7 @@ export default {
       else
         this.dialogVisible = true;
     },
-    closeDialog() {   
+    closeDialog() {
       if(this.isEdit && (this.form.newUsername!=""||this.form.newPassword!=""||this.form.oldPassword!=""||this.form.checkPass!="")){
         this.isEdit = false;
         this.isClose = false;
@@ -182,7 +182,7 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => { 
+        }).then(() => {
           this.dialogVisible = false;
           this.$refs['form'].resetFields();
           this.isClose = true;
@@ -205,12 +205,12 @@ export default {
   },
   watch: {
     'form':{
-    handler:function(newForm,oldForm){ 
+    handler:function(newForm,oldForm){
       if(!this.isClose)
       {
         this.isEdit = true;
         //alert();
-      }             
+      }
       else
         this.isClose = false;
     },
