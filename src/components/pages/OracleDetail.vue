@@ -97,7 +97,7 @@
                                @confirm="addRestorePlan"></restore-plan-create-modal>
     <database-update-modal type="oracle"
                            :visible.sync="detailsEditModal"
-                           :database-info="details"
+                           :item-info="details"
                            @confirm="details = arguments[0]"></database-update-modal>
   </section>
 </template>

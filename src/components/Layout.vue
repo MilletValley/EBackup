@@ -12,7 +12,8 @@
                active-text-color="#fff">
         <el-menu-item index="/dashboard">
           <IIcon name="dashboard"></IIcon>
-          <span slot="title">主页</span>
+          <router-link to="/dashboard"
+                       tag="span">主页</router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
                     :key="menu.path"

@@ -275,7 +275,7 @@ export default {
 <style lang="scss" module>
 @import '../style/color.scss';
 .backupCard {
-  margin-top: 15px;
+  margin-bottom: 15px;
 }
 /* 标签之间的间隔在for循环下消失了 */
 .infoTag {
