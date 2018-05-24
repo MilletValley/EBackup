@@ -1,8 +1,13 @@
 <template>
   <section>
     <div>
-      <h4>正在执行的恢复</h4>
-      <el-row :gutter="20">
+      <h4>正在执行的恢复
+        <i class="el-icon-refresh"
+           :class="$style.stateRefresh"
+           @click="$emit('restoreinfo:refresh')"></i>
+      </h4>
+      <el-row :gutter="20"
+              style="min-height: 144px;">
         <el-col :span="6"
                 v-for="item in plans"
                 :key="item.id">
@@ -115,5 +120,12 @@ export default {
   line-height: 1.8em;
   color: #999999;
   float: right;
+}
+.stateRefresh {
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
 }
 </style>

@@ -203,6 +203,30 @@ const detailPageMixin = {
         { leading: true, trailing: false }
       );
     },
+    throttleUpdateRestore(getRestorePlans, getRestoreRecords) {
+      return throttle(
+        () => {
+          getRestorePlans(this.id)
+            .then(res => {
+              const { data: restorePlans } = res.data;
+              this.restorePlans = restorePlans;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+          getRestoreRecords(this.id)
+            .then(res => {
+              const { data: restoreRecords } = res.data;
+              this.restoreRecords = restoreRecords;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        },
+        5000,
+        { leading: true, trailing: false }
+      );
+    },
     addPlanBtnClick(command) {
       if (command === 'backup') {
         this.backupPlanCreateModalVisible = true;
