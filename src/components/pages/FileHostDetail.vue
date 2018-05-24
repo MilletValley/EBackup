@@ -1,7 +1,7 @@
 <template>
   <section>
     <header class="detail-header">
-      <div class="detail-panel">
+      <div class="content">
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
@@ -42,7 +42,7 @@
                      label-width="100px"
                      inline
                      size="small"
-                     class="detail-form">
+                     class="item-info">
               <el-form-item label="操作系统：">
                 <span>{{ details.osName }}</span>
               </el-form-item>
@@ -62,10 +62,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <file-host-update-modal type="filehost"
-                                :visible.sync="detailsEditModal"
-                                @confirm="details = arguments[0]"
-                                :item-info="details"></file-host-update-modal>
+
       </div>
     </header>
     <tab-panels :id="Number(id)"
@@ -84,6 +81,10 @@
                      :id="Number(id)"
                      :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
+    <file-host-update-modal type="filehost"
+                            :visible.sync="detailsEditModal"
+                            @confirm="details = arguments[0]"
+                            :item-info="details"></file-host-update-modal>
   </section>
 </template>
 <script>
@@ -157,27 +158,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.detail-header {
-  background-color: #ffffff;
-  margin: -20px -20px 0 -20px;
-  padding: 10px 10px 50px 10px;
-}
-.icon {
-  position: relative;
-  top: 17px;
-  right: 0;
-  font-size: 1.7em;
-}
-.detail-panel {
-  margin-left: 20px;
-}
-.action {
-  text-align: right;
-}
-.detail-form .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 40%;
-}
-</style>

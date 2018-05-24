@@ -9,44 +9,55 @@
                    label-width="90px"
                    size="small"
                    class="result-detail-form">
-            <el-form-item label="ID">
+            <el-form-item :class="$style.detailFormItem"
+                          label="ID">
               <span>{{ scope.row.id }}</span>
             </el-form-item>
-            <el-form-item label="存储路径">
+            <el-form-item :class="$style.detailFormItem"
+                          label="存储路径">
               <span>{{ scope.row.path }}</span>
             </el-form-item>
-            <el-form-item label="开始时间">
+            <el-form-item :class="$style.detailFormItem"
+                          label="开始时间">
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
-            <el-form-item label="原文件路径"
+            <el-form-item :class="$style.detailFormItem"
+                          label="原文件路径"
                           v-if="isFileBackupResult">
               <span>{{ scope.row.fileResource }}</span>
             </el-form-item>
-            <el-form-item label="文件名"
+            <el-form-item :class="$style.detailFormItem"
+                          label="文件名"
                           v-else>
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
-            <el-form-item label="结束时间"
+            <el-form-item :class="$style.detailFormItem"
+                          label="结束时间"
                           :sort-method="endTimeSortMethod">
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
-            <el-form-item label="文件标识符"
+            <el-form-item :class="$style.detailFormItem"
+                          label="文件标识符"
                           v-if="isFileBackupResult">
               <span>{{ scope.row.identifier }}</span>
             </el-form-item>
-            <el-form-item label="大小">
+            <el-form-item :class="$style.detailFormItem"
+                          label="大小">
               <span>{{ scope.row.size }}</span>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item :class="$style.detailFormItem"
+                          label="状态">
               <span>
                 <el-tag size="mini"
                         :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
               </span>
             </el-form-item>
-            <el-form-item label="持续时间">
+            <el-form-item :class="$style.detailFormItem"
+                          label="持续时间">
               <span>{{ scope.row.consume | durationFilter }}</span>
             </el-form-item>
-            <el-form-item label="错误信息"
+            <el-form-item :class="$style.detailFormItem"
+                          label="错误信息"
                           v-if="scope.row.state === 1">
               <span>{{ scope.row.errorMsg }}</span>
             </el-form-item>
@@ -87,7 +98,12 @@
                        width="70px"
                        align="center">
         <template slot-scope="scope">
-          <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
+          <i v-if="scope.row.state === 0"
+             class="el-icon-success"
+             :class="$style.successColor"></i>
+          <i v-else
+             class="el-icon-error"
+             :class="$style.errorColor"></i>
         </template>
       </el-table-column>
       <el-table-column label="操作"
@@ -190,19 +206,16 @@ export default {
   },
 };
 </script>
-<style scoped>
-.result-detail-form .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
+<style lang="scss" module>
+@import '../style/color.scss';
+.detailFormItem {
+  margin: {
+    right: 0 !important;
+    bottom: 0 !important;
+  }
   width: 30%;
-}
-.result-detail-form .el-form-item:nth-child(2n) {
-  width: 69%;
-}
-.el-icon-success {
-  color: rgb(39, 202, 39);
-}
-.el-icon-error {
-  color: rgb(202, 39, 39);
+  &:nth-child(2n) {
+    width: 69%;
+  }
 }
 </style>

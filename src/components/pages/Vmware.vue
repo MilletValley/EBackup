@@ -9,6 +9,5 @@ export default {
   props: {},
 };
 </script>
-<style scoped>
-
+<style>
 </style>

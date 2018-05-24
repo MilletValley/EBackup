@@ -1,5 +1,5 @@
 <template>
-  <el-card class="restore-card"
+  <el-card :class="$style.restoreCard"
            v-if="restoreOperation.id && restoreConfig.id"
            :style="restoreOperation.state === 2 ? 'color: #999999;' : ''">
     <div slot="header">
@@ -10,6 +10,7 @@
       <i v-if="restoreOperation.state !== 2"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
+         :class="$style.stateRefresh"
          @click="refreshBackupPlan"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
@@ -40,14 +41,16 @@
                         v-if="restoreConfig.timeStrategy === 1"
                         style="width: 100%">
             <div>
-              <el-tag size="small">{{ restoreConfig.singleTime }}</el-tag>
+              <el-tag :class="$style.infoTag"
+                      size="small">{{ restoreConfig.singleTime }}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="星期"
                         v-if="restoreConfig.timeStrategy === 2"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in restoreConfig.weekPoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in restoreConfig.weekPoints"
                       :key="point"
                       size="small">{{ weekPointMaping(point) }}</el-tag>
             </div>
@@ -56,7 +59,8 @@
                         v-if="restoreConfig.timeStrategy === 3"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in restoreConfig.datePoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in restoreConfig.datePoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -65,7 +69,8 @@
                         v-if="[2, 3].includes(restoreConfig.timeStrategy)"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in restoreConfig.timePoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in restoreConfig.timePoints"
                       :key="point.key"
                       size="small">{{point.value}}</el-tag>
             </div>
@@ -76,11 +81,22 @@
         </el-form>
       </el-col>
       <el-col :span="6"
-              class="operation-info">
+              :class="$style.operationInfo">
         <ul style="list-style: none">
           <li>
             <h5>当前状态</h5>
-            <div>{{operationState(restoreOperation.state) || '-'}}</div>
+            <div>
+              <div style="display: inline-block">
+                <i v-if="restoreOperation.state === 0"
+                   class="el-icon-time"
+                   :class="operationStateStyle"></i>
+                <i v-else-if="restoreOperation.state === 1"
+                   class="el-icon-loading"
+                   :class="operationStateStyle"></i>
+                <span :class="operationStateStyle">{{operationState(restoreOperation.state) || '-'}}</span>
+              </div>
+            </div>
+
           </li>
           <li>
             <h5>备份开始时间</h5>
@@ -157,6 +173,13 @@ export default {
     isFileBackupResult() {
       return this.type === 'windows' || this.type === 'linux';
     },
+    operationStateStyle() {
+      if (this.restoreOperation.state === 0) {
+        return this.$style.waitingColor;
+      } else if (this.restoreOperation.state === 1) {
+        return this.$style.loadingColor;
+      } else return '';
+    },
   },
   methods: {
     weekPointMaping(num) {
@@ -221,37 +244,40 @@ export default {
   },
 };
 </script>
-<style scoped>
-.restore-card {
+<style lang="scss" module>
+@import '../style/color.scss';
+.restoreCard {
   margin-top: 15px;
 }
-.operation-info h5 {
-  font-weight: 400;
-  color: #888888;
-  margin: 4px 0;
-  text-align: right;
-}
-.operation-info div {
-  margin-left: 5px;
-  text-align: right;
-}
-.operation-info ul {
-  list-style: none;
-  margin: 0;
-}
-.operation-info li {
-  margin: 10px 0;
+.operationInfo {
+  h5 {
+    font-weight: 400;
+    color: #888888;
+    margin: 4px 0;
+    text-align: right;
+  }
+  div {
+    margin-left: 5px;
+    text-align: right;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+  }
+  li {
+    margin: 10px 0;
+  }
 }
 /* 标签之间的间隔在for循环下消失了 */
-.el-tag {
+.infoTag {
   margin: 0 2px;
 }
 
-.state-refresh {
+.stateRefresh {
   cursor: pointer;
   transition: all 0.5s ease;
-}
-.state-refresh:hover {
-  transform: rotate(180deg);
+  &:hover {
+    transform: rotate(180deg);
+  }
 }
 </style>
