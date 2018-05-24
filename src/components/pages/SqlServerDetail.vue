@@ -83,6 +83,7 @@
                 @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
+                @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
     <add-backup-plan type="sqlserver"
                      :id="Number(id)"
@@ -115,6 +116,10 @@ export default {
   data() {
     return {
       updateResults: this.throttleMethod(fetchBackupResults),
+      updateRestorePlanAndRecords: this.throttleUpdateRestore(
+        fetchRestorePlans,
+        fetchRestoreRecords
+      ),
     };
   },
   methods: {

@@ -62,7 +62,8 @@
                    name="restore">
         <restore-records :type="type"
                          :plans="ongoingRestorePlan"
-                         :records="restoreRecords"></restore-records>
+                         :records="restoreRecords"
+                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
       </el-tab-pane>
     </el-tabs>
     <update-backup-plan :type="type"
