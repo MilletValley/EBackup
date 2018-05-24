@@ -247,7 +247,7 @@ export default {
 <style lang="scss" module>
 @import '../style/color.scss';
 .restoreCard {
-  margin-top: 15px;
+  margin-bottom: 15px;
 }
 .operationInfo {
   h5 {

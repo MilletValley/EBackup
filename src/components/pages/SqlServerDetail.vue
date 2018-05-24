@@ -94,7 +94,7 @@
                                @confirm="addRestorePlan"></restore-plan-create-modal>
     <database-update-modal type="sqlserver"
                            :visible.sync="detailsEditModal"
-                           :database-info="details"
+                           :item-info="details"
                            @confirm="details = arguments[0]"></database-update-modal>
   </section>
 </template>
