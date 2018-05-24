@@ -91,7 +91,7 @@ const vm = {
       this.$refs.itemCreateForm.validate(valid => {
         if (valid) {
           this.confirmBtnLoading = true;
-          this.requestMapping[this.dbType](this.formData)
+          this.requestMapping[this.type](this.formData)
             .then(res => {
               const { data: db } = res.data;
               this.$emit('confirm', db);
