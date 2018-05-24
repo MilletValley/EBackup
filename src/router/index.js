@@ -15,6 +15,7 @@ import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
+import InputIp from '@/components/pages/InputIp';
 
 Vue.use(Router);
 
@@ -42,6 +43,10 @@ export const basicRouters = [
         component: Profile,
       },
     ],
+  },
+  {
+    path: '/inputip',
+    component: InputIp,
   },
 ];
 
