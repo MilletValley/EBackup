@@ -7,11 +7,11 @@
                 v-for="item in plans"
                 :key="item.id">
           <el-card shadow="hover"
-                   class="ongoing-restore-card">
+                   :class="$style.ongoingRestoreCard">
             <div>
               <span>
-                <i class="el-icon-time"></i> {{ item.consume | durationFilter }}</span>
-              <span class="restore-start-time">{{item.startTime}}</span>
+                <i :class="['el-icon-time', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
+              <span :class="$style.restoreStartTime">{{item.startTime}}</span>
             </div>
             <p>恢复设备IP: {{ item.config.hostIp }}</p>
             <p>{{detailInfoDisplayName}}: {{item.config.detailInfo }}</p>
@@ -53,7 +53,16 @@
                         :content="scope.row.errorMsg"
                         placement="right"
                         effect="light">
-              <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
+              <i v-if="scope.row.state === 0"
+                 class="el-icon-success"
+                 :class="$style.successColor"></i>
+              <i v-else
+                 class="el-icon-error"
+                 :class="$style.errorColor"></i>
+              <!-- <i :class="{ 'el-icon-success': scope.row.state === 0, 
+              'el-icon-error': scope.row.state === 1,
+              [$style.successIcon]:  scope.row.state === 0,
+              [$style.errorIcon]:  scope.row.state === 1 }"></i> -->
             </el-tooltip>
           </template>
         </el-table-column>
@@ -96,24 +105,15 @@ export default {
   },
 };
 </script>
-<style>
-.ongoing-restore-card {
+<style lang="scss" module>
+@import '../style/color.scss';
+.ongoingRestoreCard {
   font-size: 14px;
 }
-.ongoing-restore-card .restore-start-time {
+.restoreStartTime {
   font-size: 0.8em;
   line-height: 1.8em;
   color: #999999;
   float: right;
-}
-.ongoing-restore-card .el-icon-time {
-  color: rgb(39, 202, 39);
-}
-/* 重复样式 */
-.el-icon-success {
-  color: rgb(39, 202, 39);
-}
-.el-icon-error {
-  color: rgb(202, 39, 39);
 }
 </style>

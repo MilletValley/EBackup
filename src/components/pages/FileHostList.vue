@@ -22,7 +22,7 @@
           <el-button type="text">
             <router-link :to="`${scope.row.id}`"
                          append
-                         class="name-link">{{scope.row.hostName}}</router-link>
+                         :class="$style.link">{{scope.row.hostName}}</router-link>
           </el-button>
         </template>
       </el-table-column>
@@ -47,13 +47,13 @@
                      icon="el-icon-edit"
                      circle
                      size="mini"
-                     class="ws-mini"
+                     :class="$style.miniCricleIconBtn"
                      @click="selectOne(scope)"></el-button>
           <el-button type="danger"
                      icon="el-icon-delete"
                      circle
                      size="mini"
-                     class="ws-mini"
+                     :class="$style.miniCricleIconBtn"
                      @click="deleteDb(scope)"></el-button>
         </template>
       </el-table-column>
@@ -126,12 +126,6 @@ export default {
   },
 };
 </script>
-<style>
-.name-link {
-  color: #409eff;
-  text-decoration: none;
-}
-.cell button.ws-mini {
-  padding: 7px;
-}
+<style lang="scss" module>
+@import '../../style/common.scss';
 </style>

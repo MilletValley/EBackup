@@ -1,6 +1,5 @@
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
-import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import RestoreCard from '@/components/RestoreCard';
@@ -144,7 +143,6 @@ const baseMixin = {
   components: {
     IIcon,
     DatabaseUpdateModal,
-    SpanToggle,
     BackupCard,
     RestoreCard,
     BackupResultList,

@@ -1,5 +1,5 @@
 <template>
-  <el-card class="backup-card"
+  <el-card :class="$style.backupCard"
            v-if="backupOperation.id && backupConfig.id"
            :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
     <div slot="header"
@@ -11,7 +11,8 @@
       <span>{{backupOperation.name}}</span>
       <i v-if="backupOperation.state !== 2"
          style="float: right; margin: 3px 0 3px 10px;"
-         class="el-icon-refresh state-refresh"
+         class="el-icon-refresh"
+         :class="$style.stateRefresh"
          @click="refreshBackupPlan"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
@@ -47,14 +48,16 @@
                         v-if="backupConfig.timeStrategy === 0"
                         style="width: 100%">
             <div>
-              <el-tag size="small">{{ backupConfig.singleTime }}</el-tag>
+              <el-tag :class="$style.infoTag"
+                      size="small">{{ backupConfig.singleTime }}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="星期"
                         v-if="backupConfig.timeStrategy === 4"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in weekPoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in weekPoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -63,7 +66,8 @@
                         v-if="backupConfig.timeStrategy === 5"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.datePoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in backupConfig.datePoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -72,7 +76,8 @@
                         v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.timePoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in backupConfig.timePoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -81,7 +86,8 @@
                         v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
                         style="width: 100%">
             <div>
-              <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
+              <el-tag :class="$style.infoTag"
+                      size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="备份路径"
@@ -91,8 +97,8 @@
         </el-form>
       </el-col>
       <el-col :span="6"
-              class="operation-info">
-        <ul style="list-style: none">
+              :class="$style.operationInfo">
+        <ul>
           <li>
             <h5>当前状态</h5>
             <div>
@@ -103,11 +109,11 @@
                 <div style="display: inline-block">
                   <i v-if="backupOperation.state === 0"
                      class="el-icon-time"
-                     :style="operationStateStyle"></i>
+                     :class="operationStateStyle"></i>
                   <i v-else-if="backupOperation.state === 1"
                      class="el-icon-loading"
-                     :style="operationStateStyle"></i>
-                  <span :style="operationStateStyle">{{operationState || '-'}}</span>
+                     :class="operationStateStyle"></i>
+                  <span :class="operationStateStyle">{{operationState || '-'}}</span>
                 </div>
               </el-tooltip>
             </div>
@@ -209,10 +215,10 @@ export default {
     },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {
-        return { color: '#cab01b' };
+        return this.$style.waitingColor;
       } else if (this.backupOperation.state === 1) {
-        return { color: '#27ca27' };
-      } else return {};
+        return this.$style.loadingColor;
+      } else return '';
     },
   },
   methods: {
@@ -266,37 +272,39 @@ export default {
   },
 };
 </script>
-<style scoped>
-.backup-card {
+<style lang="scss" module>
+@import '../style/color.scss';
+.backupCard {
   margin-top: 15px;
 }
-.operation-info h5 {
-  font-weight: 400;
-  color: #888888;
-  margin: 4px 0;
-  text-align: right;
-}
-.operation-info div {
-  margin-left: 5px;
-  text-align: right;
-}
-.operation-info ul {
-  list-style: none;
-  margin: 0;
-}
-.operation-info li {
-  margin: 10px 0;
-}
 /* 标签之间的间隔在for循环下消失了 */
-.el-tag {
+.infoTag {
   margin: 0 2px;
 }
-
-.state-refresh {
+.stateRefresh {
   cursor: pointer;
   transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
 }
-.state-refresh:hover {
-  transform: rotate(180deg);
+.operationInfo {
+  h5 {
+    font-weight: 400;
+    color: #888888;
+    margin: 4px 0;
+    text-align: right;
+  }
+  div {
+    margin-left: 5px;
+    text-align: right;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+  }
+  li {
+    margin: 10px 0;
+  }
 }
 </style>
