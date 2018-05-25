@@ -1,8 +1,9 @@
 <template>
-    <div id = "app" class="el-input">
-      <ul id="ipAddress" :class="{active: addClass}">
+    <div>
+      <ul id="ipAddress" :class="{active: addClass,updateCol}">
         <li v-for="(item,index) in ipAddress">
           <input type="text" @input = "checkVal(item, index)"
+                            @change = "sendMsg(item, index)"
                             @focus = "addColor()"
                             @blur = "delColor()"
                             @keydown = "turnDire(item,index,$event)"
@@ -20,11 +21,13 @@
 <script>
 export default {
   name: 'InputIp',
+  props: ['ipmodel'],
   data() {
     return {
+      temp: [],
       addClass: false,
-      input1: '',
-          ipAddress: [{
+      updateCol: false,
+      ipAddress: [{
           value: ''
       }, {
           value: ''
@@ -32,14 +35,21 @@ export default {
           value: ''
       }, {
           value: ''
-      }]
+      }],
     }
   },
   methods: {
-    addColor() {
+    sendMsg: function(item,index) {
+      for(let i=0; i<this.ipAddress.length; i++){
+        this.temp[i] = this.ipAddress[i].value;
+      }
+      this.$emit("listenMsg",this.temp);
+      this.updateCol = true;
+    },
+    addColor: function() {
       this.addClass = true
     },
-    delColor() {
+    delColor: function() {
       this.addClass = false
     },
     checkVal: function(item, index) {
@@ -52,6 +62,7 @@ export default {
       } else {
         item.value = val;
       }
+      this.ipAddress[index].value = val;
     },
     turnDire: function(item, index, event) {
       let self = this;
@@ -65,7 +76,7 @@ export default {
       if(ev.keyCode == 39 || ev.keyCode == 38) {
         self.$refs.ipInput[index + 1].focus();
       }
-      if(item.value.toString().length >= 3) {
+      if(item.value.toString().length >= 3 && index<3) {
         self.$refs.ipInput[index + 1].focus();
       }
     }
@@ -74,45 +85,26 @@ export default {
 </script>
 
 <style>
-#app {
-  color: #2c3e50;
-  height: 100vh;
-  font-size: 14px;
-}
 #app .active {
   border-color: #409eff;
 }
+#app .updateCol {
+  border-color: #67c23a;
+}
 #ipAddress {
   display: inline-block;
-  margin: 200px 500px;
-  -webkit-appearance: none;
-  background-color: #fff;
-  background-image: none;
   border-radius: 4px;
   border: 1px solid #dcdfe6;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   display: inline-block;
-  height: 40px;
+  height: 32px;
   line-height: 40px;
   outline: 0;
   padding: 0 15px;
-  -webkit-transition: border-color .2s cubic-bezier(.645,.045,.355,1);
-  transition: border-color .2s cubic-bezier(.645,.045,.355,1);
-  width: 300px;
-  -webkit-rtl-ordering: logical;
-  user-select: text;
   cursor: auto;
-  letter-spacing: normal;
-  word-spacing: normal;
-  text-transform: none;
-  text-indent: 0px;
-  text-shadow: none;
-  text-rendering: auto;
-  text-align: start;
-  margin: 0em 0em 0em 0em;
   font: 13.3333px Arial;
   display: flex;
+  margin: 0;
 }
 #ipAddress li {
   display: inline-block;
@@ -125,8 +117,9 @@ export default {
   border: none;
   margin-right: 1px;
   color: #606266;
-  font-size: 14px;
+  font-size: 12px;
   margin-left: 0;
+  padding: 0;
 }
 #ipAddress div {
   width: 2px;

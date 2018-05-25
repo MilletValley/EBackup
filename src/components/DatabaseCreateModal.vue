@@ -19,8 +19,10 @@
         </el-form-item>
         <el-form-item label="主机IP"
                       prop="hostIp">
-          <el-input v-model="formData.hostIp"
-                    placeholder="请输入服务器IP"></el-input>
+          <input-ip v-model="formData.hostIp"
+                    placeholder="请输入服务器IP"
+                    :ipmodel.sync = "ipnum"
+                    @listenMsg = "updateMsg"></input-ip>
         </el-form-item>
         <el-form-item :label="databaseOrInstance"
                       prop="instanceName">
@@ -72,6 +74,7 @@ import InputToggle from '@/components/InputToggle';
 import { createOne as oracleCreate } from '../api/oracle';
 import { createOne as sqlCreate } from '../api/sqlserver';
 import { genModalMixin } from './mixins/modalMixins';
+import InputIp from '@/components/pages/InputIp'
 
 const vm = {
   name: 'DatabaseCreateModal',
@@ -79,6 +82,7 @@ const vm = {
   data() {
     return {
       // formData: {},
+      ipnum: '',
       requestMapping: {
         oracle: data => oracleCreate(data),
         sqlserver: data => sqlCreate(data),
@@ -86,6 +90,9 @@ const vm = {
     };
   },
   methods: {
+    updateMsg: function(data) {
+      this.ipnum = data;
+    },
     // 点击确认按钮触发
     confirm() {
       this.$refs.itemCreateForm.validate(valid => {
@@ -117,6 +124,7 @@ const vm = {
   },
   components: {
     InputToggle,
+    InputIp,
   },
 };
 export default vm;
