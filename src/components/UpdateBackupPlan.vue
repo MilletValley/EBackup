@@ -58,9 +58,7 @@
         <el-form-item v-for="(domain, index) in theData.timePoints" :label="'备份时间'" :key="domain.key" prop="timePoints" v-show="theData.timeStrategy === 3 || theData.timeStrategy === 4 || theData.timeStrategy === 5">
           <el-col :span="11">
             <el-time-select v-model="domain.value" :picker-options="{
-              start: '08:30',
-              step: '00:15',
-              end: '18:30'
+              start: '00:00', end: '23:45', step: '00:15'
             }" placeholder="请选择时间点">
             </el-time-select>
           </el-col>
