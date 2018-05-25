@@ -38,12 +38,20 @@ export default {
       }],
     }
   },
+  mounted: function() {
+    if(!this.ipmodel){
+      for(let j=0; j<this.ipmodel.split('.').length; j++){
+        this.ipAddress[j].value = this.ipmodel.split('.')[j];
+      }
+    }
+  },
   methods: {
     sendMsg: function(item,index) {
+      console.log("ok");
       for(let i=0; i<this.ipAddress.length; i++){
         this.temp[i] = this.ipAddress[i].value;
       }
-      this.$emit("listenMsg",this.temp);
+      this.$emit("updata:ipmodel",this.temp.join('.'));
       this.updateCol = true;
     },
     addColor: function() {
