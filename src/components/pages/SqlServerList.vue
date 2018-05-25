@@ -57,7 +57,7 @@
                            @confirm="items.push(arguments[0])"></database-create-modal>
     <database-update-modal type="sqlserver"
                            :visible.sync="updateModalVisible"
-                           :database-info="selectedDb"
+                           :item-info="selectedDb"
                            @confirm="updateDb"></database-update-modal>
   </section>
 </template>
