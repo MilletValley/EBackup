@@ -3,9 +3,14 @@
     <el-form inline
              size="small">
       <el-form-item style="float: right;">
+        <el-button type="info"
+                   @click="$router.push({name: 'oracleTakeOver'})">一健接管</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
         <el-button type="primary"
                    @click="createModalVisible = true">添加</el-button>
       </el-form-item>
+
     </el-form>
     <el-table :data="items"
               style="width: 100%">
@@ -68,7 +73,7 @@ import { fetchAll, deleteOne } from '../../api/oracle';
 import { listMixin } from '../mixins/databaseListMixin';
 
 export default {
-  name: 'Oracle',
+  name: 'OracleList',
   mixins: [listMixin],
   methods: {
     // 从服务器获取所有的Oracle数据库
