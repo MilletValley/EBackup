@@ -6,6 +6,7 @@ import Dashboard from '@/components/pages/Dashboard';
 import Profile from '@/components/pages/Profile';
 import Users from '@/components/pages/Users';
 import OracleList from '@/components/pages/OracleList';
+import OracleTakeOver from '@/components/pages/OracleTakeOver';
 import SqlServerList from '@/components/pages/SqlServerList';
 // import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
@@ -116,6 +117,28 @@ export const asyncRouters = [
       roles: ['oracle dba', 'sql server dba'],
     },
     children: [
+      {
+        path: 'oracle/takeover',
+        name: 'oracleTakeOver',
+        component: OracleTakeOver,
+        meta: {
+          roles: ['oracle dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: 'Oracle一健接管',
+              path: '',
+            },
+          ],
+        },
+      },
       {
         path: 'oracle',
         name: 'oracleList',
@@ -270,6 +293,6 @@ export const asyncRouters = [
           isMenu: false,
         },
       },
-    ]
-  }
+    ],
+  },
 ];
