@@ -73,9 +73,7 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
-          console.log(data);
           this.items = data;
-          console.log(this.items);
         })
         .catch(error => {
           this.$message.error(error);
@@ -87,18 +85,18 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => deleteOne(host.id))
-        .then(() => {
-          this.items.splice($index, 1);
-          this.$message.success({
-            message: '删除成功!',
-          });
-        })
-        .catch(error => {
-          if (error !== 'cancel')
-            // element-ui Message组件取消会进入catch 避免这种弹窗
-            this.$message.error(error);
+      .then(() => deleteOne(host.id))
+      .then(() => {
+        this.items.splice($index, 1);
+        this.$message.success({
+          message: '删除成功!',
         });
+      })
+      .catch(error => {
+        if (error !== 'cancel')
+          // element-ui Message组件取消会进入catch 避免这种弹窗
+          this.$message.error(error);
+      });
     },
   },
   components: {

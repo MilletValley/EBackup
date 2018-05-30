@@ -40,14 +40,24 @@ const genModalMixin = type => {
         osName: '',
         application: '',
       };
+      const HostBaseFormData = {
+        id: -1,
+        name: '',
+        hostIp: '',
+        osName: '',
+      };
+      const judgeType = {
+        type1: type === 'host' ? HostBaseFormData : false,
+        type2: type === 'database' ? databaseBaseFormData : fileHostBaseFormData
+      };
       return {
         originFormData: Object.assign(
           {},
-          type === 'database' ? databaseBaseFormData : fileHostBaseFormData
+          judgeType.type1 === HostBaseFormData ? HostBaseFormData : judgeType.type2
         ), // 原始值
         formData: Object.assign(
           {},
-          type === 'database' ? databaseBaseFormData : fileHostBaseFormData
+          judgeType.type1 === HostBaseFormData ? HostBaseFormData : judgeType.type2
         ),
         // trigger增加change更方便 但是再次打开modal会显示出验证结果
         // 猜测是因为初始化时，触发了change事件
