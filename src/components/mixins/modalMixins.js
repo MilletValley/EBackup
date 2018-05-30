@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 
 const genModalMixin = type => {
-  if (!['database', 'filehost'].includes(type)) {
+  if (!['database', 'filehost', 'host'].includes(type)) {
     throw new Error('参数错误！');
   }
   const databaseModalMixin = {
@@ -14,7 +14,7 @@ const genModalMixin = type => {
         type: String,
         required: true,
         validator(value) {
-          return ['oracle', 'sqlserver', 'filehost'].includes(value);
+          return ['oracle', 'sqlserver', 'filehost', 'host'].includes(value);
         },
       },
     },
