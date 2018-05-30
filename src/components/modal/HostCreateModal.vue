@@ -12,7 +12,7 @@
                ref="createForm"
                size="small">
         <el-form-item label="设备名"
-                      prop="hostName">
+                      prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
         <el-form-item label="设备IP"
@@ -51,17 +51,7 @@ export default {
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          createOne(this.formData)
-            .then(res => {
-              const { data: host } = res.data;
-              this.$emit('confirm', host);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              this.$refs.createForm.clearValidate();
-              return false;
-            });
+          this.$emit('confirm', this.formData);
         } else {
           return false;
         }

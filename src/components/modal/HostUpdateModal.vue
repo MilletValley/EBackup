@@ -14,7 +14,7 @@
                ref="itemUpdateForm"
                size="small">
         <el-form-item label="设备名"
-                      prop="hostName">
+                      prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
         <el-form-item label="设备IP"
@@ -59,20 +59,7 @@ export default {
     confirm() {
       this.$refs.itemUpdateForm.validate(valid => {
         if (valid) {
-          modifyOne(this.formData)
-            .then(res => {
-              const { data: host, message } = res.data;
-              // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-              host.id = this.itemInfo.id;
-              this.$emit('confirm', host);
-              this.modalVisible = false;
-              this.$message.success(message);
-            })
-            .catch(error => {
-              this.$message.error(message);
-              this.$refs.itemUpdateForm.clearValidate();
-              return false;
-            });
+          this.$emit('confirm', this.formData);
         } else {
           return false;
         }

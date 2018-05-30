@@ -1,3 +1,5 @@
+import { databaseStateMapping } from '../../utils/constant';
+
 const listMixin = {
   data() {
     return {
@@ -31,6 +33,9 @@ const listMixin = {
       // 使用splice替换oracles列表中被选中的记录
       this.items.splice(this.items.findIndex(db => db.id === id), 1, data);
       this.selectedId = '';
+    },
+    stateFormatter(row, column, cellValue) {
+      return databaseStateMapping[cellValue];
     },
   },
 };

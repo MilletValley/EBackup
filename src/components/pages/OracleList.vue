@@ -37,6 +37,11 @@
                        label="登陆账号"
                        width="250"
                        align="center"></el-table-column>
+      <el-table-column prop="state"
+                       label="状态"
+                       width="150"
+                       :formatter="stateFormatter"
+                       align="center"></el-table-column>
       <el-table-column label="操作"
                        width="150"
                        header-align="center"
