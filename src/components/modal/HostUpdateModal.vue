@@ -15,7 +15,7 @@
                size="small">
         <el-form-item label="设备名"
                       prop="hostName">
-          <el-input v-model="formData.hostName"></el-input>
+          <el-input v-model="formData.name"></el-input>
         </el-form-item>
         <el-form-item label="设备IP"
                       prop="hostIp">
