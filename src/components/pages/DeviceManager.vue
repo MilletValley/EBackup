@@ -7,7 +7,7 @@
                    @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="items"
+    <el-table :data="hostsInVuex"
               style="width: 100%">
       <el-table-column label="设备名"
                        min-width="200"
@@ -49,31 +49,46 @@
       </el-table-column>
     </el-table>
     <host-create-modal type="host"
-                           :visible.sync="createModalVisible"
-                           @confirm="items.push(arguments[0])"></host-create-modal>
+                       :visible.sync="createModalVisible"
+                       @confirm="createItem"></host-create-modal>
     <host-update-modal type="host"
-                           :visible.sync="updateModalVisible"
-                           :item-info="selectedDb"
-                           @confirm="updateDb"></host-update-modal>
+                       :visible.sync="updateModalVisible"
+                       :item-info="selectedHost"
+                       @confirm="updateItem"></host-update-modal>
   </section>
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import { fetchAll, deleteOne } from '../../api/host';
-import { applyFilterMethods } from '../../utils/common';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'DeviceManager',
   mixins: [listMixin],
+  data() {
+    return {
+      items: this.hostsInVuex,
+      selectedId: '',
+    };
+  },
+  computed: {
+    // 从vuex中获取hosts列表
+    hostsInVuex() {
+      return this.$store.state.host.hosts;
+    },
+    selectedHost() {
+      return this.$store.getters.selectedHost(this.selectedId);
+    },
+  },
   methods: {
-    fetchData() {
-      fetchAll()
+    fetchData() {},
+    createItem(host) {
+      this.create(host)
         .then(res => {
-          const { data } = res.data;
-          this.items = data;
+          this.createModalVisible = false;
+          this.$message.success(res.data.message);
         })
         .catch(error => {
           this.$message.error(error);
@@ -85,19 +100,33 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-      .then(() => deleteOne(host.id))
-      .then(() => {
-        this.items.splice($index, 1);
-        this.$message.success({
-          message: '删除成功!',
+        .then(() => this.delete(host.id))
+        .then(() => {
+          this.$message.success({
+            message: '删除成功!',
+          });
+        })
+        .catch(error => {
+          if (error !== 'cancel')
+            // element-ui Message组件取消会进入catch 避免这种弹窗
+            this.$message.error(error);
         });
-      })
-      .catch(error => {
-        if (error !== 'cancel')
-          // element-ui Message组件取消会进入catch 避免这种弹窗
-          this.$message.error(error);
-      });
     },
+    updateItem(host) {
+      this.update(host)
+        .then(res => {
+          this.updateModalVisible = false;
+          this.$message.success(res.data.message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    ...mapActions({
+      update: 'updateHost',
+      delete: 'deleteHost',
+      create: 'createHost',
+    }),
   },
   components: {
     HostCreateModal,

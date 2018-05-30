@@ -73,6 +73,11 @@ export default {
   components: {
     IIcon,
   },
+  created() {
+    this.fetchHost().catch(error => {
+      this.$message.error(error);
+    });
+  },
   computed: {
     ...mapState({
       userName: state => {
@@ -88,7 +93,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['logout']),
+    ...mapActions(['logout', 'fetchHost']),
     handleCommand(command) {
       if (command === 'logout') {
         this._logout();

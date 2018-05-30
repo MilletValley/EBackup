@@ -34,7 +34,7 @@ const listMixin = {
       this.items.splice(this.items.findIndex(db => db.id === id), 1, data);
       this.selectedId = '';
     },
-    stateFormatter(row, column, cellValue, index) {
+    stateFormatter(row, column, cellValue) {
       return databaseStateMapping[cellValue];
     },
   },

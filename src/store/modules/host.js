@@ -2,33 +2,32 @@ import types from '../type';
 import { fetchAll, createOne, deleteOne, modifyOne } from '../../api/host';
 
 const state = {
-  hostInfo: [],
+  hosts: [],
 };
-
+/* eslint no-shadow: 0 */
+const getters = {
+  selectedHost: state => id => state.hosts.find(host => host.id === id) || {},
+};
 const mutations = {
   [types.GET_HOST](state, host) {
-    state.hostInfo = host;
+    state.hosts = host;
   },
   [types.ADD_HOST](state, data) {
-    state.hostInfo.push(data);
+    state.hosts.push(data);
   },
   [types.DEL_HOST](state, id) {
-    state.hostInfo.forEach(index => {
-      if (state.hostInfo[index].id === id) {
-        state.hostInfo.splice(index, 1);
-      }
-    });
+    state.hosts.splice(state.hosts.findIndex(host => host.id === id), 1);
   },
   [types.UPDATE_HOST](state, data) {
-    state.hostInfo.forEach(index => {
-      if (state.hostInfo[index].id === data.id) {
-        state.hostInfo[index] = data;
-      }
-    });
-  }
+    state.hosts.splice(
+      state.hosts.findIndex(host => host.id === data.id),
+      1,
+      data
+    );
+  },
 };
 const actions = {
-  getHost({ commit }) {
+  fetchHost({ commit }) {
     return fetchAll()
       .then(res => {
         const { data: host } = res.data;
@@ -36,15 +35,16 @@ const actions = {
       })
       .catch(error => Promise.reject(error));
   },
-  addHost({ commit }, data) {
+  createHost({ commit }, data) {
     return createOne(data)
       .then(res => {
         const { data: host } = res.data;
         commit(types.ADD_HOST, host);
+        return res;
       })
       .catch(error => Promise.reject(error));
   },
-  delHost({ commit }, id) {
+  deleteHost({ commit }, id) {
     return deleteOne(id)
       .then(() => {
         commit(types.DEL_HOST, id);
@@ -55,13 +55,17 @@ const actions = {
     return modifyOne(data)
       .then(res => {
         const { data: host } = res.data;
+        // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+        host.id = data.id;
         commit(types.UPDATE_HOST, host);
+        return res;
       })
       .catch(error => Promise.reject(error));
-  }
+  },
 };
 export default {
   state,
+  getters,
   mutations,
   actions,
 };
