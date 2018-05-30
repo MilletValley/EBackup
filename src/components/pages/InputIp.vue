@@ -1,7 +1,7 @@
 <template>
     <div>
       <ul id="ipAddress" :class="{active: addClass,updateCol}">
-        <li v-for="(item,index) in ipAddress">
+        <li v-for="(item,index) in ipAddress" :key="index">
           <input type="text" @input = "checkVal(item, index)"
                             @change = "sendMsg(item, index)"
                             @focus = "addColor()"
