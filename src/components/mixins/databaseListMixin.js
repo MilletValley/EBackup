@@ -10,13 +10,8 @@ const listMixin = {
     };
   },
   computed: {
-    selectedDb: {
-      // 从items列表中筛选出对应的一条记录
-      get() {
-        return this.selectedId === ''
-          ? {}
-          : this.items.filter(db => db.id === this.selectedId)[0];
-      },
+    selectedDb() {
+      return this.items.find(item => item.id === this.selectedId) || {};
     },
   },
   created() {

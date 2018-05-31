@@ -109,6 +109,9 @@ const baseMixin = {
       this.backupPlans.splice(planIndex, 1);
       // this.backupPlans.splice(this.backupPlans.findIndex(plan => plan.id === planId), 1);
     },
+    refreshThrottle(fn) {
+      return throttle(fn(), 5000, { leading: true, trailing: false });
+    },
     throttleMethod(func) {
       return throttle(
         () => {
@@ -187,22 +190,26 @@ const detailPageMixin = {
       }
     },
     // 节流函数 5s只触发一次
-    throttleMethod(func) {
-      return throttle(
-        () => {
-          func(this.id)
-            .then(res => {
-              const { data: result } = res.data;
-              this.results = result;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-        },
-        5000,
-        { leading: true, trailing: false }
-      );
+    throttleMethod(fn) {
+      return throttle(fn, 5000, { leading: true, trailing: false });
     },
+
+    // throttleMethod(func) {
+    //   return throttle(
+    //     () => {
+    //       func(this.id)
+    //         .then(res => {
+    //           const { data: result } = res.data;
+    //           this.results = result;
+    //         })
+    //         .catch(error => {
+    //           this.$message.error(error);
+    //         });
+    //     },
+    //     5000,
+    //     { leading: true, trailing: false }
+    //   );
+    // },
     throttleUpdateRestore(getRestorePlans, getRestoreRecords) {
       return throttle(
         () => {

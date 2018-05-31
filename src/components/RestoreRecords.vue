@@ -45,8 +45,8 @@
         </el-table-column>
         <el-table-column prop="detailInfo"
                          :label="detailInfoDisplayName"
-                         header-align="center"
                          align="left"
+                         header-align="center"
                          min-width="200px">
         </el-table-column>
         <el-table-column prop="state"
