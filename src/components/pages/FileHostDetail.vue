@@ -70,6 +70,7 @@
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
+                @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:add="addRestorePlan"
@@ -97,6 +98,7 @@ import {
   fetchBackupResults,
   fetchRestorePlans,
   fetchRestoreRecords,
+  fetchBackupOperation,
 } from '../../api/fileHost';
 
 export default {
@@ -104,11 +106,57 @@ export default {
   mixins: [detailPageMixin],
   data() {
     return {
-      updateResults: this.throttleMethod(fetchBackupResults),
-      updateRestorePlanAndRecords: this.throttleUpdateRestore(
-        fetchRestorePlans,
-        fetchRestoreRecords
-      ),
+      updateResults: this.throttleMethod(() => {
+        fetchBackupResults(this.id)
+          .then(res => {
+            const { data: result } = res.data;
+            this.results = result;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+
+      updateRestorePlanAndRecords: this.throttleMethod(() => {
+        fetchRestorePlans(this.id)
+          .then(res => {
+            const { data: restorePlans } = res.data;
+            this.restorePlans = restorePlans;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+        fetchRestoreRecords(this.id)
+          .then(res => {
+            const { data: restoreRecords } = res.data;
+            this.restoreRecords = restoreRecords;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      selectedBackupPlanId: -1,
+      throttleRefreshBackup: this.throttleMethod(() => {
+        fetchBackupOperation(this.selectedBackupPlanId)
+          .then(response => {
+            const { data } = response.data;
+            const { state, startTime, consume, size } = data;
+            Object.assign(
+              this.backupPlans.find(
+                plan => plan.id === this.selectedBackupPlanId
+              ),
+              {
+                state,
+                startTime,
+                consume,
+                size,
+              }
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
     };
   },
   methods: {
@@ -149,6 +197,11 @@ export default {
         const { data: records } = res.data;
         this.restoreRecords = records;
       });
+    },
+    // 刷新单次备份计划
+    refreshSingleBackupPlan(planId) {
+      this.selectedBackupPlanId = planId;
+      this.throttleRefreshBackup();
     },
   },
   computed: {

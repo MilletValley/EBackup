@@ -29,6 +29,7 @@
                      v-for="(plan, index) in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"
+                     @refresh="backupPlanRefresh"
                      @deletePlan="backupPlanDeleted(index)"
                      @updatePlan="selectBackupPlan(index)"></backup-card>
         <template v-if="!isFileBackupResult">
@@ -37,6 +38,7 @@
                         v-for="(plan, index) in filteredRestorePlans"
                         :key="plan.id"
                         :restore-plan="plan"
+                        @refresh="restorePlanRefresh"
                         @deletePlan="restorePlanDeleted(index)"
                         @updatePlan="selectRestorePlan(index)"></restore-card>
         </template>
@@ -228,6 +230,13 @@ export default {
     restorePlanUpdated(plan) {
       this.$emit('restoreplan:update', this.selectedRestorePlanIndex, plan);
       this.selectedRestorePlanIndex = -1;
+    },
+    // 刷新单个备份计划
+    backupPlanRefresh(backupplanId) {
+      this.$emit('backupplan:refresh', backupplanId);
+    },
+    restorePlanRefresh(planId) {
+      this.$emit('restoreplan:refresh', planId);
     },
   },
   components: {

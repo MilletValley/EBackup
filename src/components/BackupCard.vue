@@ -13,7 +13,7 @@
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh"
          :class="$style.stateRefresh"
-         @click="refreshBackupPlan"></i>
+         @click="refreshBtnClick"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
@@ -243,32 +243,9 @@ export default {
     planUpdateBtnClick() {
       this.$emit('updatePlan');
     },
-    refreshBackupPlan: throttle(
-      function refresh() {
-        const requestMapping = {
-          oracle: refreshOraclePlan,
-          sqlserver: refreshSqlServerPlan,
-          windows: refreshFileHostPlan,
-          linux: refreshFileHostPlan,
-        };
-        requestMapping[this.type](this.id)
-          .then(response => {
-            const { data } = response.data;
-            const { state, startTime, consume, size } = data;
-            this.backupPlan = Object.assign(this.backupPlan, {
-              state,
-              startTime,
-              consume,
-              size,
-            });
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      },
-      5000,
-      { leading: true, trailing: false }
-    ),
+    refreshBtnClick() {
+      this.$emit('refresh', this.id);
+    },
   },
 };
 </script>
