@@ -12,7 +12,7 @@
                ref="createForm"
                size="small">
         <el-form-item label="主机名"
-                      prop="name">
+                      prop="hostName">
           <el-input v-model="formData.hostName"></el-input>
         </el-form-item>
         <el-form-item label="主机IP"
