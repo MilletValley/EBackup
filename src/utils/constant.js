@@ -46,6 +46,14 @@ const recoveringStrategyMapping = {
   3: '跳过',
 };
 
+const databaseStateMapping = {
+  1: '状态1',
+  2: '状态2',
+  3: '状态3',
+  4: '状态4',
+  5: '状态5',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -54,4 +62,5 @@ export {
   backupResultMapping,
   restoreTimeStrategyMapping,
   recoveringStrategyMapping,
+  databaseStateMapping,
 };

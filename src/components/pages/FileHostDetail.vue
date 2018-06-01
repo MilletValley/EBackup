@@ -1,7 +1,7 @@
 <template>
   <section>
     <header class="detail-header">
-      <div class="detail-panel">
+      <div class="content">
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
@@ -42,7 +42,7 @@
                      label-width="100px"
                      inline
                      size="small"
-                     class="detail-form">
+                     class="item-info">
               <el-form-item label="操作系统：">
                 <span>{{ details.osName }}</span>
               </el-form-item>
@@ -62,10 +62,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <file-host-update-modal host-type="windows"
-                                :visible.sync="detailsEditModal"
-                                @confirm="details = arguments[0]"
-                                :file-host-info="details"></file-host-update-modal>
+
       </div>
     </header>
     <tab-panels :id="Number(id)"
@@ -73,17 +70,23 @@
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
+                @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:add="addRestorePlan"
                 @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
+                @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
     <add-backup-plan :type="systemType"
                      :id="Number(id)"
                      :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
+    <file-host-update-modal type="filehost"
+                            :visible.sync="detailsEditModal"
+                            @confirm="details = arguments[0]"
+                            :item-info="details"></file-host-update-modal>
   </section>
 </template>
 <script>
@@ -95,6 +98,7 @@ import {
   fetchBackupResults,
   fetchRestorePlans,
   fetchRestoreRecords,
+  fetchBackupOperation,
 } from '../../api/fileHost';
 
 export default {
@@ -102,7 +106,57 @@ export default {
   mixins: [detailPageMixin],
   data() {
     return {
-      updateResults: this.throttleMethod(fetchBackupResults),
+      updateResults: this.throttleMethod(() => {
+        fetchBackupResults(this.id)
+          .then(res => {
+            const { data: result } = res.data;
+            this.results = result;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+
+      updateRestorePlanAndRecords: this.throttleMethod(() => {
+        fetchRestorePlans(this.id)
+          .then(res => {
+            const { data: restorePlans } = res.data;
+            this.restorePlans = restorePlans;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+        fetchRestoreRecords(this.id)
+          .then(res => {
+            const { data: restoreRecords } = res.data;
+            this.restoreRecords = restoreRecords;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      selectedBackupPlanId: -1,
+      throttleRefreshBackup: this.throttleMethod(() => {
+        fetchBackupOperation(this.selectedBackupPlanId)
+          .then(response => {
+            const { data } = response.data;
+            const { state, startTime, consume, size } = data;
+            Object.assign(
+              this.backupPlans.find(
+                plan => plan.id === this.selectedBackupPlanId
+              ),
+              {
+                state,
+                startTime,
+                consume,
+                size,
+              }
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
     };
   },
   methods: {
@@ -144,6 +198,11 @@ export default {
         this.restoreRecords = records;
       });
     },
+    // 刷新单次备份计划
+    refreshSingleBackupPlan(planId) {
+      this.selectedBackupPlanId = planId;
+      this.throttleRefreshBackup();
+    },
   },
   computed: {
     systemType() {
@@ -157,27 +216,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.detail-header {
-  background-color: #ffffff;
-  margin: -20px -20px 0 -20px;
-  padding: 10px 10px 50px 10px;
-}
-.icon {
-  position: relative;
-  top: 17px;
-  right: 0;
-  font-size: 1.7em;
-}
-.detail-panel {
-  margin-left: 20px;
-}
-.action {
-  text-align: right;
-}
-.detail-form .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 40%;
-}
-</style>

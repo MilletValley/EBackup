@@ -1,6 +1,5 @@
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
-import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import RestoreCard from '@/components/RestoreCard';
@@ -110,6 +109,9 @@ const baseMixin = {
       this.backupPlans.splice(planIndex, 1);
       // this.backupPlans.splice(this.backupPlans.findIndex(plan => plan.id === planId), 1);
     },
+    refreshThrottle(fn) {
+      return throttle(fn(), 5000, { leading: true, trailing: false });
+    },
     throttleMethod(func) {
       return throttle(
         () => {
@@ -144,7 +146,6 @@ const baseMixin = {
   components: {
     IIcon,
     DatabaseUpdateModal,
-    SpanToggle,
     BackupCard,
     RestoreCard,
     BackupResultList,
@@ -189,13 +190,41 @@ const detailPageMixin = {
       }
     },
     // 节流函数 5s只触发一次
-    throttleMethod(func) {
+    throttleMethod(fn) {
+      return throttle(fn, 5000, { leading: true, trailing: false });
+    },
+
+    // throttleMethod(func) {
+    //   return throttle(
+    //     () => {
+    //       func(this.id)
+    //         .then(res => {
+    //           const { data: result } = res.data;
+    //           this.results = result;
+    //         })
+    //         .catch(error => {
+    //           this.$message.error(error);
+    //         });
+    //     },
+    //     5000,
+    //     { leading: true, trailing: false }
+    //   );
+    // },
+    throttleUpdateRestore(getRestorePlans, getRestoreRecords) {
       return throttle(
         () => {
-          func(this.id)
+          getRestorePlans(this.id)
             .then(res => {
-              const { data: result } = res.data;
-              this.results = result;
+              const { data: restorePlans } = res.data;
+              this.restorePlans = restorePlans;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+          getRestoreRecords(this.id)
+            .then(res => {
+              const { data: restoreRecords } = res.data;
+              this.restoreRecords = restoreRecords;
             })
             .catch(error => {
               this.$message.error(error);

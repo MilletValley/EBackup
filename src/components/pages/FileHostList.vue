@@ -1,36 +1,70 @@
 <template>
   <section>
-    <el-form inline size="small">
-      <el-form-item label="筛选操作系统">
+    <el-form inline
+             size="small">
+      <el-form-item label="操作系统">
         <el-checkbox-group v-model="sysTypeFilter">
           <el-checkbox-button label="Windows"></el-checkbox-button>
           <el-checkbox-button label="Linux"></el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>
       <el-form-item style="float: right;">
-        <el-button type="primary" @click="createModalVisible = true">添加</el-button>
+        <el-button type="primary"
+                   @click="createModalVisible = true">添加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="filteredInfos" style="width: 100%">
-      <el-table-column label="主机名" min-width="200" align="center">
+    <el-table :data="filteredInfos"
+              style="width: 100%">
+      <el-table-column label="主机名"
+                       min-width="200"
+                       align="center">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`${scope.row.id}`" append class="name-link">{{scope.row.hostName}}</router-link>
+            <router-link :to="`${scope.row.id}`"
+                         append
+                         :class="$style.link">{{scope.row.hostName}}</router-link>
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="hostIp" label="主机IP" width="200" align="center"></el-table-column>
-      <el-table-column prop="osName" label="操作系统" width="200" align="center"></el-table-column>
-      <el-table-column prop="application" label="所属业务系统" min-width="200" align="center"></el-table-column>
-      <el-table-column label="操作" width="100" header-align="center" align="right">
+      <el-table-column prop="hostIp"
+                       label="主机IP"
+                       width="240"
+                       align="center"></el-table-column>
+      <el-table-column prop="osName"
+                       label="操作系统"
+                       width="220"
+                       align="center"></el-table-column>
+      <el-table-column prop="loginName"
+                       label="登陆账号"
+                       width="200"
+                       align="center"></el-table-column>
+      <el-table-column label="操作"
+                       width="150"
+                       header-align="center"
+                       align="right">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle size="mini" class="ws-mini" @click="selectOne(scope)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle size="mini" class="ws-mini" @click="deleteDb(scope)"></el-button>
+          <el-button type="primary"
+                     icon="el-icon-edit"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="selectOne(scope)"></el-button>
+          <el-button type="danger"
+                     icon="el-icon-delete"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="deleteDb(scope)"></el-button>
         </template>
       </el-table-column>
     </el-table>
-    <file-host-create-modal host-type="windows" :visible.sync="createModalVisible" @confirm="dbs.push(arguments[0])"></file-host-create-modal>
-    <file-host-update-modal host-type="windows" :visible.sync="updateModalVisible" @confirm="updateDb" :file-host-info="selectedDb"></file-host-update-modal>
+    <file-host-create-modal type="filehost"
+                            :visible.sync="createModalVisible"
+                            @confirm="items.push(arguments[0])"></file-host-create-modal>
+    <file-host-update-modal type="filehost"
+                            :visible.sync="updateModalVisible"
+                            @confirm="updateDb"
+                            :item-info="selectedDb"></file-host-update-modal>
   </section>
 </template>
 <script>
@@ -52,7 +86,7 @@ export default {
     filteredInfos() {
       const filterMethods = [];
       filterMethods.push(info => this.sysTypeFilter.indexOf(info.osName) >= 0);
-      return applyFilterMethods(this.dbs, filterMethods);
+      return applyFilterMethods(this.items, filterMethods);
     },
   },
   methods: {
@@ -60,7 +94,7 @@ export default {
       fetchAll()
         .then(res => {
           const { data: infos } = res.data;
-          this.dbs = infos;
+          this.items = infos;
         })
         .catch(error => {
           this.$message.error(error);
@@ -74,7 +108,7 @@ export default {
       })
         .then(() => deleteOne(info.id))
         .then(() => {
-          this.dbs.splice($index, 1);
+          this.items.splice($index, 1);
           this.$message.success({
             message: '删除成功!',
           });
@@ -92,12 +126,6 @@ export default {
   },
 };
 </script>
-<style>
-.name-link {
-  color: #409eff;
-  text-decoration: none;
-}
-.cell button.ws-mini {
-  padding: 7px;
-}
+<style lang="scss" module>
+@import '../../style/common.scss';
 </style>

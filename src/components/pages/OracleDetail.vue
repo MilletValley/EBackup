@@ -1,7 +1,7 @@
 <template>
   <section>
     <header class="detail-header">
-      <div class="db-content">
+      <div class="content">
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
@@ -40,7 +40,7 @@
                      label-width="100px"
                      inline
                      size="small"
-                     class="database-info">
+                     class="item-info">
               <el-form-item label="Oracle版本：">
                 <span>{{ details.dbVersion }}</span>
               </el-form-item>
@@ -72,10 +72,7 @@
             </el-form>
           </el-col>
         </el-row>
-        <database-update-modal db-type="oracle"
-                               :visible.sync="detailsEditModal"
-                               :database-info="details"
-                               @confirm="details = arguments[0]"></database-update-modal>
+
       </div>
     </header>
     <tab-panels :id="Number(id)"
@@ -83,12 +80,15 @@
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
+                @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
+                @restoreplan:refresh="refreshSingleRestorePlan"
                 @restoreplan:add="addRestorePlan"
                 @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
+                @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
     <add-backup-plan type="oracle"
                      :id="Number(id)"
@@ -98,9 +98,14 @@
                                :id="Number(id)"
                                :visible.sync="restorePlanCreateModalVisible"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
+    <database-update-modal type="oracle"
+                           :visible.sync="detailsEditModal"
+                           :item-info="details"
+                           @confirm="details = arguments[0]"></database-update-modal>
   </section>
 </template>
 <script>
+import throttle from 'lodash/throttle';
 import { detailPageMixin } from '../mixins/detailPageMixins';
 
 import {
@@ -109,6 +114,8 @@ import {
   fetchBackupResults,
   fetchRestorePlans,
   fetchRestoreRecords,
+  fetchBackupOperation,
+  fetchRestoreOperation,
 } from '../../api/oracle';
 
 export default {
@@ -116,7 +123,78 @@ export default {
   mixins: [detailPageMixin],
   data() {
     return {
-      updateResults: this.throttleMethod(fetchBackupResults),
+      updateResults: this.throttleMethod(() => {
+        fetchBackupResults(this.id)
+          .then(res => {
+            const { data: result } = res.data;
+            this.results = result;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      updateRestorePlanAndRecords: this.throttleMethod(() => {
+        fetchRestorePlans(this.id)
+          .then(res => {
+            const { data: restorePlans } = res.data;
+            this.restorePlans = restorePlans;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+        fetchRestoreRecords(this.id)
+          .then(res => {
+            const { data: restoreRecords } = res.data;
+            this.restoreRecords = restoreRecords;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      selectedBackupPlanId: -1,
+      // TODO: 暂时使用一个data变量存储选择的计划id，也许有更优雅的实现方式
+      throttleRefreshBackup: this.throttleMethod(() => {
+        fetchBackupOperation(this.selectedBackupPlanId)
+          .then(response => {
+            const { data } = response.data;
+            const { state, startTime, consume, size } = data;
+            Object.assign(
+              this.backupPlans.find(
+                plan => plan.id === this.selectedBackupPlanId
+              ),
+              {
+                state,
+                startTime,
+                consume,
+                size,
+              }
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      selectedRestorePlanId: -1,
+      throttleRefreshRestore: this.throttleMethod(() => {
+        fetchRestoreOperation(this.selectedRestorePlanId)
+          .then(response => {
+            const { data } = response.data;
+            const { state, startTime, consume } = data;
+            Object.assign(
+              this.restorePlans.find(
+                plan => plan.id === this.selectedRestorePlanId
+              ),
+              {
+                state,
+                startTime,
+                consume,
+              }
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
     };
   },
   methods: {
@@ -157,30 +235,16 @@ export default {
         this.restoreRecords = records;
       });
     },
+    // 刷新单个备份计划
+    refreshSingleBackupPlan(planId) {
+      this.selectedBackupPlanId = planId;
+      this.throttleRefreshBackup();
+    },
+    // 刷新单个恢复计划
+    refreshSingleRestorePlan(planId) {
+      this.selectedRestorePlanId = planId;
+      this.throttleRefreshRestore();
+    },
   },
 };
 </script>
-<style scoped>
-.detail-header {
-  background-color: #ffffff;
-  margin: -20px -20px 0 -20px;
-  padding: 10px 10px 50px 10px;
-}
-.icon {
-  position: relative;
-  top: 17px;
-  right: 0;
-  font-size: 1.7em;
-}
-.db-content {
-  margin-left: 20px;
-}
-.action {
-  text-align: right;
-}
-.database-info .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 40%;
-}
-</style>

@@ -1,17 +1,22 @@
 <template>
   <section>
     <div>
-      <h4>正在执行的恢复</h4>
-      <el-row :gutter="20">
+      <h4>正在执行的恢复
+        <i class="el-icon-refresh"
+           :class="$style.stateRefresh"
+           @click="$emit('restoreinfo:refresh')"></i>
+      </h4>
+      <el-row :gutter="20"
+              style="min-height: 144px;">
         <el-col :span="6"
                 v-for="item in plans"
                 :key="item.id">
           <el-card shadow="hover"
-                   class="ongoing-restore-card">
+                   :class="$style.ongoingRestoreCard">
             <div>
               <span>
-                <i class="el-icon-time"></i> {{ item.consume | durationFilter }}</span>
-              <span class="restore-start-time">{{item.startTime}}</span>
+                <i :class="['el-icon-time', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
+              <span :class="$style.restoreStartTime">{{item.startTime}}</span>
             </div>
             <p>恢复设备IP: {{ item.config.hostIp }}</p>
             <p>{{detailInfoDisplayName}}: {{item.config.detailInfo }}</p>
@@ -40,6 +45,7 @@
         </el-table-column>
         <el-table-column prop="detailInfo"
                          :label="detailInfoDisplayName"
+                         align="left"
                          header-align="center"
                          min-width="200px">
         </el-table-column>
@@ -48,7 +54,21 @@
                          align="center"
                          width="100px">
           <template slot-scope="scope">
-            <i :class="{ 'el-icon-success': scope.row.state === 0, 'el-icon-error': scope.row.state === 1 }"></i>
+            <el-tooltip :disabled="scope.row.state === 0"
+                        :content="scope.row.errorMsg"
+                        placement="right"
+                        effect="light">
+              <i v-if="scope.row.state === 0"
+                 class="el-icon-success"
+                 :class="$style.successColor"></i>
+              <i v-else
+                 class="el-icon-error"
+                 :class="$style.errorColor"></i>
+              <!-- <i :class="{ 'el-icon-success': scope.row.state === 0, 
+              'el-icon-error': scope.row.state === 1,
+              [$style.successIcon]:  scope.row.state === 0,
+              [$style.errorIcon]:  scope.row.state === 1 }"></i> -->
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -90,24 +110,22 @@ export default {
   },
 };
 </script>
-<style>
-.ongoing-restore-card {
+<style lang="scss" module>
+@import '../style/color.scss';
+.ongoingRestoreCard {
   font-size: 14px;
 }
-.ongoing-restore-card .restore-start-time {
+.restoreStartTime {
   font-size: 0.8em;
   line-height: 1.8em;
   color: #999999;
   float: right;
 }
-.ongoing-restore-card .el-icon-time {
-  color: rgb(39, 202, 39);
-}
-/* 重复样式 */
-.el-icon-success {
-  color: rgb(39, 202, 39);
-}
-.el-icon-error {
-  color: rgb(202, 39, 39);
+.stateRefresh {
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
 }
 </style>

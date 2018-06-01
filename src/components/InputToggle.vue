@@ -1,7 +1,12 @@
 <template>
   <section>
-    <el-input :value="value" :type="hiddenPassword ? 'password' : 'text'" @input="inputChange">
-      <i-icon slot="suffix" :name="iconName" @click.native="toggleDisplay"></i-icon>
+    <el-input :value="value"
+              :type="hiddenPassword ? 'password' : 'text'"
+              @input="inputChange">
+      <i-icon :class="$style.icon"
+              slot="suffix"
+              :name="iconName"
+              @click.native="toggleDisplay"></i-icon>
     </el-input>
   </section>
 </template>
@@ -10,10 +15,6 @@ import IIcon from '@/components/IIcon';
 
 export default {
   name: 'input-toggle',
-  // model: {
-  //   prop: 'value',
-  //   event: 'input',
-  // },
   props: {
     value: String,
   },
@@ -36,11 +37,11 @@ export default {
     },
   },
   components: {
-    'i-icon': IIcon,
+    IIcon,
   },
 };
 </script>
-<style scoped>
+<style module>
 .icon {
   margin-top: 9px;
 }

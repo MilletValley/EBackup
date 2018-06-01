@@ -1,14 +1,15 @@
 <template>
   <section>
-    <el-tabs v-model="activeTab"
+    <el-tabs :class="$style.tabs"
+             v-model="activeTab"
              @tab-click="switchPane">
       <el-tab-pane label="操作计划"
                    name="plans">
         <el-form inline
                  size="small"
                  :model="planFilterForm"
-                 class="filter-form">
-          <el-form-item>
+                 :class="$style.filterForm">
+          <el-form-item :class="$style.filterFormItem">
             <el-radio border
                       v-model="planFilterForm.planType"
                       label="backup">备份计划</el-radio>
@@ -17,7 +18,8 @@
                       v-model="planFilterForm.planType"
                       label="restore">恢复计划</el-radio>
           </el-form-item>
-          <el-form-item label="隐藏已完成计划">
+          <el-form-item :class="$style.filterFormItem"
+                        label="隐藏已完成计划">
             <el-switch v-model="planFilterForm.hiddenCompletePlan"></el-switch>
           </el-form-item>
 
@@ -27,6 +29,7 @@
                      v-for="(plan, index) in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"
+                     @refresh="backupPlanRefresh"
                      @deletePlan="backupPlanDeleted(index)"
                      @updatePlan="selectBackupPlan(index)"></backup-card>
         <template v-if="!isFileBackupResult">
@@ -35,6 +38,7 @@
                         v-for="(plan, index) in filteredRestorePlans"
                         :key="plan.id"
                         :restore-plan="plan"
+                        @refresh="restorePlanRefresh"
                         @deletePlan="restorePlanDeleted(index)"
                         @updatePlan="selectRestorePlan(index)"></restore-card>
         </template>
@@ -44,9 +48,9 @@
                    name="results">
         <el-form inline
                  :model="restorePlanFilterForm"
-                 class="filter-form"
+                 :class="$style.filteFrorm"
                  style="text-align: right;">
-          <el-form-item>
+          <el-form-item :class="$style.filterFormItem">
             <!-- <el-button size="medium"
                        type="text"
                        @click="this.$emit('result:refresh')">刷新</el-button> -->
@@ -60,7 +64,8 @@
                    name="restore">
         <restore-records :type="type"
                          :plans="ongoingRestorePlan"
-                         :records="restoreRecords"></restore-records>
+                         :records="restoreRecords"
+                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
       </el-tab-pane>
     </el-tabs>
     <update-backup-plan :type="type"
@@ -79,7 +84,6 @@
 <script>
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
-import SpanToggle from '@/components/SpanToggle';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import RestoreCard from '@/components/RestoreCard';
@@ -227,11 +231,17 @@ export default {
       this.$emit('restoreplan:update', this.selectedRestorePlanIndex, plan);
       this.selectedRestorePlanIndex = -1;
     },
+    // 刷新单个备份计划
+    backupPlanRefresh(backupplanId) {
+      this.$emit('backupplan:refresh', backupplanId);
+    },
+    restorePlanRefresh(planId) {
+      this.$emit('restoreplan:refresh', planId);
+    },
   },
   components: {
     IIcon,
     DatabaseUpdateModal,
-    SpanToggle,
     BackupCard,
     RestoreCard,
     BackupResultList,
@@ -243,15 +253,14 @@ export default {
   },
 };
 </script>
-<style scoped>
-.el-tabs {
+<style module>
+.tabs {
   margin-top: -39px;
 }
-.filter-form {
-  /* background-color: #ffffff; */
+.filterForm {
   padding-left: 20px;
 }
-.filter-form .el-form-item {
+.filterFormItem {
   margin-bottom: 0;
 }
 </style>

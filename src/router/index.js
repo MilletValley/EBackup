@@ -6,13 +6,18 @@ import Dashboard from '@/components/pages/Dashboard';
 import Profile from '@/components/pages/Profile';
 import Users from '@/components/pages/Users';
 import OracleList from '@/components/pages/OracleList';
+import OracleTakeOver from '@/components/pages/OracleTakeOver';
 import SqlServerList from '@/components/pages/SqlServerList';
-import NotFound from '@/components/pages/NotFound';
+// import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMware from '@/components/pages/Vmware';
 import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
+import NoFound from '@/components/pages/NoFound';
+import ServerError from '@/components/pages/ServerError';
+import InputIp from '@/components/pages/InputIp';
+import DeviceManager from '@/components/pages/DeviceManager';
 
 Vue.use(Router);
 
@@ -40,6 +45,10 @@ export const basicRouters = [
         component: Profile,
       },
     ],
+  },
+  {
+    path: '/inputip',
+    component: InputIp,
   },
 ];
 
@@ -109,6 +118,28 @@ export const asyncRouters = [
       roles: ['oracle dba', 'sql server dba'],
     },
     children: [
+      {
+        path: 'oracle/takeover',
+        name: 'oracleTakeOver',
+        component: OracleTakeOver,
+        meta: {
+          roles: ['oracle dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: 'Oracle一健接管',
+              path: '',
+            },
+          ],
+        },
+      },
       {
         path: 'oracle',
         name: 'oracleList',
@@ -246,13 +277,31 @@ export const asyncRouters = [
           roles: ['admin'],
         },
       },
+      {
+        path: 'devicemanager',
+        component: DeviceManager,
+        meta: {
+          title: '设备管理',
+          roles: ['admin'],
+        },
+      },
     ],
   },
   {
-    path: '*',
-    component: NotFound,
-    meta: {
-      isMenu: false,
-    },
+    path: '/error',
+    component: Layout,
+    children: [
+      {
+        path: 'servererror',
+        component: ServerError,
+      },
+      {
+        path: '/*',
+        component: NoFound,
+        meta: {
+          isMenu: false,
+        },
+      },
+    ],
   },
 ];

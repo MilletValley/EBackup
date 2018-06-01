@@ -12,7 +12,8 @@
                active-text-color="#fff">
         <el-menu-item index="/dashboard">
           <IIcon name="dashboard"></IIcon>
-          <span slot="title">主页</span>
+          <router-link to="/dashboard"
+                       tag="span">主页</router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
                     :key="menu.path"
@@ -72,6 +73,11 @@ export default {
   components: {
     IIcon,
   },
+  created() {
+    this.fetchHost().catch(error => {
+      this.$message.error(error);
+    });
+  },
   computed: {
     ...mapState({
       userName: state => {
@@ -87,7 +93,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['logout']),
+    ...mapActions(['logout', 'fetchHost']),
     handleCommand(command) {
       if (command === 'logout') {
         this._logout();

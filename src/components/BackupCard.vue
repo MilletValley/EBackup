@@ -1,5 +1,5 @@
 <template>
-  <el-card class="backup-card"
+  <el-card :class="$style.backupCard"
            v-if="backupOperation.id && backupConfig.id"
            :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
     <div slot="header"
@@ -11,8 +11,9 @@
       <span>{{backupOperation.name}}</span>
       <i v-if="backupOperation.state !== 2"
          style="float: right; margin: 3px 0 3px 10px;"
-         class="el-icon-refresh state-refresh"
-         @click="refreshBackupPlan"></i>
+         class="el-icon-refresh"
+         :class="$style.stateRefresh"
+         @click="refreshBtnClick"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
@@ -47,14 +48,16 @@
                         v-if="backupConfig.timeStrategy === 0"
                         style="width: 100%">
             <div>
-              <el-tag size="small">{{ backupConfig.singleTime }}</el-tag>
+              <el-tag :class="$style.infoTag"
+                      size="small">{{ backupConfig.singleTime }}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="星期"
                         v-if="backupConfig.timeStrategy === 4"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in weekPoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in weekPoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -63,7 +66,8 @@
                         v-if="backupConfig.timeStrategy === 5"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.datePoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in backupConfig.datePoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -72,7 +76,8 @@
                         v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
                         style="width: 100%">
             <div>
-              <el-tag v-for="point in backupConfig.timePoints"
+              <el-tag :class="$style.infoTag"
+                      v-for="point in backupConfig.timePoints"
                       :key="point"
                       size="small">{{point}}</el-tag>
             </div>
@@ -81,7 +86,8 @@
                         v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
                         style="width: 100%">
             <div>
-              <el-tag size="small">{{backupConfig.timeInterval}}分钟</el-tag>
+              <el-tag :class="$style.infoTag"
+                      size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="备份路径"
@@ -91,11 +97,26 @@
         </el-form>
       </el-col>
       <el-col :span="6"
-              class="operation-info">
-        <ul style="list-style: none">
+              :class="$style.operationInfo">
+        <ul>
           <li>
             <h5>当前状态</h5>
-            <div>{{operationState || '-'}}</div>
+            <div>
+              <el-tooltip :disabled="!isFileBackupResult || backupOperation.state !== 1"
+                          :content="backupOperation.process"
+                          placement="left"
+                          effect="light">
+                <div style="display: inline-block">
+                  <i v-if="backupOperation.state === 0"
+                     class="el-icon-time"
+                     :class="operationStateStyle"></i>
+                  <i v-else-if="backupOperation.state === 1"
+                     class="el-icon-loading"
+                     :class="operationStateStyle"></i>
+                  <span :class="operationStateStyle">{{operationState || '-'}}</span>
+                </div>
+              </el-tooltip>
+            </div>
           </li>
           <li>
             <h5>备份开始时间</h5>
@@ -106,7 +127,7 @@
             <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div>
             <div v-else>-</div>
           </li>
-          <li>
+          <li v-if="!isFileBackupResult">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
@@ -188,6 +209,17 @@ export default {
     backupStrategyType() {
       return this.backupConfig.timeStrategy === 0 ? '单次' : '循环';
     },
+    // 是否为文件备份
+    isFileBackupResult() {
+      return this.type === 'windows' || this.type === 'linux';
+    },
+    operationStateStyle() {
+      if (this.backupOperation.state === 0) {
+        return this.$style.waitingColor;
+      } else if (this.backupOperation.state === 1) {
+        return this.$style.loadingColor;
+      } else return '';
+    },
   },
   methods: {
     planDeleteBtnClick() {
@@ -211,66 +243,45 @@ export default {
     planUpdateBtnClick() {
       this.$emit('updatePlan');
     },
-    refreshBackupPlan: throttle(
-      function refresh() {
-        const requestMapping = {
-          oracle: refreshOraclePlan,
-          sqlserver: refreshSqlServerPlan,
-          windows: refreshFileHostPlan,
-          linux: refreshFileHostPlan,
-        };
-        requestMapping[this.type](this.id)
-          .then(response => {
-            const { data } = response.data;
-            const { state, startTime, consume, size } = data;
-            this.backupPlan = Object.assign(this.backupPlan, {
-              state,
-              startTime,
-              consume,
-              size,
-            });
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      },
-      5000,
-      { leading: true, trailing: false }
-    ),
+    refreshBtnClick() {
+      this.$emit('refresh', this.id);
+    },
   },
 };
 </script>
-<style scoped>
-.backup-card {
-  margin-top: 15px;
-}
-.operation-info h5 {
-  font-weight: 400;
-  color: #888888;
-  margin: 4px 0;
-  text-align: right;
-}
-.operation-info div {
-  margin-left: 5px;
-  text-align: right;
-}
-.operation-info ul {
-  list-style: none;
-  margin: 0;
-}
-.operation-info li {
-  margin: 10px 0;
+<style lang="scss" module>
+@import '../style/color.scss';
+.backupCard {
+  margin-bottom: 15px;
 }
 /* 标签之间的间隔在for循环下消失了 */
-.el-tag {
+.infoTag {
   margin: 0 2px;
 }
-
-.state-refresh {
+.stateRefresh {
   cursor: pointer;
   transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
 }
-.state-refresh:hover {
-  transform: rotate(180deg);
+.operationInfo {
+  h5 {
+    font-weight: 400;
+    color: #888888;
+    margin: 4px 0;
+    text-align: right;
+  }
+  div {
+    margin-left: 5px;
+    text-align: right;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+  }
+  li {
+    margin: 10px 0;
+  }
 }
 </style>

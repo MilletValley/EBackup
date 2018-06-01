@@ -27,7 +27,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item :label="detailInfoLabelName"
+          <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>

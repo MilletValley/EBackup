@@ -4,18 +4,18 @@
                :before-close="beforeModalClose"
                @close="modalClosed">
       <span slot="title">
-        添加服务器
+        添加设备
       </span>
       <el-form :model="formData"
                :rules="rules"
                label-width="110px"
                ref="createForm"
                size="small">
-        <el-form-item label="主机名"
-                      prop="hostName">
-          <el-input v-model="formData.hostName"></el-input>
+        <el-form-item label="设备名"
+                      prop="name">
+          <el-input v-model="formData.name"></el-input>
         </el-form-item>
-        <el-form-item label="主机IP"
+        <el-form-item label="设备IP"
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
@@ -27,18 +27,6 @@
                        :key="item.value"
                        :value="item"></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="所属业务系统"
-                      prop="application">
-          <el-input v-model="formData.application"></el-input>
-        </el-form-item>
-        <el-form-item label="系统登录名"
-                      prop="loginName">
-          <el-input v-model="formData.loginName"></el-input>
-        </el-form-item>
-        <el-form-item label="登陆密码"
-                      prop="password">
-          <input-toggle v-model="formData.password"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -52,28 +40,18 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-import { createOne } from '../../api/fileHost';
+import { createOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
 
 export default {
-  name: 'FileHostCreateModal',
-  mixins: [genModalMixin('filehost')],
+  name: 'HostCreateModal',
+  mixins: [genModalMixin('host')],
   methods: {
     // 点击确认按钮触发
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          createOne(this.formData)
-            .then(res => {
-              const { data: db } = res.data;
-              this.$emit('confirm', db);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              this.$refs.createForm.clearValidate();
-              return false;
-            });
+          this.$emit('confirm', this.formData);
         } else {
           return false;
         }

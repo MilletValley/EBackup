@@ -6,10 +6,6 @@
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="theData.name"></el-input>
         </el-form-item>
-        <el-form-item label="计划时间" prop="startTime">
-          <el-date-picker v-model="theData.startTime" :picker-options="pickerStartTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
-          </el-date-picker>
-        </el-form-item>
         <el-form-item label="备份路径" prop="backupPath" v-show="type === 'windows' || type === 'linux'">
           <el-input v-model="theData.backupPath"></el-input>
         </el-form-item>
@@ -33,8 +29,12 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
+         <el-form-item label="计划时间" prop="startTime" v-show="theData.timeStrategy !== 0">
+          <el-date-picker v-model="theData.startTime" type="datetime" placeholder="选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
+          </el-date-picker>
+        </el-form-item>
         <el-form-item label="单次备份" v-show="theData.timeStrategy === 0" prop="singleTime">
-          <el-date-picker v-model="theData.singleTime" type="datetime" :picker-options="pickerSingleTime" placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
+          <el-date-picker v-model="theData.singleTime" type="datetime"  placeholder="请选择日期时间" default-time="00:00:00" value-format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="每月备份" v-show="theData.timeStrategy === 5" prop="datePoints">
@@ -58,9 +58,7 @@
         <el-form-item v-for="(domain, index) in theData.timePoints" :label="'备份时间'" :key="domain.key" prop="timePoints" v-show="theData.timeStrategy === 3 || theData.timeStrategy === 4 || theData.timeStrategy === 5">
           <el-col :span="11">
             <el-time-select v-model="domain.value" :picker-options="{
-              start: '08:30',
-              step: '00:15',
-              end: '18:30'
+              start: '00:00', end: '23:45', step: '00:15'
             }" placeholder="请选择时间点">
             </el-time-select>
           </el-col>
@@ -123,52 +121,59 @@ export default {
       this.theData = { ...this.originData };
     },
     createBackupPlan() {
+      console.log(new Date(this.theData.startTime).getTime());
+      console.log(new Date().getTime());
       if (this.type === 'oracle' || this.type === 'sqlserver') {
         this.theData.backupPath = 'value';
         this.theData.backupSystem = 'sys';
       }
+      if (this.theData.timeStrategy === 0) {
+        this.theData.startTime = this.theData.singleTime;
+      }
       this.$refs['theForm'].validate(valid => {
         if (valid) {
           this.theFormLoading = true;
-          const tmpdata = {
-            startTime: this.theData.startTime,
-            backupStrategy: this.theData.backupStrategy,
-            timeStrategy: this.theData.timeStrategy,
-          };
-          const configdata = Object.assign({}, this.emptydata(), tmpdata);
-          const postdata = {
-            oracle: { name: this.theData.name, config: configdata },
-            sqlserver: { name: this.theData.name, config: configdata },
-            windows: {
-              name: this.theData.name,
-              backupPath: this.theData.backupPath,
-              backupSystem: this.theData.backupSystem,
-              config: configdata,
-            },
-            linux: {
-              name: this.theData.name,
-              backupPath: this.theData.backupPath,
-              backupSystem: '',
-              config: configdata,
-            },
-          };
-          // 向请求服务端
-          requestMapping[this.type](this.id, postdata[this.type])
-            .then(response => {
-              this.$emit('confirm', response.data.data);
-              this.theData.timePoints.splice(
-                1,
-                this.theData.timePoints.length - 1
-              );
-              this.$message.success(response.data.message);
-              this._visible = false;
-              this.theFormLoading = false;
-              this.resetCreate();
-            })
-            .catch(error => {
-              this.theFormLoading = false;
-              this.$message.error(error);
-            });
+          if (this.valiTime() === true) {
+            const tmpdata = {
+              startTime: this.theData.startTime,
+              backupStrategy: this.theData.backupStrategy,
+              timeStrategy: this.theData.timeStrategy,
+            };
+            const configdata = Object.assign({}, this.emptydata(), tmpdata);
+            const postdata = {
+              oracle: { name: this.theData.name, config: configdata },
+              sqlserver: { name: this.theData.name, config: configdata },
+              windows: {
+                name: this.theData.name,
+                backupPath: this.theData.backupPath,
+                backupSystem: this.theData.backupSystem,
+                config: configdata,
+              },
+              linux: {
+                name: this.theData.name,
+                backupPath: this.theData.backupPath,
+                backupSystem: '',
+                config: configdata,
+              },
+            };
+            // 向请求服务端
+            requestMapping[this.type](this.id, postdata[this.type])
+              .then(response => {
+                this.$emit('confirm', response.data.data);
+                this.theData.timePoints.splice(
+                  1,
+                  this.theData.timePoints.length - 1
+                );
+                this.$message.success(response.data.message);
+                this._visible = false;
+                this.theFormLoading = false;
+                this.resetCreate();
+              })
+              .catch(error => {
+                this.theFormLoading = false;
+                this.$message.error(error);
+              });
+          }
         } else {
           return false;
         }
