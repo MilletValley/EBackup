@@ -8,6 +8,7 @@ import RestoreRecords from '@/components/RestoreRecords';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import TabPanels from '@/components/TabPanels';
+import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import { applyFilterMethods } from '../../utils/common';
@@ -158,6 +159,8 @@ const detailPageMixin = {
       results: [], // 备份集
       backupPlanCreateModalVisible: false,
       restorePlanCreateModalVisible: false,
+      selectedBackupResultId: -1,
+      singleRestoreCreateModalVisible: false,
     };
   },
   created() {
@@ -198,12 +201,16 @@ const detailPageMixin = {
       this.restorePlans.push(plan);
     },
     // 添加一个单次恢复
-    addRestorePlan(restorePlan) {
-      this.restorePlans.unshift(restorePlan);
-    },
+    // addRestorePlan(restorePlan) {
+    //   this.restorePlans.unshift(restorePlan);
+    // },
     // 更新恢复计划
     updateRestorePlan(updateIndex, plan) {
       this.restorePlans.splice(updateIndex, 1, plan);
+    },
+    initSingleRestoreModal(id) {
+      this.selectedBackupResultId = id;
+      this.singleRestoreCreateModalVisible = true;
     },
   },
   components: {
@@ -212,6 +219,7 @@ const detailPageMixin = {
     AddBackupPlan,
     RestorePlanCreateModal,
     TabPanels,
+    SingleRestoreCreateModal,
   },
 };
 

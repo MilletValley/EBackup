@@ -80,11 +80,11 @@
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
+                @single-restore-btn-click="initSingleRestoreModal"
                 @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:refresh="refreshSingleRestorePlan"
-                @restoreplan:add="addRestorePlan"
                 @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
@@ -102,6 +102,10 @@
                            :visible.sync="detailsEditModal"
                            :item-info="details"
                            @confirm="details = arguments[0]"></database-update-modal>
+    <single-restore-create-modal type="oracle"
+                                 :id="selectedBackupResultId"
+                                 :visible.sync="singleRestoreCreateModalVisible"
+                                 @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
 <script>
@@ -118,6 +122,8 @@ import {
   fetchRestoreOperation,
   deleteRestorePlan,
   deleteOracleBackupPlan,
+  createSingleRestorePlan,
+  createRestorePlan,
 } from '../../api/oracle';
 
 export default {
@@ -268,6 +274,30 @@ export default {
         );
         this.$message.success('删除成功');
       });
+    },
+    addRestorePlan(restorePlan) {
+      createRestorePlan(restorePlan)
+        .then(res => {
+          const { data: restorePlan } = res.data;
+          this.modalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        });
+      this.restorePlans.unshift(restorePlan);
+    },
+    addSingleRestorePlan(restorePlan) {
+      createSingleRestorePlan(restorePlan)
+        .then(res => {
+          const { data: restorePlan } = res.data;
+          this.singleRestoreCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      this.restorePlans.unshift(restorePlan);
     },
   },
 };

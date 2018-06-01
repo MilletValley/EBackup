@@ -58,7 +58,7 @@
         </el-form>
         <backup-result-list :type="type"
                             :data="results"
-                            @add-restore="singleRestoreAdded"></backup-result-list>
+                            @single-restore-btn-click="singleRestoreBtnClick"></backup-result-list>
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
                    name="restore">
@@ -240,6 +240,10 @@ export default {
     },
     restorePlanRefresh(planId) {
       this.$emit('restoreplan:refresh', planId);
+    },
+    // 备份集中点击恢复按钮
+    singleRestoreBtnClick(id) {
+      this.$emit('single-restore-btn-click', id);
     },
   },
   components: {
