@@ -84,16 +84,7 @@ export default {
         if (valid) {
           this.formData.name = moment().format('YYYYMMDDHHmmss');
           const { name, config } = this.pruneData(this.formData);
-          requestMapping[this.type]({ id: this.id, data: { name, config } })
-            .then(res => {
-              const { data: restorePlan } = res.data;
-              this.$emit('confirm', restorePlan);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              return false;
-            });
+          this.$emit('confirm', { id: this.id, data: { name, config } });
         } else {
           return false;
         }

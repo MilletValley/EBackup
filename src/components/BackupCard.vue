@@ -140,30 +140,11 @@
 import throttle from 'lodash/throttle';
 import baseMixin from './mixins/baseMixins';
 import {
-  deleteOracleBackupPlan,
-  fetchBackupOperation as refreshOraclePlan,
-} from '../api/oracle';
-import {
-  deleteSqlServerBackupPlan,
-  fetchBackupOperation as refreshSqlServerPlan,
-} from '../api/sqlserver';
-import {
-  deleteBackupPlan as deleteFileHostPlan,
-  fetchBackupOperation as refreshFileHostPlan,
-} from '../api/fileHost';
-import {
   backupStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
 } from '../utils/constant';
-
-const deleteMethods = {
-  oracle: deleteOracleBackupPlan,
-  sqlserver: deleteSqlServerBackupPlan,
-  windows: deleteFileHostPlan,
-  linux: deleteFileHostPlan,
-};
 
 export default {
   name: 'BackupCard',
@@ -229,14 +210,7 @@ export default {
         cancelButtonText: '取消',
       })
         .then(() => {
-          deleteMethods[this.type](this.backupPlan.id)
-            .then(() => {
-              this.$emit('deletePlan');
-              this.$message.success('删除成功');
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
+          this.$emit('deletePlan', this.backupPlan.id);
         })
         .catch(() => {});
     },

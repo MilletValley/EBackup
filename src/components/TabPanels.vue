@@ -30,7 +30,7 @@
                      :key="plan.id"
                      :backupPlan="plan"
                      @refresh="backupPlanRefresh"
-                     @deletePlan="backupPlanDeleted(index)"
+                     @deletePlan="backupPlanDeleted"
                      @updatePlan="selectBackupPlan(index)"></backup-card>
         <template v-if="!isFileBackupResult">
           <restore-card :id="plan.id"
@@ -39,7 +39,7 @@
                         :key="plan.id"
                         :restore-plan="plan"
                         @refresh="restorePlanRefresh"
-                        @deletePlan="restorePlanDeleted(index)"
+                        @deletePlan="restorePlanDeleted"
                         @updatePlan="selectRestorePlan(index)"></restore-card>
         </template>
 
@@ -58,7 +58,7 @@
         </el-form>
         <backup-result-list :type="type"
                             :data="results"
-                            @add-restore="singleRestoreAdded"></backup-result-list>
+                            @single-restore-btn-click="singleRestoreBtnClick"></backup-result-list>
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
                    name="restore">
@@ -208,8 +208,8 @@ export default {
       this.selectedRestorePlanIndex = planIndex;
     },
     // 删除一个备份计划
-    backupPlanDeleted(deleteIndex) {
-      this.$emit('backupplan:delete', deleteIndex);
+    backupPlanDeleted(planId) {
+      this.$emit('backupplan:delete', planId);
       // this.backupPlans.splice(planIndex, 1);
     },
     // 添加一个单次恢复后得cb
@@ -223,8 +223,11 @@ export default {
     //   this.restorePlans.unshift(plan);
     // },
     // 删除一个恢复计划
-    restorePlanDeleted(deleteIndex) {
-      this.$emit('restoreplan:delete', deleteIndex);
+    // restorePlanDeleted(deleteIndex) {
+    //   this.$emit('restoreplan:delete', deleteIndex);
+    // },
+    restorePlanDeleted(planId) {
+      this.$emit('restoreplan:delete', planId);
     },
     // 更新恢复计划后的cb
     restorePlanUpdated(plan) {
@@ -237,6 +240,10 @@ export default {
     },
     restorePlanRefresh(planId) {
       this.$emit('restoreplan:refresh', planId);
+    },
+    // 备份集中点击恢复按钮
+    singleRestoreBtnClick(id) {
+      this.$emit('single-restore-btn-click', id);
     },
   },
   components: {

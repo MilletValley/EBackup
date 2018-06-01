@@ -77,11 +77,11 @@
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
+                @single-restore-btn-click="initSingleRestoreModal"
                 @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:refresh="refreshSingleRestorePlan"
-                @restoreplan:add="addRestorePlan"
                 @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
@@ -99,6 +99,10 @@
                            :visible.sync="detailsEditModal"
                            :item-info="details"
                            @confirm="details = arguments[0]"></database-update-modal>
+    <single-restore-create-modal type="sqlserver"
+                                 :id="selectedBackupResultId"
+                                 :visible.sync="singleRestoreCreateModalVisible"
+                                 @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
 <script>
@@ -112,6 +116,10 @@ import {
   fetchRestoreRecords,
   fetchBackupOperation,
   fetchRestoreOperation,
+  deleteRestorePlan,
+  deleteSqlServerBackupPlan,
+  createSingleRestorePlan,
+  createRestorePlan,
 } from '../../api/sqlserver';
 
 export default {
@@ -238,6 +246,53 @@ export default {
     refreshSingleRestorePlan(planId) {
       this.selectedRestorePlanId = planId;
       this.throttleRefreshRestore();
+    },
+    deleteRestorePlan(planId) {
+      deleteRestorePlan(planId)
+        .then(() => {
+          this.$message.success('删除成功');
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(plan => plan.id === planId),
+            1
+          );
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    deleteBackupPlan(planId) {
+      deleteSqlServerBackupPlan(planId).then(() => {
+        this.backupPlans.splice(
+          this.backupPlans.findIndex(plan => plan.id === planId),
+          1
+        );
+        this.$message.success('删除成功');
+      });
+    },
+    addRestorePlan(restorePlan) {
+      createRestorePlan(restorePlan)
+        .then(res => {
+          const { data: restorePlan } = res.data;
+          this.modalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        });
+      this.restorePlans.unshift(restorePlan);
+    },
+    // 单次恢复
+    addSingleRestorePlan(restorePlan) {
+      createSingleRestorePlan(restorePlan)
+        .then(res => {
+          const { data: restorePlan } = res.data;
+          this.singleRestoreCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      this.restorePlans.unshift(restorePlan);
     },
   },
 };

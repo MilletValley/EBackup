@@ -124,21 +124,6 @@ import {
   weekMapping,
   operationStateMapping,
 } from '../utils/constant';
-import {
-  deleteRestorePlan as deleteSqlServerRestorePlan,
-  fetchRestoreOperation as refreshSqlserverPlan,
-} from '../api/sqlserver';
-import {
-  deleteRestorePlan as deleteOracleRestorePlan,
-  fetchRestoreOperation as refreshOraclePlan,
-} from '../api/oracle';
-
-const deleteMethods = {
-  oracle: deleteOracleRestorePlan,
-  sqlserver: deleteSqlServerRestorePlan,
-  windows: () => {},
-  linux: () => {},
-};
 
 export default {
   name: 'RestoreCard',
@@ -198,15 +183,7 @@ export default {
         cancelButtonText: '取消',
       })
         .then(() => {
-          console.log(deleteMethods[this.type]);
-          deleteMethods[this.type](this.restoreOperation.id)
-            .then(() => {
-              this.$emit('deletePlan');
-              this.$message.success('删除成功');
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
+          this.$emit('deletePlan', this.restorePlan.id);
         })
         .catch(() => {});
     },

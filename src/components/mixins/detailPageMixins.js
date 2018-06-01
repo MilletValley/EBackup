@@ -8,6 +8,7 @@ import RestoreRecords from '@/components/RestoreRecords';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import TabPanels from '@/components/TabPanels';
+import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import { applyFilterMethods } from '../../utils/common';
@@ -112,22 +113,6 @@ const baseMixin = {
     refreshThrottle(fn) {
       return throttle(fn(), 5000, { leading: true, trailing: false });
     },
-    throttleMethod(func) {
-      return throttle(
-        () => {
-          func(this.id)
-            .then(res => {
-              const { data: result } = res.data;
-              this.results = result;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-        },
-        5000,
-        { leading: true, trailing: false }
-      );
-    },
     addSingleRestore(restorePlan) {
       this.restorePlans.push(restorePlan);
     },
@@ -174,6 +159,8 @@ const detailPageMixin = {
       results: [], // 备份集
       backupPlanCreateModalVisible: false,
       restorePlanCreateModalVisible: false,
+      selectedBackupResultId: -1,
+      singleRestoreCreateModalVisible: false,
     };
   },
   created() {
@@ -193,47 +180,7 @@ const detailPageMixin = {
     throttleMethod(fn) {
       return throttle(fn, 5000, { leading: true, trailing: false });
     },
-
-    // throttleMethod(func) {
-    //   return throttle(
-    //     () => {
-    //       func(this.id)
-    //         .then(res => {
-    //           const { data: result } = res.data;
-    //           this.results = result;
-    //         })
-    //         .catch(error => {
-    //           this.$message.error(error);
-    //         });
-    //     },
-    //     5000,
-    //     { leading: true, trailing: false }
-    //   );
-    // },
-    throttleUpdateRestore(getRestorePlans, getRestoreRecords) {
-      return throttle(
-        () => {
-          getRestorePlans(this.id)
-            .then(res => {
-              const { data: restorePlans } = res.data;
-              this.restorePlans = restorePlans;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-          getRestoreRecords(this.id)
-            .then(res => {
-              const { data: restoreRecords } = res.data;
-              this.restoreRecords = restoreRecords;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-        },
-        5000,
-        { leading: true, trailing: false }
-      );
-    },
+    // dropdown
     addPlanBtnClick(command) {
       if (command === 'backup') {
         this.backupPlanCreateModalVisible = true;
@@ -253,21 +200,17 @@ const detailPageMixin = {
     restorePlanAdded(plan) {
       this.restorePlans.push(plan);
     },
-    // 删除备份计划事件
-    deleteBackupPlan(deleteIndex) {
-      this.backupPlans.splice(deleteIndex, 1);
-    },
     // 添加一个单次恢复
-    addRestorePlan(restorePlan) {
-      this.restorePlans.unshift(restorePlan);
-    },
-    // 删除一个恢复计划
-    deleteRestorePlan(deleteIndex) {
-      this.restorePlans.splice(deleteIndex, 1);
-    },
+    // addRestorePlan(restorePlan) {
+    //   this.restorePlans.unshift(restorePlan);
+    // },
     // 更新恢复计划
     updateRestorePlan(updateIndex, plan) {
       this.restorePlans.splice(updateIndex, 1, plan);
+    },
+    initSingleRestoreModal(id) {
+      this.selectedBackupResultId = id;
+      this.singleRestoreCreateModalVisible = true;
     },
   },
   components: {
@@ -276,6 +219,7 @@ const detailPageMixin = {
     AddBackupPlan,
     RestorePlanCreateModal,
     TabPanels,
+    SingleRestoreCreateModal,
   },
 };
 
