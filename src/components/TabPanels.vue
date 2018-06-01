@@ -30,7 +30,7 @@
                      :key="plan.id"
                      :backupPlan="plan"
                      @refresh="backupPlanRefresh"
-                     @deletePlan="backupPlanDeleted(index)"
+                     @deletePlan="backupPlanDeleted"
                      @updatePlan="selectBackupPlan(index)"></backup-card>
         <template v-if="!isFileBackupResult">
           <restore-card :id="plan.id"
@@ -39,7 +39,7 @@
                         :key="plan.id"
                         :restore-plan="plan"
                         @refresh="restorePlanRefresh"
-                        @deletePlan="restorePlanDeleted(index)"
+                        @deletePlan="restorePlanDeleted"
                         @updatePlan="selectRestorePlan(index)"></restore-card>
         </template>
 
@@ -208,8 +208,8 @@ export default {
       this.selectedRestorePlanIndex = planIndex;
     },
     // 删除一个备份计划
-    backupPlanDeleted(deleteIndex) {
-      this.$emit('backupplan:delete', deleteIndex);
+    backupPlanDeleted(planId) {
+      this.$emit('backupplan:delete', planId);
       // this.backupPlans.splice(planIndex, 1);
     },
     // 添加一个单次恢复后得cb
@@ -223,8 +223,11 @@ export default {
     //   this.restorePlans.unshift(plan);
     // },
     // 删除一个恢复计划
-    restorePlanDeleted(deleteIndex) {
-      this.$emit('restoreplan:delete', deleteIndex);
+    // restorePlanDeleted(deleteIndex) {
+    //   this.$emit('restoreplan:delete', deleteIndex);
+    // },
+    restorePlanDeleted(planId) {
+      this.$emit('restoreplan:delete', planId);
     },
     // 更新恢复计划后的cb
     restorePlanUpdated(plan) {

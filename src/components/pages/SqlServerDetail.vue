@@ -112,6 +112,8 @@ import {
   fetchRestoreRecords,
   fetchBackupOperation,
   fetchRestoreOperation,
+  deleteRestorePlan,
+  deleteSqlServerBackupPlan,
 } from '../../api/sqlserver';
 
 export default {
@@ -238,6 +240,28 @@ export default {
     refreshSingleRestorePlan(planId) {
       this.selectedRestorePlanId = planId;
       this.throttleRefreshRestore();
+    },
+    deleteRestorePlan(planId) {
+      deleteRestorePlan(planId)
+        .then(() => {
+          this.$message.success('删除成功');
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(plan => plan.id === planId),
+            1
+          );
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    deleteBackupPlan(planId) {
+      deleteSqlServerBackupPlan(planId).then(() => {
+        this.backupPlans.splice(
+          this.backupPlans.findIndex(plan => plan.id === planId),
+          1
+        );
+        this.$message.success('删除成功');
+      });
     },
   },
 };

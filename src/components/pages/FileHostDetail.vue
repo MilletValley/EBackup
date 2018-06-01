@@ -75,7 +75,6 @@
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:add="addRestorePlan"
                 @restoreplan:update="updateRestorePlan"
-                @restoreplan:delete="deleteRestorePlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
@@ -99,6 +98,7 @@ import {
   fetchRestorePlans,
   fetchRestoreRecords,
   fetchBackupOperation,
+  deleteBackupPlan,
 } from '../../api/fileHost';
 
 export default {
@@ -202,6 +202,15 @@ export default {
     refreshSingleBackupPlan(planId) {
       this.selectedBackupPlanId = planId;
       this.throttleRefreshBackup();
+    },
+    deleteBackupPlan(planId) {
+      deleteBackupPlan(planId).then(() => {
+        this.backupPlans.splice(
+          this.backupPlans.findIndex(plan => plan.id === planId),
+          1
+        );
+        this.$message.success('删除成功');
+      });
     },
   },
   computed: {
