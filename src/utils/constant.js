@@ -51,6 +51,10 @@ const databaseStateMapping = {
   1: '正常',
   2: '异常',
 };
+const databaseRoleMapping = {
+  1: '主库',
+  2: '备库',
+};
 
 // 设备类型
 const hostTypeMapping = {
@@ -97,6 +101,7 @@ export {
   databaseStateMapping,
   hostTypeMapping,
   databaseTypeMapping,
+  databaseRoleMapping,
   linkStateMapping,
   switchState,
   switchIpMapping,
