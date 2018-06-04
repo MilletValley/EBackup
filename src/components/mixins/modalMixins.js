@@ -45,6 +45,10 @@ const genModalMixin = type => {
         name: '',
         hostIp: '',
         osName: '',
+        loginName: '',
+        password: '',
+        hostType: '1',
+        databaseType: '1',
       };
       const baseData = {
         oracle: databaseBaseFormData,
@@ -70,6 +74,15 @@ const genModalMixin = type => {
             message: 'IP地址不正确',
             trigger: 'blur',
           },
+        ],
+        hostType: [
+          { required: true, message: '请选择设备类型', trigger: 'blur' },
+        ],
+        databaseType: [
+          { required: true, message: '请选择数据库类型', trigger: 'blur' },
+        ],
+        osName: [
+          { required: true, message: '请选择操作系统', trigger: 'blur' },
         ],
         instanceName: [
           {
