@@ -21,6 +21,16 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
+        <el-form-item label="设备类型"
+                      prop="hostType">
+          <el-radio v-model="formData.hostType" :label="1">生产环境</el-radio>
+          <el-radio v-model="formData.hostType" :label="2">易备环境</el-radio>
+        </el-form-item>
+        <el-form-item label="数据库类型"
+                      prop="databaseType">
+          <el-radio v-model="formData.databaseType" :label="1">oracle</el-radio>
+          <el-radio v-model="formData.databaseType" :label="2">sqlserver</el-radio>
+        </el-form-item>
         <el-form-item label="操作系统"
                       prop="osName">
           <el-select v-model="formData.osName"
@@ -29,6 +39,14 @@
                        :key="item.value"
                        :value="item"></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="系统登录名"
+                      prop="loginName">
+          <el-input v-model="formData.loginName"></el-input>
+        </el-form-item>
+        <el-form-item label="登陆密码"
+                      prop="password">
+          <input-toggle v-model="formData.password"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
