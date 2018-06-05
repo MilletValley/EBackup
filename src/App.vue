@@ -25,8 +25,8 @@ body {
 .icon {
   width: 1.3em;
   height: 1.3em;
-  vertical-align: -0.45em;
-  margin-right: 5px;
+  /* vertical-align: -0.45em; */
+  /* margin-right: 5px; */
   fill: rgb(208, 208, 208);
   overflow: hidden;
 }
