@@ -10,6 +10,7 @@ import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
 import './utils/icon-svg';
+import echarts from 'echarts';
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
