@@ -51,7 +51,7 @@
                 <span>{{ details.loginName }}</span>
               </el-form-item>
               <el-form-item label="数据库密码：">
-                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
+                <!-- <span-toggle :value="sqlserver.password"></span-toggle> -->
                 <span>●●●●●●●●</span>
               </el-form-item>
               <el-form-item label="主机名：">
@@ -98,7 +98,8 @@
     <database-update-modal type="sqlserver"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
-                           @confirm="details = arguments[0]"></database-update-modal>
+                           :btn-loading="btnLoading"
+                           @confirm="updateDetails"></database-update-modal>
     <single-restore-create-modal type="sqlserver"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
@@ -109,6 +110,7 @@
 import { detailPageMixin } from '../mixins/detailPageMixins';
 
 import {
+  modifyOne,
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
@@ -293,6 +295,24 @@ export default {
           this.$message.error(error);
         });
       this.restorePlans.unshift(restorePlan);
+    },
+    updateDetails(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: sqlserver, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          sqlserver.id = this.details.id;
+          this.details = sqlserver;
+          this.detailsEditModal = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
     },
   },
 };

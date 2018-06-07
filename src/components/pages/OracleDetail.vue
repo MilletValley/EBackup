@@ -58,13 +58,13 @@
                 <span>●●●●●●●●</span>
               </el-form-item>
               <el-form-item label="主机名：">
-                <span>{{ details.hostName }}</span>
+                <span>{{ details.host.name }}</span>
               </el-form-item>
               <el-form-item label="操作系统：">
-                <span>{{ details.osName }}</span>
+                <span>{{ details.host.osName }}</span>
               </el-form-item>
               <el-form-item label="主机IP：">
-                <span>{{ details.hostIp }}</span>
+                <span>{{ details.host.hostIp }}</span>
               </el-form-item>
               <el-form-item label="所属系统：">
                 <span>{{ details.application }}</span>
@@ -101,7 +101,8 @@
     <database-update-modal type="oracle"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
-                           @confirm="details = arguments[0]"></database-update-modal>
+                           :btn-loading="btnLoading"
+                           @confirm="updateDetails"></database-update-modal>
     <single-restore-create-modal type="oracle"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
@@ -113,6 +114,7 @@ import throttle from 'lodash/throttle';
 import { detailPageMixin } from '../mixins/detailPageMixins';
 
 import {
+  modifyOne,
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
@@ -298,6 +300,24 @@ export default {
           this.$message.error(error);
         });
       this.restorePlans.unshift(restorePlan);
+    },
+    updateDetails(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: oracle, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          oracle.id = this.details.id;
+          this.details = oracle;
+          this.detailsEditModal = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
     },
   },
 };

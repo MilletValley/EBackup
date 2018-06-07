@@ -11,52 +11,62 @@
                label-width="110px"
                ref="itemCreateForm"
                size="small">
-        <div class="form-header">主要信息</div>
+        <!-- <div class="form-header">主要信息</div> -->
         <el-form-item label="名称"
                       prop="name">
           <el-input v-model="formData.name"
                     placeholder="请输入一个标识名称"></el-input>
         </el-form-item>
-        <el-form-item label="主机IP"
+        <el-form-item label="所属设备"
+                      prop="hostId">
+          <el-select v-model="formData.hostId"
+                     style="width: 100%;">
+            <el-option v-for="host in availableHosts"
+                       :key="host.id"
+                       :label="`${host.name}(${host.hostIp})`"
+                       :value="host.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <!-- <el-form-item label="主机IP"
                       prop="hostIp">
           <el-input v-model="formData.hostIp"
                     placeholder="请输入服务器IP"></el-input>
-        </el-form-item>
-
-        <el-form-item :label="databaseOrInstance"
-                      prop="instanceName">
-          <el-input v-model="formData.instanceName"
-                    :placeholder="`请输入要备份的${databaseOrInstance}`"></el-input>
-        </el-form-item>
-        <el-form-item label="数据库登录名"
-                      prop="loginName">
-          <el-input v-model="formData.loginName"></el-input>
-        </el-form-item>
-        <el-form-item label="数据库密码"
-                      prop="password">
-          <input-toggle v-model="formData.password"></input-toggle>
-        </el-form-item>
-        <el-collapse v-model="collapseName">
-          <el-collapse-item name="more"
-                            title="更多信息">
-            <el-form-item label="主机名"
-                          prop="hostName">
-              <el-input v-model="formData.hostName"></el-input>
+        </el-form-item> -->
+        <el-row>
+          <el-col :span="12">
+            <el-form-item :label="databaseOrInstance"
+                          prop="instanceName">
+              <el-input v-model="formData.instanceName"
+                        :placeholder="`请输入要备份的${databaseOrInstance}`"></el-input>
             </el-form-item>
-            <el-form-item label="操作系统"
-                          prop="osName">
-              <el-input v-model="formData.osName"></el-input>
-            </el-form-item>
-            <el-form-item label="所属业务系统"
-                          prop="application">
-              <el-input v-model="formData.application"></el-input>
-            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="数据库版本"
                           prop="dbVersion">
-              <el-input v-model="formData.dbVersion"></el-input>
+              <el-input v-model="formData.dbVersion"
+                        placeholder="可选"></el-input>
             </el-form-item>
-          </el-collapse-item>
-        </el-collapse>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="数据库登录名"
+                          prop="loginName">
+              <el-input v-model="formData.loginName"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="数据库密码"
+                          prop="password">
+              <input-toggle v-model="formData.password"></input-toggle>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="所属业务系统"
+                      prop="application">
+          <el-input v-model="formData.application"
+                    placeholder="可选"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
@@ -70,43 +80,38 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-import { createOne as oracleCreate } from '../api/oracle';
-import { createOne as sqlCreate } from '../api/sqlserver';
 import { genModalMixin } from './mixins/modalMixins';
 
 const vm = {
   name: 'DatabaseCreateModal',
   mixins: [genModalMixin('database')],
   data() {
-    return {
-      // formData: {},
-      requestMapping: {
-        oracle: data => oracleCreate(data),
-        sqlserver: data => sqlCreate(data),
-      },
-    };
+    return {};
   },
+
   methods: {
     // 点击确认按钮触发
     confirm() {
       this.$refs.itemCreateForm.validate(valid => {
         if (valid) {
-          this.$emit('confirm', this.formData);
-          // this.confirmBtnLoading = true;
-          // this.requestMapping[this.type](this.formData)
-          //   .then(res => {
-          //     const { data: db } = res.data;
-          //     this.$emit('confirm', db);
-          //     this.modalVisible = false;
-          //   })
-          //   .catch(error => {
-          //     this.$message.error(error);
-          //     this.$refs.itemCreateForm.clearValidate();
-          //     return false;
-          //   })
-          //   .then(() => {
-          //     this.confirmBtnLoading = false;
-          //   });
+          const {
+            instanceName,
+            name,
+            loginName,
+            password,
+            dbVersion,
+            application,
+            hostId,
+          } = this.formData;
+          this.$emit('confirm', {
+            instanceName,
+            name,
+            loginName,
+            password,
+            dbVersion,
+            application,
+            hostId,
+          });
         } else {
           return false;
         }
