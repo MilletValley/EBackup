@@ -1,4 +1,7 @@
-import { databaseStateMapping } from '../../utils/constant';
+import {
+  databaseStateMapping,
+  databaseRoleMapping,
+} from '../../utils/constant';
 
 const listMixin = {
   data() {
@@ -31,6 +34,9 @@ const listMixin = {
     },
     stateFormatter(row, column, cellValue) {
       return databaseStateMapping[cellValue];
+    },
+    databaseRoleFormatter(row, column, cellValue) {
+      return databaseRoleMapping[cellValue];
     },
   },
 };
