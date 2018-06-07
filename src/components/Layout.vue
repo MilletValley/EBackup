@@ -11,7 +11,8 @@
                text-color="#fff"
                active-text-color="#fff">
         <el-menu-item index="/dashboard">
-          <IIcon name="dashboard"></IIcon>
+          <IIcon name="dashboard"
+                 class="menu-icon"></IIcon>
           <router-link to="/dashboard"
                        tag="span">主页</router-link>
         </el-menu-item>
@@ -19,7 +20,8 @@
                     :key="menu.path"
                     :index="menu.path">
           <template slot="title">
-            <IIcon :name="menu.meta.icon"></IIcon>
+            <IIcon :name="menu.meta.icon"
+                   class="menu-icon"></IIcon>
             <span>{{ menu.meta.title }}</span>
           </template>
           <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
@@ -150,5 +152,8 @@ export default {
 .router-link-active {
   color: #ffd04b;
   font-weight: 600;
+}
+.menu-icon {
+  margin-right: 5px;
 }
 </style>

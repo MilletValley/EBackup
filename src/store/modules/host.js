@@ -7,6 +7,9 @@ const state = {
 /* eslint no-shadow: 0 */
 const getters = {
   selectedHost: state => id => state.hosts.find(host => host.id === id) || {},
+  hostsWithOracle: state => state.hosts.filter(host => host.databaseType === 1),
+  hostsWithSqlServer: state =>
+    state.hosts.filter(host => host.databaseType === 2),
 };
 const mutations = {
   [types.GET_HOST](state, host) {

@@ -152,6 +152,32 @@ const fetchRestoreOperation = id =>
     method: 'get',
     url: `/oracle-restore-plans/${id}`,
   });
+
+const fetchLinks = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/oracle-links',
+  });
+
+const createLinks = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-links',
+    data,
+  });
+
+const createSwitches = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-switches',
+    data,
+  });
+
+const fetchSwitches = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-links/${linkId}/switches`,
+  });
 export {
   fetchAll,
   fetchOne,
@@ -172,4 +198,8 @@ export {
   deleteRestorePlan,
   updateRestorePlan,
   fetchRestoreOperation,
+  fetchLinks,
+  createSwitches,
+  createLinks,
+  fetchSwitches,
 };
