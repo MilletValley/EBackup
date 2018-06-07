@@ -69,7 +69,8 @@
     </el-table>
     <database-create-modal type="oracle"
                            :visible.sync="createModalVisible"
-                           @confirm="items.push(arguments[0])"></database-create-modal>
+                           :btn-loading="btnLoading"
+                           @confirm="createDb"></database-create-modal>
     <database-update-modal type="oracle"
                            :visible.sync="updateModalVisible"
                            :item-info="selectedDb"
@@ -79,7 +80,7 @@
 <script>
 import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import { fetchAll, deleteOne } from '../../api/oracle';
+import { fetchAll, deleteOne, createOne } from '../../api/oracle';
 import { listMixin } from '../mixins/databaseListMixin';
 
 export default {
@@ -117,6 +118,21 @@ export default {
             }
           })
       );
+    },
+    createDb(data) {
+      this.btnLoading = true;
+      createOne(data)
+        .then(res => {
+          const { data: db } = res.data;
+          this.items.push(db);
+          this.createModalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
     },
   },
   components: {

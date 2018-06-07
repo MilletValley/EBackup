@@ -60,8 +60,8 @@
       </el-form>
       <span slot="footer">
         <el-button type="primary"
-                   @click="confirm()"
-                   :loading="confirmBtnLoading">确定</el-button>
+                   @click="confirm"
+                   :loading="btnLoading">确定</el-button>
         <el-button @click="cancelBtnClick()">取消</el-button>
       </span>
     </el-dialog>
@@ -91,21 +91,22 @@ const vm = {
     confirm() {
       this.$refs.itemCreateForm.validate(valid => {
         if (valid) {
-          this.confirmBtnLoading = true;
-          this.requestMapping[this.type](this.formData)
-            .then(res => {
-              const { data: db } = res.data;
-              this.$emit('confirm', db);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              this.$refs.itemCreateForm.clearValidate();
-              return false;
-            })
-            .then(() => {
-              this.confirmBtnLoading = false;
-            });
+          this.$emit('confirm', this.formData);
+          // this.confirmBtnLoading = true;
+          // this.requestMapping[this.type](this.formData)
+          //   .then(res => {
+          //     const { data: db } = res.data;
+          //     this.$emit('confirm', db);
+          //     this.modalVisible = false;
+          //   })
+          //   .catch(error => {
+          //     this.$message.error(error);
+          //     this.$refs.itemCreateForm.clearValidate();
+          //     return false;
+          //   })
+          //   .then(() => {
+          //     this.confirmBtnLoading = false;
+          //   });
         } else {
           return false;
         }

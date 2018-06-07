@@ -10,6 +10,7 @@ const listMixin = {
       selectedId: '',
       createModalVisible: false,
       updateModalVisible: false,
+      btnLoading: false,
     };
   },
   computed: {

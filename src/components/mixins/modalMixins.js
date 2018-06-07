@@ -17,6 +17,9 @@ const genModalMixin = type => {
           return ['oracle', 'sqlserver', 'filehost', 'host'].includes(value);
         },
       },
+      btnLoading: {
+        type: Boolean,
+      },
     },
     data() {
       const databaseBaseFormData = {
