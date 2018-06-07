@@ -9,7 +9,6 @@ import store from './store/index';
 import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
-import echarts from 'echarts';
 // import './utils/icon-svg';
 
 Vue.use(ElementUI);

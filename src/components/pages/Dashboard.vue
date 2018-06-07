@@ -44,13 +44,8 @@
   </section>
 </template>
 <script>
-import fetchAll from '../../api/total'
-let echarts = require('echarts/lib/echarts')
-require('echarts/lib/chart/bar');
-require('echarts/lib/component/tooltip');
-require('echarts/lib/component/toolbox');
-require('echarts/lib/component/legend');
-require('echarts/lib/component/markLine');
+import fetchAll from '../../api/total';
+import echarts from 'echarts';
 export default {
   name: 'Dashboard',
   created() {
@@ -135,7 +130,7 @@ export default {
     fetchData() {
       fetchAll()
       .then(res => {
-        const { data } = res;
+        const { data } = res.data;
         this.total = data;
         this.drawLine();
       })
