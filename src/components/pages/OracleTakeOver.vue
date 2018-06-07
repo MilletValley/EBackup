@@ -8,7 +8,7 @@
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="primary"
-                   @click="console.log()">添加</el-button>
+                   @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">
@@ -21,7 +21,6 @@
               <span>生产环境</span>
             </h2>
           </div>
-
         </el-col>
         <el-col :span="10"
                 :offset="4">
@@ -36,7 +35,7 @@
         </el-col>
       </el-row>
       <div :class="$style.hostLinkContainer"
-           v-for="hostLink in xlinks"
+           v-for="hostLink in links"
            :key="hostLink.id">
         <el-row type="flex"
                 justify="space-around">
@@ -51,12 +50,55 @@
           <el-col :span="4">
             <div :class="$style.hostSwitch">
               <div>
-                <i-icon name="link"
-                        :class="$style.hostSwitchIcon"></i-icon>
+                <el-popover placement="right"
+                            trigger="hover"
+                            width="300"
+                            :open-delay="200">
+                  <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
+                  <el-form size="mini"
+                           label-width="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="切换内容">
+                      <span>{{ hostLink.latestSwitch.content }}</span>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="切换方式">
+                      <span>{{ hostLink.latestSwitch.manual | switchManualFilter }}</span>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="状态">
+                      <el-tag :type="hostLink.latestSwitch.state === 2 ? 'success' : 'danger' "
+                              size="mini">
+                        {{ hostLink.latestSwitch.state | switchStateFilter }}
+                      </el-tag>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  v-if="hostLink.latestSwitch.state !== 1"
+                                  label="完成时间">
+                      <span>{{ hostLink.latestSwitch.switchTime }}</span>
+                    </el-form-item>
+                  </el-form>
+                  <i-icon name="link"
+                          :class="$style.hostSwitchIcon"
+                          slot="reference"></i-icon>
+                </el-popover>
               </div>
-              <el-button type="text">切主</el-button>
-              <el-button type="text">切IP</el-button>
-              <el-button type="text">切备</el-button>
+              <div v-if="hostLink.latestSwitch.state === 1"
+                   style="margin-top: 6px;">
+                <i class="el-icon-loading"></i>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
+              </div>
+              <div v-else>
+                <el-button type="text"
+                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
+                           @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
+                <el-button type="text"
+                           @click="switchHostIp(hostLink)">切IP</el-button>
+                <el-button type="text"
+                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                           @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+              </div>
+
             </div>
           </el-col>
           <el-col :span="10">
@@ -93,7 +135,7 @@
                         :class="$style.dbInfoCol">
                   <h5>状态</h5>
                   <p>
-                    <el-tag :type="dbLink.primaryDatabase.state === 1 ? 'success' : 'danger'"
+                    <el-tag :type="databaseStateStyle(dbLink.primaryDatabase.state)"
                             size="mini">{{ dbLink.primaryDatabase.state | databaseStateFilter }}</el-tag>
                   </p>
                 </el-col>
@@ -106,17 +148,50 @@
           </el-col>
           <el-col :span="4">
             <div :class="$style.databaseSwitch">
-              <el-tooltip effect="light"
-                          content="切换实例"
-                          :open-delay="200"
-                          placement="right">
-                <i-icon name="switch"
-                        :class="$style.switchIcon"></i-icon>
-              </el-tooltip>
-
-              <div>
+              <el-popover placement="right"
+                          trigger="hover"
+                          width="300"
+                          :open-delay="200">
+                <label>连接状态</label>
                 <el-tag :type="databaseLinkStateStyle(dbLink.state)"
+                        style="margin-left: 10px"
                         size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
+                <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+                <el-form size="mini"
+                         label-width="70px">
+                  <el-form-item :class="$style.switchFormItem"
+                                label="切换内容">
+                    <span>{{ dbLink.latestSwitch.content }}</span>
+                  </el-form-item>
+                  <el-form-item :class="$style.switchFormItem"
+                                label="切换方式">
+                    <span>{{ dbLink.latestSwitch.manual | switchManualFilter }}</span>
+                  </el-form-item>
+                  <el-form-item :class="$style.switchFormItem"
+                                label="状态">
+                    <el-tag size="mini"
+                            :type="switchStateStyle(dbLink.latestSwitch.state)">
+                      {{ dbLink.latestSwitch.state | switchStateFilter }}
+                    </el-tag>
+                  </el-form-item>
+                  <el-form-item :class="$style.switchFormItem"
+                                v-if="dbLink.latestSwitch.state !== 1"
+                                label="完成时间">
+                    <span>{{ dbLink.latestSwitch.switchTime }}</span>
+                  </el-form-item>
+                </el-form>
+                <i-icon :name="`switch-${dbLink.state}`"
+                        :class="$style.switchIcon"
+                        slot="reference"></i-icon>
+              </el-popover>
+              <div v-if="dbLink.latestSwitch.state === 1"
+                   style="margin-top: 6px;">
+                <i class="el-icon-loading"></i>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换实例中...</span>
+              </div>
+              <div v-else>
+                <el-button type="text"
+                           @click="switchDatabase(dbLink.id)">切换实例</el-button>
               </div>
             </div>
           </el-col>
@@ -143,7 +218,7 @@
                         :class="$style.dbInfoCol">
                   <h5>状态</h5>
                   <p>
-                    <el-tag :type="dbLink.viceDatabase.state === 1 ? 'success' : 'danger'"
+                    <el-tag :type="databaseStateStyle(dbLink.viceDatabase.state)"
                             size="mini">{{ dbLink.viceDatabase.state | databaseStateFilter }}</el-tag>
                   </p>
                 </el-col>
@@ -156,576 +231,105 @@
         </el-row>
       </div>
     </section>
+    <el-dialog :visible.sync="switchModalVisible"
+               @close="switchModalClosed">
+      <el-row>
+        <el-col :span="6">
+          <i-icon name="warning"
+                  :class="$style.switchModalIcon"></i-icon>
+        </el-col>
+        <el-col :span="18">
+          <div style="height: 200px;max-height: 200px;">
+            <h4>即将执行以下操作，请检查。</h4>
+            <div v-if="hostLinkReadyToSwitch">
+              <p>
+                <span>生产环境</span>
+                <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.primaryHost.name}}</span>
+                <el-tag size="mini">IP变更</el-tag>
+                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
+                <i class="el-icon-caret-right"></i>
+                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
+              </p>
+              <p>
+                <span>易备环境</span>
+                <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.viceHost.name}}</span>
+                <el-tag size="mini">IP变更</el-tag>
+                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
+                <i class="el-icon-caret-right"></i>
+                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
+              </p>
+            </div>
+            <div v-if="databaseLinksReadyToSwitch.length > 0"
+                 v-for="link in databaseLinksReadyToSwitch"
+                 :key="link.id">
+              <p>
+                <span :class="$style.switchModalName">{{ link.primaryDatabase.name }}</span>
+                <span :class="$style.switchModalDetail">{{ link.primaryDatabase.instanceName}}</span>
+                <el-tag size="mini">角色变更</el-tag>
+                <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
+                <i class="el-icon-caret-right"></i>
+                <span>{{ link.viceDatabase.role | databaseRoleFilter }}</span>
+              </p>
+              <p>
+                <span :class="$style.switchModalName">{{ link.viceDatabase.name }}</span>
+                <span :class="$style.switchModalDetail">{{ link.viceDatabase.instanceName}}</span>
+                <el-tag size="mini">角色变更</el-tag>
+                <span>{{ link.viceDatabase.role | databaseRoleFilter}}</span>
+                <i class="el-icon-caret-right"></i>
+                <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
+              </p>
+            </div>
+          </div>
 
+          <el-input type="password"
+                    v-model="password"
+                    placeholder="请输入用户密码以执行此操作"></el-input>
+        </el-col>
+      </el-row>
+
+      <span slot="footer">
+        <el-button @click="cancelSwitch">取消</el-button>
+        <el-button type="primary"
+                   :disabled="!this.password"
+                   @click="confirmSwitch">确定</el-button>
+      </span>
+    </el-dialog>
+    <database-link-create-modal :production-hosts="availableProductionHosts"
+                                :ebackup-hosts="availableEbackupHosts"
+                                :visible.sync="linkCreateModalVisible"></database-link-create-modal>
   </section>
 </template>
 <script>
 import IIcon from '@/components/IIcon';
+import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import {
   fetchAll,
   fetchLinks,
   createLinks,
-  createSwtiches,
+  createSwitches as switchOracle,
 } from '../../api/oracle';
+import { createSwitches as switchHostIp } from '../../api/host';
+import { validatePassword } from '../../api/user';
 import {
   databaseStateMapping,
   databaseRoleMapping,
   linkStateMapping,
+  switchStateMapping,
+  switchManualMapping,
 } from '../../utils/constant';
+// 模拟数据
+import { items, links, oracleHosts } from '../../utils/mock-data';
 export default {
   name: 'OracleTakeOver',
   data() {
     return {
-      items: [
-        {
-          id: 20000,
-          instanceName: 'isho',
-          name: '车部支数据库',
-          dbVersion: '11.0.2.0',
-          application: '元青系统',
-          loginName: 'Brenda',
-          password: 'CDBl]8FZ',
-          createTime: '1993-04-27 13:34:17',
-          role: 1,
-          state: 1,
-          host: {
-            id: 10000,
-            name: 'QbhYBBaEQJ',
-            hostIp: '7.196.205.236',
-            osName: 'Linux',
-            loginName: 'Larry',
-            password: 'F3dffgzjOk',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1991-06-28 03:46:19',
-          },
-        },
-        {
-          id: 20001,
-          instanceName: 'sff',
-          name: '问状你解研数据库',
-          dbVersion: '11.0.2.0',
-          application: '明专系统',
-          loginName: 'Melissa',
-          password: 'v294Z*',
-          createTime: '2005-10-15 07:36:33',
-          role: 1,
-          state: 2,
-          host: {
-            id: 10000,
-            name: 'QbhYBBaEQJ',
-            hostIp: '7.196.205.236',
-            osName: 'Linux',
-            loginName: 'Larry',
-            password: 'F3dffgzjOk',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1991-06-28 03:46:19',
-          },
-        },
-        {
-          id: 20002,
-          instanceName: 'zevf',
-          name: '权中这关连数据库',
-          dbVersion: '11.0.2.0',
-          application: '满形地系统',
-          loginName: 'Shirley',
-          password: 'oJNsvb6kfg',
-          createTime: '2013-08-16 20:52:49',
-          role: 1,
-          state: 2,
-          host: {
-            id: 10000,
-            name: 'QbhYBBaEQJ',
-            hostIp: '7.196.205.236',
-            osName: 'Linux',
-            loginName: 'Larry',
-            password: 'F3dffgzjOk',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1991-06-28 03:46:19',
-          },
-        },
-        {
-          id: 20003,
-          instanceName: 'yqmtb',
-          name: '她院权由上数据库',
-          dbVersion: '11.0.2.0',
-          application: '应收利点关系统',
-          loginName: 'Helen',
-          password: '@75rJO',
-          createTime: '2002-05-24 02:27:57',
-          role: 2,
-          state: 2,
-          host: {
-            id: 10002,
-            name: 'UfCMzn3hdj',
-            hostIp: '77.98.180.43',
-            osName: 'Windows',
-            loginName: 'Daniel',
-            password: 'hWYpgKJBKT',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '2016-08-28 09:27:57',
-          },
-        },
-        {
-          id: 20004,
-          instanceName: 'fbuo',
-          name: '类百按然数据库',
-          dbVersion: '11.0.2.0',
-          application: '月制养济系统',
-          loginName: 'Shirley',
-          password: 'WkI!^S',
-          createTime: '2015-08-27 15:29:01',
-          role: 2,
-          state: 2,
-          host: {
-            id: 10002,
-            name: 'UfCMzn3hdj',
-            hostIp: '77.98.180.43',
-            osName: 'Windows',
-            loginName: 'Daniel',
-            password: 'hWYpgKJBKT',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '2016-08-28 09:27:57',
-          },
-        },
-        {
-          id: 20005,
-          instanceName: 'bsro',
-          name: '京红型给数据库',
-          dbVersion: '11.0.2.0',
-          application: '风验造运议系统',
-          loginName: 'Joseph',
-          password: 'sS*avxV#',
-          createTime: '1974-12-02 09:34:53',
-          role: 2,
-          state: 2,
-          host: {
-            id: 10002,
-            name: 'UfCMzn3hdj',
-            hostIp: '77.98.180.43',
-            osName: 'Windows',
-            loginName: 'Daniel',
-            password: 'hWYpgKJBKT',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '2016-08-28 09:27:57',
-          },
-        },
-        {
-          id: 20006,
-          instanceName: 'ytlp',
-          name: '世起特统都数据库',
-          dbVersion: '11.0.2.0',
-          application: '管情象规非系统',
-          loginName: 'Joseph',
-          password: '[zucSr[RA',
-          createTime: '1979-10-05 17:18:09',
-          role: 1,
-          state: 2,
-          host: {
-            id: 10001,
-            name: 'fPewj5CQB4',
-            hostIp: '182.17.138.149',
-            osName: 'Windows',
-            loginName: 'Elizabeth',
-            password: 'CQ13ZHzkTN',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1991-04-27 00:12:35',
-          },
-        },
-        {
-          id: 20007,
-          instanceName: 'vqy',
-          name: '广五变之易数据库',
-          dbVersion: '11.0.2.0',
-          application: '算矿今造四系统',
-          loginName: 'Ronald',
-          password: '!oZr6s',
-          createTime: '1989-02-07 11:34:13',
-          role: 2,
-          state: 1,
-          host: {
-            id: 10003,
-            name: 'fkSNvusHyG',
-            hostIp: '49.204.49.104',
-            osName: 'Linux',
-            loginName: 'Sarah',
-            password: 'JDg4y4f7uq',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '2013-03-15 01:37:33',
-          },
-        },
-        {
-          id: 20008,
-          instanceName: 'fdqz',
-          name: '资共头数据库',
-          dbVersion: '11.0.2.0',
-          application: '北员系统',
-          loginName: 'Nancy',
-          password: '#AZYHMw@',
-          createTime: '1971-07-17 16:41:21',
-          role: 0,
-          state: 1,
-          host: {
-            id: 10004,
-            name: 'mbGOFUO2dW',
-            hostIp: '128.197.129.69',
-            osName: 'Linux',
-            loginName: 'Gary',
-            password: 'BRgyQh4xaO',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '1981-08-03 01:09:58',
-          },
-        },
-        {
-          id: 20009,
-          instanceName: 'tmweh',
-          name: '适同了数据库',
-          dbVersion: '11.0.2.0',
-          application: '会接地往式系统',
-          loginName: 'David',
-          password: 'sgAFtbgv',
-          createTime: '2003-02-14 15:40:34',
-          role: 0,
-          state: 1,
-          host: {
-            id: 10005,
-            name: 'slw2dO0cVf',
-            hostIp: '193.168.69.151',
-            osName: 'Linux',
-            loginName: 'Elizabeth',
-            password: 'JBCuUd922w',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1970-03-19 10:02:42',
-          },
-        },
-        {
-          id: 20010,
-          instanceName: 'evmg',
-          name: '何做值数据库',
-          dbVersion: '11.0.2.0',
-          application: '被处整系统',
-          loginName: 'Linda',
-          password: 'G3rTEn2n^',
-          createTime: '2016-07-07 10:34:41',
-          role: 1,
-          state: 2,
-          host: {
-            id: 10006,
-            name: '8I6S87u6YD',
-            hostIp: '178.129.183.136',
-            osName: 'Linux',
-            loginName: 'Paul',
-            password: 'q4DwcAaiZP',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '2011-07-14 20:57:54',
-          },
-        },
-        {
-          id: 20011,
-          instanceName: 'ktv',
-          name: '五工阶技数据库',
-          dbVersion: '11.0.2.0',
-          application: '就四使亲间系统',
-          loginName: 'Karen',
-          password: ']jYK3RN1',
-          createTime: '2017-02-14 19:45:42',
-          role: 0,
-          state: 1,
-          host: {
-            id: 10007,
-            name: 'YEmpDmExKH',
-            hostIp: '76.234.135.106',
-            osName: 'Windows',
-            loginName: 'Kenneth',
-            password: 'xOcsYQadhE',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1973-09-22 07:53:29',
-          },
-        },
-      ],
-      xlinks: [
-        {
-          primaryHost: {
-            id: 96316,
-            name: 'qPLJgZgLa6',
-            hostIp: '163.31.223.113',
-            osName: 'Linux',
-            loginName: 'Christopher',
-            password: 'PBI00pnQad',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '2007-12-17 23:09:50',
-          },
-          viceHost: {
-            id: 96334,
-            name: 'EMY3x0dZSU',
-            hostIp: '121.28.26.137',
-            osName: 'Linux',
-            loginName: 'Jason',
-            password: 'D2PDFhH9RG',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '1975-09-26 13:23:45',
-          },
-          databaseLinks: [
-            {
-              id: 529,
-              primaryDatabase: {
-                id: 97160,
-                instanceName: 'qyo',
-                name: '群识速数据库',
-                dbVersion: '11.0.2.0',
-                application: '业而常保系统',
-                loginName: 'Jose',
-                password: '[hTtQe',
-                createTime: '1977-10-13 09:22:54',
-                role: 2,
-                state: 2,
-                lsn: 'GIFFpdLjK8',
-              },
-              viceDatabase: {
-                id: 97611,
-                instanceName: 'eisq',
-                name: '因口基清数据库',
-                dbVersion: '2012',
-                application: '常战入行系统',
-                loginName: 'Gary',
-                password: '2cVNP&p',
-                createTime: '2017-05-30 00:21:56',
-                role: 1,
-                state: 1,
-                lsn: 'sRBQD7fHp2',
-              },
-              state: 3,
-              errMsg: '五进团工压参常温育划装七业。',
-              tempPort: '1771',
-            },
-          ],
-        },
-        {
-          primaryHost: {
-            id: 60000,
-            name: 'eRwEBaR0O1',
-            hostIp: '182.253.166.3',
-            osName: 'Linux',
-            loginName: 'Scott',
-            password: 'NBIQ4jcnLi',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '2001-07-14 04:19:49',
-          },
-          viceHost: {
-            id: 60010,
-            name: '3Tl1VPIwC6',
-            hostIp: '203.135.130.60',
-            osName: 'Windows',
-            loginName: 'Deborah',
-            password: 'jkRymND2vW',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '1987-12-23 07:03:34',
-          },
-          databaseLinks: [
-            {
-              id: 171,
-              primaryDatabase: {
-                id: 70003,
-                instanceName: 'bomd',
-                name: '做头分数据库',
-                dbVersion: '11.0.2.0',
-                application: '自所国系统',
-                loginName: 'Christopher',
-                password: 'sHZCy##6',
-                createTime: '1979-08-06 10:53:18',
-                role: 2,
-                state: 2,
-                lsn: 'rR6LwyRwVX',
-              },
-              viceDatabase: {
-                id: 70013,
-                instanceName: 'avyw',
-                name: '运准山整数据库',
-                dbVersion: '2008',
-                application: '林照系统',
-                loginName: 'Steven',
-                password: 'EsVohxGD2&',
-                createTime: '1987-06-16 04:13:40',
-                role: 1,
-                state: 2,
-                lsn: 'wIzb6ibjH1',
-              },
-              state: 1,
-              errMsg: '白毛命料查商该物则般数两场即米。',
-              tempPort: '6804',
-            },
-            {
-              id: 900,
-              primaryDatabase: {
-                id: 70004,
-                instanceName: 'ycnrh',
-                name: '能空究保达数据库',
-                dbVersion: '11.0.2.0',
-                application: '南回求料系统',
-                loginName: 'Jeffrey',
-                password: 'IyShGGvTk',
-                createTime: '1985-01-22 06:07:18',
-                role: 1,
-                state: 2,
-                lsn: 'W5C8JGPWKX',
-              },
-              viceDatabase: {
-                id: 70014,
-                instanceName: 'edele',
-                name: '心机又数据库',
-                dbVersion: '2008',
-                application: '入安公区系统',
-                loginName: 'Jennifer',
-                password: '7#j3c3',
-                createTime: '1988-04-13 00:43:33',
-                role: 2,
-                state: 1,
-                lsn: 'HjA7jmoVY8',
-              },
-              state: 2,
-              errMsg: '下你党特干何命容斗群改别则。',
-              tempPort: '9314',
-            },
-          ],
-        },
-        {
-          primaryHost: {
-            id: 60001,
-            name: 'JKo05CGrvc',
-            hostIp: '106.225.116.169',
-            osName: 'Linux',
-            loginName: 'Eric',
-            password: '1ZGeJyY3mO',
-            hostType: 1,
-            databaseType: 1,
-            createdTime: '1997-02-27 08:46:58',
-          },
-          viceHost: {
-            id: 60011,
-            name: 'mnNm4DQ4fY',
-            hostIp: '153.58.175.213',
-            osName: 'Windows',
-            loginName: 'Jennifer',
-            password: 'ZNNt0QK10z',
-            hostType: 2,
-            databaseType: 1,
-            createdTime: '1984-04-30 20:09:55',
-          },
-          databaseLinks: [
-            {
-              id: 282,
-              primaryDatabase: {
-                id: 70000,
-                instanceName: 'wjni',
-                name: '公战建民取数据库',
-                dbVersion: '11.0.2.0',
-                application: '石前它造系统',
-                loginName: 'Margaret',
-                password: 'Ki97I4IDvz',
-                createTime: '1974-10-07 04:27:02',
-                role: 1,
-                state: 1,
-                lsn: 'ABOeurbYH7',
-              },
-              viceDatabase: {
-                id: 70010,
-                instanceName: 'jolt',
-                name: '这办众新数据库',
-                dbVersion: '2012',
-                application: '京解六小系统',
-                loginName: 'Mary',
-                password: ')hgJ(b',
-                createTime: '1979-12-21 09:23:44',
-                role: 2,
-                state: 1,
-                lsn: 'N1s7EFVyaH',
-              },
-              state: 2,
-              errMsg: '温严基那支业期最成类才种面状。',
-              tempPort: '5528',
-            },
-            {
-              id: 804,
-              primaryDatabase: {
-                id: 70001,
-                instanceName: 'orsk',
-                name: '必属设进数据库',
-                dbVersion: '11.0.2.0',
-                application: '确机达系统',
-                loginName: 'Nancy',
-                password: 'K9Fum*Mi',
-                createTime: '1979-01-19 13:13:17',
-                role: 2,
-                state: 1,
-                lsn: 'EI7vAskALJ',
-              },
-              viceDatabase: {
-                id: 70011,
-                instanceName: 'shscm',
-                name: '利气现号能数据库',
-                dbVersion: '2008',
-                application: '社料无系统',
-                loginName: 'Kimberly',
-                password: '(]i7K$',
-                createTime: '2001-10-20 09:20:04',
-                role: 1,
-                state: 2,
-                lsn: 'pSLw8tltMd',
-              },
-              state: 4,
-              errMsg: '严由支放六文力第斗关始重回资交阶。',
-              tempPort: '3927',
-            },
-            {
-              id: 237,
-              primaryDatabase: {
-                id: 70002,
-                instanceName: 'afvu',
-                name: '每反年个数据库',
-                dbVersion: '11.0.2.0',
-                application: '院作边系统',
-                loginName: 'Anthony',
-                password: '7PHJY7sCO2',
-                createTime: '1972-07-05 10:22:22',
-                role: 1,
-                state: 1,
-                lsn: 'muYPdTg2AT',
-              },
-              viceDatabase: {
-                id: 70012,
-                instanceName: 'vnhdi',
-                name: '文将非数据库',
-                dbVersion: '2012',
-                application: '平八音系统',
-                loginName: 'Jessica',
-                password: 'nzjhv(su',
-                createTime: '2008-08-14 22:45:25',
-                role: 2,
-                state: 2,
-                lsn: 'P3YqlstJey',
-              },
-              state: 4,
-              errMsg: '当必内展心史头省说图工保。',
-              tempPort: '0151',
-            },
-          ],
-        },
-      ],
+      items,
+      links,
+      linkCreateModalVisible: false,
+      switchModalVisible: false,
+      databaseLinkIdsReadyToSwitch: [],
+      hostLinkIdReadyToSwitch: -1,
+      password: '',
     };
   },
   created() {
@@ -733,97 +337,30 @@ export default {
   },
   computed: {
     oracleHosts() {
-      return [
-        {
-          id: 10000,
-          name: 'QbhYBBaEQJ',
-          hostIp: '7.196.205.236',
-          osName: 'Linux',
-          loginName: 'Larry',
-          password: 'F3dffgzjOk',
-          hostType: 1,
-          databaseType: 1,
-          createdTime: '1991-06-28 03:46:19',
-        },
-        {
-          id: 10001,
-          name: 'fPewj5CQB4',
-          hostIp: '182.17.138.149',
-          osName: 'Windows',
-          loginName: 'Elizabeth',
-          password: 'CQ13ZHzkTN',
-          hostType: 1,
-          databaseType: 1,
-          createdTime: '1991-04-27 00:12:35',
-        },
-        {
-          id: 10002,
-          name: 'UfCMzn3hdj',
-          hostIp: '77.98.180.43',
-          osName: 'Windows',
-          loginName: 'Daniel',
-          password: 'hWYpgKJBKT',
-          hostType: 2,
-          databaseType: 1,
-          createdTime: '2016-08-28 09:27:57',
-        },
-        {
-          id: 10003,
-          name: 'fkSNvusHyG',
-          hostIp: '49.204.49.104',
-          osName: 'Linux',
-          loginName: 'Sarah',
-          password: 'JDg4y4f7uq',
-          hostType: 2,
-          databaseType: 1,
-          createdTime: '2013-03-15 01:37:33',
-        },
-        {
-          id: 10004,
-          name: 'mbGOFUO2dW',
-          hostIp: '128.197.129.69',
-          osName: 'Linux',
-          loginName: 'Gary',
-          password: 'BRgyQh4xaO',
-          hostType: 2,
-          databaseType: 1,
-          createdTime: '1981-08-03 01:09:58',
-        },
-        {
-          id: 10005,
-          name: 'slw2dO0cVf',
-          hostIp: '193.168.69.151',
-          osName: 'Linux',
-          loginName: 'Elizabeth',
-          password: 'JBCuUd922w',
-          hostType: 1,
-          databaseType: 1,
-          createdTime: '1970-03-19 10:02:42',
-        },
-        {
-          id: 10006,
-          name: '8I6S87u6YD',
-          hostIp: '178.129.183.136',
-          osName: 'Linux',
-          loginName: 'Paul',
-          password: 'q4DwcAaiZP',
-          hostType: 1,
-          databaseType: 1,
-          createdTime: '2011-07-14 20:57:54',
-        },
-        {
-          id: 10007,
-          name: 'YEmpDmExKH',
-          hostIp: '76.234.135.106',
-          osName: 'Windows',
-          loginName: 'Kenneth',
-          password: 'xOcsYQadhE',
-          hostType: 1,
-          databaseType: 1,
-          createdTime: '1973-09-22 07:53:29',
-        },
-      ];
+      return oracleHosts;
       // return this.$store.getters.hostsWithOracle;
+    },
+    // 设备ID与其下Oracle的对应关系
+    hostsWithOracle() {
+      const res = {};
+      this.oracleHosts.forEach(host => {
+        const databases = this.items.filter(db => db.host.id === host.id);
+        res[host.id] = {
+          databases,
+        };
+      });
+      return res;
+      // return this.items.reduce((accumulator, db) => {
+      //   const { host, ...info } = db;
+      //   if (accumulator[db.host.id]) {
+      //     accumulator[db.host.id].databases.push(info);
+      //   } else {
+      //     accumulator[db.host.id] = {
+      //       databases: [info],
+      //     };
+      //   }
+      //   return accumulator;
+      // }, {});
     },
     productionOracleHosts() {
       return this.oracleHosts.filter(host => host.hostType === 1);
@@ -831,22 +368,49 @@ export default {
     ebackupOracleHosts() {
       return this.oracleHosts.filter(host => host.hostType === 2);
     },
-    /**
-     * 拥有数据库的设备
-     * [host(..., database), ...]
-     */
-    usedHosts() {
-      const obj = {};
-      this.items.forEach(item => {
-        const { host, ...database } = item;
-        if (!obj[item.host.id]) {
-          obj[item.host.id] = item.host;
-          obj[item.host.id].databases = Array.of(database);
-        } else {
-          obj[item.host.id].databases.push(database);
-        }
-      });
-      return Object.keys(obj).map(id => obj[id]);
+    // 可以进行初始化连接操作的生产设备
+    // 该设备下可能没有数据库／实例 需要进一步筛选
+    availableProductionHosts() {
+      return this.productionOracleHosts
+        .filter(
+          host => !this.links.find(link => link.primaryHost.id === host.id)
+        )
+        .map(host => {
+          const databases = this.hostsWithOracle[host.id].databases || [];
+          return { databases, ...host };
+        });
+    },
+    // 可以进行初始化连接操作的易备设备
+    // 该设备可能有数据库／实例 需要进一步筛选
+    availableEbackupHosts() {
+      return this.ebackupOracleHosts
+        .filter(host => !this.links.find(link => link.viceHost.id === host.id))
+        .map(host => {
+          const databases = this.hostsWithOracle[host.id].databases || [];
+          return { databases, ...host };
+        });
+    },
+    databaseLinks() {
+      return this.links.reduce((accumulator, hostLink) => {
+        const links = hostLink.databaseLinks;
+        const productionHost = hostLink.primaryHost;
+        const ebackupHost = hostLink.viceHost;
+        links.forEach(link => {
+          link.primaryDatabase.host = productionHost;
+          link.viceDatabase.host = ebackupHost;
+        });
+        return [...accumulator, ...links];
+      }, []);
+    },
+    databaseLinksReadyToSwitch() {
+      return this.databaseLinks.filter(
+        link => this.databaseLinkIdsReadyToSwitch.indexOf(link.id) >= 0
+      );
+    },
+    hostLinkReadyToSwitch() {
+      return this.links.find(
+        hostLink => hostLink.id === this.hostLinkIdReadyToSwitch
+      );
     },
   },
   methods: {
@@ -868,6 +432,7 @@ export default {
       //     this.$message.error(error);
       //   });
     },
+    // 数据库连接状态与tag类型的映射
     databaseLinkStateStyle(value) {
       switch (value) {
         case 1:
@@ -881,6 +446,81 @@ export default {
           return 'info';
       }
     },
+    databaseStateStyle(value) {
+      switch (value) {
+        case 0:
+          return 'info';
+        case 1:
+          return 'success';
+        case 2:
+          return 'danger';
+      }
+    },
+    switchStateStyle(value) {
+      switch (value) {
+        case 1:
+          return 'info';
+        case 2:
+          return 'success';
+        case 3:
+          return 'danger';
+      }
+    },
+
+    displayLinkCreateModal() {
+      this.linkCreateModalVisible = true;
+    },
+    cancelSwitch() {
+      this.switchModalClosed();
+      this.switchModalVisible = false;
+    },
+    confirmSwitch() {
+      validatePassword(this.password)
+        .then(() => {
+          if (!!~this.hostLinkIdReadyToSwitch) {
+            return switchHostIp(this.hostLinkIdReadyToSwitch);
+          } else {
+            return switchOracle({
+              linkIds: this.databaseLinkIdsReadyToSwitch,
+            });
+          }
+        })
+        .then(res => {
+          const { data } = res.data;
+          console.log(data);
+          this.switchModalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    switchDatabase(databaseLinkId) {
+      this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
+      this.switchModalVisible = true;
+    },
+    switchMultiDatabasesToProduction(hostLink) {
+      const links = hostLink.databaseLinks
+        .filter(dbLink => dbLink.primaryDatabase.role === 2)
+        .map(dbLink => dbLink.id);
+      this.databaseLinkIdsReadyToSwitch = links;
+      this.switchModalVisible = true;
+    },
+    switchMultiDatabaseToEbackup(hostLink) {
+      const links = hostLink.databaseLinks
+        .filter(dbLink => dbLink.viceDatabase.role === 2)
+        .map(dbLink => dbLink.id);
+      this.databaseLinkIdsReadyToSwitch = links;
+      this.switchModalVisible = true;
+    },
+    switchHostIp(hostLink) {
+      this.hostLinkIdReadyToSwitch = hostLink.id;
+      this.switchModalVisible = true;
+    },
+    switchModalClosed() {
+      this.databaseLinkIdsReadyToSwitch = [];
+      this.hostLinkIdReadyToSwitch = -1;
+      this.password = '';
+    },
   },
   filters: {
     databaseStateFilter(value) {
@@ -892,9 +532,16 @@ export default {
     linkStateFilter(value) {
       return linkStateMapping[value];
     },
+    switchStateFilter(value) {
+      return switchStateMapping[value];
+    },
+    switchManualFilter(value) {
+      return switchManualMapping[value];
+    },
   },
   components: {
     IIcon,
+    DatabaseLinkCreateModal,
   },
 };
 </script>
@@ -984,10 +631,35 @@ $vice-color: #6d6d6d;
 .hostSwitchIcon {
   width: 3em;
   height: 1.4em;
+  cursor: pointer;
 }
 .switchIcon {
   width: 3em;
   height: 3em;
   cursor: pointer;
+}
+.switchFormItem {
+  label {
+    color: #a0a0a0;
+  }
+}
+
+// 切换modal
+.switchModalIcon {
+  width: 9em;
+  height: 9em;
+  margin: 25% 25%;
+}
+.switchModalName {
+  display: inline-block;
+  width: 10em;
+}
+.switchModalDetail {
+  display: inline-block;
+  width: 5em;
+}
+.switchModalIp {
+  display: inline-block;
+  width: 7em;
 }
 </style>

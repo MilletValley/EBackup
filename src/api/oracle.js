@@ -168,9 +168,15 @@ const createLinks = data =>
 
 const createSwitches = data =>
   baseApi.request({
-    method: 'pose',
+    method: 'post',
     url: '/oracle-switches',
     data,
+  });
+
+const fetchSwitches = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-links/${linkId}/switches`,
   });
 export {
   fetchAll,
@@ -195,4 +201,5 @@ export {
   fetchLinks,
   createSwitches,
   createLinks,
+  fetchSwitches,
 };

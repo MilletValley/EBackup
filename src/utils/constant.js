@@ -84,10 +84,15 @@ const switchIpMapping = {
 };
 
 // 切换操作状态
-const switchState = {
+const switchStateMapping = {
   1: '切换中',
   2: '成功',
   3: '失败',
+};
+
+const switchManualMapping = {
+  1: '手动',
+  2: '自动',
 };
 
 export {
@@ -103,6 +108,7 @@ export {
   databaseTypeMapping,
   databaseRoleMapping,
   linkStateMapping,
-  switchState,
+  switchStateMapping,
   switchIpMapping,
+  switchManualMapping,
 };

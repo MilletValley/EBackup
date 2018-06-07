@@ -29,6 +29,15 @@ const validateToken = token =>
     },
   });
 
+const validatePassword = password =>
+  baseApi.request({
+    method: 'get',
+    url: '/validate-password',
+    params: {
+      password,
+    },
+  });
+
 const createUserInfo = user =>
   baseApi.request({
     method: 'post',
@@ -75,6 +84,7 @@ export {
   login,
   logout,
   validateToken,
+  validatePassword,
   createUserInfo,
   getUsersInfo,
   updateUserInfo,
