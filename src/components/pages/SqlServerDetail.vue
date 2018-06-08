@@ -5,7 +5,8 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="sqlserver"></i-icon>
+            <i-icon name="sqlserver"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"

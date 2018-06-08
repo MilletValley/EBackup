@@ -52,6 +52,7 @@ const databaseStateMapping = {
   2: '异常',
 };
 const databaseRoleMapping = {
+  0: '无连接',
   1: '主库',
   2: '备库',
 };

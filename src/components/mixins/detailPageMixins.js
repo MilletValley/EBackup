@@ -7,6 +7,11 @@ import VmTabPanels from '@/components/VmTabPanels';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
+import {
+  databaseRoleMapping,
+  linkStateMapping,
+  databaseStateMapping,
+} from '../../utils/constant';
 
 const detailPageMixin = {
   props: ['id'],
@@ -16,6 +21,7 @@ const detailPageMixin = {
       details: {
         host: {},
       },
+      link: {},
       detailsEditModal: false,
       btnLoading: false,
       backupPlans: [],
@@ -45,6 +51,10 @@ const detailPageMixin = {
           plan => plan.id === this.selectedRestorePlanId
         );
     },
+    role() {
+      if (!this.details || !this.detilas.role) return databaseRoleMapping[0];
+      return databaseRoleMapping[this.details.role];
+    },
   },
   methods: {
     switchPane(name) {
@@ -72,18 +82,10 @@ const detailPageMixin = {
     updateBackupPlan(updateIndex, plan) {
       this.backupPlans.splice(updateIndex, 1, plan);
     },
-    // 添加恢复计划后
-    restorePlanAdded(plan) {
-      this.restorePlans.push(plan);
-    },
-    // 添加一个单次恢复
-    // addRestorePlan(restorePlan) {
-    //   this.restorePlans.unshift(restorePlan);
-    // },
     // 更新恢复计划
-    updateRestorePlan(updateIndex, plan) {
-      this.restorePlans.splice(updateIndex, 1, plan);
-    },
+    // updateRestorePlan(updateIndex, plan) {
+    //   this.restorePlans.splice(updateIndex, 1, plan);
+    // },
     initSingleRestoreModal(id) {
       this.selectedBackupResultId = id;
       this.singleRestoreCreateModalVisible = true;
@@ -91,6 +93,16 @@ const detailPageMixin = {
     selectRestorePlan(restorePlanId) {
       this.selectedRestorePlanId = restorePlanId;
       this.restorePlanUpdateModalVisible = true;
+    },
+    roleIconName(role) {
+      switch (role) {
+        case 1:
+          return 'zhu';
+        case 2:
+          return 'bei';
+        default:
+          return '';
+      }
     },
   },
   components: {
@@ -102,6 +114,17 @@ const detailPageMixin = {
     VmTabPanels,
     SingleRestoreCreateModal,
     RestorePlanUpdateModal,
+  },
+  filters: {
+    linkStateFilter(value) {
+      return linkStateMapping[value];
+    },
+    databaseStateFilter(value) {
+      return databaseStateMapping[value];
+    },
+    databaseRoleFilter(value) {
+      return databaseRoleMapping[value].substr(0, 1);
+    },
   },
 };
 
