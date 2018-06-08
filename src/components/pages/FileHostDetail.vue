@@ -53,7 +53,7 @@
                 <span>{{ details.loginName }}</span>
               </el-form-item>
               <el-form-item label="服务器密码：">
-                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
+                <!-- <span-toggle :value="filehost.password"></span-toggle> -->
                 <span>●●●●●●●●</span>
               </el-form-item>
               <el-form-item label="所属系统：">
@@ -84,7 +84,8 @@
                      @confirm="addBackupPlan"></add-backup-plan>
     <file-host-update-modal type="filehost"
                             :visible.sync="detailsEditModal"
-                            @confirm="details = arguments[0]"
+                            :btn-loading="btnLoading"
+                            @confirm="updateDetails"
                             :item-info="details"></file-host-update-modal>
     <single-restore-create-modal :type="systemType"
                                  :id="selectedBackupResultId"
@@ -96,6 +97,7 @@
 import FileHostUpdateModal from '@/components/modal/FileHostUpdateModal';
 import { detailPageMixin } from '../mixins/detailPageMixins';
 import {
+  modifyOne,
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
@@ -218,17 +220,35 @@ export default {
       });
     },
     // 单次恢复
-    addSingleRestorePlan(restorePlan) {
-      createSingleRestorePlan(restorePlan)
+    addSingleRestorePlan(plan) {
+      createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;
+          this.restorePlans.unshift(restorePlan);
           this.singleRestoreCreateModalVisible = false;
           this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);
         });
-      this.restorePlans.unshift(restorePlan);
+    },
+    updateDetails(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: filehost, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          filehost.id = this.details.id;
+          this.details = filehost;
+          this.detailsEditModal = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
     },
   },
   computed: {

@@ -20,6 +20,7 @@
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
         <el-form-item label="操作系统"
+                      style="width: 100%"
                       prop="osName">
           <el-select v-model="formData.osName"
                      placeholder="请选择">
@@ -43,7 +44,8 @@
       </el-form>
       <span slot="footer">
         <el-button type="primary"
-                   @click="confirm">确定</el-button>
+                   @click="confirm"
+                   :loading="btnLoading">确定</el-button>
         <el-button @click="cancelBtnClick">取消</el-button>
       </span>
     </el-dialog>
@@ -52,7 +54,6 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-import { createOne } from '../../api/fileHost';
 import { genModalMixin } from '../mixins/modalMixins';
 
 export default {
@@ -63,17 +64,7 @@ export default {
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          createOne(this.formData)
-            .then(res => {
-              const { data: db } = res.data;
-              this.$emit('confirm', db);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              this.$refs.createForm.clearValidate();
-              return false;
-            });
+          this.$emit('confirm', this.formData);
         } else {
           return false;
         }

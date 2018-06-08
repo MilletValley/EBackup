@@ -1,15 +1,16 @@
 <template>
   <el-container style="height: 100%;">
-    <el-aside width="250px"
-              style="background-color: #00264a">
+    <el-aside style="width:auto;background-color: #00264a">
       <div class="logo">
         <img src="../assets/elogo.png"
              alt="信服易备"
-             height="40px">
+             width="45px"
+             height="35px">
       </div>
       <el-menu background-color="#00264a"
                text-color="#fff"
-               active-text-color="#fff">
+               active-text-color="#fff"
+               :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
           <IIcon name="dashboard"
                  class="menu-icon"></IIcon>
@@ -70,10 +71,19 @@ import IIcon from './IIcon.vue';
 export default {
   name: 'Layout',
   data() {
-    return {};
+    return {
+      clientWidth: 1920,
+    };
   },
   components: {
     IIcon,
+  },
+  mounted() {
+    this.clientWidth = document.documentElement.clientWidth;
+    const that = this;
+    window.onresize = function windowResize() {
+      that.clientWidth = document.documentElement.clientWidth;
+    };
   },
   created() {
     this.fetchHost().catch(error => {
@@ -81,6 +91,9 @@ export default {
     });
   },
   computed: {
+    isMenuCollapsed() {
+      return this.clientWidth < 1200;
+    },
     ...mapState({
       userName: state => {
         if (state.base.userInfo.userName) {
@@ -117,7 +130,7 @@ export default {
 
 <style>
 .logo {
-  padding: 10px 10px;
+  padding: 11px 10px;
 }
 .el-header {
   background-color: #ffffff;
@@ -134,6 +147,9 @@ export default {
 }
 .el-menu {
   border: none;
+}
+.el-menu:not(.el-menu--collapse) {
+  width: 250px;
 }
 .bread-crumb {
   display: inline-block;

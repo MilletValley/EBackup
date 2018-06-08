@@ -1,6 +1,7 @@
 <template>
   <el-dialog class="restore-plan-modal"
              :before-close="beforeModalClose"
+             @open="modalOpened"
              @close="modalClosed"
              :visible.sync="modalVisible">
     <span slot="title">
@@ -20,9 +21,18 @@
       </el-row>
       <el-row>
         <el-col :span="12">
-          <el-form-item label="恢复设备IP"
+          <el-form-item label="恢复设备"
                         prop="hostIp">
-            <el-input v-model="formData.hostIp"></el-input>
+            <el-select v-model="formData.hostIp"
+                       style="width: 100%;">
+              <el-option v-for="host in selectionHosts"
+                         :key="host.id"
+                         :value="host.hostIp"
+                         :label="`${host.name}(${host.hostIp})`">
+                <span style="float: left">{{ host.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -41,7 +51,10 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="登录密码"
-                        prop="password">
+                        prop="password"
+                        :rules="[
+          { required: true, message: '请输入登陆密码', trigger: 'blur' },
+        ]">
             <input-toggle v-model="formData.password"></input-toggle>
           </el-form-item>
         </el-col>
@@ -83,7 +96,8 @@
                     prop="datePoints"
                     v-show="formData.timeStrategy == 3">
         <el-select v-model="formData.datePoints"
-                   multiple>
+                   multiple
+                   style="width: 60%;">
           <el-option v-for="day in Array.from(new Array(31), (val, index) => index + 1)"
                      :key="day"
                      :value="day"
@@ -111,7 +125,8 @@
     <span slot="footer">
       <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
-                 @click="confirmBtnClick">确定</el-button>
+                 @click="confirmBtnClick"
+                 :loading="btnLoading">确定</el-button>
     </span>
   </el-dialog>
 </template>
@@ -138,27 +153,18 @@ export default {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
           const { name, config } = this.pruneData(this.formData);
-          requestMapping[this.type]({
-            id: this.id,
+          this.$emit('confirm', {
+            id: this.database.id,
             data: { name, config },
-          })
-            .then(res => {
-              const { data: plan } = res.data;
-              this.$emit('confirm', plan);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              return false;
-            })
-            .then(() => {
-              // 无论成功或失败 提交后清除验证状态
-              this.$refs.restorePlanCreateForm.clearValidate();
-            });
+          });
         } else {
           return false;
         }
       });
+    },
+    modalOpened() {
+      this.formData.detailInfo = this.database.instanceName;
+      this.originFormData.detailInfo = this.database.instanceName;
     },
     modalClosed() {
       this.formData = { ...this.originFormData };

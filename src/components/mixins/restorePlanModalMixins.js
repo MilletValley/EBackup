@@ -23,11 +23,21 @@ const modalMixin = {
     },
     id: {
       type: Number,
-      required: true,
+      // required: true,
+    },
+    database: {
+      type: Object,
     },
     visible: {
       type: Boolean,
       required: true,
+    },
+    btnLoading: {
+      type: Boolean,
+    },
+    selectionHosts: {
+      type: Array,
+      // required: true,
     },
   },
   data() {
@@ -74,7 +84,7 @@ const modalMixin = {
       timeStrategy: 1, // 默认单次执行
     };
     // 文件单次恢复 增加覆盖策略
-    if (this.isFileBackupResult) {
+    if (this.isFileHost) {
       baseFormData.recoveringStrategy = 1;
     }
     return {
@@ -104,9 +114,9 @@ const modalMixin = {
         loginName: [
           { required: true, message: '请输入登陆名', trigger: 'blur' },
         ],
-        password: [
-          { required: true, message: '请输入登陆密码', trigger: 'blur' },
-        ],
+        // password: [
+        //   { required: true, message: '请输入登陆密码', trigger: 'blur' },
+        // ],
         singleTime: [
           {
             validator: singleTimeValidate,
@@ -148,7 +158,7 @@ const modalMixin = {
     detailInfoDisplayName() {
       return mapping[this.type];
     },
-    isFileBackupResult() {
+    isFileHost() {
       return this.type === 'windows' || this.type === 'linux';
     },
   },

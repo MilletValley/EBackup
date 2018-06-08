@@ -51,7 +51,7 @@
                 <span>{{ details.loginName }}</span>
               </el-form-item>
               <el-form-item label="数据库密码：">
-                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
+                <!-- <span-toggle :value="sqlserver.password"></span-toggle> -->
                 <span>●●●●●●●●</span>
               </el-form-item>
               <el-form-item label="主机名：">
@@ -82,8 +82,8 @@
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:refresh="refreshSingleRestorePlan"
-                @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
+                @select-restore-plan="selectRestorePlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
@@ -92,16 +92,25 @@
                      :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
     <restore-plan-create-modal type="sqlserver"
-                               :id="Number(id)"
+                               :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
+                               :selection-hosts="availableHostsWithSqlServer"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
+    <restore-plan-update-modal type="sqlserver"
+                               :database="details"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :btn-loading="btnLoading"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="updateRestorePlan"></restore-plan-update-modal>
     <database-update-modal type="sqlserver"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
-                           @confirm="details = arguments[0]"></database-update-modal>
+                           :btn-loading="btnLoading"
+                           @confirm="updateDetails"></database-update-modal>
     <single-restore-create-modal type="sqlserver"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
+                                 :selection-hosts="availableHostsWithSqlServer"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -109,6 +118,7 @@
 import { detailPageMixin } from '../mixins/detailPageMixins';
 
 import {
+  modifyOne,
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
@@ -120,6 +130,7 @@ import {
   deleteSqlServerBackupPlan,
   createSingleRestorePlan,
   createRestorePlan,
+  updateRestorePlan,
 } from '../../api/sqlserver';
 
 export default {
@@ -155,7 +166,7 @@ export default {
             this.$message.error(error);
           });
       }),
-      selectedBackupPlanId: -1,
+      // selectedBackupPlanId: -1,
       throttleRefreshBackup: this.throttleMethod(() => {
         fetchBackupOperation(this.selectedBackupPlanId)
           .then(response => {
@@ -199,6 +210,11 @@ export default {
           });
       }),
     };
+  },
+  computed: {
+    availableHostsWithSqlServer() {
+      return this.$store.getters.hostsWithSqlServer;
+    },
   },
   methods: {
     fetchData() {
@@ -270,29 +286,70 @@ export default {
       });
     },
     addRestorePlan(restorePlan) {
+      this.btnLoading = true;
       createRestorePlan(restorePlan)
         .then(res => {
           const { data: restorePlan } = res.data;
-          this.modalVisible = false;
+          this.restorePlans.unshift(restorePlan);
+          this.restorePlanCreateModalVisible = false;
         })
         .catch(error => {
           this.$message.error(error);
           return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
-      this.restorePlans.unshift(restorePlan);
     },
     // 单次恢复
-    addSingleRestorePlan(restorePlan) {
-      createSingleRestorePlan(restorePlan)
+    addSingleRestorePlan(plan) {
+      createSingleRestorePlan(plan)
         .then(res => {
-          const { data: restorePlan } = res.data;
+          const { data: restorePlan, message } = res.data;
+          this.restorePlans.unshift(restorePlan);
           this.singleRestoreCreateModalVisible = false;
           this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);
         });
-      this.restorePlans.unshift(restorePlan);
+    },
+    updateDetails(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: sqlserver, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          sqlserver.id = this.details.id;
+          this.details = sqlserver;
+          this.detailsEditModal = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    // 更新恢复计划
+    updateRestorePlan(data) {
+      updateRestorePlan(data)
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedRestorePlanId;
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.restorePlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
   },
 };
