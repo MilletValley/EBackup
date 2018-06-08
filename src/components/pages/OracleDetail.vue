@@ -85,8 +85,8 @@
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:refresh="refreshSingleRestorePlan"
-                @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
+                @select-restore-plan="selectRestorePlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
@@ -95,9 +95,17 @@
                      :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
     <restore-plan-create-modal type="oracle"
-                               :id="Number(id)"
+                               :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
+                               :btn-loading="btnLoading"
+                               :selection-hosts="availableHostsWithOralce"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
+    <restore-plan-update-modal type="oracle"
+                               :database="details"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :btn-loading="btnLoading"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="updateRestorePlan"></restore-plan-update-modal>
     <database-update-modal type="oracle"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
@@ -106,6 +114,7 @@
     <single-restore-create-modal type="oracle"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
+                                 :selection-hosts="availableHostsWithOralce"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -126,6 +135,7 @@ import {
   deleteOracleBackupPlan,
   createSingleRestorePlan,
   createRestorePlan,
+  updateRestorePlan,
 } from '../../api/oracle';
 
 export default {
@@ -184,7 +194,7 @@ export default {
             this.$message.error(error);
           });
       }),
-      selectedRestorePlanId: -1,
+      // selectedRestorePlanId: -1,
       throttleRefreshRestore: this.throttleMethod(() => {
         fetchRestoreOperation(this.selectedRestorePlanId)
           .then(response => {
@@ -206,6 +216,11 @@ export default {
           });
       }),
     };
+  },
+  computed: {
+    availableHostsWithOralce() {
+      return this.$store.getters.hostsWithOracle;
+    },
   },
   methods: {
     fetchData() {
@@ -278,16 +293,20 @@ export default {
       });
     },
     addRestorePlan(restorePlan) {
+      this.btnLoading = true;
       createRestorePlan(restorePlan)
         .then(res => {
           const { data: restorePlan } = res.data;
-          this.modalVisible = false;
+          this.restorePlans.unshift(restorePlan);
+          this.restorePlanCreateModalVisible = false;
         })
         .catch(error => {
           this.$message.error(error);
           return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
-      this.restorePlans.unshift(restorePlan);
     },
     addSingleRestorePlan(restorePlan) {
       createSingleRestorePlan(restorePlan)
@@ -317,6 +336,25 @@ export default {
         })
         .then(() => {
           this.btnLoading = false;
+        });
+    },
+    // 更新恢复计划
+    updateRestorePlan(data) {
+      updateRestorePlan(data)
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedRestorePlanId;
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.restorePlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
         });
     },
   },

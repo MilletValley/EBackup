@@ -18,8 +18,8 @@
                 <i :class="['el-icon-time', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
               <span :class="$style.restoreStartTime">{{item.startTime}}</span>
             </div>
-            <p>恢复设备IP: {{ item.config.hostIp }}</p>
-            <p>{{detailInfoDisplayName}}: {{item.config.detailInfo }}</p>
+            <p>恢复设备IP: {{ item.config.database.host.hostIp }}</p>
+            <p>{{detailInfoDisplayName}}: {{item.config.database.instanceName }}</p>
           </el-card>
         </el-col>
       </el-row>

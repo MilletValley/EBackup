@@ -3,6 +3,7 @@ import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import TabPanels from '@/components/TabPanels';
+import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
 
@@ -22,6 +23,8 @@ const detailPageMixin = {
       results: [], // 备份集
       backupPlanCreateModalVisible: false,
       restorePlanCreateModalVisible: false,
+      restorePlanUpdateModalVisible: false,
+      selectedRestorePlanId: -1,
       selectedBackupResultId: -1,
       singleRestoreCreateModalVisible: false,
     };
@@ -32,6 +35,15 @@ const detailPageMixin = {
   beforeRouteUpdate(to, from, next) {
     this.fetchData();
     next();
+  },
+  computed: {
+    selectedRestorePlan() {
+      return this.selectedRestorePlanId === -1
+        ? {}
+        : this.restorePlans.find(
+          plan => plan.id === this.selectedRestorePlanId
+        );
+    },
   },
   methods: {
     switchPane(name) {
@@ -75,6 +87,10 @@ const detailPageMixin = {
       this.selectedBackupResultId = id;
       this.singleRestoreCreateModalVisible = true;
     },
+    selectRestorePlan(restorePlanId) {
+      this.selectedRestorePlanId = restorePlanId;
+      this.restorePlanUpdateModalVisible = true;
+    },
   },
   components: {
     IIcon,
@@ -83,6 +99,7 @@ const detailPageMixin = {
     RestorePlanCreateModal,
     TabPanels,
     SingleRestoreCreateModal,
+    RestorePlanUpdateModal,
   },
 };
 

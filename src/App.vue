@@ -41,6 +41,7 @@ body {
   margin: 8px auto;
   width: 70%;
   height: 50px;
+  min-width: 30px;
 }
 .detail-header .content {
   margin-left: 20px;
