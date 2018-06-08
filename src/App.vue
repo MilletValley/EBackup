@@ -37,10 +37,11 @@ body {
   padding: 10px 10px 50px 10px;
 }
 .detail-header .icon {
-  position: relative;
-  top: 17px;
-  right: 0;
-  font-size: 1.7em;
+  display: block;
+  margin: 8px auto;
+  width: 70%;
+  height: 50px;
+  min-width: 30px;
 }
 .detail-header .content {
   margin-left: 20px;

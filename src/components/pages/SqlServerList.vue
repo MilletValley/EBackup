@@ -10,6 +10,7 @@
     <el-table :data="items"
               style="width: 100%">
       <el-table-column label="名称"
+                       fixed
                        min-width="200"
                        align="center">
         <template slot-scope="scope">
@@ -24,15 +25,26 @@
                        label="数据库名"
                        min-width="150"
                        align="center"></el-table-column>
-      <el-table-column prop="hostIp"
+      <el-table-column prop="host.hostIp"
                        label="主机IP"
-                       width="250"
+                       min-width="200"
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
                        label="登陆账号"
-                       width="200"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="role"
+                       label="角色"
+                       width="100"
+                       :formatter="databaseRoleFormatter"
+                       align="center"></el-table-column>
+      <el-table-column prop="state"
+                       label="状态"
+                       width="100"
+                       :formatter="stateFormatter"
                        align="center"></el-table-column>
       <el-table-column label="操作"
+                       fixed="right"
                        width="150"
                        header-align="center"
                        align="right">
@@ -54,9 +66,11 @@
     </el-table>
     <database-create-modal type="sqlserver"
                            :visible.sync="createModalVisible"
-                           @confirm="items.push(arguments[0])"></database-create-modal>
+                           :btn-loading="btnLoading"
+                           @confirm="createDb"></database-create-modal>
     <database-update-modal type="sqlserver"
                            :visible.sync="updateModalVisible"
+                           :btn-loading="btnLoading"
                            :item-info="selectedDb"
                            @confirm="updateDb"></database-update-modal>
   </section>
@@ -64,7 +78,7 @@
 <script>
 import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import { fetchAll, deleteOne } from '../../api/sqlserver';
+import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/sqlserver';
 import { listMixin } from '../mixins/databaseListMixin';
 
 export default {
@@ -99,6 +113,44 @@ export default {
           if (error !== 'cancel')
             // element-ui Message组件取消会进入catch 避免这种弹窗
             this.$message.error(error);
+        });
+    },
+    createDb(data) {
+      this.btnLoading = true;
+      createOne(data)
+        .then(res => {
+          const { data: db } = res.data;
+          this.items.push(db);
+          this.createModalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateDb(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: sqlserver, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          sqlserver.id = this.selectedDb.id;
+          this.items.splice(
+            this.items.findIndex(db => db.id === sqlserver.id),
+            1,
+            sqlserver
+          );
+          this.selectedId = '';
+          this.updateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
   },

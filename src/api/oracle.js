@@ -143,7 +143,7 @@ const updateRestorePlan = data =>
     })
     .then(res => {
       const { timePoints } = res.data.data.config;
-      res.data.data.config = timePoints2Obj(timePoints);
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
       return res;
     });
 
