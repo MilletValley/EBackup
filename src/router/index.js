@@ -18,6 +18,7 @@ import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
+import SystemParam from '@/components/pages/SystemParam';
 
 Vue.use(Router);
 
@@ -282,6 +283,14 @@ export const asyncRouters = [
         component: DeviceManager,
         meta: {
           title: '设备管理',
+          roles: ['admin'],
+        },
+      },
+      {
+        path: 'systemparam',
+        component: SystemParam,
+        meta: {
+          title: '参数管理',
           roles: ['admin'],
         },
       },

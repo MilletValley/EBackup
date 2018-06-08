@@ -58,8 +58,23 @@ const databaseRoleMapping = {
 
 // 设备类型
 const hostTypeMapping = {
-  1: '生产环境',
+  1: '生产环境',
   2: '易备环境',
+};
+
+// 系统类别
+const sysTypeMapping = {
+  0: '通用',
+  1: 'Windows',
+  2: 'Linux',
+};
+
+// 使用类别
+const useTypeMapping = {
+  1: 'oracle',
+  2: 'sqlserver',
+  3: '文件',
+  4: '虚拟机',
 };
 
 // 设备包含的数据库类型
@@ -105,6 +120,8 @@ export {
   recoveringStrategyMapping,
   databaseStateMapping,
   hostTypeMapping,
+  sysTypeMapping,
+  useTypeMapping,
   databaseTypeMapping,
   databaseRoleMapping,
   linkStateMapping,
