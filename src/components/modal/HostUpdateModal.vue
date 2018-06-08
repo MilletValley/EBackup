@@ -26,10 +26,11 @@
           <el-radio v-model="formData.hostType" :label="1">生产环境</el-radio>
           <el-radio v-model="formData.hostType" :label="2">易备环境</el-radio>
         </el-form-item>
-        <el-form-item label="数据库类型"
+        <el-form-item label="用途类型"
                       prop="databaseType">
           <el-radio v-model="formData.databaseType" :label="1">oracle</el-radio>
           <el-radio v-model="formData.databaseType" :label="2">sqlserver</el-radio>
+          <el-radio v-model="formData.databaseType" :label="4">虚拟机</el-radio>
         </el-form-item>
         <el-form-item label="操作系统"
                       prop="osName">

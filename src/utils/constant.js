@@ -81,6 +81,7 @@ const useTypeMapping = {
 const databaseTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
+  4: '虚拟机',
 };
 
 // 数据库连接状态

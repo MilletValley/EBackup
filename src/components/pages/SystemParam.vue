@@ -27,14 +27,14 @@
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
                        label="路径"
-                       width="240"
+                       width="230"
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
                        width="140"
                        align="center"></el-table-column>
-      <el-table-column label="操作"
-                       width="190"
+      <el-table-column label="状态"
+                       width="100"
                        header-align="center"
                        align="center"
                        prop="state">
@@ -42,17 +42,23 @@
           <el-button type="success"
                      icon="el-icon-check"
                      circle
-                     v-if="scope.row.state==0"
                      :class="$style.miniCricleIconBtn"
                      @click="changeState(scope.$index, scope.row)"
                      size="mini"></el-button>
           <el-button type="info"
-                     icon="el-icon-check"
+                     icon="el-icon-minus"
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"
-                     v-else></el-button>
+                     @click="changeState(scope.$index, scope.row)"></el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作"
+                       width="100"
+                       header-align="center"
+                       align="center"
+                       prop="state">
+        <template slot-scope="scope">
           <el-button type="primary"
                      icon="el-icon-edit"
                      circle
