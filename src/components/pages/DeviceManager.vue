@@ -31,7 +31,7 @@
                        width="150"
                        align="center"></el-table-column>
       <el-table-column prop="databaseType"
-                       label="数据库类型"
+                       label="用途类型"
                        :formatter="judgeDatabase"
                        width="150"
                        align="center"></el-table-column>
