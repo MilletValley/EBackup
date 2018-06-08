@@ -33,7 +33,6 @@
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
               </el-option>
             </el-select>
-            <!-- <el-input v-model="formData.hostIp"></el-input> -->
           </el-form-item>
         </el-col>
         <el-col :span="12">

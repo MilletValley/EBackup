@@ -220,17 +220,17 @@ export default {
       });
     },
     // 单次恢复
-    addSingleRestorePlan(restorePlan) {
-      createSingleRestorePlan(restorePlan)
+    addSingleRestorePlan(plan) {
+      createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;
+          this.restorePlans.unshift(restorePlan);
           this.singleRestoreCreateModalVisible = false;
           this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);
         });
-      this.restorePlans.unshift(restorePlan);
     },
     updateDetails(data) {
       this.btnLoading = true;
