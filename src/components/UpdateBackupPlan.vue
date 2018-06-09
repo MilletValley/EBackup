@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- 修改数据库备份配置页面 begin-->
-    <el-dialog :title="'修改'+type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :title="'修改'+(type==='vm'?'虚拟机':type)+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form :id="_id" :model="theData" :rules="rules" ref="theForm" label-width="100px">
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="theData.name"></el-input>
@@ -82,6 +82,7 @@
 import _ from 'lodash';
 import { updateOracleBackupPlan } from '../api/oracle';
 import { updateSqlServerBackupPlan } from '../api/sqlserver';
+import { updateVirtualBackupPlan } from '../api/virtuals';
 import { updateBackupPlan } from '../api/fileHost';
 import {
   backupStrategys,
@@ -93,6 +94,7 @@ import {
 const requestMapping = {
   oracle: (id, data) => updateOracleBackupPlan({ id, plan: data }),
   sqlserver: (id, data) => updateSqlServerBackupPlan({ id, plan: data }),
+  vm: (id, data) => updateVirtualBackupPlan({ id, plan: data }),
   windows: (id, data) => updateBackupPlan({ id, plan: data }),
   linux: (id, data) => updateBackupPlan({ id, plan: data }),
 };
@@ -122,7 +124,7 @@ export default {
   methods: {
     // 赋值表单
     initUpdate() {
-      if (this.type === 'oracle' || this.type === 'sqlserver') {
+      if (this.type === 'oracle' || this.type === 'sqlserver' || this.type === 'vm') {
         this.theData.backupPath = 'value';
         this.theData.backupSystem = 'sys';
       } else {
@@ -164,7 +166,7 @@ export default {
       this.$refs['theForm'].clearValidate();
     },
     updateBackupPlan() {
-      if (this.type === 'oracle' || this.type === 'sqlserver') {
+      if (this.type === 'oracle' || this.type === 'sqlserver' || this.type === 'vm') {
         this.theData.backupPath = 'value';
         this.theData.backupSystem = 'sys';
       }
@@ -186,6 +188,11 @@ export default {
                 config: tmpdata1,
               },
               sqlserver: {
+                id: this._id,
+                name: this.theData.name,
+                config: tmpdata1,
+              },
+              vm: {
                 id: this._id,
                 name: this.theData.name,
                 config: tmpdata1,

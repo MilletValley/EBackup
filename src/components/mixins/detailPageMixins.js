@@ -3,6 +3,7 @@ import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import AddBackupPlan from '@/components/AddBackupPlan';
 import TabPanels from '@/components/TabPanels';
+import VmTabPanels from '@/components/VmTabPanels';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
@@ -98,6 +99,7 @@ const detailPageMixin = {
     AddBackupPlan,
     RestorePlanCreateModal,
     TabPanels,
+    VmTabPanels,
     SingleRestoreCreateModal,
     RestorePlanUpdateModal,
   },
