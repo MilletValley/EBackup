@@ -13,7 +13,7 @@
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1>{{details.name}}
+                <h1 :class="details.role === 1 ? $style.primaryLink : $style.viceLink">{{details.name}}
                   <i-icon v-if="details.role !== 0"
                           :name="roleIconName(this.details.role)"
                           :class="$style.roleIconHeader"></i-icon>
@@ -45,7 +45,7 @@
                      label-width="100px"
                      size="small"
                      class="item-info">
-              <el-row>
+              <el-row style="margin-right: 5px;">
                 <el-col :span="8">
                   <el-form-item label="Oracle版本：">
                     <span>{{ details.dbVersion }}</span>
@@ -84,37 +84,33 @@
                     <span>{{ details.application }}</span>
                   </el-form-item>
                 </el-col>
-                <el-col :span="8"
-                        v-if="!!link.id"
-                        :class="$style.linkInfo">
-                  <h4 style="margin: 10px 0 7px;">连接信息</h4>
-                  <el-form-item>
-                    <i-icon :name="`switch-${link.state}`"
-                            :class="$style.switchIcon"></i-icon>
-                    <span>{{ link.state | linkStateFilter }}</span>
-                  </el-form-item>
-                  <el-form-item>
-                    <el-button type="text">
+                <template v-if="!!link.id">
+                  <el-col :span="8"
+                          :class="$style.linkInfo">
+                    <h4 style="margin: 10px 0 7px;">连接信息</h4>
+                    <el-form-item>
+                      <i-icon :name="`switch-${link.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                      <span>{{ link.state | linkStateFilter }}</span>
+                    </el-form-item>
+                    <el-form-item>
                       <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
                               :class="$style.roleIconOppsition"></i-icon>
                       <router-link :to="`/db/oracle/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
-                                   :class="$style.databaseLink">
+                                   :class="link.oppsiteDatabase.role === 1 ? $style.primaryLink : $style.viceLink">
                         {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
                       </router-link>
-                    </el-button>
-                  </el-form-item>
-                  <el-form-item>
-                    <span>临时端口：</span>
-                    <span style="display: inline-block;width: 3em;">{{ link.tempPort }}</span>
-                  </el-form-item>
-                  <el-form-item>
-                    <router-link :to="`/db/oracle/takeover/${link.id}`"
-                                 :class="$style.link">查看更多</router-link>
-                  </el-form-item>
-                </el-col>
+                    </el-form-item>
+
+                  </el-col>
+                  <router-link :to="`/db/oracle/takeover/${link.id}`"
+                               :class="$style.moreLink">查看更多</router-link>
+                </template>
+
               </el-row>
 
             </el-form>
+
           </el-col>
         </el-row>
 
@@ -454,5 +450,12 @@ export default {
 }
 .linkInfo {
   text-align: right;
+}
+.moreLink {
+  composes: link;
+  font-size: 0.9em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 </style>

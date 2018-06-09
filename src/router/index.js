@@ -20,6 +20,7 @@ import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
 import SystemParam from '@/components/pages/SystemParam';
+import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 
 Vue.use(Router);
 
@@ -137,6 +138,33 @@ export const asyncRouters = [
             },
             {
               name: 'Oracle一健接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'oracle/takeover/:id',
+        name: 'oracleLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['oracle dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: 'Oracle一健接管',
+              path: '/db/oracle/takeover',
+            },
+            {
+              name: '连接详情',
               path: '',
             },
           ],

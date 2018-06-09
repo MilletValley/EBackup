@@ -185,6 +185,12 @@ const fetchLink = oracleId =>
     url: `/oracles/${oracleId}/oracle-links`,
   });
 
+const fetchLinkByLinkId = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-links/${linkId}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -210,4 +216,5 @@ export {
   createLinks,
   fetchSwitches,
   fetchLink,
+  fetchLinkByLinkId,
 };

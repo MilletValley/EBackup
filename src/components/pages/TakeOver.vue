@@ -182,6 +182,7 @@
                 </el-form>
                 <i-icon :name="`switch-${dbLink.state}`"
                         :class="$style.switchIcon"
+                        @click.native="jumpToLinkDetail(dbLink.id)"
                         slot="reference"></i-icon>
               </el-popover>
               <div v-if="dbLink.latestSwitch.state === 1"
@@ -317,10 +318,12 @@ import {
   switchStateMapping,
   switchManualMapping,
 } from '../../utils/constant';
+import takeoverMixin from '../mixins/takeoverMixins';
 // 模拟数据
 import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 export default {
   name: 'TakeOver',
+  mixins: [takeoverMixin],
   data() {
     return {
       items, // 所有的数据库
@@ -440,40 +443,6 @@ export default {
       //     this.$message.error(error);
       //   });
     },
-    // 数据库连接状态与tag类型的映射
-    databaseLinkStateStyle(value) {
-      switch (value) {
-        case 1:
-          return 'warning';
-        case 2:
-          return 'success';
-        case 3:
-        case 4:
-          return 'danger';
-        case 5:
-          return 'info';
-      }
-    },
-    databaseStateStyle(value) {
-      switch (value) {
-        case 0:
-          return 'info';
-        case 1:
-          return 'success';
-        case 2:
-          return 'danger';
-      }
-    },
-    switchStateStyle(value) {
-      switch (value) {
-        case 1:
-          return 'info';
-        case 2:
-          return 'success';
-        case 3:
-          return 'danger';
-      }
-    },
 
     displayLinkCreateModal() {
       this.linkCreateModalVisible = true;
@@ -529,24 +498,11 @@ export default {
       this.hostLinkIdReadyToSwitch = -1;
       this.password = '';
     },
-  },
-  filters: {
-    databaseStateFilter(value) {
-      return databaseStateMapping[value];
-    },
-    databaseRoleFilter(value) {
-      return databaseRoleMapping[value].substr(0, 1);
-    },
-    linkStateFilter(value) {
-      return linkStateMapping[value];
-    },
-    switchStateFilter(value) {
-      return switchStateMapping[value];
-    },
-    switchManualFilter(value) {
-      return switchManualMapping[value];
+    jumpToLinkDetail(linkId) {
+      this.$router.push({ path: `${linkId}`, append: true });
     },
   },
+
   components: {
     IIcon,
     DatabaseLinkCreateModal,
