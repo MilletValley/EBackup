@@ -18,10 +18,16 @@
     <template>
       <el-table
         :data="tableData"
+        :span-method="objectSpanMethod"
         style="width: 100%; ">
         <el-table-column
-          prop="use"
-          label="用途"
+          prop="type"
+          label="类型"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="osName"
+          label="操作系统"
           align="center">
         </el-table-column>
         <el-table-column
@@ -31,12 +37,17 @@
         </el-table-column>
         <el-table-column
           prop="user"
-          label="用户名"
+          label="账号"
           align="center">
         </el-table-column>
         <el-table-column
           prop="password"
           label="密码"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="remark"
+          label="备注"
           align="center">
         </el-table-column>
       </el-table>
@@ -55,60 +66,166 @@ export default {
     return {
       total: {},
       tableData: [{
-        use: 'windows-Orcale测试服务器',
-        ip: '145.170.23.57',
+        type: 'SQLServer',
+        osName: 'Windows2008',
+        ip: '145.170.23.221',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '备份环境',
       }, {
-        use: 'windows-Orcale测试服务器',
-        ip: '145.170.23.127',
+        type: 'SQLServer',
+        osName: 'Windows2008',
+        ip: '145.170.23.223',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '恢复环境',
       }, {
-        use: 'windows-Sqlservcer代理端服务器',
-        ip: '145.170.23.106',
+        type: 'SQLServer',
+        osName: 'Windows2008',
+        ip: '145.170.23.224',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '接管环境',
       }, {
-        use: 'windows文件测试服务器',
-        ip: '145.170.23.130',
+        type: 'SQLServer',
+        osName: 'Windows2008',
+        ip: '145.170.23.225',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '接管环境',
       }, {
-        use: 'linux-oracle测试服务器',
-        ip: '145.170.23.137',
+        type: 'Oracle',
+        osName: 'Windows2008',
+        ip: '145.170.23.226',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '备份环境',
+      }, {
+        type: 'Oracle',
+        osName: 'Windows2008',
+        ip: '145.170.23.227',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '恢复环境',
+      }, {
+        type: 'Oracle',
+        osName: 'Windows2008',
+        ip: '145.170.23.228',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '接管环境',
+      }, {
+        type: 'Oracle',
+        osName: 'Windows2008',
+        ip: '145.170.23.229',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '接管环境',
+      }, {
+        type: 'Oracle',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.230',
         user: 'root',
         password: '123456',
+        remark: '模拟生产',
       }, {
-        use: 'linux-oracle测试服务器',
-        ip: '145.170.23.141',
+        type: 'Oracle',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.231',
         user: 'root',
         password: '123456',
+        remark: '恢复环境',
       }, {
-        use: 'linux-oracle测试服务器',
-        ip: '145.170.23.142',
+        type: 'Oracle',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.232',
         user: 'root',
         password: '123456',
+        remark: '接管环境',
       }, {
-        use: 'linux-oracle测试服务器',
-        ip: '145.170.23.145',
+        type: 'Oracle',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.233',
         user: 'root',
         password: '123456',
+        remark: '接管环境',
       }, {
-        use: 'windows文件备份测试服务器',
-        ip: '145.170.23.190',
+        type: '文件备份系统',
+        osName: 'Windows2008',
+        ip: '145.170.23.236',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '备份环境',
       }, {
-        use: 'windows文件备份测试服务器',
-        ip: '145.170.23.191',
+        type: '文件备份系统',
+        osName: 'Windows2008',
+        ip: '145.170.23.237',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '恢复环境',
       }, {
-        use: 'windows文件备份测试服务器',
-        ip: '145.170.23.192',
+        type: '文件备份系统',
+        osName: 'Windows2010',
+        ip: '145.170.23.238',
         user: 'administrator',
         password: 'P@ssw0rd',
+        remark: '共享',
+      }, {
+        type: '文件备份系统',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.241',
+        user: 'root',
+        password: '123456',
+        remark: '备份环境',
+      }, {
+        type: '文件备份系统',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.242',
+        user: 'root',
+        password: '123456',
+        remark: '恢复环境',
+      }, {
+        type: '开发部署',
+        osName: 'Windows2008',
+        ip: '145.170.23.239',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '数据库',
+      }, {
+        type: '开发部署',
+        osName: 'Windows2008',
+        ip: '145.170.23.240',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '服务端',
+      }, {
+        type: '开发部署',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.243',
+        user: 'root',
+        password: '123456',
+        remark: '前端',
+      }, {
+        type: '临时IP',
+        osName: 'Windows2008',
+        ip: '145.170.23.80',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '',
+      }, {
+        type: '临时IP',
+        osName: 'Windows2008',
+        ip: '145.170.23.81',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '',
+      }, {
+        type: '临时IP',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.82',
+        user: 'root',
+        password: '123456',
+        remark: '',
       },
       ]
     };
@@ -127,6 +244,41 @@ export default {
     }
   },
   methods: {
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 0) {
+        if (rowIndex === 0) {
+          return {
+            rowspan: 4,
+            colspan: 1
+          };
+        } else if(rowIndex === 4){
+          return {
+            rowspan: 8,
+            colspan: 1
+          };
+        } else if(rowIndex === 12){
+          return {
+            rowspan: 5,
+            colspan: 1
+          };
+        } else if(rowIndex === 17){
+          return {
+            rowspan: 3,
+            colspan: 1
+          };
+        } else if(rowIndex === 20){
+          return {
+            rowspan: 3,
+            colspan: 1
+          };
+        } else {
+          return {
+            rowspan: 0,
+            colspan: 0
+          };
+        }
+      }
+    },
     fetchData() {
       fetchAll()
       .then(res => {
