@@ -11,7 +11,8 @@ import SqlServerList from '@/components/pages/SqlServerList';
 // import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
-import VMware from '@/components/pages/Vmware';
+import VMwareList from '@/components/pages/VmwareList';
+import VMwareDetail from '@/components/pages/VMwareDetail';
 import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 import NoFound from '@/components/pages/NoFound';
@@ -233,11 +234,43 @@ export const asyncRouters = [
     },
     children: [
       {
-        path: 'vmware',
-        component: VMware,
+        path: 'virtual',
+        name: 'VMwareList',
+        component: VMwareList,
         meta: {
           title: 'VMware',
           roles: ['admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'virtual/:id',
+        props: true,
+        component: VMwareDetail,
+        meta: {
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '/vm/virtual',
+            },
+            {
+              name: '虚拟机详情',
+              path: '',
+            },
+          ],
         },
       },
     ],

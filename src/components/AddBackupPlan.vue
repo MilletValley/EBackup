@@ -1,7 +1,7 @@
 <template>
   <section>
     <!-- 创建数据库备份配置页面 begin-->
-    <el-dialog :title="'添加'+type+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :title="'添加'+(type==='vm'?'虚拟机':type)+'备份配置'" :visible.sync="_visible" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form :model="theData" :rules="rules" ref="theForm" label-width="100px">
         <el-form-item label="备份标题" prop="name">
           <el-input v-model="theData.name"></el-input>
@@ -82,6 +82,7 @@
 import _ from 'lodash'; // lodash按需加载 05/07
 import { createOracleBackupPlan } from '../api/oracle';
 import { createSqlServerBackupPlan } from '../api/sqlserver';
+import { createVirtualBackupPlan } from '../api/virtuals'
 import { createBackupPlan } from '../api/fileHost';
 import {
   backupStrategys,
@@ -93,6 +94,7 @@ import {
 const requestMapping = {
   oracle: (id, data) => createOracleBackupPlan({ id, plan: data }),
   sqlserver: (id, data) => createSqlServerBackupPlan({ id, plan: data }),
+  vm: (id, data) => createVirtualBackupPlan({ id, plan: data }),
   windows: (id, data) => createBackupPlan({ id, plan: data }),
   linux: (id, data) => createBackupPlan({ id, plan: data }),
 };
@@ -123,7 +125,7 @@ export default {
     createBackupPlan() {
       console.log(new Date(this.theData.startTime).getTime());
       console.log(new Date().getTime());
-      if (this.type === 'oracle' || this.type === 'sqlserver') {
+      if (this.type === 'oracle' || this.type === 'sqlserver' || this.type === 'vm') {
         this.theData.backupPath = 'value';
         this.theData.backupSystem = 'sys';
       }
@@ -143,6 +145,7 @@ export default {
             const postdata = {
               oracle: { name: this.theData.name, config: configdata },
               sqlserver: { name: this.theData.name, config: configdata },
+              vm: { name: this.theData.name, config: configdata },
               windows: {
                 name: this.theData.name,
                 backupPath: this.theData.backupPath,
