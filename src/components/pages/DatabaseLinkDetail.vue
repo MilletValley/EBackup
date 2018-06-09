@@ -29,9 +29,7 @@
                   <el-form-item label="登录名">
                     <span>{{ productionDatabase.loginName }}</span>
                   </el-form-item>
-                  <el-form-item label="所属业务系统">
-                    <span>{{ productionDatabase.application }}</span>
-                  </el-form-item>
+
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="监听名">
@@ -45,6 +43,9 @@
                             size="mini">{{productionDatabase.state | databaseStateFilter}}</el-tag>
                   </el-form-item>
                 </el-col>
+                <el-form-item label="所属业务系统">
+                  <span>{{ productionDatabase.application }}</span>
+                </el-form-item>
               </el-row>
             </el-form>
           </section>
@@ -62,11 +63,11 @@
               <span>临时端口：</span>
               <span>{{linkState.tempPort}}</span>
             </p>
-            <p :class="$style.linkMsg">
-              <div style="display: inline-block;text-align:left;">
+            <div>
+              <div :class="$style.linkMsg">
                 {{linkState.errMsg}}
               </div>
-            </p>
+            </div>
           </section>
         </el-col>
         <el-col :span="8">
@@ -94,9 +95,6 @@
                   <el-form-item label="登录名">
                     <span>{{ ebackupDatabase.loginName }}</span>
                   </el-form-item>
-                  <el-form-item label="所属业务系统">
-                    <span>{{ ebackupDatabase.application }}</span>
-                  </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="监听名">
@@ -110,6 +108,9 @@
                             size="mini">{{ebackupDatabase.state | databaseStateFilter}}</el-tag>
                   </el-form-item>
                 </el-col>
+                <el-form-item label="所属业务系统">
+                  <span>{{ ebackupDatabase.application }}</span>
+                </el-form-item>
               </el-row>
             </el-form>
           </section>
@@ -204,7 +205,8 @@ export default {
   text-align: center;
 }
 .linkMsg {
-  // text-align: left;
+  display: inline-block;
+  text-align: left;
 }
 .ebackupSection {
   h4 {
