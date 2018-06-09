@@ -178,6 +178,19 @@ const fetchSwitches = linkId =>
     method: 'get',
     url: `/oracle-links/${linkId}/switches`,
   });
+
+const fetchLink = oracleId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${oracleId}/oracle-links`,
+  });
+
+const fetchLinkByLinkId = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-links/${linkId}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -202,4 +215,6 @@ export {
   createSwitches,
   createLinks,
   fetchSwitches,
+  fetchLink,
+  fetchLinkByLinkId,
 };

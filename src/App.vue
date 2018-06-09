@@ -36,7 +36,7 @@ body {
   margin: -20px -20px 0 -20px;
   padding: 10px 10px 50px 10px;
 }
-.detail-header .icon {
+.detail-icon {
   display: block;
   margin: 8px auto;
   width: 70%;
@@ -52,6 +52,6 @@ body {
 .item-info .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
-  width: 40%;
+  /* width: 40%; */
 }
 </style>

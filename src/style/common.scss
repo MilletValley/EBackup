@@ -8,3 +8,12 @@
 .miniCricleIconBtn {
   padding: 7px !important;
 }
+//主库链接颜色
+.primaryLink {
+  composes: link;
+}
+//备库链接颜色
+.viceLink {
+  composes: link;
+  color: #515151;
+}

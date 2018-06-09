@@ -6,7 +6,7 @@ import Dashboard from '@/components/pages/Dashboard';
 import Profile from '@/components/pages/Profile';
 import Users from '@/components/pages/Users';
 import OracleList from '@/components/pages/OracleList';
-import OracleTakeOver from '@/components/pages/OracleTakeOver';
+import TakeOver from '@/components/pages/TakeOver';
 import SqlServerList from '@/components/pages/SqlServerList';
 // import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
@@ -20,6 +20,7 @@ import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
 import SystemParam from '@/components/pages/SystemParam';
+import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 
 Vue.use(Router);
 
@@ -123,7 +124,7 @@ export const asyncRouters = [
       {
         path: 'oracle/takeover',
         name: 'oracleTakeOver',
-        component: OracleTakeOver,
+        component: TakeOver,
         meta: {
           roles: ['oracle dba'],
           breadcrumb: [
@@ -137,6 +138,55 @@ export const asyncRouters = [
             },
             {
               name: 'Oracle一健接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'oracle/takeover/:id',
+        name: 'oracleLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['oracle dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: 'Oracle一健接管',
+              path: '/db/oracle/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'sqlserver/takeover',
+        name: 'sqlserverTakeOver',
+        component: TakeOver,
+        meta: {
+          roles: ['sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '/db/sqlserver',
+            },
+            {
+              name: 'SQLServer一健接管',
               path: '',
             },
           ],

@@ -5,7 +5,8 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon :name="systemType"></i-icon>
+            <i-icon :name="systemType"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"

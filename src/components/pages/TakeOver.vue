@@ -182,6 +182,7 @@
                 </el-form>
                 <i-icon :name="`switch-${dbLink.state}`"
                         :class="$style.switchIcon"
+                        @click.native="jumpToLinkDetail(dbLink.id)"
                         slot="reference"></i-icon>
               </el-popover>
               <div v-if="dbLink.latestSwitch.state === 1"
@@ -317,14 +318,16 @@ import {
   switchStateMapping,
   switchManualMapping,
 } from '../../utils/constant';
+import takeoverMixin from '../mixins/takeoverMixins';
 // 模拟数据
-import { items, links, oracleHosts } from '../../utils/mock-data';
+import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 export default {
-  name: 'OracleTakeOver',
+  name: 'TakeOver',
+  mixins: [takeoverMixin],
   data() {
     return {
-      items,
-      links,
+      items, // 所有的数据库
+      links, // 数据库连接
       linkCreateModalVisible: false,
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
@@ -336,57 +339,63 @@ export default {
     this.fetchData();
   },
   computed: {
-    oracleHosts() {
-      return oracleHosts;
-      // return this.$store.getters.hostsWithOracle;
+    databaseType() {
+      const path = this.$route.path;
+      // /db/xxx/takeover
+      return this.$route.path.substring(4, path.lastIndexOf('/'));
     },
-    // 设备ID与其下Oracle的对应关系
-    hostsWithOracle() {
+    specialHosts() {
+      if (this.databaseType === 'oracle') {
+        return hosts;
+        // return this.$store.getters.hostsWithOracle;
+      } else if (this.databaseType === 'sqlserver') {
+        return hosts2;
+        // return this.$store.getters.hostsWithSqlServer;
+      }
+    },
+    /**
+      设备ID与其下数据库的对应关系
+      hostId: {
+        databases: [
+          {database}, ...
+        ]
+      }
+     */
+    hostsDatabaseMap() {
       const res = {};
-      this.oracleHosts.forEach(host => {
+      this.specialHosts.forEach(host => {
         const databases = this.items.filter(db => db.host.id === host.id);
         res[host.id] = {
           databases,
         };
       });
       return res;
-      // return this.items.reduce((accumulator, db) => {
-      //   const { host, ...info } = db;
-      //   if (accumulator[db.host.id]) {
-      //     accumulator[db.host.id].databases.push(info);
-      //   } else {
-      //     accumulator[db.host.id] = {
-      //       databases: [info],
-      //     };
-      //   }
-      //   return accumulator;
-      // }, {});
     },
-    productionOracleHosts() {
-      return this.oracleHosts.filter(host => host.hostType === 1);
+    productionHosts() {
+      return this.specialHosts.filter(host => host.hostType === 1);
     },
-    ebackupOracleHosts() {
-      return this.oracleHosts.filter(host => host.hostType === 2);
+    ebackupHosts() {
+      return this.specialHosts.filter(host => host.hostType === 2);
     },
     // 可以进行初始化连接操作的生产设备
     // 该设备下可能没有数据库／实例 需要进一步筛选
     availableProductionHosts() {
-      return this.productionOracleHosts
+      return this.productionHosts
         .filter(
           host => !this.links.find(link => link.primaryHost.id === host.id)
         )
         .map(host => {
-          const databases = this.hostsWithOracle[host.id].databases || [];
+          const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
     },
     // 可以进行初始化连接操作的易备设备
     // 该设备可能有数据库／实例 需要进一步筛选
     availableEbackupHosts() {
-      return this.ebackupOracleHosts
+      return this.ebackupHosts
         .filter(host => !this.links.find(link => link.viceHost.id === host.id))
         .map(host => {
-          const databases = this.hostsWithOracle[host.id].databases || [];
+          const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
     },
@@ -402,11 +411,13 @@ export default {
         return [...accumulator, ...links];
       }, []);
     },
+    // 即将切换的数据库连接
     databaseLinksReadyToSwitch() {
       return this.databaseLinks.filter(
         link => this.databaseLinkIdsReadyToSwitch.indexOf(link.id) >= 0
       );
     },
+    // 即将切换的设备连接
     hostLinkReadyToSwitch() {
       return this.links.find(
         hostLink => hostLink.id === this.hostLinkIdReadyToSwitch
@@ -431,40 +442,6 @@ export default {
       //   .catch(error => {
       //     this.$message.error(error);
       //   });
-    },
-    // 数据库连接状态与tag类型的映射
-    databaseLinkStateStyle(value) {
-      switch (value) {
-        case 1:
-          return 'warning';
-        case 2:
-          return 'success';
-        case 3:
-        case 4:
-          return 'danger';
-        case 5:
-          return 'info';
-      }
-    },
-    databaseStateStyle(value) {
-      switch (value) {
-        case 0:
-          return 'info';
-        case 1:
-          return 'success';
-        case 2:
-          return 'danger';
-      }
-    },
-    switchStateStyle(value) {
-      switch (value) {
-        case 1:
-          return 'info';
-        case 2:
-          return 'success';
-        case 3:
-          return 'danger';
-      }
     },
 
     displayLinkCreateModal() {
@@ -521,24 +498,11 @@ export default {
       this.hostLinkIdReadyToSwitch = -1;
       this.password = '';
     },
-  },
-  filters: {
-    databaseStateFilter(value) {
-      return databaseStateMapping[value];
-    },
-    databaseRoleFilter(value) {
-      return databaseRoleMapping[value].substr(0, 1);
-    },
-    linkStateFilter(value) {
-      return linkStateMapping[value];
-    },
-    switchStateFilter(value) {
-      return switchStateMapping[value];
-    },
-    switchManualFilter(value) {
-      return switchManualMapping[value];
+    jumpToLinkDetail(linkId) {
+      this.$router.push({ path: `${linkId}`, append: true });
     },
   },
+
   components: {
     IIcon,
     DatabaseLinkCreateModal,

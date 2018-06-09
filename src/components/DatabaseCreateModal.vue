@@ -110,7 +110,8 @@ const vm = {
             password,
             dbVersion,
             application,
-            hostId,
+            // 创建对象 传入host对象 0609
+            host: this.availableHosts.find(host => host.id === hostId),
           });
         } else {
           return false;
