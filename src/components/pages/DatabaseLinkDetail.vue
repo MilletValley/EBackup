@@ -8,7 +8,7 @@
           <section :class="$style.productionSection">
             <h4>
               <router-link :class="productionDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                           :to="`/db/oracle/${productionDatabase.id}`">
+                           :to="`/db/${databaseType}/${productionDatabase.id}`">
                 {{productionDatabase.name}}
               </router-link>
               <i-icon :class="$style.databaseRoleIcon"
@@ -32,9 +32,6 @@
 
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="监听名">
-                    <span>{{ productionDatabase.lsn }}</span>
-                  </el-form-item>
                   <el-form-item label="设备环境">
                     <span>生产环境</span>
                   </el-form-item>
@@ -43,10 +40,15 @@
                             size="mini">{{productionDatabase.state | databaseStateFilter}}</el-tag>
                   </el-form-item>
                 </el-col>
-                <el-form-item label="所属业务系统">
-                  <span>{{ productionDatabase.application }}</span>
+
+                <el-form-item v-if="databaseType === 'oracle'"
+                              label="监听名">
+                  <span>{{ productionDatabase.lsn }}</span>
                 </el-form-item>
               </el-row>
+              <el-form-item label="所属业务系统">
+                <span>{{ productionDatabase.application }}</span>
+              </el-form-item>
             </el-form>
           </section>
         </el-col>
@@ -59,7 +61,7 @@
                       style="margin-left: 10px"
                       size="mini">{{ linkState.state | linkStateFilter }}</el-tag>
             </div>
-            <p>
+            <p v-if="databaseType === 'oracle'">
               <span>临时端口：</span>
               <span>{{linkState.tempPort}}</span>
             </p>
@@ -74,7 +76,7 @@
           <section :class="$style.ebackupSection">
             <h4>
               <router-link :class="ebackupDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                           :to="`/db/oracle/${ebackupDatabase.id}`">
+                           :to="`/db/${databaseType}/${ebackupDatabase.id}`">
                 {{ebackupDatabase.name}}
               </router-link>
               <i-icon :class="$style.databaseRoleIcon"
@@ -97,9 +99,6 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="监听名">
-                    <span>{{ ebackupDatabase.lsn }}</span>
-                  </el-form-item>
                   <el-form-item label="设备环境">
                     <span>易备环境</span>
                   </el-form-item>
@@ -107,11 +106,15 @@
                     <el-tag :type="databaseStateStyle(ebackupDatabase.state)"
                             size="mini">{{ebackupDatabase.state | databaseStateFilter}}</el-tag>
                   </el-form-item>
+                  <el-form-item v-if="databaseType === 'oracle'"
+                                label="监听名">
+                    <span>{{ ebackupDatabase.lsn }}</span>
+                  </el-form-item>
                 </el-col>
-                <el-form-item label="所属业务系统">
-                  <span>{{ ebackupDatabase.application }}</span>
-                </el-form-item>
               </el-row>
+              <el-form-item label="所属业务系统">
+                <span>{{ ebackupDatabase.application }}</span>
+              </el-form-item>
             </el-form>
           </section>
         </el-col>
@@ -139,7 +142,22 @@
 <script>
 import takeoverMixin from '../mixins/takeoverMixins';
 import IIcon from '@/components/IIcon';
-import { fetchLinkByLinkId, fetchSwitches } from '../../api/oracle';
+import {
+  fetchLinkByLinkId as fetchLinkByLinkIdOracle,
+  fetchSwitches as fetchSwitchesOracle,
+} from '../../api/oracle';
+import {
+  fetchLinkByLinkId as fetchLinkByLinkIdSqlserver,
+  fetchSwitches as fetchSwitchesSqlserver,
+} from '../../api/sqlserver';
+const fetchLinkByLinkIdMethod = {
+  oracle: fetchLinkByLinkIdOracle,
+  sqlserver: fetchLinkByLinkIdSqlserver,
+};
+const fetchSwitchesMethod = {
+  oracle: fetchSwitchesOracle,
+  sqlserver: fetchSwitchesSqlserver,
+};
 export default {
   name: 'DatabaseLinkDetail',
   props: {
@@ -159,9 +177,16 @@ export default {
   created() {
     this.fetchData();
   },
+  computed: {
+    databaseType() {
+      const path = this.$route.path;
+      // /db/xxx/takeover/12345
+      return this.$route.path.substring(4, path.indexOf('/', 4));
+    },
+  },
   methods: {
     fetchData() {
-      fetchLinkByLinkId(this.id)
+      fetchLinkByLinkIdMethod[this.databaseType](this.id)
         .then(res => {
           const { primaryDatabase, viceDatabase, ...linkState } = res.data.data;
           this.linkState = linkState;
@@ -171,7 +196,7 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-      fetchSwitches(this.id)
+      fetchSwitchesMethod[this.databaseType](this.id)
         .then(res => {
           const { data: switches } = res.data;
           this.switches = switches;
@@ -207,6 +232,7 @@ export default {
 .linkMsg {
   display: inline-block;
   text-align: left;
+  margin-top: 10px;
 }
 .ebackupSection {
   h4 {

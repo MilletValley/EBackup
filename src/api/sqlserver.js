@@ -153,6 +153,45 @@ const fetchRestoreOperation = id =>
     method: 'get',
     url: `/sqlserver-restore-plans/${id}`,
   });
+
+const fetchLinks = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/sqlserver-links',
+  });
+
+const createLinks = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/sqlserver-links',
+    data,
+  });
+
+const createSwitches = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/sqlserver-switches',
+    data,
+  });
+
+const fetchSwitches = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlserver-links/${linkId}/switches`,
+  });
+
+const fetchLink = sqlserverId =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlservers/${sqlserverId}/sqlserver-links`,
+  });
+
+const fetchLinkByLinkId = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/sqlserver-links/${linkId}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -173,4 +212,10 @@ export {
   deleteRestorePlan,
   updateRestorePlan,
   fetchRestoreOperation,
+  fetchLinks,
+  createSwitches,
+  createLinks,
+  fetchSwitches,
+  fetchLink,
+  fetchLinkByLinkId,
 };
