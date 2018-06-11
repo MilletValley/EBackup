@@ -8,6 +8,7 @@
                :close-on-press-escape="false">
       <el-form :id="_id"
                :model="theData"
+               size="small"
                :rules="rules"
                ref="theForm"
                label-width="100px">

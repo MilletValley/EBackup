@@ -25,7 +25,8 @@
               <el-tooltip content="目标设备IP"
                           placement="right"
                           :open-delay="300">
-                <span>{{ item.config.database.host.hostIp }}</span>
+                <span v-if="!isFile">{{ item.config.database.host.hostIp }}</span>
+                <span v-else>{{ item.config.hostIp }}</span>
               </el-tooltip>
             </p>
 
@@ -35,7 +36,8 @@
               <el-tooltip :content="detailInfoDisplayName"
                           placement="right"
                           :open-delay="300">
-                <span>{{item.config.database.instanceName }}</span>
+                <span v-if="!isFile">{{item.config.database.instanceName }}</span>
+                <span v-else>{{ item.config.detailInfo }}</span>
               </el-tooltip>
             </p>
 
@@ -126,6 +128,12 @@ export default {
         linux: '恢复路径',
       };
       return mapping[this.type];
+    },
+    isFile() {
+      if (this.type === 'windows' || this.type === 'linux') {
+        return true;
+      }
+      return false;
     },
   },
   components: {

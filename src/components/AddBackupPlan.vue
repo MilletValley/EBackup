@@ -8,6 +8,7 @@
                :close-on-press-escape="false">
       <el-form :model="theData"
                :rules="rules"
+               size="small"
                ref="theForm"
                label-width="100px">
         <el-form-item label="备份标题"

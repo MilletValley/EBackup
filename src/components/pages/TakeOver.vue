@@ -41,10 +41,17 @@
                 justify="space-around">
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon name="host-production"
-                      :class="$style.hostIcon"></i-icon>
-              <span>{{ hostLink.primaryHost.name }}</span>
-              <el-tag size="small">{{ hostLink.primaryHost.hostIp }}</el-tag>
+              <div>
+                <i-icon name="host-production"
+                        :class="$style.hostIcon"></i-icon>
+                <span>{{ hostLink.primaryHost.name }}</span>
+              </div>
+              <div>
+                <i-icon name="ip"
+                        :class="$style.hostIpIcon"></i-icon>
+                <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
+              </div>
+              <!-- <el-tag size="small"></el-tag> -->
             </div>
           </el-col>
           <el-col :span="4">
@@ -105,10 +112,16 @@
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon name="host-ebackup"
-                      :class="$style.hostIcon"></i-icon>
-              <span>{{ hostLink.viceHost.name }}</span>
-              <el-tag size="small">{{ hostLink.viceHost.hostIp }}</el-tag>
+              <div>
+                <i-icon name="host-ebackup"
+                        :class="$style.hostIcon"></i-icon>
+                <span>{{ hostLink.viceHost.name }}</span>
+              </div>
+              <div>
+                <i-icon name="ip"
+                        :class="$style.hostIpIcon"></i-icon>
+                <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
+              </div>
             </div>
           </el-col>
         </el-row>
@@ -146,7 +159,9 @@
                   </p>
                 </el-col>
                 <el-col :span="3">
-                  <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryRole : $style.viceRole">{{ dbLink.primaryDatabase.role | databaseRoleFilter}}</div>
+                  <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
+                    <span style="font-size: 3vw;">{{ dbLink.primaryDatabase.role | databaseRoleFilter}}</span>
+                  </div>
                 </el-col>
               </el-row>
 
@@ -235,7 +250,9 @@
                   </p>
                 </el-col>
                 <el-col :span="3">
-                  <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryRole : $style.viceRole">{{ dbLink.viceDatabase.role | databaseRoleFilter}}</div>
+                  <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
+                    <span style="font-size: 3vw;">{{ dbLink.viceDatabase.role | databaseRoleFilter}}</span>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -243,7 +260,8 @@
         </el-row>
       </div>
     </section>
-    <el-dialog :visible.sync="switchModalVisible"
+    <el-dialog custom-class="min-width-dialog"
+               :visible.sync="switchModalVisible"
                @close="switchModalClosed">
       <el-row>
         <el-col :span="6">
@@ -596,6 +614,7 @@ $vice-color: #6d6d6d;
 }
 .hostIcon {
   vertical-align: -0.3em;
+  width: 2em;
 }
 
 .hostLinkContainer {
@@ -608,6 +627,17 @@ $vice-color: #6d6d6d;
 .hostInfo {
   text-align: center;
   margin: 1em 0;
+}
+.hostIpIcon {
+  width: 2em;
+  display: inline-block;
+  vertical-align: -0.3em;
+  margin-top: 10px;
+}
+.hostIp {
+  color: #909399;
+  font-style: italic;
+  font-size: 0.9em;
 }
 .hostSwitch {
   text-align: center;
@@ -657,7 +687,7 @@ $vice-color: #6d6d6d;
   font-size: 2.8em;
   line-height: 2.3em;
   height: 111px;
-  margin: -5px 0;
+  margin: -5px -1px;
   border-radius: 0 3px 3px 0;
 }
 .viceRole {
@@ -667,7 +697,7 @@ $vice-color: #6d6d6d;
   font-size: 2.8em;
   line-height: 2.3em;
   height: 111px;
-  margin: -5px 0;
+  margin: -5px -1px;
   border-radius: 0 3px 3px 0;
 }
 .hostSwitchIcon {
@@ -677,12 +707,6 @@ $vice-color: #6d6d6d;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
-    // animation: {
-    //   name: xxx;
-    //   duration: 0.5s;
-    //   timing-function: ease;
-    //   fill-mode: forwards;
-    // }
   }
 }
 .switchIcon {
@@ -691,23 +715,6 @@ $vice-color: #6d6d6d;
   cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
-    transform: scale(1.2);
-    // animation: {
-    //   name: xxx;
-    //   duration: 0.5s;
-    //   timing-function: ease;
-    //   fill-mode: forwards;
-    // }
-  }
-}
-@keyframes xxx {
-  0% {
-    transform: scale(1);
-  }
-  // 50% {
-  //   transform: scale(1.2);
-  // }
-  100% {
     transform: scale(1.2);
   }
 }

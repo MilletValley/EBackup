@@ -33,8 +33,8 @@
                :class="$style.defaultTabs"
                v-show="!selectedProductionHostId">
         <el-tab-pane name="default"
-                     label="实例">
-          请选择主设备
+                     :label="instanceName">
+          <div :class="$style.tipInfo">请选择主设备</div>
         </el-tab-pane>
       </el-tabs>
       <el-tabs v-model="currentTab"
@@ -162,6 +162,13 @@ export default {
     databaseTabs() {
       return this.selectedProductionHost.databases || [];
     },
+    instanceName() {
+      if (this.type === 'oracle') {
+        return '实例';
+      } else if (this.type === 'sqlserver') {
+        return '数据库';
+      }
+    },
     requestData() {
       return {
         primaryHostId: this.selectedProductionHostId,
@@ -197,5 +204,12 @@ export default {
 }
 .defaultTabs {
   height: 221px;
+}
+.tipInfo {
+  width: 310px;
+  margin: 60px auto;
+  font-size: 3em;
+  color: #c0c4cc;
+  text-align: center;
 }
 </style>
