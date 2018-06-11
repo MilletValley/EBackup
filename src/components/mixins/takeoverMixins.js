@@ -59,7 +59,7 @@ const takeoverMixin = {
     databaseStateFilter(value) {
       return databaseStateMapping[value];
     },
-    databaseRoleFilter(value) {
+    databaseRoleFilter(value = 0) {
       return databaseRoleMapping[value].substr(0, 1);
     },
     linkStateFilter(value) {

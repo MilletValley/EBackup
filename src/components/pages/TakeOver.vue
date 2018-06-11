@@ -260,70 +260,11 @@
         </el-row>
       </div>
     </section>
-    <el-dialog custom-class="min-width-dialog"
-               :visible.sync="switchModalVisible"
-               @close="switchModalClosed">
-      <el-row>
-        <el-col :span="6">
-          <i-icon name="warning"
-                  :class="$style.switchModalIcon"></i-icon>
-        </el-col>
-        <el-col :span="18">
-          <div style="height: 200px;max-height: 200px;">
-            <h4>即将执行以下操作，请检查。</h4>
-            <div v-if="hostLinkReadyToSwitch">
-              <p>
-                <span>生产环境</span>
-                <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.primaryHost.name}}</span>
-                <el-tag size="mini">IP变更</el-tag>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
-              </p>
-              <p>
-                <span>易备环境</span>
-                <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.viceHost.name}}</span>
-                <el-tag size="mini">IP变更</el-tag>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
-              </p>
-            </div>
-            <div v-if="databaseLinksReadyToSwitch.length > 0"
-                 v-for="link in databaseLinksReadyToSwitch"
-                 :key="link.id">
-              <p>
-                <span :class="$style.switchModalName">{{ link.primaryDatabase.name }}</span>
-                <span :class="$style.switchModalDetail">{{ link.primaryDatabase.instanceName}}</span>
-                <el-tag size="mini">角色变更</el-tag>
-                <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span>{{ link.viceDatabase.role | databaseRoleFilter }}</span>
-              </p>
-              <p>
-                <span :class="$style.switchModalName">{{ link.viceDatabase.name }}</span>
-                <span :class="$style.switchModalDetail">{{ link.viceDatabase.instanceName}}</span>
-                <el-tag size="mini">角色变更</el-tag>
-                <span>{{ link.viceDatabase.role | databaseRoleFilter}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
-              </p>
-            </div>
-          </div>
-
-          <el-input type="password"
-                    v-model="password"
-                    placeholder="请输入用户密码以执行此操作"></el-input>
-        </el-col>
-      </el-row>
-
-      <span slot="footer">
-        <el-button @click="cancelSwitch">取消</el-button>
-        <el-button type="primary"
-                   :disabled="!this.password"
-                   @click="confirmSwitch">确定</el-button>
-      </span>
-    </el-dialog>
+    <switch-modal :visible="switchModalVisible"
+                  :host-link-ready-to-switch="hostLinkReadyToSwitch"
+                  :database-links-ready-to-switch="databaseLinksReadyToSwitch"
+                  @cancel="cancelSwitch"
+                  @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
@@ -332,6 +273,7 @@
   </section>
 </template>
 <script>
+import SwitchModal from '../modal/SwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import {
@@ -509,7 +451,10 @@ export default {
       this.linkCreateModalVisible = true;
     },
     cancelSwitch() {
-      this.switchModalClosed();
+      // this.switchModalClosed();
+      this.databaseLinkIdsReadyToSwitch = [];
+      this.hostLinkIdReadyToSwitch = -1;
+      this.password = '';
       this.switchModalVisible = false;
     },
     confirmSwitch() {
@@ -519,35 +464,66 @@ export default {
        * 3.1.切换IP：修改该设备连接的最近切换记录
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        */
-      validatePassword(this.password)
-        .then(() => {
-          if (!!~this.hostLinkIdReadyToSwitch) {
-            return switchHostIp(this.hostLinkIdReadyToSwitch);
-          } else {
-            return switchOracle({
-              linkIds: this.databaseLinkIdsReadyToSwitch,
-            });
-          }
-        })
-        .then(res => {
-          const { data } = res.data;
-          if (!!~this.hostLinkIdReadyToSwitch) {
+      if (!!~this.hostLinkIdReadyToSwitch) {
+        switchHostIp(this.hostLinkIdReadyToSwitch)
+          .then(res => {
+            const { data } = res.data;
             this.links.find(
               link => link.id === this.hostLinkIdReadyToSwitch
             ).latestSwitch = data;
-          } else {
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      } else {
+        createSwitchMethod[this.databaseType]({
+          linkIds: this.databaseLinkIdsReadyToSwitch,
+        })
+          .then(res => {
+            const { data } = res.data;
             // 修改的是computed数据的引用，引用指向的就是data中的数据
             this.databaseLinks.forEach(link => {
               if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
                 link.latestSwitch = data.find(s => s.linkId === link.id);
               }
             });
-          }
-          this.switchModalVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }
+
+      // validatePassword(this.password)
+      //   .then(() => {
+      //     if (!!~this.hostLinkIdReadyToSwitch) {
+      //       return switchHostIp(this.hostLinkIdReadyToSwitch);
+      //     } else {
+      //       return switchOracle({
+      //         linkIds: this.databaseLinkIdsReadyToSwitch,
+      //       });
+      //     }
+      //   })
+      //   .then(res => {
+      //     const { data } = res.data;
+      //     if (!!~this.hostLinkIdReadyToSwitch) {
+      //       this.links.find(
+      //         link => link.id === this.hostLinkIdReadyToSwitch
+      //       ).latestSwitch = data;
+      //     } else {
+      //       // 修改的是computed数据的引用，引用指向的就是data中的数据
+      //       this.databaseLinks.forEach(link => {
+      //         if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
+      //           link.latestSwitch = data.find(s => s.linkId === link.id);
+      //         }
+      //       });
+      //     }
+      //     this.switchModalVisible = false;
+      //   })
+      //   .catch(error => {
+      //     this.$message.error(error);
+      //   });
     },
     switchDatabase(databaseLinkId) {
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
@@ -594,6 +570,7 @@ export default {
 
   components: {
     IIcon,
+    SwitchModal,
     DatabaseLinkCreateModal,
   },
 };

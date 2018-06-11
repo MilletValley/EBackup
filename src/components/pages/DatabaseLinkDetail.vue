@@ -54,8 +54,12 @@
         </el-col>
         <el-col :span="4">
           <section :class="$style.linkSection">
-            <i-icon :name="`switch-${linkState.state}`"
-                    :class="$style.switchIcon"></i-icon>
+            <el-tooltip content="切换实例"
+                        placement="top">
+              <i-icon :name="`switch-${linkState.state}`"
+                      :class="$style.switchIcon"
+                      @click.native="switchIconClick"></i-icon>
+            </el-tooltip>
             <div>
               <el-tag :type="databaseLinkStateStyle(linkState.state)"
                       style="margin-left: 10px"
@@ -145,14 +149,20 @@
         </template>
       </el-table-column>
     </el-table>
+    <switch-modal :visible="switchModalVisible"
+                  :database-links-ready-to-switch="[databaseLink]"
+                  @cancel="switchModalCancel"
+                  @confirm="switchModalConfirm"></switch-modal>
   </section>
 </template>
 <script>
+import SwitchModal from '../modal/SwitchModal';
 import takeoverMixin from '../mixins/takeoverMixins';
 import IIcon from '@/components/IIcon';
 import {
   fetchLinkByLinkId as fetchLinkByLinkIdOracle,
   fetchSwitches as fetchSwitchesOracle,
+  createSwitches,
 } from '../../api/oracle';
 import {
   fetchLinkByLinkId as fetchLinkByLinkIdSqlserver,
@@ -179,7 +189,9 @@ export default {
       linkState: {},
       productionDatabase: {},
       ebackupDatabase: {},
+      latestSwitch: {},
       switches: [],
+      switchModalVisible: false,
     };
   },
   created() {
@@ -198,15 +210,28 @@ export default {
         return '数据库名';
       }
     },
+    databaseLink() {
+      // 传给SwitchModal的数据
+      return {
+        primaryDatabase: this.productionDatabase,
+        viceDatabase: this.ebackupDatabase,
+      };
+    },
   },
   methods: {
     fetchData() {
       fetchLinkByLinkIdMethod[this.databaseType](this.id)
         .then(res => {
-          const { primaryDatabase, viceDatabase, ...linkState } = res.data.data;
+          const {
+            primaryDatabase,
+            viceDatabase,
+            latestSwitch,
+            ...linkState
+          } = res.data.data;
           this.linkState = linkState;
           this.productionDatabase = primaryDatabase;
           this.ebackupDatabase = viceDatabase;
+          this.latestSwitch = latestSwitch;
         })
         .catch(error => {
           this.$message.error(error);
@@ -230,9 +255,30 @@ export default {
           return ['el-icon-error', this.$style.errorColor];
       }
     },
+    switchIconClick() {
+      this.switchModalVisible = true;
+    },
+    switchModalCancel() {
+      this.switchModalVisible = false;
+    },
+    switchModalConfirm() {
+      createSwitches({
+        linkIds: [this.id],
+      })
+        .then(res => {
+          const { data: theSwitch } = res.data;
+          this.latestSwitch = theSwitch[0];
+          this.switches.push(theSwitch[0]);
+          this.switchModalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
   },
   components: {
     IIcon,
+    SwitchModal,
   },
 };
 </script>

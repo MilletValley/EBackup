@@ -85,10 +85,6 @@
               <i v-else
                  class="el-icon-error"
                  :class="$style.errorColor"></i>
-              <!-- <i :class="{ 'el-icon-success': scope.row.state === 0, 
-              'el-icon-error': scope.row.state === 1,
-              [$style.successIcon]:  scope.row.state === 0,
-              [$style.errorIcon]:  scope.row.state === 1 }"></i> -->
             </el-tooltip>
           </template>
         </el-table-column>
