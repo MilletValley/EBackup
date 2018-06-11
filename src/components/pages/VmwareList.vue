@@ -12,8 +12,7 @@
       </el-table-column>
       <el-table-column label="名称"
                        fixed
-                       min-width="200"
-                       align="center">
+                       min-width="200">
         <template slot-scope="scope">
           <el-button type="text">
             <router-link :to="`${scope.row.vmId}`"
@@ -24,8 +23,7 @@
       </el-table-column>
       <el-table-column prop="vmPath"
                        label="路径"
-                       min-width="200"
-                       align="center"></el-table-column>
+                       min-width="200"></el-table-column>
       <el-table-column prop="vmHostName"
                        label="所属主机"
                        min-width="150"
@@ -83,3 +81,9 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
+<style>
+.el-table th{
+  text-align: center;
+}
+</style>
+

@@ -8,18 +8,11 @@
       </el-form-item>
     </el-form>
     <el-table :data="hostsInVuex"
-              border
               style="width: 100%">
-      <el-table-column label="设备名"
+      <el-table-column prop="name"
+                       label="设备名"
                        min-width="150"
                        align="center">
-        <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.name}}</router-link>
-          </el-button>
-        </template>
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"
@@ -41,7 +34,7 @@
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
-                       width="150"
+                       width="140"
                        align="center"></el-table-column>
       <el-table-column label="操作"
                        width="150"

@@ -19,7 +19,7 @@
             <el-table-column prop="useType"
                        label="使用类别"
                        :formatter="judgeUse"
-                       width="140"
+                       width="130"
                        align="center"></el-table-column>
       <el-table-column prop="shareUrl"
                        label="地址"
