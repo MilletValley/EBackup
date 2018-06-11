@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="restore-plan-modal"
+  <el-dialog custom-class="min-width-dialog"
              :before-close="beforeModalClose"
              @open="modalOpened"
              @close="modalClosed"

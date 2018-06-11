@@ -1,5 +1,6 @@
 <template>
   <el-dialog title="接管初始化"
+             custom-class="min-width-dialog"
              :visible.sync="modalVisible"
              @open="modalOpened"
              @close="modalClosed">
@@ -46,7 +47,7 @@
           <el-form :model="multiFormData[index]"
                    label-width="120px"
                    size="small">
-            <template v-if="type === 'oralce'">
+            <template v-if="type === 'oracle'">
               <el-form-item label="主库监听名">
                 <el-input v-model="multiFormData[index].primaryLsn"></el-input>
               </el-form-item>

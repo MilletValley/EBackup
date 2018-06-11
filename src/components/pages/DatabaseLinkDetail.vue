@@ -23,7 +23,7 @@
                   <el-form-item label="数据库版本">
                     <span>{{ productionDatabase.dbVersion }}</span>
                   </el-form-item>
-                  <el-form-item label="实例名">
+                  <el-form-item :label="instanceName">
                     <span>{{ productionDatabase.instanceName }}</span>
                   </el-form-item>
                   <el-form-item label="登录名">
@@ -91,7 +91,7 @@
                   <el-form-item label="数据库版本">
                     <span>{{ ebackupDatabase.dbVersion }}</span>
                   </el-form-item>
-                  <el-form-item label="实例名">
+                  <el-form-item :label="instanceName">
                     <span>{{ ebackupDatabase.instanceName }}</span>
                   </el-form-item>
                   <el-form-item label="登录名">
@@ -121,21 +121,29 @@
       </el-row>
     </header>
     <h3>操作记录</h3>
-    <el-table :data="switches">
+    <el-table :data="switches"
+              :default-sort="{prop: 'switchTime', order: 'descending'}">
       <el-table-column label="切换时间"
                        width="220"
+                       align="center"
                        prop="switchTime"></el-table-column>
       <el-table-column label="切换内容"
                        min-width="200"
+                       header-align="center"
                        prop="content"></el-table-column>
       <el-table-column label="切换形式"
                        width="120"
+                       align="center"
                        :formatter="switchManualFormatter"
                        prop="manual"></el-table-column>
       <el-table-column label="状态"
                        width="120"
-                       :formatter="switchStateFormatter"
-                       prop="state"></el-table-column>
+                       align="center"
+                       prop="state">
+        <template slot-scope="scope">
+          <i :class="switchStateIconClass(scope.row.state)"></i>
+        </template>
+      </el-table-column>
     </el-table>
   </section>
 </template>
@@ -183,6 +191,13 @@ export default {
       // /db/xxx/takeover/12345
       return this.$route.path.substring(4, path.indexOf('/', 4));
     },
+    instanceName() {
+      if (this.databaseType === 'oracle') {
+        return '实例名';
+      } else if (this.databaseType === 'sqlserver') {
+        return '数据库名';
+      }
+    },
   },
   methods: {
     fetchData() {
@@ -205,6 +220,16 @@ export default {
           this.$message.error(error);
         });
     },
+    switchStateIconClass(value) {
+      switch (value) {
+        case 1:
+          return ['el-icon-loading'];
+        case 2:
+          return ['el-icon-success', this.$style.successColor];
+        case 3:
+          return ['el-icon-error', this.$style.errorColor];
+      }
+    },
   },
   components: {
     IIcon,
@@ -213,6 +238,7 @@ export default {
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
+@import '../../style/color.scss';
 .header {
   padding-bottom: 10px;
 }

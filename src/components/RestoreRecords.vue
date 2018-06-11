@@ -8,7 +8,7 @@
       </h4>
       <el-row :gutter="20"
               style="min-height: 144px;">
-        <el-col :span="6"
+        <el-col :span="8"
                 v-for="item in plans"
                 :key="item.id">
           <el-card shadow="hover"
@@ -16,10 +16,29 @@
             <div>
               <span>
                 <i :class="['el-icon-time', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
-              <span :class="$style.restoreStartTime">{{item.startTime}}</span>
+              <span :class="[$style.restoreStartTime, 'hidden-']">{{item.startTime}}</span>
             </div>
-            <p>恢复设备IP: {{ item.config.database.host.hostIp }}</p>
-            <p>{{detailInfoDisplayName}}: {{item.config.database.instanceName }}</p>
+
+            <p>
+              <i-icon name="ip"
+                      :class="$style.ongoingRestoreIcon"></i-icon>
+              <el-tooltip content="目标设备IP"
+                          placement="right"
+                          :open-delay="300">
+                <span>{{ item.config.database.host.hostIp }}</span>
+              </el-tooltip>
+            </p>
+
+            <p>
+              <i-icon name="instance"
+                      :class="$style.ongoingRestoreIcon"></i-icon>
+              <el-tooltip :content="detailInfoDisplayName"
+                          placement="right"
+                          :open-delay="300">
+                <span>{{item.config.database.instanceName }}</span>
+              </el-tooltip>
+            </p>
+
           </el-card>
         </el-col>
       </el-row>
@@ -76,6 +95,7 @@
   </section>
 </template>
 <script>
+import IIcon from './IIcon';
 import baseMixin from './mixins/baseMixins';
 
 export default {
@@ -108,6 +128,9 @@ export default {
       return mapping[this.type];
     },
   },
+  components: {
+    IIcon,
+  },
 };
 </script>
 <style lang="scss" module>
@@ -127,5 +150,10 @@ export default {
   &:hover {
     transform: rotate(180deg);
   }
+}
+.ongoingRestoreIcon {
+  width: 2em;
+  display: inline-block;
+  vertical-align: -0.2em;
 }
 </style>

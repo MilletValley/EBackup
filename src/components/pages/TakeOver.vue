@@ -112,6 +112,7 @@
             </div>
           </el-col>
         </el-row>
+        <!-- 数据库连接的排列 -->
         <el-row v-for="dbLink in hostLink.databaseLinks"
                 :key="dbLink.id">
           <el-col :span="10">
@@ -120,12 +121,15 @@
                       align="middle">
                 <el-col :span="8">
                   <h4>
-                    {{ dbLink.primaryDatabase.name }}
+                    <router-link :class="dbLink.primaryDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                                 :to="`/db/${databaseType}/${dbLink.primaryDatabase.id}`">
+                      {{dbLink.primaryDatabase.name}}
+                    </router-link>
                   </h4>
                 </el-col>
                 <el-col :span="5"
                         :class="$style.dbInfoCol">
-                  <h5>实例名</h5>
+                  <h5>{{instanceName}}</h5>
                   <p>{{ dbLink.primaryDatabase.instanceName }}</p>
                 </el-col>
                 <el-col :span="5"
@@ -206,7 +210,10 @@
                       align="middle">
                 <el-col :span="8">
                   <h4>
-                    {{ dbLink.viceDatabase.name }}
+                    <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                                 :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
+                      {{dbLink.viceDatabase.name}}
+                    </router-link>
                   </h4>
                 </el-col>
                 <el-col :span="5"
@@ -452,6 +459,13 @@ export default {
         hostLink => hostLink.id === this.hostLinkIdReadyToSwitch
       );
     },
+    instanceName() {
+      if (this.databaseType === 'oracle') {
+        return '实例名';
+      } else if (this.databaseType === 'sqlserver') {
+        return '数据库名';
+      }
+    },
   },
   methods: {
     fetchData() {
@@ -567,6 +581,7 @@ export default {
 };
 </script>
 <style lang="scss" module>
+@import '../../style/common.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
 
@@ -602,12 +617,18 @@ $vice-color: #6d6d6d;
 .primaryDatabaseInfo {
   border: 1px solid $primary-color;
   border-radius: 5px;
-  box-shadow: 0px 0px 2px 1px $primary-color;
+  transition: box-shadow 0.5s;
+  &:hover {
+    box-shadow: 0px 0px 2px 1px $primary-color;
+  }
 }
 .viceDatabaseInfo {
   border: 1px solid $vice-color;
   border-radius: 5px;
-  box-shadow: 0px 0px 2px 1px $vice-color;
+  transition: box-shadow 0.5s;
+  &:hover {
+    box-shadow: 0px 0px 2px 1px $vice-color;
+  }
 }
 
 .primaryDatabaseInfo,
@@ -653,11 +674,42 @@ $vice-color: #6d6d6d;
   width: 3em;
   height: 1.4em;
   cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+    // animation: {
+    //   name: xxx;
+    //   duration: 0.5s;
+    //   timing-function: ease;
+    //   fill-mode: forwards;
+    // }
+  }
 }
 .switchIcon {
   width: 3em;
   height: 3em;
   cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+    // animation: {
+    //   name: xxx;
+    //   duration: 0.5s;
+    //   timing-function: ease;
+    //   fill-mode: forwards;
+    // }
+  }
+}
+@keyframes xxx {
+  0% {
+    transform: scale(1);
+  }
+  // 50% {
+  //   transform: scale(1.2);
+  // }
+  100% {
+    transform: scale(1.2);
+  }
 }
 .switchFormItem {
   label {
