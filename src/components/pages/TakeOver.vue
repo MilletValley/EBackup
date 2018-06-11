@@ -4,7 +4,7 @@
              size="small">
       <el-form-item style="float: right;">
         <el-button type="info"
-                   @click="$router.push({name: 'oracleList'})">数据库列表</el-button>
+                   @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="primary"
@@ -55,7 +55,9 @@
                             width="300"
                             :open-delay="200">
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                  <el-form size="mini"
+                  <p v-if="!hostLink.latestSwitch">暂无操作</p>
+                  <el-form v-else
+                           size="mini"
                            label-width="70px">
                     <el-form-item :class="$style.switchFormItem"
                                   label="切换内容">
@@ -83,7 +85,7 @@
                           slot="reference"></i-icon>
                 </el-popover>
               </div>
-              <div v-if="hostLink.latestSwitch.state === 1"
+              <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1"
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
@@ -157,7 +159,9 @@
                         style="margin-left: 10px"
                         size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
                 <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                <el-form size="mini"
+                <p v-if="!dbLink.latestSwitch">暂无操作</p>
+                <el-form v-else
+                         size="mini"
                          label-width="70px">
                   <el-form-item :class="$style.switchFormItem"
                                 label="切换内容">
@@ -185,7 +189,7 @@
                         @click.native="jumpToLinkDetail(dbLink.id)"
                         slot="reference"></i-icon>
               </el-popover>
-              <div v-if="dbLink.latestSwitch.state === 1"
+              <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换实例中...</span>
@@ -297,19 +301,27 @@
     </el-dialog>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :ebackup-hosts="availableEbackupHosts"
-                                :visible.sync="linkCreateModalVisible"></database-link-create-modal>
+                                :visible.sync="linkCreateModalVisible"
+                                :type="databaseType"
+                                @confirm="createLink"></database-link-create-modal>
   </section>
 </template>
 <script>
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import {
-  fetchAll,
-  fetchLinks,
-  createLinks,
+  fetchAll as fetchAllOracle,
+  fetchLinks as fetchLinksOracle,
+  createLinks as createLinksOracle,
   createSwitches as switchOracle,
 } from '../../api/oracle';
-import { createSwitches as switchHostIp } from '../../api/host';
+import {
+  fetchAll as fetchAllSqlserver,
+  fetchLinks as fetchLinksSqlserver,
+  createLinks as createLinksSqlserver,
+  createSwitches as switchSqlserver,
+} from '../../api/sqlserver';
+import { createSwitches as switchHostIp, fetchAll } from '../../api/host';
 import { validatePassword } from '../../api/user';
 import {
   databaseStateMapping,
@@ -321,6 +333,23 @@ import {
 import takeoverMixin from '../mixins/takeoverMixins';
 // 模拟数据
 import { items, links, hosts, hosts2 } from '../../utils/mock-data';
+
+const fetchDatabaseMethod = {
+  oracle: fetchAllOracle,
+  sqlserver: fetchAllSqlserver,
+};
+const fetchLinksMethod = {
+  oracle: fetchLinksOracle,
+  sqlserver: fetchLinksSqlserver,
+};
+const createLinksMethod = {
+  oracle: createLinksOracle,
+  sqlserver: createLinksSqlserver,
+};
+const createSwitchMethod = {
+  oracle: switchOracle,
+  sqlserver: switchSqlserver,
+};
 export default {
   name: 'TakeOver',
   mixins: [takeoverMixin],
@@ -452,6 +481,12 @@ export default {
       this.switchModalVisible = false;
     },
     confirmSwitch() {
+      /**
+       * 1.验证密码；
+       * 2.判断是切换IP还是切换实例，调用不用的请求
+       * 3.1.切换IP：修改该设备连接的最近切换记录
+       * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
+       */
       validatePassword(this.password)
         .then(() => {
           if (!!~this.hostLinkIdReadyToSwitch) {
@@ -464,7 +499,18 @@ export default {
         })
         .then(res => {
           const { data } = res.data;
-          console.log(data);
+          if (!!~this.hostLinkIdReadyToSwitch) {
+            this.links.find(
+              link => link.id === this.hostLinkIdReadyToSwitch
+            ).latestSwitch = data;
+          } else {
+            // 修改的是computed数据的引用，引用指向的就是data中的数据
+            this.databaseLinks.forEach(link => {
+              if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
+                link.latestSwitch = data.find(s => s.linkId === link.id);
+              }
+            });
+          }
           this.switchModalVisible = false;
         })
         .catch(error => {
@@ -500,6 +546,17 @@ export default {
     },
     jumpToLinkDetail(linkId) {
       this.$router.push({ path: `${linkId}`, append: true });
+    },
+    createLink(data) {
+      createLinksMethod[this.databaseType](data)
+        .then(res => {
+          const { data: link } = res.data;
+          this.linkCreateModalVisible = false;
+          this.links.push(link);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
   },
 

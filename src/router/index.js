@@ -193,6 +193,33 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'sqlserver/takeover/:id',
+        name: 'sqlserverLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '/db/sqlserver',
+            },
+            {
+              name: 'SQLServer一健接管',
+              path: '/db/sqlserver/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'oracle',
         name: 'oracleList',
         component: OracleList,

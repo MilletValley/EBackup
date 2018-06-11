@@ -53,9 +53,6 @@
                   <el-form-item label="实例名：">
                     <span>{{ details.instanceName }}</span>
                   </el-form-item>
-                  <!-- <el-form-item label="归档模式：">
-                <span>ARCHIVELOG</span>
-              </el-form-item> -->
                   <el-form-item label="数据库账号：">
                     <span>{{ details.loginName }}</span>
                   </el-form-item>

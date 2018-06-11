@@ -46,15 +46,37 @@
           <el-form :model="multiFormData[index]"
                    label-width="120px"
                    size="small">
-            <el-form-item label="主库监听名">
-              <el-input v-model="multiFormData[index].primaryLsn"></el-input>
-            </el-form-item>
-            <el-form-item label="备库监听名">
-              <el-input v-model="multiFormData[index].viceLsn"></el-input>
-            </el-form-item>
-            <el-form-item label="临时端口">
-              <el-input-number v-model="multiFormData[index].port"></el-input-number>
-            </el-form-item>
+            <template v-if="type === 'oralce'">
+              <el-form-item label="主库监听名">
+                <el-input v-model="multiFormData[index].primaryLsn"></el-input>
+              </el-form-item>
+              <el-form-item label="备库监听名">
+                <el-input v-model="multiFormData[index].viceLsn"></el-input>
+              </el-form-item>
+              <el-form-item label="临时端口">
+                <el-input-number v-model="multiFormData[index].port"></el-input-number>
+              </el-form-item>
+            </template>
+            <template v-if="type === 'sqlserver'">
+              <el-form-item label="备库登录名">
+                <el-input :disabled="keep"
+                          v-model="multiFormData[index].viceLoginName"></el-input>
+              </el-form-item>
+              <el-form-item label="备库密码">
+                <el-input :disabled="keep"
+                          type="password"
+                          v-model="multiFormData[index].vicePassword"></el-input>
+              </el-form-item>
+              <el-form-item label="保持锁定">
+                <el-switch :disabled="!multiFormData[0].viceLoginName || !multiFormData[0].vicePassword"
+                           v-model="keep"></el-switch>
+                <el-tooltip content="所有数据库的用户名/密码与第一个保持一致"
+                            placement="right">
+                  <i class="el-icon-question"
+                     style="margin-left:1em;"></i>
+                </el-tooltip>
+              </el-form-item>
+            </template>
           </el-form>
         </el-tab-pane>
       </el-tabs>
@@ -79,27 +101,45 @@ export default {
     visible: {
       type: Boolean,
     },
+    type: {
+      type: String,
+      validator(value) {
+        return ['oracle', 'sqlserver'].includes(value);
+      },
+    },
   },
   data() {
     return {
-      selectedProductionHostId: '',
-      selectedEbackupHostId: '',
-      currentTab: '',
-      multiFormData: [],
+      selectedProductionHostId: '', // 选择的生产设备ID
+      selectedEbackupHostId: '', // 选择的易备设备ID
+      currentTab: '', // 当前Tab页name
+      multiFormData: [], // 多个tab页内的表单数据
       originRequestData: [],
+      keep: false,
     };
   },
   watch: {
+    /**
+     * 主设备变更时，清空表单数据，重制tab页
+     */
     selectedProductionHostId(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
         primaryDatabaseId: db.id,
-        primaryLsn: '',
-        viceLsn: '',
-        port: '',
+        // primaryLsn: '',
+        // viceLsn: '',
+        // port: '',
       }));
       this.currentTab = String(
         (this.databaseTabs[0] && this.databaseTabs[0].id) || ''
       );
+    },
+    keep(value) {
+      if (!value) return;
+      const firstFormData = this.multiFormData[0];
+      for (let i = 1, l = this.multiFormData.length; i < l; ++i) {
+        this.multiFormData[i].viceLoginName = firstFormData.viceLoginName;
+        this.multiFormData[i].vicePassword = firstFormData.vicePassword;
+      }
     },
   },
   computed: {
