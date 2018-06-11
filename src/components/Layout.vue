@@ -12,10 +12,10 @@
                active-text-color="#fff"
                :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
-          <IIcon name="dashboard"
+            <IIcon name="dashboard"
                  class="menu-icon"></IIcon>
-          <router-link to="/dashboard"
-                       tag="span">主页</router-link>
+            <router-link to="/dashboard"
+                        tag="span" style="display: inline-block; width: 165px;">主页</router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
                     :key="menu.path"
