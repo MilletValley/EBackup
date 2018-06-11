@@ -5,7 +5,7 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="vm"></i-icon>
+            <i-icon name="vmware"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
