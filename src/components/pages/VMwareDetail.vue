@@ -10,12 +10,12 @@
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
-              <el-col :span="8"
+              <el-col :span="20"
                       class="title">
                 <h1>{{details.vmName}}</h1>
               </el-col>
-              <el-col :span="12"
-                      :offset="12"
+              <el-col :span="5"
+                      :offset="5"
                       class="action">
                 <el-dropdown size="mini"
                              trigger="click"
@@ -37,21 +37,27 @@
                      inline
                      size="small"
                      class="item-info">
-              <el-form-item label="账号：">
-                <span>{{ details.host.loginName }}</span>
-              </el-form-item>
-              <el-form-item label="密码：">
-                <span>●●●●●●●●</span>
-              </el-form-item>
-              <el-form-item label="主机名：">
-                <span>{{ details.host.name }}</span>
-              </el-form-item>
-              <el-form-item label="操作系统：">
-                <span>{{ details.host.osName }}</span>
-              </el-form-item>
-              <el-form-item label="主机IP：">
-                <span>{{ details.host.hostIp }}</span>
-              </el-form-item>
+              <el-row style="margin-right: 5px;">
+                <el-col :span="8">
+                  <el-form-item label="虚拟机账号：">
+                    <div>{{ details.host.loginName }}</div>
+                  </el-form-item>
+                  <el-form-item label="虚拟机密码：">
+                    <div>●●●●●●●●</div>
+                  </el-form-item>
+                  <el-form-item label="主机名：">
+                    <div>{{ details.host.name }}</div>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="操作系统：">
+                    <div>{{ details.host.osName }}</div>
+                  </el-form-item>
+                  <el-form-item label="主机IP：">
+                    <div>{{ details.host.hostIp }}</div>
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </el-form>
           </el-col>
         </el-row>
@@ -173,3 +179,9 @@ export default {
   },
 };
 </script>
+<style>
+.el-col .el-form-item {
+  display: block;
+}
+</style>
+
