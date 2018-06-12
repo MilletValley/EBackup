@@ -333,8 +333,8 @@ export default {
   mixins: [takeoverMixin],
   data() {
     return {
-      items, // 所有的数据库
-      links, // 数据库连接
+      items: [], // 所有的数据库
+      links: [], // 数据库连接
       linkCreateModalVisible: false,
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
@@ -353,11 +353,11 @@ export default {
     },
     specialHosts() {
       if (this.databaseType === 'oracle') {
-        return hosts;
-        // return this.$store.getters.hostsWithOracle;
+        // return hosts;
+        return this.$store.getters.hostsWithOracle;
       } else if (this.databaseType === 'sqlserver') {
-        return hosts2;
-        // return this.$store.getters.hostsWithSqlServer;
+        // return hosts2;
+        return this.$store.getters.hostsWithSqlServer;
       }
     },
     /**
@@ -440,29 +440,28 @@ export default {
   },
   methods: {
     fetchData() {
-      // fetchAll()
-      //   .then(res => {
-      //     const { data: oracles } = res.data;
-      //     this.items = oracles;
-      //   })
-      //   .catch(error => {
-      //     this.$message.error(error);
-      //   });
-      // fetchLinks()
-      //   .then(res => {
-      //     const { data: links } = res.data;
-      //     this.links = links;
-      //   })
-      //   .catch(error => {
-      //     this.$message.error(error);
-      //   });
+      fetchDatabaseMethod[this.databaseType]()
+        .then(res => {
+          const { data } = res.data;
+          this.items = data;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchLinksMethod[this.databaseType]()
+        .then(res => {
+          const { data: links } = res.data;
+          this.links = links;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
 
     displayLinkCreateModal() {
       this.linkCreateModalVisible = true;
     },
     cancelSwitch() {
-      // this.switchModalClosed();
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
       this.password = '';
@@ -505,36 +504,6 @@ export default {
             this.$message.error(error);
           });
       }
-
-      // validatePassword(this.password)
-      //   .then(() => {
-      //     if (!!~this.hostLinkIdReadyToSwitch) {
-      //       return switchHostIp(this.hostLinkIdReadyToSwitch);
-      //     } else {
-      //       return switchOracle({
-      //         linkIds: this.databaseLinkIdsReadyToSwitch,
-      //       });
-      //     }
-      //   })
-      //   .then(res => {
-      //     const { data } = res.data;
-      //     if (!!~this.hostLinkIdReadyToSwitch) {
-      //       this.links.find(
-      //         link => link.id === this.hostLinkIdReadyToSwitch
-      //       ).latestSwitch = data;
-      //     } else {
-      //       // 修改的是computed数据的引用，引用指向的就是data中的数据
-      //       this.databaseLinks.forEach(link => {
-      //         if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
-      //           link.latestSwitch = data.find(s => s.linkId === link.id);
-      //         }
-      //       });
-      //     }
-      //     this.switchModalVisible = false;
-      //   })
-      //   .catch(error => {
-      //     this.$message.error(error);
-      //   });
     },
     switchDatabase(databaseLinkId) {
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];

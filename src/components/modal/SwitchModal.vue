@@ -9,7 +9,7 @@
                   :class="$style.switchModalIcon"></i-icon>
         </el-col>
         <el-col :span="18">
-          <div style="height: 200px;max-height: 200px;">
+          <div style="height: 200px;max-height: 200px;overflow: scroll;">
             <h4>即将执行以下操作，请检查。</h4>
             <div v-if="hostLinkReadyToSwitch">
               <p>
