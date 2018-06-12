@@ -69,7 +69,7 @@
   </el-dialog>
 </template>
 <script>
-import moment from 'moment';
+import dayjs from 'dayjs';
 import modalMixin from '../mixins/restorePlanModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 
@@ -86,7 +86,7 @@ export default {
     confirmBtnClick() {
       this.$refs.singleRestoreForm.validate(valid => {
         if (valid) {
-          this.formData.name = moment().format('YYYYMMDDHHmmss');
+          this.formData.name = dayjs().format('YYYYMMDDHHmmss');
           const { name, config } = this.pruneData(this.formData);
           this.$emit('confirm', { id: this.id, data: { name, config } });
         } else {

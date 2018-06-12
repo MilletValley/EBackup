@@ -128,7 +128,7 @@
   </section>
 </template>
 <script>
-import moment from 'moment';
+import dayjs from 'dayjs';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import baseMixin from './mixins/baseMixins';
 import { backupResultMapping } from '../utils/constant';
@@ -146,7 +146,9 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+          value
+        );
       },
     },
   },
@@ -172,7 +174,7 @@ export default {
     //   this.$emit('add-restore', restorePlan);
     // },
     endTimeSortMethod(a, b) {
-      return moment(a) - moment(b);
+      return dayjs(a) - dayjs(b);
     },
   },
   computed: {
@@ -190,7 +192,7 @@ export default {
           map[result.fileResource] = index;
         } else {
           const lastIndex = map[result.fileResource];
-          if (moment(data[lastIndex].endTime) < moment(result.endTime)) {
+          if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
             map[result.fileResource] = index;
           }
         }
