@@ -102,23 +102,24 @@ export default {
         });
     },
     deleteDb({ row: info, $index }) {
-      this.$confirm('确认删除此数据库?', '提示', {
+      this.$confirm('此操作将删除此系统?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => deleteOne(info.id))
         .then(() => {
-          this.items.splice($index, 1);
-          this.$message.success({
-            message: '删除成功!',
-          });
+          deleteOne(info.id)
+            .then(() => {
+              this.items.splice($index, 1);
+              this.$message.success({
+                message: '删除成功!',
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         })
-        .catch(error => {
-          if (error !== 'cancel')
-            // element-ui Message组件取消会进入catch 避免这种弹窗
-            this.$message.error(error);
-        });
+        .catch(error => {});
     },
     createItem(data) {
       this.btnLoading = true;

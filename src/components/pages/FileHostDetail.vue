@@ -41,22 +41,27 @@
             <el-form v-loading="infoLoading"
                      label-position="left"
                      label-width="100px"
-                     inline
                      size="small"
                      class="item-info">
-              <el-form-item label="操作系统：">
-                <span>{{ details.osName }}</span>
-              </el-form-item>
-              <el-form-item label="主机IP：">
-                <span>{{ details.hostIp }}</span>
-              </el-form-item>
-              <el-form-item label="服务器账号：">
-                <span>{{ details.loginName }}</span>
-              </el-form-item>
-              <el-form-item label="服务器密码：">
-                <!-- <span-toggle :value="filehost.password"></span-toggle> -->
-                <span>●●●●●●●●</span>
-              </el-form-item>
+              <el-row style="margin-right: 5px;">
+                <el-col :span="8">
+                  <el-form-item label="操作系统：">
+                    <span>{{ details.osName }}</span>
+                  </el-form-item>
+                  <el-form-item label="服务器账号：">
+                    <span>{{ details.loginName }}</span>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="主机IP：">
+                    <span>{{ details.hostIp }}</span>
+                  </el-form-item>
+                  <el-form-item label="服务器密码：">
+                    <!-- <span-toggle :value="filehost.password"></span-toggle> -->
+                    <span>●●●●●●●●</span>
+                  </el-form-item>
+                </el-col>
+              </el-row>
               <el-form-item label="所属系统：">
                 <span>{{ details.application }}</span>
               </el-form-item>
@@ -75,7 +80,6 @@
                 @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
-                @restoreplan:update="updateRestorePlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>

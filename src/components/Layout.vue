@@ -92,7 +92,7 @@ export default {
   },
   computed: {
     isMenuCollapsed() {
-      return this.clientWidth < 1200;
+      return this.clientWidth < 1300;
     },
     ...mapState({
       userName: state => {

@@ -1,6 +1,7 @@
 <template>
   <section>
-    <el-dialog :visible.sync="modalVisible"
+    <el-dialog custom-class="min-width-dialog"
+               :visible.sync="modalVisible"
                :before-close="beforeModalClose"
                @open="modalOpened"
                @close="modalClosed">

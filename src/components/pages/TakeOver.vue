@@ -41,10 +41,17 @@
                 justify="space-around">
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon name="host-production"
-                      :class="$style.hostIcon"></i-icon>
-              <span>{{ hostLink.primaryHost.name }}</span>
-              <el-tag size="small">{{ hostLink.primaryHost.hostIp }}</el-tag>
+              <div>
+                <i-icon name="host-production"
+                        :class="$style.hostIcon"></i-icon>
+                <span>{{ hostLink.primaryHost.name }}</span>
+              </div>
+              <div>
+                <i-icon name="ip"
+                        :class="$style.hostIpIcon"></i-icon>
+                <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
+              </div>
+              <!-- <el-tag size="small"></el-tag> -->
             </div>
           </el-col>
           <el-col :span="4">
@@ -86,32 +93,46 @@
                 </el-popover>
               </div>
               <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1"
-                   style="margin-top: 6px;">
+                   style="margin-top: 12px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
               </div>
-              <div v-else>
-                <el-button type="text"
-                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
-                           @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
-                <el-button type="text"
-                           @click="switchHostIp(hostLink)">切IP</el-button>
-                <el-button type="text"
-                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                           @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
-              </div>
+              <template v-else>
+                <div style="margin: -3px 0 -6px;">
+                  <el-button type="text"
+                             :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
+                             @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
+                  <el-button type="text"
+                             @click="switchHostIp(hostLink)">切IP</el-button>
+                  <el-button type="text"
+                             :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                             @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                </div>
+                <div>
+                  <el-button type="text"
+                             @click="removeHostLink(hostLink)"
+                             :class="$style.removeHostLink">解除连接</el-button>
+                </div>
+              </template>
 
             </div>
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon name="host-ebackup"
-                      :class="$style.hostIcon"></i-icon>
-              <span>{{ hostLink.viceHost.name }}</span>
-              <el-tag size="small">{{ hostLink.viceHost.hostIp }}</el-tag>
+              <div>
+                <i-icon name="host-ebackup"
+                        :class="$style.hostIcon"></i-icon>
+                <span>{{ hostLink.viceHost.name }}</span>
+              </div>
+              <div>
+                <i-icon name="ip"
+                        :class="$style.hostIpIcon"></i-icon>
+                <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
+              </div>
             </div>
           </el-col>
         </el-row>
+        <!-- 数据库连接的排列 -->
         <el-row v-for="dbLink in hostLink.databaseLinks"
                 :key="dbLink.id">
           <el-col :span="10">
@@ -120,12 +141,15 @@
                       align="middle">
                 <el-col :span="8">
                   <h4>
-                    {{ dbLink.primaryDatabase.name }}
+                    <router-link :class="dbLink.primaryDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                                 :to="`/db/${databaseType}/${dbLink.primaryDatabase.id}`">
+                      {{dbLink.primaryDatabase.name}}
+                    </router-link>
                   </h4>
                 </el-col>
                 <el-col :span="5"
                         :class="$style.dbInfoCol">
-                  <h5>实例名</h5>
+                  <h5>{{instanceName}}</h5>
                   <p>{{ dbLink.primaryDatabase.instanceName }}</p>
                 </el-col>
                 <el-col :span="5"
@@ -142,7 +166,9 @@
                   </p>
                 </el-col>
                 <el-col :span="3">
-                  <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryRole : $style.viceRole">{{ dbLink.primaryDatabase.role | databaseRoleFilter}}</div>
+                  <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
+                    <span style="font-size: 3vw;">{{ dbLink.primaryDatabase.role | databaseRoleFilter}}</span>
+                  </div>
                 </el-col>
               </el-row>
 
@@ -206,7 +232,10 @@
                       align="middle">
                 <el-col :span="8">
                   <h4>
-                    {{ dbLink.viceDatabase.name }}
+                    <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                                 :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
+                      {{dbLink.viceDatabase.name}}
+                    </router-link>
                   </h4>
                 </el-col>
                 <el-col :span="5"
@@ -228,7 +257,9 @@
                   </p>
                 </el-col>
                 <el-col :span="3">
-                  <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryRole : $style.viceRole">{{ dbLink.viceDatabase.role | databaseRoleFilter}}</div>
+                  <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
+                    <span style="font-size: 3vw;">{{ dbLink.viceDatabase.role | databaseRoleFilter}}</span>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -236,69 +267,11 @@
         </el-row>
       </div>
     </section>
-    <el-dialog :visible.sync="switchModalVisible"
-               @close="switchModalClosed">
-      <el-row>
-        <el-col :span="6">
-          <i-icon name="warning"
-                  :class="$style.switchModalIcon"></i-icon>
-        </el-col>
-        <el-col :span="18">
-          <div style="height: 200px;max-height: 200px;">
-            <h4>即将执行以下操作，请检查。</h4>
-            <div v-if="hostLinkReadyToSwitch">
-              <p>
-                <span>生产环境</span>
-                <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.primaryHost.name}}</span>
-                <el-tag size="mini">IP变更</el-tag>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
-              </p>
-              <p>
-                <span>易备环境</span>
-                <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.viceHost.name}}</span>
-                <el-tag size="mini">IP变更</el-tag>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
-              </p>
-            </div>
-            <div v-if="databaseLinksReadyToSwitch.length > 0"
-                 v-for="link in databaseLinksReadyToSwitch"
-                 :key="link.id">
-              <p>
-                <span :class="$style.switchModalName">{{ link.primaryDatabase.name }}</span>
-                <span :class="$style.switchModalDetail">{{ link.primaryDatabase.instanceName}}</span>
-                <el-tag size="mini">角色变更</el-tag>
-                <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span>{{ link.viceDatabase.role | databaseRoleFilter }}</span>
-              </p>
-              <p>
-                <span :class="$style.switchModalName">{{ link.viceDatabase.name }}</span>
-                <span :class="$style.switchModalDetail">{{ link.viceDatabase.instanceName}}</span>
-                <el-tag size="mini">角色变更</el-tag>
-                <span>{{ link.viceDatabase.role | databaseRoleFilter}}</span>
-                <i class="el-icon-caret-right"></i>
-                <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
-              </p>
-            </div>
-          </div>
-
-          <el-input type="password"
-                    v-model="password"
-                    placeholder="请输入用户密码以执行此操作"></el-input>
-        </el-col>
-      </el-row>
-
-      <span slot="footer">
-        <el-button @click="cancelSwitch">取消</el-button>
-        <el-button type="primary"
-                   :disabled="!this.password"
-                   @click="confirmSwitch">确定</el-button>
-      </span>
-    </el-dialog>
+    <switch-modal :visible="switchModalVisible"
+                  :host-link-ready-to-switch="hostLinkReadyToSwitch"
+                  :database-links-ready-to-switch="databaseLinksReadyToSwitch"
+                  @cancel="cancelSwitch"
+                  @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
@@ -307,6 +280,7 @@
   </section>
 </template>
 <script>
+import SwitchModal from '../modal/SwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import {
@@ -321,7 +295,11 @@ import {
   createLinks as createLinksSqlserver,
   createSwitches as switchSqlserver,
 } from '../../api/sqlserver';
-import { createSwitches as switchHostIp, fetchAll } from '../../api/host';
+import {
+  createSwitches as switchHostIp,
+  fetchAll,
+  deleteLinks,
+} from '../../api/host';
 import { validatePassword } from '../../api/user';
 import {
   databaseStateMapping,
@@ -355,8 +333,8 @@ export default {
   mixins: [takeoverMixin],
   data() {
     return {
-      items, // 所有的数据库
-      links, // 数据库连接
+      items: [], // 所有的数据库
+      links: [], // 数据库连接
       linkCreateModalVisible: false,
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
@@ -375,11 +353,11 @@ export default {
     },
     specialHosts() {
       if (this.databaseType === 'oracle') {
-        return hosts;
-        // return this.$store.getters.hostsWithOracle;
+        // return hosts;
+        return this.$store.getters.hostsWithOracle;
       } else if (this.databaseType === 'sqlserver') {
-        return hosts2;
-        // return this.$store.getters.hostsWithSqlServer;
+        // return hosts2;
+        return this.$store.getters.hostsWithSqlServer;
       }
     },
     /**
@@ -452,32 +430,41 @@ export default {
         hostLink => hostLink.id === this.hostLinkIdReadyToSwitch
       );
     },
+    instanceName() {
+      if (this.databaseType === 'oracle') {
+        return '实例名';
+      } else if (this.databaseType === 'sqlserver') {
+        return '数据库名';
+      }
+    },
   },
   methods: {
     fetchData() {
-      // fetchAll()
-      //   .then(res => {
-      //     const { data: oracles } = res.data;
-      //     this.items = oracles;
-      //   })
-      //   .catch(error => {
-      //     this.$message.error(error);
-      //   });
-      // fetchLinks()
-      //   .then(res => {
-      //     const { data: links } = res.data;
-      //     this.links = links;
-      //   })
-      //   .catch(error => {
-      //     this.$message.error(error);
-      //   });
+      fetchDatabaseMethod[this.databaseType]()
+        .then(res => {
+          const { data } = res.data;
+          this.items = data;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchLinksMethod[this.databaseType]()
+        .then(res => {
+          const { data: links } = res.data;
+          this.links = links;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
 
     displayLinkCreateModal() {
       this.linkCreateModalVisible = true;
     },
     cancelSwitch() {
-      this.switchModalClosed();
+      this.databaseLinkIdsReadyToSwitch = [];
+      this.hostLinkIdReadyToSwitch = -1;
+      this.password = '';
       this.switchModalVisible = false;
     },
     confirmSwitch() {
@@ -487,35 +474,36 @@ export default {
        * 3.1.切换IP：修改该设备连接的最近切换记录
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        */
-      validatePassword(this.password)
-        .then(() => {
-          if (!!~this.hostLinkIdReadyToSwitch) {
-            return switchHostIp(this.hostLinkIdReadyToSwitch);
-          } else {
-            return switchOracle({
-              linkIds: this.databaseLinkIdsReadyToSwitch,
-            });
-          }
-        })
-        .then(res => {
-          const { data } = res.data;
-          if (!!~this.hostLinkIdReadyToSwitch) {
+      if (!!~this.hostLinkIdReadyToSwitch) {
+        switchHostIp(this.hostLinkIdReadyToSwitch)
+          .then(res => {
+            const { data } = res.data;
             this.links.find(
               link => link.id === this.hostLinkIdReadyToSwitch
             ).latestSwitch = data;
-          } else {
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      } else {
+        createSwitchMethod[this.databaseType]({
+          linkIds: this.databaseLinkIdsReadyToSwitch,
+        })
+          .then(res => {
+            const { data } = res.data;
             // 修改的是computed数据的引用，引用指向的就是data中的数据
             this.databaseLinks.forEach(link => {
               if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
                 link.latestSwitch = data.find(s => s.linkId === link.id);
               }
             });
-          }
-          this.switchModalVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }
     },
     switchDatabase(databaseLinkId) {
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
@@ -558,15 +546,39 @@ export default {
           this.$message.error(error);
         });
     },
+    removeHostLink(hostLink) {
+      this.$confirm('此操作将取消设备连接，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          deleteLinks(hostLink.id)
+            .then(() => {
+              this.links.splice(
+                this.links.findIndex(link => link.id === hostLink.id),
+                1
+              );
+              this.$message.success('连接解除成功');
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(error => {});
+    },
   },
 
   components: {
     IIcon,
+    SwitchModal,
     DatabaseLinkCreateModal,
   },
 };
 </script>
 <style lang="scss" module>
+@import '../../style/common.scss';
+@import '../../style/color.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
 
@@ -581,6 +593,7 @@ $vice-color: #6d6d6d;
 }
 .hostIcon {
   vertical-align: -0.3em;
+  width: 2em;
 }
 
 .hostLinkContainer {
@@ -594,20 +607,46 @@ $vice-color: #6d6d6d;
   text-align: center;
   margin: 1em 0;
 }
+.hostIpIcon {
+  width: 2em;
+  display: inline-block;
+  vertical-align: -0.3em;
+  margin-top: 10px;
+}
+.hostIp {
+  color: #909399;
+  font-style: italic;
+  font-size: 0.9em;
+}
 .hostSwitch {
   text-align: center;
   margin: 5px 0 0;
 }
-
+.removeHostLink {
+  color: $delete-color;
+  padding: 2px 0 3px;
+  &:focus {
+    color: $delete-color;
+  }
+  &:hover {
+    color: lighten($delete-color, 10%);
+  }
+}
 .primaryDatabaseInfo {
   border: 1px solid $primary-color;
   border-radius: 5px;
-  box-shadow: 0px 0px 2px 1px $primary-color;
+  transition: box-shadow 0.5s;
+  &:hover {
+    box-shadow: 0px 0px 2px 1px $primary-color;
+  }
 }
 .viceDatabaseInfo {
   border: 1px solid $vice-color;
   border-radius: 5px;
-  box-shadow: 0px 0px 2px 1px $vice-color;
+  transition: box-shadow 0.5s;
+  &:hover {
+    box-shadow: 0px 0px 2px 1px $vice-color;
+  }
 }
 
 .primaryDatabaseInfo,
@@ -636,7 +675,7 @@ $vice-color: #6d6d6d;
   font-size: 2.8em;
   line-height: 2.3em;
   height: 111px;
-  margin: -5px 0;
+  margin: -5px -1px;
   border-radius: 0 3px 3px 0;
 }
 .viceRole {
@@ -646,18 +685,26 @@ $vice-color: #6d6d6d;
   font-size: 2.8em;
   line-height: 2.3em;
   height: 111px;
-  margin: -5px 0;
+  margin: -5px -1px;
   border-radius: 0 3px 3px 0;
 }
 .hostSwitchIcon {
   width: 3em;
   height: 1.4em;
   cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
 }
 .switchIcon {
   width: 3em;
   height: 3em;
   cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
 }
 .switchFormItem {
   label {

@@ -4,6 +4,7 @@ import Vue from 'vue';
 import ElementUI, { Message } from 'element-ui';
 import moment from 'moment';
 import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/display.css';
 import App from './App';
 import store from './store/index';
 import router from './router';

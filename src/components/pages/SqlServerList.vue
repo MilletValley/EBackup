@@ -106,18 +106,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => deleteOne(db.id))
         .then(() => {
-          this.items.splice($index, 1);
-          this.$message.success({
-            message: '删除成功!',
-          });
+          deleteOne(db.id)
+            .then(() => {
+              this.items.splice($index, 1);
+              this.$message.success({
+                message: '删除成功!',
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         })
-        .catch(error => {
-          if (error !== 'cancel')
-            // element-ui Message组件取消会进入catch 避免这种弹窗
-            this.$message.error(error);
-        });
+        .catch(error => {});
     },
     createDb(data) {
       this.btnLoading = true;
