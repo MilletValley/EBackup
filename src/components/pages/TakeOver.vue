@@ -93,20 +93,27 @@
                 </el-popover>
               </div>
               <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1"
-                   style="margin-top: 6px;">
+                   style="margin-top: 12px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
               </div>
-              <div v-else>
-                <el-button type="text"
-                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
-                           @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
-                <el-button type="text"
-                           @click="switchHostIp(hostLink)">切IP</el-button>
-                <el-button type="text"
-                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                           @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
-              </div>
+              <template v-else>
+                <div style="margin: -3px 0 -6px;">
+                  <el-button type="text"
+                             :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
+                             @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
+                  <el-button type="text"
+                             @click="switchHostIp(hostLink)">切IP</el-button>
+                  <el-button type="text"
+                             :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                             @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                </div>
+                <div>
+                  <el-button type="text"
+                             @click="removeHostLink(hostLink)"
+                             :class="$style.removeHostLink">解除连接</el-button>
+                </div>
+              </template>
 
             </div>
           </el-col>
@@ -288,7 +295,11 @@ import {
   createLinks as createLinksSqlserver,
   createSwitches as switchSqlserver,
 } from '../../api/sqlserver';
-import { createSwitches as switchHostIp, fetchAll } from '../../api/host';
+import {
+  createSwitches as switchHostIp,
+  fetchAll,
+  deleteLinks,
+} from '../../api/host';
 import { validatePassword } from '../../api/user';
 import {
   databaseStateMapping,
@@ -566,6 +577,27 @@ export default {
           this.$message.error(error);
         });
     },
+    removeHostLink(hostLink) {
+      this.$confirm('此操作将取消设备连接，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          deleteLinks(hostLink.id)
+            .then(() => {
+              this.links.splice(
+                this.links.findIndex(link => link.id === hostLink.id),
+                1
+              );
+              this.$message.success('连接解除成功');
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(error => {});
+    },
   },
 
   components: {
@@ -577,6 +609,7 @@ export default {
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
+@import '../../style/color.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
 
@@ -620,7 +653,16 @@ $vice-color: #6d6d6d;
   text-align: center;
   margin: 5px 0 0;
 }
-
+.removeHostLink {
+  color: $delete-color;
+  padding: 2px 0 3px;
+  &:focus {
+    color: $delete-color;
+  }
+  &:hover {
+    color: lighten($delete-color, 10%);
+  }
+}
 .primaryDatabaseInfo {
   border: 1px solid $primary-color;
   border-radius: 5px;
