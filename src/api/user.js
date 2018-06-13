@@ -33,7 +33,7 @@ const validatePassword = password =>
   baseApi.request({
     method: 'post',
     url: '/validate-password',
-    params: {
+    data: {
       password,
     },
   });
