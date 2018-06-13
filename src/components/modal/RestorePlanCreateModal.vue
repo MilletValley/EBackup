@@ -152,11 +152,16 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', {
-            id: this.database.id,
-            data: { name, config },
-          });
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', {
+                id: this.database.id,
+                data: { name, config },
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }

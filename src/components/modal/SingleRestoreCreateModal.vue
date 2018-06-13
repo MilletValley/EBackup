@@ -87,8 +87,13 @@ export default {
       this.$refs.singleRestoreForm.validate(valid => {
         if (valid) {
           this.formData.name = dayjs().format('YYYYMMDDHHmmss');
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', { id: this.id, data: { name, config } });
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', { id: this.id, data: { name, config } });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }

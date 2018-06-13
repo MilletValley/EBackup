@@ -1,4 +1,5 @@
 import isEqual from 'lodash/isEqual';
+import dayjs from 'dayjs';
 import InputToggle from '@/components/InputToggle';
 
 import {
@@ -189,33 +190,41 @@ const modalMixin = {
         ...other
       } = formData;
       let config;
-      if (timeStrategy === 1) {
-        config = { timeStrategy, recoveringStrategy, singleTime, ...other };
-      } else {
-        if (timePoints.every(p => !p.value)) {
-          this.$message.error('请至少输入一个时间点');
-          return false;
+      const filteredTimePoints = this.filteredTimePoints;
+      return new Promise((resolve, reject) => {
+        if (timeStrategy === 1) {
+          if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
+          config = { timeStrategy, recoveringStrategy, singleTime, ...other };
+        } else {
+          if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+          if (timePoints.every(p => !p.value)) {
+            reject('请至少输入一个时间点');
+          }
+          if (timeStrategy === 2) {
+            // 按周循环
+            config = {
+              timeStrategy,
+              startTime,
+              timePoints,
+              weekPoints,
+              ...other,
+            };
+          } else if (timeStrategy === 3) {
+            // 按月循环
+            config = {
+              timeStrategy,
+              startTime,
+              timePoints,
+              datePoints,
+              ...other,
+            };
+          }
+          config.timePoints = filteredTimePoints(timePoints);
+          resolve({ name, config });
         }
-        if (timeStrategy === 2) {
-          config = {
-            timeStrategy,
-            startTime,
-            timePoints,
-            weekPoints,
-            ...other,
-          };
-        } else if (timeStrategy === 3) {
-          config = {
-            timeStrategy,
-            startTime,
-            timePoints,
-            datePoints,
-            ...other,
-          };
-        }
-        config.timePoints = this.filteredTimePoints(timePoints);
-      }
-      return { name, config };
+      });
+
+      // return { name, config };
     },
     // 点击取消按钮
     cancelButtonClick() {
