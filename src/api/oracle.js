@@ -58,6 +58,12 @@ const createOracleBackupPlan = ({ id, plan }) =>
     url: `/oracles/${id}/oracle-backup-plans`,
     data: plan,
   });
+const createBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/oracles/${id}/oracle-backup-plans`,
+    data: plan,
+  });
 
 const deleteOracleBackupPlan = id =>
   baseApi.request({
@@ -201,6 +207,7 @@ export {
   fetchBackupPlans,
   fetchBackupResults,
   createOracleBackupPlan,
+  createBackupPlan,
   deleteOracleBackupPlan,
   updateOracleBackupPlan,
   fetchBackupOperation,

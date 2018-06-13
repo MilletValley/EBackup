@@ -220,8 +220,8 @@ const modalMixin = {
             };
           }
           config.timePoints = filteredTimePoints(timePoints);
-          resolve({ name, config });
         }
+        resolve({ name, config });
       });
 
       // return { name, config };

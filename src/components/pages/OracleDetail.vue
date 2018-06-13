@@ -128,10 +128,13 @@
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <add-backup-plan type="oracle"
+    <!-- <add-backup-plan type="oracle"
                      :id="Number(id)"
                      :visible.sync="backupPlanCreateModalVisible"
-                     @confirm="addBackupPlan"></add-backup-plan>
+                     @confirm="addBackupPlan"></add-backup-plan> -->
+    <backup-plan-create-modal type="oracle"
+                              :visible.sync="backupPlanCreateModalVisible"
+                              @confirm="addBackupPlan"></backup-plan-create-modal>
     <restore-plan-create-modal type="oracle"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
@@ -159,11 +162,13 @@
 <script>
 import throttle from 'lodash/throttle';
 import { detailPageMixin } from '../mixins/detailPageMixins';
+import backupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
 
 import {
   modifyOne,
   fetchOne,
   fetchBackupPlans,
+  createBackupPlan,
   fetchBackupResults,
   fetchRestorePlans,
   fetchRestoreRecords,
@@ -313,6 +318,24 @@ export default {
         this.restoreRecords = records;
       });
     },
+    // 添加备份计划
+    addBackupPlan(plan) {
+      this.btnLoading = true;
+      createBackupPlan({ id: this.id, plan })
+        .then(res => {
+          const { data: backupPlan, message } = res.data;
+          this.backupPlans.unshift(backupPlan);
+          this.backupPlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
       this.selectedBackupPlanId = planId;
@@ -349,9 +372,10 @@ export default {
       this.btnLoading = true;
       createRestorePlan(restorePlan)
         .then(res => {
-          const { data: restorePlan } = res.data;
+          const { data: restorePlan, message } = res.data;
           this.restorePlans.unshift(restorePlan);
           this.restorePlanCreateModalVisible = false;
+          this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);
@@ -421,6 +445,7 @@ export default {
       }
     },
   },
+  components: { backupPlanCreateModal },
 };
 </script>
 <style lang="scss" module>
