@@ -78,6 +78,11 @@ const useTypeMapping = {
   4: '虚拟机',
 };
 
+const systemStateMapping = {
+  0: '启用',
+  1: '禁用',
+};
+
 // 设备包含的数据库类型
 const databaseTypeMapping = {
   1: 'oracle',
@@ -124,6 +129,7 @@ export {
   hostTypeMapping,
   sysTypeMapping,
   useTypeMapping,
+  systemStateMapping,
   databaseTypeMapping,
   databaseRoleMapping,
   linkStateMapping,

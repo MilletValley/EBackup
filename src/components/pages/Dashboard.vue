@@ -2,17 +2,32 @@
   <section>
     <h4>设备数量</h4>
     <template>
-      <el-collapse>
-        <el-collapse-item title="服务器" name="1">
-          <div id="bieChart" :style="{width: '900px', height: '300px', margin: '0 auto'}"></div>
-        </el-collapse-item>
-        <el-collapse-item title="备份恢复" name="2">
-          <div id="barChart" :style="{width: '800px', height: '300px', margin: '0 auto'}"></div>
-        </el-collapse-item>
-        <el-collapse-item title="一键接管" name="3">
-          <div style="text-align: center">数量：{{total.initConectNum}}</div>
-        </el-collapse-item>
-      </el-collapse>
+      <div style="overflow: hidden">
+        <el-card class="box-card" style="float: left">
+        <div slot="header" class="clearfix">
+          <span>服务器</span>
+        </div>
+        <div class="text item">
+          <div id="bieChart" :style="{width: '90%', height: '300px', margin: '0 auto'}"></div>
+        </div>
+      </el-card>
+      <el-card class="box-card" style="float: right; position: relative">
+        <div slot="header" class="clearfix">
+          <span>一键接管</span>
+        </div>
+        <div class="text item" style="text-align: center; position: absolute; top: 50%; right: 50%; transform: translate(50%, -50%)">
+          <span style="font-size: 26px; color: #6ab0b8">{{total.initConectNum}}</span>
+        </div>
+      </el-card>
+      </div>
+      <el-card class="box-card" style="width: 100%">
+        <div slot="header" class="clearfix">
+          <span>备份恢复</span>
+        </div>
+        <div class="text item">
+          <div id="barChart" :style="{width: '100%', height: '300px', margin: '0 auto'}"></div>
+        </div>
+      </el-card>
     </template>
     <h4 style="margin: 15px; margin-left: 0;">设备信息</h4>
     <template>
@@ -59,6 +74,9 @@ import fetchAll from '../../api/total';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
+require('echarts/lib/component/tooltip');
+require('echarts/lib/component/title');
+require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
   created() {
@@ -293,7 +311,7 @@ export default {
       });
     },
     drawLine() {
-      let barChart = echarts.init(document.getElementById('barChart'));
+       let barChart = echarts.init(document.getElementById('barChart'));
       let bieChart = echarts.init(document.getElementById('bieChart'))
       bieChart.setOption({
         tooltip: {
@@ -351,8 +369,8 @@ export default {
             },
         ]
       });
-    }
-  },
+     }
+   },
 };
 </script>
 <style>
@@ -360,9 +378,29 @@ h4 {
   font-weight: 400;
   color: #606266;
 }
-.el-collapse .el-collapse-item__header {
-  padding-left: 40px;
-  color: #409eff;
-  text-align: left;
-}
+.text {
+    font-size: 14px;
+  }
+
+  .item {
+    margin-bottom: 18px;
+  }
+
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+
+  .box-card {
+    width: 50%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 420px;
+    display: inline-block;
+  }
 </style>
