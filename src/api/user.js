@@ -31,7 +31,7 @@ const validateToken = token =>
 
 const validatePassword = password =>
   baseApi.request({
-    method: 'get',
+    method: 'post',
     url: '/validate-password',
     params: {
       password,
