@@ -4,7 +4,7 @@
              size="small">
       <el-form-item style="float: right;">
         <el-button type="primary"
-                   @click="createModalVisible = true">添加</el-button>
+                   @click="handleCreate()">添加</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="systemParameters"
@@ -14,6 +14,7 @@
                        label="系统类别"
                        :formatter="judgeSystem"
                        width="150"
+                       fixed
                        align="center"></el-table-column>
       </el-table-column>
             <el-table-column prop="useType"
@@ -23,39 +24,26 @@
                        align="center"></el-table-column>
       <el-table-column prop="shareUrl"
                        label="地址"
-                       width="190"
+                       width="250"
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
                        label="路径"
-                       width="230"
-                       align="center"></el-table-column>
-      <el-table-column prop="loginName"
-                       label="登录账号"
-                       width="140"
+                       width="250"
                        align="center"></el-table-column>
       <el-table-column label="状态"
                        width="100"
                        header-align="center"
                        align="center"
-                       prop="state">
-        <template slot-scope="scope">
-          <el-button type="success"
-                     icon="el-icon-check"
-                     circle
-                     :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"
-                     size="mini"></el-button>
-          <el-button type="info"
-                     icon="el-icon-minus"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"></el-button>
-        </template>
-      </el-table-column>
+                       :formatter="stateFormatter"
+                       prop="state"></el-table-column>
+      <el-table-column prop="loginName"
+                       label="登录账号"
+                       width="140"
+                       align="center"></el-table-column>
       <el-table-column label="操作"
-                       width="100"
+                       min-width="150"
                        header-align="center"
+                       fixed="right"
                        align="center"
                        prop="state">
         <template slot-scope="scope">
@@ -71,6 +59,20 @@
                      size="mini"
                      :class="$style.miniCricleIconBtn"
                      @click="handleDelete(scope.$index, scope.row)"></el-button>
+          <el-button type="success"
+                     icon="el-icon-check"
+                     circle
+                     :class="$style.miniCricleIconBtn"
+                     @click="changeState(scope.$index, scope.row)"
+                     v-if="scope.row.state===1"
+                     size="mini"></el-button>
+          <el-button type="info"
+                     icon="el-icon-minus"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     v-else
+                     @click="changeState(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -104,6 +106,7 @@
           <el-input v-model="updateRow.shareUrl"></el-input>
         </el-form-item>
         <el-form-item label="路径"
+                      v-show="updateRow.sysType === 2"
                       prop="mountUrl">
           <el-input v-model="updateRow.mountUrl"></el-input>
         </el-form-item>
@@ -127,8 +130,7 @@
       </span>
     </el-dialog>
     <!-- 添加 -->
-    <el-dialog :visible.sync="createModalVisible"
-               @close="createClose">
+    <el-dialog :visible.sync="createModalVisible">
       <span slot="title">
         添加参数
       </span>
@@ -155,6 +157,7 @@
           <el-input v-model="createRow.shareUrl"></el-input>
         </el-form-item>
         <el-form-item label="路径"
+                      v-show="createRow.sysType === 2"
                       prop="mountUrl">
           <el-input v-model="createRow.mountUrl"></el-input>
         </el-form-item>
@@ -182,12 +185,28 @@
 
 <script>
 import { fetchAll, modifyOne, createOne, deleteOne } from '../../api/systemParam';
-import { sysTypeMapping, useTypeMapping } from '../../utils/constant';
+import { sysTypeMapping, useTypeMapping, systemStateMapping } from '../../utils/constant';
 import InputToggle from '@/components/InputToggle';
 
 export default {
   name: 'SystemParam',
   data() {
+    const checkMountUrl = (rule, value, callback) => {
+      let lnxPath = /(\/([0-9a-zA-Z]+))+/;
+      if (this.createRow.sysType === 2) {
+        if(!this.createRow.mountUrl){
+          callback(new Error('请输入路径'));
+        } else {
+          if(!lnxPath.test(this.createRow.mountUrl)){
+            callback(new Error('路径格式不正确'));
+          } else {
+            callback();
+          }
+        }
+      } else {
+        callback();
+      }
+    };
     return {
       systemParameters: [],
       createModalVisible: false,
@@ -214,21 +233,16 @@ export default {
       },
       rules: {
         shareUrl: [
-          { required: true, message: '请输入IP地址', trigger: 'blur' },
+          { required: true, message: '请输入地址', trigger: 'blur' },
           {
             pattern:
               '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-            message: 'IP地址不正确',
+            message: '地址不正确',
             trigger: 'blur',
           },
         ],
         mountUrl: [
-          { required: true, message: '请输入路径', trigger: 'blur' },
-          {
-            pattern: '(^//.|^/|^[a-zA-Z])?:?/.+(/$)?',
-            message: '路径格式不正确',
-            trigger: 'blur',
-          },
+          { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
         ],
         loginName: [
           {
@@ -261,6 +275,18 @@ export default {
   created() {
     this.fetchData();
   },
+  computed: {
+    create() {
+      if(this.createRow.sysType===0 || this.createRow.sysType===1)
+        this.createRow.mountUrl=null;
+      return this.createRow;
+    },
+    update() {
+      if(this.updateRow.sysType===0 || this.updateRow.sysType===1)
+        this.updateRow.mountUrl=null;
+      return this.updateRow;
+    }
+  },
   methods: {
     fetchData() {
       fetchAll()
@@ -268,7 +294,7 @@ export default {
           const { data } = res.data;
           this.systemParameters = data;
           this.systemParameters.sort((a,b) =>
-            {return b.sysType-a.sysType});
+            {return a.state-b.state});
         })
         .catch(error => {
           error => Promise.reject(error);
@@ -280,12 +306,17 @@ export default {
     judgeUse(data) {
       return useTypeMapping[data.useType];
     },
+    stateFormatter(row, column, cellValue) {
+      return systemStateMapping[cellValue];
+    },
     changeState(index, row) {
       let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
       newRow.state = newRow.state===0?1:0;
       modifyOne(newRow)
         .then(response => {
           this.systemParameters.splice(index, 1, response.data.data);
+          this.systemParameters.sort((a,b) =>
+            {return a.state-b.state});
         })
         .catch(error => {
           this.$message.error(error);
@@ -296,6 +327,13 @@ export default {
       this.updateRow = newRow;
       this.listIndex = index;
       this.updateModalVisible = true;
+    },
+    handleCreate() {
+      this.createModalVisible = true;
+      this.$nextTick(() => {
+        // 等待dom同步后打开模态框
+        this.$refs.createRow.resetFields();
+      });
     },
     handleDelete(index, row) {
       this.$confirm(
@@ -322,7 +360,7 @@ export default {
     updateConfirm() {
       this.$refs.updateRow.validate(valid => {
         if (valid) {
-          modifyOne(this.updateRow)
+          modifyOne(this.update)
           .then(response => {
             this.$message.success(response.data.message);
             this.updateModalVisible = false;
@@ -339,7 +377,7 @@ export default {
     createConfirm() {
       this.$refs.createRow.validate(valid => {
         if (valid) {
-          createOne(this.createRow)
+          createOne(this.create)
             .then(response => {
               this.$message.success(response.data.message);
               this.createModalVisible = false;
@@ -353,11 +391,8 @@ export default {
         }
       });
     },
-    createClose() {
-      this.$refs['createRow'].resetFields();
-    },
     updateClose() {
-    this.$refs['updateRow'].clearValidate();
+      this.$refs['updateRow'].clearValidate();
     },
   },
   components: {
