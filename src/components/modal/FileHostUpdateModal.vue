@@ -1,6 +1,7 @@
 <template>
   <section>
-    <el-dialog :visible.sync="modalVisible"
+    <el-dialog custom-class="min-width-dialog"
+               :visible.sync="modalVisible"
                :before-close="beforeModalClose"
                @open="modalOpened"
                @close="modalClosed">
@@ -24,6 +25,7 @@
         <el-form-item label="操作系统"
                       prop="osName">
           <el-select v-model="formData.osName"
+                     style="width: 100%"
                      placeholder="请选择">
             <el-option v-for="item in ['Windows', 'Linux']"
                        :key="item.value"
@@ -45,6 +47,7 @@
       </el-form>
       <span slot="footer">
         <el-button type="primary"
+                   :loading="btnLoading"
                    @click="confirm">确定</el-button>
         <el-button @click="cancelBtnClick">取消</el-button>
       </span>
@@ -54,7 +57,6 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-import { modifyOne } from '../../api/fileHost';
 import { genModalMixin } from '../mixins/modalMixins';
 
 export default {
@@ -71,20 +73,7 @@ export default {
     confirm() {
       this.$refs.itemUpdateForm.validate(valid => {
         if (valid) {
-          modifyOne(this.formData)
-            .then(res => {
-              const { data: db, message } = res.data;
-              // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-              db.id = this.itemInfo.id;
-              this.$emit('confirm', db);
-              this.modalVisible = false;
-              this.$message.success(message);
-            })
-            .catch(error => {
-              this.$message.error(message);
-              this.$refs.itemUpdateForm.clearValidate();
-              return false;
-            });
+          this.$emit('confirm', this.formData);
         } else {
           return false;
         }

@@ -47,11 +47,74 @@ const recoveringStrategyMapping = {
 };
 
 const databaseStateMapping = {
-  1: '状态1',
-  2: '状态2',
-  3: '状态3',
-  4: '状态4',
-  5: '状态5',
+  0: '未知',
+  1: '正常',
+  2: '异常',
+};
+const databaseRoleMapping = {
+  0: '无连接',
+  1: '主库',
+  2: '备库',
+};
+
+// 设备类型
+const hostTypeMapping = {
+  1: '生产环境',
+  2: '易备环境',
+};
+
+// 系统类别
+const sysTypeMapping = {
+  0: '通用',
+  1: 'Windows',
+  2: 'Linux',
+};
+
+// 使用类别
+const useTypeMapping = {
+  1: 'oracle',
+  2: 'sqlserver',
+  3: '文件',
+  4: '虚拟机',
+};
+
+const systemStateMapping = {
+  0: '启用',
+  1: '禁用',
+};
+
+// 设备包含的数据库类型
+const databaseTypeMapping = {
+  1: 'oracle',
+  2: 'sqlserver',
+  4: '虚拟机',
+};
+
+// 数据库连接状态
+const linkStateMapping = {
+  1: '正在初始化',
+  2: '正常',
+  3: '异常不可接管',
+  4: '异常可接管',
+  5: '待修复',
+};
+
+// 是否切换IP
+const switchIpMapping = {
+  1: '切换IP',
+  2: '保持IP',
+};
+
+// 切换操作状态
+const switchStateMapping = {
+  1: '切换中',
+  2: '成功',
+  3: '失败',
+};
+
+const switchManualMapping = {
+  1: '手动',
+  2: '自动',
 };
 
 export {
@@ -63,4 +126,14 @@ export {
   restoreTimeStrategyMapping,
   recoveringStrategyMapping,
   databaseStateMapping,
+  hostTypeMapping,
+  sysTypeMapping,
+  useTypeMapping,
+  systemStateMapping,
+  databaseTypeMapping,
+  databaseRoleMapping,
+  linkStateMapping,
+  switchStateMapping,
+  switchIpMapping,
+  switchManualMapping,
 };

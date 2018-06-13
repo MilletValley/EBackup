@@ -17,22 +17,25 @@ const genModalMixin = type => {
           return ['oracle', 'sqlserver', 'filehost', 'host'].includes(value);
         },
       },
+      btnLoading: {
+        type: Boolean,
+        // required: true,
+      },
     },
     data() {
       const databaseBaseFormData = {
         id: -1,
-        hostIp: '',
+        hostId: '',
         instanceName: '',
         loginName: '',
         password: '',
-        hostName: '',
-        osName: '',
         application: '',
         dbVersion: '',
+        host: {},
       };
       const fileHostBaseFormData = {
         id: -1,
-        name: '',
+        // name: '',
         hostIp: '',
         loginName: '',
         password: '',
@@ -45,6 +48,10 @@ const genModalMixin = type => {
         name: '',
         hostIp: '',
         osName: '',
+        loginName: '',
+        password: '',
+        hostType: '1',
+        databaseType: '1',
       };
       const baseData = {
         oracle: databaseBaseFormData,
@@ -62,6 +69,7 @@ const genModalMixin = type => {
             trigger: ['blur'],
           },
         ],
+        hostId: [{ required: true, message: '请选择设备', trigger: 'change' }],
         hostIp: [
           { required: true, message: '请输入主机IP', trigger: 'blur' },
           {
@@ -70,6 +78,12 @@ const genModalMixin = type => {
             message: 'IP地址不正确',
             trigger: 'blur',
           },
+        ],
+        hostType: [
+          { required: true, message: '请选择设备类型', trigger: 'blur' },
+        ],
+        databaseType: [
+          { required: true, message: '请选择数据库类型', trigger: 'blur' },
         ],
         instanceName: [
           {
@@ -155,6 +169,15 @@ const genModalMixin = type => {
       // 区分不同数据库都提示信息
       databaseOrInstance() {
         return this.type === 'sqlserver' ? '数据库名' : '实例名';
+      },
+      sqlserverHosts() {
+        return this.$store.getters.hostsWithSqlServer;
+      },
+      oracleHosts() {
+        return this.$store.getters.hostsWithOracle;
+      },
+      availableHosts() {
+        return this.type === 'oracle' ? this.oracleHosts : this.sqlserverHosts;
       },
     },
     methods: {

@@ -121,10 +121,10 @@
         </template>
       </el-table-column>
     </el-table>
-    <single-restore-create-modal :type="type"
+    <!-- <single-restore-create-modal :type="type"
                                  :id="selectedId"
                                  :visible.sync="singleRestoreModalVisible"
-                                 @confirm="confirmCallback"></single-restore-create-modal>
+                                 @confirm="confirmCallback"></single-restore-create-modal> -->
   </section>
 </template>
 <script>
@@ -146,7 +146,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
   },
@@ -161,14 +161,16 @@ export default {
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
     },
+    // 点击恢复按钮
     restoreBtnClick({ id }) {
-      this.selectedId = id;
-      this.singleRestoreModalVisible = true;
+      this.$emit('single-restore-btn-click', id);
+      // this.selectedId = id;
+      // this.singleRestoreModalVisible = true;
     },
     // 添加单次恢复的回调
-    confirmCallback(restorePlan) {
-      this.$emit('add-restore', restorePlan);
-    },
+    // confirmCallback(restorePlan) {
+    //   this.$emit('add-restore', restorePlan);
+    // },
     endTimeSortMethod(a, b) {
       return moment(a) - moment(b);
     },
@@ -177,6 +179,7 @@ export default {
     isFileBackupResult() {
       return this.type === 'windows' || this.type === 'linux';
     },
+    // 文件服务器备份集中 只有最新对备份集才能用于恢复
     handleData() {
       const data = this.data.map((r, i, arr) => {
         return Object.assign({}, r);

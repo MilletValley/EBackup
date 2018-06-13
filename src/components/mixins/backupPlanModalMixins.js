@@ -49,6 +49,10 @@ const config = {
       pick(timeStrategyMapping, ['1']),
     ],
   },
+  vm: {
+    backupStrategy: pick(backupStrategyMapping, [1]),
+    timeStrategy: [pick(timeStrategyMapping, [0, 2, 3, 4, 5])],
+  },
   file: {
     backupStrategy: pick(backupStrategyMapping, ['1']),
     timeStrategy: [pick(timeStrategyMapping, ['0', '1', '2', '3', '4'])],
@@ -58,6 +62,7 @@ const config = {
 const backupStrategys = {
   oracle: convert(config.oracle),
   sqlserver: convert(config.sqlserver),
+  vm: convert(config.vm),
   windows: convert(config.file),
   linux: convert(config.file),
 };

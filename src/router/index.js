@@ -6,18 +6,21 @@ import Dashboard from '@/components/pages/Dashboard';
 import Profile from '@/components/pages/Profile';
 import Users from '@/components/pages/Users';
 import OracleList from '@/components/pages/OracleList';
-import OracleTakeOver from '@/components/pages/OracleTakeOver';
+import TakeOver from '@/components/pages/TakeOver';
 import SqlServerList from '@/components/pages/SqlServerList';
 // import NotFound from '@/components/pages/NotFound';
 import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
-import VMware from '@/components/pages/Vmware';
+import VMwareList from '@/components/pages/VmwareList';
+import VMwareDetail from '@/components/pages/VMwareDetail';
 import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
+import SystemParam from '@/components/pages/SystemParam';
+import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 
 Vue.use(Router);
 
@@ -121,7 +124,7 @@ export const asyncRouters = [
       {
         path: 'oracle/takeover',
         name: 'oracleTakeOver',
-        component: OracleTakeOver,
+        component: TakeOver,
         meta: {
           roles: ['oracle dba'],
           breadcrumb: [
@@ -135,6 +138,82 @@ export const asyncRouters = [
             },
             {
               name: 'Oracle一健接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'oracle/takeover/:id',
+        name: 'oracleLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['oracle dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle列表',
+              path: '/db/oracle',
+            },
+            {
+              name: 'Oracle一健接管',
+              path: '/db/oracle/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'sqlserver/takeover',
+        name: 'sqlserverTakeOver',
+        component: TakeOver,
+        meta: {
+          roles: ['sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '/db/sqlserver',
+            },
+            {
+              name: 'SQLServer一健接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'sqlserver/takeover/:id',
+        name: 'sqlserverLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer列表',
+              path: '/db/sqlserver',
+            },
+            {
+              name: 'SQLServer一健接管',
+              path: '/db/sqlserver/takeover',
+            },
+            {
+              name: '连接详情',
               path: '',
             },
           ],
@@ -232,11 +311,43 @@ export const asyncRouters = [
     },
     children: [
       {
-        path: 'vmware',
-        component: VMware,
+        path: 'virtual',
+        name: 'VMwareList',
+        component: VMwareList,
         meta: {
           title: 'VMware',
           roles: ['admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'virtual/:id',
+        props: true,
+        component: VMwareDetail,
+        meta: {
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '/vm/virtual',
+            },
+            {
+              name: '虚拟机详情',
+              path: '',
+            },
+          ],
         },
       },
     ],
@@ -282,6 +393,14 @@ export const asyncRouters = [
         component: DeviceManager,
         meta: {
           title: '设备管理',
+          roles: ['admin'],
+        },
+      },
+      {
+        path: 'systemparam',
+        component: SystemParam,
+        meta: {
+          title: '参数管理',
           roles: ['admin'],
         },
       },

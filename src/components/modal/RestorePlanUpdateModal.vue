@@ -1,5 +1,6 @@
 <template>
-  <el-dialog :visible.sync="modalVisible"
+  <el-dialog custom-class="min-width-dialog"
+             :visible.sync="modalVisible"
              :before-close="beforeModalClose"
              @open="modalOpened"
              @close="modalClosed">
@@ -21,22 +22,35 @@
       </el-row>
       <el-row>
         <el-col :span="12">
-          <el-form-item label="恢复设备IP"
+          <el-form-item label="恢复设备"
                         prop="hostIp">
-            <el-input v-model="formData.hostIp"></el-input>
+            <el-input disabled
+                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
+            <!-- <el-select v-model="formData.hostIp"
+                       style="width: 100%;">
+              <el-option v-for="host in selectionHosts"
+                         :key="host.id"
+                         :value="host.hostIp"
+                         :label="host.name">
+                <span style="float: left">{{ host.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
+              </el-option>
+            </el-select> -->
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
-            <el-input v-model="formData.detailInfo"></el-input>
+            <el-input v-model="formData.detailInfo"
+                      disabled></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="12">
           <el-form-item label="登录名"
-                        prop="loginName">
+                        prop="loginName"
+                        disabled>
             <el-input v-model="formData.loginName"></el-input>
           </el-form-item>
         </el-col>
@@ -84,7 +98,8 @@
                     prop="datePoints"
                     v-show="formData.timeStrategy == 3">
         <el-select v-model="formData.datePoints"
-                   multiple>
+                   multiple
+                   style="width: 60%;">
           <el-option v-for="day in Array.from(new Array(31), (val, index) => index + 1)"
                      :key="day"
                      :value="day"
@@ -141,37 +156,62 @@ export default {
       this.$refs.restorePlanUpdateForm.validate(valid => {
         if (valid) {
           const { name, config } = this.pruneData(this.formData);
-
-          requestMapping[this.type]({
+          this.$emit('confirm', {
             id: this.restorePlan.id,
             name,
             config,
-          })
-            .then(res => {
-              const { data: plan } = res.data;
-              this.$emit('confirm', plan);
-              this.modalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-              return false;
-            })
-            .then(() => {
-              this.$refs.restorePlanUpdateForm.clearValidate();
-            });
+          });
+          // requestMapping[this.type]({
+          //   id: this.restorePlan.id,
+          //   name,
+          //   config,
+          // })
+          //   .then(res => {
+          //     const { data: plan } = res.data;
+          //     this.$emit('confirm', plan);
+          //     this.modalVisible = false;
+          //   })
+          //   .catch(error => {
+          //     this.$message.error(error);
+          //     return false;
+          //   })
+          //   .then(() => {
+          //     this.$refs.restorePlanUpdateForm.clearValidate();
+          //   });
         } else {
           return false;
         }
       });
     },
     modalOpened() {
+      const {
+        id,
+        singleTime,
+        startTime,
+        timePoints,
+        weekPoints,
+        datePoints,
+        timeStrategy,
+        database,
+      } = this.restorePlan.config;
+      const { instanceName: detailInfo, loginName, host } = database;
+      const { name: hostName, hostIp } = host;
       this.originFormData = {
         name: this.restorePlan.name,
-        ...this.restorePlan.config,
+        id,
+        singleTime,
+        startTime,
+        timePoints,
+        weekPoints,
+        datePoints,
+        timeStrategy,
+        detailInfo,
+        loginName,
+        hostName,
+        hostIp,
       };
       this.formData = {
-        name: this.restorePlan.name,
-        ...this.restorePlan.config,
+        ...this.originFormData,
       };
     },
     modalClosed() {

@@ -4,12 +4,13 @@ import Vue from 'vue';
 import ElementUI, { Message } from 'element-ui';
 import moment from 'moment';
 import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/display.css';
 import App from './App';
 import store from './store/index';
 import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
-import './utils/icon-svg';
+// import './utils/icon-svg';
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;

@@ -39,6 +39,18 @@ const deleteSome = ids =>
     data: ids,
   });
 
+const createSwitches = hostLinkId =>
+  baseApi.request({
+    method: 'post',
+    url: `/host-links/${hostLinkId}/switches`,
+  });
+
+const deleteLinks = linkId =>
+  baseApi.request({
+    method: 'delete',
+    url: `/host-links/${linkId}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -46,4 +58,6 @@ export {
   deleteOne,
   deleteSome,
   modifyOne,
+  createSwitches,
+  deleteLinks,
 };

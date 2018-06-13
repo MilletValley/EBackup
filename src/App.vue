@@ -25,8 +25,8 @@ body {
 .icon {
   width: 1.3em;
   height: 1.3em;
-  vertical-align: -0.45em;
-  margin-right: 5px;
+  /* vertical-align: -0.45em; */
+  /* margin-right: 5px; */
   fill: rgb(208, 208, 208);
   overflow: hidden;
 }
@@ -36,11 +36,12 @@ body {
   margin: -20px -20px 0 -20px;
   padding: 10px 10px 50px 10px;
 }
-.detail-header .icon {
-  position: relative;
-  top: 17px;
-  right: 0;
-  font-size: 1.7em;
+.detail-icon {
+  display: block;
+  margin: 8px auto;
+  width: 70%;
+  height: 50px;
+  min-width: 30px;
 }
 .detail-header .content {
   margin-left: 20px;
@@ -51,6 +52,6 @@ body {
 .item-info .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
-  width: 40%;
+  /* width: 40%; */
 }
 </style>

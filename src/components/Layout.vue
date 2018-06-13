@@ -1,25 +1,28 @@
 <template>
   <el-container style="height: 100%;">
-    <el-aside width="250px"
-              style="background-color: #00264a">
+    <el-aside style="width:auto;background-color: #00264a">
       <div class="logo">
         <img src="../assets/elogo.png"
              alt="信服易备"
-             height="40px">
+             width="45px"
+             height="35px">
       </div>
       <el-menu background-color="#00264a"
                text-color="#fff"
-               active-text-color="#fff">
+               active-text-color="#fff"
+               :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
-          <IIcon name="dashboard"></IIcon>
-          <router-link to="/dashboard"
-                       tag="span">主页</router-link>
+            <IIcon name="dashboard"
+                 class="menu-icon"></IIcon>
+            <router-link to="/dashboard"
+                        tag="span" style="display: inline-block; width: 165px;">主页</router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
                     :key="menu.path"
                     :index="menu.path">
           <template slot="title">
-            <IIcon :name="menu.meta.icon"></IIcon>
+            <IIcon :name="menu.meta.icon"
+                   class="menu-icon"></IIcon>
             <span>{{ menu.meta.title }}</span>
           </template>
           <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
@@ -68,10 +71,19 @@ import IIcon from './IIcon.vue';
 export default {
   name: 'Layout',
   data() {
-    return {};
+    return {
+      clientWidth: 1920,
+    };
   },
   components: {
     IIcon,
+  },
+  mounted() {
+    this.clientWidth = document.documentElement.clientWidth;
+    const that = this;
+    window.onresize = function windowResize() {
+      that.clientWidth = document.documentElement.clientWidth;
+    };
   },
   created() {
     this.fetchHost().catch(error => {
@@ -79,6 +91,9 @@ export default {
     });
   },
   computed: {
+    isMenuCollapsed() {
+      return this.clientWidth < 1300;
+    },
     ...mapState({
       userName: state => {
         if (state.base.userInfo.userName) {
@@ -115,7 +130,7 @@ export default {
 
 <style>
 .logo {
-  padding: 10px 10px;
+  padding: 11px 10px;
 }
 .el-header {
   background-color: #ffffff;
@@ -132,6 +147,9 @@ export default {
 }
 .el-menu {
   border: none;
+}
+.el-menu:not(.el-menu--collapse) {
+  width: 250px;
 }
 .bread-crumb {
   display: inline-block;
@@ -150,5 +168,8 @@ export default {
 .router-link-active {
   color: #ffd04b;
   font-weight: 600;
+}
+.menu-icon {
+  margin-right: 5px;
 }
 </style>

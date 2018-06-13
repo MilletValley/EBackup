@@ -8,7 +8,7 @@
       </h4>
       <el-row :gutter="20"
               style="min-height: 144px;">
-        <el-col :span="6"
+        <el-col :span="8"
                 v-for="item in plans"
                 :key="item.id">
           <el-card shadow="hover"
@@ -16,10 +16,31 @@
             <div>
               <span>
                 <i :class="['el-icon-time', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
-              <span :class="$style.restoreStartTime">{{item.startTime}}</span>
+              <span :class="[$style.restoreStartTime, 'hidden-']">{{item.startTime}}</span>
             </div>
-            <p>恢复设备IP: {{ item.config.hostIp }}</p>
-            <p>{{detailInfoDisplayName}}: {{item.config.detailInfo }}</p>
+
+            <p>
+              <i-icon name="ip"
+                      :class="$style.ongoingRestoreIcon"></i-icon>
+              <el-tooltip content="目标设备IP"
+                          placement="right"
+                          :open-delay="300">
+                <span v-if="!isFile">{{ item.config.database.host.hostIp }}</span>
+                <span v-else>{{ item.config.hostIp }}</span>
+              </el-tooltip>
+            </p>
+
+            <p>
+              <i-icon name="instance"
+                      :class="$style.ongoingRestoreIcon"></i-icon>
+              <el-tooltip :content="detailInfoDisplayName"
+                          placement="right"
+                          :open-delay="300">
+                <span v-if="!isFile">{{item.config.database.instanceName }}</span>
+                <span v-else>{{ item.config.detailInfo }}</span>
+              </el-tooltip>
+            </p>
+
           </el-card>
         </el-col>
       </el-row>
@@ -64,10 +85,6 @@
               <i v-else
                  class="el-icon-error"
                  :class="$style.errorColor"></i>
-              <!-- <i :class="{ 'el-icon-success': scope.row.state === 0, 
-              'el-icon-error': scope.row.state === 1,
-              [$style.successIcon]:  scope.row.state === 0,
-              [$style.errorIcon]:  scope.row.state === 1 }"></i> -->
             </el-tooltip>
           </template>
         </el-table-column>
@@ -76,6 +93,7 @@
   </section>
 </template>
 <script>
+import IIcon from './IIcon';
 import baseMixin from './mixins/baseMixins';
 
 export default {
@@ -107,6 +125,15 @@ export default {
       };
       return mapping[this.type];
     },
+    isFile() {
+      if (this.type === 'windows' || this.type === 'linux') {
+        return true;
+      }
+      return false;
+    },
+  },
+  components: {
+    IIcon,
   },
 };
 </script>
@@ -127,5 +154,10 @@ export default {
   &:hover {
     transform: rotate(180deg);
   }
+}
+.ongoingRestoreIcon {
+  width: 2em;
+  display: inline-block;
+  vertical-align: -0.2em;
 }
 </style>

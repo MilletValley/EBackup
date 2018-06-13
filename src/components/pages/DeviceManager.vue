@@ -9,27 +9,35 @@
     </el-form>
     <el-table :data="hostsInVuex"
               style="width: 100%">
-      <el-table-column label="设备名"
-                       min-width="200"
+      <el-table-column prop="name"
+                       label="设备名"
+                       min-width="150"
                        align="center">
-        <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.name}}</router-link>
-          </el-button>
-        </template>
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"
-                       min-width="250"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="hostType"
+                       label="设备类型"
+                       :formatter="judgeHost"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="databaseType"
+                       label="用途类型"
+                       :formatter="judgeDatabase"
+                       min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="osName"
                        label="操作系统"
-                       width="250"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="loginName"
+                       label="登录账号"
+                       min-width="140"
                        align="center"></el-table-column>
       <el-table-column label="操作"
-                       width="150"
+                       min-width="150"
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
@@ -63,6 +71,7 @@ import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
+import {hostTypeMapping, databaseTypeMapping} from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
@@ -83,6 +92,12 @@ export default {
     },
   },
   methods: {
+    judgeHost(data) {
+      return hostTypeMapping[data.hostType];
+    },
+    judgeDatabase(data) {
+      return databaseTypeMapping[data.databaseType];
+    },
     fetchData() {},
     createItem(host) {
       this.create(host)

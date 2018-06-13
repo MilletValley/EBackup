@@ -60,16 +60,17 @@
     </el-table>
     <file-host-create-modal type="filehost"
                             :visible.sync="createModalVisible"
-                            @confirm="items.push(arguments[0])"></file-host-create-modal>
+                            @confirm="createItem"></file-host-create-modal>
     <file-host-update-modal type="filehost"
                             :visible.sync="updateModalVisible"
-                            @confirm="updateDb"
+                            :btn-loading="btnLoading"
+                            @confirm="updateItem"
                             :item-info="selectedDb"></file-host-update-modal>
   </section>
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
-import { fetchAll, deleteOne } from '../../api/fileHost';
+import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/fileHost';
 import FileHostCreateModal from '../modal/FileHostCreateModal';
 import FileHostUpdateModal from '../modal/FileHostUpdateModal';
 import { applyFilterMethods } from '../../utils/common';
@@ -101,22 +102,62 @@ export default {
         });
     },
     deleteDb({ row: info, $index }) {
-      this.$confirm('确认删除此数据库?', '提示', {
+      this.$confirm('此操作将删除此系统?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => deleteOne(info.id))
         .then(() => {
-          this.items.splice($index, 1);
-          this.$message.success({
-            message: '删除成功!',
-          });
+          deleteOne(info.id)
+            .then(() => {
+              this.items.splice($index, 1);
+              this.$message.success({
+                message: '删除成功!',
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(error => {});
+    },
+    createItem(data) {
+      this.btnLoading = true;
+      createOne(data)
+        .then(res => {
+          const { data: item, message } = res.data;
+          this.items.push(item);
+          this.createModalVisible = false;
+          this.$message.success(message);
         })
         .catch(error => {
-          if (error !== 'cancel')
-            // element-ui Message组件取消会进入catch 避免这种弹窗
-            this.$message.error(error);
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateItem(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: filehost, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          filehost.id = this.selectedDb.id;
+          this.items.splice(
+            this.items.findIndex(item => item.id === filehost.id),
+            1,
+            filehost
+          );
+          this.selectedId = '';
+          this.updateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
   },

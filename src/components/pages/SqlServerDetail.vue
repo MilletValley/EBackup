@@ -5,14 +5,19 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="sqlserver"></i-icon>
+            <i-icon name="sqlserver"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1>{{details.name}}</h1>
+                <h1 :class="details.role === 1 ? $style.primaryLink : $style.viceLink">{{details.name}}
+                  <i-icon v-if="details.role !== 0"
+                          :name="roleIconName(this.details.role)"
+                          :class="$style.roleIconHeader"></i-icon>
+                </h1>
               </el-col>
               <el-col :span="12"
                       :offset="12"
@@ -38,34 +43,67 @@
             <el-form v-loading="infoLoading"
                      label-position="left"
                      label-width="100px"
-                     inline
                      size="small"
                      class="item-info">
-              <el-form-item label="数据库版本：">
-                <span>{{ details.dbVersion }}</span>
-              </el-form-item>
-              <el-form-item label="数据库：">
-                <span>{{ details.instanceName }}</span>
-              </el-form-item>
-              <el-form-item label="数据库账号：">
-                <span>{{ details.loginName }}</span>
-              </el-form-item>
-              <el-form-item label="数据库密码：">
-                <!-- <span-toggle :value="oracle.password"></span-toggle> -->
-                <span>●●●●●●●●</span>
-              </el-form-item>
-              <el-form-item label="主机名：">
-                <span>{{ details.hostName }}</span>
-              </el-form-item>
-              <el-form-item label="操作系统：">
-                <span>{{ details.osName }}</span>
-              </el-form-item>·
-              <el-form-item label="主机IP：">
-                <span>{{ details.hostIp }}</span>
-              </el-form-item>
-              <el-form-item label="所属系统：">
-                <span>{{ details.application }}</span>
-              </el-form-item>
+              <el-row style="margin-right: 5px;">
+                <el-col :span="8">
+                  <el-form-item label="数据库版本：">
+                    <span>{{ details.dbVersion }}</span>
+                  </el-form-item>
+                  <el-form-item label="数据库名：">
+                    <span>{{ details.instanceName }}</span>
+                  </el-form-item>
+                  <el-form-item label="数据库账号：">
+                    <span>{{ details.loginName }}</span>
+                  </el-form-item>
+                  <el-form-item label="数据库密码：">
+                    <span>●●●●●●●●</span>
+                  </el-form-item>
+                  <el-form-item label="数据库状态：">
+                    <el-tag :type="databaseStateStyle(details.state)"
+                            size="mini">{{ details.state | databaseStateFilter }}</el-tag>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="主机名：">
+                    <span>{{ details.host.name }}</span>
+                  </el-form-item>
+                  <el-form-item label="操作系统：">
+                    <span>{{ details.host.osName }}</span>
+                  </el-form-item>
+                  <el-form-item label="所属设备：">
+                    <span>{{ details.host.name }}</span>
+                  </el-form-item>
+                  <el-form-item label="设备IP：">
+                    <span>{{ details.host.hostIp }}</span>
+                  </el-form-item>
+                  <el-form-item label="所属系统：">
+                    <span>{{ details.application }}</span>
+                  </el-form-item>
+                </el-col>
+                <template v-if="!!link.id">
+                  <el-col :span="8"
+                          :class="$style.linkInfo">
+                    <h4 style="margin: 10px 0 7px;">连接信息</h4>
+                    <el-form-item>
+                      <i-icon :name="`switch-${link.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                      <span>{{ link.state | linkStateFilter }}</span>
+                    </el-form-item>
+                    <el-form-item>
+                      <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
+                              :class="$style.roleIconOppsition"></i-icon>
+                      <router-link :to="`/db/sqlserver/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
+                                   :class="link.oppsiteDatabase.role === 1 ? $style.primaryLink : $style.viceLink">
+                        {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
+                      </router-link>
+                    </el-form-item>
+
+                  </el-col>
+                  <router-link :to="`/db/sqlserver/takeover/${link.id}`"
+                               :class="$style.moreLink">查看更多</router-link>
+                </template>
+              </el-row>
             </el-form>
           </el-col>
         </el-row>
@@ -77,13 +115,13 @@
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
+                @single-restore-btn-click="initSingleRestoreModal"
                 @backupplan:refresh="refreshSingleBackupPlan"
                 @backupplan:update="updateBackupPlan"
                 @backupplan:delete="deleteBackupPlan"
                 @restoreplan:refresh="refreshSingleRestorePlan"
-                @restoreplan:add="addRestorePlan"
-                @restoreplan:update="updateRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
+                @select-restore-plan="selectRestorePlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
@@ -92,19 +130,32 @@
                      :visible.sync="backupPlanCreateModalVisible"
                      @confirm="addBackupPlan"></add-backup-plan>
     <restore-plan-create-modal type="sqlserver"
-                               :id="Number(id)"
+                               :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
+                               :selection-hosts="availableHostsWithSqlServer"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
+    <restore-plan-update-modal type="sqlserver"
+                               :database="details"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :btn-loading="btnLoading"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="updateRestorePlan"></restore-plan-update-modal>
     <database-update-modal type="sqlserver"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
-                           @confirm="details = arguments[0]"></database-update-modal>
+                           :btn-loading="btnLoading"
+                           @confirm="updateDetails"></database-update-modal>
+    <single-restore-create-modal type="sqlserver"
+                                 :id="selectedBackupResultId"
+                                 :visible.sync="singleRestoreCreateModalVisible"
+                                 :selection-hosts="availableHostsWithSqlServer"
+                                 @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
 <script>
 import { detailPageMixin } from '../mixins/detailPageMixins';
-
 import {
+  modifyOne,
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
@@ -112,11 +163,18 @@ import {
   fetchRestoreRecords,
   fetchBackupOperation,
   fetchRestoreOperation,
+  deleteRestorePlan,
+  deleteSqlServerBackupPlan,
+  createSingleRestorePlan,
+  createRestorePlan,
+  updateRestorePlan,
+  fetchLink,
 } from '../../api/sqlserver';
+import takeoverMixin from '../mixins/takeoverMixins';
 
 export default {
   name: 'SqlServerDetail',
-  mixins: [detailPageMixin],
+  mixins: [detailPageMixin, takeoverMixin],
   data() {
     return {
       updateResults: this.throttleMethod(() => {
@@ -147,7 +205,7 @@ export default {
             this.$message.error(error);
           });
       }),
-      selectedBackupPlanId: -1,
+      // selectedBackupPlanId: -1,
       throttleRefreshBackup: this.throttleMethod(() => {
         fetchBackupOperation(this.selectedBackupPlanId)
           .then(response => {
@@ -192,17 +250,36 @@ export default {
       }),
     };
   },
+  computed: {
+    availableHostsWithSqlServer() {
+      return this.$store.getters.hostsWithSqlServer;
+    },
+  },
   methods: {
     fetchData() {
       fetchOne(this.id)
         .then(res => {
           const { data: db } = res.data;
           this.details = db;
-          this.infoLoading = false;
+          if (this.details.role && this.details.role !== 0) {
+            fetchLink(this.id).then(res => {
+              const { data: link } = res.data;
+              const { id, state, errMsg, tempPort } = link;
+              this.link = { id, state, errMsg, tempPort };
+              if (this.details.role === 1) {
+                this.link.oppsiteDatabase = link.viceDatabase;
+              } else if (this.details.role === 2) {
+                this.link.oppsiteDatabase = link.primaryDatabase;
+              }
+            });
+          }
         })
         .catch(error => {
           this.$message.error(error);
           this.$router.push({ name: 'sqlserverList' });
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
       fetchBackupPlans(this.id)
         .then(res => {
@@ -239,6 +316,127 @@ export default {
       this.selectedRestorePlanId = planId;
       this.throttleRefreshRestore();
     },
+    deleteRestorePlan(planId) {
+      deleteRestorePlan(planId)
+        .then(() => {
+          this.$message.success('删除成功');
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(plan => plan.id === planId),
+            1
+          );
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    deleteBackupPlan(planId) {
+      deleteSqlServerBackupPlan(planId).then(() => {
+        this.backupPlans.splice(
+          this.backupPlans.findIndex(plan => plan.id === planId),
+          1
+        );
+        this.$message.success('删除成功');
+      });
+    },
+    addRestorePlan(restorePlan) {
+      this.btnLoading = true;
+      createRestorePlan(restorePlan)
+        .then(res => {
+          const { data: restorePlan } = res.data;
+          this.restorePlans.unshift(restorePlan);
+          this.restorePlanCreateModalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    // 单次恢复
+    addSingleRestorePlan(plan) {
+      createSingleRestorePlan(plan)
+        .then(res => {
+          const { data: restorePlan, message } = res.data;
+          this.restorePlans.unshift(restorePlan);
+          this.singleRestoreCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    updateDetails(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: sqlserver, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          sqlserver.id = this.details.id;
+          this.details = sqlserver;
+          this.detailsEditModal = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    // 更新恢复计划
+    updateRestorePlan(data) {
+      updateRestorePlan(data)
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedRestorePlanId;
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.restorePlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
   },
 };
 </script>
+<style lang="scss" module>
+@import '../../style/common.scss';
+.roleIconHeader {
+  padding: 5px;
+  margin: -5px 5px;
+  vertical-align: -0.2em;
+}
+.roleIconOppsition {
+  vertical-align: -0.2em;
+  padding: 3px;
+  margin: -3px 0 -3px 1px;
+}
+.switchIcon {
+  width: 1.7em;
+  height: 1.7em;
+  vertical-align: -0.5em;
+}
+.databaseLink {
+  composes: link;
+  font-size: 1.2em;
+  // color: rgb(170, 84, 27);
+}
+.linkInfo {
+  text-align: right;
+}
+.moreLink {
+  composes: link;
+  font-size: 0.9em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+</style>

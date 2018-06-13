@@ -143,7 +143,7 @@ const updateRestorePlan = data =>
     })
     .then(res => {
       const { timePoints } = res.data.data.config;
-      res.data.data.config = timePoints2Obj(timePoints);
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
       return res;
     });
 
@@ -152,6 +152,45 @@ const fetchRestoreOperation = id =>
     method: 'get',
     url: `/oracle-restore-plans/${id}`,
   });
+
+const fetchLinks = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/oracle-links',
+  });
+
+const createLinks = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-links',
+    data,
+  });
+
+const createSwitches = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-switches',
+    data,
+  });
+
+const fetchSwitches = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-links/${linkId}/switches`,
+  });
+
+const fetchLink = oracleId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${oracleId}/oracle-links`,
+  });
+
+const fetchLinkByLinkId = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-links/${linkId}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -172,4 +211,10 @@ export {
   deleteRestorePlan,
   updateRestorePlan,
   fetchRestoreOperation,
+  fetchLinks,
+  createSwitches,
+  createLinks,
+  fetchSwitches,
+  fetchLink,
+  fetchLinkByLinkId,
 };
