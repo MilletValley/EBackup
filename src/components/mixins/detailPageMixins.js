@@ -7,6 +7,8 @@ import VmTabPanels from '@/components/VmTabPanels';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
+import backupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
+
 import {
   databaseRoleMapping,
   linkStateMapping,
@@ -114,6 +116,7 @@ const detailPageMixin = {
     VmTabPanels,
     SingleRestoreCreateModal,
     RestorePlanUpdateModal,
+    backupPlanCreateModal,
   },
   filters: {
     linkStateFilter(value) {

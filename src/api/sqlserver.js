@@ -58,7 +58,14 @@ const createSqlServerBackupPlan = ({ id, plan }) =>
     data: plan,
   });
 
-const deleteSqlServerBackupPlan = id =>
+const createBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/sqlservers/${id}/sqlserver-backup-plans`,
+    data: plan,
+  });
+
+const deleteBackupPlan = id =>
   baseApi.request({
     method: 'delete',
     url: `/sqlserver-backup-plans/${id}`,
@@ -202,7 +209,8 @@ export {
   fetchBackupPlans,
   fetchBackupResults,
   createSqlServerBackupPlan,
-  deleteSqlServerBackupPlan,
+  createBackupPlan,
+  deleteBackupPlan,
   updateSqlServerBackupPlan,
   fetchBackupOperation,
   createSingleRestorePlan,

@@ -134,6 +134,7 @@
                      @confirm="addBackupPlan"></add-backup-plan> -->
     <backup-plan-create-modal type="oracle"
                               :visible.sync="backupPlanCreateModalVisible"
+                              :btn-loading="btnLoading"
                               @confirm="addBackupPlan"></backup-plan-create-modal>
     <restore-plan-create-modal type="oracle"
                                :database="details"
@@ -162,7 +163,6 @@
 <script>
 import throttle from 'lodash/throttle';
 import { detailPageMixin } from '../mixins/detailPageMixins';
-import backupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
 
 import {
   modifyOne,
@@ -175,7 +175,7 @@ import {
   fetchBackupOperation,
   fetchRestoreOperation,
   deleteRestorePlan,
-  deleteOracleBackupPlan,
+  deleteBackupPlan,
   createSingleRestorePlan,
   createRestorePlan,
   updateRestorePlan,
@@ -360,7 +360,7 @@ export default {
         });
     },
     deleteBackupPlan(planId) {
-      deleteOracleBackupPlan(planId).then(() => {
+      deleteBackupPlan(planId).then(() => {
         this.backupPlans.splice(
           this.backupPlans.findIndex(plan => plan.id === planId),
           1
@@ -445,7 +445,6 @@ export default {
       }
     },
   },
-  components: { backupPlanCreateModal },
 };
 </script>
 <style lang="scss" module>

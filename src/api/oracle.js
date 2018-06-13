@@ -65,7 +65,7 @@ const createBackupPlan = ({ id, plan }) =>
     data: plan,
   });
 
-const deleteOracleBackupPlan = id =>
+const deleteBackupPlan = id =>
   baseApi.request({
     method: 'delete',
     url: `/oracle-backup-plans/${id}`,
@@ -208,7 +208,7 @@ export {
   fetchBackupResults,
   createOracleBackupPlan,
   createBackupPlan,
-  deleteOracleBackupPlan,
+  deleteBackupPlan,
   updateOracleBackupPlan,
   fetchBackupOperation,
   createSingleRestorePlan,

@@ -18,7 +18,8 @@
         </el-form-item>
         <el-form-item label="备份策略"
                       prop="backupStrategy">
-          <el-radio-group v-model="formData.backupStrategy">
+          <el-radio-group v-model="formData.backupStrategy"
+                          @change="backupStrategyChange">
             <el-radio :label="bs.code"
                       v-for="bs in availableBackupStrategies"
                       :key="bs.code">{{ bs.value }}</el-radio>
@@ -108,6 +109,7 @@
       </el-form>
       <span slot="footer">
         <el-button type="primary"
+                   :loading="btnLoading"
                    @click="confirm">确定</el-button>
         <el-button @click="cancel">取消</el-button>
       </span>
@@ -141,6 +143,9 @@ export default {
     visible: {
       type: Boolean,
     },
+    btnLoading: {
+      type: Boolean,
+    }
   },
   data() {
     const singleTimeValidate = (rule, value, callback) => {
@@ -277,6 +282,9 @@ export default {
     },
   },
   methods: {
+    backupStrategyChange(label) {
+      this.formData.timeStrategy = strategyMapping[this.type][label][0];
+    },
     // 时间点去重排序
     filteredTimePoints(timePoints) {
       return Array.from(

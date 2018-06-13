@@ -125,10 +125,14 @@
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <add-backup-plan type="sqlserver"
+    <!-- <add-backup-plan type="sqlserver"
                      :id="Number(id)"
                      :visible.sync="backupPlanCreateModalVisible"
-                     @confirm="addBackupPlan"></add-backup-plan>
+                     @confirm="addBackupPlan"></add-backup-plan> -->
+    <backup-plan-create-modal type="sqlserver"
+                              :visible.sync="backupPlanCreateModalVisible"
+                              :btn-loading="btnLoading"
+                              @confirm="addBackupPlan"></backup-plan-create-modal>
     <restore-plan-create-modal type="sqlserver"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
@@ -164,7 +168,8 @@ import {
   fetchBackupOperation,
   fetchRestoreOperation,
   deleteRestorePlan,
-  deleteSqlServerBackupPlan,
+  createBackupPlan,
+  deleteBackupPlan,
   createSingleRestorePlan,
   createRestorePlan,
   updateRestorePlan,
@@ -306,6 +311,24 @@ export default {
         this.restoreRecords = records;
       });
     },
+    // 添加备份计划
+    addBackupPlan(plan) {
+      this.btnLoading = true;
+      createBackupPlan({ id: this.id, plan })
+        .then(res => {
+          const { data: backupPlan, message } = res.data;
+          this.backupPlans.unshift(backupPlan);
+          this.backupPlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
       this.selectedBackupPlanId = planId;
@@ -330,7 +353,7 @@ export default {
         });
     },
     deleteBackupPlan(planId) {
-      deleteSqlServerBackupPlan(planId).then(() => {
+      deleteBackupPlan(planId).then(() => {
         this.backupPlans.splice(
           this.backupPlans.findIndex(plan => plan.id === planId),
           1
