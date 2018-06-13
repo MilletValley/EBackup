@@ -38,32 +38,57 @@
         <el-table-column
           prop="type"
           label="类型"
-          align="center">
+          align="center"
+          min-width="120"
+          fixed>
         </el-table-column>
         <el-table-column
           prop="osName"
           label="操作系统"
-          align="center">
+          align="center"
+          min-width="150">
         </el-table-column>
         <el-table-column
           prop="ip"
           label="IP"
-          align="center">
+          align="center"
+          min-width="150">
         </el-table-column>
         <el-table-column
           prop="user"
           label="账号"
-          align="center">
+          align="center"
+          min-width="120">
         </el-table-column>
         <el-table-column
           prop="password"
           label="密码"
-          align="center">
+          align="center"
+          min-width="100">
         </el-table-column>
         <el-table-column
           prop="remark"
           label="备注"
-          align="center">
+          align="center"
+          min-width="100">
+        </el-table-column>
+        <el-table-column
+          prop="case"
+          label="实例名"
+          align="center"
+          min-width="100">
+        </el-table-column>
+        <el-table-column
+          prop="loginName"
+          label="登录名"
+          align="center"
+          min-width="100">
+        </el-table-column>
+        <el-table-column
+          prop="loginPass"
+          label="登录密码"
+          align="center"
+          min-width="100">
         </el-table-column>
       </el-table>
     </template>
@@ -92,6 +117,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '备份环境',
+        case: '.',
+        loginName: 'sa',
+        loginPass: 'P@ssw0rd',
       }, {
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -99,6 +127,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '恢复环境',
+        case: '.',
+        loginName: 'sa',
+        loginPass: 'P@ssw0rd',
       }, {
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -106,6 +137,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '接管环境',
+        case: '.',
+        loginName: 'sa',
+        loginPass: 'P@ssw0rd',
       }, {
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -113,6 +147,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '接管环境',
+        case: '.',
+        loginName: 'sa',
+        loginPass: 'P@ssw0rd',
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
@@ -120,6 +157,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '备份环境',
+        case: 'orcl',
+        loginName: 'sys',
+        loginPass: 'oracle',
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
@@ -127,6 +167,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '恢复环境',
+        case: 'orcl',
+        loginName: 'sys',
+        loginPass: 'oracle',
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
@@ -134,6 +177,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '接管环境',
+        case: 'orcl',
+        loginName: 'sys',
+        loginPass: 'oracle',
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
@@ -141,6 +187,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '接管环境',
+        case: 'orcl',
+        loginName: 'sys',
+        loginPass: 'oracle',
       }, {
         type: 'Oracle',
         osName: 'Linux Redhat6',
@@ -148,6 +197,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '模拟生产',
+        case: 'testorc',
+        loginName: 'sys',
+        loginPass: 'sys',
       }, {
         type: 'Oracle',
         osName: 'Linux Redhat6',
@@ -155,6 +207,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '恢复环境',
+        case: 'testorc',
+        loginName: 'sys',
+        loginPass: 'sys',
       }, {
         type: 'Oracle',
         osName: 'Linux Redhat6',
@@ -162,6 +217,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '接管环境',
+        case: 'testorc',
+        loginName: 'sys',
+        loginPass: 'sys',
       }, {
         type: 'Oracle',
         osName: 'Linux Redhat6',
@@ -169,6 +227,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '接管环境',
+        case: 'testorc',
+        loginName: 'sys',
+        loginPass: 'sys',
       }, {
         type: '文件备份系统',
         osName: 'Windows2008',
@@ -176,6 +237,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '备份环境',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '文件备份系统',
         osName: 'Windows2008',
@@ -183,6 +247,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '恢复环境',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '文件备份系统',
         osName: 'Windows2010',
@@ -190,6 +257,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '共享',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '文件备份系统',
         osName: 'Linux Redhat6',
@@ -197,6 +267,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '备份环境',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '文件备份系统',
         osName: 'Linux Redhat6',
@@ -204,6 +277,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '恢复环境',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '开发部署',
         osName: 'Windows2008',
@@ -211,6 +287,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '数据库',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '开发部署',
         osName: 'Windows2008',
@@ -218,6 +297,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '服务端',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '开发部署',
         osName: 'Linux Redhat6',
@@ -225,6 +307,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '前端',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '临时IP',
         osName: 'Windows2008',
@@ -232,6 +317,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '临时IP',
         osName: 'Windows2008',
@@ -239,6 +327,9 @@ export default {
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '',
+        case: '',
+        loginName: '',
+        loginPass: '',
       }, {
         type: '临时IP',
         osName: 'Linux Redhat6',
@@ -246,6 +337,9 @@ export default {
         user: 'root',
         password: '123456',
         remark: '',
+        case: '',
+        loginName: '',
+        loginPass: '',
       },
       ]
     };
