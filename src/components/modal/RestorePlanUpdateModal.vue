@@ -150,7 +150,6 @@ export default {
         if (valid) {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
-              console.log({ name, config });
               this.$emit('confirm', {
                 id: this.restorePlan.id,
                 name,

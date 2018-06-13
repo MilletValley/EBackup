@@ -54,4 +54,7 @@ body {
   margin-bottom: 0;
   /* width: 40%; */
 }
+.min-width-dialog {
+  min-width: 740px;
+}
 </style>

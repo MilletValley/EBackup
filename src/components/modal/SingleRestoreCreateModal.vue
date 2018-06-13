@@ -2,8 +2,7 @@
   <el-dialog custom-class="min-width-dialog"
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
-             @close="modalClosed"
-             width="40%">
+             @close="modalClosed">
     <span slot="title">执行恢复操作</span>
     <el-form :model="formData"
              :rules="rules"

@@ -257,8 +257,5 @@ export default {
 .el-picker-panel__footer .el-button--text {
   display: none;
 }
-.min-width-dialog {
-  min-width: 740px;
-}
 </style>
 

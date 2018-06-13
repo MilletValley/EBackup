@@ -1,17 +1,312 @@
 import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';
 import InputToggle from '@/components/InputToggle';
-
 import {
+  backupStrategyMapping,
+  timeStrategyMapping,
   restoreTimeStrategyMapping as strategys,
   weekMapping,
 } from '../../utils/constant';
+// 配置信息 如果有业务添加或者变更 可以直接修改这个对象
+const strategyMapping = {
+  oracle: {
+    1: [0, 2, 3, 4, 5],
+  },
+  sqlserver: {
+    1: [0, 2, 3, 4, 5],
+    2: [1],
+  },
+};
 
 const mapping = {
   oracle: '实例',
   sqlserver: '数据库',
   windows: '恢复路径',
   linux: '恢复路径',
+};
+
+const backupPlanModalMixin = {
+  props: {
+    type: {
+      type: String,
+    },
+    visible: {
+      type: Boolean,
+    },
+    btnLoading: {
+      type: Boolean,
+    },
+  },
+  data() {
+    const singleTimeValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 0 && !value) {
+        callback(new Error('请输入备份时间'));
+      } else {
+        callback();
+      }
+    };
+    const startTimeValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy !== 0) {
+        if (!value) {
+          callback(new Error('请输入计划时间'));
+        } else if (dayjs(value) < dayjs()) {
+          callback(new Error('计划时间不能晚于当前时间'));
+        } else callback();
+      } else {
+        callback();
+      }
+    };
+    const weekPointsValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 4 && value.length === 0) {
+        callback(new Error('请选择循环星期'));
+      } else {
+        callback();
+      }
+    };
+    const datePointsValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 5 && value.length === 0) {
+        callback(new Error('请选择循环日期'));
+      } else {
+        callback();
+      }
+    };
+    const hourIntervalValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 2 && !value) {
+        callback(new Error('请输入循环周期'));
+      } else {
+        callback();
+      }
+    };
+    const minuteIntervalValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 1 && !value) {
+        callback(new Error('请输入循环周期'));
+      } else {
+        callback();
+      }
+    };
+    const baseFormData = {
+      name: '',
+      startTime: '',
+      singleTime: '',
+      datePoints: [],
+      timePoints: [{ value: '00:00', key: Date.now() }],
+      weekPoints: [], // 必须初始化为数组，checkbox group才能识别
+      hourInterval: 1,
+      minuteInterval: 10,
+      backupStrategy: 1,
+      timeStrategy: 0,
+    };
+    return {
+      formData: Object.assign({}, baseFormData), // 备份数据
+      originFormData: Object.assign({}, baseFormData), // 原始数据
+      rules: {
+        name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+        singleTime: [
+          {
+            validator: singleTimeValidate,
+            trigger: 'blur',
+          },
+        ],
+        startTime: [
+          {
+            validator: startTimeValidate,
+            trigger: 'blur',
+          },
+        ],
+        weekPoints: [
+          {
+            validator: weekPointsValidate,
+            trigger: 'blur',
+          },
+        ],
+        datePoints: [
+          {
+            validator: datePointsValidate,
+            trigger: 'blur',
+          },
+        ],
+        minuteInterval: [
+          {
+            validator: minuteIntervalValidate,
+            trigger: 'blur',
+          },
+        ],
+        hourInterval: [
+          {
+            validator: hourIntervalValidate,
+            trigger: 'blur',
+          },
+        ],
+      },
+      backupConfig: {},
+      weekMapping,
+    };
+  },
+  computed: {
+    modalVisible: {
+      get() {
+        return this.visible;
+      },
+      set(value) {
+        if (!value) {
+          this.$emit('update:visible', value);
+        }
+      },
+    },
+    // 根据type生成可用的备份策略
+    availableBackupStrategies() {
+      return Object.keys(strategyMapping[this.type]).map(strategyCode => ({
+        code: +strategyCode,
+        value: backupStrategyMapping[strategyCode],
+      }));
+    },
+    // 根据选择的备份策略生成可用的时间策略
+    availableTimeStrategies() {
+      return (
+        strategyMapping[this.type][this.formData.backupStrategy] || []
+      ).map(strategyCode => ({
+        code: strategyCode,
+        value: timeStrategyMapping[strategyCode],
+      }));
+    },
+  },
+  methods: {
+    // 切换备份策略时 同时更新时间策略为第一个可用值
+    backupStrategyChange(label) {
+      this.formData.timeStrategy = strategyMapping[this.type][label][0];
+    },
+    // 时间点去重排序
+    filteredTimePoints(timePoints) {
+      return Array.from(
+        new Set(timePoints.map(p => p.value).filter(p => p))
+      ).sort(
+        (a, b) =>
+          a.slice(0, 2) * 60 +
+          a.slice(3, 5) -
+          b.slice(0, 2) * 60 +
+          b.slice(3, 5)
+      );
+    },
+    pruneFormData(formData) {
+      const {
+        name,
+        timeStrategy,
+        singleTime,
+        startTime,
+        datePoints,
+        weekPoints,
+        timePoints,
+        hourInterval,
+        minuteInterval,
+        ...other
+      } = formData;
+      const filteredTimePoints = this.filteredTimePoints;
+      return new Promise((resolve, reject) => {
+        let config;
+        switch (timeStrategy) {
+          case 0:
+            if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
+            config = { timeStrategy, singleTime, ...other };
+            break;
+          case 1:
+            if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+            config = {
+              timeStrategy,
+              startTime,
+              timeInterval: minuteInterval,
+              ...other,
+            };
+            break;
+          case 2:
+            if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+            config = {
+              timeStrategy,
+              startTime,
+              timeInterval: hourInterval * 60,
+              ...other,
+            };
+            break;
+          case 3:
+            if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+            if (timePoints.every(p => !p.value)) {
+              reject('请至少输入一个时间点');
+            }
+            config = { timeStrategy, startTime, timePoints, ...other };
+            break;
+          case 4:
+            if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+            if (timePoints.every(p => !p.value)) {
+              reject('请至少输入一个时间点');
+            }
+            config = {
+              timeStrategy,
+              startTime,
+              weekPoints,
+              timePoints,
+              ...other,
+            };
+            break;
+          case 5:
+            if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+            if (timePoints.every(p => !p.value)) {
+              reject('请至少输入一个时间点');
+            }
+            config = {
+              timeStrategy,
+              startTime,
+              datePoints,
+              timePoints,
+              ...other,
+            };
+            break;
+          default:
+        }
+        if ([3, 4, 5].includes(timeStrategy)) {
+          config.timePoints = filteredTimePoints(timePoints);
+        }
+        resolve({ name, config });
+      });
+    },
+    confirm() {
+      this.$refs.createForm.validate(valid => {
+        if (valid) {
+          this.pruneFormData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', { name, config });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        } else {
+          return false;
+        }
+      });
+    },
+    cancel() {
+      this.hasModifiedBeforeClose(() => {
+        this.modalVisible = false;
+      });
+    },
+    // 关闭之前 验证是否有修改
+    beforeModalClose(done) {
+      this.hasModifiedBeforeClose(done);
+    },
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => {});
+      }
+    },
+  },
 };
 
 const modalMixin = {
@@ -258,3 +553,4 @@ const modalMixin = {
 };
 
 export default modalMixin;
+export { backupPlanModalMixin };
