@@ -15,6 +15,9 @@ const strategyMapping = {
   oracle: {
     1: [0, 2, 3, 4, 5],
   },
+  vm: {
+    1: [0, 2, 3, 4, 5],
+  },
   sqlserver: {
     1: [0, 2, 3, 4, 5],
     2: [1],
