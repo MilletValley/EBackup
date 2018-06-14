@@ -90,7 +90,7 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="updateRow.sysType" :label="0">通用</el-radio>
+          <!-- <el-radio v-model="updateRow.sysType" :label="0">通用</el-radio> -->
           <el-radio v-model="updateRow.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="updateRow.sysType" :label="2">Linux</el-radio>
         </el-form-item>
@@ -141,7 +141,7 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="createRow.sysType" :label="0">通用</el-radio>
+          <!-- <el-radio v-model="createRow.sysType" :label="0">通用</el-radio> -->
           <el-radio v-model="createRow.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="createRow.sysType" :label="2">Linux</el-radio>
         </el-form-item>
@@ -197,11 +197,7 @@ export default {
         if(!this.createRow.mountUrl){
           callback(new Error('请输入路径'));
         } else {
-          if(!lnxPath.test(this.createRow.mountUrl)){
-            callback(new Error('路径格式不正确'));
-          } else {
-            callback();
-          }
+          callback();
         }
       } else {
         callback();
@@ -228,7 +224,7 @@ export default {
         password: '',
         mountUrl: '',
         useType: 1,
-        sysType: 0,
+        sysType: 1,
         state: 0,
       },
       rules: {
@@ -277,12 +273,12 @@ export default {
   },
   computed: {
     create() {
-      if(this.createRow.sysType===0 || this.createRow.sysType===1)
+      if(this.createRow.sysType===1)
         this.createRow.mountUrl=null;
       return this.createRow;
     },
     update() {
-      if(this.updateRow.sysType===0 || this.updateRow.sysType===1)
+      if(this.updateRow.sysType===1)
         this.updateRow.mountUrl=null;
       return this.updateRow;
     }
@@ -348,6 +344,8 @@ export default {
               '删除成功'
             );
             this.systemParameters.splice(index, 1);
+            this.systemParameters.sort((a,b) =>
+              {return a.state-b.state});
           })
           .catch(error => {
             this.$message.error(error);
@@ -365,6 +363,8 @@ export default {
             this.$message.success(response.data.message);
             this.updateModalVisible = false;
             this.systemParameters.splice(this.listIndex, 1, response.data.data);
+            this.systemParameters.sort((a,b) =>
+            {return a.state-b.state});
           })
           .catch(error => {
             this.$message.error(error);
@@ -382,6 +382,8 @@ export default {
               this.$message.success(response.data.message);
               this.createModalVisible = false;
               this.systemParameters.push(response.data.data);
+              this.systemParameters.sort((a,b) =>
+              {return a.state-b.state});
             })
             .catch(error => {
               this.$message.error(error);
