@@ -9,12 +9,21 @@ import {
 } from '../../utils/constant';
 // 配置信息 如果有业务添加或者变更 可以直接修改这个对象
 const strategyMapping = {
+  default: {
+    0: [0],
+  },
   oracle: {
     1: [0, 2, 3, 4, 5],
   },
   sqlserver: {
     1: [0, 2, 3, 4, 5],
     2: [1],
+  },
+  windows: {
+    1: [0, 1, 2, 3, 4],
+  },
+  linux: {
+    1: [0, 1, 2, 3, 4],
   },
 };
 
@@ -29,6 +38,7 @@ const backupPlanModalMixin = {
   props: {
     type: {
       type: String,
+      required: true,
     },
     visible: {
       type: Boolean,
@@ -96,6 +106,13 @@ const backupPlanModalMixin = {
       backupStrategy: 1,
       timeStrategy: 0,
     };
+    if (this.type === 'windows') {
+      baseFormData.backupPath = '';
+      baseFormData.backupSystem = 'nosys';
+    }
+    if (this.type === 'linux') {
+      baseFormData.backupPath = '';
+    }
     return {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
@@ -153,8 +170,16 @@ const backupPlanModalMixin = {
         }
       },
     },
-    // 根据type生成可用的备份策略
+    // 根据type生成可用的备份策略
     availableBackupStrategies() {
+      if (!this.type) {
+        return [
+          {
+            code: 0,
+            value: backupStrategyMapping['0'],
+          },
+        ];
+      }
       return Object.keys(strategyMapping[this.type]).map(strategyCode => ({
         code: +strategyCode,
         value: backupStrategyMapping[strategyCode],
@@ -162,6 +187,14 @@ const backupPlanModalMixin = {
     },
     // 根据选择的备份策略生成可用的时间策略
     availableTimeStrategies() {
+      if (!this.type) {
+        return [
+          {
+            code: 0,
+            value: timeStrategyMapping['0'],
+          },
+        ];
+      }
       return (
         strategyMapping[this.type][this.formData.backupStrategy] || []
       ).map(strategyCode => ({
@@ -198,6 +231,8 @@ const backupPlanModalMixin = {
         timePoints,
         hourInterval,
         minuteInterval,
+        backupPath,
+        backupSystem,
         ...other
       } = formData;
       const filteredTimePoints = this.filteredTimePoints;
@@ -264,7 +299,13 @@ const backupPlanModalMixin = {
         if ([3, 4, 5].includes(timeStrategy)) {
           config.timePoints = filteredTimePoints(timePoints);
         }
-        resolve({ name, config });
+        if (this.type === 'windows') {
+          resolve({ name, backupPath, backupSystem, config });
+        } else if (this.type === 'linux') {
+          resolve({ name, backupPath, config });
+        } else {
+          resolve({ name, config });
+        }
       });
     },
     confirm() {

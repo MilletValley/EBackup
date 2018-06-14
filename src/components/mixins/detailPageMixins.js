@@ -85,9 +85,9 @@ const detailPageMixin = {
       }
     },
     // 添加备份计划
-    addBackupPlan(data) {
-      this.backupPlans.unshift(data);
-    },
+    // addBackupPlan(data) {
+    //   this.backupPlans.unshift(data);
+    // },
     // 更新备份计划
     updateBackupPlan(updateIndex, plan) {
       this.backupPlans.splice(updateIndex, 1, plan);

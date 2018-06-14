@@ -18,6 +18,12 @@
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
+        <el-form-item v-if="['windows', 'linux'].includes(type)"
+                      label="备份路径"
+                      :rules="{required: true, message: '请输入备份路径', trigger: 'blur'}"
+                      prop="backupPath">
+          <el-input v-model="formData.backupPath"></el-input>
+        </el-form-item>
         <el-form-item label="备份策略"
                       prop="backupStrategy">
           <el-radio-group v-model="formData.backupStrategy"
@@ -108,6 +114,13 @@
                            :step="1"
                            contrls-position="right"></el-input-number>
         </el-form-item>
+        <el-form-item label="是否备份系统"
+                      prop="backupSys"
+                      v-if="type === 'windows'">
+          <el-switch v-model="formData.backupSystem"
+                     active-value="sys"
+                     inactive-value="nosys"></el-switch>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
@@ -136,11 +149,8 @@ export default {
       this.$refs.updateForm.validate(valid => {
         if (valid) {
           this.pruneFormData(this.formData)
-            .then(({ name, config }) => {
-              this.$emit('confirm', this.backupPlan.id, {
-                name,
-                config,
-              });
+            .then(requestData => {
+              this.$emit('confirm', this.backupPlan.id, requestData);
             })
             .catch(error => {
               this.$message.error(error);
@@ -151,7 +161,7 @@ export default {
       });
     },
     modalOpened() {
-      const { id, name, config } = this.backupPlan;
+      const { id, name, config, backupPath, backupSystem } = this.backupPlan;
       const { timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
         minuteInterval = 10;
@@ -167,6 +177,12 @@ export default {
         timePoints: cloneDeep(timePoints),
         ...otherConfig,
       };
+      if (this.type === 'windows') {
+        this.originFormData.backupPath = backupPath;
+        this.originFormData.backupSystem = backupSystem;
+      } else if (this.type === 'linux') {
+        this.originFormData.backupPath = backupPath;
+      }
       this.formData = {
         ...this.originFormData,
         ...{ timePoints: cloneDeep(timePoints) },
