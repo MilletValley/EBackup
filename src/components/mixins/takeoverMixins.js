@@ -4,6 +4,7 @@ import {
   linkStateMapping,
   switchStateMapping,
   switchManualMapping,
+  switchTypeMapping,
 } from '../../utils/constant';
 
 const takeoverMixin = {
@@ -53,6 +54,9 @@ const takeoverMixin = {
     },
     switchStateFormatter(row, column, cellValue) {
       return switchStateMapping[cellValue];
+    },
+    switchTypeFormatter(row, column, cellValue) {
+      return switchTypeMapping[cellValue];
     },
   },
   filters: {
