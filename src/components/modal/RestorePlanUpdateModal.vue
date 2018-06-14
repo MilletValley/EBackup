@@ -133,11 +133,11 @@
 </template>
 <script>
 import cloneDeep from 'lodash/cloneDeep';
-import modalMixin from '../mixins/restorePlanModalMixins';
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
   name: 'RestorePlanUpdateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   props: {
     restorePlan: {
       type: Object,

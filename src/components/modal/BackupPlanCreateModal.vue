@@ -132,7 +132,7 @@
 <script>
 import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
-import { backupPlanModalMixin } from '../mixins/restorePlanModalMixins';
+import { backupPlanModalMixin } from '../mixins/planModalMixins';
 export default {
   name: 'BackupPlanCreateModal',
   mixins: [backupPlanModalMixin],

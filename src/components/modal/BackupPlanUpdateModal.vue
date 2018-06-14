@@ -133,7 +133,7 @@
 </template>
 <script>
 import cloneDeep from 'lodash/cloneDeep';
-import { backupPlanModalMixin } from '../mixins/restorePlanModalMixins';
+import { backupPlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
   name: 'BackupPlanUpdateModal',

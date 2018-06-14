@@ -138,16 +138,11 @@ import {
 } from '../../utils/constant';
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
-import modalMixin from '../mixins/restorePlanModalMixins';
-
-const requestMapping = {
-  sqlserver: createSqlserverRestorePlan,
-  oracle: createOracleRestorePlan,
-};
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
   name: 'RestorePlanCreateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   methods: {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {

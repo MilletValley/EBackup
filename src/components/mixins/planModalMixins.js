@@ -308,21 +308,6 @@ const backupPlanModalMixin = {
         }
       });
     },
-    confirm() {
-      this.$refs.createForm.validate(valid => {
-        if (valid) {
-          this.pruneFormData(this.formData)
-            .then(({ name, config }) => {
-              this.$emit('confirm', { name, config });
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-        } else {
-          return false;
-        }
-      });
-    },
     cancel() {
       this.hasModifiedBeforeClose(() => {
         this.modalVisible = false;
@@ -350,7 +335,7 @@ const backupPlanModalMixin = {
   },
 };
 
-const modalMixin = {
+const restorePlanModalMixin = {
   props: {
     type: {
       type: String,
@@ -593,5 +578,4 @@ const modalMixin = {
   },
 };
 
-export default modalMixin;
-export { backupPlanModalMixin };
+export { restorePlanModalMixin, backupPlanModalMixin };

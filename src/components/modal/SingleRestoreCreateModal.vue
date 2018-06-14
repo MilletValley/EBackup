@@ -69,12 +69,12 @@
 </template>
 <script>
 import dayjs from 'dayjs';
-import modalMixin from '../mixins/restorePlanModalMixins';
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 
 export default {
   name: 'SingleRestoreCreateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   data() {
     return {
       recoveringStrategys: recoveringStrategyMapping,
