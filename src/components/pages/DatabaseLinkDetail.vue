@@ -131,6 +131,11 @@
                        width="220"
                        align="center"
                        prop="switchTime"></el-table-column>
+      <el-table-column label="类型"
+                       width="150"
+                       align="center"
+                       prop="type"
+                       :formatter="switchTypeFormatter"></el-table-column>
       <el-table-column label="切换内容"
                        min-width="200"
                        header-align="center"

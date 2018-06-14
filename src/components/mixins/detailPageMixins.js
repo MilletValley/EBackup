@@ -1,7 +1,6 @@
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import AddBackupPlan from '@/components/AddBackupPlan';
 import TabPanels from '@/components/TabPanels';
 import VmTabPanels from '@/components/VmTabPanels';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
@@ -84,18 +83,10 @@ const detailPageMixin = {
         this.restorePlanCreateModalVisible = true;
       }
     },
-    // 添加备份计划
-    // addBackupPlan(data) {
-    //   this.backupPlans.unshift(data);
-    // },
     // 更新备份计划
     updateBackupPlan(updateIndex, plan) {
       this.backupPlans.splice(updateIndex, 1, plan);
     },
-    // 更新恢复计划
-    // updateRestorePlan(updateIndex, plan) {
-    //   this.restorePlans.splice(updateIndex, 1, plan);
-    // },
     initSingleRestoreModal(id) {
       this.selectedBackupResultId = id;
       this.singleRestoreCreateModalVisible = true;
@@ -122,7 +113,6 @@ const detailPageMixin = {
   components: {
     IIcon,
     DatabaseUpdateModal,
-    AddBackupPlan,
     RestorePlanCreateModal,
     TabPanels,
     VmTabPanels,

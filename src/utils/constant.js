@@ -117,6 +117,12 @@ const switchManualMapping = {
   2: '自动',
 };
 
+const switchTypeMapping = {
+  1: '切换实例',
+  2: '切换IP',
+  3: '解除连接',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -136,4 +142,5 @@ export {
   switchStateMapping,
   switchIpMapping,
   switchManualMapping,
+  switchTypeMapping,
 };

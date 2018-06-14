@@ -84,10 +84,6 @@
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <!-- <add-backup-plan :type="systemType"
-                     :id="Number(id)"
-                     :visible.sync="backupPlanCreateModalVisible"
-                     @confirm="addBackupPlan"></add-backup-plan> -->
     <backup-plan-create-modal :type="systemType"
                               :visible.sync="backupPlanCreateModalVisible"
                               :btn-loading="btnLoading"

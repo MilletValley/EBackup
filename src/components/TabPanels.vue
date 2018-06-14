@@ -79,8 +79,6 @@ import BackupCard from '@/components/BackupCard';
 import RestoreCard from '@/components/RestoreCard';
 import BackupResultList from '@/components/BackupResultList';
 import RestoreRecords from '@/components/RestoreRecords';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import { applyFilterMethods } from '../utils/common';
 
@@ -200,8 +198,6 @@ export default {
     BackupCard,
     RestoreCard,
     BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
     RestoreRecords,
   },
 };

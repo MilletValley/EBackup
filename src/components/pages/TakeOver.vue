@@ -62,8 +62,8 @@
                             width="300"
                             :open-delay="200">
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                  <p v-if="!hostLink.latestSwitch">暂无操作</p>
-                  <el-form v-else
+                  <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
+                  <el-form v-else-if="hostLink.latestSwitch.type === 2"
                            size="mini"
                            label-width="70px">
                     <el-form-item :class="$style.switchFormItem"
@@ -87,15 +87,35 @@
                       <span>{{ hostLink.latestSwitch.switchTime }}</span>
                     </el-form-item>
                   </el-form>
+                  <el-form v-else-if="hostLink.latestSwitch.type === 3"
+                           size="mini"
+                           label-width="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="解除信息">
+                      <span>{{ hostLink.latestSwitch.content }}</span>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="状态">
+                      <el-tag :type="switchStateStyle(hostLink.latestSwitch.state)"
+                              size="mini">
+                        {{ hostLink.latestSwitch.state | switchStateFilter }}
+                      </el-tag>
+                    </el-form-item>
+                  </el-form>
                   <i-icon name="link"
                           :class="$style.hostSwitchIcon"
                           slot="reference"></i-icon>
                 </el-popover>
               </div>
-              <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1"
+              <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
                    style="margin-top: 12px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
+              </div>
+              <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
+                   style="margin-top: 12px;">
+                <i class="el-icon-loading"></i>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
               </div>
               <template v-else>
                 <div style="margin: -3px 0 -6px;">
@@ -180,10 +200,18 @@
                           trigger="hover"
                           width="300"
                           :open-delay="200">
-                <label>连接状态</label>
-                <el-tag :type="databaseLinkStateStyle(dbLink.state)"
-                        style="margin-left: 10px"
-                        size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
+                <el-form size="mini"
+                         label-width="70px">
+                  <el-form-item :class="$style.switchFormItem"
+                                label="连接状态">
+                    <el-tag :type="databaseLinkStateStyle(dbLink.state)"
+                            size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
+                  </el-form-item>
+                  <el-form-item :class="$style.switchFormItem"
+                                label="信息">
+                    <span>{{ dbLink.errMsg }}</span>
+                  </el-form-item>
+                </el-form>
                 <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
                 <p v-if="!dbLink.latestSwitch">暂无操作</p>
                 <el-form v-else
@@ -554,12 +582,17 @@ export default {
       })
         .then(() => {
           deleteLinks(hostLink.id)
-            .then(() => {
-              this.links.splice(
-                this.links.findIndex(link => link.id === hostLink.id),
-                1
-              );
-              this.$message.success('连接解除成功');
+            .then(res => {
+              // this.links.splice(
+              //   this.links.findIndex(link => link.id === hostLink.id),
+              //   1
+              // );
+              // this.$message.success('连接解除成功');
+              const { data: cancelOperation } = res.data;
+              this.links.find(
+                link => link.id === hostLink.id
+              ).latestSwitch = cancelOperation;
+              this.$message.info('正在尝试解除连接，请等待');
             })
             .catch(error => {
               this.$message.error(error);
@@ -706,7 +739,18 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
+.dbLinkInfoItem {
+  margin-bottom: 10px;
+  label {
+    display: inline-block;
+    padding-right: 12px;
+    text-align: right;
+    color: #a0a0a0;
+    width: 58px;
+  }
+}
 .switchFormItem {
+  margin-bottom: 5px !important;
   label {
     color: #a0a0a0;
   }

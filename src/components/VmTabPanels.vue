@@ -31,8 +31,8 @@
       </el-tab-pane>
       <el-tab-pane label="备份集"
                    name="results">
-      <backup-result-list :type="type"
-                          :data="results"></backup-result-list>
+        <backup-result-list :type="type"
+                            :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -44,8 +44,6 @@ import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import { applyFilterMethods } from '../utils/common';
 
 export default {
@@ -57,7 +55,9 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+          value
+        );
       },
     },
     backupPlans: {
@@ -118,8 +118,6 @@ export default {
     DatabaseUpdateModal,
     BackupCard,
     BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
   },
 };
 </script>
