@@ -132,19 +132,12 @@
   </el-dialog>
 </template>
 <script>
-import isEqual from 'lodash/isEqual';
-import modalMixin from '../mixins/restorePlanModalMixins';
-import { updateRestorePlan as updateSqlserverRestorePlan } from '../../api/sqlserver';
-import { updateRestorePlan as updateOracleRestorePlan } from '../../api/oracle';
-
-const requestMapping = {
-  oracle: updateOracleRestorePlan,
-  sqlserver: updateSqlserverRestorePlan,
-};
+import cloneDeep from 'lodash/cloneDeep';
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
   name: 'RestorePlanUpdateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   props: {
     restorePlan: {
       type: Object,
@@ -155,29 +148,17 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanUpdateForm.validate(valid => {
         if (valid) {
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', {
-            id: this.restorePlan.id,
-            name,
-            config,
-          });
-          // requestMapping[this.type]({
-          //   id: this.restorePlan.id,
-          //   name,
-          //   config,
-          // })
-          //   .then(res => {
-          //     const { data: plan } = res.data;
-          //     this.$emit('confirm', plan);
-          //     this.modalVisible = false;
-          //   })
-          //   .catch(error => {
-          //     this.$message.error(error);
-          //     return false;
-          //   })
-          //   .then(() => {
-          //     this.$refs.restorePlanUpdateForm.clearValidate();
-          //   });
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', {
+                id: this.restorePlan.id,
+                name,
+                config,
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }
@@ -200,7 +181,7 @@ export default {
         name: this.restorePlan.name,
         id,
         singleTime,
-        startTime,
+        startTime: timeStrategy === 1 ? '' : startTime,
         timePoints,
         weekPoints,
         datePoints,
@@ -210,8 +191,11 @@ export default {
         hostName,
         hostIp,
       };
+      // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
+      // 避免引用到一个数组对象引起的BUG
       this.formData = {
         ...this.originFormData,
+        ...{ timePoints: cloneDeep(timePoints) },
       };
     },
     modalClosed() {

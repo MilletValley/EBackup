@@ -3,13 +3,15 @@
     <el-dialog custom-class="min-width-dialog"
                :visible.sync="modalVisible"
                :before-close="beforeModalClose"
+               @open="modalOpened"
                @close="modalClosed">
       <span slot="title">
-        添加备份计划
+        更新备份计划
+        <span style="color: #999999"> (ID: {{backupPlan.id}})</span>
       </span>
       <el-form :model="formData"
                label-width="110px"
-               ref="createForm"
+               ref="updateForm"
                :rules="rules"
                size="small">
         <el-form-item label="备份计划名称"
@@ -130,19 +132,25 @@
   </section>
 </template>
 <script>
-import dayjs from 'dayjs';
-import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 import { backupPlanModalMixin } from '../mixins/planModalMixins';
+
 export default {
-  name: 'BackupPlanCreateModal',
+  name: 'BackupPlanUpdateModal',
   mixins: [backupPlanModalMixin],
+  props: {
+    backupPlan: {
+      type: Object,
+      required: true,
+    },
+  },
   methods: {
     confirmBtnClick() {
-      this.$refs.createForm.validate(valid => {
+      this.$refs.updateForm.validate(valid => {
         if (valid) {
           this.pruneFormData(this.formData)
             .then(requestData => {
-              this.$emit('confirm', requestData);
+              this.$emit('confirm', this.backupPlan.id, requestData);
             })
             .catch(error => {
               this.$message.error(error);
@@ -152,12 +160,38 @@ export default {
         }
       });
     },
+    modalOpened() {
+      const { id, name, config, backupPath, backupSystem } = this.backupPlan;
+      const { timeInterval, timePoints, ...otherConfig } = config;
+      let hourInterval = 1,
+        minuteInterval = 10;
+      if (otherConfig.timeStrategy === 1) {
+        minuteInterval = timeInterval;
+      } else if (otherConfig.timeStrategy === 2) {
+        hourInterval = Math.round(timeInterval / 60);
+      }
+      this.originFormData = {
+        name,
+        minuteInterval,
+        hourInterval,
+        timePoints: cloneDeep(timePoints),
+        ...otherConfig,
+      };
+      if (this.type === 'windows') {
+        this.originFormData.backupPath = backupPath;
+        this.originFormData.backupSystem = backupSystem;
+      } else if (this.type === 'linux') {
+        this.originFormData.backupPath = backupPath;
+      }
+      this.formData = {
+        ...this.originFormData,
+        ...{ timePoints: cloneDeep(timePoints) },
+      };
+    },
     modalClosed() {
       this.formData = { ...this.originFormData };
-      this.$refs.createForm.clearValidate();
+      this.$refs.updateForm.clearValidate();
     },
   },
 };
 </script>
-<style>
-</style>

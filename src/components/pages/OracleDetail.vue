@@ -125,13 +125,19 @@
                 @restoreplan:refresh="refreshSingleRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @select-restore-plan="selectRestorePlan"
+                @select-backup-plan="selectBackupPlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <add-backup-plan type="oracle"
-                     :id="Number(id)"
-                     :visible.sync="backupPlanCreateModalVisible"
-                     @confirm="addBackupPlan"></add-backup-plan>
+    <backup-plan-create-modal type="oracle"
+                              :visible.sync="backupPlanCreateModalVisible"
+                              :btn-loading="btnLoading"
+                              @confirm="addBackupPlan"></backup-plan-create-modal>
+    <backup-plan-update-modal type="oracle"
+                              :visible.sync="backupPlanUpdateModalVisible"
+                              :btn-loading="btnLoading"
+                              :backup-plan="selectedBackupPlan"
+                              @confirm="updateBackupPlan"></backup-plan-update-modal>
     <restore-plan-create-modal type="oracle"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
@@ -164,13 +170,15 @@ import {
   modifyOne,
   fetchOne,
   fetchBackupPlans,
+  createBackupPlan,
+  updateBackupPlan,
   fetchBackupResults,
   fetchRestorePlans,
   fetchRestoreRecords,
   fetchBackupOperation,
   fetchRestoreOperation,
   deleteRestorePlan,
-  deleteOracleBackupPlan,
+  deleteBackupPlan,
   createSingleRestorePlan,
   createRestorePlan,
   updateRestorePlan,
@@ -210,7 +218,7 @@ export default {
             this.$message.error(error);
           });
       }),
-      selectedBackupPlanId: -1,
+      // selectedBackupPlanId: -1,
       // TODO: 暂时使用一个data变量存储选择的计划id，也许有更优雅的实现方式
       throttleRefreshBackup: this.throttleMethod(() => {
         fetchBackupOperation(this.selectedBackupPlanId)
@@ -313,6 +321,46 @@ export default {
         this.restoreRecords = records;
       });
     },
+    // 添加备份计划
+    addBackupPlan(plan) {
+      this.btnLoading = true;
+      createBackupPlan({ id: this.id, plan })
+        .then(res => {
+          const { data: backupPlan, message } = res.data;
+          this.backupPlans.unshift(backupPlan);
+          this.backupPlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateBackupPlan(id, plan) {
+      this.btnLoading = true;
+      updateBackupPlan({ id, plan })
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedBackupPlanId;
+          this.backupPlans.splice(
+            this.backupPlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.backupPlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
       this.selectedBackupPlanId = planId;
@@ -337,7 +385,7 @@ export default {
         });
     },
     deleteBackupPlan(planId) {
-      deleteOracleBackupPlan(planId).then(() => {
+      deleteBackupPlan(planId).then(() => {
         this.backupPlans.splice(
           this.backupPlans.findIndex(plan => plan.id === planId),
           1
@@ -349,9 +397,10 @@ export default {
       this.btnLoading = true;
       createRestorePlan(restorePlan)
         .then(res => {
-          const { data: restorePlan } = res.data;
+          const { data: restorePlan, message } = res.data;
           this.restorePlans.unshift(restorePlan);
           this.restorePlanCreateModalVisible = false;
+          this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);

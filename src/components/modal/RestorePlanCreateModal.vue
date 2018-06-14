@@ -138,25 +138,25 @@ import {
 } from '../../utils/constant';
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
-import modalMixin from '../mixins/restorePlanModalMixins';
-
-const requestMapping = {
-  sqlserver: createSqlserverRestorePlan,
-  oracle: createOracleRestorePlan,
-};
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
   name: 'RestorePlanCreateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   methods: {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', {
-            id: this.database.id,
-            data: { name, config },
-          });
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', {
+                id: this.database.id,
+                data: { name, config },
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }

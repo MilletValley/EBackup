@@ -1,5 +1,7 @@
 import baseApi from './base';
-
+// 将时间字符串数组转为对象数组
+const timePoints2Obj = timePointsStrArr =>
+  timePointsStrArr.map(p => ({ value: p, key: p }));
 const fetchAll = () =>
   baseApi.request({
     method: 'get',
@@ -33,10 +35,20 @@ const modifyOne = data =>
   });
 
 const fetchBackupPlans = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/file-hosts/${id}/file-host-backup-plans`,
-  });
+  baseApi
+    .request({
+      method: 'get',
+      url: `/file-hosts/${id}/file-host-backup-plans`,
+    })
+    .then(res => {
+      const { data: plans } = res.data;
+      plans.forEach(p => {
+        if (p.config.timePoints) {
+          p.config.timePoints = timePoints2Obj(p.config.timePoints);
+        }
+      });
+      return res;
+    });
 
 const fetchBackupResults = id =>
   baseApi.request({
@@ -45,11 +57,17 @@ const fetchBackupResults = id =>
   });
 
 const createBackupPlan = ({ id, plan }) =>
-  baseApi.request({
-    method: 'post',
-    url: `/file-hosts/${id}/file-host-backup-plans`,
-    data: plan,
-  });
+  baseApi
+    .request({
+      method: 'post',
+      url: `/file-hosts/${id}/file-host-backup-plans`,
+      data: plan,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
 
 const deleteBackupPlan = id =>
   baseApi.request({
@@ -58,11 +76,17 @@ const deleteBackupPlan = id =>
   });
 
 const updateBackupPlan = ({ id, plan }) =>
-  baseApi.request({
-    method: 'patch',
-    url: `/file-host-backup-plans/${id}`,
-    data: plan,
-  });
+  baseApi
+    .request({
+      method: 'patch',
+      url: `/file-host-backup-plans/${id}`,
+      data: plan,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
 
 const fetchBackupOperation = id =>
   baseApi.request({

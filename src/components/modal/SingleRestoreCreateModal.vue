@@ -2,8 +2,7 @@
   <el-dialog custom-class="min-width-dialog"
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
-             @close="modalClosed"
-             width="40%">
+             @close="modalClosed">
     <span slot="title">执行恢复操作</span>
     <el-form :model="formData"
              :rules="rules"
@@ -69,13 +68,13 @@
   </el-dialog>
 </template>
 <script>
-import moment from 'moment';
-import modalMixin from '../mixins/restorePlanModalMixins';
+import dayjs from 'dayjs';
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 
 export default {
   name: 'SingleRestoreCreateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   data() {
     return {
       recoveringStrategys: recoveringStrategyMapping,
@@ -86,9 +85,14 @@ export default {
     confirmBtnClick() {
       this.$refs.singleRestoreForm.validate(valid => {
         if (valid) {
-          this.formData.name = moment().format('YYYYMMDDHHmmss');
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', { id: this.id, data: { name, config } });
+          this.formData.name = dayjs().format('YYYYMMDDHHmmss');
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', { id: this.id, data: { name, config } });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }
