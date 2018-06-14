@@ -5,7 +5,8 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="vmware"></i-icon>
+            <i-icon name="vmware"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
@@ -65,17 +66,23 @@
       </div>
     </header>
     <vm-tab-panels :id="Number(id)"
-                type="vm"
-                :backup-plans="backupPlans"
-                :results="results"
-                @backupplan:refresh="refreshSingleBackupPlan"
-                @backupplan:update="updateBackupPlan"
-                @backupplan:delete="deleteBackupPlan"
-                @switchpane="switchPane"></vm-tab-panels>
-    <add-backup-plan type="vm"
-                     :id="Number(id)"
+                   type="vm"
+                   :backup-plans="backupPlans"
+                   :results="results"
+                   @backupplan:refresh="refreshSingleBackupPlan"
+                   @backupplan:update="updateBackupPlan"
+                   @backupplan:delete="deleteBackupPlan"
+                   @select-backup-plan="selectBackupPlan"
+                   @switchpane="switchPane"></vm-tab-panels>
+    <backup-plan-create-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
-                     @confirm="addBackupPlan"></add-backup-plan>
+                     :btn-loading="btnLoading"
+                     @confirm="addBackupPlan"></backup-plan-create-modal>
+    <backup-plan-update-modal type="vm"
+                              :visible.sync="backupPlanUpdateModalVisible"
+                              :btn-loading="btnLoading"
+                              :backup-plan="selectedBackupPlan"
+                              @confirm="updateBackupPlan"></backup-plan-update-modal>
   </section>
 </template>
 <script>
@@ -138,11 +145,13 @@ export default {
         .then(res => {
           const { data: vm } = res.data;
           this.details = vm;
-          this.infoLoading = false;
         })
         .catch(error => {
           this.$message.error(error);
           this.$router.push({ name: 'VmwareList' });
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
 
       fetchBackupPlans(this.id)
@@ -160,6 +169,46 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        });
+
+    },
+    addBackupPlan(plan) {
+      this.btnLoading = true;
+      createVirtualBackupPlan({ id: this.id, plan })
+        .then(res => {
+          const { data: backupPlan, message } = res.data;
+          this.backupPlans.unshift(backupPlan);
+          this.backupPlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateBackupPlan(id, plan) {
+      this.btnLoading = true;
+      updateVirtualBackupPlan({ id, plan })
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedBackupPlanId;
+          this.backupPlans.splice(
+            this.backupPlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.backupPlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     // 刷新单个备份计划
