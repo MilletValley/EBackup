@@ -76,7 +76,7 @@
           prop="case"
           label="实例名"
           align="center"
-          min-width="100">
+          min-width="120">
         </el-table-column>
         <el-table-column
           prop="loginName"
@@ -89,6 +89,13 @@
           label="登录密码"
           align="center"
           min-width="100">
+        </el-table-column>
+        <el-table-column
+          prop="defaultPass"
+          label="模板默认密码"
+          align="center"
+          min-width="120"
+          fixed="right">
         </el-table-column>
       </el-table>
     </template>
@@ -120,6 +127,29 @@ export default {
         case: '.',
         loginName: 'sa',
         loginPass: 'P@ssw0rd',
+        defaultPass: 'Server@2008',
+      }, {
+        type: 'SQLServer',
+        osName: 'Windows2008',
+        ip: '',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '一键接管',
+        case: '',
+        loginName: '',
+        loginPass: '',
+        defaultPass: '',
+      }, {
+        type: 'SQLServer',
+        osName: 'Windows2008',
+        ip: '',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '易备无实例',
+        case: '',
+        loginName: '',
+        loginPass: '',
+        defaultPass: '',
       }, {
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -130,6 +160,7 @@ export default {
         case: '.',
         loginName: 'sa',
         loginPass: 'P@ssw0rd',
+        defaultPass: 'Server@2008',
       }, {
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -140,6 +171,7 @@ export default {
         case: '.',
         loginName: 'sa',
         loginPass: 'P@ssw0rd',
+        defaultPass: 'Server@2008',
       }, {
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -150,6 +182,7 @@ export default {
         case: '.',
         loginName: 'sa',
         loginPass: 'P@ssw0rd',
+        defaultPass: 'Server@2008',
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
@@ -160,6 +193,28 @@ export default {
         case: 'orcl',
         loginName: 'sys',
         loginPass: 'oracle',
+      }, {
+        type: 'Oracle',
+        osName: 'Windows2008',
+        ip: '145.170.23.203',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '一键接管',
+        case: 'orcl/orcltwo',
+        loginName: 'sys',
+        loginPass: 'oracle',
+        defaultPass: '',
+      }, {
+        type: 'Oracle',
+        osName: 'Windows2008',
+        ip: '145.170.23.204',
+        user: 'administrator',
+        password: 'P@ssw0rd',
+        remark: '易备无实例',
+        case: '无',
+        loginName: 'sys',
+        loginPass: 'oracle',
+        defaultPass: '',
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
@@ -197,7 +252,27 @@ export default {
         user: 'root',
         password: '123456',
         remark: '模拟生产',
-        case: 'testorc',
+        case: 'testdb',
+        loginName: 'sys',
+        loginPass: 'sys',
+      }, {
+        type: 'Oracle',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.202',
+        user: 'root',
+        password: '123456',
+        remark: '一键接管',
+        case: 'testdb/orcltwol',
+        loginName: 'sys',
+        loginPass: 'sys',
+      }, {
+        type: 'Oracle',
+        osName: 'Linux Redhat6',
+        ip: '145.170.23.204',
+        user: 'root',
+        password: '123456',
+        remark: '易备无实例',
+        case: '无',
         loginName: 'sys',
         loginPass: 'sys',
       }, {
@@ -207,7 +282,7 @@ export default {
         user: 'root',
         password: '123456',
         remark: '恢复环境',
-        case: 'testorc',
+        case: 'testdb',
         loginName: 'sys',
         loginPass: 'sys',
       }, {
@@ -217,7 +292,7 @@ export default {
         user: 'root',
         password: '123456',
         remark: '接管环境',
-        case: 'testorc',
+        case: 'testdb',
         loginName: 'sys',
         loginPass: 'sys',
       }, {
@@ -227,7 +302,7 @@ export default {
         user: 'root',
         password: '123456',
         remark: '接管环境',
-        case: 'testorc',
+        case: 'testdb',
         loginName: 'sys',
         loginPass: 'sys',
       }, {
@@ -311,6 +386,16 @@ export default {
         loginName: '',
         loginPass: '',
       }, {
+        type: '共计',
+        osName: '30',
+        ip: '',
+        user: '',
+        password: '',
+        remark: '',
+        case: '',
+        loginName: '',
+        loginPass: '',
+      }, {
         type: '临时IP',
         osName: 'Windows2008',
         ip: '145.170.23.80',
@@ -362,33 +447,47 @@ export default {
       if (columnIndex === 0) {
         if (rowIndex === 0) {
           return {
-            rowspan: 4,
+            rowspan: 6,
             colspan: 1
           };
-        } else if(rowIndex === 4){
+        } else if(rowIndex === 6){
           return {
-            rowspan: 8,
+            rowspan: 12,
             colspan: 1
           };
-        } else if(rowIndex === 12){
+        } else if(rowIndex === 18){
           return {
             rowspan: 5,
             colspan: 1
           };
-        } else if(rowIndex === 17){
+        } else if(rowIndex === 23){
           return {
             rowspan: 3,
             colspan: 1
           };
-        } else if(rowIndex === 20){
+        } else if(rowIndex === 26){
+          return {
+            rowspan: 1,
+            colspan: 1
+          };
+        } else if(rowIndex === 27){
           return {
             rowspan: 3,
             colspan: 1
           };
-        } else {
+        }
+         else {
           return {
             rowspan: 0,
             colspan: 0
+          };
+        }
+      }
+       else if(columnIndex===1){
+         if(rowIndex === 26){
+          return {
+            rowspan: 1,
+            colspan: 5
           };
         }
       }
