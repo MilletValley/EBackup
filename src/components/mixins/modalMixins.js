@@ -104,6 +104,9 @@ const genModalMixin = type => {
             trigger: ['blur'],
           },
         ],
+        osName: [
+          { required: true, message: '请选择操作系统', trigger: 'blur' },
+        ],
         loginName: [
           {
             required: true,
