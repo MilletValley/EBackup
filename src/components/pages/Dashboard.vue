@@ -207,7 +207,7 @@ export default {
       }, {
         type: 'Oracle',
         osName: 'Windows2008',
-        ip: '145.170.23.204',
+        ip: '145.170.23.205',
         user: 'administrator',
         password: 'P@ssw0rd',
         remark: '易备无实例',
