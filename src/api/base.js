@@ -6,7 +6,8 @@ import types from '../store/type';
 
 const baseApi = axios.create({
   baseURL: '/api/v1',
-  timeout: 10000,
+  // @FIXME: 没有设定超时时间
+  // timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
