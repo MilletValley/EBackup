@@ -50,6 +50,26 @@
               </p>
             </div>
           </div>
+          <template v-if="hostLinkReadyToSwitch">
+            <el-form :model="formData"
+                     size="small"
+                     label-position="left">
+              <el-row :gutter="20">
+                <el-col :span="12">
+                  <el-form-item label="临时IP"
+                                label-width="4em">
+                    <el-input v-model="formData.tempIp"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="默认网关"
+                                label-width="5em">
+                    <el-input v-model="formData.defaultGateway"></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </template>
           <el-input type="password"
                     v-model="password"
                     placeholder="请输入用户密码以执行此操作"></el-input>
@@ -58,7 +78,7 @@
       <span slot="footer">
         <el-button @click="cancelSwitch">取消</el-button>
         <el-button type="primary"
-                   :disabled="!this.password"
+                   :disabled="confirmBtnDisable"
                    @click="confirmSwitch">确定</el-button>
       </span>
     </el-dialog>
@@ -86,6 +106,10 @@ export default {
   data() {
     return {
       password: '',
+      formData: {
+        tempIp: '',
+        defaultGateway: '',
+      },
     };
   },
   computed: {
@@ -99,6 +123,11 @@ export default {
         }
       },
     },
+    confirmBtnDisable() {
+      return (
+        !this.password || !this.formData.tempIp || !this.formData.defaultGateway
+      );
+    },
   },
   methods: {
     switchModalClosed() {
@@ -111,7 +140,7 @@ export default {
     confirmSwitch() {
       validatePassword(this.password)
         .then(() => {
-          this.$emit('confirm');
+          this.$emit('confirm', this.formData);
           this.password = '';
         })
         .catch(error => {

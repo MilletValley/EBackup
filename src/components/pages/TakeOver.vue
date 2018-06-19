@@ -495,7 +495,7 @@ export default {
       this.password = '';
       this.switchModalVisible = false;
     },
-    confirmSwitch() {
+    confirmSwitch(formData) {
       /**
        * 1.验证密码；
        * 2.判断是切换IP还是切换实例，调用不用的请求
@@ -503,7 +503,7 @@ export default {
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
-        switchHostIp(this.hostLinkIdReadyToSwitch)
+        switchHostIp(this.hostLinkIdReadyToSwitch, formData)
           .then(res => {
             const { data } = res.data;
             this.links.find(
