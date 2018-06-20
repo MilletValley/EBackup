@@ -61,6 +61,54 @@ export default new Router({
 
 export const asyncRouters = [
   {
+    path: '/to',
+    component: Layout,
+    meta: {
+      title: '一键接管',
+      icon: 'takeover',
+      roles: ['oracle dba', 'sqlserver dba'],
+    },
+    children: [
+      {
+        path: 'oracle/takeover',
+        name: 'oracleTakeOverView',
+        component: TakeOver,
+        meta: {
+          title: '总览',
+          roles: ['oracle dba', 'sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'sqlserver/takeover',
+        name: 'sqlserverTakeOverView',
+        component: TakeOver,
+        meta: {
+          roles: ['oracle dba', 'sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'SQLServer接管',
+              path: '',
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
     path: '/filehost',
     component: Layout,
     meta: {
@@ -118,7 +166,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba'],
+      roles: ['oracle dba', 'sqlserver dba'],
     },
     children: [
       {
@@ -244,7 +292,7 @@ export const asyncRouters = [
         component: SqlServerList,
         meta: {
           title: 'SQL Server',
-          roles: ['sql server dba'],
+          roles: ['sqlserver dba'],
           breadcrumb: [
             {
               name: '首页',
