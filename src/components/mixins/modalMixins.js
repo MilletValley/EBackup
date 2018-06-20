@@ -156,6 +156,7 @@ const genModalMixin = type => {
         rules,
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
+        isLoading: false,
       };
     },
     computed: {

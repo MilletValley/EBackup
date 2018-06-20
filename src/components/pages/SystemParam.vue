@@ -8,6 +8,8 @@
       </el-form-item>
     </el-form>
     <el-table :data="systemParameters"
+              v-loading="tabLoading"
+              element-loading-text="拼命加载中..."
               style="width: 100%">
       </el-table-column>
             <el-table-column prop="sysType"
@@ -125,7 +127,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary" @click="updateConfirm">确定</el-button>
+        <el-button type="primary" @click="updateConfirm" :loading="btnLoading">确定</el-button>
         <el-button @click="updateModalVisible = false">取消</el-button>
       </span>
     </el-dialog>
@@ -176,7 +178,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary" @click="createConfirm">确定</el-button>
+        <el-button type="primary" @click="createConfirm" :loading="btnLoading">确定</el-button>
         <el-button @click="createModalVisible = false">取消</el-button>
       </span>
     </el-dialog>
@@ -208,6 +210,8 @@ export default {
       createModalVisible: false,
       updateModalVisible: false,
       listIndex: '',
+      btnLoading: false,
+      tabLoading: true,
       updateRow: {
         id: -1,
         shareUrl: '',
@@ -285,6 +289,7 @@ export default {
   },
   methods: {
     fetchData() {
+      this.tabLoading=true;
       fetchAll()
         .then(res => {
           const { data } = res.data;
@@ -294,7 +299,8 @@ export default {
         })
         .catch(error => {
           error => Promise.reject(error);
-        });
+        }).
+        then(() => {this.tabLoading=false;});
     },
     judgeSystem(data) {
       return sysTypeMapping[data.sysType];
@@ -310,6 +316,7 @@ export default {
       newRow.state = newRow.state===0?1:0;
       modifyOne(newRow)
         .then(response => {
+          this.$message.success('修改成功');
           this.systemParameters.splice(index, 1, response.data.data);
           this.systemParameters.sort((a,b) =>
             {return a.state-b.state});
@@ -358,6 +365,7 @@ export default {
     updateConfirm() {
       this.$refs.updateRow.validate(valid => {
         if (valid) {
+          this.btnLoading=true;
           modifyOne(this.update)
           .then(response => {
             this.$message.success(response.data.message);
@@ -369,6 +377,7 @@ export default {
           .catch(error => {
             this.$message.error(error);
           })
+          .then(() => {this.btnLoading=false;})
         } else {
           return false;
         }
@@ -377,6 +386,7 @@ export default {
     createConfirm() {
       this.$refs.createRow.validate(valid => {
         if (valid) {
+          this.btnLoading=true;
           createOne(this.create)
             .then(response => {
               this.$message.success(response.data.message);
@@ -387,7 +397,8 @@ export default {
             })
             .catch(error => {
               this.$message.error(error);
-            });
+            })
+            .then(() => {this.btnLoading=false;});
         } else {
           return false;
         }
