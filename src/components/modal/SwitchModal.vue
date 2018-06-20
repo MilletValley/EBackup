@@ -124,13 +124,20 @@ export default {
       },
     },
     confirmBtnDisable() {
-      return (
-        !this.password || !this.formData.tempIp || !this.formData.defaultGateway
-      );
+      if (this.hostLinkReadyToSwitch) {
+        return (
+          !this.password ||
+          !this.formData.tempIp ||
+          !this.formData.defaultGateway
+        );
+      } else return !this.password;
     },
   },
   methods: {
     switchModalClosed() {
+      this.password = '';
+      this.formData.tempIp = '';
+      this.formData.defaultGateway = '';
       this.$emit('cancel');
     },
     cancelSwitch() {

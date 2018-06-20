@@ -45,9 +45,9 @@ const recoveringStrategyMapping = {
   2: '创建副本',
   3: '跳过',
 };
-
+// 由于设计不清 将 0:未知 修改为 3:未知 @0619
 const databaseStateMapping = {
-  0: '未知',
+  3: '未知',
   1: '正常',
   2: '异常',
 };
