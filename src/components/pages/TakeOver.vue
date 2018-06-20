@@ -2,11 +2,19 @@
   <section>
     <el-form inline
              size="small">
-      <el-form-item style="float: right;">
+      <el-form-item v-show="enterFromMenu">
+        <el-radio-group v-model="databaseType">
+          <el-radio-button label="oracle">Oracle</el-radio-button>
+          <el-radio-button label="sqlserver">SQLServer</el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item v-show="!enterFromMenu"
+                    style="float: right;">
         <el-button type="info"
                    @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
       </el-form-item>
-      <el-form-item style="float: right;">
+      <el-form-item v-show="!enterFromMenu"
+                    style="float: right;">
         <el-button type="primary"
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
@@ -367,17 +375,33 @@ export default {
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
-      password: '',
     };
   },
   created() {
     this.fetchData();
   },
+  watch: {
+    $route: function() {
+      this.items = [];
+      this.links = [];
+      this.fetchData();
+    },
+  },
   computed: {
-    databaseType() {
-      const path = this.$route.path;
-      // /db/xxx/takeover
-      return this.$route.path.substring(4, path.lastIndexOf('/'));
+    databaseType: {
+      get() {
+        const path = this.$route.path;
+        // /db/xxx/takeover
+        return this.$route.path.substring(4, path.lastIndexOf('/'));
+      },
+      set(value) {
+        this.$router.push({ name: `${value}TakeOverView` });
+      },
+    },
+    // 无奈 0620
+    // 判断是不是从菜单进入，有不同的展示形式
+    enterFromMenu() {
+      return this.$route.path.substring(1, 3) === 'db' ? false : true;
     },
     specialHosts() {
       if (this.databaseType === 'oracle') {
@@ -492,7 +516,6 @@ export default {
     cancelSwitch() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
-      this.password = '';
       this.switchModalVisible = false;
     },
     confirmSwitch(formData) {
@@ -558,7 +581,6 @@ export default {
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
-      this.password = '';
     },
     jumpToLinkDetail(linkId) {
       this.$router.push({ path: `${linkId}`, append: true });
