@@ -8,7 +8,9 @@
       </el-form-item>
     </el-form>
     <el-table :data="hostsInVuex"
-              style="width: 100%">
+              style="width: 100%"
+              v-loading="isLoading"
+              element-loading-text="拼命加载中...">
       <el-table-column prop="name"
                        label="设备名"
                        min-width="150"
@@ -58,11 +60,13 @@
     </el-table>
     <host-create-modal type="host"
                        :visible.sync="createModalVisible"
-                       @confirm="createItem"></host-create-modal>
+                       @confirm="createItem"
+                       :btn-loading="btnLoading"></host-create-modal>
     <host-update-modal type="host"
                        :visible.sync="updateModalVisible"
                        :item-info="selectedHost"
-                       @confirm="updateItem"></host-update-modal>
+                       @confirm="updateItem"
+                       :btn-loading="btnLoading"></host-update-modal>
   </section>
 </template>
 <script>
@@ -78,7 +82,6 @@ export default {
   mixins: [listMixin],
   data() {
     return {
-      items: this.hostsInVuex,
       selectedId: '',
     };
   },
@@ -90,6 +93,9 @@ export default {
     selectedHost() {
       return this.$store.getters.selectedHost(this.selectedId);
     },
+    isLoading() {
+      return this.hostsInVuex.length===0;
+    },
   },
   methods: {
     judgeHost(data) {
@@ -100,6 +106,7 @@ export default {
     },
     fetchData() {},
     createItem(host) {
+      this.btnLoading=true;
       this.create(host)
         .then(res => {
           this.createModalVisible = false;
@@ -107,6 +114,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading=false;
         });
     },
     deleteDb({ row: host, $index }) {
@@ -128,6 +138,7 @@ export default {
         });
     },
     updateItem(host) {
+      this.btnLoading=true;
       this.update(host)
         .then(res => {
           this.updateModalVisible = false;
@@ -135,6 +146,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading=false;
         });
     },
     ...mapActions({

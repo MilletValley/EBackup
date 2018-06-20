@@ -11,6 +11,7 @@ const listMixin = {
       createModalVisible: false,
       updateModalVisible: false,
       btnLoading: false,
+      tabLoading: true,
     };
   },
   computed: {
