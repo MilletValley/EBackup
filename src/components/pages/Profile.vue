@@ -51,8 +51,7 @@
       </el-card>
       <el-dialog title="更改信息"
                 :visible.sync = "dialogVisible"
-                :before-close = "closeDialog"
-                :open="openDialog">
+                :before-close = "closeDialog">
           <el-form ref="form"
                   status-icon
                   :model="form"
@@ -81,7 +80,7 @@
           <span slot="footer">
             <el-button type="primary"
                        @click="submitForm('form')">确定</el-button>
-            <el-button @click="dialogVisible = false">取消</el-button>
+            <el-button @click="cancel('form')">取消</el-button>
           </span>
         </el-dialog>
       </section>
@@ -201,7 +200,6 @@ export default {
         });
       else{
         this.dialogVisible = true;
-        this.$refs['form'].resetFields();
       }
     },
     closeDialog() {
@@ -232,6 +230,10 @@ export default {
         }
       });
     },
+    cancel(form) {
+      this.dialogVisible = false;
+      this.$refs['form'].resetFields();
+    }
   },
   watch: {
     'form':{
@@ -251,7 +253,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .text {
     font-size: 14px;
   }
