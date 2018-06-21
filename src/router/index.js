@@ -438,6 +438,7 @@ export const asyncRouters = [
       },
       {
         path: 'devicemanager',
+        name: 'deviceManager',
         component: DeviceManager,
         meta: {
           title: '设备管理',

@@ -9,7 +9,26 @@
                   :class="$style.switchModalIcon"></i-icon>
         </el-col>
         <el-col :span="18">
-          <div style="height: 200px;max-height: 200px;overflow: scroll;">
+          <div style="height: 220px;max-height: 220px;overflow: scroll;">
+            <div v-if="hostLinkReadyToSwitch"
+                 :class="$style.switchIpTip">
+              <span>生产环境设备</span>
+              <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.primaryHost.name}}</span>
+              <div style="padding-top: 5px;">
+                <div :class="$style.halfWidth">
+                  <span>设备IP:</span>
+                  <span :class="$style.hostIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
+                </div>
+                <div :class="$style.halfWidth">
+                  <span>服务IP:</span>
+                  <span :class="isIpSame ? $style.serviceIpError : $style.serviceIpSuccess">{{hostLinkReadyToSwitch.primaryHost.serviceIp}}</span>
+                </div>
+              </div>
+              <span v-show="isIpSame"
+                    :class="$style.errorTip">设备IP与服务IP不符合切换要求，进入
+                <el-button type="text"
+                           @click="$router.push({name: 'deviceManager'})">设备管理</el-button>修改！</span>
+            </div>
             <h4>即将执行以下操作，请检查。</h4>
             <div v-if="hostLinkReadyToSwitch">
               <p>
@@ -53,18 +72,21 @@
           <template v-if="hostLinkReadyToSwitch">
             <el-form :model="formData"
                      size="small"
-                     label-position="left">
+                     label-position="left"
+                     style="margin-top: 15px;">
               <el-row :gutter="20">
                 <el-col :span="12">
-                  <el-form-item label="临时IP"
-                                label-width="4em">
-                    <el-input v-model="formData.tempIp"></el-input>
+                  <el-form-item label="默认网关"
+                                required
+                                label-width="5.5em">
+                    <el-input v-model="formData.defaultGateway"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="默认网关"
-                                label-width="5em">
-                    <el-input v-model="formData.defaultGateway"></el-input>
+                  <el-form-item label="掩码"
+                                label-width="3em">
+                    <el-input v-model="formData.mask"
+                              placeholder="默认掩码: 255.255.255.0"></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -107,8 +129,9 @@ export default {
     return {
       password: '',
       formData: {
-        tempIp: '',
+        // tempIp: '',
         defaultGateway: '',
+        mask: '',
       },
     };
   },
@@ -125,18 +148,20 @@ export default {
     },
     confirmBtnDisable() {
       if (this.hostLinkReadyToSwitch) {
-        return (
-          !this.password ||
-          !this.formData.tempIp ||
-          !this.formData.defaultGateway
-        );
+        return !this.password || !this.formData.defaultGateway;
       } else return !this.password;
+    },
+    isIpSame() {
+      return (
+        this.hostLinkReadyToSwitch.primaryHost.hostIp ===
+        this.hostLinkReadyToSwitch.primaryHost.serviceIp
+      );
     },
   },
   methods: {
     switchModalClosed() {
       this.password = '';
-      this.formData.tempIp = '';
+      this.formData.mask = '';
       this.formData.defaultGateway = '';
       this.$emit('cancel');
     },
@@ -147,6 +172,7 @@ export default {
     confirmSwitch() {
       validatePassword(this.password)
         .then(() => {
+          if (!this.formData.mask) this.formData.mask = '255.255.255.0';
           this.$emit('confirm', this.formData);
           this.password = '';
         })
@@ -161,14 +187,24 @@ export default {
 };
 </script>
 <style lang="scss" module>
+@import '../../style/color.scss';
 .switchModalIcon {
   width: 9em;
   height: 9em;
   margin: 25% 25%;
 }
+.switchIpTip {
+  border-bottom: 1px solid #aaaaaa;
+  padding-bottom: 5px;
+}
+.halfWidth {
+  display: inline-block;
+  width: 40%;
+}
 .switchModalName {
   display: inline-block;
   width: 10em;
+  margin-left: 0.5em;
 }
 .switchModalDetail {
   display: inline-block;
@@ -177,5 +213,26 @@ export default {
 .switchModalIp {
   display: inline-block;
   width: 7em;
+}
+.hostIp {
+  composes: switchModalIp;
+  text-align: center;
+}
+.serviceIpSuccess {
+  composes: switchModalIp;
+  margin-left: 0.5em;
+  padding: 0 0.6em;
+  border-radius: 0.4em;
+  color: $success-color;
+  background-color: lighten($success-color, 45%);
+  text-align: center;
+}
+.serviceIpError {
+  composes: serviceIpSuccess;
+  color: $error-color;
+  background-color: lighten($error-color, 45%);
+}
+.errorTip {
+  color: $error-color;
 }
 </style>
