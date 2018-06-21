@@ -2,32 +2,436 @@
   <section>
     <h4>设备数量</h4>
     <template>
-      <div style="overflow: hidden">
-        <el-card class="box-card" style="float: left">
-        <div slot="header" class="clearfix">
-          <span>服务器</span>
-        </div>
-        <div class="text item">
-          <div id="bieChart" :style="{width: '90%', height: '300px', margin: '0 auto'}"></div>
-        </div>
-      </el-card>
-      <el-card class="box-card" style="float: right; position: relative">
-        <div slot="header" class="clearfix">
-          <span>一键接管</span>
-        </div>
-        <div class="text item" style="text-align: center; position: absolute; top: 50%; right: 50%; transform: translate(50%, -50%)">
-          <span style="font-size: 26px; color: #6ab0b8">{{total.initConectNum}}</span>
-        </div>
-      </el-card>
-      </div>
-      <el-card class="box-card" style="width: 100%">
-        <div slot="header" class="clearfix">
-          <span>备份恢复</span>
-        </div>
-        <div class="text item">
-          <div id="barChart" :style="{width: '100%', height: '300px', margin: '0 auto'}"></div>
-        </div>
-      </el-card>
+      <el-row :gutter="10">
+        <el-col :span="8">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>备份统计</span>
+            </div>
+            <div class="text item">
+              <div id="restoreTotal" :style="{width: '100%', height: '300px'}"></div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="8">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>恢复统计</span>
+            </div>
+            <div class="text item">
+              <div id="backupTotal" :style="{width: '100%', height: '300px'}"></div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="8">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>一键接管</span>
+            </div>
+            <div class="text item">
+              <div id="initConn" :style="{width: '100%', height: '300px'}"></div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-card class="box-card" style="width: 100%">
+          <div slot="header" class="clearfix">
+            <span>备份恢复</span>
+          </div>
+          <div class="text item">
+            <div id="barChart" :style="{width: '100%', height: '300px', margin: '0 auto'}"></div>
+          </div>
+        </el-card>
+      </el-row>
+    </template>
+    <h4>设备状态</h4>
+    <template>
+      <el-tabs type="border-card">
+        <el-tab-pane label="数据库备份">
+          <el-table
+            :data="this.databaseBackup"
+            style="width: 100%">
+            <el-table-column
+              type="index"
+              min-width="50"
+              align="center"
+              fixed>
+            </el-table-column>
+            <el-table-column
+              prop="ascription"
+              label="归属名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="数据库名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="endTime"
+              label="备份结束时间"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="timeConsuming"
+              label="耗时"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupSize"
+              label="备份集大小"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupState"
+              label="状态"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.backupState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="backupType"
+              label="备份策略"
+              :formatter="backupItem"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupPath"
+              label="备份存储路径"
+              align="center"
+              min-width="180"
+              fixed="right">
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="数据库恢复">
+          <el-table
+            :data="this.databaseRestore"
+            style="width: 100%">
+            <el-table-column
+              type="index"
+              min-width="50"
+              align="center"
+              fixed>
+            </el-table-column>
+            <el-table-column
+              prop="ascription"
+              label="归属名"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="数据库名"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="endTime"
+              label="恢复结束时间"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="timeConsuming"
+              label="耗时"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="restoreState"
+              label="恢复结果"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.restoreState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="一键接管">
+          <el-table
+            :data="this.initconnNum"
+            style="width: 100%">
+            <el-table-column
+              type="index"
+              min-width="50"
+              align="center"
+              fixed>
+            </el-table-column>
+            <el-table-column
+              prop="instanceName"
+              label="实例名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="primaryHostIp"
+              label="主机IP"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="primaryState"
+              label="主库状态"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.primaryState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="viceHostIp"
+              label="备库IP"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="viceState"
+              label="备库状态"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.viceState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="overState"
+              label="连接状态"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.overState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="文件备份">
+          <el-table
+            :data="this.filehostBackup"
+            style="width: 100%">
+            <el-table-column
+              type="index"
+              min-width="50"
+              align="center"
+              fixed>
+            </el-table-column>
+            <el-table-column
+              prop="ascription"
+              label="归属名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="实例名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="endTime"
+              label="备份结束时间"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="timeConsuming"
+              label="耗时"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupSize"
+              label="备份集大小"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupState"
+              label="状态"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.backupState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="backupType"
+              label="备份策略"
+              :formatter="backupItem"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupPath"
+              label="备份存储路径"
+              align="center"
+              min-width="180"
+              fixed="right">
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="文件恢复">
+          <el-table
+            :data="this.filehostRestore"
+            style="width: 100%">
+            <el-table-column
+              type="index"
+              min-width="50"
+              align="center"
+              fixed>
+            </el-table-column>
+            <el-table-column
+              prop="ascription"
+              label="归属名"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="数据库名"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="endTime"
+              label="恢复结束时间"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="timeConsuming"
+              label="耗时"
+              align="center"
+              min-width="180">
+            </el-table-column>
+            <el-table-column
+              prop="restoreState"
+              label="恢复结果"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.restoreState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="虚拟机备份">
+          <el-table
+            :data="this.vmBackup"
+            style="width: 100%">
+            <el-table-column
+              type="index"
+              min-width="50"
+              align="center"
+              fixed>
+            </el-table-column>
+            <el-table-column
+              prop="ascription"
+              label="归属名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="虚拟机名"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="endTime"
+              label="备份结束时间"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="timeConsuming"
+              label="耗时"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupSize"
+              label="备份集大小"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupState"
+              label="状态"
+              align="center"
+              min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.backupState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="backupType"
+              label="备份策略"
+              :formatter="backupItem"
+              align="center"
+              min-width="100">
+            </el-table-column>
+            <el-table-column
+              prop="backupPath"
+              label="备份存储路径"
+              align="center"
+              min-width="180"
+              fixed="right">
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
     </template>
     <h4 style="margin: 15px; margin-left: 0;">设备信息</h4>
     <template>
@@ -102,7 +506,8 @@
   </section>
 </template>
 <script>
-import fetchAll from '../../api/total';
+import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
+import { backupStrategyMapping } from '../../utils/constant'
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -117,6 +522,12 @@ export default {
   data() {
     return {
       total: {},
+      databaseBackup: [],
+      databaseRestore: [],
+      initconnNum: [],
+      filehostBackup: [],
+      filehostRestore: [],
+      vmBackup: [],
       tableData: [{
         type: 'SQLServer',
         osName: 'Windows2008',
@@ -502,31 +913,130 @@ export default {
       .catch(error => {
         error => Promise.reject(error);
       });
+      fetchBackup()
+      .then(res => {
+        this.databaseBackup=this.filterArray(res.data.data,1);
+        this.filehostBackup=this.filterArray(res.data.data,2);
+        this.vmBackup=this.filterArray(res.data.data,3);
+      })
+      .catch(error => {
+        error => Promise.reject(error);
+      });
+      fetchRestore()
+      .then(res => {
+        this.databaseRestore=this.filterArray(res.data.data,1);
+        this.filehostRestore=this.filterArray(res.data.data,2);
+      })
+      .catch(error => {
+        error => Promise.reject(error);
+      });
+      fetchInitconn()
+      .then(res => {
+        this.initconnNum=res.data.data
+      })
+      .catch(error => {
+        error => Promise.reject(error);
+      });
+    },
+    filterArray(data, type) {
+      return data.filter(function(item) {
+        return item.type === type;
+      }).sort(function(a, b) {
+        return Date.parse(b.endTime)-Date.parse(a.endTime);
+      }).slice(0,5)
+    },
+    backupItem(data) {
+      return backupStrategyMapping[data.backupType];
     },
     drawLine() {
-       let barChart = echarts.init(document.getElementById('barChart'));
-      let bieChart = echarts.init(document.getElementById('bieChart'))
-      bieChart.setOption({
+      let barChart = echarts.init(document.getElementById('barChart'));
+      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
+      let backupTotal = echarts.init(document.getElementById('backupTotal'));
+      let initConn = echarts.init(document.getElementById('initConn'));
+      restoreTotal.setOption({
         tooltip: {
             trigger: 'item',
-            formatter: "{a} <br/>{b} : {c} ({d}%)"
+            formatter: "{a}{b} : {c} ({d}%)"
         },
         legend: {
             orient: 'vertical',
             left: 'left',
-            data: ['oracle','sqlserver','文件服务器']
+            data: ['成功','失败']
         },
         series : [
           {
-            name: '服务器数量',
+            name: '备份',
             type: 'pie',
             radius: '55%',
             data:[
-              {value:this.total.oracleNum, name:'oracle'},
-              {value:this.total.sqlserverNum, name:'sqlserver'},
-              {value:this.total.fileNum, name:'文件服务器'},
+              {value:this.total.totalRestoreNumSuccess, name:'成功'},
+              {value:this.total.totalRestoreNumFail, name:'失败'}
             ],
-            label: {formatter: "{b} : {c} ({d}%)"}
+            label:{
+              normal:{
+                show:true,
+                position:'inner',
+                formatter:'{c}\n({d}%)'
+              }
+            },
+          }
+        ]
+      })
+      backupTotal.setOption({
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a}{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['成功','失败']
+        },
+        series : [
+          {
+            name: '恢复',
+            type: 'pie',
+            radius: '55%',
+            data:[
+              {value:this.total.totalBackupNumSuccess, name:'成功'},
+              {value:this.total.totalBackupNumFail, name:'失败'}
+            ],
+            label: {
+              normal:{
+                show:true,
+                position:'inner',
+                formatter:'{c}\n({d}%)'
+              }
+            }
+          }
+        ]
+      })
+      initConn.setOption({
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a}{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['正常','异常']
+        },
+        series : [
+          {
+            name: '一键接管',
+            type: 'pie',
+            radius: '55%',
+            data:[
+              {value:this.total.initConnNumSuccess, name:'正常'},
+              {value:this.total.initConnNumFail, name:'异常'}
+            ],
+            label: {
+              normal:{
+                show:true,
+                position:'inner',
+                formatter:'{c}\n({d}%)'
+              }
+            }
           }
         ]
       })
@@ -539,6 +1049,7 @@ export default {
             ['oracle', this.total.oracleBackupNumSuccess, this.total.oracleBackupNumFail, this.total.oracleRestoreNumSuccess, this.total.oracleRestoreNumFail],
             ['sqlserver', this.total.sqlserverBackupNumSuccess, this.total.sqlserverBackupNumFail, this.total.sqlserverRestoreNumSuccess, this.total.sqlserverRestoreNumFail],
             ['文件', this.total.fileBackupNumSuccess, this.total.fileBackupNumFail, this.total.fileRestoreNumSuccess, this.total.fileRestoreNumFail],
+            ['虚拟机', this.total.vmBackupNumSuccess, this.total.vmBackupNumFail, this.total.vmRestoreNumSuccess, this.total.vmRestoreNumFail],
           ]
         },
         xAxis: {type: 'category'},
@@ -561,39 +1072,45 @@ export default {
               label: this.labelNum,
             },
         ]
-      });
+      })
      }
    },
 };
 </script>
-<style>
+<style scoped>
 h4 {
   font-weight: 400;
   color: #606266;
+  margin-top:0;
 }
+
 .text {
     font-size: 14px;
-  }
+}
 
-  .item {
-    margin-bottom: 18px;
-  }
+.item {
+  margin-bottom: 18px;
+}
 
-  .clearfix:before,
-  .clearfix:after {
-    display: table;
-    content: "";
-  }
-  .clearfix:after {
-    clear: both
-  }
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both
+}
 
-  .box-card {
-    width: 50%;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    height: 420px;
-    display: inline-block;
-  }
+.box-card {
+  width: 100%;
+  height: 420px;
+}
+
+.el-row {
+  margin-bottom: 10px;
+}
+
+.el-row:last-child {
+  margin-bottom: 0;
+}
 </style>
