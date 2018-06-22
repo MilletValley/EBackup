@@ -1,22 +1,11 @@
 <template>
   <section>
-    <h4>设备数量</h4>
     <template>
       <el-row :gutter="10">
         <el-col :span="8">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>备份统计</span>
-            </div>
-            <div class="text item">
-              <div id="restoreTotal" :style="{width: '100%', height: '300px'}"></div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span>恢复统计</span>
+              <span class="card-title">数据备份</span>
             </div>
             <div class="text item">
               <div id="backupTotal" :style="{width: '100%', height: '300px'}"></div>
@@ -26,7 +15,17 @@
         <el-col :span="8">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <span>一键接管</span>
+              <span class="card-title">恢复演练</span>
+            </div>
+            <div class="text item">
+              <div id="restoreTotal" :style="{width: '100%', height: '300px'}"></div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="8">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span class="card-title">一键接管</span>
             </div>
             <div class="text item">
               <div id="initConn" :style="{width: '100%', height: '300px'}"></div>
@@ -38,7 +37,7 @@
       <el-row>
         <el-card class="box-card" style="width: 100%">
           <div slot="header" class="clearfix">
-            <span>备份恢复</span>
+            <span class="card-title">备份恢复</span>
           </div>
           <div class="text item">
             <div id="barChart" :style="{width: '100%', height: '300px', margin: '0 auto'}"></div>
@@ -79,6 +78,7 @@
             </el-table-column>
             <el-table-column
               prop="timeConsuming"
+              :formatter="timeConsuming"
               label="耗时"
               align="center"
               min-width="100">
@@ -149,6 +149,7 @@
             </el-table-column>
             <el-table-column
               prop="timeConsuming"
+              :formatter="timeConsuming"
               label="耗时"
               align="center"
               min-width="180">
@@ -239,6 +240,12 @@
                   style="color: #ca2727"></i>
               </template>
             </el-table-column>
+            <el-table-column
+              prop="initFinishTime"
+              label="初始化完成时间"
+              align="center"
+              min-width="100">
+            </el-table-column>
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="文件备份">
@@ -271,6 +278,7 @@
             </el-table-column>
             <el-table-column
               prop="timeConsuming"
+              :formatter="timeConsuming"
               label="耗时"
               align="center"
               min-width="100">
@@ -341,6 +349,7 @@
             </el-table-column>
             <el-table-column
               prop="timeConsuming"
+              :formatter="timeConsuming"
               label="耗时"
               align="center"
               min-width="180">
@@ -391,6 +400,7 @@
             </el-table-column>
             <el-table-column
               prop="timeConsuming"
+              :formatter="timeConsuming"
               label="耗时"
               align="center"
               min-width="100">
@@ -507,7 +517,8 @@
 </template>
 <script>
 import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
-import { backupStrategyMapping } from '../../utils/constant'
+import { backupStrategyMapping } from '../../utils/constant';
+import baseMixin from '../mixins/baseMixins';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -516,6 +527,7 @@ require('echarts/lib/component/title');
 require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
+  mixins: [baseMixin],
   created() {
     this.fetchData();
   },
@@ -932,7 +944,9 @@ export default {
       });
       fetchInitconn()
       .then(res => {
-        this.initconnNum=res.data.data
+        this.initconnNum=res.data.data.sort(function(a, b) {
+        return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
+      }).slice(0,5)
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -948,6 +962,14 @@ export default {
     backupItem(data) {
       return backupStrategyMapping[data.backupType];
     },
+    timeConsuming(data) {
+      const hourSeconds = 60 * 60;
+      const minuteSeconds = 60;
+      const h = Math.floor(data.timeConsuming / hourSeconds);
+      const m = Math.floor((data.timeConsuming % hourSeconds) / minuteSeconds);
+      const s = data.timeConsuming % minuteSeconds;
+      return `${h ? `${h}小时` : ''}${m ? `${m}分` : ''}${s ? `${s}秒` : ''} `;
+    },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
@@ -958,27 +980,44 @@ export default {
             trigger: 'item',
             formatter: "{a}{b} : {c} ({d}%)"
         },
-        legend: {
-            orient: 'vertical',
-            left: 'left',
-            data: ['成功','失败']
-        },
         series : [
           {
             name: '备份',
             type: 'pie',
-            radius: '55%',
+            radius: '80%',
             data:[
-              {value:this.total.totalRestoreNumSuccess, name:'成功'},
-              {value:this.total.totalRestoreNumFail, name:'失败'}
+              {
+                value:this.total.totalRestoreNumSuccess,
+                name:'成功',
+                itemStyle: {
+                  color: '#27ca27'
+                }
+              },
+              {
+                value:this.total.totalRestoreNumFail,
+                name:'失败',
+                itemStyle: {
+                  color: '#ca2727'
+                }
+              }
             ],
             label:{
               normal:{
                 show:true,
                 position:'inner',
-                formatter:'{c}\n({d}%)'
+                formatter:'{c}\n',
+                length: 20,
+                textStyle: {
+                  fontWeight: 'normal',
+                  fontSize: 32,
+                }
               }
             },
+            labelLine: {
+            normal: {
+                show: false
+            }
+        },
           }
         ]
       })
@@ -987,25 +1026,36 @@ export default {
             trigger: 'item',
             formatter: "{a}{b} : {c} ({d}%)"
         },
-        legend: {
-            orient: 'vertical',
-            left: 'left',
-            data: ['成功','失败']
-        },
         series : [
           {
             name: '恢复',
             type: 'pie',
-            radius: '55%',
+            radius: '80%',
             data:[
-              {value:this.total.totalBackupNumSuccess, name:'成功'},
-              {value:this.total.totalBackupNumFail, name:'失败'}
+              {
+                value:this.total.totalBackupNumSuccess,
+                name:'成功',
+                itemStyle: {
+                  color: '#27ca27'
+                }
+              },
+              {
+                value:this.total.totalBackupNumFail,
+                name:'失败',
+                itemStyle: {
+                  color: '#ca2727'
+                }
+              }
             ],
             label: {
               normal:{
                 show:true,
                 position:'inner',
-                formatter:'{c}\n({d}%)'
+                formatter:'{c}\n',
+                textStyle: {
+                  fontWeight: 'normal',
+                  fontSize: 32
+                }
               }
             }
           }
@@ -1016,25 +1066,36 @@ export default {
             trigger: 'item',
             formatter: "{a}{b} : {c} ({d}%)"
         },
-        legend: {
-            orient: 'vertical',
-            left: 'left',
-            data: ['正常','异常']
-        },
         series : [
           {
             name: '一键接管',
             type: 'pie',
-            radius: '55%',
+            radius: '80%',
             data:[
-              {value:this.total.initConnNumSuccess, name:'正常'},
-              {value:this.total.initConnNumFail, name:'异常'}
+              {
+                value:this.total.initConnNumSuccess,
+                name:'正常',
+                itemStyle: {
+                  color: '#27ca27'
+                }
+              },
+              {
+                value:this.total.initConnNumFail,
+                name:'异常',
+                itemStyle: {
+                  color: '#ca2727'
+                }
+              }
             ],
             label: {
               normal:{
                 show:true,
                 position:'inner',
-                formatter:'{c}\n({d}%)'
+                formatter:'{c}\n',
+                textStyle: {
+                  fontWeight: 'normal',
+                  fontSize: 32
+                }
               }
             }
           }
@@ -1081,7 +1142,6 @@ export default {
 h4 {
   font-weight: 400;
   color: #606266;
-  margin-top:0;
 }
 
 .text {
@@ -1104,6 +1164,12 @@ h4 {
 .box-card {
   width: 100%;
   height: 420px;
+}
+
+.card-title {
+  display: block;
+  text-align: center;
+  font-weight: 700;
 }
 
 .el-row {
