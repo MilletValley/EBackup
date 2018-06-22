@@ -69,7 +69,7 @@
               </p>
             </div>
           </div>
-          <template v-if="hostLinkReadyToSwitch">
+          <!-- <template v-if="hostLinkReadyToSwitch">
             <el-form :model="formData"
                      size="small"
                      label-position="left"
@@ -91,7 +91,7 @@
                 </el-col>
               </el-row>
             </el-form>
-          </template>
+          </template> -->
           <el-input type="password"
                     v-model="password"
                     placeholder="请输入用户密码以执行此操作"></el-input>
@@ -147,9 +147,10 @@ export default {
       },
     },
     confirmBtnDisable() {
-      if (this.hostLinkReadyToSwitch) {
-        return !this.password || !this.formData.defaultGateway;
-      } else return !this.password;
+      return !this.password;
+      // if (this.hostLinkReadyToSwitch) {
+      //   return !this.password || !this.formData.defaultGateway;
+      // } else return !this.password;
     },
     isIpSame() {
       return (
@@ -173,7 +174,8 @@ export default {
       validatePassword(this.password)
         .then(() => {
           if (!this.formData.mask) this.formData.mask = '255.255.255.0';
-          this.$emit('confirm', this.formData);
+          // this.$emit('confirm', this.formData);
+          this.$emit('confirm');
           this.password = '';
         })
         .catch(error => {
