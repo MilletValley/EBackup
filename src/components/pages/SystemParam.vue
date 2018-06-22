@@ -8,8 +8,6 @@
       </el-form-item>
     </el-form>
     <el-table :data="systemParameters"
-              v-loading="tabLoading"
-              element-loading-text="拼命加载中..."
               style="width: 100%">
       </el-table-column>
             <el-table-column prop="sysType"
@@ -211,7 +209,6 @@ export default {
       updateModalVisible: false,
       listIndex: '',
       btnLoading: false,
-      tabLoading: true,
       updateRow: {
         id: -1,
         shareUrl: '',
@@ -236,7 +233,7 @@ export default {
           { required: true, message: '请输入地址', trigger: 'blur' },
           {
             pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):/([0-9a-zA-Z/]+)$',
             message: '地址不正确',
             trigger: 'blur',
           },
@@ -245,11 +242,6 @@ export default {
           { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
         ],
         loginName: [
-          {
-            required: true,
-            message: '请输入登录账号',
-            trigger: 'blur',
-          },
           { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {
             pattern: '^[^\\s]*$',
@@ -258,11 +250,6 @@ export default {
           },
         ],
         password: [
-          {
-            required: true,
-            message: '请输入登录密码',
-            trigger: 'blur',
-          },
           {
             pattern: '^[^\\s]*$',
             message: '不能包含空格',
@@ -289,7 +276,6 @@ export default {
   },
   methods: {
     fetchData() {
-      this.tabLoading=true;
       fetchAll()
         .then(res => {
           const { data } = res.data;
@@ -299,8 +285,7 @@ export default {
         })
         .catch(error => {
           error => Promise.reject(error);
-        }).
-        then(() => {this.tabLoading=false;});
+        })
     },
     judgeSystem(data) {
       return sysTypeMapping[data.sysType];

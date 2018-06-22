@@ -81,9 +81,6 @@ export default {
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          if(!this.formData.serviceIp) {
-            this.formData.serviceIp=this.formData.hostIp;
-          }
           this.$emit('confirm', this.formData);
         } else {
           return false;
