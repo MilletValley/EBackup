@@ -47,6 +47,7 @@ const genModalMixin = type => {
         id: -1,
         name: '',
         hostIp: '',
+        serviceIp: '',
         osName: '',
         loginName: '',
         password: '',
@@ -72,6 +73,14 @@ const genModalMixin = type => {
         hostId: [{ required: true, message: '请选择设备', trigger: 'change' }],
         hostIp: [
           { required: true, message: '请输入主机IP', trigger: 'blur' },
+          {
+            pattern:
+              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+            message: 'IP地址不正确',
+            trigger: 'blur',
+          },
+        ],
+        serviceIp: [
           {
             pattern:
               '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',

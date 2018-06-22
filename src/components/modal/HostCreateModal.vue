@@ -20,6 +20,10 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
+        <el-form-item label="服务IP"
+                      prop="serviceIp">
+          <el-input v-model="formData.serviceIp"></el-input>
+        </el-form-item>
         <el-form-item label="设备类型"
                       prop="hostType">
           <el-radio v-model="formData.hostType"
@@ -77,6 +81,9 @@ export default {
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
+          if(!this.formData.serviceIp) {
+            this.formData.serviceIp=this.formData.hostIp;
+          }
           this.$emit('confirm', this.formData);
         } else {
           return false;
