@@ -88,9 +88,6 @@ export default {
     // 点击确认按钮触发
     confirm() {
       this.$refs.itemUpdateForm.validate(valid => {
-        if(!this.formData.serviceIp) {
-            this.formData.serviceIp=this.formData.hostIp;
-        }
         if (valid) {
           this.$emit('confirm', this.formData);
         } else {

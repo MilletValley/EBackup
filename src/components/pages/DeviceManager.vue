@@ -8,9 +8,7 @@
       </el-form-item>
     </el-form>
     <el-table :data="hostsInVuex"
-              style="width: 100%"
-              v-loading="isLoading"
-              element-loading-text="拼命加载中...">
+              style="width: 100%">
       <el-table-column prop="name"
                        label="设备名"
                        min-width="150"
@@ -99,9 +97,6 @@ export default {
     selectedHost() {
       return this.$store.getters.selectedHost(this.selectedId);
     },
-    isLoading() {
-      return this.hostsInVuex.length===0;
-    },
   },
   methods: {
     judgeHost(data) {
@@ -139,7 +134,6 @@ export default {
         })
         .catch(error => {
           if (error !== 'cancel')
-            // element-ui Message组件取消会进入catch 避免这种弹窗
             this.$message.error(error);
         });
     },
