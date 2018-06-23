@@ -196,15 +196,8 @@
               prop="primaryState"
               label="主库状态"
               align="center"
+              :formatter="judgePrimary"
               min-width="100">
-              <template slot-scope="scope">
-                <i v-if="scope.row.primaryState === 0"
-                  class="el-icon-success"
-                  style="color: #27ca27"></i>
-                <i v-else
-                  class="el-icon-error"
-                  style="color: #ca2727"></i>
-              </template>
             </el-table-column>
             <el-table-column
               prop="viceHostIp"
@@ -216,29 +209,15 @@
               prop="viceState"
               label="备库状态"
               align="center"
-              min-width="100">
-              <template slot-scope="scope">
-                <i v-if="scope.row.viceState === 0"
-                  class="el-icon-success"
-                  style="color: #27ca27"></i>
-                <i v-else
-                  class="el-icon-error"
-                  style="color: #ca2727"></i>
-              </template>
+              min-width="100"
+              :formatter="judgeVice">
             </el-table-column>
             <el-table-column
               prop="overState"
               label="连接状态"
               align="center"
+              :formatter="judgeOver"
               min-width="100">
-              <template slot-scope="scope">
-                <i v-if="scope.row.overState === 0"
-                  class="el-icon-success"
-                  style="color: #27ca27"></i>
-                <i v-else
-                  class="el-icon-error"
-                  style="color: #ca2727"></i>
-              </template>
             </el-table-column>
             <el-table-column
               prop="initFinishTime"
@@ -518,6 +497,7 @@
 <script>
 import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 import { backupStrategyMapping } from '../../utils/constant';
+import { databaseStateMapping } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
@@ -969,6 +949,15 @@ export default {
       const m = Math.floor((data.timeConsuming % hourSeconds) / minuteSeconds);
       const s = data.timeConsuming % minuteSeconds;
       return `${h ? `${h}小时` : ''}${m ? `${m}分` : ''}${s ? `${s}秒` : ''} `;
+    },
+    judgePrimary(data) {
+      return databaseStateMapping[data.primaryState];
+    },
+    judgeVice(data) {
+      return databaseStateMapping[data.viceState];
+    },
+    judgeOver(data) {
+      return databaseStateMapping[data.overState];
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
