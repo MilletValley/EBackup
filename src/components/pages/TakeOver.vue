@@ -53,13 +53,22 @@
                 <i-icon name="host-production"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.primaryHost.name }}</span>
+                <el-tooltip v-show="hostLink.serviceIpMark === 1"
+                            placement="right"
+                            effect="light">
+                  <div slot="content">
+                    提供服务中
+                    <br/>服务IP：{{ hostLink.primaryHost.serviceIp }}
+                  </div>
+                  <i-icon :class="$style.serviceIcon"
+                          name="service"></i-icon>
+                </el-tooltip>
               </div>
               <div>
                 <i-icon name="ip"
                         :class="$style.hostIpIcon"></i-icon>
                 <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
               </div>
-              <!-- <el-tag size="small"></el-tag> -->
             </div>
           </el-col>
           <el-col :span="4">
@@ -136,7 +145,7 @@
                              :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                              @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
                 </div>
-                <div>
+                <div v-show="!enterFromMenu">
                   <el-button type="text"
                              @click="removeHostLink(hostLink)"
                              :class="$style.removeHostLink">解除连接</el-button>
@@ -151,6 +160,16 @@
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.viceHost.name }}</span>
+                <el-tooltip v-show="hostLink.serviceIpMark === 2"
+                            placement="right"
+                            effect="light">
+                  <div slot="content">
+                    提供服务中
+                    <br/>服务IP：{{ hostLink.viceHost.serviceIp }}
+                  </div>
+                  <i-icon :class="$style.serviceIcon"
+                          name="service"></i-icon>
+                </el-tooltip>
               </div>
               <div>
                 <i-icon name="ip"
@@ -661,6 +680,17 @@ $vice-color: #6d6d6d;
 .hostInfo {
   text-align: center;
   margin: 1em 0;
+}
+.serviceIcon {
+  position: absolute;
+  margin-left: 30px;
+  margin-top: 0.5em;
+  width: 2em;
+  height: 2em;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
 }
 .hostIpIcon {
   width: 2em;

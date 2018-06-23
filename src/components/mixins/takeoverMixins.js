@@ -5,6 +5,7 @@ import {
   switchStateMapping,
   switchManualMapping,
   switchTypeMapping,
+  serviceIpMarkMapping,
 } from '../../utils/constant';
 
 const takeoverMixin = {
@@ -74,6 +75,9 @@ const takeoverMixin = {
     },
     switchManualFilter(value) {
       return switchManualMapping[value];
+    },
+    serviceIpMarkFilter(value) {
+      return serviceIpMarkMapping[value];
     },
   },
 };

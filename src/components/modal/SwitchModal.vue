@@ -10,9 +10,9 @@
         </el-col>
         <el-col :span="18">
           <div style="height: 220px;max-height: 220px;overflow: scroll;">
-            <div v-if="hostLinkReadyToSwitch"
+            <!-- <div v-if="hostLinkReadyToSwitch"
                  :class="$style.switchIpTip">
-              <span>生产环境设备</span>
+              <span>{{ hostLinkReadyToSwitch && hostLinkReadyToSwitch.serviceIpMark | serviceIpMarkFilter }}</span>
               <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.primaryHost.name}}</span>
               <div style="padding-top: 5px;">
                 <div :class="$style.halfWidth">
@@ -21,17 +21,39 @@
                 </div>
                 <div :class="$style.halfWidth">
                   <span>服务IP:</span>
-                  <span :class="isIpSame ? $style.serviceIpError : $style.serviceIpSuccess">{{hostLinkReadyToSwitch.primaryHost.serviceIp}}</span>
+                  <span :class="isServiceIpOK ? $style.serviceIpSuccess : $style.serviceIpError">{{hostLinkReadyToSwitch.primaryHost.serviceIp}}</span>
                 </div>
               </div>
-              <span v-show="isIpSame"
-                    :class="$style.errorTip">设备IP与服务IP不符合切换要求，进入
+              <span v-show="!isServiceIpOK"
+                    :class="$style.errorTip">服务IP不符合切换要求，进入
                 <el-button type="text"
                            @click="$router.push({name: 'deviceManager'})">设备管理</el-button>修改！</span>
-            </div>
+            </div> -->
             <h4>即将执行以下操作，请检查。</h4>
-            <div v-if="hostLinkReadyToSwitch">
+            <span v-if="!isServiceIpOK"
+                  :class="$style.errorTip">服务IP不符合切换要求，进入
+              <el-button type="text"
+                         @click="$router.push({name: 'deviceManager'})">设备管理</el-button>修改！</span>
+            <div v-else-if="hostLinkReadyToSwitch">
+              <p>服务IP
+                <span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span> 将由</p>
               <p>
+                <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 1 ? 'production-env' : 'ebackup-env'"
+                        style="vertical-align: -0.3em;"></i-icon>
+                <span :class=" hostLinkReadyToSwitch.serviceIpMark === 1 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark | serviceIpMarkFilter }}</span>
+                <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+                <span style="width: 4em;">切换至</span>
+                <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 2 ? 'production-env' : 'ebackup-env'"
+                        style="vertical-align: -0.3em;"></i-icon>
+                <span :class="hostLinkReadyToSwitch.serviceIpMark === 2 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1 | serviceIpMarkFilter }}</span>
+                <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 2 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+              </p>
+
+              <!-- <p>
+                <span>{{ hostLinkReadyToSwitch && hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1 | serviceIpMarkFilter }}</span>
+                <span>{{ hostLinkReadyToSwitch.serviceIpMark === 2 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+              </p> -->
+              <!-- <p>
                 <span>生产环境</span>
                 <span :class="$style.switchModalName">{{hostLinkReadyToSwitch.primaryHost.name}}</span>
                 <el-tag size="mini">IP变更</el-tag>
@@ -46,7 +68,7 @@
                 <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.viceHost.hostIp}}</span>
                 <i class="el-icon-caret-right"></i>
                 <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
-              </p>
+              </p> -->
             </div>
             <div v-if="databaseLinksReadyToSwitch.length > 0"
                  v-for="link in databaseLinksReadyToSwitch"
@@ -152,12 +174,33 @@ export default {
       //   return !this.password || !this.formData.defaultGateway;
       // } else return !this.password;
     },
-    isIpSame() {
-      return (
-        this.hostLinkReadyToSwitch.primaryHost.hostIp ===
-        this.hostLinkReadyToSwitch.primaryHost.serviceIp
-      );
+    isServiceIpOK() {
+      let res = true;
+      if (!this.hostLinkReadyToSwitch) {
+        return res;
+      }
+      if (this.hostLinkReadyToSwitch.serviceIpMark === 1) {
+        // 服务IP属于生产设备
+        if (!this.hostLinkReadyToSwitch.primaryHost.serviceIp) res = false;
+        else if (
+          this.hostLinkReadyToSwitch.primaryHost.hostIp ===
+          this.hostLinkReadyToSwitch.primaryHost.serviceIp
+        )
+          res = false;
+      } else if (this.hostLinkReadyToSwitch.serviceIpMark === 2) {
+        // 服务IP属于易备设备
+        if (!this.hostLinkReadyToSwitch.viceHost.serviceIp) res = false;
+        else if (
+          this.hostLinkReadyToSwitch.viceHost.hostIp ===
+          this.hostLinkReadyToSwitch.viceHost.serviceIp
+        )
+          res = false;
+      }
+      return res;
     },
+    // oppsiteServiceIpMark() {
+    //   return this.hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1;
+    // }
   },
   methods: {
     switchModalClosed() {
@@ -205,7 +248,7 @@ export default {
 }
 .switchModalName {
   display: inline-block;
-  width: 10em;
+  width: 8em;
   margin-left: 0.5em;
 }
 .switchModalDetail {
@@ -218,6 +261,14 @@ export default {
 }
 .hostIp {
   composes: switchModalIp;
+  text-align: center;
+}
+.serviceIp {
+  composes: switchModalIp;
+  padding: 0 0.6em;
+  border-radius: 0.4em;
+  color: #1b80c4;
+  background-color: lighten(#1b80c4, 45%);
   text-align: center;
 }
 .serviceIpSuccess {
@@ -236,5 +287,11 @@ export default {
 }
 .errorTip {
   color: $error-color;
+}
+.productionEnvColor {
+  color: #31a17b;
+}
+.ebackupEnvColor {
+  color: #c22b76;
 }
 </style>
