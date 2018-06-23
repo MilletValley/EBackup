@@ -123,6 +123,11 @@ const switchTypeMapping = {
   3: '解除连接',
 };
 
+const serviceIpMarkMapping = {
+  1: '生产环境',
+  2: '易备环境',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -143,4 +148,5 @@ export {
   switchIpMapping,
   switchManualMapping,
   switchTypeMapping,
+  serviceIpMarkMapping,
 };
