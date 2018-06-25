@@ -1,12 +1,9 @@
 <template>
   <div class="root">
-    <!-- <section class="material-half-bg">
-      <div class="cover"></div>
-    </section> -->
     <section class="login-content">
       <div class="login-box">
         <el-form class="login-form" label-position="left">
-          <h2 class="login-head"> <img src="../assets/logo.png" class="login-img"></h2>
+          <div class="login-head"> <img src="../assets/logo.png" class="login-img"></div>
           <el-form-item label="用户名" props="loginName">
             <el-input type="text" required v-model="loginName" auto-complete="off" @keyup.enter.native="doPassword">
             </el-input>
@@ -26,9 +23,9 @@
     </section>
     <section class="home-copyright">
       <div>
-        <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
-        <p>Powered By esay standby</p>
-        <p>Version 2.0.0</p>
+        <span>Copyright @2018 whstone Corportation All Rights Reserved<br/></span>
+        <span>Powered By esay standby<br/></span>
+        <span>Version 2.0.0<br/></span>
       </div>
     </section>
 </div>
@@ -94,10 +91,9 @@ export default {
 </script>
 <style>
 .root {
-  background-image: url("../assets/homePage2.jpg");
-  background-size: 100% 50%;
+  background-image: url("../assets/homePage3.jpg");
+  background-size: 100% auto;
   background-repeat: no-repeat;
-  padding-top: 80px;
 }
 
 @font-face {
@@ -131,7 +127,7 @@ input:-webkit-autofill,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  min-height: 100vh;
+  padding: 10% 0 5%;
 }
 
 .login-content .logo {
@@ -147,8 +143,8 @@ input:-webkit-autofill,
 
 .login-content .login-box {
   position: relative;
-  min-width: 390px;
-  min-height: 430px;
+  min-width: 350px;
+  min-height: 370px;
   font-weight: 700;
   background-color: #fff;
   -webkit-box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
@@ -162,21 +158,21 @@ input:-webkit-autofill,
 
 .login-content .login-box .login-head {
   margin-top: 0;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
   border-bottom: 1px solid #ddd;
   text-align: center;
 }
 
 .login-content .login-box .login-img {
-  height: 60px;
+  height: 50px;
   padding-right: 20px;
   line-height: .75em;
   vertical-align: -40%;
 }
 
 .login-content .login-box .login-button {
-  width: 310px;
+  width: 280px;
 }
 
 .login-content .login-box .login-form {
@@ -185,7 +181,7 @@ input:-webkit-autofill,
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 40px;
+  padding: 35px;
   padding-top: 25px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -204,18 +200,16 @@ input:-webkit-autofill,
 }
 
 .el-form-item {
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 }
 
 .el-button {
     font-weight: 700;
 }
-
-.home-copyright {
-  padding-bottom: 45px;
-}
-
-.home-copyright p{
+.home-copyright span{
   text-align: center;
+  display: block;
+  font-size: 12px;
+  color: #666;
 }
 </style>

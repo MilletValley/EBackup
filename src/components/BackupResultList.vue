@@ -83,11 +83,11 @@
                        header-align="center"></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
-                       width="200px"
+                       min-width="200px"
                        align="center"></el-table-column>
       <el-table-column label="结束时间"
                        prop="endTime"
-                       width="200px"
+                       min-width="200px"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
@@ -108,7 +108,8 @@
       </el-table-column>
       <el-table-column label="操作"
                        width="140px"
-                       align="center">
+                       align="center"
+                       v-if="this.type!=='vm'">
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
