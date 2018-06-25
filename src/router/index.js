@@ -93,7 +93,7 @@ export const asyncRouters = [
         name: 'sqlserverTakeOverView',
         component: TakeOver,
         meta: {
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['sqlserver dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -310,6 +310,7 @@ export const asyncRouters = [
         props: true,
         component: OracleDetail,
         meta: {
+          roles: ['oracle dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -331,6 +332,7 @@ export const asyncRouters = [
         props: true,
         component: SqlServerDetail,
         meta: {
+          role: 'sqlserver dba',
           breadcrumb: [
             {
               name: '首页',
@@ -355,7 +357,7 @@ export const asyncRouters = [
     meta: {
       title: '虚拟机',
       icon: 'vm',
-      roles: ['admin'],
+      roles: ['vm admin'],
     },
     children: [
       {
@@ -364,7 +366,7 @@ export const asyncRouters = [
         component: VMwareList,
         meta: {
           title: 'VMware',
-          roles: ['admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
@@ -382,6 +384,7 @@ export const asyncRouters = [
         props: true,
         component: VMwareDetail,
         meta: {
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
@@ -425,7 +428,7 @@ export const asyncRouters = [
     meta: {
       title: '系统管理',
       icon: 'setting',
-      roles: ['admin'],
+      roles: [],
     },
     children: [
       {
@@ -433,7 +436,7 @@ export const asyncRouters = [
         component: Users,
         meta: {
           title: '用户管理',
-          roles: ['admin'],
+          roles: [],
         },
       },
       {
@@ -442,7 +445,7 @@ export const asyncRouters = [
         component: DeviceManager,
         meta: {
           title: '设备管理',
-          roles: ['admin'],
+          roles: [],
         },
       },
       {
@@ -450,7 +453,7 @@ export const asyncRouters = [
         component: SystemParam,
         meta: {
           title: '参数管理',
-          roles: ['admin'],
+          roles: [],
         },
       },
     ],
