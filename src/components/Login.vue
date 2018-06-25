@@ -23,9 +23,9 @@
     </section>
     <section class="home-copyright">
       <div>
-        <span>Copyright @2018 whstone Corportation All Rights Reserved<br/></span>
-        <span>Powered By esay standby<br/></span>
-        <span>Version 2.0.0<br/></span>
+        <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
+        <p>Powered By esay standby<br/></p>
+        <p>Version 2.0.0<br/></p>
       </div>
     </section>
 </div>
@@ -127,7 +127,7 @@ input:-webkit-autofill,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  padding: 10% 0 5%;
+  padding: 15% 0 5%;
 }
 
 .login-content .logo {
@@ -143,8 +143,8 @@ input:-webkit-autofill,
 
 .login-content .login-box {
   position: relative;
-  min-width: 350px;
-  min-height: 370px;
+  min-width: 390px;
+  min-height: 430px;
   font-weight: 700;
   background-color: #fff;
   -webkit-box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
@@ -172,7 +172,7 @@ input:-webkit-autofill,
 }
 
 .login-content .login-box .login-button {
-  width: 280px;
+  width: 310px;
 }
 
 .login-content .login-box .login-form {
@@ -181,7 +181,7 @@ input:-webkit-autofill,
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 35px;
+  padding: 40px;
   padding-top: 25px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -200,13 +200,13 @@ input:-webkit-autofill,
 }
 
 .el-form-item {
-    margin-bottom: 0px;
+    margin-bottom: 10px;
 }
 
 .el-button {
     font-weight: 700;
 }
-.home-copyright span{
+.home-copyright p{
   text-align: center;
   display: block;
   font-size: 12px;

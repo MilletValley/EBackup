@@ -60,7 +60,7 @@
             </el-table-column>
             <el-table-column
               prop="ascription"
-              label="归属名"
+              label="名称"
               align="center"
               min-width="100">
             </el-table-column>
@@ -500,7 +500,7 @@
 <script>
 import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 import { backupStrategyMapping } from '../../utils/constant';
-import { databaseStateMapping } from '../../utils/constant';
+import { linkStateMapping } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
@@ -954,13 +954,13 @@ export default {
       return `${h ? `${h}小时` : ''}${m ? `${m}分` : ''}${s ? `${s}秒` : ''} `;
     },
     judgePrimary(data) {
-      return databaseStateMapping[data.primaryState];
+      return linkStateMapping[data.primaryState];
     },
     judgeVice(data) {
-      return databaseStateMapping[data.viceState];
+      return linkStateMapping[data.viceState];
     },
     judgeOver(data) {
-      return databaseStateMapping[data.overState];
+      return linkStateMapping[data.overState];
     },
     backupPath(data) {
       return data.backupPath===null?'无':data.backupPath;
