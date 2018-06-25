@@ -8,7 +8,7 @@
               <span class="card-title">数据备份</span>
             </div>
             <div class="text item">
-              <div id="backupTotal" :style="{width: '100%', height: '300px'}"></div>
+              <div id="backupTotal" :style="{width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
@@ -18,7 +18,7 @@
               <span class="card-title">恢复演练</span>
             </div>
             <div class="text item">
-              <div id="restoreTotal" :style="{width: '100%', height: '300px'}"></div>
+              <div id="restoreTotal" :style="{width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
@@ -28,7 +28,7 @@
               <span class="card-title">一键接管</span>
             </div>
             <div class="text item">
-              <div id="initConn" :style="{width: '100%', height: '300px'}"></div>
+              <div id="initConn" :style="{width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
@@ -40,7 +40,7 @@
             <span class="card-title">备份恢复</span>
           </div>
           <div class="text item">
-            <div id="barChart" :style="{width: '100%', height: '300px', margin: '0 auto'}"></div>
+            <div id="barChart" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
           </div>
         </el-card>
       </el-row>
@@ -112,6 +112,7 @@
             </el-table-column>
             <el-table-column
               prop="backupPath"
+              :formatter="backupPath"
               label="备份存储路径"
               align="center"
               min-width="180"
@@ -291,6 +292,7 @@
             </el-table-column>
             <el-table-column
               prop="backupPath"
+              :formatter="backupPath"
               label="备份存储路径"
               align="center"
               min-width="180"
@@ -413,6 +415,7 @@
             </el-table-column>
             <el-table-column
               prop="backupPath"
+              :formatter="backupPath"
               label="备份存储路径"
               align="center"
               min-width="180"
@@ -959,6 +962,9 @@ export default {
     judgeOver(data) {
       return databaseStateMapping[data.overState];
     },
+    backupPath(data) {
+      return data.backupPath===null?'无':data.backupPath;
+    },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
@@ -974,6 +980,7 @@ export default {
             name: '备份',
             type: 'pie',
             radius: '80%',
+            center: ['50%','50%'],
             data:[
               {
                 value:this.total.totalRestoreNumSuccess,
@@ -1020,6 +1027,7 @@ export default {
             name: '恢复',
             type: 'pie',
             radius: '80%',
+            center: ['50%','50%'],
             data:[
               {
                 value:this.total.totalBackupNumSuccess,
@@ -1060,6 +1068,7 @@ export default {
             name: '一键接管',
             type: 'pie',
             radius: '80%',
+            center: ['50%','50%'],
             data:[
               {
                 value:this.total.initConnNumSuccess,
@@ -1122,7 +1131,13 @@ export default {
               label: this.labelNum,
             },
         ]
-      })
+      });
+      window.addEventListener("resize", function () {
+        barChart.resize();
+        restoreTotal.resize();
+        backupTotal.resize();
+        initConn.resize();
+     });
      }
    },
 };
@@ -1153,6 +1168,10 @@ h4 {
 .box-card {
   width: 100%;
   height: 420px;
+}
+
+#barChart div {
+  margin: 0 auto
 }
 
 .card-title {
