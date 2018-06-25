@@ -2,9 +2,13 @@
   <el-container style="height: 100%;">
     <el-aside style="width:auto;background-color: #00264a">
       <div class="logo">
-        <img src="../assets/elogo.png"
+        <img src="../assets/layoutContraction.png"
              alt="信服易备"
-             width="45px"
+             v-show="isMenuCollapsed"
+             height="35px">
+        <img src="../assets/layoutExpansion.png"
+             alt="信服易备"
+             v-show="!isMenuCollapsed"
              height="35px">
       </div>
       <el-menu background-color="#00264a"
@@ -131,6 +135,11 @@ export default {
 <style>
 .logo {
   padding: 11px 10px;
+  padding-top: 20px;
+}
+.logo img {
+  margin: 0 auto;
+  display: block;
 }
 .el-header {
   background-color: #ffffff;
