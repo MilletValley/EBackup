@@ -138,7 +138,7 @@
     <restore-plan-create-modal type="sqlserver"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
-                               :selection-hosts="availableHostsWithSqlServer"
+                               :selection-hosts="availableHostsForRestore"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
     <restore-plan-update-modal type="sqlserver"
                                :database="details"
@@ -154,7 +154,7 @@
     <single-restore-create-modal type="sqlserver"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
-                                 :selection-hosts="availableHostsWithSqlServer"
+                                 :selection-hosts="availableHostsForRestore"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -257,8 +257,10 @@ export default {
     };
   },
   computed: {
-    availableHostsWithSqlServer() {
-      return this.$store.getters.hostsWithSqlServer;
+    availableHostsForRestore() {
+      return this.$store.getters.hostsWithSqlServer.filter(
+        h => h.hostType === 2
+      );
     },
   },
   methods: {

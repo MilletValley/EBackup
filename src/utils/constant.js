@@ -46,10 +46,12 @@ const recoveringStrategyMapping = {
   3: '跳过',
 };
 // 由于设计不清 将 0:未知 修改为 3:未知 @0619
+// 0626 添加监听异常状态
 const databaseStateMapping = {
   3: '未知',
   1: '正常',
   2: '异常',
+  4: '监听异常',
 };
 const databaseRoleMapping = {
   0: '无连接',

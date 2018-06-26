@@ -142,7 +142,7 @@
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
                                :btn-loading="btnLoading"
-                               :selection-hosts="availableHostsWithOralce"
+                               :selection-hosts="availableHostsForRestore"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
     <restore-plan-update-modal type="oracle"
                                :database="details"
@@ -158,7 +158,7 @@
     <single-restore-create-modal type="oracle"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
-                                 :selection-hosts="availableHostsWithOralce"
+                                 :selection-hosts="availableHostsForRestore"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -265,8 +265,15 @@ export default {
     };
   },
   computed: {
-    availableHostsWithOralce() {
-      return this.$store.getters.hostsWithOracle;
+    // 用于恢复的设备
+    // 1.易备环境下的设备
+    // 2.Oracle类型设备
+    // 3.没有“安装”数据库
+    availableHostsForRestore() {
+      const oracleEbackupHosts = this.$store.getters.hostsWithOracle.filter(
+        h => h.hostType === 2
+      );
+      return oracleEbackupHosts;
     },
   },
   methods: {
