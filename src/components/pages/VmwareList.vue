@@ -1,5 +1,15 @@
 <template>
   <section>
+    <div style="margin-bottom: 15px;">
+      <el-row :gutter="20">
+        <el-col :span="18"><div class="grid-content"></div></el-col>
+        <el-col :span="6">
+          <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+            <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+          </el-input>
+        </el-col>
+      </el-row>
+    </div>
     <el-table :data="vmItems.slice((currentPage-1)*pagesize,currentPage*pagesize)"
               style="width: 100%">
       <el-table-column label="序号"
@@ -53,6 +63,8 @@ export default {
       vmItems: [],
       currentPage: 1,
       pagesize: 10,
+      inputSearch: '',
+      newItems: [],
     }
   },
   created() {
@@ -69,11 +81,22 @@ export default {
           this.$message.error(error);
         });
     },
+    searchByName() {
+      if(this.inputSearch==='')
+        this.fetchData();
+      else {
+        for(let index=0; index<this.vmItems.length; index++) {
+          if(this.vmItems[index].vmName===this.inputSearch)
+            this.newItems.push(this.vmItems[index]);
+        }
+        this.vmItems=this.newItems;
+      }
+    },
     handleSizeChange: function (size) {
-        this.pagesize = size;
+      this.pagesize = size;
     },
     handleCurrentChange: function(currentPage){
-        this.currentPage = currentPage;
+      this.currentPage = currentPage;
     }
   }
 };
@@ -84,6 +107,12 @@ export default {
 <style>
 .el-table th{
   text-align: center;
+}
+.grid-content {
+  min-height: 40px;
+}
+.input-with-select {
+  background-color: #fff;
 }
 </style>
 
