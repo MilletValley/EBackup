@@ -13,10 +13,15 @@
         <el-button type="info"
                    @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
       </el-form-item>
+
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="primary"
                    @click="displayLinkCreateModal">添加</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
+        <el-button icon="el-icon-refresh"
+                   @click="refreshData">刷新</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">
@@ -267,7 +272,6 @@
                 </el-form>
                 <i-icon :name="`switch-${dbLink.state}`"
                         :class="$style.switchIcon"
-                        @click.native="jumpToLinkDetail(dbLink.id)"
                         slot="reference"></i-icon>
               </el-popover>
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
@@ -278,6 +282,8 @@
               <div v-else>
                 <el-button type="text"
                            @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                <el-button type="text"
+                           @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
             </div>
           </el-col>
@@ -528,7 +534,32 @@ export default {
           this.$message.error(error);
         });
     },
-
+    refreshData() {
+      const opt = {
+        type: 'info',
+        message: '正在更新中，请等待...',
+        duration: 0,
+      };
+      const { close } = this.$message(opt);
+      Promise.all([
+        fetchDatabaseMethod[this.databaseType](),
+        fetchLinksMethod[this.databaseType](),
+      ])
+        .then(resArr => {
+          const { data } = resArr[0].data;
+          const { data: links } = resArr[1].data;
+          this.items = data;
+          this.links = links;
+        })
+        .then(() => {
+          opt.type = 'success';
+          opt.message = '更新成功';
+          setTimeout(close, 1000);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
     displayLinkCreateModal() {
       this.linkCreateModalVisible = true;
     },
@@ -776,7 +807,7 @@ $vice-color: #6d6d6d;
 .hostSwitchIcon {
   width: 3em;
   height: 1.4em;
-  cursor: pointer;
+  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
@@ -785,7 +816,7 @@ $vice-color: #6d6d6d;
 .switchIcon {
   width: 3em;
   height: 3em;
-  cursor: pointer;
+  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
