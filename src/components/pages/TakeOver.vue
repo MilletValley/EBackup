@@ -267,7 +267,6 @@
                 </el-form>
                 <i-icon :name="`switch-${dbLink.state}`"
                         :class="$style.switchIcon"
-                        @click.native="jumpToLinkDetail(dbLink.id)"
                         slot="reference"></i-icon>
               </el-popover>
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
@@ -278,6 +277,8 @@
               <div v-else>
                 <el-button type="text"
                            @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                <el-button type="text"
+                           @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
             </div>
           </el-col>
@@ -776,7 +777,7 @@ $vice-color: #6d6d6d;
 .hostSwitchIcon {
   width: 3em;
   height: 1.4em;
-  cursor: pointer;
+  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
@@ -785,7 +786,7 @@ $vice-color: #6d6d6d;
 .switchIcon {
   width: 3em;
   height: 3em;
-  cursor: pointer;
+  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
