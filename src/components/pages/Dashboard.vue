@@ -942,7 +942,7 @@ export default {
       return linkStateMapping[data.overState];
     },
     backupPath(data) {
-      return data.backupPath===null?'无':data.backupPath;
+      return (data.backupPath===null||data.backupPath==='null')?'无':data.backupPath;
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));

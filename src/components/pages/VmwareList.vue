@@ -65,6 +65,7 @@ export default {
       pagesize: 10,
       inputSearch: '',
       newItems: [],
+      orginItems: [],
     }
   },
   created() {
@@ -73,7 +74,7 @@ export default {
   watch: {
     inputSearch() {
       if(this.inputSearch==='')
-        this.fetchData();
+        this.vmItems=this.orginItems;
     }
   },
   methods: {
@@ -82,6 +83,7 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.vmItems = data;
+          this.orginItems = data;
         })
         .catch(error => {
           this.$message.error(error);
@@ -89,15 +91,11 @@ export default {
     },
     searchByName() {
       this.newItems=[];
-      if(this.inputSearch==='')
-        this.fetchData();
-      else {
-        for(let index=0; index<this.vmItems.length; index++) {
-          if(this.vmItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
-            this.newItems.push(this.vmItems[index]);
-        }
-        this.vmItems=this.newItems;
+      for(let index=0; index<this.orginItems.length; index++) {
+        if(this.orginItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
+          this.newItems.push(this.orginItems[index]);
       }
+      this.vmItems=this.newItems;
     },
     handleSizeChange: function (size) {
       this.pagesize = size;
