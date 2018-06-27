@@ -73,8 +73,10 @@ export default {
   },
   watch: {
     inputSearch() {
-      if(this.inputSearch==='')
+      if(this.inputSearch==='') {
         this.vmItems=this.orginItems;
+        this.currentPage=1;
+      }
     }
   },
   methods: {
@@ -91,6 +93,7 @@ export default {
     },
     searchByName() {
       this.newItems=[];
+      this.currentPage=1;
       for(let index=0; index<this.orginItems.length; index++) {
         if(this.orginItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
           this.newItems.push(this.orginItems[index]);
