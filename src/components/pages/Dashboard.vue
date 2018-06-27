@@ -104,13 +104,6 @@
               </template>
             </el-table-column>
             <el-table-column
-              prop="backupType"
-              label="备份策略"
-              :formatter="backupItem"
-              align="center"
-              min-width="100">
-            </el-table-column>
-            <el-table-column
               prop="backupPath"
               :formatter="backupPath"
               label="备份存储路径"
@@ -284,13 +277,6 @@
               </template>
             </el-table-column>
             <el-table-column
-              prop="backupType"
-              label="备份策略"
-              :formatter="backupItem"
-              align="center"
-              min-width="100">
-            </el-table-column>
-            <el-table-column
               prop="backupPath"
               :formatter="backupPath"
               label="备份存储路径"
@@ -405,13 +391,6 @@
                   class="el-icon-error"
                   style="color: #ca2727"></i>
               </template>
-            </el-table-column>
-            <el-table-column
-              prop="backupType"
-              label="备份策略"
-              :formatter="backupItem"
-              align="center"
-              min-width="100">
             </el-table-column>
             <el-table-column
               prop="backupPath"

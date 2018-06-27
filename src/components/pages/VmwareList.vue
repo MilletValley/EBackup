@@ -70,6 +70,12 @@ export default {
   created() {
     this.fetchData();
   },
+  watch: {
+    inputSearch() {
+      if(this.inputSearch==='')
+        this.fetchData();
+    }
+  },
   methods: {
     fetchData() {
       fetchAll()
@@ -82,11 +88,12 @@ export default {
         });
     },
     searchByName() {
+      this.newItems=[];
       if(this.inputSearch==='')
         this.fetchData();
       else {
         for(let index=0; index<this.vmItems.length; index++) {
-          if(this.vmItems[index].vmName===this.inputSearch)
+          if(this.vmItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
             this.newItems.push(this.vmItems[index]);
         }
         this.vmItems=this.newItems;
