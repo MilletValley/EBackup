@@ -1,18 +1,20 @@
 <template>
   <div id="app">
     <el-row type="flex" class="row-bg" justify="end">
-      <el-col :span="19">用户管理</el-col>
-      <el-col :span="5">
-        <!-- 操作 -->
-        <el-button type="primary" @click="handleCreate()">添加用户</el-button>
-        <el-button type="primary" icon="el-icon-delete" :disabled="delDisabled" @click="delAll()">删除
-        </el-button>
-      </el-col>
+      <el-form inline
+             size="small">
+      <el-form-item style="float: right;">
+        <el-button type="danger" :disabled="delDisabled" @click="delAll()">删除</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
+        <el-button type="primary" @click="handleCreate()">添加</el-button>
+      </el-form-item>
+    </el-form>
+
     </el-row>
     <el-row :gutter="20">
       <el-col :span="24">
         <el-table v-loading="loading" element-loading-text="拼命加载中..." :data="tableUsers" stripe style="width: 100%" @selection-change="handleSelectionChange">
-
           <el-table-column type="selection">
           </el-table-column>
           <el-table-column prop="loginName" label="账户">
@@ -22,10 +24,8 @@
           <el-table-column prop="state" label="状态" :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]" :filter-method="filterState" filter-placement="bottom-end">
             <template slot-scope="scope">
               <span v-if="scope.row.state === 1">
-                <!-- <el-tooltip content="Bottom center" placement="bottom" effect="light"> -->
                 <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
                 </i>
-                <!-- </el-tooltip> -->
               </span>
               <span v-else>
                 <i class="el-icon-remove" style="color: #909399;font-size: 18px"></i>
@@ -39,8 +39,18 @@
           </el-table-column>
           <el-table-column label="操作" min-width="130" header-align="center" align="center">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-button type="primary"
+                        icon="el-icon-edit"
+                        circle
+                        size="mini"
+                        :class="$style.miniCricleIconBtn"
+                        @click="handleEdit(scope.$index, scope.row)"></el-button>
+              <el-button type="danger"
+                        icon="el-icon-delete"
+                        circle
+                        size="mini"
+                        :class="$style.miniCricleIconBtn"
+                        @click="handleDelete(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -207,7 +217,7 @@ export default {
         ],
         userName: [
           { required: false, message: '请输入姓名', trigger: 'blur' },
-          { min: 3, max: 25, message: '长度在 3 到 25 个字符' },
+          { min: 2, max: 25, message: '长度在 2 到 25 个字符' },
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
@@ -423,3 +433,7 @@ export default {
   },
 };
 </script>
+<style lang="scss" module>
+@import '../../style/common.scss';
+</style>
+
