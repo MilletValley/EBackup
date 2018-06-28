@@ -80,7 +80,7 @@
     <el-dialog :visible.sync="updateModalVisible"
                @close="updateClose">
       <span slot="title">
-        修改设备
+        修改参数
         <span style="color: #999999">（ID: {{updateRow.id}}）</span>
       </span>
       <el-form :model="updateRow"
@@ -90,7 +90,6 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <!-- <el-radio v-model="updateRow.sysType" :label="0">通用</el-radio> -->
           <el-radio v-model="updateRow.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="updateRow.sysType" :label="2">Linux</el-radio>
         </el-form-item>
@@ -141,7 +140,6 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <!-- <el-radio v-model="createRow.sysType" :label="0">通用</el-radio> -->
           <el-radio v-model="createRow.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="createRow.sysType" :label="2">Linux</el-radio>
         </el-form-item>
@@ -231,12 +229,6 @@ export default {
       rules: {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
-          {
-            pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):/([0-9a-zA-Z/]+)$',
-            message: '地址不正确',
-            trigger: 'blur',
-          },
         ],
         mountUrl: [
           { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
