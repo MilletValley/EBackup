@@ -184,10 +184,14 @@ const genModalMixin = type => {
         return this.type === 'sqlserver' ? '数据库名' : '实例名';
       },
       sqlserverHosts() {
-        return this.$store.getters.hostsWithSqlServer;
+        return this.$store.getters.hostsWithSqlServer.filter(
+          h => h.hostType === 1
+        );
       },
       oracleHosts() {
-        return this.$store.getters.hostsWithOracle;
+        return this.$store.getters.hostsWithOracle.filter(
+          h => h.hostType === 1
+        );
       },
       availableHosts() {
         return this.type === 'oracle' ? this.oracleHosts : this.sqlserverHosts;
