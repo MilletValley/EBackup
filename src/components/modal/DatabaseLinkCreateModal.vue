@@ -5,6 +5,7 @@
              @open="modalOpened"
              @close="modalClosed">
     <el-form size="small"
+             ref="selectHostForm"
              label-width="100px">
       <el-row>
         <el-col :span="12">
@@ -197,6 +198,7 @@ export default {
   methods: {
     cancelBtnClick() {
       this.$refs.selectHostForm.clearValidate();
+      this.modalVisible = false;
       // this.$emit('update:visible', false);
     },
     // 验证表单中是否有空信息
