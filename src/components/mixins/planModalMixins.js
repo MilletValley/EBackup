@@ -108,14 +108,10 @@ const backupPlanModalMixin = {
       minuteInterval: 10,
       backupStrategy: 1,
       timeStrategy: 0,
+      // type值会延迟获取到 使用pruneData裁剪数据
+      backupPath: '',
+      backupSystem: 'nosys',
     };
-    if (this.type === 'windows') {
-      baseFormData.backupPath = '';
-      baseFormData.backupSystem = 'nosys';
-    }
-    if (this.type === 'linux') {
-      baseFormData.backupPath = '';
-    }
     return {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
