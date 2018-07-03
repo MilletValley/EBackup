@@ -20,6 +20,7 @@ before_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t chenzhq/ebackup:dev-latest .
   - docker tag chenzhq/ebackup:dev-latest chenzhq/ebackup:latest
+  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   - provider: script
     script: bash ./build/docker_push.sh develop
@@ -31,3 +32,11 @@ deploy:
     on:
       branch: 
         - master
+  - provider: release
+    api_key:
+      secure: 5f090d3b518284fefcddbdcd1dc1f0396ebcd04a
+    file_glob: true
+    file: dist/*
+    skip_cleanup: true
+    on:
+      all_branches: true
