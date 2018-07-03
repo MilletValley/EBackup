@@ -84,7 +84,7 @@
                       style="width: 100%"
                       v-for="(p, index) in formData.timePoints"
                       :key="p.key"
-                      v-show="[3,4,5].indexOf(formData.timeStrategy) !== -1">
+                      v-show="[3,4,5].includes(formData.timeStrategy)">
           <el-time-select v-model="formData.timePoints[index].value"
                           :picker-options="{start: '00:00', end: '23:45', step: '00:15'}"></el-time-select>
           <el-button icon="el-icon-delete"
