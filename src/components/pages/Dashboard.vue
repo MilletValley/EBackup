@@ -105,7 +105,6 @@
             </el-table-column>
             <el-table-column
               prop="backupPath"
-              :formatter="backupPath"
               label="备份存储路径"
               align="center"
               min-width="180"
@@ -278,7 +277,6 @@
             </el-table-column>
             <el-table-column
               prop="backupPath"
-              :formatter="backupPath"
               label="备份存储路径"
               align="center"
               min-width="180"
@@ -394,7 +392,6 @@
             </el-table-column>
             <el-table-column
               prop="backupPath"
-              :formatter="backupPath"
               label="备份存储路径"
               align="center"
               min-width="180"
@@ -915,11 +912,16 @@ export default {
       });
     },
     filterArray(data, type) {
+      data.map(function(item) {
+        for(let i in item) {
+          item[i]=(item[i]===null||item[i]==='null')?'无':item[i];
+        }
+      });
       return data.filter(function(item) {
         return item.type === type;
       }).sort(function(a, b) {
         return Date.parse(b.endTime)-Date.parse(a.endTime);
-      }).slice(0,5)
+      }).slice(0,5);
     },
     backupItem(data) {
       return backupStrategyMapping[data.backupType];
@@ -940,9 +942,6 @@ export default {
     },
     judgeOver(data) {
       return linkStateMapping[data.overState];
-    },
-    backupPath(data) {
-      return (data.backupPath===null||data.backupPath==='null')?'无':data.backupPath;
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
