@@ -32,7 +32,7 @@ deploy:
     on:
       branch: 
         - master
-  - provider: release
+  - provider: releases
     api_key:
       secure: 5f090d3b518284fefcddbdcd1dc1f0396ebcd04a
     file_glob: true
