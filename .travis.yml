@@ -1,15 +1,15 @@
 sudo: required
 language: node_js
 node_js:
-  - "8"
+- '8'
 notifications:
   email: false
 services:
-  - docker
+- docker
 cache:
   yarn: true
   directories:
-    - node_modules
+  - node_modules
 branches:
   only:
   - master
@@ -17,10 +17,10 @@ branches:
 install: yarn
 script: npm run build
 before_deploy:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker build -t chenzhq/ebackup:dev-latest .
-  - docker tag chenzhq/ebackup:dev-latest chenzhq/ebackup:latest
-  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- docker build -t chenzhq/ebackup:dev-latest .
+- docker tag chenzhq/ebackup:dev-latest chenzhq/ebackup:latest
+- git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   - provider: script
     script: bash ./build/docker_push.sh develop
@@ -34,9 +34,9 @@ deploy:
         - master
   - provider: releases
     api_key:
-      secure: 4da8546acc732277ba933f9980088ff58b85e9dc
+      secure: Eq5aS65jJUs2Lr5rNV/PD8W/bVpqMOlMpDla84gY8sMMI6k2hBykUoIAxWpUdsxcTqQjQjRi0tSQcjO2Iu5MKdNkea1SZ/+lea32PmUHcZyz0b4T3K0SFRrpAdv+aGP1hn8XGkuBChLzlWZj2yjLu/mCsaHbqimVBWjk6Bi1T932DBTWWn+FbdQ8ujQ92pqqBjti9WMEiMN0qwB3YWcGGooYPBbyyDcvJ2X5TR1ZePaSd/QJMPST0PbKDKitsEDcggPDG24T6O/WHM3Y/cyCrQi38GyGF7zdms7+Aj8kAMmcqZNHEDezl+Br6Verv4msR7WhRCQYJ+rT7n5KU3G+yMyikSimPNF50ttOCzpNCvQFhRbyXM+HA3/u6cnLjMmDPJ0OC1yIkZu2xZy9IIuFDamlmjA+oWhTjqOybsKMM2uzLZbOownxk8SwzyDIyK1ZOBKVarjJhyinNIxkMTau22ut01VyKASGlgfx4aV+8fNF4xbLBIv17CGRQF052bEwTJDB98uT16EaqDd9lQ0kKQO4C8TYLkm+SNz+09r4chAH66y7vXz/3gGBY1M2Zaca3B35sAXSU8/rMlbzmi2FbLb85n32iZ1eU29mRttVHoJpQ8arAojEsi6SDeLnGNOULzqeKyrQ0h0swS6y4Uh307zsMDdixG2zAwVuSim1LCY=
     file_glob: true
     file: dist/*
-    skip_cleanup: true
     on:
-      all_branches: true
+      repo: chenzhq/EBackup
+      branch: develop
