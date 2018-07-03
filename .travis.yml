@@ -34,7 +34,7 @@ deploy:
         - master
   - provider: releases
     api_key:
-      secure: 5f090d3b518284fefcddbdcd1dc1f0396ebcd04a
+      secure: 4da8546acc732277ba933f9980088ff58b85e9dc
     file_glob: true
     file: dist/*
     skip_cleanup: true
