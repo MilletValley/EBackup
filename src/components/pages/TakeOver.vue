@@ -58,6 +58,11 @@
                 <i-icon name="host-production"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.primaryHost.name }}</span>
+              </div>
+              <div>
+                <i-icon name="ip"
+                        :class="$style.hostIpIcon"></i-icon>
+                <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
                 <el-tooltip v-show="hostLink.serviceIpMark === 1"
                             placement="right"
                             effect="light">
@@ -68,11 +73,6 @@
                   <i-icon :class="$style.serviceIcon"
                           name="service"></i-icon>
                 </el-tooltip>
-              </div>
-              <div>
-                <i-icon name="ip"
-                        :class="$style.hostIpIcon"></i-icon>
-                <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
               </div>
             </div>
           </el-col>
@@ -715,7 +715,7 @@ $vice-color: #6d6d6d;
 .serviceIcon {
   position: absolute;
   margin-left: 30px;
-  margin-top: 0.5em;
+  margin-top: -0.5em;
   width: 2em;
   height: 2em;
   transition: all 0.5s ease;
