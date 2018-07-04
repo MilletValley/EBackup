@@ -1,6 +1,6 @@
 <template>
   <section>
-    <el-table :data="isFileBackupResult ? handleData : data"
+    <el-table :data="isFileBackupResult ? handleData : data|NotNullfilter"
               style="width: 100%; margin-top: 15px"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
@@ -15,7 +15,7 @@
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="存储路径">
-              <span>{{ (scope.row.path!==''&&scope.row.path!==null)?scope.row.path:'' }}</span>
+              <span>{{ scope.row.path }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="开始时间">
@@ -24,12 +24,12 @@
             <el-form-item :class="$style.detailFormItem"
                           label="原文件路径"
                           v-if="isFileBackupResult">
-              <span>{{ (scope.row.fileResource!==''&&scope.row.fileResource!==null)?scope.row.fileResource:'' }}</span>
+              <span>{{ scope.row.fileResource }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="文件名"
                           v-else>
-              <span>{{ (scope.row.fileName!==''&&scope.row.fileName!==null)?scope.row.fileName:'' }}</span>
+              <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="结束时间"
@@ -78,7 +78,6 @@
       <el-table-column v-else
                        label="备份文件名"
                        prop="fileName"
-                       :formatter="fileNameExist"
                        min-width="180px"
                        align="left"
                        header-align="center"></el-table-column>
@@ -160,6 +159,16 @@ export default {
       selectedId: -1,
     };
   },
+  filters: {
+    NotNullfilter(data) {
+      data.map((result) => {
+        for(let i in result) {
+          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
+        }
+      })
+      return data;
+    },
+  },
   methods: {
     // 备份集状态码转文字
     stateConverter(stateCode) {
@@ -178,9 +187,6 @@ export default {
     endTimeSortMethod(a, b) {
       return dayjs(a) - dayjs(b);
     },
-    fileNameExist(data) {
-      return (data.fileName!==''&&data.fileName!==null)?data.fileName:'';
-    }
   },
   computed: {
     isFileBackupResult() {
@@ -203,6 +209,9 @@ export default {
         }
       });
       return data.map((result, index) => {
+        for(let i in result) {
+          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
+        }
         if (map[result.fileResource] === index) {
           return Object.assign({}, result, { allowRestore: 1 });
         } else {
