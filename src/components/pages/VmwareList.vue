@@ -10,7 +10,7 @@
         </el-col>
       </el-row>
     </div>
-    <el-table :data="vmItems.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+    <el-table :data="vmItems?vmItems.slice((currentPage-1)*pagesize,currentPage*pagesize):vmItems"
               style="width: 100%">
       <el-table-column label="序号"
                        min-width="100"
@@ -48,7 +48,7 @@
           :page-size="pagesize"
           background
           layout="total, sizes, prev, pager, next, jumper"
-          :total="vmItems.length">
+          :total="vmItems?vmItems.length:0">
         </el-pagination>
       </div>
   </section>
@@ -94,9 +94,11 @@ export default {
     searchByName() {
       this.newItems=[];
       this.currentPage=1;
-      for(let index=0; index<this.orginItems.length; index++) {
-        if(this.orginItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
-          this.newItems.push(this.orginItems[index]);
+      if(this.orginItems){
+        for(let index=0; index<this.orginItems.length; index++) {
+          if(this.orginItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
+            this.newItems.push(this.orginItems[index]);
+        }
       }
       this.vmItems=this.newItems;
     },
