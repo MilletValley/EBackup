@@ -914,7 +914,7 @@ export default {
     filterArray(data, type) {
       data.map(function(item) {
         for(let i in item) {
-          item[i]=(item[i]===null||item[i]==='null')?'无':item[i];
+          item[i]=(item[i]===null||item[i]==='null')?'':item[i];
         }
       });
       return data.filter(function(item) {
