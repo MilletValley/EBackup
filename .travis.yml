@@ -22,7 +22,7 @@ before_deploy:
 - docker tag chenzhq/ebackup:dev-latest chenzhq/ebackup:latest
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
-- provider: script
+  - provider: script
     script: bash ./build/docker_push.sh develop
     on:
       branch: 
