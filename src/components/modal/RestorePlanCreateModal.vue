@@ -104,21 +104,22 @@
                      :label="day + '号'"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item :label="`时间点${index+1}`"
+      <el-form-item label="时间点"
                     style="width: 100%"
+                    prop="timePoints"
                     v-for="(p, index) in formData.timePoints"
                     :key="p.key"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
         <el-time-select v-model="formData.timePoints[index].value"
                         :picker-options="{start: '00:00', end: '23:45', step: '00:15'}"></el-time-select>
-        <el-button icon="el-icon-delete"
+        <!-- <el-button icon="el-icon-delete"
                    type="danger"
                    v-show="formData.timePoints.length !== 1"
                    @click="formData.timePoints.splice(index, 1)"></el-button>
         <el-button icon="el-icon-plus"
                    type="primary"
                    v-show="index + 1 === formData.timePoints.length"
-                   @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
+                   @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button> -->
       </el-form-item>
 
     </el-form>

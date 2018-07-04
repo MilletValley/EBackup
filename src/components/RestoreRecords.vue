@@ -67,12 +67,11 @@
         <el-table-column prop="hostIp"
                          label="恢复设备IP"
                          align="center"
-                         width="150px">
+                         min-width="200px">
         </el-table-column>
         <el-table-column prop="detailInfo"
                          :label="detailInfoDisplayName"
-                         align="left"
-                         header-align="center"
+                         align="center"
                          min-width="200px">
         </el-table-column>
         <el-table-column prop="state"
