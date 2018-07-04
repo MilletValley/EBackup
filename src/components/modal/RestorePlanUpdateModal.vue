@@ -201,6 +201,7 @@ export default {
     },
     modalClosed() {
       this.$refs.restorePlanUpdateForm.clearValidate();
+      this.$emit('cancel');
     },
   },
 };

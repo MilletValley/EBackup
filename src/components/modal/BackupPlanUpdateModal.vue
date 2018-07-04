@@ -191,6 +191,7 @@ export default {
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.updateForm.clearValidate();
+      this.$emit('cancel');
     },
   },
 };
