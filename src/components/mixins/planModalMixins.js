@@ -76,13 +76,6 @@ const backupPlanModalMixin = {
         callback();
       }
     };
-    const timePointsValidate = (rule, value, callback) => {
-      if (this.formData.timePoints.every(p => !p.value)) {
-        callback(new Error('请输入时间点'));
-      } else {
-        callback();
-      }
-    };
     const datePointsValidate = (rule, value, callback) => {
       if (this.formData.timeStrategy === 5 && value.length === 0) {
         callback(new Error('请选择循环日期'));
@@ -139,12 +132,6 @@ const backupPlanModalMixin = {
         weekPoints: [
           {
             validator: weekPointsValidate,
-            trigger: 'blur',
-          },
-        ],
-        timePoints: [
-          {
-            validator: timePointsValidate,
             trigger: 'blur',
           },
         ],
@@ -275,16 +262,16 @@ const backupPlanModalMixin = {
             break;
           case 3:
             if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
-            // if (timePoints.every(p => !p.value)) {
-            //   reject('请至少输入一个时间点');
-            // }
+            if (timePoints.every(p => !p.value)) {
+              reject('请至少输入一个时间点');
+            }
             config = { timeStrategy, startTime, timePoints, ...other };
             break;
           case 4:
             if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
-            // if (timePoints.every(p => !p.value)) {
-            //   reject('请至少输入一个时间点');
-            // }
+            if (timePoints.every(p => !p.value)) {
+              reject('请至少输入一个时间点');
+            }
             config = {
               timeStrategy,
               startTime,
@@ -295,9 +282,9 @@ const backupPlanModalMixin = {
             break;
           case 5:
             if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
-            // if (timePoints.every(p => !p.value)) {
-            //   reject('请至少输入一个时间点');
-            // }
+            if (timePoints.every(p => !p.value)) {
+              reject('请至少输入一个时间点');
+            }
             config = {
               timeStrategy,
               startTime,
