@@ -137,7 +137,8 @@
                               :visible.sync="backupPlanUpdateModalVisible"
                               :btn-loading="btnLoading"
                               :backup-plan="selectedBackupPlan"
-                              @confirm="updateBackupPlan"></backup-plan-update-modal>
+                              @confirm="updateBackupPlan"
+                              @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
     <restore-plan-create-modal type="oracle"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
@@ -149,7 +150,8 @@
                                :visible.sync="restorePlanUpdateModalVisible"
                                :btn-loading="btnLoading"
                                :restore-plan="selectedRestorePlan"
-                               @confirm="updateRestorePlan"></restore-plan-update-modal>
+                               @confirm="updateRestorePlan"
+                               @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
     <database-update-modal type="oracle"
                            :visible.sync="detailsEditModal"
                            :item-info="details"

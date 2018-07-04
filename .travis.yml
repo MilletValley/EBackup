@@ -22,7 +22,7 @@ before_deploy:
 - docker tag chenzhq/ebackup:dev-latest chenzhq/ebackup:latest
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
-  - provider: script
+- provider: script
     script: bash ./build/docker_push.sh develop
     on:
       branch: 
@@ -34,9 +34,9 @@ deploy:
         - master
   - provider: releases
     api_key:
-      secure: Eq5aS65jJUs2Lr5rNV/PD8W/bVpqMOlMpDla84gY8sMMI6k2hBykUoIAxWpUdsxcTqQjQjRi0tSQcjO2Iu5MKdNkea1SZ/+lea32PmUHcZyz0b4T3K0SFRrpAdv+aGP1hn8XGkuBChLzlWZj2yjLu/mCsaHbqimVBWjk6Bi1T932DBTWWn+FbdQ8ujQ92pqqBjti9WMEiMN0qwB3YWcGGooYPBbyyDcvJ2X5TR1ZePaSd/QJMPST0PbKDKitsEDcggPDG24T6O/WHM3Y/cyCrQi38GyGF7zdms7+Aj8kAMmcqZNHEDezl+Br6Verv4msR7WhRCQYJ+rT7n5KU3G+yMyikSimPNF50ttOCzpNCvQFhRbyXM+HA3/u6cnLjMmDPJ0OC1yIkZu2xZy9IIuFDamlmjA+oWhTjqOybsKMM2uzLZbOownxk8SwzyDIyK1ZOBKVarjJhyinNIxkMTau22ut01VyKASGlgfx4aV+8fNF4xbLBIv17CGRQF052bEwTJDB98uT16EaqDd9lQ0kKQO4C8TYLkm+SNz+09r4chAH66y7vXz/3gGBY1M2Zaca3B35sAXSU8/rMlbzmi2FbLb85n32iZ1eU29mRttVHoJpQ8arAojEsi6SDeLnGNOULzqeKyrQ0h0swS6y4Uh307zsMDdixG2zAwVuSim1LCY=
+      secure: w4P0tXXblIwLS82Mdi2X9u/Qcg5OeRKewTtWB8SbBj5vZOBEe6OaQVt7BvF8C3s1BQSkCkZVTAR41a6tI6pqGOYXsqf1bAtI4iGR2QS8BxqSOokWUIff2fmJOl4/nMoR3dB2XNLXtBtYwObelWIPILdtrrOYvll3a2GCQNsWkZeE/GIkHmonAm8nBghEQGEYGzLW8RoADGPy4A56cM1OIjiuRLDUi5lcHTEVo5/CdTl1nVOYs+PSQvYz+Xrpuv0t0NxWt2CDeMQjxi1gEQ0c7APQSmzyjWUMEQc9v6TSztpKix47GCBItWV8H+q1Mpdn3NEfq3vjy6ivmMxr76O22xOKWVmOevR78sGluFcZFE6Mw8JLPzKHck5q5God8mk26JiBfomhSCZ64DWHZMVromi7Z3Hkzezc08kR8jA1TVi9q/oPX17H+C2ssAO3+/hYQism74OjzmAFVc4x4Y3HGZEU6Z3rE6ayjcAYsP/JD2ex4HTwl/h6w4mv6YnHss+13wdeUrCH7WWNnhpDHAJbL9sP6imvDKJzTkEL8kDoMCGPQ+xUCSuliv2CtjFDgIu0tX6oyOJWoo5G7OVuaNGqzEduF9PwHO0TtqwQ9UymnJI+X9QIBOVSNENqt2QdbG8gjX3YIPLw5BHyLnBxdTLxERxtRd7xmkwBenDoljG4tSs=
     file_glob: true
     file: dist/*
+    skip_cleanup: true
     on:
       repo: chenzhq/EBackup
-      branch: develop
