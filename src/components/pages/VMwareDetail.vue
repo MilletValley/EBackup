@@ -82,7 +82,8 @@
                               :visible.sync="backupPlanUpdateModalVisible"
                               :btn-loading="btnLoading"
                               :backup-plan="selectedBackupPlan"
-                              @confirm="updateBackupPlan"></backup-plan-update-modal>
+                              @confirm="updateBackupPlan"
+                              @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
   </section>
 </template>
 <script>
