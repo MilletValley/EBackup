@@ -36,7 +36,7 @@
           <el-row :gutter="20">
             <el-col :span="6"></el-col>
             <el-col :span="6" class="el-col-left">角色：</el-col>
-            <el-col :span="6">{{ roles[0].id+roles[0].name }}</el-col>
+            <el-col :span="6">{{ roles[0].name }}</el-col>
             <el-col :span="6"></el-col>
           </el-row>
         </div>
