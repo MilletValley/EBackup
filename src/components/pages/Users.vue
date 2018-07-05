@@ -34,7 +34,7 @@
           </el-table-column>
           <el-table-column label="角色">
             <template slot-scope="scope">
-              <span v-for="item in scope.row.roles" :key="item.id" :label="item.name" :value="item.id">&nbsp;&nbsp;{{ item.name }}&nbsp;&nbsp;</span>
+              <span v-for="item in scope.row.roles" :key="item.id" :label="item.name" :value="item.id">&nbsp;&nbsp;{{ item.id+item.name }}&nbsp;&nbsp;</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" min-width="130" header-align="center" align="center">
