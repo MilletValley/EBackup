@@ -185,7 +185,7 @@ export const asyncRouters = [
               path: '/db/oracle',
             },
             {
-              name: 'Oracle一健接管',
+              name: 'Oracle一键接管',
               path: '',
             },
           ],
@@ -208,7 +208,7 @@ export const asyncRouters = [
               path: '/db/oracle',
             },
             {
-              name: 'Oracle一健接管',
+              name: 'Oracle一键接管',
               path: '/db/oracle/takeover',
             },
             {
@@ -234,7 +234,7 @@ export const asyncRouters = [
               path: '/db/sqlserver',
             },
             {
-              name: 'SQLServer一健接管',
+              name: 'SQLServer一键接管',
               path: '',
             },
           ],
@@ -257,7 +257,7 @@ export const asyncRouters = [
               path: '/db/sqlserver',
             },
             {
-              name: 'SQLServer一健接管',
+              name: 'SQLServer一键接管',
               path: '/db/sqlserver/takeover',
             },
             {

@@ -59,9 +59,9 @@ export default {
       this.loginForAll(this.$data)
         .then(accessedRouters => {
           this.isLoading = false;
-          // 登陆成功后，必须马上添加允许登陆的路由
+          // 登录成功后，必须马上添加允许登录的路由
           this.$router.addRoutes(accessedRouters);
-          this.$message.success('登陆成功');
+          this.$message.success('登录成功');
           this.$router.replace('/');
           // this.$router.push('/dashboard');
         })
