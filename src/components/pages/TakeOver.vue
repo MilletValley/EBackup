@@ -332,11 +332,13 @@
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
                   @cancel="cancelSwitch"
+                  :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
                                 :type="databaseType"
+                                :btn-loading="btnLoading"
                                 @confirm="createLink"></database-link-create-modal>
   </section>
 </template>
@@ -400,6 +402,7 @@ export default {
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
+      btnLoading: false,
     };
   },
   created() {
@@ -576,6 +579,7 @@ export default {
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
+        this.btnLoading = true;
         switchHostIp(this.hostLinkIdReadyToSwitch, formData)
           .then(res => {
             const { data } = res.data;
@@ -586,8 +590,12 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
           });
       } else {
+        this.btnLoading = true;
         createSwitchMethod[this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
         })
@@ -603,6 +611,9 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
           });
       }
     },
@@ -636,6 +647,7 @@ export default {
       this.$router.push({ path: `${linkId}`, append: true });
     },
     createLink(data) {
+      this.btnLoading = true;
       createLinksMethod[this.databaseType](data)
         .then(res => {
           const { data: link } = res.data;
@@ -644,6 +656,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     removeHostLink(hostLink) {

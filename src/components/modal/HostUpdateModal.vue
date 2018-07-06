@@ -55,7 +55,7 @@
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
-        <el-form-item label="登陆密码"
+        <el-form-item label="登录密码"
                       prop="password">
           <input-toggle v-model="formData.password"></input-toggle>
         </el-form-item>

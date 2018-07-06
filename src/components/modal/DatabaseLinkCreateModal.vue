@@ -96,6 +96,7 @@
       <el-button @click="cancelBtnClick">取消</el-button>
       <el-button type="primary"
                  :disabled="confirmBtnDisable"
+                 :loading="btnLoading"
                  @click="confirmBtnClick">确定</el-button>
     </span>
   </el-dialog>
@@ -119,6 +120,9 @@ export default {
         return ['oracle', 'sqlserver'].includes(value);
       },
     },
+    btnLoading: {
+      type: Boolean,
+    }
   },
   data() {
     return {

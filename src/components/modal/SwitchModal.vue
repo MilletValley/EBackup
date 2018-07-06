@@ -123,6 +123,7 @@
         <el-button @click="cancelSwitch">取消</el-button>
         <el-button type="primary"
                    :disabled="confirmBtnDisable"
+                   :loading="btnLoading"
                    @click="confirmSwitch">确定</el-button>
       </span>
     </el-dialog>
@@ -146,6 +147,9 @@ export default {
       type: Array,
       default: [],
     },
+    btnLoading: {
+      type: Boolean,
+    }
   },
   data() {
     return {

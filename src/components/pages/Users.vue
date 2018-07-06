@@ -17,11 +17,16 @@
         <el-table v-loading="loading" element-loading-text="拼命加载中..." :data="tableUsers" stripe style="width: 100%" @selection-change="handleSelectionChange">
           <el-table-column type="selection">
           </el-table-column>
-          <el-table-column prop="loginName" label="账户">
+          <el-table-column prop="loginName" label="账户" min-width="150" align="center">
           </el-table-column>
-          <el-table-column prop="userName" label="姓名">
+          <el-table-column prop="userName" label="姓名" min-width="150" align="center">
           </el-table-column>
-          <el-table-column prop="state" label="状态" :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]" :filter-method="filterState" filter-placement="bottom-end">
+          <el-table-column prop="state" label="状态"
+                                        :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]"
+                                        :filter-method="filterState"
+                                        filter-placement="bottom-end"
+                                        min-width="150"
+                                        align="center">
             <template slot-scope="scope">
               <span v-if="scope.row.state === 1">
                 <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
@@ -32,12 +37,14 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="角色">
+          <el-table-column label="角色" min-width="200" align="center">
             <template slot-scope="scope">
-              <span v-for="item in scope.row.roles" :key="item.id" :label="item.name" :value="item.id">&nbsp;&nbsp;{{ item.name }}&nbsp;&nbsp;</span>
+              <span v-for="item in scope.row.roles" :key="item.id"
+                                                    :label="item.name"
+                                                    :value="item.id">{{ item.name }}<br></span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" min-width="130" header-align="center" align="center">
+          <el-table-column label="操作" min-width="150" header-align="center" align="center">
             <template slot-scope="scope">
               <el-button type="primary"
                         icon="el-icon-edit"
