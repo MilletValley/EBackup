@@ -13,32 +13,32 @@
             <el-table-column prop="sysType"
                        label="系统类别"
                        :formatter="judgeSystem"
-                       width="150"
+                       min-width="150"
                        fixed
                        align="center"></el-table-column>
       </el-table-column>
             <el-table-column prop="useType"
                        label="使用类别"
                        :formatter="judgeUse"
-                       width="130"
+                       min-width="130"
                        align="center"></el-table-column>
       <el-table-column prop="shareUrl"
                        label="地址"
-                       width="250"
+                       min-width="250"
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
                        label="路径"
-                       width="250"
+                       min-width="250"
                        align="center"></el-table-column>
       <el-table-column label="状态"
-                       width="100"
+                       min-width="100"
                        header-align="center"
                        align="center"
                        :formatter="stateFormatter"
                        prop="state"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
-                       width="140"
+                       min-width="140"
                        align="center"></el-table-column>
       <el-table-column label="操作"
                        min-width="150"
@@ -189,18 +189,6 @@ import InputToggle from '@/components/InputToggle';
 export default {
   name: 'SystemParam',
   data() {
-    // const checkMountUrl = (rule, value, callback) => {
-    //   let lnxPath = /(\/([0-9a-zA-Z]+))+/;
-    //   if (this.createRow.sysType === 2) {
-    //     if(!this.createRow.mountUrl){
-    //       callback(new Error('请输入路径'));
-    //     } else {
-    //       callback();
-    //     }
-    //   } else {
-    //     callback();
-    //   }
-    // };
     return {
       systemParameters: [],
       createModalVisible: false,
@@ -230,9 +218,6 @@ export default {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
         ],
-        // mountUrl: [
-        //   { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
-        // ],
         loginName: [
           { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {

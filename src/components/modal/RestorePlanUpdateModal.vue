@@ -71,10 +71,10 @@
       </el-form-item>
       <el-form-item label="恢复时间"
                     prop="singleTime"
-                    format="yyyy-MM-dd HH:mm:ss"
-                    value-format="yyyy-MM-dd HH:mm:ss"
                     v-show="formData.timeStrategy == 1">
         <el-date-picker type="datetime"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.singleTime"></el-date-picker>
       </el-form-item>
       <el-form-item label="计划时间"
@@ -128,7 +128,8 @@
     <span slot="footer">
       <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
-                 @click="confirmBtnClick">确定</el-button>
+                 @click="confirmBtnClick"
+                 :loading="btnLoading">确定</el-button>
     </span>
   </el-dialog>
 </template>

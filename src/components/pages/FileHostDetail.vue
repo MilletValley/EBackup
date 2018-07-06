@@ -102,6 +102,7 @@
     <single-restore-create-modal :type="systemType"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
+                                 :btn-loading="btnLoading"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -275,6 +276,7 @@ export default {
     },
     // 单次恢复
     addSingleRestorePlan(plan) {
+      this.btnLoading = true;
       createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;
@@ -284,6 +286,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     updateDetails(data) {

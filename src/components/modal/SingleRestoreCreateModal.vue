@@ -45,7 +45,7 @@
         <el-col :span="12">
           <el-form-item label="密码"
                         prop="password"
-                        :rules="[{ required: true, message: '请输入登陆密码', trigger: 'blur' },]">
+                        :rules="[{ required: true, message: '请输入登录密码', trigger: 'blur' },]">
             <el-input v-model="formData.password"></el-input>
           </el-form-item>
         </el-col>
@@ -63,7 +63,8 @@
     <span slot="footer">
       <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
-                 @click="confirmBtnClick">确定</el-button>
+                 @click="confirmBtnClick"
+                 :loading="btnLoading">确定</el-button>
     </span>
   </el-dialog>
 </template>

@@ -53,7 +53,7 @@
           <el-form-item label="登录密码"
                         prop="password"
                         :rules="[
-          { required: true, message: '请输入登陆密码', trigger: 'blur' },
+          { required: true, message: '请输入登录密码', trigger: 'blur' },
         ]">
             <input-toggle v-model="formData.password"></input-toggle>
           </el-form-item>

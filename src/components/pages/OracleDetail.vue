@@ -161,6 +161,7 @@
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :selection-hosts="availableHostsForRestore"
+                                 :btn-loading="btnLoading"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -420,6 +421,7 @@ export default {
         });
     },
     addSingleRestorePlan(plan) {
+      this.btnLoading = true;
       createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;
@@ -429,6 +431,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     updateDetails(data) {
@@ -451,6 +456,7 @@ export default {
     },
     // 更新恢复计划
     updateRestorePlan(data) {
+      this.btnLoading = true;
       updateRestorePlan(data)
         .then(res => {
           const { data: plan, message } = res.data;
@@ -466,6 +472,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     databaseStateStyle(value) {

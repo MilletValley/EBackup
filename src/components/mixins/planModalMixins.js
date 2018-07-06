@@ -440,10 +440,10 @@ const restorePlanModalMixin = {
           },
         ],
         loginName: [
-          { required: true, message: '请输入登陆名', trigger: 'blur' },
+          { required: true, message: '请输入登录名', trigger: 'blur' },
         ],
         // password: [
-        //   { required: true, message: '请输入登陆密码', trigger: 'blur' },
+        //   { required: true, message: '请输入登录密码', trigger: 'blur' },
         // ],
         singleTime: [
           {
