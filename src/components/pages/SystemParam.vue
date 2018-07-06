@@ -189,18 +189,18 @@ import InputToggle from '@/components/InputToggle';
 export default {
   name: 'SystemParam',
   data() {
-    const checkMountUrl = (rule, value, callback) => {
-      let lnxPath = /(\/([0-9a-zA-Z]+))+/;
-      if (this.createRow.sysType === 2) {
-        if(!this.createRow.mountUrl){
-          callback(new Error('请输入路径'));
-        } else {
-          callback();
-        }
-      } else {
-        callback();
-      }
-    };
+    // const checkMountUrl = (rule, value, callback) => {
+    //   let lnxPath = /(\/([0-9a-zA-Z]+))+/;
+    //   if (this.createRow.sysType === 2) {
+    //     if(!this.createRow.mountUrl){
+    //       callback(new Error('请输入路径'));
+    //     } else {
+    //       callback();
+    //     }
+    //   } else {
+    //     callback();
+    //   }
+    // };
     return {
       systemParameters: [],
       createModalVisible: false,
@@ -230,9 +230,9 @@ export default {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
         ],
-        mountUrl: [
-          { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
-        ],
+        // mountUrl: [
+        //   { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
+        // ],
         loginName: [
           { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {
