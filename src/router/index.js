@@ -21,6 +21,9 @@ import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
 import SystemParam from '@/components/pages/SystemParam';
 import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
+import Overview from '@/components/pages/Overview';
+import BackupRecoverView from '@/components/pages/BackupRecoverView';
+import TakeOverView from '@/components/pages/TakeOverView';
 
 Vue.use(Router);
 
@@ -457,6 +460,44 @@ export const asyncRouters = [
         },
       },
     ],
+  },
+  {
+    path: '/demonstrate',
+    component: Layout,
+    meta: {
+      title: '演示',
+      icon: 'demonstrate',
+      roles: [],
+    },
+    children: [
+      {
+        path: 'overview',
+        name: 'overview',
+        component: Overview,
+        meta: {
+          title: '总览',
+          roles: [],
+        },
+      },
+      {
+        path: 'backuprecoverview',
+        name: 'backuprecoverview',
+        component: BackupRecoverView,
+        meta: {
+          title: '备份恢复',
+          roles: [],
+        },
+      },
+      {
+        path: 'takeoverview',
+        name: 'takeoverview',
+        component: TakeOverView,
+        meta: {
+          title: '一键接管',
+          roles: [],
+        },
+      },
+    ]
   },
   {
     path: '/error',
