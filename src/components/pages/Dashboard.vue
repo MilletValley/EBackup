@@ -526,7 +526,7 @@ export default {
         },
         series : [
           {
-            name: '备份',
+            name: '恢复',
             type: 'pie',
             radius: '80%',
             center: ['50%','50%'],
@@ -573,7 +573,7 @@ export default {
         },
         series : [
           {
-            name: '恢复',
+            name: '备份',
             type: 'pie',
             radius: '80%',
             center: ['50%','50%'],
