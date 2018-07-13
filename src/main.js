@@ -11,7 +11,7 @@ import store from './store/index';
 import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
-// import './utils/icon-svg';
+import './utils/icon-svg';
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;

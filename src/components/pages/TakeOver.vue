@@ -644,7 +644,11 @@ export default {
       this.hostLinkIdReadyToSwitch = -1;
     },
     jumpToLinkDetail(linkId) {
-      this.$router.push({ path: `${linkId}`, append: true });
+      if (this.databaseType === 'oracle') {
+        this.$router.push({ name: 'oracleLinkDetail', params: {id: String(linkId)} });
+      } else if (this.databaseType === 'sqlserver') {
+        this.$router.push({ name: 'sqlserverLinkDetail', params: {id: String(linkId)} });
+      }
     },
     createLink(data) {
       this.btnLoading = true;
