@@ -3,19 +3,19 @@ import baseApi from './base';
 const fetchProduction = () =>
   baseApi.request({
     method: 'get',
-    url: '/takeoverproductions',
+    url: '/takeover/productions',
   });
 
 const fetchEbackup = () =>
   baseApi.request({
     method: 'get',
-    url: '/takeoverebackup',
+    url: '/takeover/ebackup',
   });
 
 const createItem = newData =>
   baseApi.request({
     method: 'post',
-    url: '/takeoverproductions',
+    url: '/takeover/newdata',
     data: newData,
   });
 

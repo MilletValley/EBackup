@@ -176,6 +176,10 @@ const rolesUser = [
     id: 'vm admin',
     name: '虚拟机管理员',
   },
+  {
+    id: 'view admin',
+    name: '演示管理员',
+  },
 ];
 
 export default {
