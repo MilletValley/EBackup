@@ -2,7 +2,7 @@
     <section>
         <div style="width: 80%; margin: 0 auto; padding-top: 5%; position: relative;">
             <div style = "display:inline-block; margin-right: 18%;">
-                <img src = "https://gw.alipayobjects.com/zos/rmsportal/RVRUAYdCGeYNBWoKiIwB.svg" style="margin-top: 60px;"/>
+                <img src = "../../assets/ServerError.svg" style="margin-top: 60px;"/>
             </div>
             <div style = "position: absolute; top: 20px; right: 10%;">
                 <h1 style = "font-size:72px; height: 10px;">500</h1>
