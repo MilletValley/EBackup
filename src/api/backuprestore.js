@@ -3,19 +3,19 @@ import baseApi from './base';
 const fetchProduction = () =>
   baseApi.request({
     method: 'get',
-    url: '/backuprestoreproductions',
+    url: '/backuprestore/productions',
   });
 
 const fetchEbackup = () =>
   baseApi.request({
     method: 'get',
-    url: '/backuprestoreebackup',
+    url: '/backuprestore/ebackup',
   });
 
 const createProduction = productionData =>
   baseApi.request({
     method: 'post',
-    url: '/backuprestoreproductions',
+    url: '/backuprestore/productions',
     data: productionData,
   });
 

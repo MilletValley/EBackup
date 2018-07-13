@@ -467,7 +467,7 @@ export const asyncRouters = [
     meta: {
       title: '演示',
       icon: 'demonstrate',
-      roles: [],
+      roles: ['view admin'],
     },
     children: [
       {
@@ -476,7 +476,7 @@ export const asyncRouters = [
         component: Overview,
         meta: {
           title: '总览',
-          roles: [],
+          roles: ['view admin'],
         },
       },
       {
@@ -485,7 +485,7 @@ export const asyncRouters = [
         component: BackupRecoverView,
         meta: {
           title: '备份恢复',
-          roles: [],
+          roles: ['view admin'],
         },
       },
       {
@@ -494,7 +494,7 @@ export const asyncRouters = [
         component: TakeOverView,
         meta: {
           title: '一键接管',
-          roles: [],
+          roles: ['view admin'],
         },
       },
     ]
