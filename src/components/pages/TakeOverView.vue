@@ -181,10 +181,10 @@ export default {
   mixins: [overviewMixin],
   computed: {
     showProduction() {
-      return this.productionData.serviceIp!==''&&this.productionData.serviceIp!==null;
+      return !['',null,'null'].includes(this.productionData.serviceIp);
     },
     showEbackup() {
-      return this.ebackupData.serviceIp!==''&&this.ebackupData.serviceIp!==null;
+      return !['',null,'null'].includes(this.ebackupData.serviceIp);
     }
   },
   methods: {
