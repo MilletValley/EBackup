@@ -4,7 +4,6 @@ const overviewMixin = {
     return {
       productionData: {},
       ebackupData: {},
-      applicationData: [],
       dialogVisible: false,
       btnLoading: false,
     };
@@ -15,7 +14,29 @@ const overviewMixin = {
     },
     rightDire() {
       return this.$refs.rightDire;
-    }
+    },
+    showProduction() {
+      return !['',null,'null'].includes(this.productionData.serviceIp);
+    },
+    showEbackup() {
+      return !['',null,'null'].includes(this.ebackupData.serviceIp);
+    },
+    productionInfo() {
+      if(this.productionData.salesInfo)
+        return this.productionData.salesInfo.sort(function(a,b){
+          return b.salesamount-a.salesamount;
+        }).slice(0,5);
+      else
+        return [];
+    },
+    ebackupInfo() {
+      if(this.ebackupData.salesInfo)
+        return this.ebackupData.salesInfo.sort(function(a,b){
+          return b.salesamount-a.salesamount;
+        }).slice(0,5);
+      else
+        return [];
+    },
   },
   created() {
     this.fetchData();

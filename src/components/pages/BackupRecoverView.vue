@@ -24,7 +24,7 @@
                         class="envIcon"></i-icon>
           <span>应用界面</span>
         </div>
-        <el-table :data="this.applicationData">
+        <el-table :data="this.radio==='生产环境'?this.productionInfo:this.ebackupInfo">
           <el-table-column
             prop="name"
             label="姓名"
@@ -74,7 +74,7 @@
                           class="envIcon"></i-icon>
             <span>生产环境</span>
           </div>
-          <el-table :data="this.productionData.salesInfo">
+          <el-table :data="this.productionInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -115,7 +115,7 @@
                           class="envIcon"></i-icon>
             <span>易备环境</span>
           </div>
-          <el-table :data="this.ebackupData.salesInfo">
+          <el-table :data="this.ebackupInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -174,7 +174,6 @@ export default {
       fetchProduction()
       .then(res => {
         this.productionData = res.data.data;
-        this.applicationData = this.productionData.salesInfo;
         this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
       })
       .catch(error => {
@@ -220,10 +219,8 @@ export default {
           this.productionData = resArr[0].data.data;
           this.ebackupData = resArr[1].data.data;
           if(this.radio==='生产环境') {
-            this.applicationData = this.productionData.salesInfo;
             this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
           } else {
-            this.applicationData = this.ebackupData.salesInfo;
             this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
           }
         })
@@ -239,10 +236,8 @@ export default {
     switchEnvironment() {
       if(this.radio === '易备环境') {
         this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
-        this.applicationData = this.ebackupData.salesInfo;
       } else {
         this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
-        this.applicationData = this.productionData.salesInfo;
       }
     },
   },
