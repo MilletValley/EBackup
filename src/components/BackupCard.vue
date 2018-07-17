@@ -78,8 +78,8 @@
             <div>
               <el-tag :class="$style.infoTag"
                       v-for="point in backupConfig.timePoints"
-                      :key="point"
-                      size="small">{{point}}</el-tag>
+                      :key="point.key"
+                      size="small">{{point.value}}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="间隔"
@@ -158,7 +158,9 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+          value
+        );
       },
     },
     backupPlan: {

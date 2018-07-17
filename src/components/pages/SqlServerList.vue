@@ -4,7 +4,7 @@
              size="small">
       <el-form-item style="float: right;">
         <el-button type="info"
-                   @click="$router.push({name: 'sqlserverTakeOver'})">一健接管</el-button>
+                   @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="primary"
@@ -34,7 +34,7 @@
                        min-width="200"
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
-                       label="登陆账号"
+                       label="登录账号"
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="role"

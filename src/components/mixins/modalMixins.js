@@ -47,6 +47,7 @@ const genModalMixin = type => {
         id: -1,
         name: '',
         hostIp: '',
+        serviceIp: '',
         osName: '',
         loginName: '',
         password: '',
@@ -79,6 +80,14 @@ const genModalMixin = type => {
             trigger: 'blur',
           },
         ],
+        serviceIp: [
+          {
+            pattern:
+              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+            message: 'IP地址不正确',
+            trigger: 'blur',
+          },
+        ],
         hostType: [
           { required: true, message: '请选择设备类型', trigger: 'blur' },
         ],
@@ -103,6 +112,9 @@ const genModalMixin = type => {
             message: '不能包含空格',
             trigger: ['blur'],
           },
+        ],
+        osName: [
+          { required: true, message: '请选择操作系统', trigger: 'blur' },
         ],
         loginName: [
           {
@@ -153,6 +165,7 @@ const genModalMixin = type => {
         rules,
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
+        isLoading: false,
       };
     },
     computed: {
@@ -171,10 +184,14 @@ const genModalMixin = type => {
         return this.type === 'sqlserver' ? '数据库名' : '实例名';
       },
       sqlserverHosts() {
-        return this.$store.getters.hostsWithSqlServer;
+        return this.$store.getters.hostsWithSqlServer.filter(
+          h => h.hostType === 1
+        );
       },
       oracleHosts() {
-        return this.$store.getters.hostsWithOracle;
+        return this.$store.getters.hostsWithOracle.filter(
+          h => h.hostType === 1
+        );
       },
       availableHosts() {
         return this.type === 'oracle' ? this.oracleHosts : this.sqlserverHosts;

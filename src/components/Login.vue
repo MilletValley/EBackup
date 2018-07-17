@@ -1,15 +1,9 @@
 <template>
-  <div>
-    <section class="material-half-bg">
-      <div class="cover"></div>
-    </section>
+  <div class="root">
     <section class="login-content">
-      <div class="logo">
-        <h1>WHStone</h1>
-      </div>
       <div class="login-box">
         <el-form class="login-form" label-position="left">
-          <h2 class="login-head"> <img src="../assets/elogo.png" class="login-img">信服易备</h2>
+          <div class="login-head"> <img src="../assets/logo.png" class="login-img"></div>
           <el-form-item label="用户名" props="loginName">
             <el-input type="text" required v-model="loginName" auto-complete="off" @keyup.enter.native="doPassword">
             </el-input>
@@ -24,9 +18,16 @@
           <el-form-item>
             <el-button type="primary" class="login-button" @click="login2" :loading="isLoading">登&emsp;&emsp;录</el-button>
           </el-form-item>
-      </el-form>
-    </div>
-  </section>
+        </el-form>
+      </div>
+    </section>
+    <section class="home-copyright">
+      <div>
+        <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
+        <p>Powered By esay standby<br/></p>
+        <p>Version 2.0.0<br/></p>
+      </div>
+    </section>
 </div>
 </template>
 <script>
@@ -58,9 +59,9 @@ export default {
       this.loginForAll(this.$data)
         .then(accessedRouters => {
           this.isLoading = false;
-          // 登陆成功后，必须马上添加允许登陆的路由
+          // 登录成功后，必须马上添加允许登录的路由
           this.$router.addRoutes(accessedRouters);
-          this.$message.success('登陆成功');
+          this.$message.success('登录成功');
           this.$router.replace('/');
           // this.$router.push('/dashboard');
         })
@@ -89,6 +90,12 @@ export default {
 };
 </script>
 <style>
+.root {
+  background-image: url("../assets/homePage3.jpg");
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+}
+
 @font-face {
   font-family: 'Niconne';
   font-style: normal;
@@ -105,21 +112,6 @@ input:-webkit-autofill,
   select:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px white inset;
  }
-.material-half-bg {
-  height: 100vh;
-  background-color: #e7e7e7;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-}
-
-.material-half-bg .cover {
-  background-color: #003366;
-  height: 50vh;
-}
 
 .login-content {
   display: -webkit-box;
@@ -135,7 +127,7 @@ input:-webkit-autofill,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  min-height: 100vh;
+  padding: 15% 0 5%;
 }
 
 .login-content .logo {
@@ -166,14 +158,14 @@ input:-webkit-autofill,
 
 .login-content .login-box .login-head {
   margin-top: 0;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
   border-bottom: 1px solid #ddd;
   text-align: center;
 }
 
 .login-content .login-box .login-img {
-  height: 40px;
+  height: 50px;
   padding-right: 20px;
   line-height: .75em;
   vertical-align: -40%;
@@ -190,12 +182,13 @@ input:-webkit-autofill,
   left: 0;
   right: 0;
   padding: 40px;
+  padding-top: 25px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   -webkit-transition: all 0.5s ease-in-out;
   -o-transition: all 0.5s ease-in-out;
   transition: all 0.5s ease-in-out;
-} 
+}
 
 @media (max-width: 351px) {
   .login-content .login-box {
@@ -212,5 +205,11 @@ input:-webkit-autofill,
 
 .el-button {
     font-weight: 700;
+}
+.home-copyright p{
+  text-align: center;
+  display: block;
+  font-size: 12px;
+  color: #666;
 }
 </style>

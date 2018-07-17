@@ -4,27 +4,37 @@
              :visible.sync="modalVisible"
              @open="modalOpened"
              @close="modalClosed">
-    <el-form inline>
-      <el-form-item label="选择主设备">
-        <el-select v-model="selectedProductionHostId"
-                   placeholder="选择主设备">
-          <el-option v-for="host in productionHosts"
-                     :key="host.id"
-                     :label="host.name"
-                     :value="host.id"
-                     :disabled="!host.databases.length"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="选择备设备">
-        <el-select v-model="selectedEbackupHostId"
-                   placeholder="选择备设备">
-          <el-option v-for="host in ebackupHosts"
-                     :key="host.id"
-                     :label="host.name"
-                     :value="host.id"
-                     :disabled="!!host.databases.length"></el-option>
-        </el-select>
-      </el-form-item>
+    <el-form size="small"
+             ref="selectHostForm"
+             label-width="100px">
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="选择主设备">
+            <el-select style="width: 90%;"
+                       v-model="selectedProductionHostId"
+                       placeholder="选择主设备">
+              <el-option v-for="host in productionHosts"
+                         :key="host.id"
+                         :label="host.name"
+                         :value="host.id"
+                         :disabled="!host.databases.length"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="选择备设备">
+            <el-select style="width: 90%;"
+                       v-model="selectedEbackupHostId"
+                       placeholder="选择备设备">
+              <el-option v-for="host in ebackupHosts"
+                         :key="host.id"
+                         :label="host.name"
+                         :value="host.id"
+                         :disabled="!!host.databases.length"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
     </el-form>
 
     <section :class="$style.configureTabContainer">
@@ -85,6 +95,8 @@
     <span slot="footer">
       <el-button @click="cancelBtnClick">取消</el-button>
       <el-button type="primary"
+                 :disabled="confirmBtnDisable"
+                 :loading="btnLoading"
                  @click="confirmBtnClick">确定</el-button>
     </span>
   </el-dialog>
@@ -108,6 +120,9 @@ export default {
         return ['oracle', 'sqlserver'].includes(value);
       },
     },
+    btnLoading: {
+      type: Boolean,
+    }
   },
   data() {
     return {
@@ -133,6 +148,7 @@ export default {
       this.currentTab = String(
         (this.databaseTabs[0] && this.databaseTabs[0].id) || ''
       );
+      this.keep = false;
     },
     keep(value) {
       if (!value) return;
@@ -176,16 +192,55 @@ export default {
         detail: this.multiFormData,
       };
     },
+    confirmBtnDisable() {
+      return (
+        this.selectedProductionHostId === '' ||
+        this.selectedEbackupHostId === ''
+      );
+    },
   },
   methods: {
     cancelBtnClick() {
-      this.$emit('update:visible', false);
+      this.$refs.selectHostForm.clearValidate();
+      this.modalVisible = false;
+      // this.$emit('update:visible', false);
+    },
+    // 验证表单中是否有空信息
+    validateNullProp() {
+      const multiFormData = this.multiFormData;
+      const type = this.type;
+      return new Promise(function(resolve, reject) {
+        const validateProps = {
+          oracle: ['primaryLsn', 'viceLsn', 'port'],
+          sqlserver: ['viceLoginName', 'vicePassword'],
+        };
+        let isSuccess = true;
+        for (let i = 0, l = multiFormData.length; i < l; ++i) {
+          const formData = multiFormData[i];
+          let errorProp = validateProps[type].find(prop => {
+            return !formData[prop] || formData[prop] === '';
+          });
+          if (errorProp) {
+            isSuccess = false;
+            reject(String(formData.primaryDatabaseId));
+            return;
+          }
+        }
+        if (isSuccess) resolve();
+      });
     },
     confirmBtnClick() {
-      this.$emit('confirm', this.requestData);
+      this.validateNullProp()
+        .then(() => {
+          this.$emit('confirm', this.requestData);
+        })
+        .catch(errorDbId => {
+          this.currentTab = errorDbId;
+          this.$message.warning('初始化信息不能为空');
+        });
     },
     modalOpened() {
-      this.originRequestData = { ...this.requestData };
+      // this.originRequestData = { ...this.requestData };
     },
     modalClosed() {
       this.selectedProductionHostId = '';

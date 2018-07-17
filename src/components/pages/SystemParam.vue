@@ -13,32 +13,32 @@
             <el-table-column prop="sysType"
                        label="系统类别"
                        :formatter="judgeSystem"
-                       width="150"
+                       min-width="150"
                        fixed
                        align="center"></el-table-column>
       </el-table-column>
             <el-table-column prop="useType"
                        label="使用类别"
                        :formatter="judgeUse"
-                       width="130"
+                       min-width="130"
                        align="center"></el-table-column>
       <el-table-column prop="shareUrl"
                        label="地址"
-                       width="250"
+                       min-width="250"
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
                        label="路径"
-                       width="250"
+                       min-width="250"
                        align="center"></el-table-column>
       <el-table-column label="状态"
-                       width="100"
+                       min-width="100"
                        header-align="center"
                        align="center"
                        :formatter="stateFormatter"
                        prop="state"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
-                       width="140"
+                       min-width="140"
                        align="center"></el-table-column>
       <el-table-column label="操作"
                        min-width="150"
@@ -80,7 +80,7 @@
     <el-dialog :visible.sync="updateModalVisible"
                @close="updateClose">
       <span slot="title">
-        修改设备
+        修改参数
         <span style="color: #999999">（ID: {{updateRow.id}}）</span>
       </span>
       <el-form :model="updateRow"
@@ -90,7 +90,6 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="updateRow.sysType" :label="0">通用</el-radio>
           <el-radio v-model="updateRow.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="updateRow.sysType" :label="2">Linux</el-radio>
         </el-form-item>
@@ -125,7 +124,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary" @click="updateConfirm">确定</el-button>
+        <el-button type="primary" @click="updateConfirm" :loading="btnLoading">确定</el-button>
         <el-button @click="updateModalVisible = false">取消</el-button>
       </span>
     </el-dialog>
@@ -141,7 +140,6 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="createRow.sysType" :label="0">通用</el-radio>
           <el-radio v-model="createRow.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="createRow.sysType" :label="2">Linux</el-radio>
         </el-form-item>
@@ -176,7 +174,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary" @click="createConfirm">确定</el-button>
+        <el-button type="primary" @click="createConfirm" :loading="btnLoading">确定</el-button>
         <el-button @click="createModalVisible = false">取消</el-button>
       </span>
     </el-dialog>
@@ -191,27 +189,12 @@ import InputToggle from '@/components/InputToggle';
 export default {
   name: 'SystemParam',
   data() {
-    const checkMountUrl = (rule, value, callback) => {
-      let lnxPath = /(\/([0-9a-zA-Z]+))+/;
-      if (this.createRow.sysType === 2) {
-        if(!this.createRow.mountUrl){
-          callback(new Error('请输入路径'));
-        } else {
-          if(!lnxPath.test(this.createRow.mountUrl)){
-            callback(new Error('路径格式不正确'));
-          } else {
-            callback();
-          }
-        }
-      } else {
-        callback();
-      }
-    };
     return {
       systemParameters: [],
       createModalVisible: false,
       updateModalVisible: false,
       listIndex: '',
+      btnLoading: false,
       updateRow: {
         id: -1,
         shareUrl: '',
@@ -228,28 +211,14 @@ export default {
         password: '',
         mountUrl: '',
         useType: 1,
-        sysType: 0,
+        sysType: 1,
         state: 0,
       },
       rules: {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
-          {
-            pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-            message: '地址不正确',
-            trigger: 'blur',
-          },
-        ],
-        mountUrl: [
-          { validator: checkMountUrl, trigger: 'blur', trigger: 'change' }
         ],
         loginName: [
-          {
-            required: true,
-            message: '请输入登录账号',
-            trigger: 'blur',
-          },
           { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
           {
             pattern: '^[^\\s]*$',
@@ -258,11 +227,6 @@ export default {
           },
         ],
         password: [
-          {
-            required: true,
-            message: '请输入登录密码',
-            trigger: 'blur',
-          },
           {
             pattern: '^[^\\s]*$',
             message: '不能包含空格',
@@ -277,12 +241,12 @@ export default {
   },
   computed: {
     create() {
-      if(this.createRow.sysType===0 || this.createRow.sysType===1)
+      if(this.createRow.sysType===1)
         this.createRow.mountUrl=null;
       return this.createRow;
     },
     update() {
-      if(this.updateRow.sysType===0 || this.updateRow.sysType===1)
+      if(this.updateRow.sysType===1)
         this.updateRow.mountUrl=null;
       return this.updateRow;
     }
@@ -298,7 +262,7 @@ export default {
         })
         .catch(error => {
           error => Promise.reject(error);
-        });
+        })
     },
     judgeSystem(data) {
       return sysTypeMapping[data.sysType];
@@ -314,6 +278,7 @@ export default {
       newRow.state = newRow.state===0?1:0;
       modifyOne(newRow)
         .then(response => {
+          this.$message.success('修改成功');
           this.systemParameters.splice(index, 1, response.data.data);
           this.systemParameters.sort((a,b) =>
             {return a.state-b.state});
@@ -348,6 +313,8 @@ export default {
               '删除成功'
             );
             this.systemParameters.splice(index, 1);
+            this.systemParameters.sort((a,b) =>
+              {return a.state-b.state});
           })
           .catch(error => {
             this.$message.error(error);
@@ -360,15 +327,19 @@ export default {
     updateConfirm() {
       this.$refs.updateRow.validate(valid => {
         if (valid) {
+          this.btnLoading=true;
           modifyOne(this.update)
           .then(response => {
             this.$message.success(response.data.message);
             this.updateModalVisible = false;
             this.systemParameters.splice(this.listIndex, 1, response.data.data);
+            this.systemParameters.sort((a,b) =>
+            {return a.state-b.state});
           })
           .catch(error => {
             this.$message.error(error);
           })
+          .then(() => {this.btnLoading=false;})
         } else {
           return false;
         }
@@ -377,15 +348,19 @@ export default {
     createConfirm() {
       this.$refs.createRow.validate(valid => {
         if (valid) {
+          this.btnLoading=true;
           createOne(this.create)
             .then(response => {
               this.$message.success(response.data.message);
               this.createModalVisible = false;
               this.systemParameters.push(response.data.data);
+              this.systemParameters.sort((a,b) =>
+              {return a.state-b.state});
             })
             .catch(error => {
               this.$message.error(error);
-            });
+            })
+            .then(() => {this.btnLoading=false;});
         } else {
           return false;
         }

@@ -22,6 +22,10 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
+        <el-form-item label="服务IP"
+                      prop="serviceIp">
+          <el-input v-model="formData.serviceIp"></el-input>
+        </el-form-item>
         <el-form-item label="设备类型"
                       prop="hostType">
           <el-radio v-model="formData.hostType"
@@ -51,14 +55,15 @@
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
-        <el-form-item label="登陆密码"
+        <el-form-item label="登录密码"
                       prop="password">
           <input-toggle v-model="formData.password"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
-                   @click="confirm">确定</el-button>
+                   @click="confirm"
+                   :loading="btnLoading">确定</el-button>
         <el-button @click="cancelBtnClick">取消</el-button>
       </span>
     </el-dialog>

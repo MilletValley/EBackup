@@ -99,7 +99,7 @@
 
           </li>
           <li>
-            <h5>备份开始时间</h5>
+            <h5>恢复开始时间</h5>
             <div>{{restoreOperation.startTime || '等待下次操作'}}</div>
           </li>
           <li>

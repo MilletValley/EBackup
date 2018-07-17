@@ -35,7 +35,7 @@
                        width="220"
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
-                       label="登陆账号"
+                       label="登录账号"
                        width="200"
                        align="center"></el-table-column>
       <el-table-column label="操作"
@@ -60,6 +60,7 @@
     </el-table>
     <file-host-create-modal type="filehost"
                             :visible.sync="createModalVisible"
+                            :btn-loading="btnLoading"
                             @confirm="createItem"></file-host-create-modal>
     <file-host-update-modal type="filehost"
                             :visible.sync="updateModalVisible"

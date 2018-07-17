@@ -1,6 +1,6 @@
 FROM nginx
 
-LABEL name="chenzhq"
+LABEL name="qiansy"
 
 ADD docker/nginx.conf /etc/nginx/nginx.conf
 

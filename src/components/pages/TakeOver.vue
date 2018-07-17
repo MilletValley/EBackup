@@ -2,13 +2,26 @@
   <section>
     <el-form inline
              size="small">
-      <el-form-item style="float: right;">
+      <el-form-item v-show="enterFromMenu">
+        <el-radio-group v-model="databaseType">
+          <el-radio-button label="oracle">Oracle</el-radio-button>
+          <el-radio-button label="sqlserver">SQLServer</el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item v-show="!enterFromMenu"
+                    style="float: right;">
         <el-button type="info"
                    @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
       </el-form-item>
-      <el-form-item style="float: right;">
+
+      <el-form-item v-show="!enterFromMenu"
+                    style="float: right;">
         <el-button type="primary"
                    @click="displayLinkCreateModal">添加</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
+        <el-button icon="el-icon-refresh"
+                   @click="refreshData">刷新</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">
@@ -50,8 +63,17 @@
                 <i-icon name="ip"
                         :class="$style.hostIpIcon"></i-icon>
                 <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
+                <el-tooltip v-show="hostLink.serviceIpMark === 1"
+                            placement="right"
+                            effect="light">
+                  <div slot="content">
+                    提供服务中
+                    <br/>服务IP：{{ hostLink.primaryHost.serviceIp }}
+                  </div>
+                  <i-icon :class="$style.serviceIcon"
+                          name="service"></i-icon>
+                </el-tooltip>
               </div>
-              <!-- <el-tag size="small"></el-tag> -->
             </div>
           </el-col>
           <el-col :span="4">
@@ -62,8 +84,8 @@
                             width="300"
                             :open-delay="200">
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                  <p v-if="!hostLink.latestSwitch">暂无操作</p>
-                  <el-form v-else
+                  <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
+                  <el-form v-else-if="hostLink.latestSwitch.type === 2"
                            size="mini"
                            label-width="70px">
                     <el-form-item :class="$style.switchFormItem"
@@ -87,15 +109,35 @@
                       <span>{{ hostLink.latestSwitch.switchTime }}</span>
                     </el-form-item>
                   </el-form>
+                  <el-form v-else-if="hostLink.latestSwitch.type === 3"
+                           size="mini"
+                           label-width="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="解除信息">
+                      <span>{{ hostLink.latestSwitch.content }}</span>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="状态">
+                      <el-tag :type="switchStateStyle(hostLink.latestSwitch.state)"
+                              size="mini">
+                        {{ hostLink.latestSwitch.state | switchStateFilter }}
+                      </el-tag>
+                    </el-form-item>
+                  </el-form>
                   <i-icon name="link"
                           :class="$style.hostSwitchIcon"
                           slot="reference"></i-icon>
                 </el-popover>
               </div>
-              <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1"
+              <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
                    style="margin-top: 12px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
+              </div>
+              <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
+                   style="margin-top: 12px;">
+                <i class="el-icon-loading"></i>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
               </div>
               <template v-else>
                 <div style="margin: -3px 0 -6px;">
@@ -108,7 +150,7 @@
                              :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                              @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
                 </div>
-                <div>
+                <div v-show="!enterFromMenu">
                   <el-button type="text"
                              @click="removeHostLink(hostLink)"
                              :class="$style.removeHostLink">解除连接</el-button>
@@ -123,6 +165,16 @@
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.viceHost.name }}</span>
+                <el-tooltip v-show="hostLink.serviceIpMark === 2"
+                            placement="right"
+                            effect="light">
+                  <div slot="content">
+                    提供服务中
+                    <br/>服务IP：{{ hostLink.viceHost.serviceIp }}
+                  </div>
+                  <i-icon :class="$style.serviceIcon"
+                          name="service"></i-icon>
+                </el-tooltip>
               </div>
               <div>
                 <i-icon name="ip"
@@ -180,10 +232,18 @@
                           trigger="hover"
                           width="300"
                           :open-delay="200">
-                <label>连接状态</label>
-                <el-tag :type="databaseLinkStateStyle(dbLink.state)"
-                        style="margin-left: 10px"
-                        size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
+                <el-form size="mini"
+                         label-width="70px">
+                  <el-form-item :class="$style.switchFormItem"
+                                label="连接状态">
+                    <el-tag :type="databaseLinkStateStyle(dbLink.state)"
+                            size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
+                  </el-form-item>
+                  <el-form-item :class="$style.switchFormItem"
+                                label="信息">
+                    <span>{{ dbLink.errMsg }}</span>
+                  </el-form-item>
+                </el-form>
                 <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
                 <p v-if="!dbLink.latestSwitch">暂无操作</p>
                 <el-form v-else
@@ -212,7 +272,6 @@
                 </el-form>
                 <i-icon :name="`switch-${dbLink.state}`"
                         :class="$style.switchIcon"
-                        @click.native="jumpToLinkDetail(dbLink.id)"
                         slot="reference"></i-icon>
               </el-popover>
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
@@ -223,6 +282,8 @@
               <div v-else>
                 <el-button type="text"
                            @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                <el-button type="text"
+                           @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
             </div>
           </el-col>
@@ -271,11 +332,13 @@
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
                   @cancel="cancelSwitch"
+                  :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
                                 :type="databaseType"
+                                :btn-loading="btnLoading"
                                 @confirm="createLink"></database-link-create-modal>
   </section>
 </template>
@@ -339,17 +402,34 @@ export default {
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
-      password: '',
+      btnLoading: false,
     };
   },
   created() {
     this.fetchData();
   },
+  watch: {
+    $route: function() {
+      this.items = [];
+      this.links = [];
+      this.fetchData();
+    },
+  },
   computed: {
-    databaseType() {
-      const path = this.$route.path;
-      // /db/xxx/takeover
-      return this.$route.path.substring(4, path.lastIndexOf('/'));
+    databaseType: {
+      get() {
+        const path = this.$route.path;
+        // /db/xxx/takeover
+        return this.$route.path.substring(4, path.lastIndexOf('/'));
+      },
+      set(value) {
+        this.$router.push({ name: `${value}TakeOverView` });
+      },
+    },
+    // 无奈 0620
+    // 判断是不是从菜单进入，有不同的展示形式
+    enterFromMenu() {
+      return this.$route.path.substring(1, 3) === 'db' ? false : true;
     },
     specialHosts() {
       if (this.databaseType === 'oracle') {
@@ -457,17 +537,41 @@ export default {
           this.$message.error(error);
         });
     },
-
+    refreshData() {
+      const opt = {
+        type: 'info',
+        message: '正在更新中，请等待...',
+        duration: 0,
+      };
+      const { close } = this.$message(opt);
+      Promise.all([
+        fetchDatabaseMethod[this.databaseType](),
+        fetchLinksMethod[this.databaseType](),
+      ])
+        .then(resArr => {
+          const { data } = resArr[0].data;
+          const { data: links } = resArr[1].data;
+          this.items = data;
+          this.links = links;
+        })
+        .then(() => {
+          opt.type = 'success';
+          opt.message = '更新成功';
+          setTimeout(close, 1000);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
     displayLinkCreateModal() {
       this.linkCreateModalVisible = true;
     },
     cancelSwitch() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
-      this.password = '';
       this.switchModalVisible = false;
     },
-    confirmSwitch() {
+    confirmSwitch(formData) {
       /**
        * 1.验证密码；
        * 2.判断是切换IP还是切换实例，调用不用的请求
@@ -475,7 +579,8 @@ export default {
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
-        switchHostIp(this.hostLinkIdReadyToSwitch)
+        this.btnLoading = true;
+        switchHostIp(this.hostLinkIdReadyToSwitch, formData)
           .then(res => {
             const { data } = res.data;
             this.links.find(
@@ -485,8 +590,12 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
           });
       } else {
+        this.btnLoading = true;
         createSwitchMethod[this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
         })
@@ -502,6 +611,9 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
           });
       }
     },
@@ -530,12 +642,16 @@ export default {
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
-      this.password = '';
     },
     jumpToLinkDetail(linkId) {
-      this.$router.push({ path: `${linkId}`, append: true });
+      if (this.databaseType === 'oracle') {
+        this.$router.push({ name: 'oracleLinkDetail', params: {id: String(linkId)} });
+      } else if (this.databaseType === 'sqlserver') {
+        this.$router.push({ name: 'sqlserverLinkDetail', params: {id: String(linkId)} });
+      }
     },
     createLink(data) {
+      this.btnLoading = true;
       createLinksMethod[this.databaseType](data)
         .then(res => {
           const { data: link } = res.data;
@@ -544,6 +660,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     removeHostLink(hostLink) {
@@ -554,12 +673,17 @@ export default {
       })
         .then(() => {
           deleteLinks(hostLink.id)
-            .then(() => {
-              this.links.splice(
-                this.links.findIndex(link => link.id === hostLink.id),
-                1
-              );
-              this.$message.success('连接解除成功');
+            .then(res => {
+              // this.links.splice(
+              //   this.links.findIndex(link => link.id === hostLink.id),
+              //   1
+              // );
+              // this.$message.success('连接解除成功');
+              const { data: cancelOperation } = res.data;
+              this.links.find(
+                link => link.id === hostLink.id
+              ).latestSwitch = cancelOperation;
+              this.$message.info('正在尝试解除连接，请等待');
             })
             .catch(error => {
               this.$message.error(error);
@@ -606,6 +730,17 @@ $vice-color: #6d6d6d;
 .hostInfo {
   text-align: center;
   margin: 1em 0;
+}
+.serviceIcon {
+  position: absolute;
+  margin-left: 30px;
+  margin-top: -0.5em;
+  width: 2em;
+  height: 2em;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
 }
 .hostIpIcon {
   width: 2em;
@@ -691,7 +826,7 @@ $vice-color: #6d6d6d;
 .hostSwitchIcon {
   width: 3em;
   height: 1.4em;
-  cursor: pointer;
+  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
@@ -700,13 +835,24 @@ $vice-color: #6d6d6d;
 .switchIcon {
   width: 3em;
   height: 3em;
-  cursor: pointer;
+  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
   }
 }
+.dbLinkInfoItem {
+  margin-bottom: 10px;
+  label {
+    display: inline-block;
+    padding-right: 12px;
+    text-align: right;
+    color: #a0a0a0;
+    width: 58px;
+  }
+}
 .switchFormItem {
+  margin-bottom: 5px !important;
   label {
     color: #a0a0a0;
   }

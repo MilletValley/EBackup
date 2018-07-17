@@ -2,8 +2,7 @@
   <el-dialog custom-class="min-width-dialog"
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
-             @close="modalClosed"
-             width="40%">
+             @close="modalClosed">
     <span slot="title">执行恢复操作</span>
     <el-form :model="formData"
              :rules="rules"
@@ -46,7 +45,7 @@
         <el-col :span="12">
           <el-form-item label="密码"
                         prop="password"
-                        :rules="[{ required: true, message: '请输入登陆密码', trigger: 'blur' },]">
+                        :rules="[{ required: true, message: '请输入登录密码', trigger: 'blur' },]">
             <el-input v-model="formData.password"></el-input>
           </el-form-item>
         </el-col>
@@ -64,18 +63,19 @@
     <span slot="footer">
       <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
-                 @click="confirmBtnClick">确定</el-button>
+                 @click="confirmBtnClick"
+                 :loading="btnLoading">确定</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
-import moment from 'moment';
-import modalMixin from '../mixins/restorePlanModalMixins';
+import dayjs from 'dayjs';
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 
 export default {
   name: 'SingleRestoreCreateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   data() {
     return {
       recoveringStrategys: recoveringStrategyMapping,
@@ -86,9 +86,14 @@ export default {
     confirmBtnClick() {
       this.$refs.singleRestoreForm.validate(valid => {
         if (valid) {
-          this.formData.name = moment().format('YYYYMMDDHHmmss');
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', { id: this.id, data: { name, config } });
+          this.formData.name = dayjs().format('YYYYMMDDHHmmss');
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', { id: this.id, data: { name, config } });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }

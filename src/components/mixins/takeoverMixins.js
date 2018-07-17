@@ -4,6 +4,8 @@ import {
   linkStateMapping,
   switchStateMapping,
   switchManualMapping,
+  switchTypeMapping,
+  serviceIpMarkMapping,
 } from '../../utils/constant';
 
 const takeoverMixin = {
@@ -54,6 +56,9 @@ const takeoverMixin = {
     switchStateFormatter(row, column, cellValue) {
       return switchStateMapping[cellValue];
     },
+    switchTypeFormatter(row, column, cellValue) {
+      return switchTypeMapping[cellValue];
+    },
   },
   filters: {
     databaseStateFilter(value) {
@@ -70,6 +75,9 @@ const takeoverMixin = {
     },
     switchManualFilter(value) {
       return switchManualMapping[value];
+    },
+    serviceIpMarkFilter(value) {
+      return serviceIpMarkMapping[value];
     },
   },
 };

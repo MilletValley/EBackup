@@ -122,24 +122,33 @@
                 @restoreplan:refresh="refreshSingleRestorePlan"
                 @restoreplan:delete="deleteRestorePlan"
                 @select-restore-plan="selectRestorePlan"
+                @select-backup-plan="selectBackupPlan"
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <add-backup-plan type="sqlserver"
-                     :id="Number(id)"
-                     :visible.sync="backupPlanCreateModalVisible"
-                     @confirm="addBackupPlan"></add-backup-plan>
+    <backup-plan-create-modal type="sqlserver"
+                              :visible.sync="backupPlanCreateModalVisible"
+                              :btn-loading="btnLoading"
+                              @confirm="addBackupPlan"></backup-plan-create-modal>
+    <backup-plan-update-modal type="sqlserver"
+                              :visible.sync="backupPlanUpdateModalVisible"
+                              :btn-loading="btnLoading"
+                              :backup-plan="selectedBackupPlan"
+                              @confirm="updateBackupPlan"
+                              @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
     <restore-plan-create-modal type="sqlserver"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
-                               :selection-hosts="availableHostsWithSqlServer"
+                               :selection-hosts="availableHostsForRestore"
+                               :btn-loading="btnLoading"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
     <restore-plan-update-modal type="sqlserver"
                                :database="details"
                                :visible.sync="restorePlanUpdateModalVisible"
                                :btn-loading="btnLoading"
                                :restore-plan="selectedRestorePlan"
-                               @confirm="updateRestorePlan"></restore-plan-update-modal>
+                               @confirm="updateRestorePlan"
+                               @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
     <database-update-modal type="sqlserver"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
@@ -148,7 +157,8 @@
     <single-restore-create-modal type="sqlserver"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
-                                 :selection-hosts="availableHostsWithSqlServer"
+                                 :selection-hosts="availableHostsForRestore"
+                                 :btn-loading="btnLoading"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -164,7 +174,9 @@ import {
   fetchBackupOperation,
   fetchRestoreOperation,
   deleteRestorePlan,
-  deleteSqlServerBackupPlan,
+  createBackupPlan,
+  updateBackupPlan,
+  deleteBackupPlan,
   createSingleRestorePlan,
   createRestorePlan,
   updateRestorePlan,
@@ -205,7 +217,6 @@ export default {
             this.$message.error(error);
           });
       }),
-      // selectedBackupPlanId: -1,
       throttleRefreshBackup: this.throttleMethod(() => {
         fetchBackupOperation(this.selectedBackupPlanId)
           .then(response => {
@@ -227,7 +238,6 @@ export default {
             this.$message.error(error);
           });
       }),
-      selectedRestorePlanId: -1,
       throttleRefreshRestore: this.throttleMethod(() => {
         fetchRestoreOperation(this.selectedRestorePlanId)
           .then(response => {
@@ -251,8 +261,10 @@ export default {
     };
   },
   computed: {
-    availableHostsWithSqlServer() {
-      return this.$store.getters.hostsWithSqlServer;
+    availableHostsForRestore() {
+      return this.$store.getters.hostsWithSqlServer.filter(
+        h => h.hostType === 2
+      );
     },
   },
   methods: {
@@ -306,6 +318,46 @@ export default {
         this.restoreRecords = records;
       });
     },
+    // 添加备份计划
+    addBackupPlan(plan) {
+      this.btnLoading = true;
+      createBackupPlan({ id: this.id, plan })
+        .then(res => {
+          const { data: backupPlan, message } = res.data;
+          this.backupPlans.unshift(backupPlan);
+          this.backupPlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateBackupPlan(id, plan) {
+      this.btnLoading = true;
+      updateBackupPlan({ id, plan })
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedBackupPlanId;
+          this.backupPlans.splice(
+            this.backupPlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.backupPlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
       this.selectedBackupPlanId = planId;
@@ -330,7 +382,7 @@ export default {
         });
     },
     deleteBackupPlan(planId) {
-      deleteSqlServerBackupPlan(planId).then(() => {
+      deleteBackupPlan(planId).then(() => {
         this.backupPlans.splice(
           this.backupPlans.findIndex(plan => plan.id === planId),
           1
@@ -356,6 +408,7 @@ export default {
     },
     // 单次恢复
     addSingleRestorePlan(plan) {
+      this.btnLoading = true;
       createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;
@@ -365,6 +418,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
     updateDetails(data) {
@@ -387,6 +443,7 @@ export default {
     },
     // 更新恢复计划
     updateRestorePlan(data) {
+      this.btnLoading = true;
       updateRestorePlan(data)
         .then(res => {
           const { data: plan, message } = res.data;
@@ -402,6 +459,9 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
         });
     },
   },

@@ -1,12 +1,14 @@
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import AddBackupPlan from '@/components/AddBackupPlan';
 import TabPanels from '@/components/TabPanels';
 import VmTabPanels from '@/components/VmTabPanels';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
+import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
+import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
+
 import {
   databaseRoleMapping,
   linkStateMapping,
@@ -29,9 +31,11 @@ const detailPageMixin = {
       restoreRecords: [], // 恢复记录
       results: [], // 备份集
       backupPlanCreateModalVisible: false,
+      backupPlanUpdateModalVisible: false,
       restorePlanCreateModalVisible: false,
       restorePlanUpdateModalVisible: false,
       selectedRestorePlanId: -1,
+      selectedBackupPlanId: -1,
       selectedBackupResultId: -1,
       singleRestoreCreateModalVisible: false,
     };
@@ -44,6 +48,11 @@ const detailPageMixin = {
     next();
   },
   computed: {
+    selectedBackupPlan() {
+      return this.selectedBackupPlanId === -1
+        ? {}
+        : this.backupPlans.find(plan => plan.id === this.selectedBackupPlanId);
+    },
     selectedRestorePlan() {
       return this.selectedRestorePlanId === -1
         ? {}
@@ -74,18 +83,10 @@ const detailPageMixin = {
         this.restorePlanCreateModalVisible = true;
       }
     },
-    // 添加备份计划
-    addBackupPlan(data) {
-      this.backupPlans.unshift(data);
-    },
     // 更新备份计划
     updateBackupPlan(updateIndex, plan) {
       this.backupPlans.splice(updateIndex, 1, plan);
     },
-    // 更新恢复计划
-    // updateRestorePlan(updateIndex, plan) {
-    //   this.restorePlans.splice(updateIndex, 1, plan);
-    // },
     initSingleRestoreModal(id) {
       this.selectedBackupResultId = id;
       this.singleRestoreCreateModalVisible = true;
@@ -93,6 +94,10 @@ const detailPageMixin = {
     selectRestorePlan(restorePlanId) {
       this.selectedRestorePlanId = restorePlanId;
       this.restorePlanUpdateModalVisible = true;
+    },
+    selectBackupPlan(backupPlanId) {
+      this.selectedBackupPlanId = backupPlanId;
+      this.backupPlanUpdateModalVisible = true;
     },
     roleIconName(role) {
       switch (role) {
@@ -108,12 +113,13 @@ const detailPageMixin = {
   components: {
     IIcon,
     DatabaseUpdateModal,
-    AddBackupPlan,
     RestorePlanCreateModal,
     TabPanels,
     VmTabPanels,
     SingleRestoreCreateModal,
     RestorePlanUpdateModal,
+    BackupPlanCreateModal,
+    BackupPlanUpdateModal,
   },
   filters: {
     linkStateFilter(value) {

@@ -26,12 +26,12 @@
         </el-form>
         <backup-card :id="plan.id"
                      :type="type"
-                     v-for="(plan, index) in filteredBackupPlans"
+                     v-for="plan in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"
                      @refresh="backupPlanRefresh"
                      @deletePlan="backupPlanDeleted"
-                     @updatePlan="selectBackupPlan(index)"></backup-card>
+                     @updatePlan="selectBackupPlan(plan.id)"></backup-card>
         <template v-if="!isFileBackupResult">
           <restore-card :id="plan.id"
                         :type="type"
@@ -68,11 +68,6 @@
                          @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
       </el-tab-pane>
     </el-tabs>
-    <update-backup-plan :type="type"
-                        :id="id"
-                        :visible.sync="backupPlanUpdateModalVisible"
-                        :backup-plan="selectedBackupPlan"
-                        @confirm="backupPlanUpdated"></update-backup-plan>
   </section>
 
 </template>
@@ -84,8 +79,6 @@ import BackupCard from '@/components/BackupCard';
 import RestoreCard from '@/components/RestoreCard';
 import BackupResultList from '@/components/BackupResultList';
 import RestoreRecords from '@/components/RestoreRecords';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import { applyFilterMethods } from '../utils/common';
 
@@ -117,10 +110,6 @@ export default {
   data() {
     return {
       activeTab: 'plans', // 激活的tab页
-      selectedBackupPlanIndex: -1,
-      selectedRestorePlanIndex: -1,
-      backupPlanUpdateModalVisible: false,
-      restorePlanUpdateModalVisible: false,
       // 备份计划筛选条件
       planFilterForm: {
         hiddenCompletePlan: false,
@@ -135,18 +124,6 @@ export default {
     };
   },
   computed: {
-    // 选择的备份计划 for update
-    selectedBackupPlan() {
-      return this.selectedBackupPlanIndex === -1
-        ? {}
-        : this.backupPlans[this.selectedBackupPlanIndex];
-    },
-    // 选择的恢复计划 for update
-    // selectedRestorePlan() {
-    //   return this.selectedRestorePlanIndex === -1
-    //     ? {}
-    //     : this.restorePlans[this.selectedRestorePlanIndex];
-    // },
     // 筛选后得备份计划
     filteredBackupPlans() {
       if (this.planFilterForm.planType !== 'backup') {
@@ -180,55 +157,29 @@ export default {
     switchPane({ name }) {
       this.$emit('switchpane', name);
     },
-    // 添加备份计划后的cb
-    // backupPlanAdded(data) {
-    //   this.$emit('addBackupPlan', data);
-    //   this.backupPlans.unshift(data);
-    // },
     // 更新备份计划后的cb
     backupPlanUpdated(data) {
       this.$emit('backupplan:update', this.selectedBackupPlanIndex, data);
-      // this.selectedBackupPlanIndex = -1;
-      // this.backupPlans.splice(this.selectedBackupPlanIndex, 1, data);
     },
     // 选择一个备份计划 点击计划编辑按钮时调用
-    selectBackupPlan(planIndex) {
-      this.backupPlanUpdateModalVisible = true;
-      this.selectedBackupPlanIndex = planIndex;
+    selectBackupPlan(planId) {
+      this.$emit('select-backup-plan', planId);
     },
     // 选择一个恢复计划 点击计划编辑按钮时调用
     selectRestorePlan(planId) {
-      // this.restorePlanUpdateModalVisible = true;
-      // this.selectedRestorePlanIndex = planId;
       this.$emit('select-restore-plan', planId);
     },
     // 删除一个备份计划
     backupPlanDeleted(planId) {
       this.$emit('backupplan:delete', planId);
-      // this.backupPlans.splice(planIndex, 1);
     },
     // 添加一个单次恢复后得cb
     singleRestoreAdded(restorePlan) {
       this.$emit('restoreplan:add', restorePlan);
-      // this.restorePlans.unshift(restorePlan);
     },
-    // 添加恢复计划后
-    // restorePlanAdded(plan) {
-    //   this.$emit('restoreplan:add', restorePlan);
-    //   this.restorePlans.unshift(plan);
-    // },
-    // 删除一个恢复计划
-    // restorePlanDeleted(deleteIndex) {
-    //   this.$emit('restoreplan:delete', deleteIndex);
-    // },
     restorePlanDeleted(planId) {
       this.$emit('restoreplan:delete', planId);
     },
-    // 更新恢复计划后的cb
-    // restorePlanUpdated(plan) {
-    //   this.$emit('restoreplan:update', this.selectedRestorePlanIndex, plan);
-    //   this.selectedRestorePlanIndex = -1;
-    // },
     // 刷新单个备份计划
     backupPlanRefresh(backupplanId) {
       this.$emit('backupplan:refresh', backupplanId);
@@ -247,8 +198,6 @@ export default {
     BackupCard,
     RestoreCard,
     BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
     RestoreRecords,
   },
 };

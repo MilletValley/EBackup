@@ -22,27 +22,19 @@
         </el-form>
         <backup-card :id="plan.id"
                      :type="type"
-                     v-for="(plan, index) in filteredBackupPlans"
+                     v-for="plan in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"
                      @refresh="backupPlanRefresh"
                      @deletePlan="backupPlanDeleted"
-                     @updatePlan="selectBackupPlan(index)"></backup-card>
-        <template v-if="!isFileBackupResult">
-        </template>
-
+                     @updatePlan="selectBackupPlan(plan.id)"></backup-card>
       </el-tab-pane>
       <el-tab-pane label="备份集"
                    name="results">
-      <backup-result-list :type="type"
-                          :data="results"></backup-result-list>
+        <backup-result-list :type="type"
+                            :data="results"></backup-result-list>
       </el-tab-pane>
     </el-tabs>
-    <update-backup-plan :type="type"
-                        :id="id"
-                        :visible.sync="backupPlanUpdateModalVisible"
-                        :backup-plan="selectedBackupPlan"
-                        @confirm="backupPlanUpdated"></update-backup-plan>
   </section>
 
 </template>
@@ -52,8 +44,6 @@ import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import BackupCard from '@/components/BackupCard';
 import BackupResultList from '@/components/BackupResultList';
-import AddBackupPlan from '@/components/AddBackupPlan';
-import UpdateBackupPlan from '@/components/UpdateBackupPlan';
 import { applyFilterMethods } from '../utils/common';
 
 export default {
@@ -65,7 +55,9 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+          value
+        );
       },
     },
     backupPlans: {
@@ -78,8 +70,6 @@ export default {
   data() {
     return {
       activeTab: 'plans', // 激活的tab页
-      selectedBackupPlanIndex: -1,
-      backupPlanUpdateModalVisible: false,
       // 备份计划筛选条件
       planFilterForm: {
         hiddenCompletePlan: false,
@@ -90,12 +80,6 @@ export default {
     };
   },
   computed: {
-    // 选择的备份计划 for update
-    selectedBackupPlan() {
-      return this.selectedBackupPlanIndex === -1
-        ? {}
-        : this.backupPlans[this.selectedBackupPlanIndex];
-    },
     filteredBackupPlans() {
       if (this.planFilterForm.planType !== 'backup') {
         return [];
@@ -119,13 +103,11 @@ export default {
     },
     // 选择一个备份计划 点击计划编辑按钮时调用
     selectBackupPlan(planIndex) {
-      this.backupPlanUpdateModalVisible = true;
-      this.selectedBackupPlanIndex = planIndex;
+      this.$emit('select-backup-plan', planIndex);
     },
     // 删除一个备份计划
     backupPlanDeleted(planId) {
       this.$emit('backupplan:delete', planId);
-      // this.backupPlans.splice(planIndex, 1);
     },
     backupPlanRefresh(backupplanId) {
       this.$emit('backupplan:refresh', backupplanId);
@@ -136,8 +118,6 @@ export default {
     DatabaseUpdateModal,
     BackupCard,
     BackupResultList,
-    AddBackupPlan,
-    UpdateBackupPlan,
   },
 };
 </script>

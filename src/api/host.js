@@ -39,10 +39,11 @@ const deleteSome = ids =>
     data: ids,
   });
 
-const createSwitches = hostLinkId =>
+const createSwitches = (hostLinkId, formData) =>
   baseApi.request({
     method: 'post',
     url: `/host-links/${hostLinkId}/switches`,
+    data: formData,
   });
 
 const deleteLinks = linkId =>

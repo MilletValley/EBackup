@@ -1,5 +1,7 @@
 import baseApi from './base';
-
+// 将时间字符串数组转为对象数组
+const timePoints2Obj = timePointsStrArr =>
+  timePointsStrArr.map(p => ({ value: p, key: p }));
 const fetchAll = () =>
   baseApi.request({
     method: 'get',
@@ -40,10 +42,20 @@ const deleteSome = ids =>
   });
 
 const fetchBackupPlans = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/sqlservers/${id}/sqlserver-backup-plans`,
-  });
+  baseApi
+    .request({
+      method: 'get',
+      url: `/sqlservers/${id}/sqlserver-backup-plans`,
+    })
+    .then(res => {
+      const { data: plans } = res.data;
+      plans.forEach(p => {
+        if (p.config.timePoints) {
+          p.config.timePoints = timePoints2Obj(p.config.timePoints);
+        }
+      });
+      return res;
+    });
 
 const fetchBackupResults = id =>
   baseApi.request({
@@ -58,7 +70,20 @@ const createSqlServerBackupPlan = ({ id, plan }) =>
     data: plan,
   });
 
-const deleteSqlServerBackupPlan = id =>
+const createBackupPlan = ({ id, plan }) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: `/sqlservers/${id}/sqlserver-backup-plans`,
+      data: plan,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const deleteBackupPlan = id =>
   baseApi.request({
     method: 'delete',
     url: `/sqlserver-backup-plans/${id}`,
@@ -70,16 +95,24 @@ const updateSqlServerBackupPlan = ({ id, plan }) =>
     url: `/sqlserver-backup-plans/${id}`,
     data: plan,
   });
+const updateBackupPlan = ({ id, plan }) =>
+  baseApi
+    .request({
+      method: 'patch',
+      url: `/sqlserver-backup-plans/${id}`,
+      data: plan,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
 
 const fetchBackupOperation = id =>
   baseApi.request({
     method: 'get',
     url: `/sqlserver-backup-plans/${id}`,
   });
-
-// 将时间字符串数组转为对象数组
-const timePoints2Obj = timePointsStrArr =>
-  timePointsStrArr.map(p => ({ value: p, key: p }));
 
 const createSingleRestorePlan = ({ id, data }) =>
   baseApi
@@ -202,8 +235,10 @@ export {
   fetchBackupPlans,
   fetchBackupResults,
   createSqlServerBackupPlan,
-  deleteSqlServerBackupPlan,
+  createBackupPlan,
+  deleteBackupPlan,
   updateSqlServerBackupPlan,
+  updateBackupPlan,
   fetchBackupOperation,
   createSingleRestorePlan,
   fetchRestorePlans,

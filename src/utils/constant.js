@@ -45,11 +45,13 @@ const recoveringStrategyMapping = {
   2: '创建副本',
   3: '跳过',
 };
-
+// 由于设计不清 将 0:未知 修改为 3:未知 @0619
+// 0626 添加监听异常状态
 const databaseStateMapping = {
-  0: '未知',
+  3: '未知',
   1: '正常',
   2: '异常',
+  4: '监听异常',
 };
 const databaseRoleMapping = {
   0: '无连接',
@@ -65,7 +67,7 @@ const hostTypeMapping = {
 
 // 系统类别
 const sysTypeMapping = {
-  0: '通用',
+  // 0: '通用',
   1: 'Windows',
   2: 'Linux',
 };
@@ -117,6 +119,17 @@ const switchManualMapping = {
   2: '自动',
 };
 
+const switchTypeMapping = {
+  1: '切换实例',
+  2: '切换IP',
+  3: '解除连接',
+};
+
+const serviceIpMarkMapping = {
+  1: '生产环境',
+  2: '易备环境',
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -136,4 +149,6 @@ export {
   switchStateMapping,
   switchIpMapping,
   switchManualMapping,
+  switchTypeMapping,
+  serviceIpMarkMapping,
 };

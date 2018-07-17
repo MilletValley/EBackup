@@ -53,7 +53,7 @@
           <el-form-item label="登录密码"
                         prop="password"
                         :rules="[
-          { required: true, message: '请输入登陆密码', trigger: 'blur' },
+          { required: true, message: '请输入登录密码', trigger: 'blur' },
         ]">
             <input-toggle v-model="formData.password"></input-toggle>
           </el-form-item>
@@ -104,21 +104,22 @@
                      :label="day + '号'"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item :label="`时间点${index+1}`"
+      <el-form-item label="时间点"
                     style="width: 100%"
+                    prop="timePoints"
                     v-for="(p, index) in formData.timePoints"
                     :key="p.key"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
         <el-time-select v-model="formData.timePoints[index].value"
                         :picker-options="{start: '00:00', end: '23:45', step: '00:15'}"></el-time-select>
-        <el-button icon="el-icon-delete"
+        <!-- <el-button icon="el-icon-delete"
                    type="danger"
                    v-show="formData.timePoints.length !== 1"
                    @click="formData.timePoints.splice(index, 1)"></el-button>
         <el-button icon="el-icon-plus"
                    type="primary"
                    v-show="index + 1 === formData.timePoints.length"
-                   @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
+                   @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button> -->
       </el-form-item>
 
     </el-form>
@@ -138,25 +139,25 @@ import {
 } from '../../utils/constant';
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
-import modalMixin from '../mixins/restorePlanModalMixins';
-
-const requestMapping = {
-  sqlserver: createSqlserverRestorePlan,
-  oracle: createOracleRestorePlan,
-};
+import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
   name: 'RestorePlanCreateModal',
-  mixins: [modalMixin],
+  mixins: [restorePlanModalMixin],
   methods: {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
-          const { name, config } = this.pruneData(this.formData);
-          this.$emit('confirm', {
-            id: this.database.id,
-            data: { name, config },
-          });
+          this.pruneData(this.formData)
+            .then(({ name, config }) => {
+              this.$emit('confirm', {
+                id: this.database.id,
+                data: { name, config },
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
         } else {
           return false;
         }

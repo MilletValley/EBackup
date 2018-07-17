@@ -1,12 +1,17 @@
 <template>
   <section>
     <div>
-      <h4>正在执行的恢复
+      <h4>正在执行的恢复操作
         <i class="el-icon-refresh"
            :class="$style.stateRefresh"
            @click="$emit('restoreinfo:refresh')"></i>
       </h4>
-      <el-row :gutter="20"
+      <div v-show="plans.length === 0"
+           :class="$style.noRestoreTip">
+        <span>暂无操作</span>
+      </div>
+      <el-row v-show="plans.length > 0"
+              :gutter="20"
               style="min-height: 144px;">
         <el-col :span="8"
                 v-for="item in plans"
@@ -62,12 +67,11 @@
         <el-table-column prop="hostIp"
                          label="恢复设备IP"
                          align="center"
-                         width="150px">
+                         min-width="200px">
         </el-table-column>
         <el-table-column prop="detailInfo"
                          :label="detailInfoDisplayName"
-                         align="left"
-                         header-align="center"
+                         align="center"
                          min-width="200px">
         </el-table-column>
         <el-table-column prop="state"
@@ -139,6 +143,16 @@ export default {
 </script>
 <style lang="scss" module>
 @import '../style/color.scss';
+.noRestoreTip {
+  font-size: 4em;
+  color: #c0c4cc;
+  min-height: 144px;
+  margin: auto;
+  width: 280px;
+  span {
+    line-height: 2.2em;
+  }
+}
 .ongoingRestoreCard {
   font-size: 14px;
 }
@@ -149,6 +163,7 @@ export default {
   float: right;
 }
 .stateRefresh {
+  margin-left: 10px;
   cursor: pointer;
   transition: all 0.5s ease;
   &:hover {

@@ -1,62 +1,89 @@
 <template>
-    <div>
-      <div style="overflow: hidden;  margin-bottom: 20px;">
-        <el-button type="primary"
-            @click="update()" style="float: right; padding: 9px 15px;">修改</el-button>
-      </div>
-      <el-form label-position="left" inline class="demo-table-expand">
-        <el-form-item label="用户ID">
-            <span>{{ userId }}</span>
-        </el-form-item>
-        <el-form-item label="登录名">
-          <span>{{ loginName }}</span>
-        </el-form-item>
-        <el-form-item label="角色">
-          <span>{{ roles[0].name+" "+roles[1].name }}</span>
-        </el-form-item>
-        <el-form-item label="状态">
-          <span>{{ state==1?'启用':'禁用' }}</span>
-        </el-form-item>
-        <el-form-item label="用户名">
-          <span>{{ userName }}</span>
-        </el-form-item>
-      </el-form>
-          <el-dialog title="更改信息"
-                    :visible.sync = "dialogVisible"
-                    width = "30%"
-                    :before-close = "closeDialog">
-              <el-form ref="form"
-                      status-icon
-                      :model="form"
-                      :rules="rules"
-                      label-width="80px">
-                <el-form-item label="新用户名"
-                              prop="newUsername">
-                  <el-input v-model="form.newUsername"></el-input>
-                </el-form-item>
-                  <el-form-item label="新密码"
-                                prop="newPassword">
-                    <el-input type="password"
-                              v-model="form.newPassword"></el-input>
-                  </el-form-item>
-                  <el-form-item label="确认密码"
-                                prop="checkPass">
-                    <el-input type="password"
-                              v-model="form.checkPass"></el-input>
-                  </el-form-item>
-                  <el-form-item label="原始密码"
-                                prop="oldPassword">
-                    <el-input type="password"
-                              v-model="form.oldPassword"></el-input>
-                  </el-form-item>
-                  <el-form-item>
-                    <el-button type="primary"
-                              @click="submitForm('form')">确认</el-button>
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                  </el-form-item>
-              </el-form>
-          </el-dialog>
-      </div>
+    <section>
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>个人信息</span>
+          <el-button style="float: right;"
+                     type="primary"
+                     size="small"
+                     @click="update()">修改</el-button>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">用户ID：</el-col>
+            <el-col :span="6">{{ userId }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">用户名：</el-col>
+            <el-col :span="6">{{ userName }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">登录名：</el-col>
+            <el-col :span="6">{{ loginName }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">角色：</el-col>
+            <el-col :span="6">{{ roles[0].name }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">状态：</el-col>
+            <el-col :span="6">{{ state==1?'启用':'禁用' }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+      </el-card>
+      <el-dialog title="更改信息"
+                :visible.sync = "dialogVisible"
+                :before-close = "closeDialog">
+          <el-form ref="form"
+                  status-icon
+                  :model="form"
+                  :rules="rules"
+                  label-width="110px">
+            <el-form-item label="新用户名"
+                          prop="newUsername">
+              <el-input v-model="form.newUsername"></el-input>
+            </el-form-item>
+              <el-form-item label="新密码"
+                            prop="newPassword">
+                <el-input type="password"
+                          v-model="form.newPassword"></el-input>
+              </el-form-item>
+              <el-form-item label="确认密码"
+                            prop="checkPass">
+                <el-input type="password"
+                          v-model="form.checkPass"></el-input>
+              </el-form-item>
+              <el-form-item label="原始密码"
+                            prop="oldPassword">
+                <el-input type="password"
+                          v-model="form.oldPassword"></el-input>
+              </el-form-item>
+          </el-form>
+          <span slot="footer">
+            <el-button type="primary"
+                       @click="submitForm('form')">确定</el-button>
+            <el-button @click="cancel('form')">取消</el-button>
+          </span>
+        </el-dialog>
+      </section>
 </template>
 <script>
 import { mapActions, mapGetters } from 'vuex';
@@ -171,8 +198,9 @@ export default {
           center: true,
           type: 'error'
         });
-      else
+      else{
         this.dialogVisible = true;
+      }
     },
     closeDialog() {
       if(this.isEdit && (this.form.newUsername!=""||this.form.newPassword!=""||this.form.oldPassword!=""||this.form.checkPass!="")){
@@ -202,6 +230,10 @@ export default {
         }
       });
     },
+    cancel(form) {
+      this.dialogVisible = false;
+      this.$refs['form'].resetFields();
+    }
   },
   watch: {
     'form':{
@@ -209,7 +241,6 @@ export default {
       if(!this.isClose)
       {
         this.isEdit = true;
-        //alert();
       }
       else
         this.isClose = false;
@@ -222,20 +253,19 @@ export default {
   }
 };
 </script>
-<style>
-  .demo-table-expand {
-    font-size: 0;
-    background-color: #fff;
+<style scoped>
+.text {
+    font-size: 14px;
   }
-  .demo-table-expand label {
-    width: 150px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 280px;
-    display: block;
-    margin:0 auto;
-  }
+.box-card {
+  width: 100%;
+}
+.el-col {
+  border-radius: 4px;
+  height: 30px;
+  line-height: 30px;
+}
+.el-col-left {
+  text-align: right;
+}
 </style>

@@ -2,7 +2,8 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import ElementUI, { Message } from 'element-ui';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'element-ui/lib/theme-chalk/display.css';
 import App from './App';
@@ -10,12 +11,12 @@ import store from './store/index';
 import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
-// import './utils/icon-svg';
+import './utils/icon-svg';
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
 
-moment.locale('zh-cn');
+dayjs.locale('zh-cn');
 
 router.beforeEach((to, from, next) => {
   if (store.state.base.token) {

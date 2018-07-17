@@ -1,6 +1,6 @@
 <template>
   <section>
-    <el-table :data="isFileBackupResult ? handleData : data"
+    <el-table :data="isFileBackupResult ? handleData : data|NotNullfilter"
               style="width: 100%; margin-top: 15px"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
@@ -83,11 +83,11 @@
                        header-align="center"></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
-                       width="200px"
+                       min-width="200px"
                        align="center"></el-table-column>
       <el-table-column label="结束时间"
                        prop="endTime"
-                       width="200px"
+                       min-width="200px"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
@@ -108,7 +108,8 @@
       </el-table-column>
       <el-table-column label="操作"
                        width="140px"
-                       align="center">
+                       align="center"
+                       v-if="this.type!=='vm'">
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
@@ -128,7 +129,7 @@
   </section>
 </template>
 <script>
-import moment from 'moment';
+import dayjs from 'dayjs';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import baseMixin from './mixins/baseMixins';
 import { backupResultMapping } from '../utils/constant';
@@ -146,7 +147,9 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+          value
+        );
       },
     },
   },
@@ -155,6 +158,16 @@ export default {
       singleRestoreModalVisible: false,
       selectedId: -1,
     };
+  },
+  filters: {
+    NotNullfilter(data) {
+      data.map((result) => {
+        for(let i in result) {
+          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
+        }
+      })
+      return data;
+    },
   },
   methods: {
     // 备份集状态码转文字
@@ -172,7 +185,7 @@ export default {
     //   this.$emit('add-restore', restorePlan);
     // },
     endTimeSortMethod(a, b) {
-      return moment(a) - moment(b);
+      return dayjs(a) - dayjs(b);
     },
   },
   computed: {
@@ -190,12 +203,15 @@ export default {
           map[result.fileResource] = index;
         } else {
           const lastIndex = map[result.fileResource];
-          if (moment(data[lastIndex].endTime) < moment(result.endTime)) {
+          if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
             map[result.fileResource] = index;
           }
         }
       });
       return data.map((result, index) => {
+        for(let i in result) {
+          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
+        }
         if (map[result.fileResource] === index) {
           return Object.assign({}, result, { allowRestore: 1 });
         } else {
