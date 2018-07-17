@@ -70,7 +70,7 @@
             <span>生产环境</span>
             <el-tooltip placement="right"
                         effect="light"
-                        v-show="this.productionData.serviceIp!==''">
+                        v-show="this.showProduction">
               <div slot="content">
                 提供服务中
                 <br/>服务IP：{{this.productionData.serviceIp}}
@@ -121,7 +121,7 @@
             <span>易备环境</span>
             <el-tooltip placement="right"
                         effect="light"
-                        v-show="this.ebackupData.serviceIp!==''">
+                        v-show="this.showEbackup">
               <div slot="content">
                 提供服务中
                 <br/>服务IP：{{this.ebackupData.serviceIp}}
@@ -179,12 +179,20 @@ import { overviewMixin } from '../mixins/overviewMixin';
 export default {
   name: 'TakeOverView',
   mixins: [overviewMixin],
+  computed: {
+    showProduction() {
+      return this.productionData.serviceIp!==''&&this.productionData.serviceIp!==null;
+    },
+    showEbackup() {
+      return this.ebackupData.serviceIp!==''&&this.ebackupData.serviceIp!==null;
+    }
+  },
   methods: {
     fetchData() {
       fetchProduction()
       .then(res => {
         this.productionData = res.data.data;
-        if(this.productionData.serviceIp!=='') {
+        if(this.showProduction) {
           this.applicationData = this.productionData.salesInfo;
           this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
         }
@@ -195,7 +203,7 @@ export default {
       fetchEbackup()
       .then(res => {
         this.ebackupData = res.data.data;
-        if(this.ebackupData.serviceIp!=='') {
+        if(this.showEbackup) {
           this.applicationData = this.ebackupData.salesInfo;
           this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
         }
@@ -206,7 +214,7 @@ export default {
     },
     createFormData(data) {
       this.btnLoading=true;
-      if(this.productionData.serviceIp!=='') {
+      if(this.showProduction) {
         data.serviceIp = this.productionData.serviceIp;
         data.hostIp = this.productionData.hostIp;
       } else {
@@ -218,7 +226,7 @@ export default {
           this.$message.success(response.data.message);
           this.dialogVisible = false;
           this.productionData.salesInfo.push(response.data.data.salesInfo);
-          this.ebackupData.salesInfo.push(response.data.data.salesInfo)
+          this.ebackupData.salesInfo.push(response.data.data.salesInfo);
         })
         .catch(error => {
           this.$message.error(error);
@@ -241,7 +249,7 @@ export default {
         .then(resArr => {
           this.productionData = resArr[0].data.data;
           this.ebackupData = resArr[1].data.data;
-          if(this.productionData.serviceIp!=='') {
+          if(this.showProduction) {
             this.applicationData = this.productionData.salesInfo;
             this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
           } else {
