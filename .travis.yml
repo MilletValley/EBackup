@@ -18,25 +18,17 @@ install: yarn
 script: npm run build
 before_deploy:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker build -t chenzhq/ebackup:dev-latest .
-- docker tag chenzhq/ebackup:dev-latest chenzhq/ebackup:latest
+- docker build -t qiansy/ebackup:dev-latest .
+- docker tag qiansy/ebackup:dev-latest qiansy/ebackup:latest
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   - provider: script
     script: bash ./build/docker_push.sh develop
     on:
-      branch: 
+      branch:
         - develop
   - provider: script
     script: bash ./build/docker_push.sh master
     on:
-      branch: 
+      branch:
         - master
-  - provider: releases
-    api_key:
-      secure: w4P0tXXblIwLS82Mdi2X9u/Qcg5OeRKewTtWB8SbBj5vZOBEe6OaQVt7BvF8C3s1BQSkCkZVTAR41a6tI6pqGOYXsqf1bAtI4iGR2QS8BxqSOokWUIff2fmJOl4/nMoR3dB2XNLXtBtYwObelWIPILdtrrOYvll3a2GCQNsWkZeE/GIkHmonAm8nBghEQGEYGzLW8RoADGPy4A56cM1OIjiuRLDUi5lcHTEVo5/CdTl1nVOYs+PSQvYz+Xrpuv0t0NxWt2CDeMQjxi1gEQ0c7APQSmzyjWUMEQc9v6TSztpKix47GCBItWV8H+q1Mpdn3NEfq3vjy6ivmMxr76O22xOKWVmOevR78sGluFcZFE6Mw8JLPzKHck5q5God8mk26JiBfomhSCZ64DWHZMVromi7Z3Hkzezc08kR8jA1TVi9q/oPX17H+C2ssAO3+/hYQism74OjzmAFVc4x4Y3HGZEU6Z3rE6ayjcAYsP/JD2ex4HTwl/h6w4mv6YnHss+13wdeUrCH7WWNnhpDHAJbL9sP6imvDKJzTkEL8kDoMCGPQ+xUCSuliv2CtjFDgIu0tX6oyOJWoo5G7OVuaNGqzEduF9PwHO0TtqwQ9UymnJI+X9QIBOVSNENqt2QdbG8gjX3YIPLw5BHyLnBxdTLxERxtRd7xmkwBenDoljG4tSs=
-    file_glob: true
-    file: dist/*
-    skip_cleanup: true
-    on:
-      repo: chenzhq/EBackup

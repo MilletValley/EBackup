@@ -174,7 +174,7 @@
 <script>
 import IIcon from '@/components/IIcon';
 import OverviewCreateModal from '../modal/OverviewCreateModal'
-import {   fetchProduction, fetchEbackup, createItem } from '../../api/takeoverview';
+import {   fetchProduction, fetchEbackup, createItem } from '../../api/takeoverView';
 import { overviewMixin } from '../mixins/overviewMixin';
 export default {
   name: 'TakeOverView',
