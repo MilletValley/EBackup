@@ -24,6 +24,7 @@ import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 import Overview from '@/components/pages/Overview';
 import BackupRecoverView from '@/components/pages/BackupRecoverView';
 import TakeOverView from '@/components/pages/TakeOverView';
+import MoreState from '@/components/MoreState';
 
 Vue.use(Router);
 
@@ -40,6 +41,7 @@ export const basicRouters = [
       {
         path: 'dashboard',
         component: Dashboard,
+        name: 'dashboard',
         meta: {
           title: '主页',
           icon: 'dashboard',
@@ -49,6 +51,11 @@ export const basicRouters = [
         path: 'profile',
         name: 'profile',
         component: Profile,
+      },
+      {
+        path: 'morestate',
+        name: 'morestate',
+        component: MoreState,
       },
     ],
   },
@@ -435,14 +442,6 @@ export const asyncRouters = [
     },
     children: [
       {
-        path: 'users',
-        component: Users,
-        meta: {
-          title: '用户管理',
-          roles: [],
-        },
-      },
-      {
         path: 'devicemanager',
         name: 'deviceManager',
         component: DeviceManager,
@@ -456,6 +455,14 @@ export const asyncRouters = [
         component: SystemParam,
         meta: {
           title: '参数管理',
+          roles: [],
+        },
+      },
+      {
+        path: 'users',
+        component: Users,
+        meta: {
+          title: '用户管理',
           roles: [],
         },
       },
