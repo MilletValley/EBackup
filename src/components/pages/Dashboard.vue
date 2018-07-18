@@ -45,11 +45,12 @@
         </el-card>
       </el-row>
     </template>
-    <h4>设备状态
+    <el-row>
+      <span class="title">设备状态</span>
       <el-button type="text"
                  style="float:right"
                  @click="$router.push({name: 'morestate'})">更多>></router-link></el-button>
-    </h4>
+    </el-row>
     <template>
       <el-tabs type="border-card">
         <el-tab-pane label="数据库备份">
@@ -696,9 +697,11 @@ export default {
 };
 </script>
 <style scoped>
-h4 {
+.title {
   font-weight: 400;
   color: #606266;
+  padding-top: 0.5em;
+  display: inline-block;
 }
 
 .text {

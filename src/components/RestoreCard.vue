@@ -93,6 +93,9 @@
                 <i v-else-if="restoreOperation.state === 1"
                    class="el-icon-loading"
                    :class="operationStateStyle"></i>
+                <i v-else-if="backupOperation.state === 3"
+                   class="el-icon-warning"
+                   :class="operationStateStyle"></i>
                 <span :class="operationStateStyle">{{operationState(restoreOperation.state) || '-'}}</span>
               </div>
             </div>
@@ -163,6 +166,8 @@ export default {
         return this.$style.waitingColor;
       } else if (this.restoreOperation.state === 1) {
         return this.$style.loadingColor;
+      } else if(this.backupOperation.state === 3) {
+        return this.$style.errorColor;
       } else return '';
     },
   },
