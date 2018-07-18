@@ -1,11 +1,12 @@
 <template>
   <section>
-    <h4>设备详情
+    <el-row>
+      <span class="title">设备详情</span>
       <el-button type="primary"
                  size="small"
                  style="float:right"
                  @click="$router.push({name: 'dashboard'})">返回</router-link></el-button>
-    </h4>
+    </el-row>
     <template>
       <el-tabs type="border-card" v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="数据库备份" name="databaseBackup">
@@ -502,8 +503,13 @@ export default {
 };
 </script>
 <style scoped>
-h4 {
+.title {
   font-weight: 400;
   color: #606266;
+  padding-top: 0.5em;
+  display: inline-block;
+}
+.el-row {
+  margin-bottom: 10px;
 }
 </style>
