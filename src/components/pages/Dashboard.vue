@@ -47,11 +47,13 @@
     </template>
     <el-row>
       <span class="title">设备状态</span>
-      <el-button type="text"
-                 style="float:right"
-                 @click="$router.push({name: 'morestate'})">更多>></router-link></el-button>
     </el-row>
-    <template>
+    <div style="position:relative">
+      <el-button type="info"
+                 size="small"
+                 plain
+                 style="position: absolute; top:3px; right:3px; z-index: 10"
+                 @click="$router.push({name: 'morestate'})">MORE</router-link></el-button>
       <el-tabs type="border-card">
         <el-tab-pane label="数据库备份">
           <el-table
@@ -405,7 +407,7 @@
           </el-table>
         </el-tab-pane>
       </el-tabs>
-    </template>
+    </div>
   </section>
 </template>
 <script>

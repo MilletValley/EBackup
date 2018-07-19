@@ -74,7 +74,9 @@
                           class="envIcon"></i-icon>
             <span>生产环境</span>
           </div>
-          <el-table :data="this.productionInfo">
+          <el-table :data="this.productionData.salesInfo?
+                           this.productionData.salesInfo.slice((productionPage-1)*productionPageSize,productionPage*productionPageSize):
+                           this.productionData.salesInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -106,6 +108,16 @@
               min-width="50">
             </el-table-column>
           </el-table>
+          <div class="block">
+            <el-pagination
+              @size-change="productionSizeChange"
+              @current-change="productionCurrentChange"
+              :current-page.sync="productionPage"
+              :page-size="productionPageSize"
+              layout="total, prev, pager, next"
+              :total="productionTotal">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="12">
@@ -115,7 +127,9 @@
                           class="envIcon"></i-icon>
             <span>易备环境</span>
           </div>
-          <el-table :data="this.ebackupInfo">
+          <el-table :data="this.ebackupData.salesInfo?
+                           this.ebackupData.salesInfo.slice((ebackupPage-1)*ebackupPageSize,ebackupPage*ebackupPageSize):
+                           this.ebackupData.salesInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -147,6 +161,16 @@
               min-width="50">
             </el-table-column>
           </el-table>
+          <div class="block">
+            <el-pagination
+              @size-change="ebackupSizeChange"
+              @current-change="ebackupCurrentChange"
+              :current-page.sync="ebackupPage"
+              :page-size="ebackupPageSize"
+              layout="total, prev, pager, next"
+              :total="ebackupTotal">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -174,7 +198,8 @@ export default {
       fetchProduction()
       .then(res => {
         this.productionData = res.data.data;
-        this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
+        if(this.radio==='生产环境')
+          this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -182,6 +207,8 @@ export default {
       fetchEbackup()
       .then(res => {
         this.ebackupData = res.data.data;
+        if(this.radio==='易备环境')
+          this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -193,9 +220,9 @@ export default {
       data.serviceIp = this.productionData.serviceIp;
       createProduction(data)
         .then(response => {
-          this.$message.success(response.data.message);
           this.dialogVisible = false;
-          this.productionData.salesInfo.push(response.data.data.salesInfo);
+          this.fetchData();
+          this.$message.success(response.data.message);
         })
         .catch(error => {
           this.$message.error(error);

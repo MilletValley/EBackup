@@ -5,7 +5,7 @@
              class="clearfix">
       <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
-                   @click="refreshData">刷新</el-button>
+                   @click="refreshData()">刷新</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="primary"
@@ -79,7 +79,9 @@
                       name="service"></i-icon>
             </el-tooltip>
           </div>
-          <el-table :data="this.productionInfo">
+          <el-table :data="this.productionData.salesInfo?
+                           this.productionData.salesInfo.slice((productionPage-1)*productionPageSize,productionPage*productionPageSize):
+                           this.productionData.salesInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -111,6 +113,16 @@
               min-width="50">
             </el-table-column>
           </el-table>
+          <div class="block">
+            <el-pagination
+              @size-change="productionSizeChange"
+              @current-change="productionCurrentChange"
+              :current-page.sync="productionPage"
+              :page-size="productionPageSize"
+              layout="total, prev, pager, next"
+              :total="productionTotal">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="12">
@@ -130,7 +142,9 @@
                       name="service"></i-icon>
             </el-tooltip>
           </div>
-          <el-table :data="this.ebackupInfo">
+          <el-table :data="this.ebackupData.salesInfo?
+                           this.ebackupData.salesInfo.slice((ebackupPage-1)*ebackupPageSize,ebackupPage*ebackupPageSize):
+                           this.ebackupData.salesInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -162,6 +176,16 @@
               min-width="50">
             </el-table-column>
           </el-table>
+          <div class="block">
+            <el-pagination
+              @size-change="ebackupSizeChange"
+              @current-change="ebackupCurrentChange"
+              :current-page.sync="ebackupPage"
+              :page-size="ebackupPageSize"
+              layout="total, prev, pager, next"
+              :total="ebackupTotal">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -213,10 +237,9 @@ export default {
       }
       createItem(data)
         .then(response => {
-          this.$message.success(response.data.message);
           this.dialogVisible = false;
-          this.productionData.salesInfo.push(response.data.data.salesInfo);
-          this.ebackupData.salesInfo.push(response.data.data.salesInfo);
+          this.fetchData();
+          this.$message.success(response.data.message);
         })
         .catch(error => {
           this.$message.error(error);
