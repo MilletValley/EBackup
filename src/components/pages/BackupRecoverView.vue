@@ -110,7 +110,6 @@
           </el-table>
           <div class="block">
             <el-pagination
-              @size-change="productionSizeChange"
               @current-change="productionCurrentChange"
               :current-page.sync="productionPage"
               :page-size="productionPageSize"
@@ -163,7 +162,6 @@
           </el-table>
           <div class="block">
             <el-pagination
-              @size-change="ebackupSizeChange"
               @current-change="ebackupCurrentChange"
               :current-page.sync="ebackupPage"
               :page-size="ebackupPageSize"
@@ -220,9 +218,9 @@ export default {
       data.serviceIp = this.productionData.serviceIp;
       createProduction(data)
         .then(response => {
-          this.dialogVisible = false;
-          this.fetchData();
           this.$message.success(response.data.message);
+          this.dialogVisible = false;
+          this.productionData.salesInfo.push(response.data.data.salesInfo);
         })
         .catch(error => {
           this.$message.error(error);
