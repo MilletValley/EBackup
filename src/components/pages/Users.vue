@@ -21,6 +21,8 @@
           </el-table-column>
           <el-table-column prop="userName" label="姓名" min-width="150" align="center">
           </el-table-column>
+          <el-table-column prop="email" label="邮箱" min-width="150" align="center">
+          </el-table-column>
           <el-table-column prop="state" label="状态"
                                         :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]"
                                         :filter-method="filterState"
@@ -73,6 +75,18 @@
         <el-form-item label="姓名" prop="userName">
           <el-input v-model="update.userName"></el-input>
         </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="update.email"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="receive.boolean">
+              <el-checkbox v-model="update.receive.boolean">接收</el-checkbox>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="权限">
           <el-col :span="12">
             <el-form-item>
@@ -112,6 +126,18 @@
         <el-form-item label="姓名" prop="userName">
           <el-input v-model="create.userName"></el-input>
         </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="create.email"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="receive.boolean">
+              <el-checkbox v-model="create.receive.boolean">接收</el-checkbox>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="权限">
           <el-col :span="12">
             <el-form-item>
@@ -244,6 +270,10 @@ export default {
         userName: '',
         state: '',
         roles: [],
+        email: '',
+        receive: {
+          boolean: true,
+        }
       },
       create: {
         loginName: '',
@@ -252,6 +282,10 @@ export default {
         password: '',
         checkpass: '',
         roles: [],
+        email: '',
+        receive: {
+          boolean: true,
+        }
       },
     };
   },

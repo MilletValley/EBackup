@@ -26,6 +26,12 @@ const getters = {
   userName(state) {
     return state.userInfo.userName;
   },
+  email(state) {
+    return state.userInfo.email;
+  },
+  receive(state) {
+    return state.userInfo.receive;
+  },
 };
 /* eslint no-shadow: 0 */
 const mutations = {
@@ -43,6 +49,8 @@ const mutations = {
     state.userInfo = {};
     state.roles = [];
     state.routers = [];
+    state.email = '';
+    state.receive.boolean = true;
   },
   [types.SET_ROUTERS](state, routers) {
     state.routers = [...basicRouters, ...routers];
@@ -96,11 +104,12 @@ const actions = {
    * @param {*} param0
    * @param {*} param1
    */
-  updateUserInfo({ commit }, form) {
-    return changeUserInfo(form)
+  updateUserInfo({ commit }, data) {
+    return changeUserInfo(data)
       .then(res => {
         const { data: user } = res.data;
         commit(types.UPDATE_USERINFO, user);
+        return res;
       })
       .catch(error => Promise.reject(error));
   },
