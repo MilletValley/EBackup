@@ -25,7 +25,7 @@
       <div>
         <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
         <p>Powered By esay standby<br/></p>
-        <p>Version 2.0.0<br/></p>
+        <p>Version 1.0.0<br/></p>
       </div>
     </section>
 </div>
