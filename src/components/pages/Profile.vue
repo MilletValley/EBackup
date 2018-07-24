@@ -35,6 +35,14 @@
         <div class="text item">
           <el-row :gutter="20">
             <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">邮箱：</el-col>
+            <el-col :span="6">{{ email }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
             <el-col :span="6" class="el-col-left">角色：</el-col>
             <el-col :span="6">{{ roles[0].name }}</el-col>
             <el-col :span="6"></el-col>
@@ -51,8 +59,9 @@
       </el-card>
       <el-dialog title="更改信息"
                 :visible.sync = "dialogVisible"
-                :before-close = "closeDialog">
-          <el-form ref="form"
+                :before-close = "closeDialog"
+                @close="modalClosed">
+          <el-form ref="updateForm"
                   status-icon
                   :model="form"
                   :rules="rules"
@@ -61,26 +70,39 @@
                           prop="newUsername">
               <el-input v-model="form.newUsername"></el-input>
             </el-form-item>
-              <el-form-item label="新密码"
-                            prop="newPassword">
-                <el-input type="password"
-                          v-model="form.newPassword"></el-input>
-              </el-form-item>
-              <el-form-item label="确认密码"
-                            prop="checkPass">
-                <el-input type="password"
-                          v-model="form.checkPass"></el-input>
-              </el-form-item>
-              <el-form-item label="原始密码"
-                            prop="oldPassword">
-                <el-input type="password"
-                          v-model="form.oldPassword"></el-input>
-              </el-form-item>
+            <el-row>
+              <el-col :span="12" class="form-col">
+                <el-form-item label="邮箱" prop="email">
+                  <el-input v-model="form.email"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12" class="form-col">
+                <el-form-item prop="receive.boolean">
+                  <el-checkbox v-model="form.receive.boolean">接收</el-checkbox>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-form-item label="新密码"
+                          prop="newPassword">
+              <el-input type="password"
+                        v-model="form.newPassword"></el-input>
+            </el-form-item>
+            <el-form-item label="确认密码"
+                          prop="checkPass">
+              <el-input type="password"
+                        v-model="form.checkPass"></el-input>
+            </el-form-item>
+            <el-form-item label="原始密码"
+                          prop="oldPassword">
+              <el-input type="password"
+                        v-model="form.oldPassword"></el-input>
+            </el-form-item>
           </el-form>
           <span slot="footer">
             <el-button type="primary"
-                       @click="submitForm('form')">确定</el-button>
-            <el-button @click="cancel('form')">取消</el-button>
+                       @click="submitForm"
+                       :loading="btnLoading">确定</el-button>
+            <el-button @click="cancel">取消</el-button>
           </span>
         </el-dialog>
       </section>
@@ -111,7 +133,7 @@ export default {
         callback(new Error('请输入新密码'));
       } else {
         if (this.form.checkPass !== '') {
-          this.$refs.form.validateField('checkPass');
+          this.$refs.updateForm.validateField('checkPass');
         }
         callback();
       }
@@ -127,6 +149,7 @@ export default {
     };
     return {
       dialogVisible: false,
+      btnLoading: false,
       isEdit: false,
       isClose: false,
       form: {
@@ -134,6 +157,10 @@ export default {
         newPassword: '',
         oldPassword: '',
         checkPass: '',
+        email: '',
+        receive: {
+          boolean: true,
+        }
       },
       rules: {
         newUsername: [
@@ -220,11 +247,24 @@ export default {
         this.$refs['form'].resetFields();
       }
     },
-    submitForm(form) {
-      this.$refs[form].validate((valid) => {
+    modalClosed() {
+      this.$refs.updateForm.resetFields();
+    },
+    submitForm() {
+      this.$refs.updateForm.validate(valid => {
         if (valid) {
-          this.dialogVisible = false;
-          this.$store.dispatch("updateUserInfo",this.form);
+          this.btnLoading=true;
+          this.updateInfo(this.form)
+            .then(res => {
+              this.dialogVisible = false;
+              this.$message.success(res.data.message);
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading=false;
+            });
         } else {
           return false;
         }
@@ -233,7 +273,10 @@ export default {
     cancel(form) {
       this.dialogVisible = false;
       this.$refs['form'].resetFields();
-    }
+    },
+    ...mapActions({
+      updateInfo: 'updateUserInfo',
+    })
   },
   watch: {
     'form':{
@@ -249,7 +292,7 @@ export default {
     }
   },
   computed:{
-    ...mapGetters(['userId','loginName','roles','state','userName']),
+    ...mapGetters(['userId','loginName','roles','state','userName', 'email', 'receive']),
   }
 };
 </script>
@@ -260,12 +303,12 @@ export default {
 .box-card {
   width: 100%;
 }
-.el-col {
+.item .el-col {
   border-radius: 4px;
   height: 30px;
   line-height: 30px;
 }
-.el-col-left {
+.text .el-col-left {
   text-align: right;
 }
 </style>
