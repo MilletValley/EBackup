@@ -49,8 +49,6 @@ const mutations = {
     state.userInfo = {};
     state.roles = [];
     state.routers = [];
-    state.email = '';
-    state.receive.boolean = true;
   },
   [types.SET_ROUTERS](state, routers) {
     state.routers = [...basicRouters, ...routers];
