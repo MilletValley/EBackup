@@ -2,7 +2,7 @@
     <section>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>个人信息</span>
+          <span>个人信息(ID：{{userId}})</span>
           <el-button style="float: right;"
                      type="primary"
                      size="small"
@@ -10,50 +10,26 @@
         </div>
         <div class="text item">
           <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">用户ID：</el-col>
-            <el-col :span="6">{{ userId }}</el-col>
-            <el-col :span="6"></el-col>
+            <el-col :span="9" class="el-col-left">用户名：</el-col>
+            <el-col :span="3">{{ userName }}</el-col>
+            <el-col :span="3" class="el-col-left">登录名：</el-col>
+            <el-col :span="9">{{ loginName }}</el-col>
           </el-row>
         </div>
         <div class="text item">
           <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">用户名：</el-col>
-            <el-col :span="6">{{ userName }}</el-col>
-            <el-col :span="6"></el-col>
+            <el-col :span="9" class="el-col-left">邮箱：</el-col>
+            <el-col :span="3" >{{ email }}</el-col>
+            <el-col :span="3" class="el-col-left">接收状态：</el-col>
+            <el-col :span="9">{{ receive===1?'是':'否' }}</el-col>
           </el-row>
         </div>
         <div class="text item">
           <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">登录名：</el-col>
-            <el-col :span="6">{{ loginName }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">邮箱：</el-col>
-            <el-col :span="6">{{ email }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">角色：</el-col>
-            <el-col :span="6">{{ roles[0].name }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">状态：</el-col>
-            <el-col :span="6">{{ state==1?'启用':'禁用' }}</el-col>
-            <el-col :span="6"></el-col>
+            <el-col :span="9" class="el-col-left">角色：</el-col>
+            <el-col :span="3" >{{ roles[0].name }}</el-col>
+            <el-col :span="3" class="el-col-left">状态：</el-col>
+            <el-col :span="9">{{ state==1?'启用':'禁用' }}</el-col>
           </el-row>
         </div>
       </el-card>
@@ -77,8 +53,10 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12" class="form-col">
-                <el-form-item prop="receive.boolean">
-                  <el-checkbox v-model="form.receive.boolean">接收</el-checkbox>
+                <el-form-item prop="receive">
+                  <el-checkbox v-model="form.receive"
+                               :true-label="1"
+                               :false-label="0">接收</el-checkbox>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -158,9 +136,7 @@ export default {
         oldPassword: '',
         checkPass: '',
         email: '',
-        receive: {
-          boolean: true,
-        }
+        receive: 1,
       },
       rules: {
         newUsername: [
