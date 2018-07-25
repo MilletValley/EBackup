@@ -78,8 +78,14 @@
     </el-row>
 
     <!-- 编辑用户 begin-->
-    <el-dialog title="修改用户信息" :visible.sync="dialogUpdateVisible" :close-on-click-modal="false" :close-on-press-escape="false">
-      <el-form id="#update" :model="update" ref="update" label-width="100px">
+    <el-dialog title="修改用户信息"
+               :visible.sync="dialogUpdateVisible">
+      <el-form :model="update"
+               ref="update"
+               label-width="110px"
+               status-icon
+               :rules="rules"
+               size="small">
         <el-form-item label="账户" prop="loginName">
           <el-input v-model="update.loginName" :disabled="true"></el-input>
         </el-form-item>
@@ -124,15 +130,21 @@
           </el-tooltip>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogUpdateVisible = false">取 消</el-button>
-        <el-button type="primary" :loading="updateLoading" @click="updateUser">确 定</el-button>
-      </div>
+      <span slot="footer">
+        <el-button type="primary" :loading="updateLoading" @click="updateUser">确定</el-button>
+        <el-button @click="dialogUpdateVisible = false">取消</el-button>
+      </span>
     </el-dialog>
     <!-- 编辑用户 end-->
     <!-- 创建用户 begin-->
-    <el-dialog title="创建用户" :visible.sync="dialogCreateVisible" :close-on-click-modal="false" :close-on-press-escape="false">
-      <el-form id="#create" :model="create" status-icon :rules="rules" ref="create" label-width="100px">
+    <el-dialog title="创建用户"
+               :visible.sync="dialogCreateVisible">
+      <el-form :model="create"
+               status-icon
+               :rules="rules"
+               ref="create"
+               label-width="110px"
+               size="small">
         <el-form-item label="账户" prop="loginName">
           <el-input v-model="create.loginName"></el-input>
         </el-form-item>
@@ -178,10 +190,10 @@
           <el-input v-model="create.checkpass" type="password"></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogCreateVisible = false">取 消</el-button>
-        <el-button type="primary" :loading="createLoading" @click="createUser">确 定</el-button>
-      </div>
+      <span slot="footer">
+        <el-button type="primary" :loading="createLoading" @click="createUser">确定</el-button>
+        <el-button @click="dialogCreateVisible = false">取消</el-button>
+      </span>
     </el-dialog>
     <!-- 创建用户 end-->
   </div>
@@ -264,7 +276,6 @@ export default {
           { validator: validateName },
         ],
         userName: [
-          { required: false, message: '请输入姓名', trigger: 'blur' },
           { min: 2, max: 25, message: '长度在 2 到 25 个字符' },
         ],
         password: [

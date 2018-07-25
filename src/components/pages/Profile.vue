@@ -2,7 +2,7 @@
     <section>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>个人信息(ID：{{userId}})</span>
+          <span>个人信息</span>
           <el-button style="float: right;"
                      type="primary"
                      size="small"
@@ -10,26 +10,50 @@
         </div>
         <div class="text item">
           <el-row :gutter="20">
-            <el-col :span="9" class="el-col-left">用户名：</el-col>
-            <el-col :span="3">{{ userName }}</el-col>
-            <el-col :span="3" class="el-col-left">登录名：</el-col>
-            <el-col :span="9">{{ loginName }}</el-col>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">用户ID：</el-col>
+            <el-col :span="6">{{ userId }}</el-col>
+            <el-col :span="6"></el-col>
           </el-row>
         </div>
         <div class="text item">
           <el-row :gutter="20">
-            <el-col :span="9" class="el-col-left">邮箱：</el-col>
-            <el-col :span="3" >{{ email }}</el-col>
-            <el-col :span="3" class="el-col-left">接收状态：</el-col>
-            <el-col :span="9">{{ receive===1?'是':'否' }}</el-col>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">用户名：</el-col>
+            <el-col :span="6">{{ userName }}</el-col>
+            <el-col :span="6"></el-col>
           </el-row>
         </div>
         <div class="text item">
           <el-row :gutter="20">
-            <el-col :span="9" class="el-col-left">角色：</el-col>
-            <el-col :span="3" >{{ roles[0].name }}</el-col>
-            <el-col :span="3" class="el-col-left">状态：</el-col>
-            <el-col :span="9">{{ state==1?'启用':'禁用' }}</el-col>
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">登录名：</el-col>
+            <el-col :span="6">{{ loginName }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">邮箱：</el-col>
+            <el-col :span="6">{{ email }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">角色：</el-col>
+            <el-col :span="6">{{ roles===undefined?'':roles[0].name }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">状态：</el-col>
+            <el-col :span="6">{{ state==1?'启用':'禁用' }}</el-col>
+            <el-col :span="6"></el-col>
           </el-row>
         </div>
       </el-card>
@@ -38,10 +62,11 @@
                 :before-close = "closeDialog"
                 @close="modalClosed">
           <el-form ref="updateForm"
-                  status-icon
-                  :model="form"
-                  :rules="rules"
-                  label-width="110px">
+                   status-icon
+                   :model="form"
+                   :rules="rules"
+                   label-width="110px"
+                   size="small">
             <el-form-item label="新用户名"
                           prop="newUsername">
               <el-input v-model="form.newUsername"></el-input>
@@ -88,6 +113,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { changeUserInfo } from '../../api/user';
+import isEqual from 'lodash/isEqual';
 
 export default {
   name: 'Profile',
@@ -125,19 +151,19 @@ export default {
         callback();
       }
     };
+    const baseFormData = {
+      newUsername: '',
+      newPassword: '',
+      oldPassword: '',
+      checkPass: '',
+      email: '',
+      receive: 1,
+    };
     return {
       dialogVisible: false,
       btnLoading: false,
-      isEdit: false,
-      isClose: false,
-      form: {
-        newUsername: '',
-        newPassword: '',
-        oldPassword: '',
-        checkPass: '',
-        email: '',
-        receive: 1,
-      },
+      form: Object.assign({}, baseFormData),
+      originFormData: Object.assign({}, baseFormData),
       rules: {
         newUsername: [
           {
@@ -205,25 +231,20 @@ export default {
         this.dialogVisible = true;
       }
     },
-    closeDialog() {
-      if(this.isEdit && (this.form.newUsername!=""||this.form.newPassword!=""||this.form.oldPassword!=""||this.form.checkPass!="")){
-        this.isEdit = false;
-        this.isClose = false;
-        this.$confirm('有未保存的修改，是否退出?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.dialogVisible = false;
-          this.$refs['form'].resetFields();
-          this.isClose = true;
-        }).catch(() => {});
+    closeDialog(done) {
+      if (!isEqual(this.form, this.originFormData)) {
+        this.$confirm('有未保存的修改，是否退出？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {
+          });
       } else {
         this.dialogVisible = false;
-        this.$refs['form'].resetFields();
       }
     },
     modalClosed() {
+      this.form = { ...this.originFormData };
       this.$refs.updateForm.resetFields();
     },
     submitForm() {
@@ -246,26 +267,13 @@ export default {
         }
       });
     },
-    cancel(form) {
+    cancel() {
       this.dialogVisible = false;
-      this.$refs['form'].resetFields();
+      this.$refs['updateForm'].resetFields();
     },
     ...mapActions({
       updateInfo: 'updateUserInfo',
     })
-  },
-  watch: {
-    'form':{
-    handler:function(newForm,oldForm){
-      if(!this.isClose)
-      {
-        this.isEdit = true;
-      }
-      else
-        this.isClose = false;
-    },
-    deep:true,
-    }
   },
   computed:{
     ...mapGetters(['userId','loginName','roles','state','userName', 'email', 'receive']),
