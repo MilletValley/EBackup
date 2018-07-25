@@ -21,13 +21,24 @@
           </el-table-column>
           <el-table-column prop="userName" label="姓名" min-width="150" align="center">
           </el-table-column>
-          <el-table-column prop="email" label="邮箱" min-width="150" align="center">
+          <el-table-column prop="email" label="邮箱" min-width="160" align="center">
+          </el-table-column>
+          <el-table-column prop="receive" label="接收状态" min-width="120" align="center">
+            <template slot-scope="scope">
+              <span v-if="scope.row.receive === 1">
+                <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
+                </i>
+              </span>
+              <span v-else>
+                <i class="el-icon-remove" style="color: #909399;font-size: 18px"></i>
+              </span>
+            </template>
           </el-table-column>
           <el-table-column prop="state" label="状态"
                                         :filters="[{ text: '启用', value: 1 }, { text: '禁用', value: 0 }]"
                                         :filter-method="filterState"
                                         filter-placement="bottom-end"
-                                        min-width="150"
+                                        min-width="120"
                                         align="center">
             <template slot-scope="scope">
               <span v-if="scope.row.state === 1">
@@ -39,14 +50,14 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="角色" min-width="200" align="center">
+          <el-table-column label="角色" min-width="170" align="center">
             <template slot-scope="scope">
               <span v-for="item in scope.row.roles" :key="item.id"
                                                     :label="item.name"
                                                     :value="item.id">{{ item.name }}<br></span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" min-width="150" header-align="center" align="center">
+          <el-table-column label="操作" min-width="120" header-align="center" align="center">
             <template slot-scope="scope">
               <el-button type="primary"
                         icon="el-icon-edit"
@@ -82,8 +93,10 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item prop="receive.boolean">
-              <el-checkbox v-model="update.receive.boolean">接收</el-checkbox>
+            <el-form-item prop="receive">
+              <el-checkbox v-model="update.receive"
+                           :true-label="1"
+                           :false-label="0">接收</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
@@ -133,8 +146,10 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item prop="receive.boolean">
-              <el-checkbox v-model="create.receive.boolean">接收</el-checkbox>
+            <el-form-item prop="receive">
+              <el-checkbox v-model="create.receive"
+                           :true-label="1"
+                           :false-label="0">接收</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
@@ -271,9 +286,7 @@ export default {
         state: '',
         roles: [],
         email: '',
-        receive: {
-          boolean: true,
-        }
+        receive: 1,
       },
       create: {
         loginName: '',
@@ -283,9 +296,7 @@ export default {
         checkpass: '',
         roles: [],
         email: '',
-        receive: {
-          boolean: true,
-        }
+        receive: 1,
       },
     };
   },
