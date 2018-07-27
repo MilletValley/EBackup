@@ -158,6 +158,7 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
+      this.fetchData();
     },
     deleteOne({ row: info, $index }) {
       this.$confirm('此操作将删除此系统?', '提示', {
@@ -190,6 +191,7 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
+      this.fetchData();
     },
   },
   computed: {
