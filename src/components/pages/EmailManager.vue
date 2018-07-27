@@ -130,7 +130,8 @@ export default {
         })
         .then(() => {
           this.btnLoading = false;
-        });
+          this.fetchData();
+        })
     },
     selectOne({ row }) {
       this.selectedId = row.emailId;
@@ -157,8 +158,8 @@ export default {
         })
         .then(() => {
           this.btnLoading = false;
+          this.fetchData();
         });
-      this.fetchData();
     },
     deleteOne({ row: info, $index }) {
       this.$confirm('此操作将删除此系统?', '提示', {
@@ -191,7 +192,9 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
-      this.fetchData();
+        .then(() => {
+          this.fetchData();
+        })
     },
   },
   computed: {
