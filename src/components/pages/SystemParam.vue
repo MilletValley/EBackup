@@ -34,8 +34,17 @@
                        min-width="100"
                        header-align="center"
                        align="center"
-                       :formatter="stateFormatter"
-                       prop="state"></el-table-column>
+                       prop="state">
+        <template slot-scope="scope">
+          <span v-if="scope.row.state == 0">
+            <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
+            </i>
+          </span>
+          <span v-else>
+            <i class="el-icon-remove" style="color: #909399;font-size: 18px"></i>
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
                        min-width="140"
@@ -269,9 +278,6 @@ export default {
     },
     judgeUse(data) {
       return useTypeMapping[data.useType];
-    },
-    stateFormatter(row, column, cellValue) {
-      return systemStateMapping[cellValue];
     },
     changeState(index, row) {
       let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
