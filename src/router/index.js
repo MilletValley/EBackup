@@ -21,6 +21,7 @@ import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
 import SystemParam from '@/components/pages/SystemParam';
 import EmailManager from '@/components/pages/EmailManager';
+import StrategyManager from '@/components/pages/StrategyManager';
 import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 // import Overview from '@/components/pages/Overview';
 // import BackupRecoverView from '@/components/pages/BackupRecoverView';
@@ -464,6 +465,14 @@ export const asyncRouters = [
         component: EmailManager,
         meta: {
           title: '邮箱管理',
+          roles: [],
+        },
+      },
+      {
+        path: 'strategymanager',
+        component: StrategyManager,
+        meta: {
+          title: '策略管理',
           roles: [],
         },
       },
