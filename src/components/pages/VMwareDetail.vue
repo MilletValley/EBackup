@@ -15,8 +15,8 @@
                       class="title">
                 <h1>{{details.vmName}}</h1>
               </el-col>
-              <el-col :span="5"
-                      :offset="5"
+              <el-col :span="12"
+                      :offset="12"
                       class="action">
                 <el-dropdown size="mini"
                              trigger="click"
@@ -28,8 +28,14 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
+                    <el-dropdown-item command="restore"
+                                      disabled>恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
+                <el-button size="mini"
+                           type="primary"
+                           @click="detailsEditModal = true"
+                           disabled>编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
@@ -65,15 +71,18 @@
 
       </div>
     </header>
-    <vm-tab-panels :id="Number(id)"
-                   type="vm"
-                   :backup-plans="backupPlans"
-                   :results="results"
-                   @backupplan:refresh="refreshSingleBackupPlan"
-                   @backupplan:update="updateBackupPlan"
-                   @backupplan:delete="deleteBackupPlan"
-                   @select-backup-plan="selectBackupPlan"
-                   @switchpane="switchPane"></vm-tab-panels>
+    <tab-panels :id="Number(id)"
+                type="vm"
+                :backup-plans="backupPlans"
+                :restore-plans="restorePlans"
+                :results="results"
+                @single-restore-btn-click="initSingleRestoreModal"
+                @backupplan:refresh="refreshSingleBackupPlan"
+                @backupplan:update="updateBackupPlan"
+                @backupplan:delete="deleteBackupPlan"
+                @select-backup-plan="selectBackupPlan"
+                @switchpane="switchPane"
+                :restoreRecords="restoreRecords"></tab-panels>
     <backup-plan-create-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"
