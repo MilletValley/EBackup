@@ -1,46 +1,41 @@
 <template>
   <section>
-    <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <span>备份存储策略</span>
-        <el-button style="float: right;"
-                    type="primary"
-                    size="small"
-                    @click="dialogVisible=true">修改</el-button>
-      </div>
-      <div class="text item">
-        <el-row :gutter="20">
-          <el-col :span="6"></el-col>
-          <el-col :span="6" class="el-col-left">oracle备份集保留策略：</el-col>
-          <el-col :span="6">{{ this.item.oracleBackupStrategy }}</el-col>
-          <el-col :span="6"></el-col>
-        </el-row>
-      </div>
-      <div class="text item">
-        <el-row :gutter="20">
-          <el-col :span="6"></el-col>
-          <el-col :span="6" class="el-col-left">sqlserver备份集保留策略：</el-col>
-          <el-col :span="6">{{ this.item.sqlserverBackupStrategy }}</el-col>
-          <el-col :span="6"></el-col>
-        </el-row>
-      </div>
-      <div class="text item">
-        <el-row :gutter="20">
-          <el-col :span="6"></el-col>
-          <el-col :span="6" class="el-col-left">文件备份集存储策略：</el-col>
-          <el-col :span="6">{{ this.item.fileBackupStrategy }}</el-col>
-          <el-col :span="6"></el-col>
-        </el-row>
-      </div>
-      <div class="text item">
-        <el-row :gutter="20">
-          <el-col :span="6"></el-col>
-          <el-col :span="6" class="el-col-left">虚拟机备份集保留策略：</el-col>
-          <el-col :span="6">{{ this.item.vmBackupStrategy }}</el-col>
-          <el-col :span="6"></el-col>
-        </el-row>
-      </div>
-    </el-card>
+    <el-table :data="items"
+              style="width: 100%">
+      </el-table-column>
+            <el-table-column prop="oracleBackupStrategy"
+                       label="oracle备份集保留策略"
+                       min-width="150"
+                       fixed
+                       align="center"></el-table-column>
+      </el-table-column>
+            <el-table-column prop="sqlserverBackupStrategy"
+                       label="sqlserver备份集保留策略"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="fileBackupStrategy"
+                       label="文件备份集存储策略"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column label="虚拟机备份集保留策略"
+                       min-width="150"
+                       align="center"
+                       prop="vmBackupStrategy"></el-table-column>
+      <el-table-column label="操作"
+                       min-width="150"
+                       fixed="right"
+                       align="center"
+                       prop="state">
+        <template slot-scope="scope">
+          <el-button type="primary"
+                     icon="el-icon-edit"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="dialogVisible=true"></el-button>
+        </template>
+      </el-table-column>
+    </el-table>
     <el-dialog title="修改策略"
               :visible.sync="dialogVisible"
               :before-close="closeDialog"
@@ -65,10 +60,10 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="dialogVisible=false">取消</el-button>
         <el-button type="primary"
-                    @click="submitForm"
-                    :loading="btnLoading">确定</el-button>
+                   @click="submitForm"
+                   :loading="btnLoading">确定</el-button>
+        <el-button @click="dialogVisible=false">取消</el-button>
       </span>
     </el-dialog>
   </section>
@@ -85,7 +80,6 @@ export default {
       formData: {},
       originFormData: {},
       items: [],
-      item: {},
     }
   },
   created() {
@@ -97,7 +91,6 @@ export default {
         .then(res => {
           const { data } = res.data
           this.items = data;
-          this.item=this.items[0];
         })
         .catch(error => {
           error => Promise.reject(error);
@@ -112,8 +105,11 @@ export default {
               this.dialogVisible = false;
               const { data, message } = res.data;
               this.$message.success(message);
-              this.items[0]=data;
-              this.item=this.items[0];
+              this.items.splice(
+                0,
+                1,
+                data
+              );
             })
             .catch(error => {
               this.$message.error(error);
@@ -127,8 +123,8 @@ export default {
       });
     },
     modalOpened() {
-      this.originFormData = { ...this.item };
-      this.formData = { ...this.item };
+      this.originFormData = { ...this.items[0] };
+      this.formData = { ...this.items[0] };
     },
     closeDialog(done) {
       if (!isEqual(this.formData, this.originFormData)) {
@@ -148,19 +144,6 @@ export default {
   }
 }
 </script>
-<style scoped>
-.text {
-    font-size: 14px;
-  }
-.box-card {
-  width: 100%;
-}
-.item .el-col {
-  border-radius: 4px;
-  height: 30px;
-  line-height: 30px;
-}
-.text .el-col-left {
-  text-align: right;
-}
+<style lang="scss" module>
+@import '../../style/common.scss';
 </style>
