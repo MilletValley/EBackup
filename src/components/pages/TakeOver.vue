@@ -63,7 +63,7 @@
                 <i-icon name="ip"
                         :class="$style.hostIpIcon"></i-icon>
                 <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 1"
+                <el-tooltip v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'"
                             placement="right"
                             effect="light">
                   <div slot="content">
@@ -83,7 +83,15 @@
                             trigger="hover"
                             width="300"
                             :open-delay="200">
-                  <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
+                  <el-form v-show="hostLink.primaryHost.osName='Windows'"
+                          size="mini"
+                          label-width="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="临时IP：">
+                      <span>{{ hostLink.primaryHost.serviceIp }}</span>
+                    </el-form-item>
+                  </el-form>
+                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
                   <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
                   <el-form v-else-if="hostLink.latestSwitch.type === 2"
                            size="mini"
@@ -165,7 +173,7 @@
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.viceHost.name }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 2"
+                <el-tooltip v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'"
                             placement="right"
                             effect="light">
                   <div slot="content">

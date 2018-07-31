@@ -22,7 +22,13 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
+        <el-form-item label="临时IP"
+                      v-if="this.formData.osName==='Windows'"
+                      prop="serviceIp">
+          <el-input v-model="formData.serviceIp"></el-input>
+        </el-form-item>
         <el-form-item label="服务IP"
+                      v-else
                       prop="serviceIp">
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
