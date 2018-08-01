@@ -411,10 +411,17 @@ export default {
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
       btnLoading: false,
+      timer: null,
     };
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.clearTimer(this.timer);
+  },
+  distroyed: function () {
+    this.clearTimer(this.timer);
   },
   watch: {
     $route: function() {
@@ -422,6 +429,13 @@ export default {
       this.links = [];
       this.fetchData();
     },
+    isFinished: function(newVal) {
+        if(newVal) {
+          this.setTimer();
+        } else {
+          this.clearTimer();
+        }
+    }
   },
   computed: {
     databaseType: {
@@ -525,6 +539,21 @@ export default {
         return '数据库名';
       }
     },
+    switchDbLink() {
+      return this.links.map(hostLink => {
+        return hostLink.databaseLinks.some(dbLink =>
+                                    dbLink.latestSwitch&&dbLink.latestSwitch.state===1)
+      })
+    },
+    switchIp() {
+      return this.links.some(hostLink =>
+                                hostLink.latestSwitch&&
+                                hostLink.latestSwitch.state===1&&
+                                (hostLink.latestSwitch.type===2||hostLink.latestSwitch.type===3));
+    },
+    isFinished() {
+      return this.switchIp || this.switchDbLink.some(isLink => isLink===true);
+    }
   },
   methods: {
     fetchData() {
@@ -699,6 +728,24 @@ export default {
         })
         .catch(error => {});
     },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        Promise.all([
+          fetchDatabaseMethod[this.databaseType](),
+          fetchLinksMethod[this.databaseType](),
+        ])
+          .then(resArr => {
+            const { data } = resArr[0].data;
+            const { data: links } = resArr[1].data;
+            this.items = data;
+            this.links = links;
+          })
+      }, 10000)
+    },
+    clearTimer() {
+      clearInterval(this.timer);
+    }
   },
 
   components: {

@@ -38,10 +38,17 @@ const detailPageMixin = {
       selectedBackupPlanId: -1,
       selectedBackupResultId: -1,
       singleRestoreCreateModalVisible: false,
+      timer: null,
     };
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.clearTimer(this.timer);
+  },
+  distroyed() {
+    this.clearTimer(this.timer);
   },
   beforeRouteUpdate(to, from, next) {
     this.fetchData();
@@ -63,6 +70,19 @@ const detailPageMixin = {
     role() {
       if (!this.details || !this.detilas.role) return databaseRoleMapping[0];
       return databaseRoleMapping[this.details.role];
+    },
+    isFinished() {
+      return this.restorePlans.some(restorePlan => restorePlan.state === 0 || restorePlan.state === 1) ||
+             this.backupPlans.some(backupPlan => backupPlan.state === 0 || backupPlan.state === 1);
+    },
+  },
+  watch: {
+    isFinished(newVal) {
+      if (newVal) {
+        this.setTimer();
+      } else {
+        this.clearTimer();
+      }
     },
   },
   methods: {
@@ -109,6 +129,15 @@ const detailPageMixin = {
           return '';
       }
     },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        this.fetchData();
+      }, 10000);
+    },
+    clearTimer() {
+      clearInterval(this.timer);
+    }
   },
   components: {
     IIcon,

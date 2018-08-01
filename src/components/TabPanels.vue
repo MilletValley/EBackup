@@ -63,11 +63,11 @@
       <el-tab-pane label="恢复记录"
                    name="restore"
                    :disabled="this.type === 'vm'">
-        <template v-if="!this.type==='vm'">
+        <template v-if="this.type!=='vm'">
           <restore-records :type="type"
-                         :plans="ongoingRestorePlan"
-                         :records="restoreRecords"
-                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
+                           :plans="ongoingRestorePlan"
+                           :records="restoreRecords"
+                           @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
         </template>
       </el-tab-pane>
     </el-tabs>
