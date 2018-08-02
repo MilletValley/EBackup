@@ -62,8 +62,8 @@
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
                    name="restore"
-                   :disabled="this.type === 'vm'">
-        <template v-if="this.type!=='vm'">
+                   :disabled="this.type === 'vm'&&this.isVM">
+        <template v-if="!this.isVM">
           <restore-records :type="type"
                            :plans="ongoingRestorePlan"
                            :records="restoreRecords"
@@ -153,8 +153,12 @@ export default {
       return this.restorePlans.filter(plan => plan.state === 1);
     },
     isFileBackupResult() {
-      return this.type === 'windows' || this.type === 'linux' || this.type === 'vm';
+      return this.type === 'windows' || this.type === 'linux' || (this.type === 'vm'&&this.isVM);
     },
+    isVM() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    }
   },
   methods: {
     switchPane({ name }) {

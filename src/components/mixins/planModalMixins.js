@@ -35,6 +35,7 @@ const mapping = {
   sqlserver: '数据库',
   windows: '恢复路径',
   linux: '恢复路径',
+  vm: '新虚拟机名'
 };
 
 const backupPlanModalMixin = {
@@ -339,7 +340,7 @@ const restorePlanModalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
+        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     id: {
@@ -494,6 +495,10 @@ const restorePlanModalMixin = {
     },
     isFileHost() {
       return this.type === 'windows' || this.type === 'linux';
+    },
+    isHW() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'hwVirtual';
     },
   },
   methods: {

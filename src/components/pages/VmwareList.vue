@@ -25,7 +25,7 @@
                        min-width="200">
         <template slot-scope="scope">
           <el-button type="text">
-            <router-link :to="`${scope.row.vmId}`"
+            <router-link :to="`${scope.row.id}`"
                          append
                          :class="$style.link">{{scope.row.vmName}}</router-link>
           </el-button>
@@ -65,7 +65,7 @@ export default {
       pagesize: 10,
       inputSearch: '',
       newItems: [],
-      orginItems: [],
+      originItems: [],
     }
   },
   created() {
@@ -74,9 +74,16 @@ export default {
   watch: {
     inputSearch() {
       if(this.inputSearch==='') {
-        this.vmItems=this.orginItems;
+        this.vmItems=this.originItems;
         this.currentPage=1;
       }
+    },
+    $route: function() {
+      this.vmItems=[];
+      this.originItems=[];
+      this.newItems=[];
+      this.currentPage=1;
+      this.fetchData();
     }
   },
   methods: {
@@ -84,8 +91,13 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
-          this.vmItems = data;
-          this.orginItems = data;
+          if(this.$route.name === 'VMwareList') {
+            this.vmItems = data.filter(item => item.type==='1');
+            this.originItems = data.filter(item => item.type==='1');
+          } else {
+            this.vmItems = data.filter(item => item.type==='2');
+            this.originItems = data.filter(item => item.type==='2');
+          }
         })
         .catch(error => {
           this.$message.error(error);
@@ -94,10 +106,10 @@ export default {
     searchByName() {
       this.newItems=[];
       this.currentPage=1;
-      if(this.orginItems){
-        for(let index=0; index<this.orginItems.length; index++) {
-          if(this.orginItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
-            this.newItems.push(this.orginItems[index]);
+      if(this.originItems){
+        for(let index=0; index<this.originItems.length; index++) {
+          if(this.originItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
+            this.newItems.push(this.originItems[index]);
         }
       }
       this.vmItems=this.newItems;

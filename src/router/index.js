@@ -392,6 +392,25 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'hwVirtual',
+        name: 'HWwareList',
+        component: VMwareList,
+        meta: {
+          title: '华为虚拟机',
+          roles: ['vm admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'virtual/:id',
         props: true,
         component: VMwareDetail,
@@ -405,6 +424,28 @@ export const asyncRouters = [
             {
               name: '虚拟机列表',
               path: '/vm/virtual',
+            },
+            {
+              name: '虚拟机详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'hwVirtual/:id',
+        props: true,
+        component: VMwareDetail,
+        meta: {
+          roles: ['vm admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '/vm/hwVirtual',
             },
             {
               name: '虚拟机详情',

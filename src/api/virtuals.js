@@ -15,6 +15,12 @@ const fetchOne = id =>
     url: `/virtuals/${id}`,
   });
 
+const modifyOne = virtualData =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtuals/${virtualData.id}`,
+    data: virtualData,
+  });
 // 获取单个虚拟机下的所有备份配置（计划）
 const fetchBackupPlans = id =>
   baseApi
@@ -77,13 +83,93 @@ const fetchBackupOperation = id =>
     url: `/virtual-backup-plans/${id}`,
   });
 
+const createSingleRestorePlan = ({ id, data }) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: `/virtual-backup-results/${id}/virtual-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+const fetchRestorePlans = id =>
+  baseApi
+    .request({
+      method: 'get',
+      url: `/virtuals/${id}/virtual-restore-plans`,
+    })
+    .then(res => {
+      const { data: plans } = res.data;
+      plans.forEach(p => {
+        if (p.config.timePoints) {
+          p.config.timePoints = timePoints2Obj(p.config.timePoints);
+        }
+      });
+      return res;
+    });
+
+const fetchRestoreRecords = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtuals/${id}/restore-records`,
+  });
+
+const createRestorePlan = ({ id, data }) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: `/virtuals/${id}/virtual-restore-plans`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const deleteRestorePlan = planId =>
+  baseApi.request({
+    method: 'delete',
+    url: `/virtual-restore-plans/${planId}`,
+  });
+
+const updateRestorePlan = data =>
+  baseApi
+    .request({
+      method: 'patch',
+      url: `/virtual-restore-plans/${data.id}`,
+      data,
+    })
+    .then(res => {
+      const { timePoints } = res.data.data.config;
+      res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      return res;
+    });
+
+const fetchRestoreOperation = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-restore-plans/${id}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
+  modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
   createVirtualBackupPlan,
   updateVirtualBackupPlan,
   deleteVirtualBackupPlan,
   fetchBackupOperation,
+  createSingleRestorePlan,
+  fetchRestorePlans,
+  fetchRestoreRecords,
+  createRestorePlan,
+  deleteRestorePlan,
+  updateRestorePlan,
+  fetchRestoreOperation
 };

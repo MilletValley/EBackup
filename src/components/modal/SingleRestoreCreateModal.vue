@@ -12,6 +12,7 @@
       <el-row>
         <el-col :span=12>
           <el-form-item label="恢复设备"
+                        v-if="!this.isHW"
                         prop="hostIp">
             <el-input v-if="isFileHost"
                       v-model="formData.hostIp"></el-input>
@@ -35,7 +36,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
+      <el-row v-if="!this.isHW">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">
@@ -81,7 +82,12 @@ export default {
       recoveringStrategys: recoveringStrategyMapping,
     };
   },
-  computed: {},
+  computed: {
+    isHW() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='hwVirtual'
+    },
+  },
   methods: {
     confirmBtnClick() {
       this.$refs.singleRestoreForm.validate(valid => {

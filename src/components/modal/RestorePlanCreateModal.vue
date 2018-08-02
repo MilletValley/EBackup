@@ -20,7 +20,7 @@
         </el-form-item>
       </el-row>
       <el-row>
-        <el-col :span="12">
+        <el-col :span="12" v-if="!this.isHW">
           <el-form-item label="恢复设备"
                         prop="hostIp">
             <el-select v-model="formData.hostIp"
@@ -35,14 +35,14 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="this.isHW?24:12">
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
+      <el-row v-if="!this.isHW">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">

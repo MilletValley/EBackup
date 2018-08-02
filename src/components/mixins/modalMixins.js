@@ -14,7 +14,7 @@ const genModalMixin = type => {
         type: String,
         required: true,
         validator(value) {
-          return ['oracle', 'sqlserver', 'filehost', 'host'].includes(value);
+          return ['oracle', 'sqlserver', 'filehost', 'host', 'vm'].includes(value);
         },
       },
       btnLoading: {
@@ -54,11 +54,17 @@ const genModalMixin = type => {
         hostType: '1',
         databaseType: '1',
       };
+      const virtualFormData = {
+        id: -1,
+        vmName: '',
+        host: {},
+      };
       const baseData = {
         oracle: databaseBaseFormData,
         sqlserver: databaseBaseFormData,
         filehost: fileHostBaseFormData,
         host: hostBaseFormData,
+        vm: virtualFormData,
       };
       const rules = {
         name: [
