@@ -83,15 +83,16 @@
                             trigger="hover"
                             width="300"
                             :open-delay="200">
-                  <el-form v-show="hostLink.primaryHost.osName='Windows'"
+                  <!-- <el-form v-show="hostLink.primaryHost.osName==='Windows'"
                           size="mini"
-                          label-width="70px">
+                          label-width="70px"
+                          style="margin: 5px 0 5px;border-bottom: 1px solid;">
                     <el-form-item :class="$style.switchFormItem"
                                   label="临时IP：">
                       <span>{{ hostLink.primaryHost.serviceIp }}</span>
                     </el-form-item>
-                  </el-form>
-                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+                  </el-form> -->
+                  <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
                   <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
                   <el-form v-else-if="hostLink.latestSwitch.type === 2"
                            size="mini"
