@@ -22,13 +22,22 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
+        <el-form-item label="操作系统"
+                      prop="osName">
+          <el-select v-model="formData.osName"
+                     placeholder="请选择">
+            <el-option v-for="item in ['Windows', 'Linux']"
+                       :key="item.value"
+                       :value="item"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="临时IP"
                       v-if="this.formData.osName==='Windows'"
                       prop="serviceIp">
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
         <el-form-item label="服务IP"
-                      v-else
+                      v-if="this.formData.osName==='Linux'"
                       prop="serviceIp">
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
@@ -47,15 +56,6 @@
                     :label="2">sqlserver</el-radio>
           <el-radio v-model="formData.databaseType"
                     :label="4">虚拟机</el-radio>
-        </el-form-item>
-        <el-form-item label="操作系统"
-                      prop="osName">
-          <el-select v-model="formData.osName"
-                     placeholder="请选择">
-            <el-option v-for="item in ['Windows', 'Linux']"
-                       :key="item.value"
-                       :value="item"></el-option>
-          </el-select>
         </el-form-item>
         <el-form-item label="系统登录名"
                       prop="loginName">
