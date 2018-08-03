@@ -4,7 +4,8 @@
                :visible.sync="modalVisible"
                :before-close="beforeModalClose"
                @open="modalOpened"
-               @close="modalClosed">
+               @close="modalClosed"
+               v-if="backupPlan">
       <span slot="title">
         更新备份计划
         <span style="color: #999999"> (ID: {{backupPlan.id}})</span>
@@ -141,7 +142,7 @@ export default {
   props: {
     backupPlan: {
       type: Object,
-      required: true,
+      // required: true,
     },
   },
   methods: {

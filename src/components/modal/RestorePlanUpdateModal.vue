@@ -3,7 +3,8 @@
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
              @open="modalOpened"
-             @close="modalClosed">
+             @close="modalClosed"
+             v-if="restorePlan">
     <span slot="title">
       更新恢复计划
       <span style="color: #999999"> (ID: {{restorePlan.id}})</span>
@@ -143,7 +144,7 @@ export default {
   props: {
     restorePlan: {
       type: Object,
-      required: true,
+      // required: true,
     },
   },
   methods: {
