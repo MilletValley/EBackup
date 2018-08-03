@@ -20,7 +20,7 @@
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="serviceIp"
-                       label="服务IP"
+                       label="操作IP"
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="hostType"
@@ -79,7 +79,7 @@ import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
-import {hostTypeMapping, databaseTypeMapping} from '../../utils/constant';
+import { hostTypeMapping, databaseTypeMapping } from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
@@ -107,7 +107,7 @@ export default {
     },
     fetchData() {},
     createItem(host) {
-      this.btnLoading=true;
+      this.btnLoading = true;
       this.create(host)
         .then(res => {
           this.createModalVisible = false;
@@ -117,7 +117,7 @@ export default {
           this.$message.error(error);
         })
         .then(() => {
-          this.btnLoading=false;
+          this.btnLoading = false;
         });
     },
     deleteDb({ row: host, $index }) {
@@ -133,12 +133,11 @@ export default {
           });
         })
         .catch(error => {
-          if (error !== 'cancel')
-            this.$message.error(error);
+          if (error !== 'cancel') this.$message.error(error);
         });
     },
     updateItem(host) {
-      this.btnLoading=true;
+      this.btnLoading = true;
       this.update(host)
         .then(res => {
           this.updateModalVisible = false;
@@ -148,7 +147,7 @@ export default {
           this.$message.error(error);
         })
         .then(() => {
-          this.btnLoading=false;
+          this.btnLoading = false;
         });
     },
     ...mapActions({
