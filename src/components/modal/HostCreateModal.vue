@@ -55,6 +55,28 @@
           <el-radio v-model="formData.databaseType"
                     label="4">虚拟机</el-radio>
         </el-form-item>
+        <el-form-item label="oracle版本"
+                      prop="oracleVersion"
+                      v-if="this.formData.databaseType==='1'">
+          <el-select v-model="formData.oracleVersion"
+                     placeholder="请选择">
+            <el-option v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType==='1'">
+          <el-form-item label="存储路径"
+                        prop="storagePath">
+            <el-input v-model="formData.storagePath"></el-input>
+          </el-form-item>
+          <el-form-item label="共享路径"
+                        prop="sharingPath">
+            <el-input v-model="formData.sharingPath"></el-input>
+          </el-form-item>
+        </template>
         <el-form-item label="系统登录名"
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>

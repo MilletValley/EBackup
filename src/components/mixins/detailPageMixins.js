@@ -44,9 +44,9 @@ const detailPageMixin = {
     this.fetchData();
   },
   mounted() {
-    this.clearTimer(this.timer);
+    this.setTimer(this.timer);
   },
-  distroyed() {
+  destroyed() {
     this.clearTimer(this.timer);
   },
   beforeRouteUpdate(to, from, next) {
@@ -55,33 +55,20 @@ const detailPageMixin = {
   },
   computed: {
     selectedBackupPlan() {
-      return this.selectedBackupPlanId === -1
-        ? {}
-        : this.backupPlans.find(plan => plan.id === this.selectedBackupPlanId);
+      return this.selectedBackupPlanId === -1 ?
+        {} :
+        this.backupPlans.find(plan => plan.id === this.selectedBackupPlanId);
     },
     selectedRestorePlan() {
-      return this.selectedRestorePlanId === -1
-        ? {}
-        : this.restorePlans.find(
+      return this.selectedRestorePlanId === -1 ?
+        {} :
+        this.restorePlans.find(
           plan => plan.id === this.selectedRestorePlanId
         );
     },
     role() {
       if (!this.details || !this.detilas.role) return databaseRoleMapping[0];
       return databaseRoleMapping[this.details.role];
-    },
-    isFinished() {
-      return this.restorePlans.some(restorePlan => restorePlan.state === 0 || restorePlan.state === 1) ||
-             this.backupPlans.some(backupPlan => backupPlan.state === 0 || backupPlan.state === 1);
-    },
-  },
-  watch: {
-    isFinished(newVal) {
-      if (newVal) {
-        this.setTimer();
-      } else {
-        this.clearTimer();
-      }
     },
   },
   methods: {
@@ -92,7 +79,10 @@ const detailPageMixin = {
     },
     // 节流函数 5s只触发一次
     throttleMethod(fn) {
-      return throttle(fn, 5000, { leading: true, trailing: false });
+      return throttle(fn, 5000, {
+        leading: true,
+        trailing: false
+      });
     },
     // dropdown
     addPlanBtnClick(command) {
@@ -132,7 +122,7 @@ const detailPageMixin = {
       this.clearTimer();
       this.timer = setInterval(() => {
         this.fetchData();
-      }, 10000);
+      }, 20000);
     },
     clearTimer() {
       clearInterval(this.timer);

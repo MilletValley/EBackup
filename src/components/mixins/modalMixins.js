@@ -53,6 +53,9 @@ const genModalMixin = type => {
         password: '',
         hostType: '1',
         databaseType: '1',
+        oracleVersion: '',
+        storagePath: '',
+        sharingPath: '',
       };
       const virtualFormData = {
         id: -1,
@@ -67,100 +70,131 @@ const genModalMixin = type => {
         vm: virtualFormData,
       };
       const rules = {
-        name: [
-          { required: true, message: '请输入名称', trigger: 'blur' },
-          { max: 20, message: '长度在20个字符以内', trigger: 'blur' },
-          {
-            pattern: '^[^\\s]*$',
-            message: '不能包含空格',
-            trigger: ['blur'],
-          },
+        name: [{
+          required: true,
+          message: '请输入名称',
+          trigger: 'blur'
+        },
+        {
+          max: 20,
+          message: '长度在20个字符以内',
+          trigger: 'blur'
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
         ],
-        hostId: [{ required: true, message: '请选择设备', trigger: 'change' }],
-        hostIp: [
-          { required: true, message: '请输入主机IP', trigger: 'blur' },
-          {
-            pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-            message: 'IP地址不正确',
-            trigger: 'blur',
-          },
+        hostId: [{
+          required: true,
+          message: '请选择设备',
+          trigger: 'change'
+        }],
+        hostIp: [{
+          required: true,
+          message: '请输入主机IP',
+          trigger: 'blur'
+        },
+        {
+          pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+          message: 'IP地址不正确',
+          trigger: 'blur',
+        },
         ],
-        serviceIp: [
-          {
-            pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-            message: 'IP地址不正确',
-            trigger: 'blur',
-          },
+        serviceIp: [{
+          pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+          message: 'IP地址不正确',
+          trigger: 'blur',
+        }],
+        hostType: [{
+          required: true,
+          message: '请选择设备类型',
+          trigger: 'blur'
+        }],
+        databaseType: [{
+          required: true,
+          message: '请选择数据库类型',
+          trigger: 'blur'
+        }],
+        instanceName: [{
+          required: true,
+          message: `请输入${
+            this.type === 'sqlserver' ? '数据库名' : '实例名'
+          }`,
+          trigger: 'blur',
+        },
+        {
+          max: 20,
+          message: '长度在20个字符以内',
+          trigger: 'blur',
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
         ],
-        hostType: [
-          { required: true, message: '请选择设备类型', trigger: 'blur' },
+        osName: [{
+          required: true,
+          message: '请选择操作系统',
+          trigger: 'blur'
+        }],
+        oracleVersion: [{
+          required: true,
+          message: '请选择Oracle版本',
+          trigger: 'blur'
+        }],
+        loginName: [{
+          required: true,
+          message: '请输入数据库登录账号',
+          trigger: 'blur',
+        },
+        {
+          length: 20,
+          message: '长度在20个字符以内',
+          trigger: 'blur'
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
         ],
-        databaseType: [
-          { required: true, message: '请选择数据库类型', trigger: 'blur' },
-        ],
-        instanceName: [
-          {
-            required: true,
-            message: `请输入${
-              this.type === 'sqlserver' ? '数据库名' : '实例名'
-            }`,
-            trigger: 'blur',
-          },
-          {
-            max: 20,
-            message: '长度在20个字符以内',
-            trigger: 'blur',
-          },
-          {
-            pattern: '^[^\\s]*$',
-            message: '不能包含空格',
-            trigger: ['blur'],
-          },
-        ],
-        osName: [
-          { required: true, message: '请选择操作系统', trigger: 'blur' },
-        ],
-        loginName: [
-          {
-            required: true,
-            message: '请输入数据库登录账号',
-            trigger: 'blur',
-          },
-          { length: 20, message: '长度在20个字符以内', trigger: 'blur' },
-          {
-            pattern: '^[^\\s]*$',
-            message: '不能包含空格',
-            trigger: ['blur'],
-          },
-        ],
-        password: [
-          {
-            required: true,
-            message: '请输入数据库登录密码',
-            trigger: 'blur',
-          },
-          {
-            pattern: '^[^\\s]*$',
-            message: '不能包含空格',
-            trigger: ['blur'],
-          },
+        password: [{
+          required: true,
+          message: '请输入数据库登录密码',
+          trigger: 'blur',
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
         ],
       };
       // 文件服务器备份必填 0530反馈
       if (this.type === 'filehost') {
-        rules.osName = [
-          { required: true, message: '请选择操作系统', trigger: 'change' },
-        ];
-        rules.hostName = [
-          { required: true, message: '请输入名称', trigger: 'blur' },
-          { max: 20, message: '长度在20个字符以内', trigger: 'blur' },
-          {
-            pattern: '^[^\\s]*$',
-            message: '不能包含空格',
-            trigger: ['blur'],
-          },
+        rules.osName = [{
+          required: true,
+          message: '请选择操作系统',
+          trigger: 'change'
+        }];
+        rules.hostName = [{
+          required: true,
+          message: '请输入名称',
+          trigger: 'blur'
+        },
+        {
+          max: 20,
+          message: '长度在20个字符以内',
+          trigger: 'blur'
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
         ];
       }
       return {
@@ -172,6 +206,13 @@ const genModalMixin = type => {
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
         isLoading: false,
+        options: [{
+          value: 1,
+          label: '10G'
+        }, {
+          value: 2,
+          label: '11G'
+        }]
       };
     },
     computed: {
