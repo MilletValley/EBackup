@@ -64,6 +64,7 @@
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
                     v-for="s in Object.keys(strategys)"
+                    v-if="type!=='vm'||s==='1'"
                     :key="s">{{ strategys[s] }}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -124,10 +125,10 @@
 
     </el-form>
     <span slot="footer">
-      <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
                  @click="confirmBtnClick"
                  :loading="btnLoading">确定</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
     </span>
   </el-dialog>
 </template>
