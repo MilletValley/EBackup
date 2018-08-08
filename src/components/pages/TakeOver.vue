@@ -286,11 +286,11 @@
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换实例中...</span>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName}}中...</span>
               </div>
               <div v-else>
                 <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                           @click="switchDatabase(dbLink.id)">切换{{instanceName}}</el-button>
                 <el-button type="text"
                            @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
@@ -310,7 +310,7 @@
                 </el-col>
                 <el-col :span="5"
                         :class="$style.dbInfoCol">
-                  <h5>实例名</h5>
+                  <h5>{{instanceName}}</h5>
                   <p>{{ dbLink.viceDatabase.instanceName }}</p>
                 </el-col>
                 <el-col :span="5"

@@ -172,6 +172,16 @@ const genModalMixin = type => {
           trigger: ['blur'],
         },
         ],
+        storagePath: [{
+          required: true,
+          message: '请输入存储盘符',
+          trigger: 'change',
+        }],
+        sharingPath: [{
+          required: true,
+          message: '请输入共享盘符',
+          trigger: 'change',
+        }],
       };
       // 文件服务器备份必填 0530反馈
       if (this.type === 'filehost') {
@@ -212,7 +222,8 @@ const genModalMixin = type => {
         }, {
           value: 2,
           label: '11G'
-        }]
+        }],
+        words: [],
       };
     },
     computed: {
@@ -243,6 +254,13 @@ const genModalMixin = type => {
       availableHosts() {
         return this.type === 'oracle' ? this.oracleHosts : this.sqlserverHosts;
       },
+    },
+    mounted() {
+      for (let i = 67; i < 91; i++) {
+        const word = {};
+        word.value = String.fromCharCode(i);
+        this.words.push(word);
+      }
     },
     methods: {
       // 点击取消按钮触发

@@ -68,14 +68,28 @@
           </el-select>
         </el-form-item>
         <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType==='1'">
-          <el-form-item label="存储路径"
-                        prop="storagePath">
-            <el-input v-model="formData.storagePath"></el-input>
-          </el-form-item>
-          <el-form-item label="共享路径"
-                        prop="sharingPath">
-            <el-input v-model="formData.sharingPath"></el-input>
-          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="存储盘符"
+                            prop="storagePath">
+                <el-select v-model="formData.storagePath">
+                  <el-option v-for="item in words"
+                            :key="item.value.value"
+                            :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="共享盘符"
+                            prop="sharingPath">
+                <el-select v-model="formData.sharingPath">
+                  <el-option v-for="item in words"
+                            :key="item.value.value"
+                            :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </template>
         <el-form-item label="系统登录名"
                       prop="loginName">
