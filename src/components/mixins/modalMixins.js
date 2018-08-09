@@ -177,11 +177,6 @@ const genModalMixin = type => {
           message: '请输入存储盘符',
           trigger: 'change',
         }],
-        sharingPath: [{
-          required: true,
-          message: '请输入共享盘符',
-          trigger: 'change',
-        }],
       };
       // 文件服务器备份必填 0530反馈
       if (this.type === 'filehost') {

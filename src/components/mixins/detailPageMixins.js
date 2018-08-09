@@ -121,7 +121,7 @@ const detailPageMixin = {
     setTimer() {
       this.clearTimer();
       this.timer = setInterval(() => {
-        this.fetchData();
+        this.RefreshTime();
       }, 20000);
     },
     clearTimer() {

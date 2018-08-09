@@ -272,6 +272,20 @@ export default {
         this.restoreRecords = records;
       });
     },
+    RefreshTime() {
+      fetchBackupPlans(this.id)
+        .then(res => {
+          const { data: plans } = res.data;
+          this.backupPlans = plans;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchRestorePlans(this.id).then(res => {
+        const { data: plans } = res.data;
+        this.restorePlans = plans;
+      });
+    },
     addBackupPlan(plan) {
       this.btnLoading = true;
       createVirtualBackupPlan({ id: this.id, plan })
