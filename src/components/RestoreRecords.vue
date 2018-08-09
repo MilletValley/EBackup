@@ -126,6 +126,7 @@ export default {
         sqlserver: '数据库',
         windows: '恢复路径',
         linux: '恢复路径',
+        vm: '虚拟机',
       };
       return mapping[this.type];
     },
