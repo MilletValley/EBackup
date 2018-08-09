@@ -9,17 +9,15 @@
     </el-form>
     <el-table :data="sortEmail"
               style="width: 100%">
-      </el-table-column>
-            <el-table-column prop="mailHost"
-                       label="主机名"
-                       min-width="150"
-                       fixed
-                       align="center"></el-table-column>
-      </el-table-column>
-            <el-table-column prop="mailTransportProtocol"
-                       label="协议名"
-                       min-width="150"
-                       align="center"></el-table-column>
+      <el-table-column prop="mailHost"
+                  label="主机名"
+                  min-width="150"
+                  fixed
+                  align="center"></el-table-column>
+      <el-table-column prop="mailTransportProtocol"
+                  label="协议名"
+                  min-width="150"
+                  align="center"></el-table-column>
       <el-table-column prop="mailSmtpPort"
                        label="端口"
                        min-width="150"
