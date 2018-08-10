@@ -79,7 +79,8 @@
 
     <!-- 编辑用户 begin-->
     <el-dialog title="修改用户信息"
-               :visible.sync="dialogUpdateVisible">
+               :visible.sync="dialogUpdateVisible"
+               @close="modalClosed">
       <el-form :model="update"
                ref="update"
                label-width="110px"
@@ -94,7 +95,10 @@
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
+            <el-form-item label="邮箱"
+                          prop="email"
+                          :rules="emailRule"
+                          ref="emailItem">
               <el-input v-model="update.email"></el-input>
             </el-form-item>
           </el-col>
@@ -102,7 +106,8 @@
             <el-form-item prop="receive">
               <el-checkbox v-model="update.receive"
                            :true-label="1"
-                           :false-label="0">接收</el-checkbox>
+                           :false-label="0"
+                           @change="receiveChange">接收</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
@@ -153,7 +158,10 @@
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
+            <el-form-item label="邮箱" 
+                          prop="email"
+                          :rules="emailRule"
+                          ref="emailItem">
               <el-input v-model="create.email"></el-input>
             </el-form-item>
           </el-col>
@@ -161,7 +169,8 @@
             <el-form-item prop="receive">
               <el-checkbox v-model="create.receive"
                            :true-label="1"
-                           :false-label="0">接收</el-checkbox>
+                           :false-label="0"
+                           @change="receiveChange">接收</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
@@ -249,7 +258,7 @@ export default {
       const data = this.tableUsers;
       let j = 0;
       for (let i = 0; i < data.length; i++) {
-        if (value === data[i].loginName) {
+        if (value === data[i].loginName && this.dialogCreateVisible === true) {
           callback(new Error('账户已存在!'));
           j = 1;
         }
@@ -258,7 +267,6 @@ export default {
         callback();
       }
     };
-
     return {
       loading: true,
       delDisabled: false,
@@ -285,6 +293,18 @@ export default {
         checkpass: [
           { required: true, validator: validatePass, trigger: 'blur' },
         ],
+        email: [
+          {
+            required: true,
+            message: '请输入邮箱',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/,
+            message: '邮箱格式不正确',
+            trigger: 'blur',
+          }
+        ],
       },
       rolesAll: rolesUser,
       rolesSelected: [],
@@ -310,6 +330,19 @@ export default {
         receive: 1,
       },
     };
+  },
+  computed: {
+    emailRule() {
+      return (this.dialogCreateVisible===true&&this.create.receive===1)
+             || (this.dialogUpdateVisible===true&&this.update.receive===1)
+             ?this.rules.email
+             :[{ required: false, message: '请输入邮箱', trigger: 'blur'},
+               {
+                pattern: /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/,
+                message: '邮箱格式不正确',
+                trigger: 'blur'
+               }];
+    }
   },
   methods: {
     // 筛选状态
@@ -427,19 +460,33 @@ export default {
     },
     // 编辑用户
     updateUser() {
-      this.updateLoading = true;
-      updateUserInfo(this.update)
-        .then(response => {
-          this.$message.success(response.data.message);
-          this.dialogUpdateVisible = false;
-          this.updateLoading = false;
-          // 根据索引，赋值到list制定的数
-          this.tableUsers.splice(this.listIndex, 1, response.data.data);
-        })
-        .catch(error => {
-          this.updateLoading = false;
-          this.$message.error(error);
-        });
+      this.$refs.update.validate(valid => {
+        if(valid) {
+          this.updateLoading = true;
+          updateUserInfo(this.update)
+          .then(response => {
+            this.$message.success(response.data.message);
+            this.dialogUpdateVisible = false;
+            this.updateLoading = false;
+            // 根据索引，赋值到list制定的数
+            this.tableUsers.splice(this.listIndex, 1, response.data.data);
+          })
+          .catch(error => {
+            this.updateLoading = false;
+            this.$message.error(error);
+          });
+        } else {
+          return false;
+        }
+      })
+    },
+    modalClosed() {
+      this.$refs.update.clearValidate();
+    },
+    //邮件接收状态改变时，移除表单验证结果
+    receiveChange(val) {
+      if(val===0)
+        this.$refs.emailItem.clearValidate();
     },
     // 批量删除
     delAll() {
