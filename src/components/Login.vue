@@ -144,10 +144,11 @@ input:-webkit-autofill,
 
 .login-content .login-box {
   position: relative;
-  min-width: 390px;
+  width: 390px;
   min-height: 430px;
   font-weight: 700;
   background-color: #fff;
+  margin: 0 auto;
   -webkit-box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
           box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
   -webkit-perspective: 800px;

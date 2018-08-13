@@ -24,11 +24,9 @@
                        fixed
                        min-width="200">
         <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.vmName}}</router-link>
-          </el-button>
+          <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.vmName}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="vmPath"

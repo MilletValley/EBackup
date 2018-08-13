@@ -1,12 +1,14 @@
 <template>
   <section>
-    <el-form inline
-             size="small">
-      <el-form-item style="float: right;">
-        <el-button type="primary"
-                   @click="handleCreate()">添加</el-button>
-      </el-form-item>
-    </el-form>
+    <el-row>
+      <el-form inline
+               size="small">
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="handleCreate()">添加</el-button>
+        </el-form-item>
+      </el-form>
+    </el-row>
     <el-table :data="systemParameters"
               style="width: 100%">
       <el-table-column prop="sysType"

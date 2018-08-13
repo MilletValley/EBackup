@@ -1,16 +1,18 @@
 <template>
   <section>
-    <el-form inline
-             size="small">
-      <el-form-item style="float: right;">
-        <el-button type="info"
-                   @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
-      </el-form-item>
-      <el-form-item style="float: right;">
-        <el-button type="primary"
-                   @click="createModalVisible = true">添加</el-button>
-      </el-form-item>
-    </el-form>
+    <el-row>
+      <el-form inline
+               size="small">
+        <el-form-item style="float: right;">
+          <el-button type="info"
+                    @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="createModalVisible = true">添加</el-button>
+        </el-form-item>
+      </el-form>
+    </el-row>
     <el-table :data="items"
               style="width: 100%">
       <el-table-column label="名称"
@@ -18,11 +20,9 @@
                        min-width="200"
                        align="center">
         <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.name}}</router-link>
-          </el-button>
+          <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.name}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="instanceName"
@@ -51,7 +51,7 @@
                        fixed="right"
                        width="150"
                        header-align="center"
-                       align="right">
+                       align="center">
         <template slot-scope="scope">
           <el-button type="primary"
                      icon="el-icon-edit"
