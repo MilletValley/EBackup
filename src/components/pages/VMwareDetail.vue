@@ -11,12 +11,12 @@
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
-              <el-col :span="20"
+              <el-col :span="8"
                       class="title">
                 <h1>{{details.vmName}}</h1>
               </el-col>
               <el-col :span="12"
-                      :offset="12"
+                      :offset="4"
                       class="action">
                 <el-dropdown size="mini"
                              trigger="click"

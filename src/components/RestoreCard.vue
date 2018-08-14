@@ -22,8 +22,7 @@
     </div>
     <el-row type="flex">
       <el-col :span="18">
-        <el-form inline
-                 label-width="100px"
+        <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划开始时间"
                         v-if="restoreConfig.timeStrategy !== 1"

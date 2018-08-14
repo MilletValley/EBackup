@@ -39,7 +39,7 @@
 
       </el-menu>
     </el-aside>
-    <el-container>
+    <el-container style="overflow: auto">
       <el-header style="font-size: 12px">
         <el-breadcrumb separator="/"
                        class="bread-crumb">
@@ -61,9 +61,13 @@
         </div>
 
       </el-header>
-      <el-main>
+      <!-- IE不支持main标签 -->
+      <!-- <el-main>
         <router-view/>
-      </el-main>
+      </el-main> -->
+      <div class="el-main">
+        <router-view/>
+      </div>
     </el-container>
   </el-container>
 </template>
@@ -150,6 +154,8 @@ export default {
 }
 .el-main {
   background-color: #f0f2f5;
+  box-sizing: border-box;
+  padding: 20px;
 }
 .el-aside {
   color: #333;

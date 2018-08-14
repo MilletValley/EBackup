@@ -20,7 +20,7 @@
                 </h1>
               </el-col>
               <el-col :span="12"
-                      :offset="12"
+                      :offset="4"
                       class="action">
                 <el-dropdown size="mini"
                              trigger="click"
