@@ -21,13 +21,11 @@
         </el-form>
       </div>
     </section>
-    <div>
-      <div class="home-copyright">
-        <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
-        <p>Powered By esay standby<br/></p>
-        <p>Version 1.0.0<br/></p>
-        <p>武汉四通信服易备数据中心应用连续性管理系统<br/></p>
-      </div>
+    <div class="home-copyright">
+      <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
+      <p>Powered By esay standby<br/></p>
+      <p>Version 2.0.0<br/></p>
+      <p>武汉四通信服易备数据中心应用连续性管理系统<br/></p>
     </div>
 </div>
 </template>
@@ -91,6 +89,9 @@ export default {
 };
 </script>
 <style scoped>
+#app {
+  position: relative;
+}
 .root {
   background-image: url("../assets/homePage3.jpg");
   background-size: 100% auto;
@@ -129,7 +130,7 @@ input:-webkit-autofill,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  padding: 15% 0 5%;
+  padding-top: 13%;
 }
 
 .login-content .logo {
@@ -201,8 +202,8 @@ input:-webkit-autofill,
     font-weight: 700;
 }
 .home-copyright {
-  position: fixed;
-  bottom: 60px;
+  position: absolute;
+  bottom: 2px;
   left: 0;
   width: 100%;
 }
@@ -211,8 +212,13 @@ input:-webkit-autofill,
   display: block;
   font-size: 12px;
   color: #666;
+  margin: 0;
+  padding: 2px;
 }
 @media screen and (max-width: 1460px) {
+  .login-content {
+    /* padding-top: 200px; */
+  }
   .login-content .login-box {
     width: 300px;
     height: 350px;
@@ -227,13 +233,6 @@ input:-webkit-autofill,
   }
   .login-content {
     padding-bottom: 2px;
-  }
-  .home-copyright {
-    bottom: 10px;
-  }
-  .home-copyright p {
-    margin: 0;
-    padding: 2px;
   }
 }
 </style>
