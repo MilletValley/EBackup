@@ -67,7 +67,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType==='1'">
+        <!--windows下 10G Oracle版本显示 -->
+        <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType==='1'&&this.formData.osName==='Windows'">
           <el-row>
             <el-col :span="12">
               <el-form-item label="存储盘符"
