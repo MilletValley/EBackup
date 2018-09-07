@@ -92,7 +92,7 @@
                     v-show="formData.timeStrategy == 2">
         <el-checkbox-group v-model="formData.weekPoints">
           <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                              :label="Number(w)"
+                              :label="w"
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>
@@ -169,6 +169,9 @@ export default {
       });
     },
     modalOpened() {
+      if (this.restorePlan.config.timePoints.length === 0) {
+        this.restorePlan.config.timePoints.push({ value: '00:00', key: Date.now() })
+      }
       const {
         id,
         singleTime,

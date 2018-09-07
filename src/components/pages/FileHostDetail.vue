@@ -240,7 +240,10 @@ export default {
       createBackupPlan({ id: this.id, plan })
         .then(res => {
           const { data: backupPlan, message } = res.data;
-          this.backupPlans.unshift(backupPlan);
+          // 刷新情况下可能会出现两个添加后的计划
+          if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
+            this.backupPlans.unshift(backupPlan)
+          }
           this.backupPlanCreateModalVisible = false;
           this.$message.success(message);
         })

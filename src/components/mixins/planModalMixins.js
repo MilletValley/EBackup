@@ -298,6 +298,10 @@ const backupPlanModalMixin = {
         }
         if ([3, 4, 5].includes(timeStrategy)) {
           config.timePoints = filteredTimePoints(timePoints);
+          // 全备+增备下按星期重排
+          if (timeStrategy === 4) {
+            config.weekPoints.sort((a, b) => a - b);
+          }
         }
         if (this.type === 'windows') {
           resolve({ name, backupPath, backupSystem, config });
