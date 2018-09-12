@@ -14,7 +14,7 @@ const genModalMixin = type => {
         type: String,
         required: true,
         validator(value) {
-          return ['oracle', 'sqlserver', 'filehost', 'host', 'vm'].includes(value);
+          return ['oracle', 'sqlserver', 'mysql', 'filehost', 'host', 'vm'].includes(value);
         },
       },
       btnLoading: {
@@ -65,6 +65,7 @@ const genModalMixin = type => {
       const baseData = {
         oracle: databaseBaseFormData,
         sqlserver: databaseBaseFormData,
+        mysql: databaseBaseFormData,
         filehost: fileHostBaseFormData,
         host: hostBaseFormData,
         vm: virtualFormData,
@@ -120,7 +121,7 @@ const genModalMixin = type => {
         instanceName: [{
           required: true,
           message: `请输入${
-            this.type === 'sqlserver' ? '数据库名' : '实例名'
+            this.type === 'oracle' ? '实例名' : '数据库名'
           }`,
           trigger: 'blur',
         },
@@ -234,10 +235,15 @@ const genModalMixin = type => {
       },
       // 区分不同数据库都提示信息
       databaseOrInstance() {
-        return this.type === 'sqlserver' ? '数据库名' : '实例名';
+        return this.type === 'oracle' ? '实例名' : '数据库名';
       },
       sqlserverHosts() {
         return this.$store.getters.hostsWithSqlServer.filter(
+          h => h.hostType === 1
+        );
+      },
+      mysqlHosts() {
+        return this.$store.getters.hostsWithMySql.filter(
           h => h.hostType === 1
         );
       },
@@ -247,7 +253,12 @@ const genModalMixin = type => {
         );
       },
       availableHosts() {
-        return this.type === 'oracle' ? this.oracleHosts : this.sqlserverHosts;
+        if (this.type === 'oracle') {
+          return this.oracleHosts;
+        } else if (this.type === 'sqlserver') {
+          return this.sqlserverHosts;
+        }
+        return this.mysqlHosts;
       },
     },
     mounted() {

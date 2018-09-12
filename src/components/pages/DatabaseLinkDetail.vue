@@ -211,7 +211,7 @@ export default {
     instanceName() {
       if (this.databaseType === 'oracle') {
         return '实例名';
-      } else if (this.databaseType === 'sqlserver') {
+      } else {
         return '数据库名';
       }
     },

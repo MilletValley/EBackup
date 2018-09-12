@@ -140,6 +140,7 @@ import {
 } from '../../utils/constant';
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
+import { createRestorePlan as createMySqlRestorePlan } from '../../api/mysql';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {

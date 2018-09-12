@@ -53,6 +53,8 @@
           <el-radio v-model="formData.databaseType"
                     label="2">sqlserver</el-radio>
           <el-radio v-model="formData.databaseType"
+                    label="5">mysql</el-radio>
+          <el-radio v-model="formData.databaseType"
                     label="4">虚拟机</el-radio>
         </el-form-item>
         <el-form-item label="oracle版本"
