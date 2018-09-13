@@ -58,7 +58,8 @@
         <el-col :span="12">
           <el-form-item label="登录密码"
                         prop="password">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
@@ -207,6 +208,7 @@ export default {
     },
     modalClosed() {
       this.$refs.restorePlanUpdateForm.clearValidate();
+      this.hiddenPassword = true;
       this.$emit('cancel');
     },
   },

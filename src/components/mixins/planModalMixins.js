@@ -426,6 +426,7 @@ const restorePlanModalMixin = {
     }
     return {
       // 原始表单值
+      hiddenPassword: true,
       originFormData: Object.assign({}, baseFormData),
       formData: Object.assign({}, baseFormData),
       strategys, // 时间策略

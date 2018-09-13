@@ -133,7 +133,8 @@
           </el-form-item>
           <el-form-item label="登录密码"
                         prop="password">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </template>
       </el-form>
@@ -189,7 +190,8 @@
           </el-form-item>
           <el-form-item label="登录密码"
                         prop="password">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </template>
       </el-form>
@@ -218,6 +220,7 @@ export default {
       btnLoading: false,
       formData: {},
       originFormData: {},
+      hiddenPassword: true,
       rules: {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
@@ -386,6 +389,7 @@ export default {
     },
     modalClose() {
       this.$refs.formData.clearValidate();
+      this.hiddenPassword = true;
     },
   },
   components: {

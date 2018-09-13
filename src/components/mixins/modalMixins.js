@@ -209,6 +209,7 @@ const genModalMixin = type => {
         // trigger增加change更方便 但是再次打开modal会显示出验证结果
         // 猜测是因为初始化时，触发了change事件
         rules,
+        hiddenPassword: true,
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
         isLoading: false,

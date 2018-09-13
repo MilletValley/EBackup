@@ -55,7 +55,8 @@
                         :rules="[
           { required: true, message: '请输入登录密码', trigger: 'blur' },
         ]">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
@@ -172,6 +173,7 @@ export default {
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.restorePlanCreateForm.clearValidate();
+      this.hiddenPassword = true;
     },
   },
 };

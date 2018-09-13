@@ -36,7 +36,8 @@
         </el-form-item>
         <el-form-item label="登录密码"
                       prop="emailPassword">
-          <input-toggle v-model="formData.emailPassword"></input-toggle>
+          <input-toggle v-model="formData.emailPassword"
+                        :hidden.sync="hiddenPassword"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -64,6 +65,7 @@ export default {
     return {
       formData: Object.assign({}, baseFormData),
       originFormData: Object.assign({}, baseFormData),
+      hiddenPassword: true
     }
   },
   props: {
@@ -112,6 +114,7 @@ export default {
     modalClose() {
       this.formData = { ...this.originFormData };
       this.$refs.formData.clearValidate();
+      this.hiddenPassword = true;
     },
   },
   components: {
