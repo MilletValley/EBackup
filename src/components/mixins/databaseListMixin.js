@@ -23,7 +23,7 @@ const listMixin = {
       if (!tableData) {
         return '';
       }
-      return tableData.filter(v => v.name.indexOf(arg) !== -1);
+      return tableData.filter(v => v.name.toLowerCase().includes(arg.toLowerCase()));
     },
     filterByPage(data, currentPage, pagesize) {
       if (!data) {
