@@ -14,7 +14,11 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-table v-loading="loading" element-loading-text="拼命加载中..." :data="tableUsers" stripe style="width: 100%" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading"
+                  element-loading-text="拼命加载中..."
+                  :data="tableUsers|filterAdmin"
+                  stripe style="width: 100%"
+                  @selection-change="handleSelectionChange">
           <el-table-column type="selection">
           </el-table-column>
           <el-table-column prop="loginName" label="账户" min-width="150" align="center">
@@ -111,9 +115,9 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="权限">
+        <el-row>
           <el-col :span="12">
-            <el-form-item>
+            <el-form-item label="权限">
               <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
                 <el-option v-for="item in rolesAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
@@ -128,11 +132,18 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-        </el-form-item>
+        </el-row>
         <el-form-item label="密码">
-          <el-tooltip content="重置后密码为：111111" placement="right">
+          <el-button @click="updatePass = !updatePass">修改密码</el-button>
+          <el-tooltip content="重置后密码为：Xfback@201806！" placement="right">
             <el-button @click="handlereset(update.id)" :disabled="passDisable">重置密码</el-button>
           </el-tooltip>
+        </el-form-item>
+        <el-form-item label="密码" prop="password" v-if="updatePass">
+          <el-input v-model="update.password" type="password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="checkpass" v-if="updatePass">
+          <el-input v-model="update.checkpass" type="password"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -174,9 +185,9 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="权限">
+        <el-row>
           <el-col :span="12">
-            <el-form-item>
+            <el-form-item label="权限">
               <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
                 <el-option v-for="item in rolesAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
@@ -191,7 +202,7 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-        </el-form-item>
+        </el-row>
         <el-form-item label="密码" prop="password">
           <el-input v-model="create.password" type="password" auto-complete="off"></el-input>
         </el-form-item>
@@ -218,10 +229,10 @@ import {
 } from '../../api/user';
 
 const rolesUser = [
-  {
-    id: 'admin',
-    name: '超级管理员',
-  },
+  // {
+  //   id: 'admin',
+  //   name: '超级管理员',
+  // },
   {
     id: 'file admin',
     name: '文件管理员',
@@ -235,20 +246,35 @@ const rolesUser = [
     name: 'SQL Server管理员',
   },
   {
+    id: 'mysql dba',
+    name: 'MySql管理员'
+  },
+  {
     id: 'vm admin',
     name: '虚拟机管理员',
-  },
+  }
 ];
 
 export default {
   created() {
     this.getUsers();
   },
+  filters: {
+    filterAdmin(tableData) {
+      if(!tableData) {
+        return ''
+      } else {
+        return tableData.filter(v => v.roles.map(i => i.id).indexOf('admin')<0)
+      }
+    }
+  },
   data() {
     const validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'));
-      } else if (value !== this.create.password) {
+      } else if (this.dialogCreateVisible && value !== this.create.password) {
+        callback(new Error('两次输入密码不一致!'));
+      } else if (this.dialogUpdateVisible && value !== this.update.password) {
         callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
@@ -276,6 +302,7 @@ export default {
       dialogCreateVisible: false, // 创建弹框的显示状态
       dialogUpdateVisible: false, // 编辑弹框的显示状态
       listIndex: '', // s索引
+      updatePass: false,
       rules: {
         loginName: [
           { required: true, message: '请输入账户', trigger: 'blur' },
@@ -360,13 +387,14 @@ export default {
     },
     // 编辑
     handleEdit(index, row) {
-      const newRow = Object.assign({}, row);
-      this.update = newRow;
+      const newRow = Object.assign({password: '', checkpass: ''}, row);
+      this.update = Object.assign({password: '', checkpass: ''}, row);
       this.dialogUpdateVisible = true;
       this.passDisable = false;
       this.rolesSelected = newRow.roles.map(item => item.id);
       // 记录索引
       this.listIndex = index;
+      this.updatePass = false;
     },
     // 重置密码
     handlereset(value) {
@@ -376,10 +404,10 @@ export default {
         { type: 'warning' }
       )
         .then(() => {
-          // 向请求服务端删除
+          // 向请求服务端重置
           const resetUpdate = {
             id: value,
-            password: '111111',
+            password: 'Xfback@201806！',
           };
           updateUserInfo(resetUpdate)
             .then(response => {
@@ -463,6 +491,8 @@ export default {
       this.$refs.update.validate(valid => {
         if(valid) {
           this.updateLoading = true;
+          delete this.update.checkpass;
+          if (!this.updatePass) delete this.update.password;
           updateUserInfo(this.update)
           .then(response => {
             this.$message.success(response.data.message);
@@ -546,4 +576,3 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-

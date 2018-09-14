@@ -180,7 +180,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sqlserver dba'],
+      roles: ['oracle dba', 'sqlserver dba', 'mysql dba'],
     },
     children: [
       {

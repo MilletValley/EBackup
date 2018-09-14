@@ -70,6 +70,13 @@ const genModalMixin = type => {
         host: hostBaseFormData,
         vm: virtualFormData,
       };
+      const loginType = {
+        oracle: 'oracle数据库',
+        sqlserver: 'sql server数据库',
+        mysql: 'mysql数据库',
+        filehost: '服务器',
+        host: '设备'
+      };
       const rules = {
         name: [{
           required: true,
@@ -148,7 +155,7 @@ const genModalMixin = type => {
         }],
         loginName: [{
           required: true,
-          message: '请输入数据库登录账号',
+          message: `请输入${loginType[this.type]}登录账号`,
           trigger: 'blur',
         },
         {
@@ -164,7 +171,7 @@ const genModalMixin = type => {
         ],
         password: [{
           required: true,
-          message: '请输入数据库登录密码',
+          message: `请输入${loginType[this.type]}登录密码`,
           trigger: 'blur',
         },
         {
