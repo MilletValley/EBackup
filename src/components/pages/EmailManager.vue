@@ -1,22 +1,22 @@
 <template>
   <section>
-    <el-form inline
+    <el-row>
+      <el-form inline
              size="small">
-      <el-form-item style="float: right;">
-        <el-button type="primary"
-                   @click="createModalVisible=true">添加</el-button>
-      </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="createModalVisible=true">添加</el-button>
+        </el-form-item>
     </el-form>
+    </el-row>
     <el-table :data="sortEmail"
               style="width: 100%">
-      </el-table-column>
-            <el-table-column prop="mailHost"
+      <el-table-column prop="mailHost"
                        label="主机名"
                        min-width="150"
                        fixed
                        align="center"></el-table-column>
-      </el-table-column>
-            <el-table-column prop="mailTransportProtocol"
+      <el-table-column prop="mailTransportProtocol"
                        label="协议名"
                        min-width="150"
                        align="center"></el-table-column>

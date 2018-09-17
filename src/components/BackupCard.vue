@@ -24,8 +24,7 @@
     </div>
     <el-row type="flex">
       <el-col :span="18">
-        <el-form inline
-                 label-width="100px"
+        <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划开始时间"
                         :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
@@ -161,7 +160,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(
           value
         );
       },

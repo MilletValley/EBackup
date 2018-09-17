@@ -58,7 +58,8 @@
           <el-col :span="12">
             <el-form-item label="数据库密码"
                           prop="password">
-              <input-toggle v-model="formData.password"></input-toggle>
+              <input-toggle v-model="formData.password"
+                            :hidden.sync="hiddenPassword"></input-toggle>
             </el-form-item>
           </el-col>
         </el-row>
@@ -121,6 +122,7 @@ const vm = {
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.itemCreateForm.clearValidate();
+      this.hiddenPassword = true;
     },
   },
   components: {

@@ -286,11 +286,11 @@
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换实例中...</span>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
               </div>
               <div v-else>
                 <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                           @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                 <el-button type="text"
                            @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
@@ -310,7 +310,7 @@
                 </el-col>
                 <el-col :span="5"
                         :class="$style.dbInfoCol">
-                  <h5>实例名</h5>
+                  <h5>{{instanceName}}</h5>
                   <p>{{ dbLink.viceDatabase.instanceName }}</p>
                 </el-col>
                 <el-col :span="5"
@@ -419,9 +419,9 @@ export default {
     this.fetchData();
   },
   mounted() {
-    this.clearTimer(this.timer);
+    this.setTimer(this.timer);
   },
-  distroyed: function () {
+  destroyed: function() {
     this.clearTimer(this.timer);
   },
   watch: {
@@ -430,13 +430,6 @@ export default {
       this.links = [];
       this.fetchData();
     },
-    isFinished: function(newVal) {
-        if(newVal) {
-          this.setTimer();
-        } else {
-          this.clearTimer();
-        }
-    }
   },
   computed: {
     databaseType: {
@@ -536,25 +529,10 @@ export default {
     instanceName() {
       if (this.databaseType === 'oracle') {
         return '实例名';
-      } else if (this.databaseType === 'sqlserver') {
+      } else {
         return '数据库名';
       }
     },
-    switchDbLink() {
-      return this.links.map(hostLink => {
-        return hostLink.databaseLinks.some(dbLink =>
-                                    dbLink.latestSwitch&&dbLink.latestSwitch.state===1)
-      })
-    },
-    switchIp() {
-      return this.links.some(hostLink =>
-                                hostLink.latestSwitch&&
-                                hostLink.latestSwitch.state===1&&
-                                (hostLink.latestSwitch.type===2||hostLink.latestSwitch.type===3));
-    },
-    isFinished() {
-      return this.switchIp || this.switchDbLink.some(isLink => isLink===true);
-    }
   },
   methods: {
     fetchData() {
@@ -683,9 +661,15 @@ export default {
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
-        this.$router.push({ name: 'oracleLinkDetail', params: {id: String(linkId)} });
+        this.$router.push({
+          name: 'oracleLinkDetail',
+          params: { id: String(linkId) },
+        });
       } else if (this.databaseType === 'sqlserver') {
-        this.$router.push({ name: 'sqlserverLinkDetail', params: {id: String(linkId)} });
+        this.$router.push({
+          name: 'sqlserverLinkDetail',
+          params: { id: String(linkId) },
+        });
       }
     },
     createLink(data) {
@@ -735,18 +719,17 @@ export default {
         Promise.all([
           fetchDatabaseMethod[this.databaseType](),
           fetchLinksMethod[this.databaseType](),
-        ])
-          .then(resArr => {
-            const { data } = resArr[0].data;
-            const { data: links } = resArr[1].data;
-            this.items = data;
-            this.links = links;
-          })
-      }, 10000)
+        ]).then(resArr => {
+          const { data } = resArr[0].data;
+          const { data: links } = resArr[1].data;
+          this.items = data;
+          this.links = links;
+        });
+      }, 20000);
     },
     clearTimer() {
       clearInterval(this.timer);
-    }
+    },
   },
 
   components: {

@@ -2,14 +2,12 @@
   <section>
     <el-table :data="items"
               style="width: 100%">
-      </el-table-column>
-            <el-table-column prop="oracleBackupStrategy"
+      <el-table-column prop="oracleBackupStrategy"
                        label="oracle备份集保留策略"
                        min-width="150"
                        fixed
                        align="center"></el-table-column>
-      </el-table-column>
-            <el-table-column prop="sqlserverBackupStrategy"
+      <el-table-column prop="sqlserverBackupStrategy"
                        label="sqlserver备份集保留策略"
                        min-width="150"
                        align="center"></el-table-column>

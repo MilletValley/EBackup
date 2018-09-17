@@ -53,7 +53,7 @@
                  size="small"
                  plain
                  style="position: absolute; top:3px; right:3px; z-index: 10"
-                 @click="$router.push({name: 'morestate'})">MORE</router-link></el-button>
+                 @click="$router.push({name: 'morestate'})">MORE</el-button>
       <el-tabs type="border-card">
         <el-tab-pane label="数据库备份">
           <el-table

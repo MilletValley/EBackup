@@ -37,17 +37,17 @@
             <div v-else-if="hostLinkReadyToSwitch&&hostLinkReadyToSwitch.primaryHost.osName==='Windows'">
               <p>
                 <p>
-                  <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 2 ? 'production-env' : 'ebackup-env'"
-                        style="vertical-align: -0.3em;"></i-icon>
-                  <span :class="hostLinkReadyToSwitch.serviceIpMark === 2 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1 | serviceIpMarkFilter }}</span>
-                  <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 2 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>的IP
-                  <span :class="$style.productionEnvColor">{{ hostLinkReadyToSwitch.primaryHost.hostIp }}</span>与
-                </p>
-                <p>
                   <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 1 ? 'production-env' : 'ebackup-env'"
                           style="vertical-align: -0.3em;"></i-icon>
                   <span :class=" hostLinkReadyToSwitch.serviceIpMark === 1 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark | serviceIpMarkFilter }}</span>
                   <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>的IP
+                  <span :class="$style.productionEnvColor">{{ hostLinkReadyToSwitch.primaryHost.hostIp }}</span>与
+                </p>
+                <p>
+                  <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 2 ? 'production-env' : 'ebackup-env'"
+                        style="vertical-align: -0.3em;"></i-icon>
+                  <span :class="hostLinkReadyToSwitch.serviceIpMark === 2 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1 | serviceIpMarkFilter }}</span>
+                  <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 2 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>的IP
                   <span :class="$style.ebackupEnvColor">{{ hostLinkReadyToSwitch.viceHost.hostIp }}</span>即将交换
                 </p>
                 <p>临时IP为：<span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span><p>

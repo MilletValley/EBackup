@@ -14,7 +14,11 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-table v-loading="loading" element-loading-text="拼命加载中..." :data="tableUsers" stripe style="width: 100%" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading"
+                  element-loading-text="拼命加载中..."
+                  :data="tableUsers|filterAdmin"
+                  stripe style="width: 100%"
+                  @selection-change="handleSelectionChange">
           <el-table-column type="selection">
           </el-table-column>
           <el-table-column prop="loginName" label="账户" min-width="150" align="center">
@@ -79,7 +83,8 @@
 
     <!-- 编辑用户 begin-->
     <el-dialog title="修改用户信息"
-               :visible.sync="dialogUpdateVisible">
+               :visible.sync="dialogUpdateVisible"
+               @close="modalClosed">
       <el-form :model="update"
                ref="update"
                label-width="110px"
@@ -94,7 +99,10 @@
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
+            <el-form-item label="邮箱"
+                          prop="email"
+                          :rules="emailRule"
+                          ref="emailItem">
               <el-input v-model="update.email"></el-input>
             </el-form-item>
           </el-col>
@@ -102,13 +110,14 @@
             <el-form-item prop="receive">
               <el-checkbox v-model="update.receive"
                            :true-label="1"
-                           :false-label="0">接收</el-checkbox>
+                           :false-label="0"
+                           @change="receiveChange">接收</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="权限">
+        <el-row>
           <el-col :span="12">
-            <el-form-item>
+            <el-form-item label="权限">
               <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
                 <el-option v-for="item in rolesAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
@@ -123,11 +132,18 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-        </el-form-item>
+        </el-row>
         <el-form-item label="密码">
-          <el-tooltip content="重置后密码为：111111" placement="right">
+          <el-button @click="updatePass = !updatePass">修改密码</el-button>
+          <el-tooltip content="重置后密码为：Xfback@201806！" placement="right">
             <el-button @click="handlereset(update.id)" :disabled="passDisable">重置密码</el-button>
           </el-tooltip>
+        </el-form-item>
+        <el-form-item label="密码" prop="password" v-if="updatePass">
+          <el-input v-model="update.password" type="password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="checkpass" v-if="updatePass">
+          <el-input v-model="update.checkpass" type="password"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -153,7 +169,10 @@
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
+            <el-form-item label="邮箱" 
+                          prop="email"
+                          :rules="emailRule"
+                          ref="emailItem">
               <el-input v-model="create.email"></el-input>
             </el-form-item>
           </el-col>
@@ -161,13 +180,14 @@
             <el-form-item prop="receive">
               <el-checkbox v-model="create.receive"
                            :true-label="1"
-                           :false-label="0">接收</el-checkbox>
+                           :false-label="0"
+                           @change="receiveChange">接收</el-checkbox>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="权限">
+        <el-row>
           <el-col :span="12">
-            <el-form-item>
+            <el-form-item label="权限">
               <el-select v-model="rolesSelected" multiple collapse-tags placeholder="请选择">
                 <el-option v-for="item in rolesAll" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
@@ -182,7 +202,7 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-        </el-form-item>
+        </el-row>
         <el-form-item label="密码" prop="password">
           <el-input v-model="create.password" type="password" auto-complete="off"></el-input>
         </el-form-item>
@@ -209,10 +229,10 @@ import {
 } from '../../api/user';
 
 const rolesUser = [
-  {
-    id: 'admin',
-    name: '超级管理员',
-  },
+  // {
+  //   id: 'admin',
+  //   name: '超级管理员',
+  // },
   {
     id: 'file admin',
     name: '文件管理员',
@@ -226,20 +246,35 @@ const rolesUser = [
     name: 'SQL Server管理员',
   },
   {
+    id: 'mysql dba',
+    name: 'MySql管理员'
+  },
+  {
     id: 'vm admin',
     name: '虚拟机管理员',
-  },
+  }
 ];
 
 export default {
   created() {
     this.getUsers();
   },
+  filters: {
+    filterAdmin(tableData) {
+      if(!tableData) {
+        return ''
+      } else {
+        return tableData.filter(v => v.roles.map(i => i.id).indexOf('admin')<0)
+      }
+    }
+  },
   data() {
     const validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'));
-      } else if (value !== this.create.password) {
+      } else if (this.dialogCreateVisible && value !== this.create.password) {
+        callback(new Error('两次输入密码不一致!'));
+      } else if (this.dialogUpdateVisible && value !== this.update.password) {
         callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
@@ -249,7 +284,7 @@ export default {
       const data = this.tableUsers;
       let j = 0;
       for (let i = 0; i < data.length; i++) {
-        if (value === data[i].loginName) {
+        if (value === data[i].loginName && this.dialogCreateVisible === true) {
           callback(new Error('账户已存在!'));
           j = 1;
         }
@@ -258,7 +293,6 @@ export default {
         callback();
       }
     };
-
     return {
       loading: true,
       delDisabled: false,
@@ -268,6 +302,7 @@ export default {
       dialogCreateVisible: false, // 创建弹框的显示状态
       dialogUpdateVisible: false, // 编辑弹框的显示状态
       listIndex: '', // s索引
+      updatePass: false,
       rules: {
         loginName: [
           { required: true, message: '请输入账户', trigger: 'blur' },
@@ -284,6 +319,18 @@ export default {
         ],
         checkpass: [
           { required: true, validator: validatePass, trigger: 'blur' },
+        ],
+        email: [
+          {
+            required: true,
+            message: '请输入邮箱',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/,
+            message: '邮箱格式不正确',
+            trigger: 'blur',
+          }
         ],
       },
       rolesAll: rolesUser,
@@ -311,6 +358,19 @@ export default {
       },
     };
   },
+  computed: {
+    emailRule() {
+      return (this.dialogCreateVisible===true&&this.create.receive===1)
+             || (this.dialogUpdateVisible===true&&this.update.receive===1)
+             ?this.rules.email
+             :[{ required: false, message: '请输入邮箱', trigger: 'blur'},
+               {
+                pattern: /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/,
+                message: '邮箱格式不正确',
+                trigger: 'blur'
+               }];
+    }
+  },
   methods: {
     // 筛选状态
     filterState(value, row) {
@@ -327,13 +387,14 @@ export default {
     },
     // 编辑
     handleEdit(index, row) {
-      const newRow = Object.assign({}, row);
-      this.update = newRow;
+      const newRow = Object.assign({password: '', checkpass: ''}, row);
+      this.update = Object.assign({password: '', checkpass: ''}, row);
       this.dialogUpdateVisible = true;
       this.passDisable = false;
       this.rolesSelected = newRow.roles.map(item => item.id);
       // 记录索引
       this.listIndex = index;
+      this.updatePass = false;
     },
     // 重置密码
     handlereset(value) {
@@ -343,10 +404,10 @@ export default {
         { type: 'warning' }
       )
         .then(() => {
-          // 向请求服务端删除
+          // 向请求服务端重置
           const resetUpdate = {
             id: value,
-            password: '111111',
+            password: 'Xfback@201806！',
           };
           updateUserInfo(resetUpdate)
             .then(response => {
@@ -427,19 +488,35 @@ export default {
     },
     // 编辑用户
     updateUser() {
-      this.updateLoading = true;
-      updateUserInfo(this.update)
-        .then(response => {
-          this.$message.success(response.data.message);
-          this.dialogUpdateVisible = false;
-          this.updateLoading = false;
-          // 根据索引，赋值到list制定的数
-          this.tableUsers.splice(this.listIndex, 1, response.data.data);
-        })
-        .catch(error => {
-          this.updateLoading = false;
-          this.$message.error(error);
-        });
+      this.$refs.update.validate(valid => {
+        if(valid) {
+          this.updateLoading = true;
+          delete this.update.checkpass;
+          if (!this.updatePass) delete this.update.password;
+          updateUserInfo(this.update)
+          .then(response => {
+            this.$message.success(response.data.message);
+            this.dialogUpdateVisible = false;
+            this.updateLoading = false;
+            // 根据索引，赋值到list制定的数
+            this.tableUsers.splice(this.listIndex, 1, response.data.data);
+          })
+          .catch(error => {
+            this.updateLoading = false;
+            this.$message.error(error);
+          });
+        } else {
+          return false;
+        }
+      })
+    },
+    modalClosed() {
+      this.$refs.update.clearValidate();
+    },
+    //邮件接收状态改变时，移除表单验证结果
+    receiveChange(val) {
+      if(val===0)
+        this.$refs.emailItem.clearValidate();
     },
     // 批量删除
     delAll() {
@@ -499,4 +576,3 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-

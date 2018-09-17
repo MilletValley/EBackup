@@ -15,6 +15,9 @@ const strategyMapping = {
   oracle: {
     1: [0, 2, 3, 4, 5],
   },
+  mysql: {
+    1: [0, 2, 3, 4, 5],
+  },
   vm: {
     1: [0, 2, 3, 4, 5],
   },
@@ -33,6 +36,7 @@ const strategyMapping = {
 const mapping = {
   oracle: '实例',
   sqlserver: '数据库',
+  mysql: '数据库',
   windows: '恢复路径',
   linux: '恢复路径',
   vm: '新虚拟机名'
@@ -298,6 +302,10 @@ const backupPlanModalMixin = {
         }
         if ([3, 4, 5].includes(timeStrategy)) {
           config.timePoints = filteredTimePoints(timePoints);
+          // 全备+增备下按星期重排
+          if (timeStrategy === 4) {
+            config.weekPoints.sort((a, b) => a - b);
+          }
         }
         if (this.type === 'windows') {
           resolve({ name, backupPath, backupSystem, config });
@@ -340,7 +348,7 @@ const restorePlanModalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     id: {
@@ -418,6 +426,7 @@ const restorePlanModalMixin = {
     }
     return {
       // 原始表单值
+      hiddenPassword: true,
       originFormData: Object.assign({}, baseFormData),
       formData: Object.assign({}, baseFormData),
       strategys, // 时间策略

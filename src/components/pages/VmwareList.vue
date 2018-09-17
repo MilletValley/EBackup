@@ -10,7 +10,8 @@
         </el-col>
       </el-row>
     </div>
-    <el-table :data="vmItems?vmItems.slice((currentPage-1)*pagesize,currentPage*pagesize):vmItems"
+    <el-table :data="vmItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+              v-if="vmItems"
               style="width: 100%">
       <el-table-column label="序号"
                        min-width="100"
@@ -24,11 +25,9 @@
                        fixed
                        min-width="200">
         <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.vmName}}</router-link>
-          </el-button>
+          <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.vmName}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="vmPath"
@@ -48,7 +47,8 @@
           :page-size="pagesize"
           background
           layout="total, sizes, prev, pager, next, jumper"
-          :total="vmItems?vmItems.length:0">
+          v-if="vmItems"
+          :total="vmItems|filterBySearch(filterItem).length">
         </el-pagination>
       </div>
   </section>
@@ -64,24 +64,35 @@ export default {
       currentPage: 1,
       pagesize: 10,
       inputSearch: '',
-      newItems: [],
-      originItems: [],
+      filterItem: ''
     }
   },
   created() {
     this.fetchData();
   },
+  filters: {
+    filterBySearch(tableData, arg) {
+      if (!tableData) {
+        return '';
+      }
+      return tableData.filter(v => v.vmName.toLowerCase().includes(arg.toLowerCase()));
+    },
+    filterByPage(data, currentPage, pagesize) {
+      if (!data) {
+        return '';
+      }
+      return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
+    }
+  },
   watch: {
     inputSearch() {
       if(this.inputSearch==='') {
-        this.vmItems=this.originItems;
+        this.filterItem=''
         this.currentPage=1;
       }
     },
     $route: function() {
       this.vmItems=[];
-      this.originItems=[];
-      this.newItems=[];
       this.currentPage=1;
       this.fetchData();
     }
@@ -93,10 +104,8 @@ export default {
           const { data } = res.data;
           if(this.$route.name === 'VMwareList') {
             this.vmItems = data.filter(item => item.type==='1');
-            this.originItems = data.filter(item => item.type==='1');
           } else {
             this.vmItems = data.filter(item => item.type==='2');
-            this.originItems = data.filter(item => item.type==='2');
           }
         })
         .catch(error => {
@@ -104,15 +113,8 @@ export default {
         });
     },
     searchByName() {
-      this.newItems=[];
-      this.currentPage=1;
-      if(this.originItems){
-        for(let index=0; index<this.originItems.length; index++) {
-          if(this.originItems[index].vmName.toLowerCase().includes(this.inputSearch.toLowerCase()))
-            this.newItems.push(this.originItems[index]);
-        }
-      }
-      this.vmItems=this.newItems;
+      this.filterItem = this.inputSearch;
+      this.currentPage = 1;
     },
     handleSizeChange: function (size) {
       this.pagesize = size;
@@ -137,4 +139,3 @@ export default {
   background-color: #fff;
 }
 </style>
-

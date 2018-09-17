@@ -5,7 +5,7 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="oracle"
+            <i-icon name="mysql"
                     class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
@@ -13,11 +13,7 @@
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1 :class="details.role === 1 ? $style.primaryLink : $style.viceLink">{{details.name}}
-                  <i-icon v-if="details.role !== 0"
-                          :name="roleIconName(this.details.role)"
-                          :class="$style.roleIconHeader"></i-icon>
-                </h1>
+                <h1>{{details.name}}</h1>
               </el-col>
               <el-col :span="12"
                       :offset="4"
@@ -47,10 +43,10 @@
                      class="item-info">
               <el-row style="margin-right: 5px;">
                 <el-col :span="8">
-                  <el-form-item label="Oracle版本：">
+                  <el-form-item label="MySql版本：">
                     <span>{{ details.dbVersion }}</span>
                   </el-form-item>
-                  <el-form-item label="实例名：">
+                  <el-form-item label="数据库名：">
                     <span>{{ details.instanceName }}</span>
                   </el-form-item>
                   <el-form-item label="数据库账号：">
@@ -81,40 +77,15 @@
                     <span>{{ details.application }}</span>
                   </el-form-item>
                 </el-col>
-                <template v-if="!!link.id">
-                  <el-col :span="8"
-                          :class="$style.linkInfo">
-                    <h4 style="margin: 10px 0 7px;">连接信息</h4>
-                    <el-form-item>
-                      <i-icon :name="`switch-${link.state}`"
-                              :class="$style.switchIcon"></i-icon>
-                      <span>{{ link.state | linkStateFilter }}</span>
-                    </el-form-item>
-                    <el-form-item>
-                      <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
-                              :class="$style.roleIconOppsition"></i-icon>
-                      <router-link :to="`/db/oracle/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
-                                   :class="link.oppsiteDatabase.role === 1 ? $style.primaryLink : $style.viceLink">
-                        {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
-                      </router-link>
-                    </el-form-item>
-
-                  </el-col>
-                  <router-link :to="`/db/oracle/takeover/${link.id}`"
-                               :class="$style.moreLink">查看更多</router-link>
-                </template>
-
               </el-row>
-
             </el-form>
-
           </el-col>
         </el-row>
 
       </div>
     </header>
     <tab-panels :id="Number(id)"
-                type="oracle"
+                type="mysql"
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
@@ -129,35 +100,35 @@
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <backup-plan-create-modal type="oracle"
+    <backup-plan-create-modal type="mysql"
                               :visible.sync="backupPlanCreateModalVisible"
                               :btn-loading="btnLoading"
                               @confirm="addBackupPlan"></backup-plan-create-modal>
-    <backup-plan-update-modal type="oracle"
+    <backup-plan-update-modal type="mysql"
                               :visible.sync="backupPlanUpdateModalVisible"
                               :btn-loading="btnLoading"
                               :backup-plan="selectedBackupPlan"
                               @confirm="updateBackupPlan"
                               @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
-    <restore-plan-create-modal type="oracle"
+    <restore-plan-create-modal type="mysql"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
                                :btn-loading="btnLoading"
                                :selection-hosts="availableHostsForRestore"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
-    <restore-plan-update-modal type="oracle"
+    <restore-plan-update-modal type="mysql"
                                :database="details"
                                :visible.sync="restorePlanUpdateModalVisible"
                                :btn-loading="btnLoading"
                                :restore-plan="selectedRestorePlan"
                                @confirm="updateRestorePlan"
                                @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
-    <database-update-modal type="oracle"
+    <database-update-modal type="mysql"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
                            :btn-loading="btnLoading"
                            @confirm="updateDetails"></database-update-modal>
-    <single-restore-create-modal type="oracle"
+    <single-restore-create-modal type="mysql"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :selection-hosts="availableHostsForRestore"
@@ -185,11 +156,10 @@ import {
   createSingleRestorePlan,
   createRestorePlan,
   updateRestorePlan,
-  fetchLink,
-} from '../../api/oracle';
+} from '../../api/mysql';
 
 export default {
-  name: 'OracleDetail',
+  name: 'MySqlDetail',
   mixins: [detailPageMixin],
   data() {
     return {
@@ -270,13 +240,13 @@ export default {
   computed: {
     // 用于恢复的设备
     // 1.易备环境下的设备
-    // 2.Oracle类型设备
+    // 2.MySql类型设备
     // 3.没有“安装”数据库
     availableHostsForRestore() {
-      const oracleEbackupHosts = this.$store.getters.hostsWithOracle.filter(
+      const mysqlEbackupHosts = this.$store.getters.hostsWithMySql.filter(
         h => h.hostType === 2
       );
-      return oracleEbackupHosts;
+      return mysqlEbackupHosts;
     },
   },
   methods: {
@@ -285,22 +255,10 @@ export default {
         .then(res => {
           const { data: db } = res.data;
           this.details = db;
-          if (this.details.role && this.details.role !== 0) {
-            fetchLink(this.id).then(res => {
-              const { data: link } = res.data;
-              const { id, state, errMsg, tempPort } = link;
-              this.link = { id, state, errMsg, tempPort };
-              if (this.details.role === 1) {
-                this.link.oppsiteDatabase = link.viceDatabase;
-              } else if (this.details.role === 2) {
-                this.link.oppsiteDatabase = link.primaryDatabase;
-              }
-            });
-          }
         })
         .catch(error => {
           this.$message.error(error);
-          this.$router.push({ name: 'oracleList' });
+          this.$router.push({ name: 'mysqlList' });
         })
         .then(() => {
           this.infoLoading = false;
@@ -460,10 +418,10 @@ export default {
       this.btnLoading = true;
       modifyOne(data)
         .then(res => {
-          const { data: oracle, message } = res.data;
+          const { data: mysql, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          oracle.id = this.details.id;
-          this.details = oracle;
+          mysql.id = this.details.id;
+          this.details = mysql;
           this.detailsEditModal = false;
           this.$message.success(message);
         })
