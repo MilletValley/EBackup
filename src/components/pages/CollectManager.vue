@@ -12,7 +12,7 @@
     <el-table :data="tableData"
               style="width: 100%">
       <el-table-column prop="vmManageHostLogin"
-                       label="主机登录名"
+                       label="主机登录账号"
                        min-width="150"
                        align="center"
                        fixed>
@@ -22,7 +22,7 @@
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="vmHostServerUser"
-                       label="服务登录名"
+                       label="服务登录账号"
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="vmHostServerIp"
@@ -73,7 +73,6 @@ export default {
         return backupResultMapping[cellValue]
     },
     fetchData() {
-        console.log(345)
         fetchAll().then( res => {
             this.tableData = res.data.data;
         }).catch( error => {

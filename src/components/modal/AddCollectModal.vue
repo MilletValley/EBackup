@@ -21,7 +21,7 @@
                       prop="vmManageHostIp">
                 <el-input v-model="formData.vmManageHostIp"></el-input>
               </el-form-item>
-              <el-form-item label="登录用户名："
+              <el-form-item label="登录账号："
                             prop="vmManageHostLogin">
                 <el-input v-model="formData.vmManageHostLogin"></el-input>
               </el-form-item>
@@ -39,7 +39,7 @@
                             prop="vmHostServerIp">
                 <el-input v-model="formData.vmHostServerIp"></el-input>
               </el-form-item>
-              <el-form-item label="登录用户名："
+              <el-form-item label="登录账号："
                             prop="vmHostServerUser">
                 <el-input v-model="formData.vmHostServerUser"></el-input>
               </el-form-item>
