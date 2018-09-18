@@ -12,7 +12,7 @@
                label-width="110px"
                ref="createForm"
                size="small">
-        <el-collapse v-model="activeNames" @change="handleChange">
+        <el-collapse v-model="activeNames" @change="handleChange" style="text-align:left">
           <el-collapse-item title="主机配置" name="1">
               <template slot="title">
                 <span class="titleClass">主机配置</span>
@@ -88,7 +88,7 @@ export default {
             trigger: 'blur'
           },
           {
-            pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+            pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
             message: 'IP地址不正确',
             trigger: 'blur',
           }
@@ -100,7 +100,7 @@ export default {
             trigger: 'blur'
           },
           {
-            pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+            pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
             message: 'IP地址不正确',
             trigger: 'blur',
           }
@@ -181,6 +181,7 @@ export default {
           console.log(this.formData)
           this.$emit('confirm', this.formData);
         } else {
+          this.activeNames = ['1', '2']
           return false;
         }
       });
