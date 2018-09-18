@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 
 const genModalMixin = type => {
-  if (!['database', 'filehost', 'host', 'vm'].includes(type)) {
+  if (!['database', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(type)) {
     throw new Error('参数错误！');
   }
   const databaseModalMixin = {
@@ -14,7 +14,7 @@ const genModalMixin = type => {
         type: String,
         required: true,
         validator(value) {
-          return ['oracle', 'sqlserver', 'mysql', 'filehost', 'host', 'vm'].includes(value);
+          return ['oracle', 'sqlserver', 'mysql', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(value);
         },
       },
       btnLoading: {
@@ -62,6 +62,15 @@ const genModalMixin = type => {
         vmName: '',
         host: {},
       };
+      const vmManageCollectFormData = {
+        vmManageHostIp: '',
+        vmManageHostLogin: '',
+        vmManageHostPass: '',
+        vmHostServerIp: '',
+        vmHostServerUser: '',
+        vmHostServerPass: '',
+        vmHostServerType: 2
+      };
       const baseData = {
         oracle: databaseBaseFormData,
         sqlserver: databaseBaseFormData,
@@ -69,6 +78,7 @@ const genModalMixin = type => {
         filehost: fileHostBaseFormData,
         host: hostBaseFormData,
         vm: virtualFormData,
+        vmManageCollect: vmManageCollectFormData
       };
       const loginType = {
         oracle: 'oracle数据库',

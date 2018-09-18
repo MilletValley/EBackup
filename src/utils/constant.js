@@ -133,6 +133,11 @@ const serviceIpMarkMapping = {
   2: '易备环境',
 };
 
+const vmHostServerTypeMapping = {
+  1: 'VMware',
+  2: '华为虚拟机'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -154,4 +159,5 @@ export {
   switchManualMapping,
   switchTypeMapping,
   serviceIpMarkMapping,
+  vmHostServerTypeMapping
 };
