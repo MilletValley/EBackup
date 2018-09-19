@@ -95,7 +95,6 @@ export default {
     };
   },
   computed: {
-    
   },
   methods: {
     serverTypeFotmat(row, column, cellValue, index){
@@ -126,7 +125,6 @@ export default {
           this.btnLoading = false;
         });
     },
-   
   },
   filters: {
     filterByIp(data, filterItem){

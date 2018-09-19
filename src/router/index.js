@@ -29,7 +29,7 @@ import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 // import BackupRecoverView from '@/components/pages/BackupRecoverView';
 // import TakeOverView from '@/components/pages/TakeOverView';
 import MoreState from '@/components/MoreState';
-import CollectManager from '@/components/pages/CollectManager'
+import CollectManager from '@/components/pages/CollectManager';
 
 Vue.use(Router);
 
@@ -533,7 +533,7 @@ export const asyncRouters = [
         name: 'collectManager',
         component: CollectManager,
         meta: {
-          title: '连接管理',
+          title: '虚拟机主机管理',
           roles: [],
         },
       },

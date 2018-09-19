@@ -5,7 +5,7 @@
                :before-close="beforeModalClose"
                @close="modalClosed">
       <span slot="title">
-        添加连接
+        添加虚拟机主机
       </span>
       <el-form :model="formData"
                :rules="rules"
