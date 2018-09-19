@@ -2,9 +2,9 @@
     <section>
     <el-row>
       <el-form inline
-               size="small">
+               size="medium">
         <el-form-item style="float: left" >
-          <el-input placeholder="请输入名称"
+          <el-input placeholder="请输入主机IP"
                     v-model="inputSearch"
                     @keyup.enter.native="searchByName">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
