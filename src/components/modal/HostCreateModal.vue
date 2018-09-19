@@ -49,13 +49,13 @@
         <el-form-item label="用途类型"
                       prop="databaseType">
           <el-radio v-model="formData.databaseType"
-                    label="1">oracle</el-radio>
+                    :label="1">oracle</el-radio>
           <el-radio v-model="formData.databaseType"
-                    label="2">sqlserver</el-radio>
+                    :label="2">sqlserver</el-radio>
           <el-radio v-model="formData.databaseType"
-                    label="5">mysql</el-radio>
+                    :label="5">mysql</el-radio>
           <el-radio v-model="formData.databaseType"
-                    label="4">虚拟机</el-radio>
+                    :label="4">虚拟机</el-radio>
         </el-form-item>
         <el-form-item label="oracle版本"
                       prop="oracleVersion"

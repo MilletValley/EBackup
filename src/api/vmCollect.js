@@ -9,7 +9,7 @@ const fetchAll = () =>
 const addCollect = data =>
   baseApi.request({
     method: 'post',
-    url: `/vm-manage-host/collect`,
+    url: '/vm-manage-host/collect',
     data,
   });
 
