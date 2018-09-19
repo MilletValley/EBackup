@@ -16,7 +16,7 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="tableData|filterByIp(filterItem)"
+    <el-table :data="tableData|filterByIp(filterItem)|filterByPage(currentPage, pagesize)"
               style="width: 100%">
       <el-table-column prop="vmManageHostLogin"
                        label="主机登录账号"
@@ -59,6 +59,18 @@
                        min-width="150"
                        align="center"></el-table-column>
     </el-table>
+    <div class="block" style="text-align: right">
+      <el-pagination @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :current-page="currentPage"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pagesize"
+                     background
+                     layout="total, sizes, prev, pager, next, jumper"
+                     :total="tableData|filterByIp(filterItem).length"
+                     >
+      </el-pagination>
+    </div>
     <add-collect-modal type="vmManageCollect"
                        :visible.sync="createModalVisible"
                        @confirm="createItem"
