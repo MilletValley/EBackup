@@ -43,9 +43,13 @@
                        align="center"></el-table-column>
       <el-table-column prop="state"
                        label="状态"
-                       :formatter="stateFormat"
                        min-width="150"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.state === 1"><i class="el-icon-success" style="color:#67c23a;font-size:18px;"></i></span>
+          <span v-else><i class="el-icon-error" style="color:#f56c6c;font-size:18px;"></i></span>
+        </template>
+      </el-table-column>
       <el-table-column prop="createDate"
                        label="创建时间"
                        min-width="150"
@@ -79,9 +83,9 @@ export default {
     serverTypeFotmat(row, column, cellValue, index){
         return vmHostServerTypeMapping[cellValue]
     },
-    stateFormat(row, column, cellValue, index){
-        return backupResultMapping[cellValue]
-    },
+    // stateFormat(row, column, cellValue, index){
+    //     return backupResultMapping[cellValue]
+    // },
     fetchData() {
         fetchAll().then( res => {
             this.tableData = res.data.data;
