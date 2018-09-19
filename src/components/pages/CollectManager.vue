@@ -46,7 +46,7 @@
                        min-width="150"
                        align="center">
         <template slot-scope="scope">
-          <el-tooltip v-if="scope.row.state === 1" content="成功" placement="top">
+          <el-tooltip v-if="scope.row.state === 0" content="成功" placement="top">
                <span ><i class="el-icon-success" style="color:#67c23a;font-size:18px;"></i></span>
           </el-tooltip>
           <el-tooltip v-else content="失败" placement="top">
