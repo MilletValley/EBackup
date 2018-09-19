@@ -41,6 +41,11 @@
                        :formatter="serverTypeFotmat"
                        min-width="150"
                        align="center"></el-table-column>
+      <el-table-column prop="createDate"
+                       label="创建时间"
+                       min-width="150"
+                       show-overflow-tooltip
+                       align="center"></el-table-column>
       <el-table-column prop="state"
                        label="状态"
                        min-width="150"
@@ -54,10 +59,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column prop="createDate"
-                       label="创建时间"
-                       min-width="150"
-                       align="center"></el-table-column>
+      
     </el-table>
     <div class="block" style="text-align: right">
       <el-pagination @size-change="handleSizeChange"
