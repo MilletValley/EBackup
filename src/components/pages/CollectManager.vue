@@ -3,13 +3,20 @@
     <el-row>
       <el-form inline
                size="small">
+        <el-form-item style="float: left" >
+          <el-input placeholder="请输入名称"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
+            <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+          </el-input>          
+        </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
                     @click="createModalVisible = true">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="tableData"
+    <el-table :data="tableData|filterByIp(filterItem)"
               style="width: 100%">
       <el-table-column prop="vmManageHostLogin"
                        label="主机登录账号"
@@ -37,6 +44,10 @@
       <el-table-column prop="state"
                        label="状态"
                        :formatter="stateFormat"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="createDate"
+                       label="创建时间"
                        min-width="150"
                        align="center"></el-table-column>
     </el-table>
@@ -94,6 +105,14 @@ export default {
         });
     },
    
+  },
+  filters: {
+    filterByIp(data, filterItem){
+      if (!data) {
+        return '';
+      }
+      return data.filter(v => v.vmManageHostIp.includes(filterItem));
+    }
   },
   components: {
     AddCollectModal,
