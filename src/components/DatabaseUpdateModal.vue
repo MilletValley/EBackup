@@ -132,7 +132,7 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 .form-header {
   font-size: 13px;
   font-weight: 700;
