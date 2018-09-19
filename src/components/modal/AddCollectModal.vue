@@ -46,7 +46,7 @@
               <el-form-item label="登录密码："
                             prop="vmHostServerPass">
                 <input-toggle v-model="formData.vmHostServerPass"
-                              :hidden.sync="hiddenPassword"></input-toggle>
+                              :hidden.sync="hiddenPassword1"></input-toggle>
               </el-form-item>
               <el-form-item label="服务类型："
                             prop="vmHostServerType">
@@ -80,6 +80,7 @@ export default {
   data(){
     return {
       activeNames: ['1', '2'],
+      hiddenPassword1: true,
       rules: {
         vmManageHostIp: [
           {
@@ -190,6 +191,7 @@ export default {
       // this.formData = { ...this.originFormData };
       this.$refs.createForm.resetFields();
       this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     },
     handleChange(val){
       console.log(val);

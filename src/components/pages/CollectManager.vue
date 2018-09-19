@@ -66,7 +66,6 @@ export default {
   },
   methods: {
     serverTypeFotmat(row, column, cellValue, index){
-        console.log(cellValue)
         return vmHostServerTypeMapping[cellValue]
     },
     stateFormat(row, column, cellValue, index){
@@ -81,7 +80,6 @@ export default {
     },
     createItem(host) {
       this.btnLoading = true;
-      console.log(host)
       addCollect(host)
         .then(res => {
           this.createModalVisible = false;
