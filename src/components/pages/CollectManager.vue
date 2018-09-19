@@ -22,7 +22,7 @@
                        label="主机登录账号"
                        min-width="150"
                        align="center"
-                       fixed>
+                       >
       </el-table-column>
       <el-table-column prop="vmManageHostIp"
                        label="主机IP"
