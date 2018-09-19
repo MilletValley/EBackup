@@ -46,8 +46,12 @@
                        min-width="150"
                        align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.state === 1"><i class="el-icon-success" style="color:#67c23a;font-size:18px;"></i></span>
-          <span v-else><i class="el-icon-error" style="color:#f56c6c;font-size:18px;"></i></span>
+          <el-tooltip v-if="scope.row.state === 1" content="成功" placement="top">
+               <span ><i class="el-icon-success" style="color:#67c23a;font-size:18px;"></i></span>
+          </el-tooltip>
+          <el-tooltip v-else content="失败" placement="top">
+                <span ><i class="el-icon-error" style="color:#f56c6c;font-size:18px;"></i></span>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="createDate"
