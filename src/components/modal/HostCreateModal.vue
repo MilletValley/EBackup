@@ -42,9 +42,9 @@
         <el-form-item label="设备类型"
                       prop="hostType">
           <el-radio v-model="formData.hostType"
-                    label="1">生产环境</el-radio>
+                    :label="1">生产环境</el-radio>
           <el-radio v-model="formData.hostType"
-                    label="2">易备环境</el-radio>
+                    :label="2">易备环境</el-radio>
         </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">
