@@ -53,9 +53,9 @@
                  size="small"
                  plain
                  style="position: absolute; top:3px; right:3px; z-index: 10"
-                 @click="$router.push({name: 'morestate'})">MORE</el-button>
-      <el-tabs type="border-card">
-        <el-tab-pane label="数据库备份">
+                 @click="$router.push({name: 'morestate', query:{type: tabValue}})">MORE</el-button>
+      <el-tabs type="border-card" v-model="tabValue">
+        <el-tab-pane label="数据库备份" name="databaseBackup">
           <el-table
             :data="this.databaseBackup"
             style="width: 100%">
@@ -119,7 +119,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="数据库恢复">
+        <el-tab-pane label="数据库恢复" name="databaseRestore">
           <el-table
             :data="this.databaseRestore"
             style="width: 100%">
@@ -170,7 +170,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="一键接管">
+        <el-tab-pane label="一键接管" name="initconnNum">
           <el-table
             :data="this.initconnNum"
             style="width: 100%">
@@ -227,7 +227,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="文件备份">
+        <el-tab-pane label="文件备份" name="filehostBackup">
           <el-table
             :data="this.filehostBackup"
             style="width: 100%">
@@ -291,7 +291,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="文件恢复">
+        <el-tab-pane label="文件恢复" name="filehostRestore">
           <el-table
             :data="this.filehostRestore"
             style="width: 100%">
@@ -342,7 +342,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="虚拟机备份">
+        <el-tab-pane label="虚拟机备份" name="vmBackup">
           <el-table
             :data="this.vmBackup"
             style="width: 100%">
@@ -426,6 +426,7 @@ export default {
   mixins: [baseMixin],
   created() {
     this.fetchData();
+    this.tabValue = this.$route.query.type || 'databaseBackup'
   },
   data() {
     return {
@@ -436,6 +437,7 @@ export default {
       filehostBackup: [],
       filehostRestore: [],
       vmBackup: [],
+      tabValue: 'databaseBackup'
     };
   },
   computed: {

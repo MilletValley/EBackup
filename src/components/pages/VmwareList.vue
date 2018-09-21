@@ -2,7 +2,11 @@
   <section>
     <div style="margin-bottom: 15px;">
       <el-row :gutter="20">
-        <el-col :span="18"><div class="grid-content"></div></el-col>
+        <el-col :span="18"><div class="grid-content">
+            <el-button @click="buttonClick">
+              已选
+            </el-button>
+          </div></el-col>
         <el-col :span="6">
           <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
@@ -10,9 +14,13 @@
         </el-col>
       </el-row>
     </div>
-    <el-table :data="vmItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
-              v-if="vmItems"
+    <el-table :data="processDbTableData" ref="dbTable"
+              v-if="vmItems"   @select="selectDbChangeFn"    @select-all="selectAll"
               style="width: 100%">
+      <el-table-column
+          type="selection"
+          width="55">
+      </el-table-column>
       <el-table-column label="序号"
                        min-width="100"
                        fixed
@@ -43,7 +51,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[5, 10, 15, 20]"
+          :page-sizes="[2, 5, 10, 15, 20]"
           :page-size="pagesize"
           background
           layout="total, sizes, prev, pager, next, jumper"
@@ -64,7 +72,33 @@ export default {
       currentPage: 1,
       pagesize: 10,
       inputSearch: '',
-      filterItem: ''
+      filterItem: '',
+      currentSelectDb: [],
+      buttonfalg: false
+    }
+  },
+  computed:{
+    processDbTableData(){
+      let data = [];
+      if(this.buttonfalg){
+        console.log(this.currentSelectDb)
+        data = this.currentSelectDb.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+      }else{
+        data = this.vmItems.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+      }
+      
+      data = data.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
+      this.$nextTick( () => {
+          this.currentSelectDb.forEach( item => {
+              data.forEach( i => {
+                  if(i.dbId === item.dbId){
+                      this.$refs.dbTable.toggleRowSelection(i);
+                  }
+              })
+              
+          })
+      });
+      return data;
     }
   },
   created() {
@@ -121,7 +155,51 @@ export default {
     },
     handleCurrentChange: function(currentPage){
       this.currentPage = currentPage;
+    },
+    selectDbChangeFn(selectData, row){
+        // this.currentSelectDb = selectData;
+        if(selectData.includes(row)){
+            this.currentSelectDb.push(row);
+        }else{
+            // console.log(this.currentSelectDb.indexOf(row))
+            //需要优化，匹配到即跳出循环
+            this.currentSelectDb = this.currentSelectDb.filter( e => {
+                if(e.id === row.id){
+                    return false;
+                }
+                return true;
+            });
+        }
+    },
+    selectAll(selection){
+        if(selection.length === 0){
+            this.currentSelectDb = this.currentSelectDb.filter( e => {
+                let flag = true;
+                this.processDbTableData.forEach( i => {
+                    if(i.id === e.id){
+                        flag = false;
+                    }
+                })
+                return flag;
+            })
+        }else{
+            let data = [];
+            this.processDbTableData.forEach( e => {
+                let flag = true;
+                this.currentSelectDb.forEach( i => {
+                    if(i.dbId === e.dbId){
+                        flag = false;
+                    }
+                })
+                flag && data.push(e);
+            });
+            this.currentSelectDb.push(...data)
+        }
+    },
+    buttonClick(){
+      this.buttonfalg = !this.buttonfalg;
     }
+    
   }
 };
 </script>

@@ -5,7 +5,7 @@
       <el-button type="primary"
                  size="small"
                  style="float:right"
-                 @click="$router.push({name: 'dashboard'})">返回</el-button>
+                 @click="$router.push({name: 'dashboard', query:{type: activeName}})">返回</el-button>
     </el-row>
     <template>
       <el-tabs type="border-card" v-model="activeName" @tab-click="handleClick">
@@ -426,6 +426,7 @@ export default {
   },
   created() {
     this.fetchData();
+    this.activeName = this.$route.query.type;
   },
   methods: {
     fetchData() {
