@@ -29,13 +29,13 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore"
-                                      >恢复计划</el-dropdown-item>
+                                      :disabled="isVM">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <el-button size="mini"
                            type="primary"
                            @click="detailsEditModal = true"
-                           >编辑</el-button>
+                           :disabled="isVM">编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
@@ -225,8 +225,7 @@ export default {
   computed: {
     isVM() {
       const path = this.$route.path;
-      // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-      return false
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     }
   },
   methods: {
