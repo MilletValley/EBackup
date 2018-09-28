@@ -18,6 +18,7 @@
               v-if="vmItems"   @select="selectDbChangeFn"    @select-all="selectAll"
               style="width: 100%">
       <el-table-column
+      :reserve-selection="true"
           type="selection"
           width="55">
       </el-table-column>
@@ -73,8 +74,7 @@ export default {
       pagesize: 10,
       inputSearch: '',
       filterItem: '',
-      currentSelectDb: [],
-      buttonfalg: false
+      currentSelectDb: []
     }
   },
   computed:{

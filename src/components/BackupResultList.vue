@@ -1,6 +1,46 @@
 <template>
   <section>
-    <el-table :data="isFileBackupResult ? handleData : data|NotNullfilter"
+    <el-row>
+      <el-row>
+        <el-col>
+          <el-button type="text" :icon="buttonIcon" @click="showFilter = !showFilter">过滤</el-button>
+        </el-col>
+      </el-row>
+      <el-row v-show="showFilter">
+        <el-form ref="filterForm" :model="filterForm" label-width="150px" size="small">
+          <el-form-item v-if="!isFileBackupResult" label="备份文件名：" prop="fileName">
+            <el-input v-model="filterForm.fileName" style="width:400px"></el-input>
+          </el-form-item>
+          <el-form-item label="开始时间：" prop="startTime">
+            <el-date-picker
+              v-model="filterForm.startTime"
+              type="datetimerange"
+              :unlink-panels="true"
+              :picker-options="pickerOptions"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="结束时间：" prop="endTime">
+            <el-date-picker
+              v-model="filterForm.endTime"
+              type="datetimerange"
+              :unlink-panels="true"
+              :picker-options="pickerOptions"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期">
+            </el-date-picker>
+            <span style="margin-left:40px">
+              <el-button size="mini" type="primary" @click="filterHandler">搜索</el-button>
+              <el-button size="mini"  @click="resetFn">重置</el-button>
+            </span>
+          </el-form-item>
+        </el-form>
+      </el-row>
+    </el-row>
+    <el-table :data="isFileBackupResult ? handleData : data|NotNullfilter|filterFn(filterValue)"
               style="width: 100%; margin-top: 15px"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
@@ -33,7 +73,7 @@
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="结束时间"
-                          :sort-method="endTimeSortMethod">
+                          >
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
@@ -88,6 +128,7 @@
       <el-table-column label="结束时间"
                        prop="endTime"
                        min-width="200px"
+                       :sortable="true"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
@@ -157,6 +198,40 @@ export default {
     return {
       singleRestoreModalVisible: false,
       selectedId: -1,
+      showFilter: false,
+      filterValue: '',
+      filterForm: {
+        fileName: '',
+        startTime: '',
+        endTime: ''
+      },
+      pickerOptions: {
+        shortcuts: [{
+            text: '最近三天',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 3);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+      }
     };
   },
   filters: {
@@ -168,6 +243,28 @@ export default {
       })
       return data;
     },
+    filterFn(data,filter){
+      let tData = data.filter( e => {
+        let flag = true;
+        for( let i in filter){
+          if(filter[i]){
+            if(i.includes('Time')){
+              if(dayjs(e[i]) < dayjs(filter[i][0]) || dayjs(e[i]) > dayjs(filter[i][1])){
+                flag = false;
+                break;
+              }
+            }else{
+              if(!e[i].includes(filter[i])){
+                flag = false;
+                break;
+              }
+            }
+          }
+        }
+        return flag;
+      })
+      return tData
+    }
   },
   methods: {
     // 备份集状态码转文字
@@ -187,8 +284,17 @@ export default {
     endTimeSortMethod(a, b) {
       return dayjs(a) - dayjs(b);
     },
+    filterHandler(){
+      this.filterValue = Object.assign({},this.filterForm) 
+    },
+    resetFn(){
+      this.$refs.filterForm.resetFields();
+    }
   },
   computed: {
+    buttonIcon(){
+      return this.showFilter ? 'el-icon-arrow-down' : 'el-icon-arrow-right'
+    },
     isFileBackupResult() {
       return this.type === 'windows' || this.type === 'linux';
     },

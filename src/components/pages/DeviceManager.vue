@@ -16,6 +16,11 @@
                        min-width="150"
                        align="center"
                        fixed>
+        <template slot-scope="scope">
+          <router-link :to="`details/${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.name}}</router-link>
+        </template>
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"

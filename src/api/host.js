@@ -52,6 +52,28 @@ const deleteLinks = linkId =>
     url: `/host-links/${linkId}`,
   });
 
+  //根据设备获取主机信息
+const fetchDetailsById = id => 
+  baseApi.request({
+    method: 'get',
+    url: `/hosts/details/${id}`
+  });
+
+  //添加主机
+const addServer = (data) => 
+  baseApi.request({
+    method: 'post',
+    url: '/hosts/server',
+    data: data
+  });
+
+const fetchServerList = () => 
+  baseApi.request({
+    method: 'get',
+    url: '/hosts/server/list'
+  });
+
+
 export {
   fetchAll,
   fetchOne,
@@ -61,4 +83,7 @@ export {
   modifyOne,
   createSwitches,
   deleteLinks,
+  fetchDetailsById,
+  addServer,
+  fetchServerList
 };

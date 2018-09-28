@@ -1,4 +1,5 @@
 import baseApi from './base';
+import base from '../store/modules/base';
 
 const timePoints2Obj = timePointsStrArr =>
   timePointsStrArr.map(p => ({ value: p, key: p }));
@@ -57,6 +58,19 @@ const createVirtualBackupPlan = ({ id, plan }) =>
       res.data.data.config.timePoints = timePoints2Obj(timePoints);
       return res;
     });
+// 创建多个虚拟机下的一个备份配置（计划）
+const createMultipleVirtualBackupPlan = (plan) =>
+  baseApi
+    .request({
+      method: 'post',
+      url: '/virtuals/virtual-backup-plans/multiple',
+      data: plan,
+    })
+    // .then(res => {
+    //   const { timePoints } = res.data.data.config;
+    //   res.data.data.config.timePoints = timePoints2Obj(timePoints);
+    //   return res;
+    // });
 // 删除单个虚拟机下的一个备份计划
 const deleteVirtualBackupPlan = id =>
   baseApi.request({
@@ -155,6 +169,20 @@ const fetchRestoreOperation = id =>
     url: `/virtual-restore-plans/${id}`,
   });
 
+//获取备份计划列表
+const fetchVmBackupPlanList = () => 
+  baseApi.request({
+    method: 'get',
+    url: '/virtual-backup-plans/list'
+  });
+
+//根据备份计划获取虚拟机备份进度
+const getVmsBackupResult = id => 
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-backup-plans/virtuals/details/${id}`
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -162,6 +190,7 @@ export {
   fetchBackupPlans,
   fetchBackupResults,
   createVirtualBackupPlan,
+  createMultipleVirtualBackupPlan,
   updateVirtualBackupPlan,
   deleteVirtualBackupPlan,
   fetchBackupOperation,
@@ -171,5 +200,7 @@ export {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation
+  fetchRestoreOperation,
+  fetchVmBackupPlanList,
+  getVmsBackupResult
 };

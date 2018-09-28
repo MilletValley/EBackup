@@ -1,0 +1,94 @@
+<template>
+    <div>
+        <el-row style="margin-bottom:10px;">
+            <el-col style="text-align:right">
+                <el-button type="primary" @click="addPlan">添加备份计划</el-button>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-table
+                :data="tableData"
+                style="width: 100%;text-align:left">
+                <el-table-column type="expand" align="left">
+                    <template slot-scope="props">
+                        <vm-backup-table :id="props.row.id"></vm-backup-table>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                label="计划名称"
+                align="left"
+                prop="name">
+                </el-table-column>
+                <el-table-column
+                label="创建时间"
+                align="left"
+                prop="createDate">
+                </el-table-column>
+                <el-table-column
+                label="备份策略"
+                align="left"
+                :formatter="backupStrategy"
+                prop="config.backupStrategy">
+                </el-table-column>
+                <el-table-column
+                label="时间策略"
+                align="left"
+                :formatter="timeStrateg"
+                prop="config.timeStrategy">
+                </el-table-column>
+            </el-table>
+        </el-row>
+    </div>
+</template>
+
+<script>
+import {fetchVmBackupPlanList} from '../../api/virtuals';
+import VmBackupTable from '@/components/modal/VmBackupTable';
+import {
+  backupStrategyMapping,
+  timeStrategyMapping,
+  weekMapping,
+  operationStateMapping,
+} from '../../utils/constant';
+export default {
+    components: {
+        VmBackupTable
+    },
+    data(){
+        return {
+            tableData: [],
+        }
+    },
+    mounted(){
+        this.fetchAll();
+    },
+    methods: {
+        fetchAll(){
+            fetchVmBackupPlanList().then( res => {
+                const {data} = res.data;
+                this.tableData = data;
+            }).catch( error => {
+                this.$message.error(error);
+            })
+        },
+        backupStrategy(row, column, cellValue, index) {
+            return backupStrategyMapping[cellValue];
+        },
+        timeStrateg(row, column, cellValue, index) {
+            return timeStrategyMapping[cellValue];
+        },
+        addPlan(){
+            this.$router.push({name: 'collectManager'});
+        }
+        
+    }
+}
+</script>
+<style lang="scss" module>
+@import '../../style/common.scss';
+</style>
+<style>
+
+</style>
+
+

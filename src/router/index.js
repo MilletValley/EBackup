@@ -30,6 +30,9 @@ import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 // import TakeOverView from '@/components/pages/TakeOverView';
 import MoreState from '@/components/MoreState';
 import CollectManager from '@/components/pages/CollectManager';
+import DeviceDetails from '@/components/pages/DeviceDetails';
+import BackupPlanList from '@/components/pages/BackupPlanList';
+import ServerManager from '@/components/pages/ServerManager';
 
 Vue.use(Router);
 
@@ -455,6 +458,15 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'backup',
+        name: 'backup',
+        component: BackupPlanList,
+        meta: {
+          title: '备份计划',
+          roles: [],
+        },
+      },
+      {
         path: 'virtual/:id',
         props: true,
         component: VMwareDetail,
@@ -531,12 +543,13 @@ export const asyncRouters = [
       {
         path: 'collectManager',
         name: 'collectManager',
-        component: CollectManager,
+        component: ServerManager,
         meta: {
           title: '虚拟机主机管理',
           roles: [],
         },
       },
+      
       {
         path: 'devicemanager',
         name: 'deviceManager',
@@ -544,6 +557,29 @@ export const asyncRouters = [
         meta: {
           title: '设备管理',
           roles: [],
+        },
+      },
+      {
+        path: 'devicemanager/details/:id',
+        name: 'deviceDetails',
+        component: DeviceDetails,
+        meta: {
+          // title: '设备管理',
+          roles: [],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '设备管理',
+              path: '/settings/devicemanager',
+            },
+            {
+              name: '设备详情',
+              path: '',
+            },
+          ],
         },
       },
       {
