@@ -137,6 +137,8 @@ export default {
     },
     switchStateIconClass(value) {
       switch (value) {
+        case 0:
+          return ['el-icon-time'];
         case 1:
           return ['el-icon-loading'];
         case 2:
