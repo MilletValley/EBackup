@@ -20,10 +20,29 @@
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
+        <el-dropdown size="mini"
+                     trigger="click"
+                     placement="bottom"
+                     @command="handleBtnClick">
+          <el-button plain>批量操作
+            <i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="switchBtn">批量切换</el-dropdown-item>
+            <el-dropdown-item command="listBtn">切换列表</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-form-item>
+      <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
                    @click="refreshData">刷新</el-button>
       </el-form-item>
     </el-form>
+    <batch-switch-modal :visible.sync="switchDialog"
+                        :originLinks="switchLinks"
+                        :flag="flag"
+                        :btn-loading="btnLoading"
+                        @confirm="addSwitchPlan"></batch-switch-modal>
     <section style="clear: both;">
       <el-row>
         <el-col :span="10">
@@ -353,6 +372,7 @@
 </template>
 <script>
 import SwitchModal from '../modal/SwitchModal';
+import BatchSwitchModal from '../modal/BatchSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import {
@@ -381,6 +401,7 @@ import {
   switchManualMapping,
 } from '../../utils/constant';
 import takeoverMixin from '../mixins/takeoverMixins';
+import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
 import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -402,7 +423,7 @@ const createSwitchMethod = {
 };
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, batchSwitchMinxin],
   data() {
     return {
       items: [], // 所有的数据库
@@ -736,6 +757,7 @@ export default {
     IIcon,
     SwitchModal,
     DatabaseLinkCreateModal,
+    BatchSwitchModal,
   },
 };
 </script>

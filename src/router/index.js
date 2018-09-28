@@ -17,6 +17,8 @@ import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 import MySqlList from '@/components/pages/MySqlList';
 import MySqlDetail from '@/components/pages/MySqlDetail';
+import SwitchList from '@/components/pages/SwitchList';
+import SwitchDetail from '@/components/pages/SwitchDetail';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
@@ -121,6 +123,54 @@ export const asyncRouters = [
           ],
         },
       },
+      {
+        path: 'oracle/takeover/switchlist',
+        name: 'oracleSwitchList',
+        component: SwitchList,
+        meta: {
+          roles: ['oracle dba', 'sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle接管',
+              path: '/to/oracle/takeover'
+            },
+            {
+              name: '计划列表',
+              path: '',
+            },
+          ]
+        }
+      },
+      {
+        path: 'oracle/takeover/switchlist/:id',
+        name: 'oracleSwitchDetail',
+        component: SwitchDetail,
+        meta: {
+          roles: ['oracle dba', 'sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Oracle接管',
+              path: '/to/oracle/takeover'
+            },
+            {
+              name: '计划列表',
+              path: '/to/oracle/takeover/switchlist',
+            },
+            {
+              name: '切换详情',
+              path: ''
+            }
+          ]
+        }
+      }
     ],
   },
   {
