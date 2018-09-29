@@ -116,6 +116,7 @@
                            @confirm="updateDetails"></virtual-update-modal>
     <single-restore-create-modal type="vm"
                                  :id="selectedBackupResultId"
+                                 :database="details"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :btn-loading="btnLoading"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
@@ -386,6 +387,7 @@ export default {
     },
     addSingleRestorePlan(plan) {
       this.btnLoading = true;
+      console.log(plan)
       createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;

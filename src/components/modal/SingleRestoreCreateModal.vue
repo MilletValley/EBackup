@@ -2,6 +2,7 @@
   <el-dialog custom-class="min-width-dialog"
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
+             @open="modalOpened"
              @close="modalClosed">
     <span slot="title">执行恢复操作</span>
     <el-form :model="formData"
@@ -9,7 +10,7 @@
              label-width="110px"
              ref="singleRestoreForm"
              size="small">
-      <el-row>
+      <el-row v-if="!isVMware">
         <el-col :span=12>
           <el-form-item label="恢复设备"
                         v-if="!this.isHW"
@@ -36,7 +37,21 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="!this.isHW">
+      <el-row v-if="isVMware">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="虚拟机名称"
+                        prop="detailInfo">
+            <el-input v-model="formData.detailInfo" disabled></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">
@@ -87,6 +102,10 @@ export default {
       const path = this.$route.path;
       return this.$route.path.substring(4, path.lastIndexOf('/'))==='hwVirtual'
     },
+    isVMware(){
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    }
   },
   methods: {
     confirmBtnClick() {
@@ -104,6 +123,12 @@ export default {
           return false;
         }
       });
+    },
+    modalOpened() {
+      if(this.isVMware){
+        this.formData.detailInfo = this.database.vmName;
+        this.originFormData.detailInfo = this.database.vmName;
+      }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
