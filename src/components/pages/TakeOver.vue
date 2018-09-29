@@ -38,11 +38,6 @@
                    @click="refreshData">刷新</el-button>
       </el-form-item>
     </el-form>
-    <batch-switch-modal :visible.sync="switchDialog"
-                        :originLinks="switchLinks"
-                        :flag="flag"
-                        :btn-loading="btnLoading"
-                        @confirm="addSwitchPlan"></batch-switch-modal>
     <section style="clear: both;">
       <el-row>
         <el-col :span="10">
@@ -102,15 +97,6 @@
                             trigger="hover"
                             width="300"
                             :open-delay="200">
-                  <!-- <el-form v-show="hostLink.primaryHost.osName==='Windows'"
-                          size="mini"
-                          label-width="70px"
-                          style="margin: 5px 0 5px;border-bottom: 1px solid;">
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="临时IP：">
-                      <span>{{ hostLink.primaryHost.serviceIp }}</span>
-                    </el-form-item>
-                  </el-form> -->
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
                   <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
                   <el-form v-else-if="hostLink.latestSwitch.type === 2"
@@ -368,6 +354,11 @@
                                 :type="databaseType"
                                 :btn-loading="btnLoading"
                                 @confirm="createLink"></database-link-create-modal>
+    <batch-switch-modal :visible.sync="switchDialog"
+                        :originLinks="switchLinks"
+                        :flag="flag"
+                        :btn-loading="btnLoading"
+                        @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>
 <script>

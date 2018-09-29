@@ -60,81 +60,100 @@
             v-model="activeTab">
       <el-tab-pane label="灾备计划"
                   name="plans"> -->
-        <el-card :class="$style.disasterRecoverCard"
-                v-for="plan in switchList"
-                :key="plan.id">
-          <div slot="header"
-              class="clearfix">
-            <el-tag size="mini"
-                    color="#233FCA"
-                    style="color: #ffffff">灾备</el-tag>
-            <span>
-              <router-link :to="`${plan.id}`"
-                          append
-                          :class="$style.link">{{ plan.name }}</router-link>
-            </span>
-          </div>
-          <el-row type="flex">
-            <el-col :span="18">
-              <el-form label-width="100px"
-                      size="mini">
-                <el-form-item label="计划创建时间"
-                              width="40%">
-                  <span>{{ plan.createTime }}</span>
-                </el-form-item>
-              </el-form>
-            </el-col>
-            <el-col :span="6"
-                    :class="$style.planInfo">
-              <ul>
-                <li>
-                  <h5>当前状态</h5>
-                  <div>
-                    <div style="display: inline-block">
-                      <i v-if="plan.state === 0"
-                        class="el-icon-time"
-                        :class="operationStateStyle(plan.state)"></i>
-                      <i v-else-if="plan.state === 1"
-                        class="el-icon-loading"
-                        :class="operationStateStyle(plan.state)"></i>
-                      <i v-else-if="plan.state === 2"
-                        class="el-icon-remove-outline"
-                        :class="operationStateStyle(plan.state)"></i>
-                      <span :class="operationStateStyle(plan.state)">{{ operationState(plan.state) || '-' }}</span>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <h5>计划开始时间</h5>
-                  <div>{{plan.createTime || '备份未开始'}}</div>
-                </li>
-                <li>
-                  <h5>已持续时间</h5>
-                  <div v-if="plan.consumeTime">{{plan.consumeTime | durationFilter}}</div>
-                  <div v-else>-</div>
-                </li>
-              </ul>
-            </el-col>
-          </el-row>
-        </el-card>        
+    <el-row>
+      <el-form inline
+               size="small">
+        <el-form-item style="float: right">
+          <el-button type="primary"
+                     @click="batchSwitch">添加</el-button>
+        </el-form-item>
+      </el-form>
+    </el-row>
+    <el-card :class="$style.disasterRecoverCard"
+            v-for="plan in planList"
+            :key="plan.id">
+      <div slot="header"
+          class="clearfix">
+        <el-tag size="mini"
+                color="#233FCA"
+                style="color: #ffffff">灾备</el-tag>
+        <span>
+          <router-link :to="`${plan.id}`"
+                      append
+                      :class="$style.link">{{ plan.name }}</router-link>
+        </span>
+      </div>
+      <el-row type="flex">
+        <el-col :span="18">
+          <el-form label-width="100px"
+                  size="mini">
+            <el-form-item label="计划创建时间"
+                          width="40%">
+              <span>{{ plan.createTime }}</span>
+            </el-form-item>
+          </el-form>
+        </el-col>
+        <el-col :span="6"
+                :class="$style.planInfo">
+          <ul>
+            <li>
+              <h5>当前状态</h5>
+              <div>
+                <div style="display: inline-block">
+                  <i v-if="plan.state === 0"
+                    class="el-icon-time"
+                    :class="operationStateStyle(plan.state)"></i>
+                  <i v-else-if="plan.state === 1"
+                    class="el-icon-loading"
+                    :class="operationStateStyle(plan.state)"></i>
+                  <i v-else-if="plan.state === 2"
+                    class="el-icon-remove-outline"
+                    :class="operationStateStyle(plan.state)"></i>
+                  <span :class="operationStateStyle(plan.state)">{{ operationState(plan.state) || '-' }}</span>
+                </div>
+              </div>
+            </li>
+            <li>
+              <h5>计划开始时间</h5>
+              <div>{{plan.createTime || '备份未开始'}}</div>
+            </li>
+            <li>
+              <h5>已持续时间</h5>
+              <div v-if="plan.consumeTime">{{plan.consumeTime | durationFilter}}</div>
+              <div v-else>-</div>
+            </li>
+          </ul>
+        </el-col>
+      </el-row>
+    </el-card>        
       <!-- </el-tab-pane>
   </el-tabs> -->
+    <batch-switch-modal :visible.sync="switchDialog"
+                        :originLinks="switchLinks"
+                        :flag="flag"
+                        :btn-loading="btnLoading"
+                        @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>
 <script>
 import { fetchAll, fetchNum } from '../../api/switch'
 import IIcon from '@/components/IIcon'
+import BatchSwitchModal from '../modal/BatchSwitchModal';
 import { operationStateMapping } from '../../utils/constant'
 import baseMixin from '../mixins/baseMixins';
+import batchSwitchMinxin from '../mixins/batchSwitchMixins'
+import { fetchLinks } from '../../api/oracle'
 export default {
   name: 'SwitchList',
-  mixins: [baseMixin],
+  mixins: [baseMixin, batchSwitchMinxin],
   data() {
     return {
-      switchList: [],
+      planList: [],
       planNum: {},
       infoLoading: true,
       activeTab: 'plans',
+      btnLoading: false,
+      links: [],
       timer: null
     }
   },
@@ -163,8 +182,16 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
-          this.switchList = data;
+          this.planList = data;
+        }),
+      fetchLinks()
+        .then(res => {
+          const { data: links } = res.data;
+          this.links = links;
         })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     setTimer() {
       this.clearTimer();
@@ -189,7 +216,8 @@ export default {
     },
   },
   components: {
-    IIcon
+    IIcon,
+    BatchSwitchModal
   }
 }
 </script>

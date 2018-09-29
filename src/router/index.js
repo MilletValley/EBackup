@@ -139,7 +139,7 @@ export const asyncRouters = [
               path: '/to/oracle/takeover'
             },
             {
-              name: '计划列表',
+              name: '切换计划列表',
               path: '',
             },
           ]

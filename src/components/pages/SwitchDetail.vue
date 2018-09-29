@@ -80,7 +80,7 @@
               </span>
             </el-tooltip>
           </el-col>
-          <el-col :span="8">{{ record.content }}</el-col>
+          <el-col :span="8"><div style="min-height: 14px;">{{ record.content }}</div></el-col>
           <el-col :span="9">
             <span :class="$style.switchRecordTime"><i :class="switchStateIconClass(record.state)"></i></span>
             <span :class="$style.switchRecordState">{{ record.switchTime }}</span>
@@ -138,7 +138,7 @@ export default {
     switchStateIconClass(value) {
       switch (value) {
         case 0:
-          return ['el-icon-time'];
+          return ['el-icon-time', this.$style.waitingColor];
         case 1:
           return ['el-icon-loading'];
         case 2:

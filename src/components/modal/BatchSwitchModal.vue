@@ -131,7 +131,7 @@ export default {
       name: '',
       password: '',
       multipleSelection: [],
-      links: []
+      links: [],
     }
   },
   watch: {
@@ -146,8 +146,6 @@ export default {
           if(this.$refs.multipleTable) {
             this.$refs.multipleTable.toggleRowSelection(this.links[readySelectRow], !isSelect)
           }
-          // 选择实例角色不一致 => 不可切换IP
-
         });
       },
       deep: true
@@ -196,7 +194,13 @@ export default {
       this.name = '';
       // 默认全选
       this.$nextTick(() => {
-        this.$refs.multipleTable.toggleAllSelection()
+        // this.$refs.multipleTable.toggleAllSelection()
+        const selected = this.links;
+        selected.forEach(i => {
+          this.$refs.multipleTable.toggleRowSelection(this.links.find(
+            link => link.id === i.id
+          ), true)
+        })
       })
     },
     confirm() {
@@ -217,18 +221,28 @@ export default {
         this.$message.warning('请选择需要执行切换的设备')
       }
     },
-    // 切IP是否可用：设备最近操作为切换IP或解除连接时不可用, 已选实例角色不一致时不可用
+    // 切IP是否可用：设备最近操作为切换IP或解除连接时不可用, 切换后实例角色不一致时不可用
     switchIpDisable(switchLink) {
       const onGoing = switchLink.latestSwitch.state === 1 && [2, 3].includes(latestSwitch.type)
-      const link = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.includes(databaseLink.id))
-      const primaryRole = link.map(v => v.primaryDatabase.role);
-      // 判断角色是否一致, 是否已选实例
-      const isAllEqual = new Set(primaryRole).size === 1 || primaryRole.length === 0;
+      const hasSelectLink = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.includes(databaseLink.id))
+      const notSelectLink = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.indexOf(databaseLink.id) === -1)
+      // 切换后生产库实例角色
+      const hasSelectedPrimaryRole = hasSelectLink.map(link => link.viceDatabase.role)
+                                                  .concat(notSelectLink.map(link => link.primaryDatabase.role))
+      // 切换后易备库实例角色
+      const hasSelectedViceRole = hasSelectLink.map(link => link.primaryDatabase.role)
+                                               .concat(notSelectLink.map(link => link.viceDatabase.role))
+      // 判断切换后的主备角色是否一致
+      const hasSelectedEqual = new Set(hasSelectedPrimaryRole).size === 1 && new Set(hasSelectedViceRole).size === 1
+      // 是否已选实例
+      const primaryRoles = hasSelectLink.map(v => v.primaryDatabase.role);
+      // 判断切换后角色是否一致, 是否已选实例
+      const sureSwitch = hasSelectedEqual || primaryRoles.length === 0;
       // 若角色不一致，则不可切IP
-      if(!isAllEqual && primaryRole.length!==0) {
+      if(!sureSwitch) {
         switchLink.flag = this.flag;
       }
-      return onGoing || !isAllEqual
+      return onGoing || !sureSwitch
     },
     // 切换实例是否可用：实例的最近一次操作不是切换实例
     switchDatabaseDisable(state) {
