@@ -14,6 +14,7 @@ branches:
   only:
   - master
   - develop
+  - devolop-9.29
 install: yarn
 script: npm run build
 before_deploy:
