@@ -20,7 +20,7 @@ script: npm run build
 before_deploy:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker build -t gw920529/ebackup:dev-latest .
-- docker tag gw920529/ebackup:dev-latest gw920529/ebackup:latest
+# - docker tag gw920529/ebackup:dev-latest gw920529/ebackup:latest
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   - provider: script
