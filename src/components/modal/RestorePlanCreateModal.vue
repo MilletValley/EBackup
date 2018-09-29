@@ -181,8 +181,13 @@ export default {
       });
     },
     modalOpened() {
-      this.formData.detailInfo = this.database.instanceName;
-      this.originFormData.detailInfo = this.database.instanceName;
+      if(this.isVMware){
+        this.formData.detailInfo = this.database.vmName;
+        this.originFormData.detailInfo = this.database.vmName;
+      }else{
+        this.formData.detailInfo = this.database.instanceName;
+        this.originFormData.detailInfo = this.database.instanceName;
+      }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };

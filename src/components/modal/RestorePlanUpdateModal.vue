@@ -197,7 +197,8 @@ export default {
         timeStrategy,
         database,
       } = this.restorePlan.config;
-      const { instanceName: detailInfo, loginName, host } = database;
+      const { instanceName, vmName, loginName, host } = database;
+      const detailInfo = this.isVMware ? vmName : instanceName;
       const { name: hostName, hostIp } = host;
       this.originFormData = {
         name: this.restorePlan.name,
