@@ -15,15 +15,21 @@ import VMwareList from '@/components/pages/VmwareList';
 import VMwareDetail from '@/components/pages/VMwareDetail';
 import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
+import MySqlList from '@/components/pages/MySqlList';
+import MySqlDetail from '@/components/pages/MySqlDetail';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
 import DeviceManager from '@/components/pages/DeviceManager';
 import SystemParam from '@/components/pages/SystemParam';
+import EmailManager from '@/components/pages/EmailManager';
+import StrategyManager from '@/components/pages/StrategyManager';
 import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
-import Overview from '@/components/pages/Overview';
-import BackupRecoverView from '@/components/pages/BackupRecoverView';
-import TakeOverView from '@/components/pages/TakeOverView';
+// import Overview from '@/components/pages/Overview';
+// import BackupRecoverView from '@/components/pages/BackupRecoverView';
+// import TakeOverView from '@/components/pages/TakeOverView';
+import MoreState from '@/components/MoreState';
+import CollectManager from '@/components/pages/CollectManager';
 
 Vue.use(Router);
 
@@ -40,6 +46,7 @@ export const basicRouters = [
       {
         path: 'dashboard',
         component: Dashboard,
+        name: 'dashboard',
         meta: {
           title: '主页',
           icon: 'dashboard',
@@ -49,6 +56,11 @@ export const basicRouters = [
         path: 'profile',
         name: 'profile',
         component: Profile,
+      },
+      {
+        path: 'morestate',
+        name: 'morestate',
+        component: MoreState,
       },
     ],
   },
@@ -169,7 +181,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sqlserver dba'],
+      roles: ['oracle dba', 'sqlserver dba', 'mysql dba'],
     },
     children: [
       {
@@ -309,6 +321,25 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'mysql',
+        name: 'mysqlList',
+        component: MySqlList,
+        meta: {
+          title: 'MySql',
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
@@ -352,6 +383,28 @@ export const asyncRouters = [
           ],
         },
       },
+      {
+        path: 'mysql/:id',
+        props: true,
+        component: MySqlDetail,
+        meta: {
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql列表',
+              path: '/db/mysql',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
     ],
   },
   {
@@ -383,6 +436,25 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'hwVirtual',
+        name: 'HWwareList',
+        component: VMwareList,
+        meta: {
+          title: '华为虚拟机',
+          roles: ['vm admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'virtual/:id',
         props: true,
         component: VMwareDetail,
@@ -396,6 +468,28 @@ export const asyncRouters = [
             {
               name: '虚拟机列表',
               path: '/vm/virtual',
+            },
+            {
+              name: '虚拟机详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'hwVirtual/:id',
+        props: true,
+        component: VMwareDetail,
+        meta: {
+          roles: ['vm admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机列表',
+              path: '/vm/hwVirtual',
             },
             {
               name: '虚拟机详情',
@@ -435,10 +529,11 @@ export const asyncRouters = [
     },
     children: [
       {
-        path: 'users',
-        component: Users,
+        path: 'collectManager',
+        name: 'collectManager',
+        component: CollectManager,
         meta: {
-          title: '用户管理',
+          title: '虚拟机主机管理',
           roles: [],
         },
       },
@@ -459,46 +554,70 @@ export const asyncRouters = [
           roles: [],
         },
       },
+      {
+        path: 'emailmanager',
+        component: EmailManager,
+        meta: {
+          title: '邮箱管理',
+          roles: [],
+        },
+      },
+      {
+        path: 'strategymanager',
+        component: StrategyManager,
+        meta: {
+          title: '策略管理',
+          roles: [],
+        },
+      },
+      {
+        path: 'users',
+        component: Users,
+        meta: {
+          title: '用户管理',
+          roles: [],
+        },
+      },
     ],
   },
-  {
-    path: '/demonstrate',
-    component: Layout,
-    meta: {
-      title: '演示',
-      icon: 'demonstrate',
-      roles: ['view admin'],
-    },
-    children: [
-      {
-        path: 'overview',
-        name: 'overview',
-        component: Overview,
-        meta: {
-          title: '总览',
-          roles: ['view admin'],
-        },
-      },
-      {
-        path: 'backuprecoverview',
-        name: 'backuprecoverview',
-        component: BackupRecoverView,
-        meta: {
-          title: '备份恢复',
-          roles: ['view admin'],
-        },
-      },
-      {
-        path: 'takeoverview',
-        name: 'takeoverview',
-        component: TakeOverView,
-        meta: {
-          title: '一键接管',
-          roles: ['view admin'],
-        },
-      },
-    ]
-  },
+  // {
+  //   path: '/demonstrate',
+  //   component: Layout,
+  //   meta: {
+  //     title: '演示',
+  //     icon: 'demonstrate',
+  //     roles: ['view admin'],
+  //   },
+  //   children: [
+  //     {
+  //       path: 'overview',
+  //       name: 'overview',
+  //       component: Overview,
+  //       meta: {
+  //         title: '总览',
+  //         roles: ['view admin'],
+  //       },
+  //     },
+  //     {
+  //       path: 'backuprecoverview',
+  //       name: 'backuprecoverview',
+  //       component: BackupRecoverView,
+  //       meta: {
+  //         title: '备份恢复',
+  //         roles: ['view admin'],
+  //       },
+  //     },
+  //     {
+  //       path: 'takeoverview',
+  //       name: 'takeoverview',
+  //       component: TakeOverView,
+  //       meta: {
+  //         title: '一键接管',
+  //         roles: ['view admin'],
+  //       },
+  //     },
+  //   ]
+  // },
   {
     path: '/error',
     component: Layout,

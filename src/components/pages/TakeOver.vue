@@ -63,7 +63,7 @@
                 <i-icon name="ip"
                         :class="$style.hostIpIcon"></i-icon>
                 <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 1"
+                <el-tooltip v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'"
                             placement="right"
                             effect="light">
                   <div slot="content">
@@ -83,6 +83,15 @@
                             trigger="hover"
                             width="300"
                             :open-delay="200">
+                  <!-- <el-form v-show="hostLink.primaryHost.osName==='Windows'"
+                          size="mini"
+                          label-width="70px"
+                          style="margin: 5px 0 5px;border-bottom: 1px solid;">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="临时IP：">
+                      <span>{{ hostLink.primaryHost.serviceIp }}</span>
+                    </el-form-item>
+                  </el-form> -->
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
                   <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
                   <el-form v-else-if="hostLink.latestSwitch.type === 2"
@@ -165,7 +174,7 @@
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.viceHost.name }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 2"
+                <el-tooltip v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'"
                             placement="right"
                             effect="light">
                   <div slot="content">
@@ -277,11 +286,11 @@
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换实例中...</span>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
               </div>
               <div v-else>
                 <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                           @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                 <el-button type="text"
                            @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
@@ -301,7 +310,7 @@
                 </el-col>
                 <el-col :span="5"
                         :class="$style.dbInfoCol">
-                  <h5>实例名</h5>
+                  <h5>{{instanceName}}</h5>
                   <p>{{ dbLink.viceDatabase.instanceName }}</p>
                 </el-col>
                 <el-col :span="5"
@@ -403,10 +412,17 @@ export default {
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
       btnLoading: false,
+      timer: null,
     };
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.setTimer(this.timer);
+  },
+  destroyed: function() {
+    this.clearTimer(this.timer);
   },
   watch: {
     $route: function() {
@@ -513,7 +529,7 @@ export default {
     instanceName() {
       if (this.databaseType === 'oracle') {
         return '实例名';
-      } else if (this.databaseType === 'sqlserver') {
+      } else {
         return '数据库名';
       }
     },
@@ -645,9 +661,15 @@ export default {
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
-        this.$router.push({ name: 'oracleLinkDetail', params: {id: String(linkId)} });
+        this.$router.push({
+          name: 'oracleLinkDetail',
+          params: { id: String(linkId) },
+        });
       } else if (this.databaseType === 'sqlserver') {
-        this.$router.push({ name: 'sqlserverLinkDetail', params: {id: String(linkId)} });
+        this.$router.push({
+          name: 'sqlserverLinkDetail',
+          params: { id: String(linkId) },
+        });
       }
     },
     createLink(data) {
@@ -690,6 +712,23 @@ export default {
             });
         })
         .catch(error => {});
+    },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        Promise.all([
+          fetchDatabaseMethod[this.databaseType](),
+          fetchLinksMethod[this.databaseType](),
+        ]).then(resArr => {
+          const { data } = resArr[0].data;
+          const { data: links } = resArr[1].data;
+          this.items = data;
+          this.links = links;
+        });
+      }, 20000);
+    },
+    clearTimer() {
+      clearInterval(this.timer);
     },
   },
 

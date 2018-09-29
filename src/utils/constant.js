@@ -2,6 +2,7 @@ const operationStateMapping = {
   0: '未开始',
   1: '进行中',
   2: '已结束',
+  3: '失败'
 };
 
 const backupResultMapping = {
@@ -78,6 +79,7 @@ const useTypeMapping = {
   2: 'sqlserver',
   3: '文件',
   4: '虚拟机',
+  5: 'mysql'
 };
 
 const systemStateMapping = {
@@ -90,6 +92,7 @@ const databaseTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
   4: '虚拟机',
+  5: 'mysql'
 };
 
 // 数据库连接状态
@@ -130,6 +133,11 @@ const serviceIpMarkMapping = {
   2: '易备环境',
 };
 
+const vmHostServerTypeMapping = {
+  1: 'VMware',
+  2: '华为虚拟机'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -151,4 +159,5 @@ export {
   switchManualMapping,
   switchTypeMapping,
   serviceIpMarkMapping,
+  vmHostServerTypeMapping
 };

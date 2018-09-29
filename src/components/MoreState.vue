@@ -1,69 +1,27 @@
 <template>
   <section>
-    <template>
-      <el-row :gutter="10">
-        <el-col :span="8">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span class="card-title">数据备份</span>
-            </div>
-            <div class="text item">
-              <div id="backupTotal" :style="{width: '100%', height: '300%'}"></div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span class="card-title">恢复演练</span>
-            </div>
-            <div class="text item">
-              <div id="restoreTotal" :style="{width: '100%', height: '300%'}"></div>
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :span="8">
-          <el-card class="box-card">
-            <div slot="header" class="clearfix">
-              <span class="card-title">一键接管</span>
-            </div>
-            <div class="text item">
-              <div id="initConn" :style="{width: '100%', height: '300%'}"></div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-card class="box-card" style="width: 100%">
-          <div slot="header" class="clearfix">
-            <span class="card-title">备份恢复</span>
-          </div>
-          <div class="text item">
-            <div id="barChart" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
-          </div>
-        </el-card>
-      </el-row>
-    </template>
     <el-row>
-      <span class="title">设备状态</span>
-    </el-row>
-    <div style="position:relative">
-      <el-button type="info"
+      <span class="title">设备详情</span>
+      <el-button type="primary"
                  size="small"
-                 plain
-                 style="position: absolute; top:3px; right:3px; z-index: 10"
-                 @click="$router.push({name: 'morestate'})">MORE</el-button>
-      <el-tabs type="border-card">
-        <el-tab-pane label="数据库备份">
-          <el-table
-            :data="this.databaseBackup"
-            style="width: 100%">
+                 style="float:right"
+                 @click="$router.push({name: 'dashboard'})">返回</el-button>
+    </el-row>
+    <template>
+      <el-tabs type="border-card" v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="数据库备份" name="databaseBackup">
+          <el-table :data="this.databaseBackup?
+                           this.databaseBackup.slice((currentPage-1)*pagesize,currentPage*pagesize):
+                           this.databaseBackup"
+                    style="width: 100%">
             <el-table-column
-              type="index"
               min-width="50"
               align="center"
+              label="序号"
               fixed>
+              <template slot-scope="scope">
+                  {{scope.$index+1+(currentPage-1)*pagesize}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="ascription"
@@ -119,15 +77,20 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="数据库恢复">
+        <el-tab-pane label="数据库恢复" name="databaseRestore">
           <el-table
-            :data="this.databaseRestore"
+            :data="this.databaseRestore?
+                   this.databaseRestore.slice((currentPage-1)*pagesize,currentPage*pagesize):
+                   this.databaseRestore"
             style="width: 100%">
             <el-table-column
-              type="index"
               min-width="50"
               align="center"
+              label="序号"
               fixed>
+              <template slot-scope="scope">
+                  {{scope.$index+1+(currentPage-1)*pagesize}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="ascription"
@@ -170,15 +133,20 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="一键接管">
+        <el-tab-pane label="一键接管" name="initconnNum">
           <el-table
-            :data="this.initconnNum"
+            :data="this.initconnNum?
+                   this.initconnNum.slice((currentPage-1)*pagesize,currentPage*pagesize):
+                   this.initconnNum"
             style="width: 100%">
             <el-table-column
-              type="index"
               min-width="50"
               align="center"
+              label="序号"
               fixed>
+              <template slot-scope="scope">
+                  {{scope.$index+1+(currentPage-1)*pagesize}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="instanceName"
@@ -227,15 +195,19 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="文件备份">
-          <el-table
-            :data="this.filehostBackup"
-            style="width: 100%">
+        <el-tab-pane label="文件备份" name="filehostBackup">
+          <el-table :data="this.filehostBackup?
+                           this.filehostBackup.slice((currentPage-1)*pagesize,currentPage*pagesize):
+                           this.filehostBackup"
+                    style="width: 100%">
             <el-table-column
-              type="index"
               min-width="50"
               align="center"
+              label="序号"
               fixed>
+              <template slot-scope="scope">
+                  {{scope.$index+1+(currentPage-1)*pagesize}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="ascription"
@@ -291,15 +263,20 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="文件恢复">
+        <el-tab-pane label="文件恢复" name="filehostRestore">
           <el-table
-            :data="this.filehostRestore"
+            :data="this.filehostRestore?
+                   this.filehostRestore.slice((currentPage-1)*pagesize,currentPage*pagesize):
+                   this.filehostRestore"
             style="width: 100%">
             <el-table-column
-              type="index"
               min-width="50"
               align="center"
+              label="序号"
               fixed>
+              <template slot-scope="scope">
+                  {{scope.$index+1+(currentPage-1)*pagesize}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="ascription"
@@ -342,15 +319,19 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="虚拟机备份">
-          <el-table
-            :data="this.vmBackup"
-            style="width: 100%">
+        <el-tab-pane label="虚拟机备份" name="vmBackup">
+          <el-table :data="this.vmBackup?
+                           this.vmBackup.slice((currentPage-1)*pagesize,currentPage*pagesize):
+                           this.vmBackup"
+                    style="width: 100%">
             <el-table-column
-              type="index"
               min-width="50"
               align="center"
+              label="序号"
               fixed>
+              <template slot-scope="scope">
+                  {{scope.$index+1+(currentPage-1)*pagesize}}
+              </template>
             </el-table-column>
             <el-table-column
               prop="ascription"
@@ -406,67 +387,54 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+        <div class="block" style="text-align: right">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="currentPage"
+            :page-sizes="[10, 15, 20]"
+            :page-size="pagesize"
+            background
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalLength">
+          </el-pagination>
+        </div>
       </el-tabs>
-    </div>
+    </template>
   </section>
 </template>
 <script>
-import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
-import { backupStrategyMapping } from '../../utils/constant';
-import { linkStateMapping, databaseStateMapping } from '../../utils/constant';
-import baseMixin from '../mixins/baseMixins';
-var echarts = require('echarts/lib/echarts');
-require('echarts/lib/chart/bar');
-require('echarts/lib/chart/pie');
-require('echarts/lib/component/tooltip');
-require('echarts/lib/component/title');
-require("echarts/lib/component/legend");
+import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../api/home';
+import { backupStrategyMapping } from '../utils/constant';
+import { linkStateMapping, databaseStateMapping } from '../utils/constant';
+import baseMixin from './mixins/baseMixins';
 export default {
-  name: 'Dashboard',
-  mixins: [baseMixin],
-  created() {
-    this.fetchData();
-  },
+  name: 'MoreState',
   data() {
     return {
-      total: {},
       databaseBackup: [],
       databaseRestore: [],
       initconnNum: [],
       filehostBackup: [],
       filehostRestore: [],
       vmBackup: [],
-    };
-  },
-  computed: {
-    labelNum() {
-      return {
-        normal: {
-          show: true,
-          position: 'top',
-          textStyle: {
-            color: 'black'
-          }
-        }
-      }
+      currentPage: 1,
+      pagesize: 10,
+      totalLength: 0,
+      activeName: 'databaseBackup',
     }
+  },
+  created() {
+    this.fetchData();
   },
   methods: {
     fetchData() {
-      fetchAll()
-      .then(res => {
-        const { data } = res.data;
-        this.total = data;
-        this.drawLine();
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
-      fetchBackup()
+       fetchBackup()
       .then(res => {
         this.databaseBackup=this.filterArray(res.data.data,1);
         this.filehostBackup=this.filterArray(res.data.data,2);
         this.vmBackup=this.filterArray(res.data.data,3);
+        this.totalLength = this.databaseBackup.length;
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -483,7 +451,7 @@ export default {
       .then(res => {
         this.initconnNum=res.data.data.sort(function(a, b) {
         return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
-      }).slice(0,5)
+        })
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -499,7 +467,7 @@ export default {
         return item.type === type;
       }).sort(function(a, b) {
         return Date.parse(b.endTime)-Date.parse(a.endTime);
-      }).slice(0,5);
+      })
     },
     backupItem(data) {
       return backupStrategyMapping[data.backupType];
@@ -521,181 +489,17 @@ export default {
     judgeOver(data) {
       return linkStateMapping[data.overState];
     },
-    drawLine() {
-      let barChart = echarts.init(document.getElementById('barChart'));
-      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
-      let backupTotal = echarts.init(document.getElementById('backupTotal'));
-      let initConn = echarts.init(document.getElementById('initConn'));
-      restoreTotal.setOption({
-        tooltip: {
-            trigger: 'item',
-            formatter: "{a}{b} : {c} ({d}%)"
-        },
-        series : [
-          {
-            name: '恢复',
-            type: 'pie',
-            radius: '80%',
-            center: ['50%','50%'],
-            data:[
-              {
-                value:this.total.totalRestoreNumSuccess,
-                name:'成功',
-                itemStyle: {
-                  color: '#27ca27'
-                }
-              },
-              {
-                value:this.total.totalRestoreNumFail,
-                name:'失败',
-                itemStyle: {
-                  color: '#ca2727'
-                }
-              }
-            ],
-            label:{
-              normal:{
-                show:true,
-                position:'inner',
-                formatter:'{c}\n',
-                length: 20,
-                textStyle: {
-                  fontWeight: 'normal',
-                  fontSize: 32,
-                }
-              }
-            },
-            labelLine: {
-            normal: {
-                show: false
-            }
-        },
-          }
-        ]
-      })
-      backupTotal.setOption({
-        tooltip: {
-            trigger: 'item',
-            formatter: "{a}{b} : {c} ({d}%)"
-        },
-        series : [
-          {
-            name: '备份',
-            type: 'pie',
-            radius: '80%',
-            center: ['50%','50%'],
-            data:[
-              {
-                value:this.total.totalBackupNumSuccess,
-                name:'成功',
-                itemStyle: {
-                  color: '#27ca27'
-                }
-              },
-              {
-                value:this.total.totalBackupNumFail,
-                name:'失败',
-                itemStyle: {
-                  color: '#ca2727'
-                }
-              }
-            ],
-            label: {
-              normal:{
-                show:true,
-                position:'inner',
-                formatter:'{c}\n',
-                textStyle: {
-                  fontWeight: 'normal',
-                  fontSize: 32
-                }
-              }
-            }
-          }
-        ]
-      })
-      initConn.setOption({
-        tooltip: {
-            trigger: 'item',
-            formatter: "{a}{b} : {c} ({d}%)"
-        },
-        series : [
-          {
-            name: '一键接管',
-            type: 'pie',
-            radius: '80%',
-            center: ['50%','50%'],
-            data:[
-              {
-                value:this.total.initConnNumSuccess,
-                name:'正常',
-                itemStyle: {
-                  color: '#27ca27'
-                }
-              },
-              {
-                value:this.total.initConnNumFail,
-                name:'异常',
-                itemStyle: {
-                  color: '#ca2727'
-                }
-              }
-            ],
-            label: {
-              normal:{
-                show:true,
-                position:'inner',
-                formatter:'{c}\n',
-                textStyle: {
-                  fontWeight: 'normal',
-                  fontSize: 32
-                }
-              }
-            }
-          }
-        ]
-      })
-      barChart.setOption({
-        legend: {},
-        tooltip: {},
-        dataset: {
-          source: [
-            ['product', '备份成功', '备份失败', '恢复成功', '恢复失败'],
-            ['oracle', this.total.oracleBackupNumSuccess, this.total.oracleBackupNumFail, this.total.oracleRestoreNumSuccess, this.total.oracleRestoreNumFail],
-            ['sqlserver', this.total.sqlserverBackupNumSuccess, this.total.sqlserverBackupNumFail, this.total.sqlserverRestoreNumSuccess, this.total.sqlserverRestoreNumFail],
-            ['文件', this.total.fileBackupNumSuccess, this.total.fileBackupNumFail, this.total.fileRestoreNumSuccess, this.total.fileRestoreNumFail],
-            ['虚拟机', this.total.vmBackupNumSuccess, this.total.vmBackupNumFail, this.total.vmRestoreNumSuccess, this.total.vmRestoreNumFail],
-          ]
-        },
-        xAxis: {type: 'category'},
-        yAxis: {},
-        series: [
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-        ]
-      });
-      window.addEventListener("resize", function () {
-        barChart.resize();
-        restoreTotal.resize();
-        backupTotal.resize();
-        initConn.resize();
-     });
-     }
-   },
+    handleClick(tab,event) {
+      this.currentPage = 1;
+      this.totalLength = this[tab.name].length;
+    },
+    handleSizeChange(size) {
+      this.pagesize = size;
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+    },
+  },
 };
 </script>
 <style scoped>
@@ -705,44 +509,7 @@ export default {
   padding-top: 0.5em;
   display: inline-block;
 }
-
-.text {
-    font-size: 14px;
-}
-
-.item {
-  margin-bottom: 18px;
-}
-
-.clearfix:before,
-.clearfix:after {
-  display: table;
-  content: "";
-}
-.clearfix:after {
-  clear: both
-}
-
-.box-card {
-  width: 100%;
-  height: 420px;
-}
-
-#barChart div {
-  margin: 0 auto
-}
-
-.card-title {
-  display: block;
-  text-align: center;
-  font-weight: 700;
-}
-
 .el-row {
   margin-bottom: 10px;
-}
-
-.el-row:last-child {
-  margin-bottom: 0;
 }
 </style>

@@ -1,32 +1,52 @@
 import baseApi from './base';
-
+// 将时间字符串数组转为对象数组
 const timePoints2Obj = timePointsStrArr =>
   timePointsStrArr.map(p => ({ value: p, key: p }));
 
 const fetchAll = () =>
   baseApi.request({
     method: 'get',
-    url: '/virtuals',
+    url: '/mysqls',
   });
 
 const fetchOne = id =>
   baseApi.request({
     method: 'get',
-    url: `/virtuals/${id}`,
+    url: `/mysqls/${id}`,
   });
 
-const modifyOne = virtualData =>
+const createOne = mysqlData =>
+  baseApi.request({
+    method: 'post',
+    url: '/mysqls',
+    data: mysqlData,
+  });
+
+const deleteOne = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/mysqls/${id}`,
+  });
+
+const modifyOne = mysqlData =>
   baseApi.request({
     method: 'patch',
-    url: `/virtuals/${virtualData.id}`,
-    data: virtualData,
+    url: `/mysqls/${mysqlData.id}`,
+    data: mysqlData,
   });
-// 获取单个虚拟机下的所有备份配置（计划）
+
+const deleteSome = ids =>
+  baseApi.request({
+    method: 'delete',
+    url: '/mysqls',
+    data: ids,
+  });
+
 const fetchBackupPlans = id =>
   baseApi
     .request({
       method: 'get',
-      url: `/virtuals/${id}/virtual-backup-plans`,
+      url: `/mysqls/${id}/mysql-backup-plans`,
     })
     .then(res => {
       const { data: plans } = res.data;
@@ -37,19 +57,25 @@ const fetchBackupPlans = id =>
       });
       return res;
     });
-// 获取单个虚拟机下的所有备份集
+
 const fetchBackupResults = id =>
   baseApi.request({
     method: 'get',
-    url: `/virtuals/${id}/results`,
+    url: `/mysqls/${id}/results`,
   });
 
-// 创建单个虚拟机下的一个备份配置（计划）
-const createVirtualBackupPlan = ({ id, plan }) =>
+// API https://nei.netease.com/interface/detail/?pid=28187&id=88119
+const createMySqlBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'post',
+    url: `/mysqls/${id}/mysql-backup-plans`,
+    data: plan,
+  });
+const createBackupPlan = ({ id, plan }) =>
   baseApi
     .request({
       method: 'post',
-      url: `/virtuals/${id}/virtual-backup-plans`,
+      url: `/mysqls/${id}/mysql-backup-plans`,
       data: plan,
     })
     .then(res => {
@@ -57,18 +83,25 @@ const createVirtualBackupPlan = ({ id, plan }) =>
       res.data.data.config.timePoints = timePoints2Obj(timePoints);
       return res;
     });
-// 删除单个虚拟机下的一个备份计划
-const deleteVirtualBackupPlan = id =>
+
+const deleteBackupPlan = id =>
   baseApi.request({
     method: 'delete',
-    url: `/virtual-backup-plans/${id}`,
+    url: `/mysql-backup-plans/${id}`,
   });
-// 修改单个虚拟机下的一个备份计划
-const updateVirtualBackupPlan = ({ id, plan }) =>
+
+const updateMySqlBackupPlan = ({ id, plan }) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/mysql-backup-plans/${id}`,
+    data: plan,
+  });
+
+const updateBackupPlan = ({ id, plan }) =>
   baseApi
     .request({
       method: 'patch',
-      url: `/virtual-backup-plans/${id}`,
+      url: `/mysql-backup-plans/${id}`,
       data: plan,
     })
     .then(res => {
@@ -76,18 +109,18 @@ const updateVirtualBackupPlan = ({ id, plan }) =>
       res.data.data.config.timePoints = timePoints2Obj(timePoints);
       return res;
     });
-// 查询虚拟机下的一个备份计划
+
 const fetchBackupOperation = id =>
   baseApi.request({
     method: 'get',
-    url: `/virtual-backup-plans/${id}`,
+    url: `/mysql-backup-plans/${id}`,
   });
 
 const createSingleRestorePlan = ({ id, data }) =>
   baseApi
     .request({
       method: 'post',
-      url: `/virtual-backup-results/${id}/virtual-restore-plans`,
+      url: `/mysql-backup-results/${id}/mysql-restore-plans`,
       data,
     })
     .then(res => {
@@ -99,7 +132,7 @@ const fetchRestorePlans = id =>
   baseApi
     .request({
       method: 'get',
-      url: `/virtuals/${id}/virtual-restore-plans`,
+      url: `/mysqls/${id}/mysql-restore-plans`,
     })
     .then(res => {
       const { data: plans } = res.data;
@@ -114,14 +147,14 @@ const fetchRestorePlans = id =>
 const fetchRestoreRecords = id =>
   baseApi.request({
     method: 'get',
-    url: `/virtuals/${id}/restore-records`,
+    url: `/mysqls/${id}/restore-records`,
   });
 
 const createRestorePlan = ({ id, data }) =>
   baseApi
     .request({
       method: 'post',
-      url: `/virtuals/${id}/virtual-restore-plans`,
+      url: `/mysqls/${id}/mysql-restore-plans`,
       data,
     })
     .then(res => {
@@ -133,14 +166,14 @@ const createRestorePlan = ({ id, data }) =>
 const deleteRestorePlan = planId =>
   baseApi.request({
     method: 'delete',
-    url: `/virtual-restore-plans/${planId}`,
+    url: `/mysql-restore-plans/${planId}`,
   });
 
 const updateRestorePlan = data =>
   baseApi
     .request({
       method: 'patch',
-      url: `/virtual-restore-plans/${data.id}`,
+      url: `/mysql-restore-plans/${data.id}`,
       data,
     })
     .then(res => {
@@ -152,18 +185,23 @@ const updateRestorePlan = data =>
 const fetchRestoreOperation = id =>
   baseApi.request({
     method: 'get',
-    url: `/virtual-restore-plans/${id}`,
+    url: `/mysql-restore-plans/${id}`,
   });
 
 export {
   fetchAll,
   fetchOne,
+  createOne,
+  deleteOne,
+  deleteSome,
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
-  createVirtualBackupPlan,
-  updateVirtualBackupPlan,
-  deleteVirtualBackupPlan,
+  createMySqlBackupPlan,
+  createBackupPlan,
+  deleteBackupPlan,
+  updateMySqlBackupPlan,
+  updateBackupPlan,
   fetchBackupOperation,
   createSingleRestorePlan,
   fetchRestorePlans,

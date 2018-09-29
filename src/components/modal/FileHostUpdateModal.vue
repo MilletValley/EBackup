@@ -42,7 +42,8 @@
         </el-form-item>
         <el-form-item label="登录密码"
                       prop="password">
-          <input-toggle v-model="formData.password"></input-toggle>
+          <input-toggle v-model="formData.password"
+                        :hidden.sync="hiddenPassword"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -85,6 +86,7 @@ export default {
     },
     modalClosed() {
       this.$refs.itemUpdateForm.clearValidate();
+      this.hiddenPassword = true;
     },
   },
   components: {

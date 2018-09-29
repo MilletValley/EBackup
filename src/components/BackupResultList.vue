@@ -109,7 +109,7 @@
       <el-table-column label="操作"
                        width="140px"
                        align="center"
-                       v-if="this.type!=='vm'">
+                       v-if="!this.isVM">
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
@@ -147,7 +147,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(
           value
         );
       },
@@ -191,6 +191,10 @@ export default {
   computed: {
     isFileBackupResult() {
       return this.type === 'windows' || this.type === 'linux';
+    },
+    isVM() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     },
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
     handleData() {

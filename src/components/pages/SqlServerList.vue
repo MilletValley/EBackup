@@ -1,28 +1,44 @@
 <template>
   <section>
-    <el-form inline
-             size="small">
-      <el-form-item style="float: right;">
-        <el-button type="info"
-                   @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
-      </el-form-item>
-      <el-form-item style="float: right;">
-        <el-button type="primary"
-                   @click="createModalVisible = true">添加</el-button>
-      </el-form-item>
-    </el-form>
-    <el-table :data="items"
-              style="width: 100%">
+    <el-row>
+      <el-form inline
+               size="small">
+        <el-form-item style="float: left" class="input-with-select">
+          <el-input placeholder="请输入名称"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
+            <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+          </el-input>          
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="info"
+                    @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="createModalVisible = true">添加</el-button>
+        </el-form-item>
+      </el-form>
+    </el-row>
+    <el-table :data="items|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+              style="width: 100%"
+              v-if="items">
+      <el-table-column label="序号"
+                       min-width="100"
+                       fixed
+                       align="center">
+        <template slot-scope="scope">
+            {{scope.$index+1+(currentPage-1)*pagesize}}
+        </template>
+      </el-table-column>
       <el-table-column label="名称"
                        fixed
                        min-width="200"
                        align="center">
         <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.name}}</router-link>
-          </el-button>
+          <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.name}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="instanceName"
@@ -51,7 +67,7 @@
                        fixed="right"
                        width="150"
                        header-align="center"
-                       align="right">
+                       align="center">
         <template slot-scope="scope">
           <el-button type="primary"
                      icon="el-icon-edit"
@@ -68,6 +84,18 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="block" style="text-align: right">
+      <el-pagination @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :current-page="currentPage"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pagesize"
+                     background
+                     layout="total, sizes, prev, pager, next, jumper"
+                     :total="items|filterBySearch(filterItem).length"
+                     v-if="items">
+      </el-pagination>
+    </div>
     <database-create-modal type="sqlserver"
                            :visible.sync="createModalVisible"
                            :btn-loading="btnLoading"
@@ -167,4 +195,10 @@ export default {
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
+</style>
+<style>
+.input-with-select .el-input__inner {
+  height: 40px;
+  line-height: 40px;
+}
 </style>

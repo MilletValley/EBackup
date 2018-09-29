@@ -12,12 +12,38 @@ const listMixin = {
       updateModalVisible: false,
       btnLoading: false,
       tabLoading: true,
+      inputSearch: '',
+      filterItem: '',
+      currentPage: 1,
+      pagesize: 10,
     };
+  },
+  filters: {
+    filterBySearch(tableData, arg) {
+      if (!tableData) {
+        return '';
+      }
+      return tableData.filter(v => v.name.toLowerCase().includes(arg.toLowerCase()));
+    },
+    filterByPage(data, currentPage, pagesize) {
+      if (!data) {
+        return '';
+      }
+      return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
+    }
+  },
+  watch: {
+    inputSearch() {
+      if (this.inputSearch === '') {
+        this.filterItem = '';
+        this.currentPage = 1;
+      }
+    }
   },
   computed: {
     selectedDb() {
       return this.items.find(item => item.id === this.selectedId) || {};
-    },
+    }
   },
   created() {
     this.fetchData();
@@ -40,6 +66,16 @@ const listMixin = {
     databaseRoleFormatter(row, column, cellValue) {
       return databaseRoleMapping[cellValue];
     },
+    searchByName() {
+      this.filterItem = this.inputSearch;
+      this.currentPage = 1;
+    },
+    handleSizeChange(size) {
+      this.pagesize = size;
+    },
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+    }
   },
 };
 // eslint-disable-next-line

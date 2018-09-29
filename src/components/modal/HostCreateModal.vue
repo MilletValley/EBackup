@@ -20,26 +20,6 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
-        <el-form-item label="服务IP"
-                      prop="serviceIp">
-          <el-input v-model="formData.serviceIp"></el-input>
-        </el-form-item>
-        <el-form-item label="设备类型"
-                      prop="hostType">
-          <el-radio v-model="formData.hostType"
-                    label="1">生产环境</el-radio>
-          <el-radio v-model="formData.hostType"
-                    label="2">易备环境</el-radio>
-        </el-form-item>
-        <el-form-item label="用途类型"
-                      prop="databaseType">
-          <el-radio v-model="formData.databaseType"
-                    label="1">oracle</el-radio>
-          <el-radio v-model="formData.databaseType"
-                    label="2">sqlserver</el-radio>
-          <el-radio v-model="formData.databaseType"
-                    label="4">虚拟机</el-radio>
-        </el-form-item>
         <el-form-item label="操作系统"
                       prop="osName">
           <el-select v-model="formData.osName"
@@ -49,13 +29,79 @@
                        :value="item"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="临时IP"
+                      v-if="this.formData.osName==='Windows'"
+                      prop="serviceIp">
+          <el-input v-model="formData.serviceIp"></el-input>
+        </el-form-item>
+        <el-form-item label="服务IP"
+                      v-if="this.formData.osName==='Linux'"
+                      prop="serviceIp">
+          <el-input v-model="formData.serviceIp"></el-input>
+        </el-form-item>
+        <el-form-item label="设备类型"
+                      prop="hostType">
+          <el-radio v-model="formData.hostType"
+                    :label="1">生产环境</el-radio>
+          <el-radio v-model="formData.hostType"
+                    :label="2">易备环境</el-radio>
+        </el-form-item>
+        <el-form-item label="用途类型"
+                      prop="databaseType">
+          <el-radio v-model="formData.databaseType"
+                    :label="1">oracle</el-radio>
+          <el-radio v-model="formData.databaseType"
+                    :label="2">sqlserver</el-radio>
+          <el-radio v-model="formData.databaseType"
+                    :label="5">mysql</el-radio>
+          <el-radio v-model="formData.databaseType"
+                    :label="4">虚拟机</el-radio>
+        </el-form-item>
+        <el-form-item label="oracle版本"
+                      prop="oracleVersion"
+                      v-if="this.formData.databaseType===1">
+          <el-select v-model="formData.oracleVersion"
+                     placeholder="请选择">
+            <el-option v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <!--windows下 10G Oracle版本显示 -->
+        <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType===1&&this.formData.osName==='Windows'">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="存储盘符"
+                            prop="storagePath">
+                <el-select v-model="formData.storagePath">
+                  <el-option v-for="item in words"
+                            :key="item.value.value"
+                            :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="共享盘符"
+                            prop="sharingPath">
+                <el-select v-model="formData.sharingPath">
+                  <el-option v-for="item in words"
+                            :key="item.value.value"
+                            :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
         <el-form-item label="系统登录名"
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
         <el-form-item label="登录密码"
                       prop="password">
-          <input-toggle v-model="formData.password"></input-toggle>
+          <input-toggle v-model="formData.password"
+                        :hidden.sync="hiddenPassword"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -90,6 +136,7 @@ export default {
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.createForm.clearValidate();
+      this.hiddenPassword = true;
     },
   },
   components: {

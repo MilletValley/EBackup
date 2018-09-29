@@ -11,12 +11,12 @@
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
-              <el-col :span="20"
+              <el-col :span="8"
                       class="title">
                 <h1>{{details.vmName}}</h1>
               </el-col>
-              <el-col :span="5"
-                      :offset="5"
+              <el-col :span="12"
+                      :offset="4"
                       class="action">
                 <el-dropdown size="mini"
                              trigger="click"
@@ -28,8 +28,14 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
+                    <el-dropdown-item command="restore"
+                                      :disabled="isVM">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
+                <el-button size="mini"
+                           type="primary"
+                           @click="detailsEditModal = true"
+                           :disabled="isVM">编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
@@ -65,15 +71,22 @@
 
       </div>
     </header>
-    <vm-tab-panels :id="Number(id)"
-                   type="vm"
-                   :backup-plans="backupPlans"
-                   :results="results"
-                   @backupplan:refresh="refreshSingleBackupPlan"
-                   @backupplan:update="updateBackupPlan"
-                   @backupplan:delete="deleteBackupPlan"
-                   @select-backup-plan="selectBackupPlan"
-                   @switchpane="switchPane"></vm-tab-panels>
+    <tab-panels :id="Number(id)"
+                type="vm"
+                :backup-plans="backupPlans"
+                :restore-plans="restorePlans"
+                :results="results"
+                @single-restore-btn-click="initSingleRestoreModal"
+                @backupplan:refresh="refreshSingleBackupPlan"
+                @backupplan:update="updateBackupPlan"
+                @backupplan:delete="deleteBackupPlan"
+                @restoreplan:refresh="refreshSingleRestorePlan"
+                @restoreplan:delete="deleteRestorePlan"
+                @select-restore-plan="selectRestorePlan"
+                @select-backup-plan="selectBackupPlan"
+                @switchpane="switchPane"
+                @restoreinfo:refresh="updateRestorePlanAndRecords"
+                :restoreRecords="restoreRecords"></tab-panels>
     <backup-plan-create-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"
@@ -84,20 +97,51 @@
                               :backup-plan="selectedBackupPlan"
                               @confirm="updateBackupPlan"
                               @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
+    <restore-plan-create-modal type="vm"
+                               :database="details"
+                               :visible.sync="restorePlanCreateModalVisible"
+                               :btn-loading="btnLoading"
+                               @confirm="addRestorePlan"></restore-plan-create-modal>
+    <restore-plan-update-modal type="vm"
+                               :database="details"
+                               :visible.sync="restorePlanUpdateModalVisible"
+                               :btn-loading="btnLoading"
+                               :restore-plan="selectedRestorePlan"
+                               @confirm="updateRestorePlan"
+                               @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
+    <virtual-update-modal type="vm"
+                           :visible.sync="detailsEditModal"
+                           :item-info="details"
+                           :btn-loading="btnLoading"
+                           @confirm="updateDetails"></virtual-update-modal>
+    <single-restore-create-modal type="vm"
+                                 :id="selectedBackupResultId"
+                                 :visible.sync="singleRestoreCreateModalVisible"
+                                 :btn-loading="btnLoading"
+                                 @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
 <script>
 import throttle from 'lodash/throttle';
+import VirtualUpdateModal from '@/components/modal/VirtualUpdateModal';
 import { detailPageMixin } from '../mixins/detailPageMixins';
 
 import {
   fetchOne,
+  modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
   createVirtualBackupPlan,
   updateVirtualBackupPlan,
   deleteVirtualBackupPlan,
   fetchBackupOperation,
+  createSingleRestorePlan,
+  fetchRestorePlans,
+  fetchRestoreRecords,
+  createRestorePlan,
+  deleteRestorePlan,
+  updateRestorePlan,
+  fetchRestoreOperation
 } from '../../api/virtuals';
 
 export default {
@@ -110,6 +154,24 @@ export default {
           .then(res => {
             const { data: result } = res.data;
             this.results = result;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      updateRestorePlanAndRecords: this.throttleMethod(() => {
+        fetchRestorePlans(this.id)
+          .then(res => {
+            const { data: restorePlans } = res.data;
+            this.restorePlans = restorePlans;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+        fetchRestoreRecords(this.id)
+          .then(res => {
+            const { data: restoreRecords } = res.data;
+            this.restoreRecords = restoreRecords;
           })
           .catch(error => {
             this.$message.error(error);
@@ -136,9 +198,35 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
-          });
+          })
+      }),
+      throttleRefreshRestore: this.throttleMethod(() => {
+        fetchRestoreOperation(this.selectedRestorePlanId)
+          .then(response => {
+            const { data } = response.data;
+            const { state, startTime, consume } = data;
+            Object.assign(
+              this.restorePlans.find(
+                plan => plan.id === this.selectedRestorePlanId
+              ),
+              {
+                state,
+                startTime,
+                consume,
+              }
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          })
       }),
     };
+  },
+  computed: {
+    isVM() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    }
   },
   methods: {
     fetchData() {
@@ -149,7 +237,11 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
-          this.$router.push({ name: 'VmwareList' });
+          const path = this.$route.path;
+          if(this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual')
+            this.$router.push({ name: 'VmwareList' });
+          else
+            this.$router.push({ name: 'HWwareList' });
         })
         .then(() => {
           this.infoLoading = false;
@@ -171,14 +263,38 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-
+      fetchRestorePlans(this.id).then(res => {
+        const { data: plans } = res.data;
+        this.restorePlans = plans;
+      });
+      fetchRestoreRecords(this.id).then(res => {
+        const { data: records } = res.data;
+        this.restoreRecords = records;
+      });
+    },
+    RefreshTime() {
+      fetchBackupPlans(this.id)
+        .then(res => {
+          const { data: plans } = res.data;
+          this.backupPlans = plans;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchRestorePlans(this.id).then(res => {
+        const { data: plans } = res.data;
+        this.restorePlans = plans;
+      });
     },
     addBackupPlan(plan) {
       this.btnLoading = true;
       createVirtualBackupPlan({ id: this.id, plan })
         .then(res => {
           const { data: backupPlan, message } = res.data;
-          this.backupPlans.unshift(backupPlan);
+          // 刷新情况下可能会出现两个添加后的计划
+          if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
+            this.backupPlans.unshift(backupPlan)
+          }
           this.backupPlanCreateModalVisible = false;
           this.$message.success(message);
         })
@@ -217,6 +333,24 @@ export default {
       this.selectedBackupPlanId = planId;
       this.throttleRefreshBackup();
     },
+    // 刷新单个恢复计划
+    refreshSingleRestorePlan(planId) {
+      this.selectedRestorePlanId = planId;
+      this.throttleRefreshRestore();
+    },
+    deleteRestorePlan(planId) {
+      deleteRestorePlan(planId)
+        .then(() => {
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(plan => plan.id === planId),
+            1
+          );
+          this.$message.success('删除成功');
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
     deleteBackupPlan(planId) {
       deleteVirtualBackupPlan(planId).then(() => {
         this.backupPlans.splice(
@@ -226,6 +360,86 @@ export default {
         this.$message.success('删除成功');
       });
     },
+    addRestorePlan(restorePlan) {
+      this.btnLoading = true;
+      createRestorePlan(restorePlan)
+        .then(res => {
+          const { data: restorePlan, message } = res.data;
+          // 刷新情况下可能会出现两个添加后的计划
+          if (this.restorePlans.findIndex(plan => plan.id === restorePlan.id) === -1) {
+            this.restorePlans.unshift(restorePlan)
+          }
+          this.restorePlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    addSingleRestorePlan(plan) {
+      this.btnLoading = true;
+      createSingleRestorePlan(plan)
+        .then(res => {
+          const { data: restorePlan, message } = res.data;
+          this.restorePlans.unshift(restorePlan);
+          this.singleRestoreCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateDetails(data) {
+      this.btnLoading = true;
+      modifyOne(data)
+        .then(res => {
+          const { data: virtual, message } = res.data;
+          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
+          virtual.id = this.details.id;
+          this.details = virtual;
+          this.detailsEditModal = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    // 更新恢复计划
+    updateRestorePlan(data) {
+      this.btnLoading = true;
+      updateRestorePlan(data)
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedRestorePlanId;
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.restorePlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+  },
+  components: {
+    VirtualUpdateModal,
   },
 };
 </script>

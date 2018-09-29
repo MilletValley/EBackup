@@ -3,7 +3,8 @@
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
              @open="modalOpened"
-             @close="modalClosed">
+             @close="modalClosed"
+             v-if="restorePlan">
     <span slot="title">
       更新恢复计划
       <span style="color: #999999"> (ID: {{restorePlan.id}})</span>
@@ -21,7 +22,7 @@
         </el-form-item>
       </el-row>
       <el-row>
-        <el-col :span="12">
+        <el-col :span="12" v-if="!this.isHW">
           <el-form-item label="恢复设备"
                         prop="hostIp">
             <el-input disabled
@@ -38,15 +39,15 @@
             </el-select> -->
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="this.isHW?24:12">
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"
-                      disabled></el-input>
+                      :disabled="!this.isHW"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
+      <el-row v-if="!this.isHW">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName"
@@ -57,7 +58,8 @@
         <el-col :span="12">
           <el-form-item label="登录密码"
                         prop="password">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
@@ -66,6 +68,7 @@
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
                     v-for="s in Object.keys(strategys)"
+                    v-if="type!=='vm'||s==='1'"
                     :key="s">{{ strategys[s] }}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -90,7 +93,7 @@
                     v-show="formData.timeStrategy == 2">
         <el-checkbox-group v-model="formData.weekPoints">
           <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                              :label="Number(w)"
+                              :label="w"
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>
@@ -126,10 +129,10 @@
 
     </el-form>
     <span slot="footer">
-      <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
                  @click="confirmBtnClick"
                  :loading="btnLoading">确定</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
     </span>
   </el-dialog>
 </template>
@@ -143,7 +146,7 @@ export default {
   props: {
     restorePlan: {
       type: Object,
-      required: true,
+      // required: true,
     },
   },
   methods: {
@@ -167,6 +170,9 @@ export default {
       });
     },
     modalOpened() {
+      if (this.restorePlan.config.timePoints.length === 0) {
+        this.restorePlan.config.timePoints.push({ value: '00:00', key: Date.now() })
+      }
       const {
         id,
         singleTime,
@@ -202,6 +208,7 @@ export default {
     },
     modalClosed() {
       this.$refs.restorePlanUpdateForm.clearValidate();
+      this.hiddenPassword = true;
       this.$emit('cancel');
     },
   },

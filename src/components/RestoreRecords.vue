@@ -107,7 +107,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     plans: {
@@ -124,8 +124,10 @@ export default {
       const mapping = {
         oracle: '实例',
         sqlserver: '数据库',
+        mysql: '数据库',
         windows: '恢复路径',
         linux: '恢复路径',
+        vm: '虚拟机',
       };
       return mapping[this.type];
     },

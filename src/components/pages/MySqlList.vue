@@ -11,10 +11,6 @@
           </el-input>          
         </el-form-item>
         <el-form-item style="float: right;">
-          <el-button type="info"
-                    @click="$router.push({name: 'oracleTakeOver'})">一键接管</el-button>
-        </el-form-item>
-        <el-form-item style="float: right;">
           <el-button type="primary"
                     @click="createModalVisible = true">添加</el-button>
         </el-form-item>
@@ -42,7 +38,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="instanceName"
-                       label="实例名"
+                       label="数据库名"
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="host.hostIp"
@@ -52,11 +48,6 @@
       <el-table-column prop="loginName"
                        label="登录账号"
                        min-width="150"
-                       align="center"></el-table-column>
-      <el-table-column prop="role"
-                       label="角色"
-                       width="100"
-                       :formatter="databaseRoleFormatter"
                        align="center"></el-table-column>
       <el-table-column prop="state"
                        label="状态"
@@ -96,11 +87,11 @@
                      v-if="items">
       </el-pagination>
     </div>
-    <database-create-modal type="oracle"
+    <database-create-modal type="mysql"
                            :visible.sync="createModalVisible"
                            :btn-loading="btnLoading"
                            @confirm="createDb"></database-create-modal>
-    <database-update-modal type="oracle"
+    <database-update-modal type="mysql"
                            :visible.sync="updateModalVisible"
                            :btn-loading="btnLoading"
                            :item-info="selectedDb"
@@ -110,14 +101,14 @@
 <script>
 import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/oracle';
+import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/mysql';
 import { listMixin } from '../mixins/databaseListMixin';
 
 export default {
-  name: 'OracleList',
+  name: 'MySqlList',
   mixins: [listMixin],
   methods: {
-    // 从服务器获取所有的Oracle数据库
+    // 从服务器获取所有的MySql数据库
     fetchData() {
       fetchAll()
         .then(res => {
@@ -168,13 +159,13 @@ export default {
       this.btnLoading = true;
       modifyOne(data)
         .then(res => {
-          const { data: oracle, message } = res.data;
+          const { data: mysql, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          oracle.id = this.selectedDb.id;
+          mysql.id = this.selectedDb.id;
           this.items.splice(
-            this.items.findIndex(db => db.id === oracle.id),
+            this.items.findIndex(db => db.id === mysql.id),
             1,
-            oracle
+            mysql
           );
           this.selectedId = '';
           this.updateModalVisible = false;

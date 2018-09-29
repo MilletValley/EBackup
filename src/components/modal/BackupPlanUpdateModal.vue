@@ -4,7 +4,8 @@
                :visible.sync="modalVisible"
                :before-close="beforeModalClose"
                @open="modalOpened"
-               @close="modalClosed">
+               @close="modalClosed"
+               v-if="backupPlan">
       <span slot="title">
         更新备份计划
         <span style="color: #999999"> (ID: {{backupPlan.id}})</span>
@@ -65,7 +66,7 @@
                       v-show="formData.timeStrategy === 4">
           <el-checkbox-group v-model="formData.weekPoints">
             <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                                :label="Number(w)"
+                                :label="w"
                                 :key="w">{{ weekMapping[w] }}</el-checkbox-button>
           </el-checkbox-group>
         </el-form-item>
@@ -141,7 +142,7 @@ export default {
   props: {
     backupPlan: {
       type: Object,
-      required: true,
+      // required: true,
     },
   },
   methods: {
@@ -161,6 +162,10 @@ export default {
       });
     },
     modalOpened() {
+      // 当备份策略时间点为空时（非按天、周、月）需要初始化才会显示
+      if (this.backupPlan.config.timePoints.length === 0) {
+        this.backupPlan.config.timePoints.push({ value: '00:00', key: Date.now() })
+      }
       const { id, name, config, backupPath, backupSystem } = this.backupPlan;
       const { timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
