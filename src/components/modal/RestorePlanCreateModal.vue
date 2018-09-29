@@ -19,7 +19,7 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
       </el-row>
-      <el-row>
+      <el-row v-if="!isVMware">
         <el-col :span="12" v-if="!this.isHW">
           <el-form-item label="恢复设备"
                         prop="hostIp">
@@ -42,7 +42,21 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="!this.isHW">
+      <el-row v-if="isVMware">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="虚拟机名称"
+                        prop="detailInfo">
+            <el-input v-model="formData.detailInfo" disabled></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">
