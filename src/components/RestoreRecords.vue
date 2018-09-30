@@ -65,7 +65,7 @@
                          width="200px">
         </el-table-column>
         <el-table-column prop="hostIp"
-                         label="恢复设备IP"
+                         :label="isVMware ? '恢复主机IP' : '恢复设备IP'"
                          align="center"
                          min-width="200px">
         </el-table-column>
@@ -130,6 +130,10 @@ export default {
         vm: '虚拟机',
       };
       return mapping[this.type];
+    },
+    isVMware() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     },
     isFile() {
       if (this.type === 'windows' || this.type === 'linux') {
