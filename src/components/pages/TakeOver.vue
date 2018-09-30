@@ -20,18 +20,8 @@
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
-        <el-dropdown size="mini"
-                     trigger="click"
-                     placement="bottom"
-                     @command="handleBtnClick">
-          <el-button plain>批量操作
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </el-button>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="switchBtn">批量切换</el-dropdown-item>
-            <el-dropdown-item command="listBtn">切换列表</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+        <el-button type="primary"
+                   @click="batchSwitch">批量切换</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"

@@ -124,10 +124,11 @@ export const asyncRouters = [
         },
       },
       {
-        path: 'oracle/takeover/switchlist',
+        path: 'oracle/switchlist',
         name: 'oracleSwitchList',
         component: SwitchList,
         meta: {
+          title: '灾备演练',
           roles: ['oracle dba', 'sqlserver dba'],
           breadcrumb: [
             {
@@ -135,18 +136,14 @@ export const asyncRouters = [
               path: '/',
             },
             {
-              name: 'Oracle接管',
-              path: '/to/oracle/takeover'
-            },
-            {
-              name: '切换计划列表',
+              name: '批量切换计划',
               path: '',
             },
           ]
         }
       },
       {
-        path: 'oracle/takeover/switchlist/:id',
+        path: 'oracle/switchlist/:id',
         name: 'oracleSwitchDetail',
         component: SwitchDetail,
         meta: {
@@ -157,12 +154,8 @@ export const asyncRouters = [
               path: '/',
             },
             {
-              name: 'Oracle接管',
-              path: '/to/oracle/takeover'
-            },
-            {
-              name: '计划列表',
-              path: '/to/oracle/takeover/switchlist',
+              name: '批量切换计划',
+              path: '/to/oracle/switchlist',
             },
             {
               name: '切换详情',

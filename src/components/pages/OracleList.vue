@@ -2,8 +2,8 @@
   <section>
     <el-row>
       <el-form inline
-               size="small">
-        <el-form-item style="float: left" class="input-with-select">
+               size="medium">
+        <el-form-item style="float: left">
           <el-input placeholder="请输入名称"
                     v-model="inputSearch"
                     @keyup.enter.native="searchByName">
@@ -196,10 +196,4 @@ export default {
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
-</style>
-<style>
-.input-with-select .el-input__inner {
-  height: 40px;
-  line-height: 40px;
-}
 </style>

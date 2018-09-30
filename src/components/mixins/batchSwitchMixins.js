@@ -17,30 +17,24 @@ const batchSwitchMixin = {
     }
   },
   methods: {
-    handleBtnClick(command) {
-      if (command === 'switchBtn') {
-        this.batchSwitch();
-      } else if (command === 'listBtn') {
-        this.switchList();
-      }
-    },
     batchSwitch() {
       this.switchDialog = true;
-    },
-    switchList() {
-      this.$router.push({ name: 'oracleSwitchList' });
     },
     addSwitchPlan(data) {
       this.btnLoading = true;
       createOne(data)
         .then(res => {
-          const { data: switchPlan } = res.data;
-          // this.$message.success(message);
-          this.fetchData();
-          this.$router.push({
-            name: 'oracleSwitchDetail',
-            params: { id: switchPlan.id }
-          });
+          const { data: switchPlan, message } = res.data;
+          const path = this.$route.path;
+          if (path.substring(path.lastIndexOf('/') + 1, path.length) === 'takeover') { // 接管入口
+            this.$router.push({
+              name: 'oracleSwitchDetail',
+              params: { id: switchPlan.id }
+            });
+          } else { // 灾备入口
+            this.planList.unshift(switchPlan);
+            this.$message.success(message);
+          }
           this.switchDialog = false;
         })
         .catch(error => {

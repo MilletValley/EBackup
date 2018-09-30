@@ -115,7 +115,7 @@
             </li>
             <li>
               <h5>计划开始时间</h5>
-              <div>{{plan.createTime || '备份未开始'}}</div>
+              <div>{{plan.createTime || '计划未开始'}}</div>
             </li>
             <li>
               <h5>已持续时间</h5>
@@ -182,7 +182,7 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
-          this.planList = data;
+          this.planList = data.sort((a, b) => b.createTime-a.createTime)
         }),
       fetchLinks()
         .then(res => {

@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h4>{{ item.name }}</h4>
+    <h4 style="margin-top: 0">{{ plan.name }}</h4>
     <el-card v-for="link in links"
              :key="link.id"
              style="margin-bottom: 20px;">
@@ -63,7 +63,7 @@
           </el-col>
         </el-row>
       </div>
-      <div :class="$style.item">
+      <div :class="$style.plan">
         <el-row v-for="record in link.switch"
                 :key="record.id">
           <el-col :span="7">
@@ -80,8 +80,8 @@
               </span>
             </el-tooltip>
           </el-col>
-          <el-col :span="8"><div style="min-height: 14px;">{{ record.content }}</div></el-col>
-          <el-col :span="9">
+          <el-col :span="11"><div style="min-height: 14px;">{{ record.content }}</div></el-col>
+          <el-col :span="6">
             <span :class="$style.switchRecordTime"><i :class="switchStateIconClass(record.state)"></i></span>
             <span :class="$style.switchRecordState">{{ record.switchTime }}</span>
           </el-col>
@@ -98,13 +98,21 @@ export default {
   name: 'SwitchDetail',
   data() {
     return {
-      item: {},
+      plan: {},
       timer: null,
     }
   },
   computed: {
     links() {
-      return this.item?this.item.alreadySwitch:[]
+      if(this.plan.alreadySwitch) {
+        // 切IP在切实例之后
+        return this.plan.alreadySwitch.map(item => {
+          item.switch.sort((a, b) => a.type-b.type)
+          return item
+        })
+      } else {
+        return []
+      }
     }
   },
   created() {
@@ -123,7 +131,7 @@ export default {
       fetchOne(id)
         .then(res => {
           const { data } = res.data;
-          this.item = data
+          this.plan = data
         })
     },
     setTimer() {
@@ -159,7 +167,7 @@ export default {
 @import '../../style/color.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
-.item {
+.plan {
   font-size: 14px;
 }
 .clearfix {
@@ -222,7 +230,7 @@ $vice-color: #6d6d6d;
 .switchRecordState {
   float: right;
   display: inline-block;
-  width: 150px;
+  width: 180px;
 }
 .switchType {
   vertical-align: middle;

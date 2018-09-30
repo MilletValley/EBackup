@@ -1,15 +1,17 @@
 <template>
   <section>
-    <div style="margin-bottom: 15px;">
-      <el-row :gutter="20">
-        <el-col :span="18"><div class="grid-content"></div></el-col>
-        <el-col :span="6">
-          <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+    <el-row>
+      <el-form inline
+               size="medium">
+        <el-form-item style="float: right">
+          <el-input placeholder="请输入名称"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
-        </el-col>
-      </el-row>
-    </div>
+        </el-form-item>
+      </el-form>
+    </el-row>
     <el-table :data="vmItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               v-if="vmItems"
               style="width: 100%">
@@ -22,6 +24,7 @@
         </template>
       </el-table-column>
       <el-table-column label="名称"
+                       header-align="center"
                        fixed
                        min-width="200">
         <template slot-scope="scope">
@@ -32,6 +35,7 @@
       </el-table-column>
       <el-table-column prop="vmPath"
                        label="路径"
+                       header-align="center"
                        min-width="200"></el-table-column>
       <el-table-column prop="vmHostName"
                        label="所属主机"
@@ -129,13 +133,3 @@ export default {
 @import '../../style/common.scss';
 </style>
 <style>
-.el-table th{
-  text-align: center;
-}
-.grid-content {
-  min-height: 40px;
-}
-.input-with-select {
-  background-color: #fff;
-}
-</style>
