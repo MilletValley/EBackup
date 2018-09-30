@@ -196,10 +196,12 @@ export default {
         datePoints,
         timeStrategy,
         database,
+        hostIp: configHostIp
       } = this.restorePlan.config;
       const { instanceName, vmName, loginName, host } = database;
       const detailInfo = this.isVMware ? vmName : instanceName;
-      const { name: hostName, hostIp } = host;
+      const { name: hostName, hostIp: hostHostIp } = host;
+      let curHostIp = this.isVMware ? configHostIp : hostHostIp
       this.originFormData = {
         name: this.restorePlan.name,
         id,
@@ -212,7 +214,7 @@ export default {
         detailInfo,
         loginName,
         hostName,
-        hostIp,
+        curHostIp,
       };
       // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
       // 避免引用到一个数组对象引起的BUG
