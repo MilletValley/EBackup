@@ -30,8 +30,9 @@
               <el-tooltip content="目标设备IP"
                           placement="right"
                           :open-delay="300">
-                <span v-if="!isFile">{{ item.config.database.host.hostIp }}</span>
-                <span v-else>{{ item.config.hostIp }}</span>
+                
+                <span v-if="isFile || isVMware" >{{ item.config.hostIp }}</span>
+                <span v-else>{{ item.config.database.host.hostIp }}</span>
               </el-tooltip>
             </p>
 
