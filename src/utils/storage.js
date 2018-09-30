@@ -11,7 +11,7 @@ const userToken = {
   },
   remove() {
     Cookies.remove(TOKEN);
-  },
+  }
 };
 // eslint-disable-next-line
 export { userToken };

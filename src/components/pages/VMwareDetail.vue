@@ -230,7 +230,7 @@ export default {
     // }
     // vmType(){
     //   const path = this.$route.path;
-    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual' ? 'VMware : 
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual' ? 'VMware' : 'HW'
     // }
   },
   methods: {

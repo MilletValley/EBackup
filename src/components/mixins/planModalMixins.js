@@ -509,7 +509,7 @@ const restorePlanModalMixin = {
       const path = this.$route.path;
       return this.$route.path.substring(4, path.lastIndexOf('/')) === 'hwVirtual';
     },
-    isVMware(){
+    isVMware() {
       const path = this.$route.path;
       return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual';
     }
