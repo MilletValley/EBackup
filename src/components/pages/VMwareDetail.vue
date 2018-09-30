@@ -29,13 +29,13 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore"
-                                      :disabled="isVM">恢复计划</el-dropdown-item>
+                                      >恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <el-button size="mini"
                            type="primary"
                            @click="detailsEditModal = true"
-                           :disabled="isVM">编辑</el-button>
+                           >编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
@@ -116,6 +116,7 @@
                            @confirm="updateDetails"></virtual-update-modal>
     <single-restore-create-modal type="vm"
                                  :id="selectedBackupResultId"
+                                 :database="details"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :btn-loading="btnLoading"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
@@ -223,10 +224,14 @@ export default {
     };
   },
   computed: {
-    isVM() {
-      const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-    }
+    // isVM() {
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    // }
+    // vmType(){
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual' ? 'VMware' : 'HW'
+    // }
   },
   methods: {
     fetchData() {
@@ -382,6 +387,7 @@ export default {
     },
     addSingleRestorePlan(plan) {
       this.btnLoading = true;
+      console.log(plan)
       createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;

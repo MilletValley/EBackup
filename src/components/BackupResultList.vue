@@ -194,7 +194,8 @@ export default {
     },
     isVM() {
       const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+      // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+      return false
     },
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
     handleData() {

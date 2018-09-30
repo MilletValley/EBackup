@@ -437,7 +437,7 @@ const restorePlanModalMixin = {
           { required: true, message: '请输入主机IP', trigger: 'blur' },
           {
             pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+              '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
             message: 'IP地址不正确',
             trigger: 'blur',
           },
@@ -509,6 +509,10 @@ const restorePlanModalMixin = {
       const path = this.$route.path;
       return this.$route.path.substring(4, path.lastIndexOf('/')) === 'hwVirtual';
     },
+    isVMware() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual';
+    }
   },
   methods: {
     // 时间点去重排序
