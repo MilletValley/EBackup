@@ -16,15 +16,13 @@
               v-if="vmItems"
               style="width: 100%">
       <el-table-column label="序号"
-                       min-width="100"
-                       fixed
                        align="center">
         <template slot-scope="scope">
             {{scope.$index+1+(currentPage-1)*pagesize}}
         </template>
       </el-table-column>
       <el-table-column label="名称"
-                       fixed
+                       align="center"
                        min-width="200">
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
@@ -34,6 +32,7 @@
       </el-table-column>
       <el-table-column prop="vmPath"
                        label="路径"
+                       align="center"
                        min-width="200"></el-table-column>
       <el-table-column prop="vmHostName"
                        label="所属主机"
@@ -157,6 +156,10 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
+          if(!Array.isArray(data)){
+            this.vmItems = [];
+            return
+          }
           if(this.$route.name === 'VMwareList') {
             this.vmItems = data.filter(item => item.type==='1');
           } else {
