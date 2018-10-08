@@ -56,7 +56,7 @@
       </div>
     <el-dialog
       title="请选择要扫描的设备"
-      :before-close="handleClose"
+      @close="closeHandler"
       :visible.sync="dialogVisible">
       <el-table :data="hostsInVuex"
                 ref="hostTable"
@@ -197,11 +197,8 @@ export default {
         this.buttonFlag = false;
       })
     },
-    handleClose(done){
-      console.log(1231)
-      console.log(this.$refs.hostTable)
+    closeHandler(){
       this.curSelectd = [];
-      console.log(this.$refs.hostTable)
       this.$refs.hostTable.clearSelection();
     }
     // judgeDatabase(data) {
