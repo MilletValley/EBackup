@@ -1,12 +1,12 @@
 <template>
   <section>
     <div style="margin-bottom: 15px;">
-      <el-row :gutter="20">
-        <el-col :span="18">
-          <el-button type="primary" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
-          <!-- <div class="grid-content"></div> -->
+      <el-row>
+        <el-col :span="18" >
+          <el-button v-if="isVMware"  type="primary" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
+          <div v-else class="grid-content"></div>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="6" >
           <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
@@ -107,13 +107,18 @@ export default {
       filterItem: '',
       buttonFlag: false,
       dialogVisible: false,
-      curSelectd: []
+      curSelectd: [],
     }
   },
   computed: {
     hostsInVuex() {
-      return this.$store.state.host.hosts;
+      return this.$store.state.host.hosts.filter( e => {
+        return e.databaseType === 4 && e.osName === 'Windows'
+      });
     },
+    isVMware(){
+      return this.$route.name === 'VMwareList'
+    }
   },
   created() {
     this.fetchData();
