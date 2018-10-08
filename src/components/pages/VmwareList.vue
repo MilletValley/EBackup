@@ -88,7 +88,7 @@
       </el-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="comfirmFn">确 定</el-button>
+        <el-button type="primary" @click="comfirmFn" :disabled="disabled">确 定</el-button>
       </span>
     </el-dialog>
   </section>
@@ -118,6 +118,9 @@ export default {
     },
     isVMware(){
       return this.$route.name === 'VMwareList'
+    },
+    disabled(){
+      return this.curSelectd.length === 0
     }
   },
   created() {
@@ -182,14 +185,12 @@ export default {
       return hostTypeMapping[data.hostType];
     },
     selectChangeHandler(selection){
-      console.log(selection);
       this.curSelectd = selection
     },
     comfirmFn(){
       const ids = this.curSelectd.map( e => {
         return e.hostIp
       });
-      console.log(ids)
       this.dialogVisible = false;
       this.buttonFlag = true;
       rescan(ids).then( res => {
