@@ -52,15 +52,15 @@
                   <el-form-item label="虚拟机密码：">
                     <div>●●●●●●●●</div>
                   </el-form-item>
-                  <el-form-item label="主机名：">
-                    <div>{{ details.host.name }}</div>
+                  <el-form-item label="所属主机：">
+                    <div>{{ details.vmHostName }}</div>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="操作系统：">
                     <div>{{ details.host.osName }}</div>
                   </el-form-item>
-                  <el-form-item label="主机IP：">
+                  <el-form-item label="设备IP：">
                     <div>{{ details.host.hostIp }}</div>
                   </el-form-item>
                 </el-col>
