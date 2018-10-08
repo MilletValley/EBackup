@@ -3,7 +3,7 @@
     <div style="margin-bottom: 15px;">
       <el-row :gutter="20">
         <el-col :span="18">
-          <el-button type="primary" @click="scanVmFn" :loading="buttonFlag">重新扫描</el-button>
+          <el-button type="primary" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
           <!-- <div class="grid-content"></div> -->
         </el-col>
         <el-col :span="6">
@@ -54,11 +54,48 @@
           :total="vmItems|filterBySearch(filterItem).length">
         </el-pagination>
       </div>
+    <el-dialog
+      title="请选择要扫描的设备"
+      :before-close="handleClose"
+      :visible.sync="dialogVisible">
+      <el-table :data="hostsInVuex"
+                ref="hostTable"
+                @selection-change="selectChangeHandler"
+                max-height="350">
+        <el-table-column
+          type="selection"
+          align="center"
+          width="55">
+        </el-table-column>
+        <el-table-column prop="name"
+                        label="设备名"
+                        min-width="150"
+                        align="center">
+        </el-table-column>
+        <el-table-column prop="hostIp"
+                        label="设备IP"
+                        min-width="150"
+                        align="center"></el-table-column>
+        <el-table-column prop="hostType"
+                        label="设备类型"
+                        :formatter="judgeHost"
+                        min-width="150"
+                        align="center"></el-table-column>
+        <el-table-column prop="loginName"
+                        label="登录账号"
+                        min-width="140"
+                        align="center"></el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmFn">确 定</el-button>
+      </span>
+    </el-dialog>
   </section>
 </template>
 <script>
 import { fetchAll, rescan } from '../../api/virtuals';
-
+import { hostTypeMapping, databaseTypeMapping } from '../../utils/constant';
 export default {
   name: 'VMwareList',
   data() {
@@ -68,8 +105,15 @@ export default {
       pagesize: 10,
       inputSearch: '',
       filterItem: '',
-      buttonFlag: false
+      buttonFlag: false,
+      dialogVisible: false,
+      curSelectd: []
     }
+  },
+  computed: {
+    hostsInVuex() {
+      return this.$store.state.host.hosts;
+    },
   },
   created() {
     this.fetchData();
@@ -127,8 +171,23 @@ export default {
       this.currentPage = currentPage;
     },
     scanVmFn(){
+      this.dialogVisible = true;
+    },
+    judgeHost(data) {
+      return hostTypeMapping[data.hostType];
+    },
+    selectChangeHandler(selection){
+      console.log(selection);
+      this.curSelectd = selection
+    },
+    comfirmFn(){
+      const ids = this.curSelectd.map( e => {
+        return e.hostIp
+      });
+      console.log(ids)
+      this.dialogVisible = false;
       this.buttonFlag = true;
-      rescan().then( res => {
+      rescan(ids).then( res => {
         const {message} = res.data;
         this.$message.success(message);
         this.fetchData();
@@ -137,7 +196,17 @@ export default {
       }).then( () => {
         this.buttonFlag = false;
       })
+    },
+    handleClose(done){
+      console.log(1231)
+      console.log(this.$refs.hostTable)
+      this.curSelectd = [];
+      console.log(this.$refs.hostTable)
+      this.$refs.hostTable.clearSelection();
     }
+    // judgeDatabase(data) {
+    //   return databaseTypeMapping[data.databaseType];
+    // },
   }
 };
 </script>
