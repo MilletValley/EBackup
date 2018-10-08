@@ -1,12 +1,14 @@
 <template>
   <section>
     <div style="margin-bottom: 15px;">
-      <el-row :gutter="20">
-        <el-col :span="18"><div class="grid-content"></div></el-col>
-        <el-col :span="6">
+      <el-row>
+        <el-col :span="6" >
           <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
+        </el-col>
+        <el-col :span="18" style="text-align:right">
+          <el-button v-if="isVMware" class="margin-right10"  type="primary" size="small" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
         </el-col>
       </el-row>
     </div>
@@ -14,15 +16,13 @@
               v-if="vmItems"
               style="width: 100%">
       <el-table-column label="序号"
-                       min-width="100"
-                       fixed
                        align="center">
         <template slot-scope="scope">
             {{scope.$index+1+(currentPage-1)*pagesize}}
         </template>
       </el-table-column>
       <el-table-column label="名称"
-                       fixed
+                       align="center"
                        min-width="200">
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
@@ -32,6 +32,7 @@
       </el-table-column>
       <el-table-column prop="vmPath"
                        label="路径"
+                       align="center"
                        min-width="200"></el-table-column>
       <el-table-column prop="vmHostName"
                        label="所属主机"
@@ -51,11 +52,48 @@
           :total="vmItems|filterBySearch(filterItem).length">
         </el-pagination>
       </div>
+    <el-dialog
+      title="请选择要扫描的设备"
+      @close="closeHandler"
+      :visible.sync="dialogVisible">
+      <el-table :data="hostsInVuex"
+                ref="hostTable"
+                @selection-change="selectChangeHandler"
+                max-height="350">
+        <el-table-column
+          type="selection"
+          align="center"
+          width="55">
+        </el-table-column>
+        <el-table-column prop="name"
+                        label="设备名"
+                        min-width="150"
+                        align="center">
+        </el-table-column>
+        <el-table-column prop="hostIp"
+                        label="设备IP"
+                        min-width="150"
+                        align="center"></el-table-column>
+        <el-table-column prop="hostType"
+                        label="设备类型"
+                        :formatter="judgeHost"
+                        min-width="150"
+                        align="center"></el-table-column>
+        <el-table-column prop="loginName"
+                        label="登录账号"
+                        min-width="140"
+                        align="center"></el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmFn" :disabled="disabled">确 定</el-button>
+      </span>
+    </el-dialog>
   </section>
 </template>
 <script>
-import { fetchAll } from '../../api/virtuals';
-
+import { fetchAll, rescan } from '../../api/virtuals';
+import { hostTypeMapping, databaseTypeMapping } from '../../utils/constant';
 export default {
   name: 'VMwareList',
   data() {
@@ -64,7 +102,23 @@ export default {
       currentPage: 1,
       pagesize: 10,
       inputSearch: '',
-      filterItem: ''
+      filterItem: '',
+      buttonFlag: false,
+      dialogVisible: false,
+      curSelectd: [],
+    }
+  },
+  computed: {
+    hostsInVuex() {
+      return this.$store.state.host.hosts.filter( e => {
+        return e.databaseType === 4 && e.osName === 'Windows'
+      });
+    },
+    isVMware(){
+      return this.$route.name === 'VMwareList'
+    },
+    disabled(){
+      return this.curSelectd.length === 0
     }
   },
   created() {
@@ -102,6 +156,10 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
+          if(!Array.isArray(data)){
+            this.vmItems = [];
+            return
+          }
           if(this.$route.name === 'VMwareList') {
             this.vmItems = data.filter(item => item.type==='1');
           } else {
@@ -121,7 +179,39 @@ export default {
     },
     handleCurrentChange: function(currentPage){
       this.currentPage = currentPage;
+    },
+    scanVmFn(){
+      this.dialogVisible = true;
+    },
+    judgeHost(data) {
+      return hostTypeMapping[data.hostType];
+    },
+    selectChangeHandler(selection){
+      this.curSelectd = selection
+    },
+    comfirmFn(){
+      const ids = this.curSelectd.map( e => {
+        return e.hostIp
+      });
+      this.dialogVisible = false;
+      this.buttonFlag = true;
+      rescan(ids).then( res => {
+        const {message} = res.data;
+        this.$message.success(message);
+        this.fetchData();
+      }).catch( error => {
+        this.$message.error(error);
+      }).then( () => {
+        this.buttonFlag = false;
+      })
+    },
+    closeHandler(){
+      this.curSelectd = [];
+      this.$refs.hostTable.clearSelection();
     }
+    // judgeDatabase(data) {
+    //   return databaseTypeMapping[data.databaseType];
+    // },
   }
 };
 </script>
@@ -137,5 +227,8 @@ export default {
 }
 .input-with-select {
   background-color: #fff;
+}
+.margin-right10{
+  margin-right: 10px;
 }
 </style>

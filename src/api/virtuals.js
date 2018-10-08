@@ -154,6 +154,12 @@ const fetchRestoreOperation = id =>
     method: 'get',
     url: `/virtual-restore-plans/${id}`,
   });
+const rescan = ids =>
+  baseApi.request({
+    method: 'post',
+    url: '/virtuals/rescan',
+    data: ids
+  });
 
 export {
   fetchAll,
@@ -171,5 +177,6 @@ export {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation
+  fetchRestoreOperation,
+  rescan
 };
