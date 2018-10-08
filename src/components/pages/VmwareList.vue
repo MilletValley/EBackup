@@ -2,14 +2,13 @@
   <section>
     <div style="margin-bottom: 15px;">
       <el-row>
-        <el-col :span="18" >
-          <el-button v-if="isVMware"  type="primary" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
-          <div v-else class="grid-content"></div>
-        </el-col>
         <el-col :span="6" >
           <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
+        </el-col>
+        <el-col :span="18" style="text-align:right">
+          <el-button v-if="isVMware" class="margin-right10"  type="primary" size="small" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
         </el-col>
       </el-row>
     </div>
@@ -225,5 +224,8 @@ export default {
 }
 .input-with-select {
   background-color: #fff;
+}
+.margin-right10{
+  margin-right: 10px;
 }
 </style>
