@@ -2,7 +2,10 @@
   <section>
     <div style="margin-bottom: 15px;">
       <el-row :gutter="20">
-        <el-col :span="18"><div class="grid-content"></div></el-col>
+        <el-col :span="18">
+          <el-button type="primary" @click="scanVmFn" :loading="buttonFlag">重新扫描</el-button>
+          <!-- <div class="grid-content"></div> -->
+        </el-col>
         <el-col :span="6">
           <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
@@ -54,7 +57,7 @@
   </section>
 </template>
 <script>
-import { fetchAll } from '../../api/virtuals';
+import { fetchAll, rescan } from '../../api/virtuals';
 
 export default {
   name: 'VMwareList',
@@ -64,7 +67,8 @@ export default {
       currentPage: 1,
       pagesize: 10,
       inputSearch: '',
-      filterItem: ''
+      filterItem: '',
+      buttonFlag: false
     }
   },
   created() {
@@ -121,6 +125,18 @@ export default {
     },
     handleCurrentChange: function(currentPage){
       this.currentPage = currentPage;
+    },
+    scanVmFn(){
+      this.buttonFlag = true;
+      rescan().then( res => {
+        const {message} = res.data;
+        this.$message.success(message);
+        this.fetchData();
+      }).catch( error => {
+        this.$message.error(error);
+      }).then( () => {
+        this.buttonFlag = false;
+      })
     }
   }
 };
