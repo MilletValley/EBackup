@@ -14,13 +14,12 @@ branches:
   only:
   - master
   - develop
-  - devolop-9.29
 install: yarn
 script: npm run build
 before_deploy:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker build -t gw920529/ebackup:dev-latest .
-# - docker tag gw920529/ebackup:dev-latest gw920529/ebackup:latest
+- docker build -t qiansy/ebackup:dev-latest .
+- docker tag qiansy/ebackup:dev-latest qiansy/ebackup:latest
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   - provider: script
@@ -33,9 +32,3 @@ deploy:
     on:
       branch:
         - master
-  - provider: script
-    script: bash ./build/docker_push.sh devolop-9.29
-    on:
-      branch:
-        - devolop-9.29
-  
