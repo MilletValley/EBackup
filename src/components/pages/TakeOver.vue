@@ -348,6 +348,7 @@
                         :originLinks="switchLinks"
                         :flag="flag"
                         :btn-loading="btnLoading"
+                        :databaseType="databaseType"
                         @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>

@@ -1,6 +1,18 @@
 <template>
   <section>
-    <h4 style="margin-top: 0">{{ plan.name }}</h4>
+    <el-row type="flex"
+            justify="end"
+            :gutter="10">
+      <el-col :span="1">
+        <i-icon :name="`${plan.dbType}`"
+                :class="$style.databaseType"></i-icon>
+      </el-col>
+      <el-col :span="23">
+        <h1 :class="$style.planTitle">
+          {{ plan.name }}
+        </h1>
+      </el-col>
+    </el-row>
     <el-card v-for="link in links"
              :key="link.id"
              style="margin-bottom: 20px;">
@@ -169,6 +181,16 @@ $primary-color: #409eff;
 $vice-color: #6d6d6d;
 .plan {
   font-size: 14px;
+}
+.databaseType {
+  width: 2em;
+  height: 2em;
+  float: right;
+}
+.planTitle {
+  margin-top: 0;
+  line-height: 30px;
+  color: #409EFF;
 }
 .clearfix {
   margin-top: -20px;

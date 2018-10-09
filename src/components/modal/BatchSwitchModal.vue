@@ -1,7 +1,7 @@
 <template>
   <section>
     <el-dialog :visible.sync="dialogVisible"
-               title="添加计划"
+               :title="dialogTitle"
                width="900px"
                @open="openDialog">
       <el-table :data="links"
@@ -124,7 +124,8 @@ export default {
     originLinks: Array,
     visible: Boolean,
     flag: Number,
-    btnLoading: Boolean
+    btnLoading: Boolean,
+    databaseType: String
   },
   data() {
     return {
@@ -210,6 +211,7 @@ export default {
             const data = {
               name: this.name,
               createTime: this.createTime,
+              dbType: this.databaseType,
               switchIds: this.switchIds
             }
             this.$emit('confirm', data);
@@ -223,7 +225,7 @@ export default {
     },
     // 切IP是否可用：设备最近操作为切换IP或解除连接时不可用, 切换后实例角色不一致时不可用
     switchIpDisable(switchLink) {
-      const onGoing = switchLink.latestSwitch.state === 1 && [2, 3].includes(latestSwitch.type)
+      const onGoing = switchLink.latestSwitch.state === 1 && [2, 3].includes(switchLink.latestSwitch.type)
       const hasSelectLink = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.includes(databaseLink.id))
       const notSelectLink = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.indexOf(databaseLink.id) === -1)
       // 切换后生产库实例角色
@@ -259,6 +261,9 @@ export default {
           this.$emit('update:visible', value);
         }
       },
+    },
+    dialogTitle() {
+      return "添加计划("+`${this.databaseType}`+")"
     },
     // 获取当前时间，yyyy-mm-dd hh-mm-ss
     createTime () {

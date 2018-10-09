@@ -63,6 +63,12 @@
     <el-row>
       <el-form inline
                size="small">
+        <el-form-item>
+          <el-radio-group v-model="databaseType">
+            <el-radio-button label="oracle">Oracle</el-radio-button>
+            <el-radio-button label="sqlserver">SQLServer</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
                      @click="batchSwitch">添加</el-button>
@@ -70,7 +76,7 @@
       </el-form>
     </el-row>
     <el-card :class="$style.disasterRecoverCard"
-            v-for="plan in planList"
+            v-for="plan in switchPlans"
             :key="plan.id">
       <div slot="header"
           class="clearfix">
@@ -132,6 +138,7 @@
                         :originLinks="switchLinks"
                         :flag="flag"
                         :btn-loading="btnLoading"
+                        :databaseType="databaseType"
                         @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>
@@ -154,6 +161,7 @@ export default {
       activeTab: 'plans',
       btnLoading: false,
       links: [],
+      databaseType: 'oracle',
       timer: null
     }
   },
@@ -165,6 +173,11 @@ export default {
   },
   destroyed() {
     this.clearTimer();
+  },
+  computed: {
+    switchPlans() {
+      return this.planList.filter(plan => plan.dbType === this.databaseType)
+    }
   },
   methods: {
     fetchData() {
