@@ -387,7 +387,6 @@ export default {
     },
     addSingleRestorePlan(plan) {
       this.btnLoading = true;
-      console.log(plan)
       createSingleRestorePlan(plan)
         .then(res => {
           const { data: restorePlan, message } = res.data;

@@ -55,9 +55,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="虚拟机名称"
+          <el-form-item label="新虚拟机名"
                         prop="detailInfo">
-            <el-input v-model="formData.detailInfo" disabled></el-input>
+            <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -153,7 +153,7 @@
 <script>
 import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
-
+import { fetchRestoreOperation} from '../../api/virtuals';
 export default {
   name: 'RestorePlanUpdateModal',
   mixins: [restorePlanModalMixin],
@@ -169,10 +169,15 @@ export default {
         if (valid) {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              //数据转换，detailInfo=旧虚拟机名，loginName=新虚拟机名，界面中detailInfo表示新虚拟机名
+              const { loginName, detailInfo} = config;
+              let conf = Object.assign({},config);
+              conf.loginName = detailInfo;
+              conf.detailInfo = loginName;
               this.$emit('confirm', {
                 id: this.restorePlan.id,
                 name,
-                config,
+                config: conf,
               });
             })
             .catch(error => {
@@ -184,6 +189,18 @@ export default {
       });
     },
     modalOpened() {
+      //查询详情获取新虚拟机名称，loginName=新虚拟机名
+      let lName;
+      if(this.isVMware){
+        fetchRestoreOperation(this.restorePlan.id).then( res => {
+          lName = res.data.data.config.loginName;
+          this.format(lName);
+        })
+      }else{
+        this.format(lName);
+      }
+    },
+    format(lName){
       if (this.restorePlan.config.timePoints.length === 0) {
         this.restorePlan.config.timePoints.push({ value: '00:00', key: Date.now() })
       }
@@ -199,9 +216,10 @@ export default {
         hostIp: configHostIp
       } = this.restorePlan.config;
       const { instanceName, vmName, loginName, host } = database;
-      const detailInfo = this.isVMware ? vmName : instanceName;
+      const detailInfo = this.isVMware ? lName : instanceName;
       const { name: hostName, hostIp: hostHostIp } = host;
-      let curHostIp = this.isVMware ? configHostIp : hostHostIp
+      let curHostIp = this.isVMware ? configHostIp : hostHostIp;
+      let curLoginName = this.isVMware ? vmName : loginName;
       this.originFormData = {
         name: this.restorePlan.name,
         id,
@@ -212,9 +230,9 @@ export default {
         datePoints,
         timeStrategy,
         detailInfo,
-        loginName,
+        loginName: curLoginName,
         hostName,
-        curHostIp,
+        hostIp: curHostIp,
       };
       // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
       // 避免引用到一个数组对象引起的BUG
