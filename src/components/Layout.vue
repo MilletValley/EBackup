@@ -1,5 +1,5 @@
 <template>
-  <el-container style="height: 100%;">
+  <el-container style="height: 100%; min-width: 1000px;">
     <el-aside style="width:auto;background-color: #00264a">
       <div class="logo">
         <img src="../assets/layoutContraction.png"
@@ -16,10 +16,12 @@
                active-text-color="#fff"
                :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
-            <IIcon name="dashboard"
-                 class="menu-icon"></IIcon>
-            <router-link to="/dashboard"
-                        tag="span" style="display: inline-block; width: 165px;">主页</router-link>
+          <router-link to="/dashboard"
+                       tag="div"
+                       style="display: inline-block; width: 220px;">
+            <IIcon name="dashboard" class="menu-icon"></IIcon>
+            <span>主页</span>
+          </router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
                     :key="menu.path"

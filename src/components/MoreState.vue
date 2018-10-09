@@ -421,41 +421,42 @@ export default {
       currentPage: 1,
       pagesize: 10,
       totalLength: 0,
-      activeName: 'databaseBackup',
+      activeName: '',
     }
   },
   created() {
     this.fetchData();
+    this.activeName = this.$route.query.activeName;
   },
   methods: {
     fetchData() {
-       fetchBackup()
-      .then(res => {
-        this.databaseBackup=this.filterArray(res.data.data,1);
-        this.filehostBackup=this.filterArray(res.data.data,2);
-        this.vmBackup=this.filterArray(res.data.data,3);
-        this.totalLength = this.databaseBackup.length;
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
-      fetchRestore()
-      .then(res => {
-        this.databaseRestore=this.filterArray(res.data.data,1);
-        this.filehostRestore=this.filterArray(res.data.data,2);
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
-      fetchInitconn()
-      .then(res => {
-        this.initconnNum=res.data.data.sort(function(a, b) {
-        return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
+      fetchBackup()
+        .then(res => {
+          this.databaseBackup=this.filterArray(res.data.data,1);
+          this.filehostBackup=this.filterArray(res.data.data,2);
+          this.vmBackup=this.filterArray(res.data.data,3);
+          this.totalLength = this.databaseBackup.length;
         })
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
+        .catch(error => {
+          error => Promise.reject(error);
+        });
+      fetchRestore()
+        .then(res => {
+          this.databaseRestore=this.filterArray(res.data.data,1);
+          this.filehostRestore=this.filterArray(res.data.data,2);
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        });
+      fetchInitconn()
+        .then(res => {
+          this.initconnNum=res.data.data.sort(function(a, b) {
+          return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
+          })
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        });
     },
     filterArray(data, type) {
       data.map(function(item) {

@@ -27,9 +27,9 @@
           </el-table-column>
           <el-table-column prop="email" label="邮箱" min-width="160" align="center">
           </el-table-column>
-          <el-table-column prop="receive" label="接收状态" min-width="120" align="center">
+          <el-table-column prop="receiveState" label="接收状态" min-width="120" align="center">
             <template slot-scope="scope">
-              <span v-if="scope.row.receive === 1">
+              <span v-if="scope.row.receiveState === 1">
                 <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
                 </i>
               </span>
@@ -107,8 +107,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item prop="receive">
-              <el-checkbox v-model="update.receive"
+            <el-form-item prop="receiveState">
+              <el-checkbox v-model="update.receiveState"
                            :true-label="1"
                            :false-label="0"
                            @change="receiveChange">接收</el-checkbox>
@@ -177,8 +177,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item prop="receive">
-              <el-checkbox v-model="create.receive"
+            <el-form-item prop="receiveState">
+              <el-checkbox v-model="create.receiveState"
                            :true-label="1"
                            :false-label="0"
                            @change="receiveChange">接收</el-checkbox>
@@ -245,10 +245,10 @@ const rolesUser = [
     id: 'sql server dba',
     name: 'SQL Server管理员',
   },
-  {
-    id: 'mysql dba',
-    name: 'MySql管理员'
-  },
+  // {
+  //   id: 'mysql dba',
+  //   name: 'MySql管理员'
+  // },
   {
     id: 'vm admin',
     name: '虚拟机管理员',
@@ -344,7 +344,7 @@ export default {
         state: '',
         roles: [],
         email: '',
-        receive: 1,
+        receiveState: 1,
       },
       create: {
         loginName: '',
@@ -354,14 +354,14 @@ export default {
         checkpass: '',
         roles: [],
         email: '',
-        receive: 1,
+        receiveState: 1,
       },
     };
   },
   computed: {
     emailRule() {
-      return (this.dialogCreateVisible===true&&this.create.receive===1)
-             || (this.dialogUpdateVisible===true&&this.update.receive===1)
+      return (this.dialogCreateVisible===true&&this.create.receiveState===1)
+             || (this.dialogUpdateVisible===true&&this.update.receiveState===1)
              ?this.rules.email
              :[{ required: false, message: '请输入邮箱', trigger: 'blur'},
                {
@@ -407,7 +407,7 @@ export default {
           // 向请求服务端重置
           const resetUpdate = {
             id: value,
-            password: 'Xfback@201806！',
+            password: 'Xfback@201806!',
           };
           updateUserInfo(resetUpdate)
             .then(response => {
@@ -436,7 +436,9 @@ export default {
               this.$message.success(
                 `成功删除了用户 ${row.loginName}!${response.data.message}`
               );
-              this.tableUsers.splice(index, 1);
+              this.tableUsers.splice(
+              this.tableUsers.findIndex(user => user.id === row.id),
+              1);
               // this.getUsers();
             })
             .catch(error => {
@@ -472,10 +474,10 @@ export default {
           this.createLoading = true;
           createUserInfo(this.create)
             .then(response => {
+              this.tableUsers.unshift(response.data.data);
               this.$message.success(response.data.message);
               this.dialogCreateVisible = false;
               this.createLoading = false;
-              this.tableUsers.push(response.data.data);
             })
             .catch(error => {
               this.createLoading = false;
@@ -495,11 +497,15 @@ export default {
           if (!this.updatePass) delete this.update.password;
           updateUserInfo(this.update)
           .then(response => {
-            this.$message.success(response.data.message);
+            const { data, message } = response.data
+            // 根据索引，赋值到list制定的数
+            this.tableUsers.splice(
+            this.tableUsers.findIndex(user => user.id === data.id),
+            1,
+            data);
+            this.$message.success(message);
             this.dialogUpdateVisible = false;
             this.updateLoading = false;
-            // 根据索引，赋值到list制定的数
-            this.tableUsers.splice(this.listIndex, 1, response.data.data);
           })
           .catch(error => {
             this.updateLoading = false;
