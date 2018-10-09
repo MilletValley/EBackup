@@ -223,9 +223,9 @@ export default {
         this.$message.warning('请选择需要执行切换的设备')
       }
     },
-    // 切IP是否可用：设备最近操作为切换IP或解除连接时不可用, 切换后实例角色不一致时不可用
+    // 切IP是否可用：设备最近操作为切换IP或解除连接时不可用(切换中... 解除连接中...), 切换后实例角色不一致时不可用
     switchIpDisable(switchLink) {
-      const onGoing = switchLink.latestSwitch.state === 1 && [2, 3].includes(switchLink.latestSwitch.type)
+      const onGoing = (switchLink.latestSwitch) && (switchLink.latestSwitch.state === 1 && [2, 3].includes(switchLink.latestSwitch.type))
       const hasSelectLink = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.includes(databaseLink.id))
       const notSelectLink = switchLink.databaseLinks.filter(databaseLink => switchLink.linkIds.indexOf(databaseLink.id) === -1)
       // 切换后生产库实例角色
