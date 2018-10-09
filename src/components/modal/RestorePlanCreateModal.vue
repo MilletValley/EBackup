@@ -50,9 +50,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="虚拟机名称"
+          <el-form-item label="新虚拟机名"
                         prop="detailInfo">
-            <el-input v-model="formData.detailInfo" disabled></el-input>
+            <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -165,11 +165,16 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
+          console.log(this.formData)
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              const { loginName, detailInfo} = config;
+              let conf = Object.assign({},config);
+              conf.loginName = detailInfo;
+              conf.detailInfo = loginName;
               this.$emit('confirm', {
                 id: this.database.id,
-                data: { name, config },
+                data: { name, config: conf },
               });
             })
             .catch(error => {
@@ -182,8 +187,9 @@ export default {
     },
     modalOpened() {
       if(this.isVMware){
-        this.formData.detailInfo = this.database.vmName;
-        this.originFormData.detailInfo = this.database.vmName;
+        //loginname暂时用来存放虚拟机名称
+        this.formData.loginName = this.database.vmName;
+        this.originFormData.loginName = this.database.vmName;
       }else{
         this.formData.detailInfo = this.database.instanceName;
         this.originFormData.detailInfo = this.database.instanceName;

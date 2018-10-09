@@ -55,9 +55,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="虚拟机名称"
+          <el-form-item label="新虚拟机名"
                         prop="detailInfo">
-            <el-input v-model="formData.detailInfo" disabled></el-input>
+            <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -169,10 +169,14 @@ export default {
         if (valid) {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              const { loginName, detailInfo} = config;
+              let conf = Object.assign({},config);
+              conf.loginName = detailInfo;
+              conf.detailInfo = loginName;
               this.$emit('confirm', {
                 id: this.restorePlan.id,
                 name,
-                config,
+                config: conf,
               });
             })
             .catch(error => {
@@ -199,9 +203,10 @@ export default {
         hostIp: configHostIp
       } = this.restorePlan.config;
       const { instanceName, vmName, loginName, host } = database;
-      const detailInfo = this.isVMware ? vmName : instanceName;
+      const detailInfo = this.isVMware ? loginName : instanceName;
       const { name: hostName, hostIp: hostHostIp } = host;
       let curHostIp = this.isVMware ? configHostIp : hostHostIp
+      let curLoginName = this.isVMware ? vmName : loginName
       this.originFormData = {
         name: this.restorePlan.name,
         id,

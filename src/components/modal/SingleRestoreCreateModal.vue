@@ -45,9 +45,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="虚拟机名称"
+          <el-form-item label="新虚拟机名"
                         prop="detailInfo">
-            <el-input v-model="formData.detailInfo" disabled></el-input>
+            <el-input v-model="formData.detailInfo" ></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -114,7 +114,11 @@ export default {
           this.formData.name = dayjs().format('YYYYMMDDHHmmss');
           this.pruneData(this.formData)
             .then(({ name, config }) => {
-              this.$emit('confirm', { id: this.id, data: { name, config } });
+              const { loginName, detailInfo} = config;
+              let conf = Object.assign({},config);
+              conf.loginName = detailInfo;
+              conf.detailInfo = loginName;
+              this.$emit('confirm', { id: this.id, data: { name, config: conf } });
             })
             .catch(error => {
               this.$message.error(error);
@@ -126,8 +130,8 @@ export default {
     },
     modalOpened() {
       if(this.isVMware){
-        this.formData.detailInfo = this.database.vmName;
-        this.originFormData.detailInfo = this.database.vmName;
+        this.formData.loginName = this.database.vmName;
+        this.originFormData.loginName = this.database.vmName;
       }
     },
     modalClosed() {
