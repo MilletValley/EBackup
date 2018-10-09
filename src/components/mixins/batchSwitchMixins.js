@@ -51,7 +51,14 @@ const batchSwitchMixin = {
         const linkIds = item.databaseLinks.filter(databaseLink => databaseLink.state !== 1).map(i => i.id);
         return Object.assign({ flag: this.flag, linkIds }, item);
       }) : [];
-    }
+    },
+    dbType() {
+      if (this.databaseType === 'oracle') {
+        return 1;
+      } else if (this.databaseType === 'sqlserver') {
+        return 2;
+      }
+    },
   }
 };
 export default batchSwitchMixin;

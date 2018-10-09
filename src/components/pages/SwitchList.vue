@@ -176,7 +176,7 @@ export default {
   },
   computed: {
     switchPlans() {
-      return this.planList.filter(plan => plan.dbType === this.databaseType)
+      return this.planList.filter(plan => plan.dbType === this.dbType)
     }
   },
   methods: {

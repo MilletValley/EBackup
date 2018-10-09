@@ -211,7 +211,7 @@ export default {
             const data = {
               name: this.name,
               createTime: this.createTime,
-              dbType: this.databaseType,
+              dbType: this.dbType,
               switchIds: this.switchIds
             }
             this.$emit('confirm', data);
@@ -264,6 +264,13 @@ export default {
     },
     dialogTitle() {
       return "添加计划("+`${this.databaseType}`+")"
+    },
+    dbType() {
+      if (this.databaseType === 'oracle') {
+        return 1;
+      } else if (this.databaseType === 'sqlserver') {
+        return 2;
+      }
     },
     // 获取当前时间，yyyy-mm-dd hh-mm-ss
     createTime () {

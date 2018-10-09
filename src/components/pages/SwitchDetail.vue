@@ -4,7 +4,7 @@
             justify="end"
             :gutter="10">
       <el-col :span="1">
-        <i-icon :name="`${plan.dbType}`"
+        <i-icon :name="databaseType"
                 :class="$style.databaseType"></i-icon>
       </el-col>
       <el-col :span="23">
@@ -104,7 +104,7 @@
 </template>
 <script>
 import { fetchOne } from '../../api/switch'
-import { switchTypeMapping } from '../../utils/constant'
+import { switchTypeMapping, databaseTypeMapping } from '../../utils/constant'
 import IIcon from '../IIcon'
 export default {
   name: 'SwitchDetail',
@@ -125,6 +125,9 @@ export default {
       } else {
         return []
       }
+    },
+    databaseType() {
+      return databaseTypeMapping[this.plan.dbType]
     }
   },
   created() {
