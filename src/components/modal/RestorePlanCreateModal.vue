@@ -165,7 +165,6 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
-          console.log(this.formData)
           this.pruneData(this.formData)
             .then(({ name, config }) => {
               const { loginName, detailInfo} = config;
