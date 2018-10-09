@@ -29,17 +29,17 @@ const listMixin = {
       if (!tableData) {
         return [];
       }
-      return tableData.filter(v => v.name.toLowerCase().includes(arg.toLowerCase()));
+      return tableData.filter(v => !v.name || v.name.toLowerCase().includes(arg.toLowerCase()));
     },
     filterByTag(tableData, arg, tag) { // 带有搜索项
       if (!tableData) {
         return [];
       } else if (tag === 'name') {
-        return tableData.filter(v => v.name.toLowerCase().includes(arg.toLowerCase()));
+        return tableData.filter(v => !v.name || v.name.toLowerCase().includes(arg.toLowerCase()));
       } else if (tag === 'hostIp') {
-        return tableData.filter(v => v.hostIp.includes(arg));
+        return tableData.filter(v => !v.hostIp || v.hostIp.includes(arg));
       } else if (tag === 'serviceIp') {
-        return tableData.filter(v => v.serviceIp.includes(arg));
+        return tableData.filter(v => !v.serviceIp || v.serviceIp.includes(arg));
       }
       return tableData;
     },
