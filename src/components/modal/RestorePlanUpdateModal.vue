@@ -153,7 +153,7 @@
 <script>
 import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
-
+import { fetchRestoreOperation} from '../../api/virtuals';
 export default {
   name: 'RestorePlanUpdateModal',
   mixins: [restorePlanModalMixin],
@@ -203,30 +203,34 @@ export default {
         hostIp: configHostIp
       } = this.restorePlan.config;
       const { instanceName, vmName, loginName, host } = database;
-      const detailInfo = this.isVMware ? loginName : instanceName;
-      const { name: hostName, hostIp: hostHostIp } = host;
-      let curHostIp = this.isVMware ? configHostIp : hostHostIp
-      let curLoginName = this.isVMware ? vmName : loginName
-      this.originFormData = {
-        name: this.restorePlan.name,
-        id,
-        singleTime,
-        startTime: timeStrategy === 1 ? '' : startTime,
-        timePoints,
-        weekPoints,
-        datePoints,
-        timeStrategy,
-        detailInfo,
-        loginName,
-        hostName,
-        curHostIp,
-      };
-      // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
-      // 避免引用到一个数组对象引起的BUG
-      this.formData = {
-        ...this.originFormData,
-        ...{ timePoints: cloneDeep(timePoints) },
-      };
+      //查询详情获取新虚拟机名称，loginName=新虚拟机名
+      fetchRestoreOperation(this.restorePlan).then( res => {
+        const lName = res.data.data.config.loginName;
+        const detailInfo = this.isVMware ? lName : instanceName;
+        const { name: hostName, hostIp: hostHostIp } = host;
+        let curHostIp = this.isVMware ? configHostIp : hostHostIp
+        let curLoginName = this.isVMware ? vmName : loginName
+        this.originFormData = {
+          name: this.restorePlan.name,
+          id,
+          singleTime,
+          startTime: timeStrategy === 1 ? '' : startTime,
+          timePoints,
+          weekPoints,
+          datePoints,
+          timeStrategy,
+          detailInfo,
+          loginName: curLoginName,
+          hostName,
+          hostIp: curHostIp,
+        };
+        // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
+        // 避免引用到一个数组对象引起的BUG
+        this.formData = {
+          ...this.originFormData,
+          ...{ timePoints: cloneDeep(timePoints) },
+        };
+        })
     },
     modalClosed() {
       this.$refs.restorePlanUpdateForm.clearValidate();
