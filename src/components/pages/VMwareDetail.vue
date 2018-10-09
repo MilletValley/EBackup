@@ -367,7 +367,6 @@ export default {
     },
     addRestorePlan(restorePlan) {
       this.btnLoading = true;
-      console.log(restorePlan)
       createRestorePlan(restorePlan)
         .then(res => {
           const { data: restorePlan, message } = res.data;
