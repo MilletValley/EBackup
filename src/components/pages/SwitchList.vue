@@ -182,7 +182,7 @@ export default {
       fetchAll()
         .then(res => {
           const { data } = res.data;
-          this.planList = data.sort((a, b) => b.createTime-a.createTime)
+          this.planList = data.sort((a, b) => Date.parse(b.createTime)-Date.parse(a.createTime))
         }),
       fetchLinks()
         .then(res => {
