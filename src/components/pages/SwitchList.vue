@@ -149,7 +149,8 @@ import BatchSwitchModal from '../modal/BatchSwitchModal';
 import { operationStateMapping } from '../../utils/constant'
 import baseMixin from '../mixins/baseMixins';
 import batchSwitchMinxin from '../mixins/batchSwitchMixins'
-import { fetchLinks } from '../../api/oracle'
+import { fetchLinks as fetchLinksSqlserver } from '../../api/sqlserver'
+import { fetchLinks as fetchLinksOracle } from '../../api/oracle'
 export default {
   name: 'SwitchList',
   mixins: [baseMixin, batchSwitchMinxin],
@@ -160,7 +161,8 @@ export default {
       infoLoading: true,
       activeTab: 'plans',
       btnLoading: false,
-      links: [],
+      sqlserverLinks: [],
+      oracleLinks: [],
       databaseType: 'oracle',
       timer: null
     }
@@ -177,6 +179,13 @@ export default {
   computed: {
     switchPlans() {
       return this.planList.filter(plan => plan.dbType === this.dbType)
+    },
+    links() {
+      if(this.databaseType === 'oracle') {
+        return this.oracleLinks
+      } else if (this.databaseType === 'sqlserver') {
+        return this.sqlserverLinks
+      }
     }
   },
   methods: {
@@ -197,10 +206,18 @@ export default {
           const { data } = res.data;
           this.planList = data.sort((a, b) => Date.parse(b.createTime)-Date.parse(a.createTime))
         }),
-      fetchLinks()
+      fetchLinksOracle()
         .then(res => {
           const { data: links } = res.data;
-          this.links = links;
+          this.oracleLinks = links;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchLinksSqlserver()
+        .then(res => {
+          const { data: links } = res.data;
+          this.sqlserverLinks = links;
         })
         .catch(error => {
           this.$message.error(error);
