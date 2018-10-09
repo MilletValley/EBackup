@@ -169,6 +169,7 @@ export default {
         if (valid) {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              //数据转换，detailInfo=旧虚拟机名，loginName=新虚拟机名，界面中detailInfo表示新虚拟机名
               const { loginName, detailInfo} = config;
               let conf = Object.assign({},config);
               conf.loginName = detailInfo;
@@ -193,10 +194,10 @@ export default {
       if(this.isVMware){
         fetchRestoreOperation(this.restorePlan.id).then( res => {
           lName = res.data.data.config.loginName;
-          this.format(lName)
+          this.format(lName);
         })
       }else{
-        this.format(lName)
+        this.format(lName);
       }
     },
     format(lName){
@@ -217,8 +218,8 @@ export default {
       const { instanceName, vmName, loginName, host } = database;
       const detailInfo = this.isVMware ? lName : instanceName;
       const { name: hostName, hostIp: hostHostIp } = host;
-      let curHostIp = this.isVMware ? configHostIp : hostHostIp
-      let curLoginName = this.isVMware ? vmName : loginName
+      let curHostIp = this.isVMware ? configHostIp : hostHostIp;
+      let curLoginName = this.isVMware ? vmName : loginName;
       this.originFormData = {
         name: this.restorePlan.name,
         id,
