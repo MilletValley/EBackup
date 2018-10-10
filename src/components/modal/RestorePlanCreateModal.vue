@@ -56,6 +56,13 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <el-row v-if="isVMware">
+        <el-form-item label="恢复磁盘名"
+                      prop="password"
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+          <el-input v-model="formData.password"></el-input>
+        </el-form-item>
+      </el-row>
       <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
