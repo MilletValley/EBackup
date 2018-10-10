@@ -74,10 +74,13 @@
                              label="数据库名"
                              align="center"
                              min-width="100"></el-table-column>
-            <el-table-column prop="endTime"
-                             label="备份结束时间"
+            <el-table-column label="备份结束时间"
                              align="center"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="耗时"
                              align="center"
                              min-width="100">
@@ -92,7 +95,7 @@
             <el-table-column prop="backupState"
                              label="状态"
                              align="center"
-                             min-width="100">
+                             min-width="80">
               <template slot-scope="scope">
                 <i v-if="scope.row.backupState === 0"
                   class="el-icon-success"
@@ -125,10 +128,13 @@
                              label="数据库名"
                              align="center"
                              min-width="180"></el-table-column>
-            <el-table-column prop="endTime"
-                             label="恢复结束时间"
+            <el-table-column label="恢复结束时间"
                              align="center"
-                             min-width="180"></el-table-column>
+                             min-width="180">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+              </template>            
+            </el-table-column>
             <el-table-column label="耗时"
                              align="center"
                              min-width="180">
@@ -167,25 +173,40 @@
                              label="主机IP"
                              align="center"
                              min-width="100"></el-table-column>
-            <el-table-column prop="primaryState"
-                             label="主库状态"
+            <el-table-column label="主库状态"
                              align="center"
-                             :formatter="judgePrimary"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag :type="stateTagType(scope.row.primaryState)"
+                        size="mini">
+                  {{ databaseTypeConverter(scope.row.primaryState) }}
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column prop="viceHostIp"
                              label="备库IP"
                              align="center"
                              min-width="100"></el-table-column>
-            <el-table-column prop="viceState"
-                             label="备库状态"
+            <el-table-column label="备库状态"
                              align="center"
-                             min-width="100"
-                             :formatter="judgeVice"></el-table-column>
-            <el-table-column prop="overState"
-                             label="连接状态"
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag :type="stateTagType(scope.row.viceState)"
+                        size="mini">
+                  {{ databaseTypeConverter(scope.row.viceState) }}
+                </el-tag>
+              </template>              
+            </el-table-column>
+            <el-table-column label="连接状态"
                              align="center"
-                             :formatter="judgeOver"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag :type="linkTagType(scope.row.overState)"
+                        size="mini">
+                  {{ linkTypeConverter(scope.row.overState) }}
+                </el-tag>
+              </template>              
+            </el-table-column>
             <el-table-column prop="initFinishTime"
                              label="初始化完成时间"
                              align="center"
@@ -208,10 +229,13 @@
                              label="实例名"
                              align="center"
                              min-width="100"></el-table-column>
-            <el-table-column prop="endTime"
-                             label="备份结束时间"
+            <el-table-column label="备份结束时间"
                              align="center"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="耗时"
                              align="center"
                              min-width="100">
@@ -226,7 +250,7 @@
             <el-table-column prop="backupState"
                              label="状态"
                              align="center"
-                             min-width="100">
+                             min-width="80">
               <template slot-scope="scope">
                 <i v-if="scope.row.backupState === 0"
                   class="el-icon-success"
@@ -259,10 +283,13 @@
                              label="数据库名"
                              align="center"
                              min-width="180"></el-table-column>
-            <el-table-column prop="endTime"
-                             label="恢复结束时间"
+            <el-table-column label="恢复结束时间"
                              align="center"
-                             min-width="180"></el-table-column>
+                             min-width="180">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+              </template>           
+            </el-table-column>
             <el-table-column label="耗时"
                              align="center"
                              min-width="180">
@@ -301,10 +328,13 @@
                              label="虚拟机名"
                              align="center"
                              min-width="100"></el-table-column>
-            <el-table-column prop="endTime"
-                             label="备份结束时间"
+            <el-table-column label="备份结束时间"
                              align="center"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="耗时"
                              align="center"
                              min-width="100">
@@ -319,7 +349,7 @@
             <el-table-column prop="backupState"
                              label="状态"
                              align="center"
-                             min-width="100">
+                             min-width="80">
               <template slot-scope="scope">
                 <i v-if="scope.row.backupState === 0"
                   class="el-icon-success"
@@ -342,9 +372,9 @@
 </template>
 <script>
 import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
-import { backupStrategyMapping } from '../../utils/constant';
-import { linkStateMapping, databaseStateMapping } from '../../utils/constant';
+import { backupStrategyMapping, databaseTypeMapping } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
+import hostState from '../mixins/hostStateTabMixins'
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -353,7 +383,7 @@ require('echarts/lib/component/title');
 require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin],
+  mixins: [baseMixin, hostState],
   created() {
     this.fetchData();
   },
@@ -434,15 +464,6 @@ export default {
     },
     backupItem(data) {
       return backupStrategyMapping[data.backupType];
-    },
-    judgePrimary(data) {
-      return databaseStateMapping[data.primaryState];
-    },
-    judgeVice(data) {
-      return databaseStateMapping[data.viceState];
-    },
-    judgeOver(data) {
-      return linkStateMapping[data.overState];
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
