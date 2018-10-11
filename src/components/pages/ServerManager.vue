@@ -48,6 +48,7 @@
                     <el-button type="primary"
                                 icon="el-icon-refresh"
                                 circle
+                                :disabled="refreshBtn"
                                 size="mini"
                                 :class="$style.miniCricleIconBtn"
                                 @click="refresh(scope)"></el-button>
@@ -76,7 +77,8 @@
 import { addServer, fetchServerList} from '../../api/host'
 import {
   createMultipleVirtualBackupPlan,
-  rescan
+  rescan,
+  getVMByserverId
 } from '../../api/virtuals';
 import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
 import ServerModal from '@/components/modal/ServerModal';
@@ -98,6 +100,7 @@ export default {
             btnLoading: false,
             backupPlanCreateModalVisible: false,
             serverModalVisible: false,
+            refreshBtn: false
         }
     },
     computed: {
@@ -190,11 +193,21 @@ export default {
             return vmHostServerTypeMapping[cellValue]
         },
         refresh(scope){
-            // console.log(scope);
+            console.log(scope);
+            // scope._self.disabled = true;
             rescan(scope.row).then( res => {
-                this.$refs[scope.row.id].refresh(scope.row.id);
+                if(!this.$refs[scope.row.id]){
+                    getVMByserverId(scope.row.id).then( res => {
+                        const {data } = res.data;
+                        scope.row.vmList = data;
+                    })
+                }else{
+                    this.$refs[scope.row.id] && this.$refs[scope.row.id].refresh(scope.row.id);
+                }
             }).catch( error => {
                 this.$message.error( error)
+            }).then(() => {
+                // scope._self.disabled = false
             })
             
         }
