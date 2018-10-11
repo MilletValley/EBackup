@@ -179,8 +179,10 @@ export default {
               //数据转换，detailInfo=旧虚拟机名，loginName=新虚拟机名，界面中detailInfo表示新虚拟机名
               const { loginName, detailInfo} = config;
               let conf = Object.assign({},config);
-              conf.loginName = detailInfo;
-              conf.detailInfo = loginName;
+              if(this.isVMware){
+                conf.loginName = detailInfo;
+                conf.detailInfo = loginName;
+              }
               this.$emit('confirm', {
                 id: this.restorePlan.id,
                 name,
