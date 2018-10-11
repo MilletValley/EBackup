@@ -1,6 +1,6 @@
 <template>
-    <el-table :data="tableData" @select="selectDbChangeFn"  :ref="refTable"
-           @select-all="((selection) => selectAll(selection, tableData))">
+    <el-table :data="curTableData" @select="selectDbChangeFn"  :ref="refTable"
+           @select-all="((selection) => selectAll(selection, curTableData))">
         <el-table-column   
             type="selection"
             align="left"
@@ -15,7 +15,7 @@
                     align="left"
                     min-width="200">
             <template slot-scope="scope">
-                <router-link :to="`/vm/virtual/${scope.row.id}`"
+                <router-link :to="scope.row.type === '1' ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
                             :class="$style.link">{{scope.row.vmName}}</router-link>
             </template>
         </el-table-column>
@@ -25,17 +25,23 @@
                         min-width="200">
         </el-table-column>
         <el-table-column prop="vmHostName"
-            label="所属主机"
+            label="所属物理主机"
             min-width="150"
             align="left"></el-table-column>
     </el-table>
 </template>
 <script>
+import {
+    getVMByserverId
+} from '../../api/virtuals';
 export default {
     props: {
         tableData: {
             type: Array
         },
+        // id: {
+        //     type: Number
+        // },
         refTable: {
             type: String
         },
@@ -43,12 +49,17 @@ export default {
             type: Array
         }
     },
+    data(){
+        // console.log(this.tableData)
+        return {
+            curTableData: this.tableData
+        }
+    },
     mounted(){
-        console.log(123)
         this.$nextTick( () => {
             this.$refs[this.refTable].clearSelection();
             this.selectData.forEach( item => {
-                this.tableData.forEach( e => {
+                this.curTableData.forEach( e => {
                     if(item.id === e.id){
                         this.$refs[this.refTable].toggleRowSelection(item, true);
                     }
@@ -56,6 +67,8 @@ export default {
                 
             })
         });
+        // this.getData();
+        
     },
     watch: {
         selectData(data){
@@ -66,7 +79,7 @@ export default {
                 }
                 this.$refs[this.refTable].clearSelection();
                 data.forEach( item => {
-                    this.tableData.forEach( e => {
+                    this.curTableData.forEach( e => {
                         if(item.id === e.id){
                             this.$refs[this.refTable].toggleRowSelection(item, true);
                         }
@@ -74,7 +87,11 @@ export default {
                     
                 })
             });
-        }
+        },
+        // tableData(data){
+        //     console.log(data,this.tableData)
+        //     this.curTableData = data;
+        // }
     },
     computed: {
         currentSelect: {
@@ -87,9 +104,56 @@ export default {
         },
     },
     methods: {
+        // getData(){
+        //     if(!this.id){
+        //         return
+        //     }
+        //     getVMByserverId(this.id).then( res => {
+        //         const {data} = res.data;
+        //         this.curTableData = data;
+        //         console.log(1111, this.selectData)
+        //         this.$nextTick( () => {
+        //             this.$refs[this.refTable].clearSelection();
+        //             this.selectData.forEach( item => {
+        //                 this.curTableData.forEach( e => {
+        //                     if(item.id === e.id){
+        //                         this.$refs[this.refTable].toggleRowSelection(item, true);
+        //                     }
+        //                 })
+                        
+        //             })
+        //         });
+        //     }).catch( error => {
+
+        //     })
+        // },
+        refresh(id){
+            getVMByserverId(id).then( res => {
+                const {data} = res.data;
+                //更新数据前，去除已选数据。表格刷新后默认清空该表格的选中状态
+                const ids = this.curTableData.map( i => {
+                    return i.id;
+                });
+                this.currentSelect = this.selectData.filter( e => {
+                    if(ids.includes(e.id)){
+                        return false
+                    }
+                    return true
+                });
+
+                this.curTableData = data;
+            }).catch( error => {
+                this.$message.error( error)
+            })
+        },
         selectDbChangeFn(selectData, row){
             if(selectData.includes(row)){
-                this.currentSelect.push(row);
+                // const ids = this.currentSelect.map( e => {
+                //     return e.id;
+                // })
+                // if(!ids.includes(row.id)){
+                     this.currentSelect.push(row);
+                // }
             }else{
                 //需要优化，匹配到即跳出循环
                 this.currentSelect = this.currentSelect.filter( e => {

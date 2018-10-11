@@ -1,52 +1,51 @@
 <template>
     <el-table :data="tableData" v-loading="loading" style="text-align:left;">
-        <el-table-column label="虚拟机名称" align="left"
+        <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
-                <router-link :to="`/vm/virtual/${scope.row.vm.id}`"
+                <router-link :to="scope.row.vm.type === '1' ? `/vm/virtual/${scope.row.vm.id}` : `/vm/hwVirtual/${scope.row.vm.id}`"
                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
-        <el-table-column prop="vm.vmPath" align="left"
+        <el-table-column prop="vm.vmPath" align="left" show-overflow-tooltip
                         label="路径"
                         >
         </el-table-column>
         <el-table-column prop="vm.vmHostName"
-            label="所属主机"
+            label="所属物理主机"
+            min-width="150"
             align="left">
         </el-table-column>
-        <el-table-column prop="vmBackupPlan.startTime" align="left"
+        <el-table-column prop="vmBackupResult.startTime" align="left"
+                        min-width="160"
                         label="备份开始时间">
         </el-table-column>
-        <el-table-column prop="vmBackupPlan.size" align="left"
+        <el-table-column prop="vmBackupResult.size" align="left"
+                        min-width="100"
                         label="已备份大小">
         </el-table-column>
-        <el-table-column prop="vmBackupPlan.state" align="left"
+        <el-table-column prop="vmBackupResult.state" align="left"
+                        min-width="150"
                         label="状态">
             <template slot-scope="scope">
-                <el-tooltip 
-                            :content="tipsText(scope.row.vmBackupPlan)"
+                <!-- <el-tooltip 
+                            :content="tipsText(scope.row.vmBackupResult)"
                             placement="left"
                             effect="light">
-                    <i  :class="operationStateStyle(scope.row.vmBackupPlan.state)"></i>
-                    <!-- <i v-if="backupOperation.state === 0"
-                        class="el-icon-time"
-                        :class="operationStateStyle(scope.row.vmBackupPlan.state)"></i>
-                    <i v-else-if="backupOperation.state === 1"
-                        class="el-icon-loading"
-                        :class="operationStateStyle"></i>
-                    <i v-else-if="backupOperation.state === 3"
-                        class="el-icon-warning"
-                        :class="operationStateStyle"></i>
-                    <span :class="operationStateStyle">{{operationState || '-'}}</span> -->
-                    <!-- </div> -->
-                </el-tooltip>
+                    <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i>
+                </el-tooltip> -->
+                <el-progress :text-inside="false" :stroke-width="12" :percentage="formatProcess(scope.row.vmBackupResult)" :status="formatState(scope.row.vmBackupResult.state)">
+                    
+                </el-progress>
+                <!-- <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i> -->
+                
             </template>
         </el-table-column>
-        <el-table-column prop="vmBackupPlan.consume" align="left"
+        <el-table-column prop="vmBackupResult.consume" align="left"
+                        min-width="100"
                         label="已持续时间">
             <template slot-scope="scope">
-                <span>{{ scope.row.vmBackupPlan.consume | durationFilter}}</span>
+                <span>{{ scope.row.vmBackupResult.consume | durationFilter}}</span>
             </template>
         </el-table-column>
     </el-table>
@@ -109,6 +108,25 @@ export default {
                 return data.processSpeed;
             }
             return operationStateMapping[data.state];
+        },
+        formatProcess(data){
+            if(data.state === 1){
+                return data.processSpeed;
+            }else if (data.state === 0){
+                return 0;
+            }else if (data.state === 2){
+                return 100
+            }else if (data.state === 3){
+                return data.processSpeed;
+            }
+        },
+        formatState(state){
+            if(state === 2){
+                return 'success';
+            }else if( state === 3){
+                return 'exception'
+            }
+            return ''
         },
         setTimer() {
             this.clearTimer();

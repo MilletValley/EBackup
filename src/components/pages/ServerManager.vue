@@ -13,7 +13,7 @@
         <el-table v-show="!isSelect" :data="serverTableData" ref="serverTable">
              <el-table-column type="expand">
                     <template slot-scope="props">
-                        <mutil-table :tableData="props.row.vmList" :refTable="props.row.serverName" :selectData.sync="currentSelect"></mutil-table>
+                        <mutil-table :tableData="props.row.vmList" :ref="props.row.id" :refTable="props.row.serverName" :selectData.sync="currentSelect"></mutil-table>
                     </template>
             </el-table-column>
             <el-table-column label="主机名" prop="serverName" align="left"
@@ -40,6 +40,25 @@
                 :formatter="serverTypeFormat"
                 min-width="150"
                 align="left"></el-table-column>
+            <el-table-column label="操作"
+                            min-width="150"
+                            header-align="center"
+                            align="center">
+                <template slot-scope="scope">
+                    <el-button type="primary"
+                                icon="el-icon-refresh"
+                                circle
+                                size="mini"
+                                :class="$style.miniCricleIconBtn"
+                                @click="refresh(scope)"></el-button>
+                    <!-- <el-button type="danger"
+                                icon="el-icon-delete"
+                                circle
+                                size="mini"
+                                :class="$style.miniCricleIconBtn"
+                                @click="deleteDb(scope)"></el-button> -->
+                </template>
+            </el-table-column>
         </el-table>
         <mutil-table v-show="isSelect" :tableData="currentSelect" refTable="selectTable" :selectData.sync="currentSelect"></mutil-table>
         <backup-plan-create-modal type="vm"
@@ -56,7 +75,8 @@
 <script>
 import { addServer, fetchServerList} from '../../api/host'
 import {
-  createMultipleVirtualBackupPlan
+  createMultipleVirtualBackupPlan,
+  rescan
 } from '../../api/virtuals';
 import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
 import ServerModal from '@/components/modal/ServerModal';
@@ -168,6 +188,15 @@ export default {
         },
         serverTypeFormat(row, column, cellValue, index){
             return vmHostServerTypeMapping[cellValue]
+        },
+        refresh(scope){
+            // console.log(scope);
+            rescan(scope.row).then( res => {
+                this.$refs[scope.row.id].refresh(scope.row.id);
+            }).catch( error => {
+                this.$message.error( error)
+            })
+            
         }
     }
     

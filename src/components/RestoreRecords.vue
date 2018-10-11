@@ -30,8 +30,9 @@
               <el-tooltip content="目标设备IP"
                           placement="right"
                           :open-delay="300">
-                <span v-if="!isFile">{{ item.config.database.host.hostIp }}</span>
-                <span v-else>{{ item.config.hostIp }}</span>
+                
+                <span v-if="isFile || isVMware" >{{ item.config.hostIp }}</span>
+                <span v-else>{{ item.config.database.host.hostIp }}</span>
               </el-tooltip>
             </p>
 
@@ -41,8 +42,9 @@
               <el-tooltip :content="detailInfoDisplayName"
                           placement="right"
                           :open-delay="300">
-                <span v-if="!isFile">{{item.config.database.instanceName }}</span>
-                <span v-else>{{ item.config.detailInfo }}</span>
+                <span v-if="isVMware">{{item.config.newName }}</span>
+                <span v-if="isFile">{{ item.config.detailInfo }}</span>
+                <span v-else>{{item.config.database.instanceName }}</span>
               </el-tooltip>
             </p>
 
@@ -65,7 +67,7 @@
                          width="200px">
         </el-table-column>
         <el-table-column prop="hostIp"
-                         label="恢复设备IP"
+                         :label="isVMware ? '恢复主机IP' : '恢复设备IP'"
                          align="center"
                          min-width="200px">
         </el-table-column>
@@ -130,6 +132,14 @@ export default {
         vm: '虚拟机',
       };
       return mapping[this.type];
+    },
+    isVMware() {
+      // const path = this.$route.path;
+      // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+      if(this.type === 'vm'){
+        return true;
+      }
+      return false;
     },
     isFile() {
       if (this.type === 'windows' || this.type === 'linux') {

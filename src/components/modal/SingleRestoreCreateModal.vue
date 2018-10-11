@@ -2,6 +2,7 @@
   <el-dialog custom-class="min-width-dialog"
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
+             @open="modalOpened"
              @close="modalClosed">
     <span slot="title">执行恢复操作</span>
     <el-form :model="formData"
@@ -9,7 +10,7 @@
              label-width="110px"
              ref="singleRestoreForm"
              size="small">
-      <el-row>
+      <el-row v-if="!isVMware">
         <el-col :span=12>
           <el-form-item label="恢复设备"
                         v-if="!this.isHW"
@@ -36,7 +37,29 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="!this.isHW">
+      <el-row v-if="isVMware">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-form-item label="恢复磁盘名"
+                      prop="diskName"
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+          <el-input v-model="formData.diskName"></el-input>
+        </el-form-item>
+      </el-row>
+      <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">
@@ -83,10 +106,14 @@ export default {
     };
   },
   computed: {
-    isHW() {
-      const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/'))==='hwVirtual'
-    },
+    // isHW() {
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='hwVirtual'
+    // },
+    // isVMware(){
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    // }
   },
   methods: {
     confirmBtnClick() {
@@ -95,6 +122,12 @@ export default {
           this.formData.name = dayjs().format('YYYYMMDDHHmmss');
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              // const { loginName, detailInfo} = config;
+              // let conf = Object.assign({},config);
+              // if(this.isVMware){
+              //   conf.loginName = detailInfo;
+              //   conf.detailInfo = loginName;
+              // }
               this.$emit('confirm', { id: this.id, data: { name, config } });
             })
             .catch(error => {
@@ -104,6 +137,28 @@ export default {
           return false;
         }
       });
+    },
+    modalOpened() {
+      let customData;
+      if(this.isVMware || this.isHW){
+        customData = {
+          newName: '',
+          oldName: this.database.vmName,
+          diskName: '',
+        }
+      }else{
+        customData = {
+          loginName: '',
+          password: '',
+          detailInfo: this.database.instanceName,
+        }
+      }
+      this.formData = Object.assign({}, this.formData, customData)
+      console.log(this.formData)
+      // if(this.isVMware){
+      //   this.formData.loginName = this.database.vmName;
+      //   this.originFormData.loginName = this.database.vmName;
+      // }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };

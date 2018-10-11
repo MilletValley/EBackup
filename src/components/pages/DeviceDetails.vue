@@ -6,7 +6,7 @@
         </el-row>
         <el-tabs tab-position="left" style="height: 100%;" v-model="tabName" >
             <el-tab-pane v-for="(item, index) in tabsData"  :key="index" :label="item.serverName" :name="`host${index}`">
-                <mutil-table :tableData="item.vmList" :refTable="item.serverName" :selectData.sync="currentSelect"></mutil-table>
+                <mutil-table :id="item.vmList" :refTable="item.serverName" :selectData.sync="currentSelect"></mutil-table>
                 <!-- <el-table :data="item.vmList" @select="selectDbChangeFn"  
                         :ref="item.serverIp"   @select-all="((selection) => selectAll(selection, item.vmList))">
                     <el-table-column   
@@ -43,7 +43,7 @@
                     <el-table-column label="名称"
                                 min-width="200">
                         <template slot-scope="scope">
-                            <router-link :to="`/vm/virtual/${scope.row.id}`"
+                            <router-link :to="scope.row.type === '1' ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
                                         :class="$style.link">{{scope.row.vmName}}</router-link>
                         </template>
                     </el-table-column>

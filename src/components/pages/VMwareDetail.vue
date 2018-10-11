@@ -29,18 +29,18 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore"
-                                      :disabled="isVM">恢复计划</el-dropdown-item>
+                                      >恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button size="mini"
+                <el-button v-if="false" size="mini"
                            type="primary"
                            @click="detailsEditModal = true"
-                           :disabled="isVM">编辑</el-button>
+                           >编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
                      label-position="left"
-                     label-width="100px"
+                     label-width="120px"
                      inline
                      size="small"
                      class="item-info">
@@ -52,15 +52,15 @@
                   <el-form-item label="虚拟机密码：">
                     <div>●●●●●●●●</div>
                   </el-form-item>
-                  <el-form-item label="主机名：">
-                    <div>{{ details.host.name }}</div>
+                  <el-form-item label="所属物理主机：">
+                    <div>{{ details.vmHostName }}</div>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="操作系统：">
                     <div>{{ details.host.osName }}</div>
                   </el-form-item>
-                  <el-form-item label="主机IP：">
+                  <el-form-item label="设备IP：">
                     <div>{{ details.host.hostIp }}</div>
                   </el-form-item>
                 </el-col>
@@ -116,6 +116,7 @@
                            @confirm="updateDetails"></virtual-update-modal>
     <single-restore-create-modal type="vm"
                                  :id="selectedBackupResultId"
+                                 :database="details"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :btn-loading="btnLoading"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
@@ -223,10 +224,14 @@ export default {
     };
   },
   computed: {
-    isVM() {
-      const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-    }
+    // isVM() {
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    // }
+    // vmType(){
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual' ? 'VMware : 
+    // }
   },
   methods: {
     fetchData() {
@@ -440,6 +445,45 @@ export default {
   },
   components: {
     VirtualUpdateModal,
+  },
+  beforeRouteEnter (to, from, next) {
+      // 在渲染该组件的对应路由被 confirm 前调用
+      // 不！能！获取组件实例 `this`
+      // 因为当守卫执行前，组件实例还没被创建
+      // console.log(this.$route.path)
+      let path = to.path;
+      if(from.name === 'collectManager'){
+        to.meta.breadcrumb[1] = {
+          name: '虚拟机主机管理',
+          path: from.path
+        }
+      }else if(from.name === 'backup'){
+        to.meta.breadcrumb[1] = {
+          name: '备份计划',
+          path: from.path
+        }
+      }else if(from.name === 'deviceDetails'){
+        to.meta.breadcrumb[1] = {
+          name: '设备详情',
+          path: from.path
+        }
+      }else{
+        to.meta.breadcrumb[1] = {
+          name: '虚拟机列表',
+          path: '/vm/virtual'
+        }
+      }
+      /*if(!from.meta.breadcrumb && from.path === '/'){
+        // to.meta.breadcrumb[1] = null
+      }else{
+        console.log(from.meta.breadcrumb)
+        to.meta.breadcrumb[1] = {
+          name: from.meta.breadcrumb[from.meta.breadcrumb.length-1],
+          // path: '/vm/virtual'
+          path: from.path
+        }
+      }*/
+      next();
   },
 };
 </script>

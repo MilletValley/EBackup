@@ -168,6 +168,12 @@ const fetchRestoreOperation = id =>
     method: 'get',
     url: `/virtual-restore-plans/${id}`,
   });
+const rescan = ids =>
+  baseApi.request({
+    method: 'post',
+    url: '/virtuals/rescan',
+    data: ids
+  });
 
 //获取备份计划列表
 const fetchVmBackupPlanList = () => 
@@ -181,6 +187,12 @@ const getVmsBackupResult = id =>
   baseApi.request({
     method: 'get',
     url: `/virtual-backup-plans/virtuals/details/${id}`
+  });
+
+const getVMByserverId = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/hosts/server/vmList/${id}`
   });
 
 export {
@@ -201,6 +213,8 @@ export {
   deleteRestorePlan,
   updateRestorePlan,
   fetchRestoreOperation,
+  rescan,
   fetchVmBackupPlanList,
-  getVmsBackupResult
+  getVmsBackupResult,
+  getVMByserverId
 };

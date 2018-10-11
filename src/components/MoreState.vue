@@ -435,7 +435,7 @@ export default {
         this.databaseBackup=this.filterArray(res.data.data,1);
         this.filehostBackup=this.filterArray(res.data.data,2);
         this.vmBackup=this.filterArray(res.data.data,3);
-        this.totalLength = this.databaseBackup.length;
+        this.totalLength = this[this.activeName].length;
       })
       .catch(error => {
         error => Promise.reject(error);

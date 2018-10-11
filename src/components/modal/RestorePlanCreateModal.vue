@@ -19,8 +19,8 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
       </el-row>
-      <el-row>
-        <el-col :span="12" v-if="!this.isHW">
+      <el-row v-if="!isVMware && !isHW">
+        <el-col :span="12" >
           <el-form-item label="恢复设备"
                         prop="hostIp">
             <el-select v-model="formData.hostIp"
@@ -35,14 +35,45 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="this.isHW?24:12">
+        <el-col :span="12">
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="!this.isHW">
+      <el-row v-if="isHW">
+        <el-col :span="24">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-form-item label="恢复磁盘名"
+                      prop="diskName"
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+          <el-input v-model="formData.diskName"></el-input>
+        </el-form-item>
+      </el-row>
+      <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">
@@ -151,11 +182,18 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
+          console.log(this.formData)
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              // const { loginName, detailInfo} = config;
+              // let conf = Object.assign({},config);
+              // if(this.isVMware){
+              //   conf.loginName = detailInfo;
+              //   conf.detailInfo = loginName;
+              // }
               this.$emit('confirm', {
                 id: this.database.id,
-                data: { name, config },
+                data: { name, config},
               });
             })
             .catch(error => {
@@ -167,8 +205,32 @@ export default {
       });
     },
     modalOpened() {
-      this.formData.detailInfo = this.database.instanceName;
-      this.originFormData.detailInfo = this.database.instanceName;
+      let customData;
+      if(this.isVMware || this.isHW){
+        customData = {
+          newName: '',
+          oldName: this.database.vmName,
+          diskName: '',
+        }
+      }else{
+        customData = {
+          loginName: '',
+          password: '',
+          detailInfo: this.database.instanceName,
+        }
+      }
+      this.formData = Object.assign({}, this.formData, customData)
+      console.log(this.formData)
+      
+
+      // if(this.isVMware){
+      //   //loginname暂时用来存放虚拟机名称
+      //   this.formData.oldName = this.database.vmName;
+      //   this.originFormData.loginName = this.database.vmName;
+      // }else{
+      //   this.formData.detailInfo = this.database.instanceName;
+      //   this.originFormData.detailInfo = this.database.instanceName;
+      // }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };

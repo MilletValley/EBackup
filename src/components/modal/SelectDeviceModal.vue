@@ -15,8 +15,7 @@
             <el-table-column prop="name"
                             label="设备名"
                             min-width="150"
-                            align="center"
-                            fixed>
+                            align="center">
             </el-table-column>
             <el-table-column prop="hostIp"
                             label="设备IP"
@@ -79,7 +78,6 @@ export default {
             if(val){
                 this.radioValue = this.selected.hostId
             }
-            
         }
     },
     computed: {
