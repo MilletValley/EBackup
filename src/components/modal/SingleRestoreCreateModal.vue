@@ -123,8 +123,10 @@ export default {
             .then(({ name, config }) => {
               const { loginName, detailInfo} = config;
               let conf = Object.assign({},config);
-              conf.loginName = detailInfo;
-              conf.detailInfo = loginName;
+              if(this.isVMware){
+                conf.loginName = detailInfo;
+                conf.detailInfo = loginName;
+              }
               this.$emit('confirm', { id: this.id, data: { name, config: conf } });
             })
             .catch(error => {
