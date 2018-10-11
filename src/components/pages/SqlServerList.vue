@@ -1,14 +1,13 @@
 <template>
   <section>
     <el-row>
-      <el-form inline
-               size="small">
+      <el-form inline>
         <el-form-item style="float: left" class="input-with-select">
           <el-input placeholder="请输入名称"
                     v-model="inputSearch"
                     @keyup.enter.native="searchByName">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
-          </el-input>          
+          </el-input>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="info"
@@ -32,7 +31,6 @@
         </template>
       </el-table-column>
       <el-table-column label="名称"
-                       fixed
                        min-width="200"
                        align="center">
         <template slot-scope="scope">

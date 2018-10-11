@@ -30,7 +30,7 @@
           <el-radio v-model="formData.emailStatus" :label="'0'">启用</el-radio>
           <el-radio v-model="formData.emailStatus" :label="'1'">禁用</el-radio>
         </el-form-item>
-        <el-form-item label="系统登录名"
+        <el-form-item label="邮箱登录名"
                       prop="emailLoginName">
           <el-input v-model="formData.emailLoginName"></el-input>
         </el-form-item>

@@ -15,8 +15,8 @@ import VMwareList from '@/components/pages/VmwareList';
 import VMwareDetail from '@/components/pages/VMwareDetail';
 import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
-import MySqlList from '@/components/pages/MySqlList';
-import MySqlDetail from '@/components/pages/MySqlDetail';
+// import MySqlList from '@/components/pages/MySqlList';
+// import MySqlDetail from '@/components/pages/MySqlDetail';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
@@ -320,25 +320,25 @@ export const asyncRouters = [
           ],
         },
       },
-      {
-        path: 'mysql',
-        name: 'mysqlList',
-        component: MySqlList,
-        meta: {
-          title: 'MySql',
-          roles: ['mysql dba'],
-          breadcrumb: [
-            {
-              name: '首页',
-              path: '/',
-            },
-            {
-              name: 'MySql列表',
-              path: '',
-            },
-          ],
-        },
-      },
+      // {
+      //   path: 'mysql',
+      //   name: 'mysqlList',
+      //   component: MySqlList,
+      //   meta: {
+      //     title: 'MySql',
+      //     roles: ['mysql dba'],
+      //     breadcrumb: [
+      //       {
+      //         name: '首页',
+      //         path: '/',
+      //       },
+      //       {
+      //         name: 'MySql列表',
+      //         path: '',
+      //       },
+      //     ],
+      //   },
+      // },
       {
         path: 'oracle/:id',
         props: true,
@@ -383,28 +383,28 @@ export const asyncRouters = [
           ],
         },
       },
-      {
-        path: 'mysql/:id',
-        props: true,
-        component: MySqlDetail,
-        meta: {
-          roles: ['mysql dba'],
-          breadcrumb: [
-            {
-              name: '首页',
-              path: '/',
-            },
-            {
-              name: 'MySql列表',
-              path: '/db/mysql',
-            },
-            {
-              name: '数据库详情',
-              path: '',
-            },
-          ],
-        },
-      },
+      // {
+      //   path: 'mysql/:id',
+      //   props: true,
+      //   component: MySqlDetail,
+      //   meta: {
+      //     roles: ['mysql dba'],
+      //     breadcrumb: [
+      //       {
+      //         name: '首页',
+      //         path: '/',
+      //       },
+      //       {
+      //         name: 'MySql列表',
+      //         path: '/db/mysql',
+      //       },
+      //       {
+      //         name: '数据库详情',
+      //         path: '',
+      //       },
+      //     ],
+      //   },
+      // },
     ],
   },
   {

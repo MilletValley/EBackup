@@ -1,21 +1,40 @@
 <template>
   <section>
     <el-row>
-      <el-form inline
-               size="small">
+      <el-form inline>
+        <el-form-item style="float: left" class="input-with-select">
+          <el-input placeholder="请输入内容"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
+            <el-select v-model="selectTag" slot="prepend" placeholder="请选择" style="width: 90px;">
+              <el-option label="设备名" value="name"></el-option>
+              <el-option label="设备IP" value="hostIp"></el-option>
+              <el-option label="操作IP" value="serviceIp"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+          </el-input>
+        </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
                     @click="createModalVisible = true">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="hostsInVuex"
+    <el-table :data="filterTableItem|filterByTag(filterItem, selectTag)|filterByPage(currentPage, pagesize)"
+              @filter-change="filterChange"
               style="width: 100%">
+      <el-table-column label="序号"
+                       min-width="100"
+                       fixed
+                       align="center">
+        <template slot-scope="scope">
+            {{scope.$index+1+(currentPage-1)*pagesize}}
+        </template>
+      </el-table-column>
       <el-table-column prop="name"
                        label="设备名"
                        min-width="150"
-                       align="center"
-                       fixed>
+                       align="center">
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"
@@ -28,23 +47,29 @@
       <el-table-column prop="hostType"
                        label="设备类型"
                        :formatter="judgeHost"
-                       min-width="150"
+                       :filters="hostTypeFilters"
+                       column-key="filterHostType"
+                       min-width="120"
                        align="center"></el-table-column>
       <el-table-column prop="databaseType"
                        label="用途类型"
                        :formatter="judgeDatabase"
-                       min-width="150"
+                       :filters="databaseTypeFilters"
+                       column-key="filterDatabaseType"
+                       min-width="120"
                        align="center"></el-table-column>
       <el-table-column prop="osName"
                        label="操作系统"
-                       min-width="150"
+                       :filters="osNameFilters"
+                       column-key="filterOsName"
+                       min-width="120"
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
                        min-width="140"
                        align="center"></el-table-column>
       <el-table-column label="操作"
-                       min-width="150"
+                       min-width="120"
                        header-align="center"
                        align="center"
                        fixed="right">
@@ -64,6 +89,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="block" style="text-align: right">
+      <el-pagination @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :current-page="currentPage"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pagesize"
+                     background
+                     layout="total, sizes, prev, pager, next, jumper"
+                     :total="filterTableItem|filterByTag(filterItem, selectTag).length">
+      </el-pagination>
+    </div>
     <host-create-modal type="host"
                        :visible.sync="createModalVisible"
                        @confirm="createItem"
@@ -89,6 +125,23 @@ export default {
   data() {
     return {
       selectedId: '',
+      hostTypeFilters: [
+        {text: '生产环境', value: 1},
+        {text: '易备环境', value: 2}
+      ],
+      databaseTypeFilters: [
+        {text: 'oracle', value: 1},
+        {text: 'sqlserver', value: 2},
+        {text: '虚拟机', value: 4}
+      ],
+      osNameFilters: [
+        {text: 'Windows', value: 'Windows'},
+        {text: 'Linux', value: 'Linux'}
+      ],
+      hostTypeTerm: [],
+      databaseTypeTerm: [],
+      osNameTerm: [],
+      filterTableItem: [],
     };
   },
   computed: {
@@ -100,6 +153,16 @@ export default {
       return this.$store.getters.selectedHost(this.selectedId);
     },
   },
+  created() {
+    if (sessionStorage.getItem("store") ) {
+        this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
+    }
+    //在页面刷新时将vuex里的信息保存到sessionStorage里
+    window.addEventListener("beforeunload",()=>{
+        sessionStorage.setItem("store",JSON.stringify(this.$store.state))
+    })
+    this.filterTableItem = this.hostsInVuex
+  },
   methods: {
     judgeHost(data) {
       return hostTypeMapping[data.hostType];
@@ -108,6 +171,26 @@ export default {
       return databaseTypeMapping[data.databaseType];
     },
     fetchData() {},
+    filterChange(filters) {
+      this.filterTableItem = this.hostsInVuex;
+      if(Object.keys(filters)[0] === 'filterHostType') {
+        this.hostTypeTerm = filters.filterHostType;
+      } else if (Object.keys(filters)[0] === 'filterDatabaseType') {
+        this.databaseTypeTerm = filters.filterDatabaseType;
+      } else if (Object.keys(filters)[0] === 'filterOsName') {
+        this.osNameTerm = filters.filterOsName;
+      }
+      if(this.hostTypeTerm.length !== 0) {
+        this.filterTableItem = this.filterTableItem.filter(item => this.hostTypeTerm.includes(item.hostType));
+      }
+      if(this.databaseTypeTerm.length !== 0) {
+        this.filterTableItem = this.filterTableItem.filter(item => this.databaseTypeTerm.includes(item.databaseType));
+      }
+      if(this.osNameTerm.length !== 0) {
+        this.filterTableItem = this.filterTableItem.filter(item => this.osNameTerm.includes(item.osName));
+      }
+      this.currentPage = 1;
+    },
     createItem(host) {
       this.btnLoading = true;
       this.create(host)

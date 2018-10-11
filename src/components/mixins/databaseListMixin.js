@@ -16,18 +16,36 @@ const listMixin = {
       filterItem: '',
       currentPage: 1,
       pagesize: 10,
+      selectTag: '',
+      currentPosition: ''
     };
   },
+  mounted() {
+    const path = this.$route.path;
+    this.currentPosition = path.substring(path.lastIndexOf('/') + 1, path.length);
+  },
   filters: {
-    filterBySearch(tableData, arg) {
+    filterBySearch(tableData, arg) { // 未带搜索项
       if (!tableData) {
-        return '';
+        return [];
       }
-      return tableData.filter(v => v.name.toLowerCase().includes(arg.toLowerCase()));
+      return tableData.filter(v => !v.name || v.name.toLowerCase().includes(arg.toLowerCase()));
+    },
+    filterByTag(tableData, arg, tag) { // 带有搜索项
+      if (!tableData) {
+        return [];
+      } else if (tag === 'name') {
+        return tableData.filter(v => !v.name || v.name.toLowerCase().includes(arg.toLowerCase()));
+      } else if (tag === 'hostIp') {
+        return tableData.filter(v => !v.hostIp || v.hostIp.includes(arg));
+      } else if (tag === 'serviceIp') {
+        return tableData.filter(v => !v.serviceIp || v.serviceIp.includes(arg));
+      }
+      return tableData;
     },
     filterByPage(data, currentPage, pagesize) {
       if (!data) {
-        return '';
+        return [];
       }
       return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
     }
@@ -67,8 +85,17 @@ const listMixin = {
       return databaseRoleMapping[cellValue];
     },
     searchByName() {
-      this.filterItem = this.inputSearch;
-      this.currentPage = 1;
+      if (this.currentPosition === 'devicemanager') {
+        if (this.selectTag === '') {
+          this.$message.warning({ message: '请选择搜索项' });
+        } else {
+          this.filterItem = this.inputSearch;
+          this.currentPage = 1;
+        }
+      } else {
+        this.filterItem = this.inputSearch;
+        this.currentPage = 1;
+      }
     },
     handleSizeChange(size) {
       this.pagesize = size;
