@@ -150,6 +150,7 @@ export default {
     },
     // 正在进行中的恢复计划
     ongoingRestorePlan() {
+      console.log(this.restorePlans)
       return this.restorePlans.filter(plan => plan.state === 1);
     },
     isFileBackupResult() {

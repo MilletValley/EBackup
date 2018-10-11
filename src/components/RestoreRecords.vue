@@ -43,7 +43,7 @@
                           placement="right"
                           :open-delay="300">
                 <span v-if="isVMware">{{item.config.newName }}</span>
-                <span v-if="isFile">{{ item.config.detailInfo }}</span>
+                <span v-else-if="isFile">{{ item.config.detailInfo }}</span>
                 <span v-else>{{item.config.database.instanceName }}</span>
               </el-tooltip>
             </p>
@@ -71,8 +71,14 @@
                          align="center"
                          min-width="200px">
         </el-table-column>
-        <el-table-column prop="detailInfo"
+        <el-table-column v-if="!isVMware" prop="detailInfo"
                          :label="detailInfoDisplayName"
+                         align="center"
+                         min-width="200px">
+        </el-table-column>
+        <el-table-column v-if="isVMware" 
+                         prop="newName"
+                         label="新虚拟机名"
                          align="center"
                          min-width="200px">
         </el-table-column>
@@ -136,6 +142,7 @@ export default {
     isVMware() {
       // const path = this.$route.path;
       // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+      console.log(this.type)
       if(this.type === 'vm'){
         return true;
       }

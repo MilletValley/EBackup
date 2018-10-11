@@ -222,9 +222,9 @@ export default {
             return
           }
           if(this.$route.name === 'VMwareList') {
-            this.vmItems = data.filter(item => item.type==='1');
+            this.vmItems = data.filter(item => item.type===1);
           } else {
-            this.vmItems = data.filter(item => item.type==='2');
+            this.vmItems = data.filter(item => item.type===2);
           }
         })
         .catch(error => {
