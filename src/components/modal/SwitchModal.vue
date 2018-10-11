@@ -88,6 +88,30 @@
                 <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
               </p> -->
             </div>
+            <div v-else-if="Object.keys(readyToSimpleSwitch).length>0">
+              <p>
+                <i-icon name="ebackup-env"
+                        style="vertical-align: -0.3em;"></i-icon>
+                <span :class="$style.ebackupEnvColor">易备环境</span>
+                <span :class="$style.switchModalName">{{ readyToSimpleSwitch.viceHost.name }}</span>的IP将由
+              </p>
+              <!-- 单切过 -->
+              <p v-if="hasSimpleSwitch(readyToSimpleSwitch.simpleSwitch)">
+                <span :class="readyToSwitchPrimaryIp?$style.ebackupEnvColor:$style.productionEnvColor">
+                  {{ readyToSimpleSwitch.simpleSwitch.targetIp }}
+                </span>
+                切换至
+                <span :class="readyToSwitchPrimaryIp?$style.productionEnvColor:$style.ebackupEnvColor">
+                  {{ readyToSimpleSwitch.simpleSwitch.originIp }}
+                </span>
+              </p>
+              <!-- 未单切过 -->
+              <p v-else>
+                <span :class="$style.productionEnvColor">{{ readyToSimpleSwitch.viceHost.hostIp }}</span>
+                切换至
+                <span :class="$style.ebackupEnvColor">{{ readyToSimpleSwitch.primaryHost.hostIp }}</span>
+              </p>
+            </div>
             <div v-if="databaseLinksReadyToSwitch.length > 0"
                  v-for="link in databaseLinksReadyToSwitch"
                  :key="link.id">
@@ -165,6 +189,9 @@ export default {
       type: Array,
       default: [],
     },
+    readyToSimpleSwitch: {
+      type: Object
+    },
     btnLoading: {
       type: Boolean,
     },
@@ -219,6 +246,14 @@ export default {
           res = false;
       }
       return res;
+    },
+    // 易备库IP是否即将切换为生产库物理IP
+    readyToSwitchPrimaryIp() {
+      if(Object.keys(this.readyToSimpleSwitch).length>0) {
+        return this.readyToSimpleSwitch.primaryHost.hostIp === this.readyToSimpleSwitch.simpleSwitch.originIp
+      } else {
+        return false
+      }
     },
     // oppsiteServiceIpMark() {
     //   return this.hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1;

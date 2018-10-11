@@ -50,6 +50,10 @@ const takeoverMixin = {
           return '';
       }
     },
+    // 是否进行过单切
+    hasSimpleSwitch(simpleSwitch) {
+      return Object.keys(simpleSwitch).length > 0;
+    },
     switchManualFormatter(row, column, cellValue) {
       return switchManualMapping[cellValue];
     },
