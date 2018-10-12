@@ -186,10 +186,10 @@
                           name="service"></i-icon>
                 </el-tooltip>
                 <el-tooltip v-if="simpleSwitchGoing(hostLink)"
-                          content="易备设备切换IP中"
-                          effect="light"
-                          placement="right"
-                          :open-delay="200">
+                            content="易备设备切换IP中"
+                            effect="light"
+                            placement="right"
+                            :open-delay="200">
                   <i class="el-icon-loading"
                      :class="$style.simpleSwitchGoing"></i>
                 </el-tooltip>
@@ -203,11 +203,11 @@
                     <el-form-item :class="$style.switchFormItem"
                                   label="下次切换方向">
                       <span v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">
-                        {{ hostLink.viceHost.hostIp }} <i class="el-icon-d-arrow-right"></i> {{ hostLink.primaryHost.hostIp }}
+                        {{ hostLink.viceHost.hostIp }}<i class="el-icon-d-arrow-right"></i>{{ firstOriginIP(hostLink) }}
                       </span>
                       <span v-else>
                         <!-- 切换的目标IP是上一次切换记录中的源IP -->
-                        {{ hostLink.simpleSwitch.targetIp }} <i class="el-icon-d-arrow-right"></i> {{ hostLink.simpleSwitch.originIp }}
+                        {{ hostLink.simpleSwitch.targetIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.originIp }}
                       </span>
                     </el-form-item>
                   </el-form>
@@ -686,7 +686,7 @@ export default {
           req.targetViceIp = this.readyToSimpleSwitch.simpleSwitch.originIp
         } else {
           req.originViceIp = this.readyToSimpleSwitch.viceHost.hostIp
-          req.targetViceIp = this.readyToSimpleSwitch.primaryHost.hostIp
+          req.targetViceIp = this.firstOriginIP(this.readyToSimpleSwitch)
         }
         simpleSwitch(id, req)
           .then(res => {
@@ -694,6 +694,7 @@ export default {
             this.links.find(
               link => link.id === id
             ).simpleSwitch = data;
+            this.$message({message: data.message, type: this.messageType(data.state)})
             this.switchModalVisible = false;
           })
           .catch(error => {
@@ -754,6 +755,19 @@ export default {
     // 单切进行中
     simpleSwitchGoing(hostLink) {
       return this.hasSimpleSwitch(hostLink.simpleSwitch) && hostLink.simpleSwitch.state === 1
+    },
+    // 单切返回的提示信息类型
+    messageType(state) {
+      switch(state) {
+        case 1:
+          return 'info'
+        case 2:
+          return 'success'
+        case 3:
+          return 'error'
+        default:
+          return ''
+      }
     },
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
@@ -903,6 +917,7 @@ $vice-color: #6d6d6d;
   position: absolute;
   margin-left: 75px;
   margin-top: 0.1em;
+  color: $primary-color;
   font-size: 34px;
 }
 .hostIp {

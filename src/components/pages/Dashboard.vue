@@ -54,13 +54,17 @@
                  plain
                  style="position: absolute; top:3px; right:3px; z-index: 10"
                  @click="$router.push({
-                   path: 'morestate',
-                   query: { activeName: activeName }})">MORE</el-button>
+                 path: 'morestate',
+                 query: { activeName: activeName }})">MORE</el-button>
       <el-tabs type="border-card"
-               v-model="activeName">
+               v-model="activeName"
+               @tab-click="tabClick"
+               :before-leave="beforeTabLeave">
         <el-tab-pane label="数据库备份"
                      name="databaseBackup">
-          <el-table :data="this.databaseBackup"
+          <el-table :data="filterTableData"
+                    @filter-change="stateFilterChange"
+                    ref="databaseBackup"
                     style="width: 100%">
             <el-table-column type="index"
                              min-width="50"
@@ -68,15 +72,17 @@
                              fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
+                             show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column prop="name"
                              label="数据库名"
                              align="center"
+                             show-overflow-tooltip
                              min-width="100"></el-table-column>
             <el-table-column label="备份结束时间"
                              align="center"
-                             min-width="100">
+                             min-width="130">
               <template slot-scope="scope">
                 <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
               </template>
@@ -94,8 +100,10 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
+                             :filters="filterState"
+                             column-key="databaseBackupState"
                              align="center"
-                             min-width="80">
+                             min-width="60">
               <template slot-scope="scope">
                 <i v-if="scope.row.backupState === 0"
                   class="el-icon-success"
@@ -107,6 +115,7 @@
             </el-table-column>
             <el-table-column prop="backupPath"
                              label="备份存储路径"
+                             show-overflow-tooltip
                              align="center"
                              min-width="180"
                              fixed="right"></el-table-column>
@@ -114,7 +123,9 @@
         </el-tab-pane>
         <el-tab-pane label="数据库恢复"
                      name="databaseRestore">
-          <el-table :data="this.databaseRestore"
+          <el-table :data="filterTableData"
+                    @filter-change="stateFilterChange"
+                    ref="databaseRestore"
                     style="width: 100%">
             <el-table-column type="index"
                              min-width="50"
@@ -123,14 +134,16 @@
             <el-table-column prop="ascription"
                              label="名称"
                              align="center"
+                             show-overflow-tooltip
                              min-width="180"></el-table-column>
             <el-table-column prop="name"
                              label="数据库名"
+                             show-overflow-tooltip
                              align="center"
                              min-width="180"></el-table-column>
             <el-table-column label="恢复结束时间"
                              align="center"
-                             min-width="180">
+                             min-width="130">
               <template slot-scope="scope">
                 <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
               </template>            
@@ -142,8 +155,10 @@
                 {{ scope.row.timeConsuming | durationFilter }}
               </template>
             </el-table-column>
-            <el-table-column prop="restoreState"
-                             label="恢复结果"
+            <el-table-column label="恢复结果"
+                             prop="restoreState"
+                             :filters="filterState"
+                             column-key="databaseRestoreState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -159,7 +174,9 @@
         </el-tab-pane>
         <el-tab-pane label="一键接管"
                      name="initconnNum">
-          <el-table :data="this.initconnNum"
+          <el-table :data="filterTableData"
+                    ref="initconnNum"
+                    @filter-change="stateFilterChange"
                     style="width: 100%">
             <el-table-column type="index"
                              min-width="50"
@@ -167,6 +184,7 @@
                              fixed></el-table-column>
             <el-table-column prop="instanceName"
                              label="实例名"
+                             show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column prop="primaryHostIp"
@@ -195,9 +213,12 @@
                         size="mini">
                   {{ databaseTypeConverter(scope.row.viceState) }}
                 </el-tag>
-              </template>              
+              </template>
             </el-table-column>
             <el-table-column label="连接状态"
+                             prop="overState"
+                             :filters="takeoverFilterState"
+                             column-key="initconnNumState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -207,15 +228,20 @@
                 </el-tag>
               </template>              
             </el-table-column>
-            <el-table-column prop="initFinishTime"
-                             label="初始化完成时间"
+            <el-table-column label="初始化完成时间"
                              align="center"
-                             min-width="100"></el-table-column>
+                             min-width="130">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+              </template>
+            </el-table-column>
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="文件备份"
                      name="filehostBackup">
-          <el-table :data="this.filehostBackup"
+          <el-table :data="filterTableData"
+                    @filter-change="stateFilterChange"
+                    ref="filehostBackup"
                     style="width: 100%">
             <el-table-column type="index"
                              min-width="50"
@@ -224,14 +250,16 @@
             <el-table-column prop="ascription"
                              label="名称"
                              align="center"
+                             show-overflow-tooltip
                              min-width="100"></el-table-column>
             <el-table-column prop="name"
                              label="实例名"
+                             show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column label="备份结束时间"
                              align="center"
-                             min-width="100">
+                             min-width="130">
               <template slot-scope="scope">
                 <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
               </template>
@@ -249,8 +277,10 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
+                             :filters="filterState"
+                             column-key="filehostBackupState"
                              align="center"
-                             min-width="80">
+                             min-width="60">
               <template slot-scope="scope">
                 <i v-if="scope.row.backupState === 0"
                   class="el-icon-success"
@@ -262,6 +292,7 @@
             </el-table-column>
             <el-table-column prop="backupPath"
                              label="备份存储路径"
+                             show-overflow-tooltip
                              align="center"
                              min-width="180"
                              fixed="right"></el-table-column>
@@ -269,7 +300,9 @@
         </el-tab-pane>
         <el-tab-pane label="文件恢复"
                      name="filehostRestore">
-          <el-table :data="this.filehostRestore"
+          <el-table :data="filterTableData"
+                    @filter-change="stateFilterChange"
+                    ref="filehostRestore"
                     style="width: 100%">
             <el-table-column type="index"
                              min-width="50"
@@ -277,10 +310,12 @@
                              fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
+                             show-overflow-tooltip
                              align="center"
                              min-width="180"></el-table-column>
             <el-table-column prop="name"
                              label="数据库名"
+                             show-overflow-tooltip
                              align="center"
                              min-width="180"></el-table-column>
             <el-table-column label="恢复结束时间"
@@ -297,8 +332,10 @@
                 {{ scope.row.timeConsuming | durationFilter }}
               </template>
             </el-table-column>
-            <el-table-column prop="restoreState"
-                             label="恢复结果"
+            <el-table-column label="恢复结果"
+                             prop="restoreState"
+                             :filters="filterState"
+                             column-key="filehostRestoreState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -314,7 +351,9 @@
         </el-tab-pane>
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup">
-          <el-table :data="this.vmBackup"
+          <el-table :data="filterTableData"
+                    @filter-change="stateFilterChange"
+                    ref="vmBackup"
                     style="width: 100%">
             <el-table-column type="index"
                              min-width="50"
@@ -322,15 +361,17 @@
                              fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
+                             show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column prop="name"
                              label="虚拟机名"
+                             show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column label="备份结束时间"
                              align="center"
-                             min-width="100">
+                             min-width="130">
               <template slot-scope="scope">
                 <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
               </template>
@@ -348,8 +389,10 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
+                             :filters="filterState"
+                             column-key="vmBackupState"
                              align="center"
-                             min-width="80">
+                             min-width="60">
               <template slot-scope="scope">
                 <i v-if="scope.row.backupState === 0"
                   class="el-icon-success"
@@ -361,6 +404,7 @@
             </el-table-column>
             <el-table-column prop="backupPath"
                              label="备份存储路径"
+                             show-overflow-tooltip
                              align="center"
                              min-width="180"
                              fixed="right"></el-table-column>
@@ -410,45 +454,46 @@ export default {
           }
         }
       }
-    }
+    },
   },
   methods: {
     fetchData() {
       fetchAll()
-      .then(res => {
-        const { data } = res.data;
-        this.total = data;
-        this.drawLine();
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
+        .then(res => {
+          const { data } = res.data;
+          this.total = data;
+          this.drawLine();
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        });
       fetchBackup()
-      .then(res => {
-        this.databaseBackup=this.filterArray(res.data.data,1);
-        this.filehostBackup=this.filterArray(res.data.data,2);
-        this.vmBackup=this.filterArray(res.data.data,3);
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
+        .then(res => {
+          this.databaseBackup=this.filterArray(res.data.data,1);
+          this.filehostBackup=this.filterArray(res.data.data,2);
+          this.vmBackup=this.filterArray(res.data.data,3);
+          this.filterTableData = this.databaseBackup;
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        });
       fetchRestore()
-      .then(res => {
-        this.databaseRestore=this.filterArray(res.data.data,1);
-        this.filehostRestore=this.filterArray(res.data.data,2);
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
+        .then(res => {
+          this.databaseRestore=this.filterArray(res.data.data,1);
+          this.filehostRestore=this.filterArray(res.data.data,2);
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        });
       fetchInitconn()
-      .then(res => {
-        this.initconnNum=res.data.data.sort(function(a, b) {
-        return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
-      }).slice(0,5)
-      })
-      .catch(error => {
-        error => Promise.reject(error);
-      });
+        .then(res => {
+          this.initconnNum=res.data.data.sort(function(a, b) {
+          return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
+        }).slice(0,5)
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        });
     },
     filterArray(data, type) {
       data.map(function(item) {

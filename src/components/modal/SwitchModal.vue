@@ -97,19 +97,19 @@
               </p>
               <!-- 单切过 -->
               <p v-if="hasSimpleSwitch(readyToSimpleSwitch.simpleSwitch)">
-                <span :class="readyToSwitchPrimaryIp?$style.ebackupEnvColor:$style.productionEnvColor">
+                <span :class="$style.ebackupEnvColor">
                   {{ readyToSimpleSwitch.simpleSwitch.targetIp }}
                 </span>
                 切换至
-                <span :class="readyToSwitchPrimaryIp?$style.productionEnvColor:$style.ebackupEnvColor">
+                <span :class="$style.productionEnvColor">
                   {{ readyToSimpleSwitch.simpleSwitch.originIp }}
                 </span>
               </p>
               <!-- 未单切过 -->
               <p v-else>
-                <span :class="$style.productionEnvColor">{{ readyToSimpleSwitch.viceHost.hostIp }}</span>
+                <span :class="$style.ebackupEnvColor">{{ readyToSimpleSwitch.viceHost.hostIp }}</span>
                 切换至
-                <span :class="$style.ebackupEnvColor">{{ readyToSimpleSwitch.primaryHost.hostIp }}</span>
+                <span :class="$style.productionEnvColor">{{ firstOriginIP(readyToSimpleSwitch) }}</span>
               </p>
             </div>
             <div v-if="databaseLinksReadyToSwitch.length > 0"
@@ -246,14 +246,6 @@ export default {
           res = false;
       }
       return res;
-    },
-    // 易备库IP是否即将切换为生产库物理IP
-    readyToSwitchPrimaryIp() {
-      if(Object.keys(this.readyToSimpleSwitch).length>0) {
-        return this.readyToSimpleSwitch.primaryHost.hostIp === this.readyToSimpleSwitch.simpleSwitch.originIp
-      } else {
-        return false
-      }
     },
     // oppsiteServiceIpMark() {
     //   return this.hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1;
