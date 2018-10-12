@@ -182,6 +182,12 @@ const fetchVmBackupPlanList = () =>
     url: '/virtual-backup-plans/list'
   });
 
+const deletePlan = id => 
+  baseApi.request({
+    method: 'post',
+    url: `/virtual-backup-plans/list/${id}`
+  });
+
 //根据备份计划获取虚拟机备份进度
 const getVmsBackupResult = id => 
   baseApi.request({
@@ -216,5 +222,6 @@ export {
   rescan,
   fetchVmBackupPlanList,
   getVmsBackupResult,
-  getVMByserverId
+  getVMByserverId,
+  deletePlan
 };

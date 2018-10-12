@@ -36,13 +36,26 @@
                 :formatter="timeStrateg"
                 prop="config.timeStrategy">
                 </el-table-column>
+                <el-table-column label="操作"
+                                width="150"
+                                header-align="center"
+                                align="center">
+                    <template slot-scope="scope">
+                        <el-button type="danger"
+                                    icon="el-icon-delete"
+                                    circle
+                                    size="mini"
+                                    :class="$style.miniCricleIconBtn"
+                                    @click="deletePlan(scope)"></el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </el-row>
     </div>
 </template>
 
 <script>
-import {fetchVmBackupPlanList} from '../../api/virtuals';
+import {fetchVmBackupPlanList, deletePlan} from '../../api/virtuals';
 import VmBackupTable from '@/components/modal/VmBackupTable';
 import {
   backupStrategyMapping,
@@ -79,6 +92,14 @@ export default {
         },
         addPlan(){
             this.$router.push({name: 'collectManager'});
+        },
+        deletePlan(scope){
+            deletePlan(scope.row.id).then( res => {
+                this.$message.success( res.data.message);
+                this.fetchAll();
+            }).catch( error => {
+                this.$message.error( error );
+            })
         }
         
     }

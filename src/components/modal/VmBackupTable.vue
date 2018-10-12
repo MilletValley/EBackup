@@ -16,15 +16,15 @@
             min-width="150"
             align="left">
         </el-table-column>
-        <el-table-column prop="vmBackupResult.startTime" align="left"
+        <el-table-column prop="startTime" align="left"
                         min-width="160"
                         label="备份开始时间">
         </el-table-column>
-        <el-table-column prop="vmBackupResult.size" align="left"
+        <el-table-column prop="size" align="left"
                         min-width="100"
                         label="已备份大小">
         </el-table-column>
-        <el-table-column prop="vmBackupResult.state" align="left"
+        <el-table-column prop="state" align="left"
                         min-width="150"
                         label="状态">
             <template slot-scope="scope">
@@ -34,18 +34,18 @@
                             effect="light">
                     <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i>
                 </el-tooltip> -->
-                <el-progress :text-inside="false" :stroke-width="12" :percentage="formatProcess(scope.row.vmBackupResult)" :status="formatState(scope.row.vmBackupResult.state)">
+                <el-progress :text-inside="false" :stroke-width="12" :percentage="formatProcess(scope.row)" :status="formatState(scope.row.state)">
                     
                 </el-progress>
                 <!-- <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i> -->
                 
             </template>
         </el-table-column>
-        <el-table-column prop="vmBackupResult.consume" align="left"
+        <el-table-column prop="consume" align="left"
                         min-width="100"
                         label="已持续时间">
             <template slot-scope="scope">
-                <span>{{ scope.row.vmBackupResult.consume | durationFilter}}</span>
+                <span>{{ scope.row.consume | durationFilter}}</span>
             </template>
         </el-table-column>
     </el-table>
