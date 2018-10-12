@@ -16,7 +16,8 @@
               v-if="vmItems"
               style="width: 100%">
       <el-table-column label="序号"
-                       align="center">
+                       align="center"
+                       fixed>
         <template slot-scope="scope">
             {{scope.$index+1+(currentPage-1)*pagesize}}
         </template>

@@ -54,12 +54,51 @@ const takeoverMixin = {
     hasSimpleSwitch(simpleSwitch) {
       return Object.keys(simpleSwitch).length > 0;
     },
-    // 备库第一次单切的目标IP：Windows=>生产库IP，Linux=>服务IP
-    firstOriginIP(hostLink) {
-      if (hostLink.viceHost.osName === 'Linux') {
-        return hostLink.serviceIpMark === 1 ? hostLink.primaryHost.serviceIP : hostLink.viceHost.serviceIp;
+    // 单切源IP
+    simpleSwitchOriginIp(hostLink) {
+      if (this.osIsWindows(hostLink.viceHost.osName)) { // Windows下
+        // 第一次单切
+        if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
+          return hostLink.viceHost.hostIp;
+        }
+        // 非第一次单切
+        if (hostLink.simpleSwitch.state === 2) { // 记录中切换成功
+          return hostLink.simpleSwitch.targetIp;
+        }
+        return hostLink.simpleSwitch.originIp;
+        // eslint-disable-next-line
+      } else { // Linux下, 源IP是服务IP
+        if (hostLink.serviceIpMark === 1) {
+          return hostLink.primaryHost.serviceIp;
+        }
+        return hostLink.viceHost.serviceIp;
       }
-      return hostLink.primaryHost.hostIp;
+    },
+    // 单切目的IP
+    simpleSwitchTargetIp(hostLink) {
+      if (this.osIsWindows(hostLink.viceHost.osName)) { // Windows下
+        // 第一次单切
+        if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
+          return hostLink.primaryHost.hostIp;
+        }
+        // 非第一次单切
+        if (hostLink.simpleSwitch.state === 2) { // 记录中切换成功
+          return hostLink.simpleSwitch.originIp;
+        }
+        return hostLink.simpleSwitch.targetIp;
+        // eslint-disable-next-line
+      } else { // Linux下，目的IP是生产设备物理IP或易备设备物理IP
+        if (hostLink.serviceIpMark === 1) {
+          return hostLink.viceHost.hostIp;
+        }
+        return hostLink.primaryHost.hostIp;
+      }
+    },
+    // 易备设备是否在Windows下，用于区分显示IP切换方向：
+    // 1.源=>目标
+    // 2.服务IP=>生产/易备设备
+    osIsWindows(osName) {
+      return osName === 'Windows';
     },
     switchManualFormatter(row, column, cellValue) {
       return switchManualMapping[cellValue];

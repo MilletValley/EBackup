@@ -196,14 +196,15 @@
                   <el-form size="mini"
                            label-size="70px">
                     <el-form-item :class="$style.switchFormItem"
-                                  label="下次切换方向">
-                      <span v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">
-                        {{ hostLink.viceHost.hostIp }}<i class="el-icon-d-arrow-right"></i>{{ firstOriginIP(hostLink) }}
-                      </span>
-                      <span v-else>
-                        <!-- 切换的目标IP是上一次切换记录中的源IP -->
-                        {{ hostLink.simpleSwitch.targetIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.originIp }}
-                      </span>
+                                  v-if="osIsWindows(hostLink.viceHost.osName)"
+                                  label="易备IP">
+                      {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  v-else
+                                  label="服务IP">
+                      {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
+                      {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
                     </el-form-item>
                   </el-form>
                   <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
@@ -212,12 +213,8 @@
                             size="mini"
                             label-width="70px">
                     <el-form-item :class="$style.switchFormItem"
-                                  label="切换源IP">
-                      {{ hostLink.simpleSwitch.originIp }}
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="目标IP">
-                      {{ hostLink.simpleSwitch.targetIp }}
+                                  :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                      {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
                     </el-form-item>
                     <el-form-item :class="$style.switchFormItem"
                                   label="状态">
@@ -681,22 +678,27 @@ export default {
           });
       } else if(Object.keys(this.readyToSimpleSwitch).length > 0) {
         this.btnLoading = true;
-        let req = {};
+        const req = {
+          originViceIp: this.simpleSwitchOriginIp(this.readyToSimpleSwitch),
+          targetViceIp: this.simpleSwitchTargetIp(this.readyToSimpleSwitch)
+        };
         const id = this.readyToSimpleSwitch.id;
-        // 单切过
-        if(Object.keys(this.readyToSimpleSwitch.simpleSwitch).length>0) {
-          req.originViceIp = this.readyToSimpleSwitch.simpleSwitch.targetIp
-          req.targetViceIp = this.readyToSimpleSwitch.simpleSwitch.originIp
-        } else {
-          req.originViceIp = this.readyToSimpleSwitch.viceHost.hostIp
-          req.targetViceIp = this.firstOriginIP(this.readyToSimpleSwitch)
-        }
         simpleSwitch(id, req)
           .then(res => {
             const { data } = res.data
-            this.links.find(
-              link => link.id === id
-            ).simpleSwitch = data;
+            if(this.osIsWindows(this.readyToSimpleSwitch.viceHost.osName)) {
+              this.links.find(
+                link => link.id === id
+              ).simpleSwitch = data;
+            } else { // 切换成功，Linux下服务IP位置发生变化
+              if(data.state === 2) {
+                if(this.links.find(link => link.id).serviceIpMark === 1) {
+                  this.links.find(link => link.id).serviceIpMark = 2;
+                } else {
+                  this.links.find(link => link.id).serviceIpMark = 1;
+                }
+              }
+            }
             this.$message({message: data.message, type: this.messageType(data.state)})
             this.switchModalVisible = false;
           })
