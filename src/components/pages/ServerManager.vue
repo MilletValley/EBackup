@@ -165,8 +165,6 @@ export default {
         },
         submitServerFn(data){
             let server = Object.assign({},data);
-            server.hostId = this.id;
-            console.log(server)
             this.btnLoading = true;
             addServer(server).then( res => {
                 const {data, message} = res.data;

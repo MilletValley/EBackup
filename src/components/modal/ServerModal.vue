@@ -16,7 +16,7 @@
                     prop="serverName">
             <el-input v-model="formData.serverName"></el-input>
         </el-form-item>
-        <el-form-item label="选择设备：" prop="hostName"
+        <el-form-item v-if="!showDevice" label="选择设备：" prop="hostName"
                     >
             <el-input v-model="hostName" readonly>
                 <el-button slot="append" @click="selectHostFn">...</el-button>
@@ -35,7 +35,7 @@
         <input-toggle v-model="formData.serverPassword"
                         :hidden.sync="hiddenPassword"></input-toggle>
         </el-form-item>
-        <el-form-item label="服务类型："
+        <el-form-item label="主机类型："
                     prop="serverType">
         <el-radio v-model="formData.serverType"
                     :label="1">vCenter</el-radio>
@@ -43,7 +43,7 @@
                     :label="2">物理主机</el-radio>
         </el-form-item>
       </el-form>
-      <select-device-modal @confirm="selectedhandler" :radio.sync="this.formData.hostId"  :selected="{ hostId:this.formData.hostId, hostName: this.formData.hostName }"
+      <select-device-modal @confirm="selectedhandler"  :selected="{ hostId:this.formData.hostId, hostName: this.formData.hostName }"
             :visible.sync="deviceModalVisible"></select-device-modal>
 
       <span slot="footer">
@@ -73,6 +73,9 @@ export default {
         type: Boolean,
         // required: true,
     },
+    type: {
+
+    }
   },
   data(){
       let data = {
@@ -83,8 +86,6 @@ export default {
           serverLoginName: '',
           serverPassword: '',
           serverType: 1,
-          
-          radio: ''
       };
     return {
       originFormData: data,
@@ -160,6 +161,9 @@ export default {
       hostName(){
           return this.formData.hostName;
       },
+      showDevice(){
+        return this.type === 'device';
+      }
 
   },
   methods: {

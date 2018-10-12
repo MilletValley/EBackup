@@ -62,7 +62,7 @@
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"
                      @confirm="addBackupPlan"></backup-plan-create-modal>
-        <server-modal :btn-loading="btnLoading"
+        <server-modal :btn-loading="btnLoading"  type="device"
             @confirm="submitServerFn"
             :visible.sync="serverModalVisible">
         </server-modal>
@@ -88,6 +88,7 @@ export default {
             tabsData: [],
             currentSelect: [],
             isSelect: false,
+            host: '',
             id: this.$route.params.id,
             btnLoading: false,
             backupPlanCreateModalVisible: false,
@@ -126,9 +127,10 @@ export default {
     methods: {
         fetchData(){
             fetchDetailsById(this.id).then( res => {
-                const {serverList} = res.data.data;
+                const{ data } = res.data;
+                const {serverList} = data;
                 this.tabsData = serverList;
-                this
+                this.host = data;
             }).catch( error => {
 
             })
@@ -239,7 +241,8 @@ export default {
         },
         submitServerFn(data){
             let server = Object.assign({},data);
-            server.hostId = this.id;
+            server.hostId = this.host.id;
+            server.hostName = this.host.name;
             console.log(server)
             this.btnLoading = true;
             addServer(server).then( res => {
