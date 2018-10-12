@@ -2,7 +2,7 @@
     <div>
         <el-row style="margin-bottom:10px;">
             <el-col style="text-align:right">
-                <el-button type="primary" @click="addPlan">添加备份计划</el-button>
+                <el-button type="primary" @click="addPlan" size="small">添加备份计划</el-button>
             </el-col>
         </el-row>
         <el-row>

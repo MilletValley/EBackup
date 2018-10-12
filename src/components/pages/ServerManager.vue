@@ -2,11 +2,11 @@
     <div>
         <el-row style="margin-bottom:10px;">
             <el-col :span="12" style="text-align:left;">
-                <el-button type="primary" @click="isSelect = !isSelect"
+                <el-button type="primary" @click="isSelect = !isSelect" size="small"
                     >{{isSelect ? '返回' : '已选虚拟机'}}</el-button>
             </el-col>
             <el-col :span="12" style="text-align:right;">
-                <el-button type="primary" @click="buttonClickHandler" :disabled="disabled"
+                <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
                     >{{isSelect ? '添加备份计划' : '添加主机'}}</el-button>
             </el-col>
         </el-row>
