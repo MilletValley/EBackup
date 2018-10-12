@@ -6,4 +6,7 @@ then
 elif [ $branch = "master" ]
 then
   docker push qiansy/ebackup:latest
+elif [ $branch = "disaster-recover" ]
+then
+  docker push qiansy/ebackup:disaster-recover
 fi

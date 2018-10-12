@@ -20,6 +20,10 @@
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
+        <el-button type="primary"
+                   @click="batchSwitch">批量切换</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
                    @click="refreshData">刷新</el-button>
       </el-form-item>
@@ -83,15 +87,6 @@
                             trigger="hover"
                             width="300"
                             :open-delay="200">
-                  <!-- <el-form v-show="hostLink.primaryHost.osName==='Windows'"
-                          size="mini"
-                          label-width="70px"
-                          style="margin: 5px 0 5px;border-bottom: 1px solid;">
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="临时IP：">
-                      <span>{{ hostLink.primaryHost.serviceIp }}</span>
-                    </el-form-item>
-                  </el-form> -->
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
                   <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
                   <el-form v-else-if="hostLink.latestSwitch.type === 2"
@@ -411,10 +406,17 @@
                                 :type="databaseType"
                                 :btn-loading="btnLoading"
                                 @confirm="createLink"></database-link-create-modal>
+    <batch-switch-modal :visible.sync="switchDialog"
+                        :originLinks="switchLinks"
+                        :flag="flag"
+                        :btn-loading="btnLoading"
+                        :databaseType="databaseType"
+                        @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>
 <script>
 import SwitchModal from '../modal/SwitchModal';
+import BatchSwitchModal from '../modal/BatchSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import { simpleSwitch } from '../../api/host'
@@ -444,6 +446,7 @@ import {
   switchManualMapping,
 } from '../../utils/constant';
 import takeoverMixin from '../mixins/takeoverMixins';
+import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
 import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -465,7 +468,7 @@ const createSwitchMethod = {
 };
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, batchSwitchMinxin],
   data() {
     return {
       items: [], // 所有的数据库
@@ -850,6 +853,7 @@ export default {
     IIcon,
     SwitchModal,
     DatabaseLinkCreateModal,
+    BatchSwitchModal,
   },
 };
 </script>

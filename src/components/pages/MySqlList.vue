@@ -186,9 +186,3 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-<style>
-.input-with-select .el-input__inner {
-  height: 40px;
-  line-height: 40px;
-}
-</style>

@@ -17,6 +17,8 @@ import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 // import MySqlList from '@/components/pages/MySqlList';
 // import MySqlDetail from '@/components/pages/MySqlDetail';
+import SwitchList from '@/components/pages/SwitchList';
+import SwitchDetail from '@/components/pages/SwitchDetail';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
 import InputIp from '@/components/pages/InputIp';
@@ -121,6 +123,47 @@ export const asyncRouters = [
           ],
         },
       },
+      {
+        path: 'oracle/switchlist',
+        name: 'oracleSwitchList',
+        component: SwitchList,
+        meta: {
+          title: '灾备演练',
+          roles: ['oracle dba', 'sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '批量切换计划',
+              path: '',
+            },
+          ]
+        }
+      },
+      {
+        path: 'oracle/switchlist/:id',
+        name: 'oracleSwitchDetail',
+        component: SwitchDetail,
+        meta: {
+          roles: ['oracle dba', 'sqlserver dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '批量切换计划',
+              path: '/to/oracle/switchlist',
+            },
+            {
+              name: '切换详情',
+              path: ''
+            }
+          ]
+        }
+      }
     ],
   },
   {
