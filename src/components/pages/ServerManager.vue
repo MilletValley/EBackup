@@ -46,18 +46,18 @@
                             align="center">
                 <template slot-scope="scope">
                     <el-button type="primary"
-                                icon="el-icon-refresh"
+                                :icon="scope.row.icon"
                                 circle
                                 :disabled="scope.row.disabled"
                                 size="mini"
                                 :class="$style.miniCricleIconBtn"
                                 @click="refresh(scope)"></el-button>
-                    <!-- <el-button type="danger"
+                    <el-button type="danger"
                                 icon="el-icon-delete"
                                 circle
                                 size="mini"
                                 :class="$style.miniCricleIconBtn"
-                                @click="deleteDb(scope)"></el-button> -->
+                                @click="deleteServer(scope)"></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -74,7 +74,7 @@
     
 </template>
 <script>
-import { addServer, fetchServerList} from '../../api/host'
+import { addServer, fetchServerList, deleteServer} from '../../api/host'
 import {
   createMultipleVirtualBackupPlan,
   rescan,
@@ -117,6 +117,7 @@ export default {
                 const {data} = res.data;
                 let tdata = data.map( e => {
                     e.disabled = false;
+                    e.icon = 'el-icon-refresh';
                     return e;
                 })
                 this.serverTableData = tdata;
@@ -195,7 +196,8 @@ export default {
             return vmHostServerTypeMapping[cellValue]
         },
         refresh(scope){
-            scope.row.disabled = true
+            scope.row.disabled = true;
+            scope.row.icon = 'el-icon-loading';
             rescan(scope.row).then( res => {
                 // if(!this.$refs[scope.row.id]){
                     getVMByserverId(scope.row.id).then( res => {
@@ -215,7 +217,16 @@ export default {
             }).catch( error => {
                 this.$message.error( error)
             }).then(() => {
-                scope.row.disabled = false
+                scope.row.disabled = false;
+                scope.row.icon = 'el-icon-refresh';
+            })
+        },
+        deleteServer(scope){
+            deleteServer(scope.row.id).then( res => {
+                this.$message.success( res.data.message);
+                this.fetchData();
+            }).catch( error => {
+                this.$message.error( error);
             })
         }
     }

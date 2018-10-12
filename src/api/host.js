@@ -73,6 +73,12 @@ const fetchServerList = () =>
     url: '/hosts/server/list'
   });
 
+const deleteServer = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/hosts/server/${id}`
+  });
+
 
 export {
   fetchAll,
@@ -85,5 +91,6 @@ export {
   deleteLinks,
   fetchDetailsById,
   addServer,
-  fetchServerList
+  fetchServerList,
+  deleteServer
 };

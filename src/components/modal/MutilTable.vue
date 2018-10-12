@@ -1,4 +1,12 @@
 <template>
+<div>
+    <el-row style="margin-bottom:10px;">
+        <el-col :span="6">
+            <el-input  placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+                <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+            </el-input>
+        </el-col>
+    </el-row>
     <el-table :data="curTableData" @select="selectDbChangeFn"  :ref="refTable"
            @select-all="((selection) => selectAll(selection, curTableData))">
         <el-table-column   
@@ -29,6 +37,19 @@
             min-width="150"
             align="left"></el-table-column>
     </el-table>
+    <el-pagination style="text-align:right;margin-top:10px;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[2,5, 10, 15, 20]"
+        :page-size="pagesize"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        v-if="tableData"
+        :total="tableData|filterBySearch(filterItem).length">
+    </el-pagination>
+</div>
+    
 </template>
 <script>
 import {
@@ -46,6 +67,14 @@ export default {
             type: Array
         }
     },
+    data(){
+        return {
+            pagesize: 10,
+            currentPage: 1,
+            filterItem: '',
+            inputSearch: ''
+        }
+    },
     mounted(){
         this.$nextTick( () => {
             this.$refs[this.refTable].clearSelection();
@@ -58,6 +87,20 @@ export default {
                 
             })
         });
+    },
+    filters: {
+        filterBySearch(tableData, arg) {
+        if (!tableData) {
+            return '';
+        }
+        return tableData.filter(v => v.vmName.toLowerCase().includes(arg.toLowerCase()));
+        },
+        filterByPage(data, currentPage, pagesize) {
+        if (!data) {
+            return '';
+        }
+        return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
+        }
     },
     watch: {
         selectData(data){
@@ -78,6 +121,24 @@ export default {
         },
     },
     computed: {
+        curTableData(){
+            let data = [];
+            // if(this.buttonfalg){
+            //     data = this.currentSelectDb.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+            // }else{
+                data = this.tableData.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+            // }
+            
+            data = data.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
+            this.$nextTick( () => {
+                data.forEach( e => {
+                    if(this.currentSelect.includes(e)){
+                    this.$refs[this.refTable].toggleRowSelection(e,true);
+                    }
+                })
+            });
+            return data;
+        },
         currentSelect: {
             get() {
                 return this.selectData;
@@ -86,11 +147,11 @@ export default {
                 this.$emit('update:selectData', value);
             },
         },
-        curTableData: {
-            get() {
-                return this.tableData;
-            }
-        },
+        // curTableData: {
+        //     get() {
+        //         return this.tableData;
+        //     }
+        // },
     },
     methods: {
         refresh(id){
@@ -156,6 +217,16 @@ export default {
                 });
                 this.currentSelect.push(...data)
             }
+        },
+        handleSizeChange: function (size) {
+            this.pagesize = size;
+        },
+        handleCurrentChange: function(currentPage){
+            this.currentPage = currentPage;
+        },
+        searchByName() {
+            this.filterItem = this.inputSearch;
+            this.currentPage = 1;
         },
     }
 }
