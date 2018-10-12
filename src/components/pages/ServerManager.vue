@@ -121,6 +121,7 @@ export default {
                     return e;
                 })
                 this.serverTableData = tdata;
+                this.currentSelect = []
                 // this
             }).catch( error => {
                 this.$message.error(error);
