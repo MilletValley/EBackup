@@ -38,9 +38,9 @@
         <el-form-item label="服务类型："
                     prop="serverType">
         <el-radio v-model="formData.serverType"
-                    :label="1">VMware</el-radio>
+                    :label="1">vCenter</el-radio>
         <el-radio v-model="formData.serverType"
-                    :label="2">华为虚拟机</el-radio>
+                    :label="2">物理主机</el-radio>
         </el-form-item>
       </el-form>
       <select-device-modal @confirm="selectedhandler" :radio.sync="this.formData.hostId"  :selected="{ hostId:this.formData.hostId, hostName: this.formData.hostName }"

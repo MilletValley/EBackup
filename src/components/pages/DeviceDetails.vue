@@ -4,9 +4,9 @@
             <el-button type="primary" @click="buttonClickHandler" :disabled="disabled"
                     >{{isSelect ? '添加备份计划' : '添加主机'}}</el-button>
         </el-row>
-        <el-tabs tab-position="left" style="height: 100%;" v-model="tabName" >
-            <el-tab-pane v-for="(item, index) in tabsData"  :key="index" :label="item.serverName" :name="`host${index}`">
-                <mutil-table :id="item.vmList" :refTable="item.serverName" :selectData.sync="currentSelect"></mutil-table>
+        <el-tabs tab-position="left" style="height: 100%;" v-model="tabName">
+            <el-tab-pane v-for="(item, index) in tabsData"  :key="index" :label="item.serverName" :name="`host${index}`" >
+                <mutil-table :tableData="item.vmList" :refTable="item.serverName" :selectData.sync="currentSelect"></mutil-table>
                 <!-- <el-table :data="item.vmList" @select="selectDbChangeFn"  
                         :ref="item.serverIp"   @select-all="((selection) => selectAll(selection, item.vmList))">
                     <el-table-column   
@@ -35,7 +35,7 @@
             </el-tab-pane>
             
             <el-tab-pane label="已选虚拟机" name="select">
-                <el-table :data="selectData" ref="selectTable" @select="selectChangeHandler">
+                <el-table :data="selectData" ref="selectTable" @select="selectChangeHandler" @select-all="selectAllHandler">
                     <el-table-column 
                         type="selection"
                         width="55">
@@ -153,44 +153,47 @@ export default {
         //     this.selectData = arr;
         //     console.log(this.selectData)
         // },
-        selectDbChangeFn(selectData, row){
-            if(selectData.includes(row)){
-                this.currentSelect.push(row);
-            }else{
-                //需要优化，匹配到即跳出循环
-                this.currentSelect = this.currentSelect.filter( e => {
-                    if(e.id === row.id){
-                        return false;
-                    }
-                    return true;
-                });
-            }
+        // selectDbChangeFn(selectData, row){
+        //     if(selectData.includes(row)){
+        //         this.currentSelect.push(row);
+        //     }else{
+        //         //需要优化，匹配到即跳出循环
+        //         this.currentSelect = this.currentSelect.filter( e => {
+        //             if(e.id === row.id){
+        //                 return false;
+        //             }
+        //             return true;
+        //         });
+        //     }
+        // },
+        selectAllHandler(data){
+            this.currentSelect = data;
         },
-        selectAll(selection,list){
-            if(selection.length === 0){
-                this.currentSelect = this.currentSelect.filter( e => {
-                    let flag = true;
-                    list.forEach( i => {
-                        if(i.id === e.id){
-                            flag = false;
-                        }
-                    })
-                    return flag;
-                })
-            }else{
-                let data = [];
-                list.forEach( e => {
-                    let flag = true;
-                    this.currentSelect.forEach( i => {
-                        if(i.id === e.id){
-                            flag = false;
-                        }
-                    })
-                    flag && data.push(e);
-                });
-                this.currentSelect.push(...data)
-            }
-        },
+        // selectAll(selection,list){
+        //     if(selection.length === 0){
+        //         this.currentSelect = this.currentSelect.filter( e => {
+        //             let flag = true;
+        //             list.forEach( i => {
+        //                 if(i.id === e.id){
+        //                     flag = false;
+        //                 }
+        //             })
+        //             return flag;
+        //         })
+        //     }else{
+        //         let data = [];
+        //         list.forEach( e => {
+        //             let flag = true;
+        //             this.currentSelect.forEach( i => {
+        //                 if(i.id === e.id){
+        //                     flag = false;
+        //                 }
+        //             })
+        //             flag && data.push(e);
+        //         });
+        //         this.currentSelect.push(...data)
+        //     }
+        // },
         selectChangeHandler(selectData,row){
             if(selectData.includes(row)){
                 this.currentSelect.push(row);
@@ -263,7 +266,11 @@ export default {
             }else{
                 this.serverModalVisible = true;
             }
-        }
+        },
+        // tabclickHandler(data){
+        //     console.log(data)
+        //      console.log(data.$attrs.test)
+        // }
     }
     
 }
