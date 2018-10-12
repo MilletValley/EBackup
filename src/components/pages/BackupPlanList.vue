@@ -41,6 +41,12 @@
                                 header-align="center"
                                 align="center">
                     <template slot-scope="scope">
+                        <el-button type="primary"
+                                    icon="el-icon-view"
+                                    circle
+                                    size="mini"
+                                    :class="$style.miniCricleIconBtn"
+                                    @click="view(scope)"></el-button>
                         <el-button type="danger"
                                     icon="el-icon-delete"
                                     circle
@@ -51,12 +57,17 @@
                 </el-table-column>
             </el-table>
         </el-row>
+        <backup-plan-update-modal type="vm" :disable="true"
+                              :visible.sync="backupPlanModalVisible"
+                              :backup-plan="selectedBackupPlan"
+                              @cancel="selectedBackupPlan = {}"></backup-plan-update-modal>
     </div>
 </template>
 
 <script>
 import {fetchVmBackupPlanList, deletePlan} from '../../api/virtuals';
 import VmBackupTable from '@/components/modal/VmBackupTable';
+import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -65,11 +76,14 @@ import {
 } from '../../utils/constant';
 export default {
     components: {
-        VmBackupTable
+        VmBackupTable,
+        BackupPlanUpdateModal
     },
     data(){
         return {
             tableData: [],
+            backupPlanModalVisible: false,
+            selectedBackupPlan: {}
         }
     },
     mounted(){
@@ -100,6 +114,10 @@ export default {
             }).catch( error => {
                 this.$message.error( error );
             })
+        },
+        view(scope){
+            this.selectedBackupPlan = scope.row;
+            this.backupPlanModalVisible = true;
         }
         
     }

@@ -446,45 +446,6 @@ export default {
   components: {
     VirtualUpdateModal,
   },
-  beforeRouteEnter (to, from, next) {
-      // 在渲染该组件的对应路由被 confirm 前调用
-      // 不！能！获取组件实例 `this`
-      // 因为当守卫执行前，组件实例还没被创建
-      // console.log(this.$route.path)
-      let path = to.path;
-      if(from.name === 'collectManager'){
-        to.meta.breadcrumb[1] = {
-          name: '虚拟机主机管理',
-          path: from.path
-        }
-      }else if(from.name === 'backup'){
-        to.meta.breadcrumb[1] = {
-          name: '备份计划',
-          path: from.path
-        }
-      }else if(from.name === 'deviceDetails'){
-        to.meta.breadcrumb[1] = {
-          name: '设备详情',
-          path: from.path
-        }
-      }else{
-        to.meta.breadcrumb[1] = {
-          name: '虚拟机列表',
-          path: '/vm/virtual'
-        }
-      }
-      /*if(!from.meta.breadcrumb && from.path === '/'){
-        // to.meta.breadcrumb[1] = null
-      }else{
-        console.log(from.meta.breadcrumb)
-        to.meta.breadcrumb[1] = {
-          name: from.meta.breadcrumb[from.meta.breadcrumb.length-1],
-          // path: '/vm/virtual'
-          path: from.path
-        }
-      }*/
-      next();
-  },
 };
 </script>
 <style>
