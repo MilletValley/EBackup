@@ -39,20 +39,11 @@ export default {
         tableData: {
             type: Array
         },
-        // id: {
-        //     type: Number
-        // },
         refTable: {
             type: String
         },
         selectData: {
             type: Array
-        }
-    },
-    data(){
-        // console.log(this.tableData)
-        return {
-            curTableData: this.tableData
         }
     },
     mounted(){
@@ -67,12 +58,9 @@ export default {
                 
             })
         });
-        // this.getData();
-        
     },
     watch: {
         selectData(data){
-            console.log(data)
             this.$nextTick( () => {
                 if(!this.$refs[this.refTable]){
                     return
@@ -88,10 +76,6 @@ export default {
                 })
             });
         },
-        // tableData(data){
-        //     console.log(data,this.tableData)
-        //     this.curTableData = data;
-        // }
     },
     computed: {
         currentSelect: {
@@ -102,58 +86,42 @@ export default {
                 this.$emit('update:selectData', value);
             },
         },
+        curTableData: {
+            get() {
+                return this.tableData;
+            }
+        },
     },
     methods: {
-        // getData(){
-        //     if(!this.id){
-        //         return
-        //     }
-        //     getVMByserverId(this.id).then( res => {
-        //         const {data} = res.data;
-        //         this.curTableData = data;
-        //         console.log(1111, this.selectData)
-        //         this.$nextTick( () => {
-        //             this.$refs[this.refTable].clearSelection();
-        //             this.selectData.forEach( item => {
-        //                 this.curTableData.forEach( e => {
-        //                     if(item.id === e.id){
-        //                         this.$refs[this.refTable].toggleRowSelection(item, true);
-        //                     }
-        //                 })
-                        
-        //             })
-        //         });
-        //     }).catch( error => {
-
-        //     })
-        // },
         refresh(id){
             getVMByserverId(id).then( res => {
                 const {data} = res.data;
                 //更新数据前，去除已选数据。表格刷新后默认清空该表格的选中状态
-                const ids = this.curTableData.map( i => {
-                    return i.id;
-                });
-                this.currentSelect = this.selectData.filter( e => {
-                    if(ids.includes(e.id)){
-                        return false
-                    }
-                    return true
-                });
-
-                this.curTableData = data;
+                // const ids = this.curTableData.map( i => {
+                //     return i.id;
+                // });
+                
+                // this.currentSelect = this.currentSelect.filter( e => {
+                //     if(ids.includes(e.id)){
+                //         return false
+                //     }
+                //     return true
+                // });
+                // this.currentSelect = aa;
+                
+                // this.curTableData = data;
             }).catch( error => {
                 this.$message.error( error)
             })
         },
         selectDbChangeFn(selectData, row){
             if(selectData.includes(row)){
-                // const ids = this.currentSelect.map( e => {
-                //     return e.id;
-                // })
-                // if(!ids.includes(row.id)){
+                const ids = this.currentSelect.map( e => {
+                    return e.id;
+                })
+                if(!ids.includes(row.id)){
                      this.currentSelect.push(row);
-                // }
+                }
             }else{
                 //需要优化，匹配到即跳出循环
                 this.currentSelect = this.currentSelect.filter( e => {

@@ -48,7 +48,7 @@
                     <el-button type="primary"
                                 icon="el-icon-refresh"
                                 circle
-                                :disabled="refreshBtn"
+                                :disabled="scope.row.disabled"
                                 size="mini"
                                 :class="$style.miniCricleIconBtn"
                                 @click="refresh(scope)"></el-button>
@@ -115,7 +115,11 @@ export default {
         fetchData(){
             fetchServerList().then( res => {
                 const {data} = res.data;
-                this.serverTableData = data;
+                let tdata = data.map( e => {
+                    e.disabled = false;
+                    return e;
+                })
+                this.serverTableData = tdata;
                 // this
             }).catch( error => {
                 this.$message.error(error);
@@ -193,23 +197,28 @@ export default {
             return vmHostServerTypeMapping[cellValue]
         },
         refresh(scope){
-            console.log(scope);
-            // scope._self.disabled = true;
+            scope.row.disabled = true
             rescan(scope.row).then( res => {
-                if(!this.$refs[scope.row.id]){
+                // if(!this.$refs[scope.row.id]){
                     getVMByserverId(scope.row.id).then( res => {
+                        const ids = scope.row.vmList.map( i => i.id)
+                        this.currentSelect = this.currentSelect.filter( e => {
+                            if(ids.includes(e.id)){
+                                return false
+                            }
+                            return true
+                        })
                         const {data } = res.data;
                         scope.row.vmList = data;
                     })
-                }else{
-                    this.$refs[scope.row.id] && this.$refs[scope.row.id].refresh(scope.row.id);
-                }
+                // }else{
+                //     this.$refs[scope.row.id] && this.$refs[scope.row.id].refresh(scope.row.id);
+                // }
             }).catch( error => {
                 this.$message.error( error)
             }).then(() => {
-                // scope._self.disabled = false
+                scope.row.disabled = false
             })
-            
         }
     }
     
