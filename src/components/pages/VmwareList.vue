@@ -1,17 +1,17 @@
 <template>
   <section>
-    <div style="margin-bottom: 15px;">
-      <el-row>
-        <el-col :span="6" >
-          <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+    <el-row>
+      <el-form inline
+               size="medium">
+        <el-form-item style="float: right">
+          <el-input placeholder="请输入名称"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
-        </el-col>
-        <el-col :span="18" style="text-align:right">
-          <el-button v-if="isVMware" class="margin-right10"  type="primary" size="small" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button>
-        </el-col>
-      </el-row>
-    </div>
+        </el-form-item>
+      </el-form>
+    </el-row>
     <el-table :data="vmItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               v-if="vmItems"
               style="width: 100%">
@@ -22,7 +22,8 @@
         </template>
       </el-table-column>
       <el-table-column label="名称"
-                       align="center"
+                       header-align="center"
+                       fixed
                        min-width="200">
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
@@ -32,7 +33,7 @@
       </el-table-column>
       <el-table-column prop="vmPath"
                        label="路径"
-                       align="center"
+                       header-align="center"
                        min-width="200"></el-table-column>
       <el-table-column prop="vmHostName"
                        label="所属主机"
@@ -219,16 +220,3 @@ export default {
 @import '../../style/common.scss';
 </style>
 <style>
-.el-table th{
-  text-align: center;
-}
-.grid-content {
-  min-height: 40px;
-}
-.input-with-select {
-  background-color: #fff;
-}
-.margin-right10{
-  margin-right: 10px;
-}
-</style>

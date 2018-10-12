@@ -88,6 +88,30 @@
                 <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
               </p> -->
             </div>
+            <div v-else-if="Object.keys(readyToSimpleSwitch).length>0">
+              <p>
+                <i-icon name="ebackup-env"
+                        style="vertical-align: -0.3em;"></i-icon>
+                <span :class="$style.ebackupEnvColor">易备环境</span>
+                <span :class="$style.switchModalName">{{ readyToSimpleSwitch.viceHost.name }}</span>的IP将由
+              </p>
+              <!-- 单切过 -->
+              <p v-if="hasSimpleSwitch(readyToSimpleSwitch.simpleSwitch)">
+                <span :class="$style.ebackupEnvColor">
+                  {{ readyToSimpleSwitch.simpleSwitch.targetIp }}
+                </span>
+                切换至
+                <span :class="$style.productionEnvColor">
+                  {{ readyToSimpleSwitch.simpleSwitch.originIp }}
+                </span>
+              </p>
+              <!-- 未单切过 -->
+              <p v-else>
+                <span :class="$style.ebackupEnvColor">{{ readyToSimpleSwitch.viceHost.hostIp }}</span>
+                切换至
+                <span :class="$style.productionEnvColor">{{ firstOriginIP(readyToSimpleSwitch) }}</span>
+              </p>
+            </div>
             <div v-if="databaseLinksReadyToSwitch.length > 0"
                  v-for="link in databaseLinksReadyToSwitch"
                  :key="link.id">
@@ -164,6 +188,9 @@ export default {
     databaseLinksReadyToSwitch: {
       type: Array,
       default: [],
+    },
+    readyToSimpleSwitch: {
+      type: Object
     },
     btnLoading: {
       type: Boolean,

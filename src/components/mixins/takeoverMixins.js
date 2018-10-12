@@ -50,6 +50,17 @@ const takeoverMixin = {
           return '';
       }
     },
+    // 是否进行过单切
+    hasSimpleSwitch(simpleSwitch) {
+      return Object.keys(simpleSwitch).length > 0;
+    },
+    // 备库第一次单切的目标IP：Windows=>生产库IP，Linux=>服务IP
+    firstOriginIP(hostLink) {
+      if (hostLink.viceHost.osName === 'Linux') {
+        return hostLink.serviceIpMark === 1 ? hostLink.primaryHost.serviceIP : hostLink.viceHost.serviceIp;
+      }
+      return hostLink.primaryHost.hostIp;
+    },
     switchManualFormatter(row, column, cellValue) {
       return switchManualMapping[cellValue];
     },

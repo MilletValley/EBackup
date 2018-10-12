@@ -20,6 +20,10 @@
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
+        <el-button type="primary"
+                   @click="batchSwitch">批量切换</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
                    @click="refreshData">刷新</el-button>
       </el-form-item>
@@ -83,15 +87,6 @@
                             trigger="hover"
                             width="300"
                             :open-delay="200">
-                  <!-- <el-form v-show="hostLink.primaryHost.osName==='Windows'"
-                          size="mini"
-                          label-width="70px"
-                          style="margin: 5px 0 5px;border-bottom: 1px solid;">
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="临时IP：">
-                      <span>{{ hostLink.primaryHost.serviceIp }}</span>
-                    </el-form-item>
-                  </el-form> -->
                   <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
                   <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
                   <el-form v-else-if="hostLink.latestSwitch.type === 2"
@@ -182,8 +177,69 @@
                     <br/>服务IP：{{ hostLink.viceHost.serviceIp }}
                   </div>
                   <i-icon :class="$style.serviceIcon"
+                          style="margin-top: 3px"
                           name="service"></i-icon>
                 </el-tooltip>
+                <el-tooltip v-if="simpleSwitchGoing(hostLink)"
+                            content="易备设备切换IP中"
+                            effect="light"
+                            placement="right"
+                            :open-delay="200">
+                  <i class="el-icon-loading"
+                     :class="$style.simpleSwitchGoing"></i>
+                </el-tooltip>
+                <el-popover placement="right"
+                            trigger="hover"
+                            width="300"
+                            v-else
+                            :open-delay="200">
+                  <el-form size="mini"
+                           label-size="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="下次切换方向">
+                      <span v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">
+                        {{ hostLink.viceHost.hostIp }}<i class="el-icon-d-arrow-right"></i>{{ firstOriginIP(hostLink) }}
+                      </span>
+                      <span v-else>
+                        <!-- 切换的目标IP是上一次切换记录中的源IP -->
+                        {{ hostLink.simpleSwitch.targetIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.originIp }}
+                      </span>
+                    </el-form-item>
+                  </el-form>
+                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+                  <p v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">暂无操作</p>
+                  <el-form v-else
+                            size="mini"
+                            label-width="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="切换源IP">
+                      {{ hostLink.simpleSwitch.originIp }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="目标IP">
+                      {{ hostLink.simpleSwitch.targetIp }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="状态">
+                      <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
+                              size="mini">
+                        {{ hostLink.simpleSwitch.state | switchStateFilter }}
+                      </el-tag>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="切换信息">
+                      {{ hostLink.simpleSwitch.message }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="完成时间">
+                      {{ hostLink.simpleSwitch.switchTime }}
+                    </el-form-item>
+                  </el-form>
+                  <i-icon :class="$style.simpleSwitch"
+                          slot="reference"
+                          name="simpleSwitch"
+                          @click.native="simpleSwitchIp(hostLink)"></i-icon>  
+                </el-popover>
               </div>
               <div>
                 <i-icon name="ip"
@@ -339,6 +395,7 @@
     </section>
     <switch-modal :visible="switchModalVisible"
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
+                  :ready-to-simple-switch="readyToSimpleSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
@@ -349,12 +406,20 @@
                                 :type="databaseType"
                                 :btn-loading="btnLoading"
                                 @confirm="createLink"></database-link-create-modal>
+    <batch-switch-modal :visible.sync="switchDialog"
+                        :originLinks="switchLinks"
+                        :flag="flag"
+                        :btn-loading="btnLoading"
+                        :databaseType="databaseType"
+                        @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>
 <script>
 import SwitchModal from '../modal/SwitchModal';
+import BatchSwitchModal from '../modal/BatchSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
+import { simpleSwitch } from '../../api/host'
 import {
   fetchAll as fetchAllOracle,
   fetchLinks as fetchLinksOracle,
@@ -381,6 +446,7 @@ import {
   switchManualMapping,
 } from '../../utils/constant';
 import takeoverMixin from '../mixins/takeoverMixins';
+import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
 import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -402,7 +468,7 @@ const createSwitchMethod = {
 };
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, batchSwitchMinxin],
   data() {
     return {
       items: [], // 所有的数据库
@@ -411,6 +477,7 @@ export default {
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
+      readyToSimpleSwitch: {},
       btnLoading: false,
       timer: null,
     };
@@ -584,6 +651,7 @@ export default {
     },
     cancelSwitch() {
       this.databaseLinkIdsReadyToSwitch = [];
+      this.readyToSimpleSwitch = {}
       this.hostLinkIdReadyToSwitch = -1;
       this.switchModalVisible = false;
     },
@@ -593,6 +661,7 @@ export default {
        * 2.判断是切换IP还是切换实例，调用不用的请求
        * 3.1.切换IP：修改该设备连接的最近切换记录
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
+       * 3.3 易备库单切IP
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
@@ -610,6 +679,33 @@ export default {
           .then(() => {
             this.btnLoading = false;
           });
+      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) {
+        this.btnLoading = true;
+        let req = {};
+        const id = this.readyToSimpleSwitch.id;
+        // 单切过
+        if(Object.keys(this.readyToSimpleSwitch.simpleSwitch).length>0) {
+          req.originViceIp = this.readyToSimpleSwitch.simpleSwitch.targetIp
+          req.targetViceIp = this.readyToSimpleSwitch.simpleSwitch.originIp
+        } else {
+          req.originViceIp = this.readyToSimpleSwitch.viceHost.hostIp
+          req.targetViceIp = this.firstOriginIP(this.readyToSimpleSwitch)
+        }
+        simpleSwitch(id, req)
+          .then(res => {
+            const { data } = res.data
+            this.links.find(
+              link => link.id === id
+            ).simpleSwitch = data;
+            this.$message({message: data.message, type: this.messageType(data.state)})
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error)
+          })
+          .then(() => {
+            this.btnLoading = false;
+          })
       } else {
         this.btnLoading = true;
         createSwitchMethod[this.databaseType]({
@@ -654,6 +750,27 @@ export default {
     switchHostIp(hostLink) {
       this.hostLinkIdReadyToSwitch = hostLink.id;
       this.switchModalVisible = true;
+    },
+    simpleSwitchIp(hostLink) {
+      this.readyToSimpleSwitch = hostLink;
+      this.switchModalVisible = true;
+    },
+    // 单切进行中
+    simpleSwitchGoing(hostLink) {
+      return this.hasSimpleSwitch(hostLink.simpleSwitch) && hostLink.simpleSwitch.state === 1
+    },
+    // 单切返回的提示信息类型
+    messageType(state) {
+      switch(state) {
+        case 1:
+          return 'info'
+        case 2:
+          return 'success'
+        case 3:
+          return 'error'
+        default:
+          return ''
+      }
     },
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
@@ -736,6 +853,7 @@ export default {
     IIcon,
     SwitchModal,
     DatabaseLinkCreateModal,
+    BatchSwitchModal,
   },
 };
 </script>
@@ -786,6 +904,25 @@ $vice-color: #6d6d6d;
   display: inline-block;
   vertical-align: -0.3em;
   margin-top: 10px;
+}
+.simpleSwitch {
+  position: absolute;
+  margin-left: 75px;
+  margin-top: 0.3em;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+.simpleSwitchGoing {
+  position: absolute;
+  margin-left: 75px;
+  margin-top: 0.1em;
+  color: $primary-color;
+  font-size: 34px;
 }
 .hostIp {
   color: #909399;

@@ -52,6 +52,13 @@ const deleteLinks = linkId =>
     url: `/host-links/${linkId}`,
   });
 
+const simpleSwitch = (id, req) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/host-links/${id}/vice-switch`,
+    data: req
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -61,4 +68,5 @@ export {
   modifyOne,
   createSwitches,
   deleteLinks,
+  simpleSwitch
 };
