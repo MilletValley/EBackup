@@ -8,33 +8,33 @@
         <el-row>
             <el-table
                 :data="tableData"
-                style="width: 100%;text-align:left">
-                <el-table-column type="expand" align="left">
+                style="width: 100%;">
+                <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
                         <vm-backup-table :id="props.row.id"></vm-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column
                 label="计划名称"
-                align="left"
+                align="center"
                 prop="name">
                 </el-table-column>
                 <el-table-column
-                label="创建时间"
-                align="left"
-                prop="startTime">
-                </el-table-column>
-                <el-table-column
                 label="备份策略"
-                align="left"
+                align="center"
                 :formatter="backupStrategy"
                 prop="config.backupStrategy">
                 </el-table-column>
                 <el-table-column
                 label="时间策略"
-                align="left"
+                align="center"
                 :formatter="timeStrateg"
                 prop="config.timeStrategy">
+                </el-table-column>
+                <el-table-column
+                label="创建时间"
+                align="center"
+                prop="startTime">
                 </el-table-column>
                 <el-table-column label="操作"
                                 width="150"
