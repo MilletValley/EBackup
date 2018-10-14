@@ -184,7 +184,7 @@ const fetchVmBackupPlanList = () =>
 
 const deletePlan = id => 
   baseApi.request({
-    method: 'post',
+    method: 'delete',
     url: `/virtual-backup-plans/list/${id}`
   });
 
