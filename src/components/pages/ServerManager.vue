@@ -31,7 +31,7 @@
                             label="主机IP地址"
                             min-width="200">
             </el-table-column>
-            <el-table-column prop="createDate" align="left"
+            <el-table-column v-if="false" prop="createDate" align="left"
                             label="创建时间"
                             min-width="200">
             </el-table-column>
