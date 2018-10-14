@@ -48,10 +48,24 @@
                 <span>{{ scope.row.consume | durationFilter}}</span>
             </template>
         </el-table-column>
+        <el-table-column label="操作"
+                        width="80"
+                        header-align="center"
+                        align="center">
+            <template slot-scope="scope">
+                <el-button type="danger"
+                            icon="el-icon-delete"
+                            circle
+                            size="mini"
+                            :class="$style.miniCricleIconBtn"
+                            @click="deletePlan(scope)"></el-button>
+            </template>
+        </el-table-column>
     </el-table>
 </template>
 <script>
 import {
+    deleteVirtualBackupPlan,
   getVmsBackupResult} from '../../api/virtuals';
 import {
   backupStrategyMapping,
@@ -138,6 +152,15 @@ export default {
         },
         clearTimer() {
             clearInterval(this.timer);
+        },
+        deletePlan(scope){
+            deleteVirtualBackupPlan(scope.row.id).then( res => {
+                // console.log(res)
+                this.$message.success( '删除成功');
+                this.fetchAll();
+            }).catch( error => {
+                this.$message.error( error);
+            })
         }
     }
 }
