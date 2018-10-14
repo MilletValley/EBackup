@@ -363,6 +363,8 @@ export default {
           1
         );
         this.$message.success('删除成功');
+      }).catch( error => {
+        this.$message.error( error)
       });
     },
     addRestorePlan(restorePlan) {
