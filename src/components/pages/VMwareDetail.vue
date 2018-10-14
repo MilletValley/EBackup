@@ -142,7 +142,8 @@ import {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation
+  fetchRestoreOperation,
+  createMultipleVirtualBackupPlan
 } from '../../api/virtuals';
 
 export default {
@@ -293,13 +294,23 @@ export default {
     },
     addBackupPlan(plan) {
       this.btnLoading = true;
-      createVirtualBackupPlan({ id: this.id, plan })
+      // createVirtualBackupPlan({ id: this.id, plan })
+      createMultipleVirtualBackupPlan([this.id])
         .then(res => {
-          const { data: backupPlan, message } = res.data;
+          console.log(res)
+          const {  message } = res.data;
           // 刷新情况下可能会出现两个添加后的计划
-          if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
-            this.backupPlans.unshift(backupPlan)
-          }
+          // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
+          //   this.backupPlans.unshift(backupPlan)
+          // }
+          fetchBackupPlans(this.id)
+          .then(res => {
+            const { data: plans } = res.data;
+            this.backupPlans = plans;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
           this.backupPlanCreateModalVisible = false;
           this.$message.success(message);
         })
