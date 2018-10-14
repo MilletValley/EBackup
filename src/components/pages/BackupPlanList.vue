@@ -22,7 +22,7 @@
                 <el-table-column
                 label="创建时间"
                 align="left"
-                prop="createDate">
+                prop="startTime">
                 </el-table-column>
                 <el-table-column
                 label="备份策略"
