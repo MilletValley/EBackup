@@ -115,6 +115,11 @@ export default {
         fetchData(){
             fetchServerList().then( res => {
                 const {data} = res.data;
+                if(!Array.isArray(data)){
+                    this.serverTableData = [];
+                    this.currentSelect = []
+                    return;
+                }
                 let tdata = data.map( e => {
                     e.disabled = false;
                     e.icon = 'el-icon-refresh';
