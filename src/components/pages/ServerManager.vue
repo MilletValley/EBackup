@@ -176,7 +176,10 @@ export default {
             addServer(server).then( res => {
                 const {data, message} = res.data;
                 if(this.serverTableData.findIndex( e => e.id === data.id) === -1){
-                    this.serverTableData.unshift(data);
+                    let fData = data
+                    fData.disabled = false;
+                    fData.icon = 'el-icon-refresh';
+                    this.serverTableData.unshift(fData);
                     let d = Object.assign([], this.serverTableData);
                     this.serverTableData = [];
                     this.$nextTick( () => {
