@@ -32,7 +32,7 @@
                                       >恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button size="mini"
+                <el-button v-if="false" size="mini"
                            type="primary"
                            @click="detailsEditModal = true"
                            >编辑</el-button>
@@ -40,7 +40,7 @@
             </el-row>
             <el-form v-loading="infoLoading"
                      label-position="left"
-                     label-width="100px"
+                     label-width="120px"
                      inline
                      size="small"
                      class="item-info">
@@ -52,7 +52,7 @@
                   <el-form-item label="虚拟机密码：">
                     <div>●●●●●●●●</div>
                   </el-form-item>
-                  <el-form-item label="所属主机：">
+                  <el-form-item label="所属物理主机：">
                     <div>{{ details.vmHostName }}</div>
                   </el-form-item>
                 </el-col>
@@ -142,7 +142,8 @@ import {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation
+  fetchRestoreOperation,
+  createMultipleVirtualBackupPlan
 } from '../../api/virtuals';
 
 export default {
@@ -224,14 +225,6 @@ export default {
     };
   },
   computed: {
-    // isVM() {
-    //   const path = this.$route.path;
-    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-    // }
-    // vmType(){
-    //   const path = this.$route.path;
-    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual' ? 'VMware' : 'HW'
-    // }
   },
   methods: {
     fetchData() {
@@ -293,13 +286,23 @@ export default {
     },
     addBackupPlan(plan) {
       this.btnLoading = true;
-      createVirtualBackupPlan({ id: this.id, plan })
+      // createVirtualBackupPlan({ id: this.id, plan })
+      createMultipleVirtualBackupPlan([this.id])
         .then(res => {
-          const { data: backupPlan, message } = res.data;
+          console.log(res)
+          const {  message } = res.data;
           // 刷新情况下可能会出现两个添加后的计划
-          if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
-            this.backupPlans.unshift(backupPlan)
-          }
+          // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
+          //   this.backupPlans.unshift(backupPlan)
+          // }
+          fetchBackupPlans(this.id)
+          .then(res => {
+            const { data: plans } = res.data;
+            this.backupPlans = plans;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
           this.backupPlanCreateModalVisible = false;
           this.$message.success(message);
         })
@@ -363,6 +366,8 @@ export default {
           1
         );
         this.$message.success('删除成功');
+      }).catch( error => {
+        this.$message.error( error)
       });
     },
     addRestorePlan(restorePlan) {

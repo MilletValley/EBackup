@@ -410,9 +410,6 @@ const restorePlanModalMixin = {
     const baseFormData = {
       name: '',
       hostIp: '',
-      loginName: '',
-      password: '',
-      detailInfo: '',
       startTime: '',
       singleTime: '',
       datePoints: [],

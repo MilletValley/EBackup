@@ -7,12 +7,13 @@
                @close="modalClosed"
                v-if="backupPlan">
       <span slot="title">
-        更新备份计划
+        {{disable ? "查看备份计划": "更新备份计划"}}
         <span style="color: #999999"> (ID: {{backupPlan.id}})</span>
       </span>
       <el-form :model="formData"
                label-width="110px"
                ref="updateForm"
+               :disabled="disable"
                :rules="rules"
                size="small">
         <el-form-item label="备份计划名称"
@@ -124,7 +125,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary"
+        <el-button type="primary" v-if="!disable"
                    :loading="btnLoading"
                    @click="confirmBtnClick">确定</el-button>
         <el-button @click="cancel">取消</el-button>
@@ -144,6 +145,9 @@ export default {
       type: Object,
       // required: true,
     },
+    disable:{
+      type: Boolean
+    }
   },
   methods: {
     confirmBtnClick() {

@@ -59,6 +59,34 @@ const simpleSwitch = (id, req) =>
     data: req
   });
 
+// 根据设备获取主机信息
+const fetchDetailsById = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/hosts/details/${id}`
+  });
+
+// 添加主机
+const addServer = server =>
+  baseApi.request({
+    method: 'post',
+    url: '/hosts/server',
+    data: server
+  });
+
+const fetchServerList = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/hosts/server/list'
+  });
+
+const deleteServer = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/hosts/server/${id}`
+  });
+
+
 export {
   fetchAll,
   fetchOne,
@@ -68,5 +96,9 @@ export {
   modifyOne,
   createSwitches,
   deleteLinks,
-  simpleSwitch
+  simpleSwitch,
+  fetchDetailsById,
+  addServer,
+  fetchServerList,
+  deleteServer
 };
