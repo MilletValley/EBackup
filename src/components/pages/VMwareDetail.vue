@@ -295,7 +295,8 @@ export default {
     addBackupPlan(plan) {
       this.btnLoading = true;
       // createVirtualBackupPlan({ id: this.id, plan })
-      createMultipleVirtualBackupPlan([this.id])
+      const data = Object.assign( {}, plan, {vmList: [this.id]});
+      createMultipleVirtualBackupPlan(data)
         .then(res => {
           console.log(res)
           const {  message } = res.data;
