@@ -111,23 +111,23 @@ export default {
                 this.loading = false
             })
         },
-        operationStateStyle(state) {
-            if (state === 0) {
-                return this.$style.waitingColor + ' el-icon-time';
-            } else if (state === 1) {
-                return this.$style.loadingColor + ' el-icon-loading';
-            } else if(state === 3) {
-                return this.$style.errorColor + ' el-icon-warning';
-            } else if(state === 2){
-                return this.$style.successColor + ' el-icon-success';
-            }else return '';
-        },
-        tipsText(data){
-            if(data.state === 1){
-                return data.processSpeed;
-            }
-            return operationStateMapping[data.state];
-        },
+        // operationStateStyle(state) {
+        //     if (state === 0) {
+        //         return this.$style.waitingColor + ' el-icon-time';
+        //     } else if (state === 1) {
+        //         return this.$style.loadingColor + ' el-icon-loading';
+        //     } else if(state === 3) {
+        //         return this.$style.errorColor + ' el-icon-warning';
+        //     } else if(state === 2){
+        //         return this.$style.successColor + ' el-icon-success';
+        //     }else return '';
+        // },
+        // tipsText(data){
+        //     if(data.state === 1){
+        //         return data.processSpeed;
+        //     }
+        //     return operationStateMapping[data.state];
+        // },
         formatProcess(data){
             if(data.state === 1){
                 return data.processSpeed;
@@ -160,7 +160,6 @@ export default {
         },
         deletePlan(scope){
             deleteVirtualBackupPlan(scope.row.id).then( res => {
-                // console.log(res)
                 this.$message.success( '删除成功');
                 this.fetchAll();
             }).catch( error => {
