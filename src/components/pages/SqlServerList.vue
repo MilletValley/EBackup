@@ -20,8 +20,9 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="items|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+    <el-table :data="currentItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               style="width: 100%"
+              @filter-change="filterChange"
               v-if="items">
       <el-table-column label="序号"
                        min-width="100"
@@ -54,14 +55,28 @@
                        align="center"></el-table-column>
       <el-table-column prop="role"
                        label="角色"
+                       :filters="stateFilters"
+                       column-key="role"
                        width="100"
-                       :formatter="databaseRoleFormatter"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="roleTagType(scope.row.role)"
+                  size="mini">
+            {{ databaseRole(scope.row.role) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="state"
                        label="状态"
                        width="100"
-                       :formatter="stateFormatter"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="stateTagType(scope.row.state)"
+                  size="mini">
+            {{ databaseState(scope.row.state) }}
+          </el-tag>
+        </template>      
+      </el-table-column>
       <el-table-column label="操作"
                        fixed="right"
                        width="150"
@@ -91,7 +106,7 @@
                      :page-size="pagesize"
                      background
                      layout="total, sizes, prev, pager, next, jumper"
-                     :total="items|filterBySearch(filterItem).length"
+                     :total="currentItems|filterBySearch(filterItem).length"
                      v-if="items">
       </el-pagination>
     </div>
@@ -122,6 +137,7 @@ export default {
         .then(res => {
           const { data: sqlservers } = res.data;
           this.items = sqlservers;
+          this.currentItems = this.items;
         })
         .catch(error => {
           this.$message.error(error);
