@@ -201,6 +201,12 @@ const getVMByserverId = id =>
     url: `/hosts/server/vmList/${id}`
   });
 
+const stopAllBackupPlan = () =>
+  baseApi.request({
+    method: 'put',
+    url: '/virtual-backup-plans/stop-all'
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -223,5 +229,6 @@ export {
   fetchVmBackupPlanList,
   getVmsBackupResult,
   getVMByserverId,
-  deletePlan
+  deletePlan,
+  stopAllBackupPlan
 };
