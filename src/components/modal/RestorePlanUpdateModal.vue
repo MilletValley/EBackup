@@ -21,8 +21,8 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
       </el-row>
-      <el-row v-if="!isVMware">
-        <el-col :span="12" v-if="!this.isHW">
+      <el-row v-if="!isVMware && !isHW">
+        <el-col :span="12">
           <el-form-item label="恢复设备"
                         prop="hostIp">
             <el-input disabled
@@ -39,11 +39,20 @@
             </el-select> -->
           </el-form-item>
         </el-col>
-        <el-col :span="this.isHW?24:12">
+        <el-col :span="12">
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"
                       :disabled="!this.isHW"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isHW">
+        <el-col :span="24">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -56,16 +65,17 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
-                        prop="detailInfo">
-            <el-input v-model="formData.detailInfo"></el-input>
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row v-if="isVMware">
         <el-form-item label="恢复磁盘名"
-                      prop="password"
+                      prop="diskName"
                       :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
-          <el-input v-model="formData.password"></el-input>
+          <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
       </el-row>
       <el-row v-if="!this.isHW && !isVMware">
@@ -177,16 +187,16 @@ export default {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
               //数据转换，detailInfo=旧虚拟机名，loginName=新虚拟机名，界面中detailInfo表示新虚拟机名
-              const { loginName, detailInfo} = config;
-              let conf = Object.assign({},config);
-              if(this.isVMware){
-                conf.loginName = detailInfo;
-                conf.detailInfo = loginName;
-              }
+              // const { loginName, detailInfo} = config;
+              // let conf = Object.assign({},config);
+              // if(this.isVMware){
+              //   conf.loginName = detailInfo;
+              //   conf.detailInfo = loginName;
+              // }
               this.$emit('confirm', {
                 id: this.restorePlan.id,
                 name,
-                config: conf,
+                config,
               });
             })
             .catch(error => {
@@ -200,14 +210,14 @@ export default {
     modalOpened() {
       //查询详情获取新虚拟机名称，loginName=新虚拟机名
       let lName;
-      if(this.isVMware){
-        fetchRestoreOperation(this.restorePlan.id).then( res => {
-          lName = res.data.data.config.loginName;
-          this.format(lName);
-        })
-      }else{
+      // if(this.isVMware){
+      //   fetchRestoreOperation(this.restorePlan.id).then( res => {
+      //     lName = res.data.data.config.loginName;
+      //     this.format(lName);
+      //   })
+      // }else{
         this.format(lName);
-      }
+      // }
     },
     format(lName){
       if (this.restorePlan.config.timePoints.length === 0) {
@@ -215,6 +225,9 @@ export default {
       }
       const {
         id,
+        newName,
+        oldName,
+        diskName,
         singleTime,
         startTime,
         timePoints,
@@ -224,12 +237,13 @@ export default {
         database,
         hostIp: configHostIp
       } = this.restorePlan.config;
-      const { instanceName, vmName, loginName, host } = database;
-      const detailInfo = this.isVMware ? lName : instanceName;
-      const { name: hostName, hostIp: hostHostIp } = host;
-      let curHostIp = this.isVMware ? configHostIp : hostHostIp;
-      let curLoginName = this.isVMware ? vmName : loginName;
-      this.originFormData = {
+      // const { instanceName, vmName, loginName, host } = database;
+      // const detailInfo = this.isVMware ? lName : instanceName;
+      // const { name: hostName, hostIp: hostHostIp } = host;
+      // let curHostIp = this.isVMware ? configHostIp : hostHostIp;
+      // let curLoginName = this.isVMware ? vmName : loginName;
+
+      const baseData = {
         name: this.restorePlan.name,
         id,
         singleTime,
@@ -238,11 +252,54 @@ export default {
         weekPoints,
         datePoints,
         timeStrategy,
-        detailInfo,
-        loginName: curLoginName,
-        hostName,
-        hostIp: curHostIp,
       };
+      let customData;
+      if(this.isVMware || this.isHW){
+        customData = {
+          newName,
+          oldName,
+          diskName,
+          hostIp: configHostIp
+        }
+      }else{
+        const { instanceName: detailInfo, loginName, host } = database;
+        const { name: hostName, hostIp } = host;
+        customData = {
+          detailInfo,
+          loginName,
+          hostName,
+          hostIp
+        }
+      }
+      this.originFormData = Object.assign({}, baseData, customData);
+      // this.originFormData = {
+      //   name: this.restorePlan.name,
+      //   id,
+      //   singleTime,
+      //   startTime: timeStrategy === 1 ? '' : startTime,
+      //   timePoints,
+      //   weekPoints,
+      //   datePoints,
+      //   timeStrategy,
+      //   detailInfo,
+      //   loginName,
+      //   hostName,
+      //   hostIp,
+      // };
+      // this.originFormData = {
+      //   name: this.restorePlan.name,
+      //   id,
+      //   singleTime,
+      //   startTime: timeStrategy === 1 ? '' : startTime,
+      //   timePoints,
+      //   weekPoints,
+      //   datePoints,
+      //   timeStrategy,
+      //   detailInfo,
+      //   loginName: curLoginName,
+      //   hostName,
+      //   hostIp: curHostIp,
+      // };
       // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
       // 避免引用到一个数组对象引起的BUG
       this.formData = {

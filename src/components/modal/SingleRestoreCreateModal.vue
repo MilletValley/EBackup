@@ -46,16 +46,17 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
-                        prop="detailInfo">
-            <el-input v-model="formData.detailInfo" ></el-input>
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row v-if="isVMware">
         <el-form-item label="恢复磁盘名"
-                      prop="password"
+                      prop="diskName"
                       :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
-          <el-input v-model="formData.password"></el-input>
+          <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
       </el-row>
       <el-row v-if="!this.isHW && !isVMware">
@@ -105,14 +106,14 @@ export default {
     };
   },
   computed: {
-    isHW() {
-      const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/'))==='hwVirtual'
-    },
-    isVMware(){
-      const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-    }
+    // isHW() {
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='hwVirtual'
+    // },
+    // isVMware(){
+    //   const path = this.$route.path;
+    //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
+    // }
   },
   methods: {
     confirmBtnClick() {
@@ -121,13 +122,13 @@ export default {
           this.formData.name = dayjs().format('YYYYMMDDHHmmss');
           this.pruneData(this.formData)
             .then(({ name, config }) => {
-              const { loginName, detailInfo} = config;
-              let conf = Object.assign({},config);
-              if(this.isVMware){
-                conf.loginName = detailInfo;
-                conf.detailInfo = loginName;
-              }
-              this.$emit('confirm', { id: this.id, data: { name, config: conf } });
+              // const { loginName, detailInfo} = config;
+              // let conf = Object.assign({},config);
+              // if(this.isVMware){
+              //   conf.loginName = detailInfo;
+              //   conf.detailInfo = loginName;
+              // }
+              this.$emit('confirm', { id: this.id, data: { name, config } });
             })
             .catch(error => {
               this.$message.error(error);
@@ -138,10 +139,26 @@ export default {
       });
     },
     modalOpened() {
-      if(this.isVMware){
-        this.formData.loginName = this.database.vmName;
-        this.originFormData.loginName = this.database.vmName;
+      let customData;
+      if(this.isVMware || this.isHW){
+        customData = {
+          newName: '',
+          oldName: this.database.vmName,
+          diskName: '',
+        }
+      }else{
+        customData = {
+          loginName: '',
+          password: '',
+          detailInfo: this.database.instanceName,
+        }
       }
+      this.formData = Object.assign({}, this.formData, customData)
+      console.log(this.formData)
+      // if(this.isVMware){
+      //   this.formData.loginName = this.database.vmName;
+      //   this.originFormData.loginName = this.database.vmName;
+      // }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
