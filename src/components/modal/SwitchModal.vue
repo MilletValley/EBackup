@@ -89,28 +89,43 @@
               </p> -->
             </div>
             <div v-else-if="Object.keys(readyToSimpleSwitch).length>0">
-              <p>
-                <i-icon name="ebackup-env"
-                        style="vertical-align: -0.3em;"></i-icon>
-                <span :class="$style.ebackupEnvColor">易备环境</span>
-                <span :class="$style.switchModalName">{{ readyToSimpleSwitch.viceHost.name }}</span>的IP将由
-              </p>
-              <!-- 单切过 -->
-              <p v-if="hasSimpleSwitch(readyToSimpleSwitch.simpleSwitch)">
-                <span :class="$style.ebackupEnvColor">
-                  {{ readyToSimpleSwitch.simpleSwitch.targetIp }}
-                </span>
-                切换至
-                <span :class="$style.productionEnvColor">
-                  {{ readyToSimpleSwitch.simpleSwitch.originIp }}
-                </span>
-              </p>
-              <!-- 未单切过 -->
-              <p v-else>
-                <span :class="$style.ebackupEnvColor">{{ readyToSimpleSwitch.viceHost.hostIp }}</span>
-                切换至
-                <span :class="$style.productionEnvColor">{{ firstOriginIP(readyToSimpleSwitch) }}</span>
-              </p>
+              <div v-if="osIsWindows(readyToSimpleSwitch.viceHost.osName)">
+                <p>
+                  <i-icon name="ebackup-env"
+                          style="vertical-align: -0.3em;"></i-icon>
+                  <span :class="$style.ebackupEnvColor">易备环境</span>
+                  <span :class="$style.switchModalName">{{ readyToSimpleSwitch.viceHost.name }}</span>的IP将由
+                </p>
+                <p>
+                  <span :class="$style.ebackupEnvColor">{{ simpleSwitchOriginIp(readyToSimpleSwitch) }}</span>
+                  切换至
+                  <span :class="$style.productionEnvColor">{{ simpleSwitchTargetIp(readyToSimpleSwitch) }}</span>
+                </p>
+              </div>
+              <div v-else>
+                <p>
+                  服务IP: <span :class="$style.serviceIp">{{ simpleSwitchOriginIp(readyToSimpleSwitch) }}</span>将从
+                </p>
+                <p>
+                  <span :class="readyToSimpleSwitch.serviceIpMark === 2 ? $style.ebackupEnvColor : $style.productionEnvColor">
+                    <i-icon :name="readyToSimpleSwitch.serviceIpMark === 2 ? 'ebackup-env' : 'production-env'"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    {{ readyToSimpleSwitch.serviceIpMark === 2 ? '易备环境' : '生产环境' }}
+                  </span>
+                  <span :class="$style.switchModalName">
+                    {{ readyToSimpleSwitch.serviceIpMark === 2 ? readyToSimpleSwitch.viceHost.name : readyToSimpleSwitch.primaryHost.name }}
+                  </span>
+                  切换至
+                  <span :class="readyToSimpleSwitch.serviceIpMark === 1 ? $style.ebackupEnvColor : $style.productionEnvColor">
+                    <i-icon :name="readyToSimpleSwitch.serviceIpMark === 1 ? 'ebackup-env' : 'production-env'"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    {{ readyToSimpleSwitch.serviceIpMark === 1 ? '易备环境' : '生产环境' }}
+                  </span>
+                  <span :class="$style.switchModalName">
+                    {{ readyToSimpleSwitch.serviceIpMark === 1 ? readyToSimpleSwitch.viceHost.name : readyToSimpleSwitch.primaryHost.name }}
+                  </span>
+                </p>
+              </div>
             </div>
             <div v-if="databaseLinksReadyToSwitch.length > 0"
                  v-for="link in databaseLinksReadyToSwitch"
