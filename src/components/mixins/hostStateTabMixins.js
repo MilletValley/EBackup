@@ -62,20 +62,26 @@ const hostState = {
       return linkStateMapping[state];
     },
     stateFilterChange(filter) {
+      this.currentPage = 1;
       const filterKey = Object.keys(filter)[0];
-      // 数据库备份、文件备份、虚拟机备份的columnKey名
-      if (this.backupStateInfo.includes(filterKey)) {
-        this.filterTableData = this.currentTableData.filter(
-          db => filter[filterKey].includes(Number(db.backupState))
-        );
-      } else if (this.restoreStateInfo.includes(filterKey)) { // 数据库恢复、文件恢复
-        this.filterTableData = this.currentTableData.filter(
-          db => filter[filterKey].includes(Number(db.restoreState))
-        );
-      } else if (this.takeoverStateInfo.includes(filterKey)) { // 一键接管
-        this.filterTableData = this.currentTableData.filter(
-          db => filter[filterKey].includes(Number(db.overState))
-        );
+      if (filterKey && filter[filterKey].length === 0) { // 重置
+        this.filterTableData = this.currentTableData;
+      } else { // 筛选
+        // 数据库备份、文件备份、虚拟机备份的columnKey名
+        // eslint-disable-next-line
+        if (this.backupStateInfo.includes(filterKey)) {
+          this.filterTableData = this.currentTableData.filter(
+            db => filter[filterKey].includes(Number(db.backupState))
+          );
+        } else if (this.restoreStateInfo.includes(filterKey)) { // 数据库恢复、文件恢复
+          this.filterTableData = this.currentTableData.filter(
+            db => filter[filterKey].includes(Number(db.restoreState))
+          );
+        } else if (this.takeoverStateInfo.includes(filterKey)) { // 一键接管
+          this.filterTableData = this.currentTableData.filter(
+            db => filter[filterKey].includes(Number(db.overState))
+          );
+        }
       }
     },
     stateTagType(state) { // 主备库el-tag类型

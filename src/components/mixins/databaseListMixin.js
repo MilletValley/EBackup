@@ -7,6 +7,12 @@ const listMixin = {
   data() {
     return {
       items: [],
+      currentItems: [],
+      stateFilters: [
+        { text: '无连接', value: 0 },
+        { text: '主库', value: 1 },
+        { text: '备库', value: 2 }
+      ],
       selectedId: '',
       createModalVisible: false,
       updateModalVisible: false,
@@ -71,6 +77,14 @@ const listMixin = {
       this.selectedId = db.id;
       this.updateModalVisible = true;
     },
+    filterChange(filter) {
+      this.currentPage = 1;
+      if (filter.role && filter.role.length === 0) { // 重置
+        this.currentItems = this.items;
+      } else { // 筛选
+        this.currentItems = this.items.filter(item => filter.role.includes(item.role));
+      }
+    },
     // 更新后的回调
     // updateDb(data) {
     //   const { id } = data;
@@ -83,6 +97,36 @@ const listMixin = {
     },
     databaseRoleFormatter(row, column, cellValue) {
       return databaseRoleMapping[cellValue];
+    },
+    databaseRole(role) {
+      return databaseRoleMapping[role];
+    },
+    databaseState(state) {
+      return databaseStateMapping[state];
+    },
+    roleTagType(role) {
+      switch (role) {
+        case 1:
+          return '';
+        case 0:
+        case 2:
+          return 'info';
+        default:
+          return '';
+      }
+    },
+    stateTagType(state) {
+      switch (state) {
+        case 1:
+          return 'success';
+        case 2:
+        case 3:
+          return 'danger';
+        case 4:
+          return 'warning';
+        default:
+          return '';
+      }
     },
     searchByName() {
       if (this.currentPosition === 'devicemanager') {
