@@ -45,19 +45,29 @@
                             header-align="center"
                             align="center">
                 <template slot-scope="scope">
-                    <el-button type="primary"
-                                :icon="scope.row.icon"
-                                circle
-                                :disabled="scope.row.disabled"
-                                size="mini"
-                                :class="$style.miniCricleIconBtn"
-                                @click="refresh(scope)"></el-button>
-                    <el-button type="danger"
-                                icon="el-icon-delete"
-                                circle
-                                size="mini"
-                                :class="$style.miniCricleIconBtn"
-                                @click="deleteServer(scope)"></el-button>
+                    <el-tooltip 
+                            content="重新扫描"
+                            placement="top"
+                            effect="light">
+                        <el-button type="primary"
+                                    :icon="scope.row.icon"
+                                    circle
+                                    :disabled="scope.row.disabled"
+                                    size="mini"
+                                    :class="$style.miniCricleIconBtn"
+                                    @click="refresh(scope)"></el-button>
+                    </el-tooltip>
+                    <el-tooltip 
+                            content="删除"
+                            placement="top"
+                            effect="light">
+                        <el-button type="danger"
+                                    icon="el-icon-delete"
+                                    circle
+                                    size="mini"
+                                    :class="$style.miniCricleIconBtn"
+                                    @click="deleteServer(scope)"></el-button>
+                    </el-tooltip>
                 </template>
             </el-table-column>
         </el-table>
@@ -133,7 +143,6 @@ export default {
             })
         },
         addBackupPlan(data) {
-            console.log(data);
             let plan = Object.assign({}, data);
             let vmIds = this.currentSelect.map( e => {
                 return e.id;

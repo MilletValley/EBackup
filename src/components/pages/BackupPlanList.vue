@@ -41,18 +41,28 @@
                                 header-align="center"
                                 align="center">
                     <template slot-scope="scope">
-                        <el-button type="primary"
-                                    icon="el-icon-view"
-                                    circle
-                                    size="mini"
-                                    :class="$style.miniCricleIconBtn"
-                                    @click="view(scope)"></el-button>
-                        <el-button type="danger"
-                                    icon="el-icon-delete"
-                                    circle
-                                    size="mini"
-                                    :class="$style.miniCricleIconBtn"
-                                    @click="deletePlan(scope)"></el-button>
+                        <el-tooltip 
+                            content="查看"
+                            placement="top"
+                            effect="light">
+                            <el-button type="primary"
+                                        icon="el-icon-view"
+                                        circle
+                                        size="mini"
+                                        :class="$style.miniCricleIconBtn"
+                                        @click="view(scope)"></el-button>
+                        </el-tooltip>
+                        <el-tooltip 
+                            content="删除"
+                            placement="top"
+                            effect="light">
+                            <el-button type="danger"
+                                        icon="el-icon-delete"
+                                        circle
+                                        size="mini"
+                                        :class="$style.miniCricleIconBtn"
+                                        @click="deletePlan(scope)"></el-button>
+                        </el-tooltip>
                     </template>
                 </el-table-column>
             </el-table>
