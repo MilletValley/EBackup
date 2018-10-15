@@ -3,7 +3,7 @@
         <el-row style="margin-bottom:10px;">
             <el-col style="text-align:right">
                 <el-button type="primary" @click="addPlan" size="small">添加备份计划</el-button>
-                <el-button type="info" @click="stopPlan" size="small">一键停止</el-button>
+                <el-button type="info" @click="stopPlan" :loading="buttonFlag" size="small">一键停止</el-button>
             </el-col>
         </el-row>
         <el-row>
@@ -72,6 +72,10 @@
                               :visible.sync="backupPlanModalVisible"
                               :backup-plan="selectedBackupPlan"
                               @cancel="selectedBackupPlan = {}"></backup-plan-update-modal>
+        
+        <select-device-modal @confirm="selectedhandler"  :selected="{ }"
+            :visible.sync="deviceModalVisible"></select-device-modal>
+        
     </div>
 </template>
 
@@ -79,6 +83,7 @@
 import {fetchVmBackupPlanList, deletePlan, stopAllBackupPlan} from '../../api/virtuals';
 import VmBackupTable from '@/components/modal/VmBackupTable';
 import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
+import SelectDeviceModal from '@/components/modal/SelectDeviceModal'
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -88,13 +93,16 @@ import {
 export default {
     components: {
         VmBackupTable,
-        BackupPlanUpdateModal
+        BackupPlanUpdateModal,
+        SelectDeviceModal
     },
     data(){
         return {
             tableData: [],
             backupPlanModalVisible: false,
-            selectedBackupPlan: {}
+            selectedBackupPlan: {},
+            buttonFlag: false,
+            deviceModalVisible: false,
         }
     },
     mounted(){
@@ -131,12 +139,27 @@ export default {
             this.backupPlanModalVisible = true;
         },
         stopPlan(){
-            stopAllBackupPlan().then( res => {
+            // stopAllBackupPlan().then( res => {
+            //     const {message} = res.data;
+            //     this.$message.success( message );
+            //     this.fetchAll();
+            // }).catch( error => {
+            //     this.$message.error( error );
+            // })
+            this.deviceModalVisible = true;
+        },
+        selectedhandler(data){
+            console.log(data)
+            this.deviceModalVisible = false;
+            this.buttonFlag = true;
+            stopAllBackupPlan(data.id).then( res => {
                 const {message} = res.data;
                 this.$message.success( message );
                 this.fetchAll();
             }).catch( error => {
                 this.$message.error( error );
+            }).then( () => {
+                this.buttonFlag = false
             })
         }
         

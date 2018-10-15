@@ -201,10 +201,10 @@ const getVMByserverId = id =>
     url: `/hosts/server/vmList/${id}`
   });
 
-const stopAllBackupPlan = () =>
+const stopAllBackupPlan = id =>
   baseApi.request({
     method: 'put',
-    url: '/virtual-backup-plans/stop-all'
+    url: `/virtual-backup-plans/stop-all/${id}`
   });
 
 export {
