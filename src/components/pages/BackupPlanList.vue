@@ -3,6 +3,7 @@
         <el-row style="margin-bottom:10px;">
             <el-col style="text-align:right">
                 <el-button type="primary" @click="addPlan" size="small">添加备份计划</el-button>
+                <el-button type="info" @click="stopPlan" size="small">一键停止</el-button>
             </el-col>
         </el-row>
         <el-row>
@@ -75,7 +76,7 @@
 </template>
 
 <script>
-import {fetchVmBackupPlanList, deletePlan} from '../../api/virtuals';
+import {fetchVmBackupPlanList, deletePlan, stopAllBackupPlan} from '../../api/virtuals';
 import VmBackupTable from '@/components/modal/VmBackupTable';
 import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
 import {
@@ -128,6 +129,15 @@ export default {
         view(scope){
             this.selectedBackupPlan = scope.row;
             this.backupPlanModalVisible = true;
+        },
+        stopPlan(){
+            stopAllBackupPlan().then( res => {
+                const {message} = res.data;
+                this.$message.success( message );
+                this.fetchAll();
+            }).catch( error => {
+                this.$message.error( error );
+            })
         }
     }
 }
