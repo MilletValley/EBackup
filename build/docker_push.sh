@@ -9,4 +9,7 @@ then
 elif [ $branch = "disaster-recover" ]
 then
   docker push qiansy/ebackup:disaster-recover
+elif [ $branch = "version2.3" ]
+then
+  docker push qiansy/ebackup:version2.3
 fi
