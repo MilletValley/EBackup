@@ -26,7 +26,7 @@
         </el-col>
         <el-col :span="18" style="text-align:right">
           <el-button size="small" type="primary" @click="buttonClick" >
-            {{buttonfalg ? '返回' : '已选'}}
+            {{buttonfalg ? '返回' : '查看已选虚拟机'}}
           </el-button>
           <!-- <el-button v-if="isVMware" class="margin-right10"  type="primary" size="small" @click="scanVmFn" :loading="buttonFlag">{{buttonFlag ? "正在扫描" : "重新扫描"}}</el-button> -->
         </el-col>
@@ -307,6 +307,7 @@ export default {
     },
     buttonClick(){
       this.buttonfalg = !this.buttonfalg;
+      this.currentPage = 1;
     },
     addBackupPlan(data) {
         let plan = Object.assign({}, data);

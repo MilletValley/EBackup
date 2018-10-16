@@ -150,7 +150,7 @@ export default {
         customData = {
           loginName: '',
           password: '',
-          detailInfo: this.database.instanceName,
+          detailInfo: this.database ? this.database.instanceName : '',
         }
       }
       this.formData = Object.assign({}, this.formData, customData)
