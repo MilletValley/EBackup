@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column label="生产设备IP"
                          align="center"
-                         min-width="220px"
+                         min-width="120px"
                          show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip :content="`${scope.row.primaryHost.name}`"
@@ -50,7 +50,7 @@
         </el-table-column>
         <el-table-column label="易备设备IP"
                          align="center"
-                         min-width="220">
+                         min-width="120">
           <template slot-scope="scope">
             <el-tooltip :content="`${scope.row.viceHost.name}`"
                         effect="light"
@@ -61,7 +61,7 @@
         </el-table-column>
         <el-table-column label="服务/临时IP"
                          align="center"
-                         min-width="220">
+                         min-width="120">
           <template slot-scope="scope">
             <!-- 服务IP -->
             <span v-if="scope.row.primaryHost.osName==='Linux'">
@@ -77,12 +77,15 @@
         </el-table-column>
         <el-table-column label="切IP"
                          align="center"
-                         min-width="80">
+                         min-width="120">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.flag"
-                       :disabled="switchIpDisable(scope.row)"
-                       :active-value="1"
-                       :inactive-value="0"></el-switch>
+            <el-select v-model="scope.row.flag"
+                       :disabled="switchIpDisable(scope.row)">
+              <el-option v-for="item in switchIpType"
+                         :key="item.id"
+                         :label="item.label"
+                         :value="item.value"></el-option>
+            </el-select>
           </template>
         </el-table-column>
       </el-table>
@@ -133,6 +136,12 @@ export default {
       password: '',
       multipleSelection: [],
       links: [],
+      switchIpType: [
+        { value: 0, label: '不切' },
+        { value: 1, label: '切服务IP' },
+        { value: 2, label: '切VIP' },
+        { value: 3, label: '单切' },
+      ]
     }
   },
   watch: {

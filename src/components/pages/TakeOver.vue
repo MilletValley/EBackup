@@ -19,10 +19,10 @@
         <el-button type="primary"
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
-      <el-form-item style="float: right;">
+      <!-- <el-form-item style="float: right;">
         <el-button type="primary"
                    @click="batchSwitch">批量切换</el-button>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
                    @click="refreshData">刷新</el-button>
@@ -64,7 +64,7 @@
                           :disabled="!hostLink.vipIpMark"
                           :open-delay="200">
                 <h4 style="margin: 5px 0; padding: 3px 0;">子节点</h4>
-                <p v-if="!(hostLink.primaryNodes || hostLink.primaryNodes.length)">暂无子节点</p>
+                <p v-if="!(hostLink.primaryNodes && hostLink.primaryNodes.length)">暂无子节点</p>
                 <div v-else>
                   <p v-for="primaryNode in hostLink.primaryNodes"
                      :key="primaryNode.id">
