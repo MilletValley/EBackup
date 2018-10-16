@@ -155,7 +155,8 @@ export default {
     processDbTableData(){
       let data = [];
       if(this.buttonfalg){
-        data = this.currentSelectDb.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+        // data = this.currentSelectDb.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+        data = this.currentSelectDb;
       }else{
         data = this.vmItems.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
       }
