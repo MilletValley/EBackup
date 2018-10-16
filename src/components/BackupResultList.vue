@@ -273,6 +273,7 @@ export default {
     },
     // 点击恢复按钮
     restoreBtnClick({ id }) {
+      console.log(this.handleData)
       this.$emit('single-restore-btn-click', id);
       // this.selectedId = id;
       // this.singleRestoreModalVisible = true;
@@ -310,12 +311,22 @@ export default {
       });
       const map = {};
       data.forEach((result, index) => {
+        // 当索引为0时，!0等于true，此处不建议用所以，可以绑定id进行唯一标识
         if (!map[result.fileResource]) {
-          map[result.fileResource] = index;
+          // map[result.fileResource] = index;
+          map[result.fileResource] = {
+            index: index,
+            id:result.id
+          };
         } else {
-          const lastIndex = map[result.fileResource];
+          const lastIndex = map[result.fileResource].index;
+          // const lastIndex = map[result.fileResource];
           if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
-            map[result.fileResource] = index;
+            // map[result.fileResource] = index;
+            map[result.fileResource] = {
+              index: index,
+              id:result.id
+            };
           }
         }
       });
@@ -323,7 +334,8 @@ export default {
         for(let i in result) {
           result[i]=(result[i]===null||result[i]==='null')?'':result[i];
         }
-        if (map[result.fileResource] === index) {
+        if (map[result.fileResource].id === result.id) {
+        // if (map[result.fileResource] === index) {
           return Object.assign({}, result, { allowRestore: 1 });
         } else {
           return Object.assign({}, result, { allowRestore: 0 });

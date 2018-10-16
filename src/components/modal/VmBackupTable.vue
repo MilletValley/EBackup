@@ -1,5 +1,14 @@
 <template>
-    <el-table :data="tableData" v-loading="loading" style="text-align:left;">
+<div>
+    <el-row style="margin-bottom:5px;">
+        <el-col :span="6">
+            <el-input  placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+                <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+            </el-input>
+        </el-col>
+    </el-row>
+    
+    <el-table :data="processedTableData" v-loading="loading" style="text-align:left;">
         <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
@@ -67,6 +76,18 @@
             </template>
         </el-table-column>
     </el-table>
+    <el-pagination style="text-align:right;margin-top:10px;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="pageSize"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        v-if="tableData"
+        :total="currentTableData.length">
+    </el-pagination>
+</div>
 </template>
 <script>
 import {
@@ -79,8 +100,9 @@ import {
   operationStateMapping,
 } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
+import {paginationMixin, filterMixin} from '../mixins/commonMixin';
 export default {
-    mixins: [baseMixin],
+    mixins: [baseMixin, paginationMixin, filterMixin],
     props:{
         id: {
             type: Number
@@ -90,7 +112,8 @@ export default {
         return {
             tableData: [],
             loading: false,
-            timer: null
+            timer: null,
+            inputSearch: ''
         }
     },
     mounted(){
@@ -165,6 +188,14 @@ export default {
             }).catch( error => {
                 this.$message.error( error);
             })
+        },
+        filterFn(item, i){
+            return item.vm[i].includes( this.filter[i]);
+        },
+        searchByName(){
+            const vmName = this.inputSearch
+            this.filter = Object.assign({},{vmName});
+            this.currentPage = 1;
         }
     }
 }

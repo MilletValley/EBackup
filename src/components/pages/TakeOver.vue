@@ -887,13 +887,15 @@ $vice-color: #6d6d6d;
   background-color: #ffffff;
 }
 .hostInfo {
+  position: relative;
   text-align: center;
   margin: 1em 0;
 }
 .serviceIcon {
   position: absolute;
-  margin-left: 30px;
-  margin-top: -0.5em;
+  // margin-left: 30px;
+  right: 80px;
+  margin-top: -1em;
   width: 2em;
   height: 2em;
   transition: all 0.5s ease;
@@ -909,8 +911,9 @@ $vice-color: #6d6d6d;
 }
 .simpleSwitch {
   position: absolute;
-  margin-left: 75px;
+  // margin-left: 75px;
   margin-top: 0.3em;
+  right: 30px;
   width: 2em;
   height: 2em;
   cursor: pointer;
@@ -921,7 +924,8 @@ $vice-color: #6d6d6d;
 }
 .simpleSwitchGoing {
   position: absolute;
-  margin-left: 75px;
+  // margin-left: 75px;
+  right: 30px;
   margin-top: 0.1em;
   color: $primary-color;
   font-size: 34px;
