@@ -416,7 +416,6 @@ import SwitchModal from '../modal/SwitchModal';
 import BatchSwitchModal from '../modal/BatchSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
-import { simpleSwitch } from '../../api/host'
 import {
   fetchAll as fetchAllOracle,
   fetchLinks as fetchLinksOracle,
@@ -431,8 +430,10 @@ import {
 } from '../../api/sqlserver';
 import {
   createSwitches as switchHostIp,
+  vipSwitches as switchVip,
   fetchAll,
   deleteLinks,
+  simpleSwitch
 } from '../../api/host';
 import { validatePassword } from '../../api/user';
 import {
@@ -659,23 +660,41 @@ export default {
        * 3.1.切换IP：修改该设备连接的最近切换记录
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        * 3.3 易备库单切IP
+       * 3.4 rac环境下切IP
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
-        switchHostIp(this.hostLinkIdReadyToSwitch, formData)
-          .then(res => {
-            const { data } = res.data;
-            this.links.find(
-              link => link.id === this.hostLinkIdReadyToSwitch
-            ).latestSwitch = data;
-            this.switchModalVisible = false;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          })
-          .then(() => {
-            this.btnLoading = false;
-          });
+        if(formData === 'vip') {
+          switchVip(this.hostLinkIdReadyToSwitch)
+            .then(res => {
+              const { data } = res.data;
+              this.links.find(
+                link => link.id === this.hostLinkIdReadyToSwitch
+              ).latestSwitch = data;
+              this.switchModalVisible = false;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading = false;
+            });
+        } else {
+          switchHostIp(this.hostLinkIdReadyToSwitch)
+            .then(res => {
+              const { data } = res.data;
+              this.links.find(
+                link => link.id === this.hostLinkIdReadyToSwitch
+              ).latestSwitch = data;
+              this.switchModalVisible = false;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading = false;
+            });
+        }
       } else if(Object.keys(this.readyToSimpleSwitch).length > 0) {
         this.btnLoading = true;
         const req = {
@@ -912,6 +931,7 @@ $vice-color: #6d6d6d;
 .simpleSwitch {
   position: absolute;
   // margin-left: 75px;
+  right: 30px;
   margin-top: 0.3em;
   right: 30px;
   width: 2em;

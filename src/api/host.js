@@ -46,6 +46,12 @@ const createSwitches = (hostLinkId, formData) =>
     data: formData,
   });
 
+const vipSwitches = hostLinkId =>
+  baseApi.request({
+    method: 'post',
+    url: `/host-links/${hostLinkId}/switch-vip`
+  });
+
 const deleteLinks = linkId =>
   baseApi.request({
     method: 'delete',
@@ -95,6 +101,7 @@ export {
   deleteSome,
   modifyOne,
   createSwitches,
+  vipSwitches,
   deleteLinks,
   simpleSwitch,
   fetchDetailsById,

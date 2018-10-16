@@ -2,7 +2,8 @@
   <section>
     <el-dialog custom-class="min-width-dialog"
                :visible.sync="modalVisible"
-               @close="switchModalClosed">
+               @close="switchModalClosed"
+               @open="switchModalOpend">
       <el-row>
         <el-col :span="6">
           <i-icon name="warning"
@@ -34,7 +35,8 @@
                   :class="$style.errorTip">服务IP不符合切换要求，进入
               <el-button type="text"
                          @click="$router.push({name: 'deviceManager'})">设备管理</el-button>修改！</span>
-            <div v-else-if="hostLinkReadyToSwitch&&hostLinkReadyToSwitch.primaryHost.osName==='Windows'">
+            <!-- 临时IP开始：Windows下 -->
+            <div v-else-if="switchTempIp">
               <p>
                 <p>
                   <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 1 ? 'production-env' : 'ebackup-env'"
@@ -53,7 +55,9 @@
                 <p>临时IP为：<span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span><p>
               </p>
             </div>
-            <div v-else-if="hostLinkReadyToSwitch&&hostLinkReadyToSwitch.primaryHost.osName==='Linux'">
+            <!-- 临时IP结束 -->
+            <!-- 服务IP开始：Linux下单机 -->
+            <div v-else-if="switchServiceIp">
               <p>服务IP
                 <span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span> 将由</p>
               <p>
@@ -88,7 +92,79 @@
                 <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
               </p> -->
             </div>
-            <div v-else-if="readyToSimpleSwitch && Object.keys(readyToSimpleSwitch).length>0">
+            <!-- 服务IP结束 -->
+            <!-- scanIp、vip开始 -->
+            <div v-else-if="switchIpInRac">
+              <el-radio-group v-model="switchRacIp"
+                              size="mini">
+                <el-radio-button label="scanIp">scanIp</el-radio-button>
+                <el-radio-button label="vip">VIP</el-radio-button>
+              </el-radio-group>
+              <div v-if="switchRacIp === 'scanIp'">
+                <p>scanIp
+                  <span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span> 将由</p>
+                <p>
+                  <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 1 ? 'production-env' : 'ebackup-env'"
+                          style="vertical-align: -0.3em;"></i-icon>
+                  <span :class=" hostLinkReadyToSwitch.serviceIpMark === 1 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark | serviceIpMarkFilter }}</span>
+                  <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+                  <span style="width: 4em;">切换至</span>
+                  <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 2 ? 'production-env' : 'ebackup-env'"
+                          style="vertical-align: -0.3em;"></i-icon>
+                  <span :class="hostLinkReadyToSwitch.serviceIpMark === 2 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1 | serviceIpMarkFilter }}</span>
+                  <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.serviceIpMark === 2 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+                </p>
+              </div>
+              <div v-else>
+                <p>
+                  VIP将从
+                  <i-icon :name="hostLinkReadyToSwitch.vipIpMark === 1 ? 'production-env' : 'ebackup-env'"
+                          style="vertical-align: -0.3em;"></i-icon>
+                  <span :class=" hostLinkReadyToSwitch.vipIpMark === 1 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.vipIpMark | serviceIpMarkFilter }}</span>
+                  <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.vipIpMark === 1 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+                  <span style="width: 4em;">切换至</span>
+                  <i-icon :name="hostLinkReadyToSwitch.vipIpMark === 2 ? 'production-env' : 'ebackup-env'"
+                          style="vertical-align: -0.3em;"></i-icon>
+                  <span :class="hostLinkReadyToSwitch.vipIpMark === 2 ? $style.productionEnvColor : $style.ebackupEnvColor">{{ hostLinkReadyToSwitch.vipIpMark === 1 ? 2 : 1 | serviceIpMarkFilter }}</span>
+                  <span :class="$style.switchModalName">{{ hostLinkReadyToSwitch.vipIpMark === 2 ? hostLinkReadyToSwitch.primaryHost.name : hostLinkReadyToSwitch.viceHost.name}}</span>
+                </p>
+                <!-- vip=>易备 -->
+                <div v-if="hostLinkReadyToSwitch.vipIpMark === 1 ">
+                  <p>
+                    <span :class="$style.productionEnvColor">{{ hostLinkReadyToSwitch.primaryHost.vip }}</span>
+                    <i-icon name="readySwitch"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    <span :class="$style.ebackupEnvColor">{{ hostLinkReadyToSwitch.viceHost.hostIp }}</span>
+                  </p>
+                  <p v-for="primaryNode in hostLinkReadyToSwitch.primaryNodes"
+                       :key="primaryNode.id">
+                    <span :class="$style.productionEnvColor">{{ primaryNode.vip }}</span>
+                    <i-icon name="readySwitch"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    <span :class="$style.ebackupEnvColor">{{ hostLinkReadyToSwitch.viceHost.hostIp }}</span>
+                  </p>
+                </div>
+                <!-- vip=>生产 -->
+                <div v-else>
+                  <p>
+                    <span :class="$style.ebackupEnvColor">{{ hostLinkReadyToSwitch.primaryHost.vip }}</span>
+                    <i-icon name="readySwitch"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    <span :class="$style.productionEnvColor">{{ hostLinkReadyToSwitch.primaryHost.hostIp }}</span>
+                  </p>
+                  <p v-for="primaryNode in hostLinkReadyToSwitch.primaryNodes"
+                       :key="primaryNode.id">
+                    <span :class="$style.ebackupEnvColor">{{ primaryNode.vip }}</span>
+                    <i-icon name="readySwitch"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    <span :class="$style.productionEnvColor">{{ hostLinkReadyToSwitch.primaryHost.hostIp }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- scanIp、vip结束 -->
+            <!-- 单切开始 -->
+            <div v-else-if="switchSimpleIp">
               <div v-if="osIsWindows(readyToSimpleSwitch.viceHost.osName)">
                 <p>
                   <i-icon name="ebackup-env"
@@ -127,6 +203,8 @@
                 </p>
               </div>
             </div>
+            <!-- 单切结束 -->
+            <!-- 切实例开始 -->
             <div v-if="databaseLinksReadyToSwitch.length > 0"
                  v-for="link in databaseLinksReadyToSwitch"
                  :key="link.id">
@@ -147,6 +225,7 @@
                 <span>{{ link.primaryDatabase.role | databaseRoleFilter}}</span>
               </p>
             </div>
+            <!-- 切实例结束 -->
           </div>
           <!-- <template v-if="hostLinkReadyToSwitch">
             <el-form :model="formData"
@@ -214,6 +293,7 @@ export default {
   data() {
     return {
       password: '',
+      switchRacIp: '',
       formData: {
         // tempIp: '',
         defaultGateway: '',
@@ -262,6 +342,26 @@ export default {
       }
       return res;
     },
+    // 切服务IP
+    switchServiceIp() {
+      return this.hostLinkReadyToSwitch&&
+             this.hostLinkReadyToSwitch.primaryHost.osName==='Linux'&&
+             this.hostLinkReadyToSwitch.primaryHost.isRacMark===2
+    },
+    // rac环境下的切IP
+    switchIpInRac() {
+      return this.hostLinkReadyToSwitch&&
+             this.hostLinkReadyToSwitch.primaryHost.osName==='Linux'&&
+             this.hostLinkReadyToSwitch.primaryHost.isRacMark===1
+    },
+    // 切临时IP
+    switchTempIp() {
+      return this.hostLinkReadyToSwitch&&this.hostLinkReadyToSwitch.primaryHost.osName==='Windows'
+    },
+    // 单切IP
+    switchSimpleIp() {
+      return this.readyToSimpleSwitch&&Object.keys(this.readyToSimpleSwitch).length>0
+    }
     // oppsiteServiceIpMark() {
     //   return this.hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1;
     // }
@@ -269,9 +369,15 @@ export default {
   methods: {
     switchModalClosed() {
       this.password = '';
+      this.switchRacIp = '';
       this.formData.mask = '';
       this.formData.defaultGateway = '';
       this.$emit('cancel');
+    },
+    switchModalOpend() {
+      if(this.switchIpInRac) {
+        this.switchRacIp = 'scanIp'
+      }
     },
     cancelSwitch() {
       this.password = '';
@@ -282,7 +388,7 @@ export default {
         .then(() => {
           if (!this.formData.mask) this.formData.mask = '255.255.255.0';
           // this.$emit('confirm', this.formData);
-          this.$emit('confirm');
+          this.$emit('confirm', this.switchRacIp);
           this.password = '';
         })
         .catch(error => {

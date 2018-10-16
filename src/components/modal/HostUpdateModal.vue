@@ -22,6 +22,13 @@
                       prop="hostIp">
           <el-input v-model="formData.hostIp"></el-input>
         </el-form-item>
+        <el-form-item label="设备类型"
+                      prop="hostType">
+          <el-radio v-model="formData.hostType"
+                    :label="1">生产环境</el-radio>
+          <el-radio v-model="formData.hostType"
+                    :label="2">易备环境</el-radio>
+        </el-form-item>
         <el-form-item label="操作系统"
                       prop="osName">
           <el-select v-model="formData.osName"
@@ -32,21 +39,36 @@
           </el-select>
         </el-form-item>
         <el-form-item label="临时IP"
-                      v-if="this.formData.osName==='Windows'"
+                      v-if="formData.osName==='Windows'"
                       prop="serviceIp">
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
+        <el-form-item label="是否Rac环境"
+                      v-if="formData.osName==='Linux'"
+                      prop="isRacMark">
+          <el-radio v-model="formData.isRacMark"
+                    :label="1">是</el-radio>
+          <el-radio v-model="formData.isRacMark"
+                    :label="2">否</el-radio>
+        </el-form-item>
+        <el-row v-if="formData.isRacMark===1 && formData.osName === 'Linux'">
+          <el-col :span="12">
+            <el-form-item label="VIP"
+                          prop="vip">
+              <el-input v-model="formData.vip"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="临时VIP"
+                          prop="tempVip">
+              <el-input v-model="formData.vip"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="服务IP"
-                      v-if="this.formData.osName==='Linux'"
+                      v-if="formData.osName==='Linux'"
                       prop="serviceIp">
           <el-input v-model="formData.serviceIp"></el-input>
-        </el-form-item>
-        <el-form-item label="设备类型"
-                      prop="hostType">
-          <el-radio v-model="formData.hostType"
-                    :label="1">生产环境</el-radio>
-          <el-radio v-model="formData.hostType"
-                    :label="2">易备环境</el-radio>
         </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">

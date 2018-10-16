@@ -56,6 +56,9 @@ const genModalMixin = type => {
         oracleVersion: '',
         storagePath: '',
         sharingPath: '',
+        isRacMark: 1,
+        vip: '',
+        tempVip: ''
       };
       const virtualFormData = {
         id: -1,
