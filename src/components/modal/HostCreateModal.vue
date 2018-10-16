@@ -45,9 +45,9 @@
                       v-if="formData.osName==='Linux'"
                       prop="isRacMark">
           <el-radio v-model="formData.isRacMark"
-                    :label="1">是</el-radio>
+                    :label="0">是</el-radio>
           <el-radio v-model="formData.isRacMark"
-                    :label="2">否</el-radio>
+                    :label="1">否</el-radio>
         </el-form-item>
         <el-row v-if="formData.isRacMark===1 && formData.osName === 'Linux'">
           <el-col :span="12">
@@ -59,7 +59,7 @@
           <el-col :span="12">
             <el-form-item label="临时VIP"
                           prop="tempVip">
-              <el-input v-model="formData.vip"></el-input>
+              <el-input v-model="formData.tempVip"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
