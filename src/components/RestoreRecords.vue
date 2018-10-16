@@ -137,7 +137,8 @@ export default {
         linux: '恢复路径',
         vm: '虚拟机',
       };
-      return mapping[this.type];
+      // type可能为空，当type为空时mapping[this.type]等于undefined，影响了:lable的判断，无法实时更新,目前发现table中会出现这种问题
+      return mapping[this.type] ? mapping[this.type] : '';
     },
     isVMware() {
       // const path = this.$route.path;
