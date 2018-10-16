@@ -346,13 +346,13 @@ export default {
     switchServiceIp() {
       return this.hostLinkReadyToSwitch&&
              this.hostLinkReadyToSwitch.primaryHost.osName==='Linux'&&
-             this.hostLinkReadyToSwitch.primaryHost.isRacMark===2
+             this.hostLinkReadyToSwitch.primaryHost.isRacMark===1
     },
     // rac环境下的切IP
     switchIpInRac() {
       return this.hostLinkReadyToSwitch&&
              this.hostLinkReadyToSwitch.primaryHost.osName==='Linux'&&
-             this.hostLinkReadyToSwitch.primaryHost.isRacMark===1
+             this.hostLinkReadyToSwitch.primaryHost.isRacMark===0
     },
     // 切临时IP
     switchTempIp() {

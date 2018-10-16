@@ -22,7 +22,7 @@ const listMixin = {
       filterItem: '',
       currentPage: 1,
       pagesize: 10,
-      selectTag: '',
+      selectTag: 'name',
       currentPosition: ''
     };
   },
