@@ -51,7 +51,7 @@
           <el-radio v-model="formData.isRacMark"
                     :label="1">否</el-radio>
         </el-form-item>
-        <el-row v-if="formData.isRacMark===1 && formData.osName === 'Linux'">
+        <el-row v-if="formData.isRacMark===0 && formData.osName === 'Linux'">
           <el-col :span="12">
             <el-form-item label="VIP"
                           prop="vip">
