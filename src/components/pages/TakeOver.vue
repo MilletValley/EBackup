@@ -58,11 +58,31 @@
                 justify="space-around">
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <div>
-                <i-icon name="host-production"
-                        :class="$style.hostIcon"></i-icon>
-                <span>{{ hostLink.primaryHost.name }}</span>
-              </div>
+              <el-popover placement="right"
+                          trigger="hover"
+                          width="300"
+                          :disabled="!hostLink.vipIpMark"
+                          :open-delay="200">
+                <h4 style="margin: 5px 0; padding: 3px 0;">子节点</h4>
+                <p v-if="!(hostLink.primaryNodes || hostLink.primaryNodes.length)">暂无子节点</p>
+                <div v-else>
+                  <p v-for="primaryNode in hostLink.primaryNodes"
+                     :key="primaryNode.id">
+                     <el-row>
+                       <el-col :span="12">{{ primaryNode.name }}</el-col>
+                       <el-col :span="12">{{ primaryNode.hostIp }}</el-col>
+                     </el-row>
+                  </p>
+                </div>
+                <div slot="reference" style="display: inline-block">
+                  <i-icon name="host-production"
+                          :class="$style.hostIcon"></i-icon>
+                  <span>{{ hostLink.primaryHost.name }}</span>
+                </div>
+              </el-popover>
+              <i-icon :class="$style.vipIcon"
+                      name="vip"
+                      v-if="hostLink.vipIpMark && hostLink.vipIpMark === 1 "></i-icon>
               <div>
                 <i-icon name="ip"
                         :class="$style.hostIpIcon"></i-icon>
@@ -165,6 +185,9 @@
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
+              <i-icon :class="$style.vipIcon"
+                      name="vip"
+                      v-if="hostLink.vipIpMark && hostLink.vipIpMark === 2 "></i-icon>
               <div>
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
@@ -909,6 +932,13 @@ $vice-color: #6d6d6d;
   position: relative;
   text-align: center;
   margin: 1em 0;
+}
+.vipIcon {
+  position: absolute;
+  margin-top: 0.5em;
+  left: 100px;
+  width: 2em;
+  height: 2em;
 }
 .serviceIcon {
   position: absolute;
