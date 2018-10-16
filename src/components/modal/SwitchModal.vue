@@ -88,7 +88,7 @@
                 <span :class="$style.switchModalIp">{{hostLinkReadyToSwitch.primaryHost.hostIp}}</span>
               </p> -->
             </div>
-            <div v-else-if="Object.keys(readyToSimpleSwitch).length>0">
+            <div v-else-if="readyToSimpleSwitch && Object.keys(readyToSimpleSwitch).length>0">
               <div v-if="osIsWindows(readyToSimpleSwitch.viceHost.osName)">
                 <p>
                   <i-icon name="ebackup-env"
