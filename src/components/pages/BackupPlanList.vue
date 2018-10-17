@@ -161,16 +161,18 @@ export default {
         selectedhandler(data){
             console.log(data)
             this.deviceModalVisible = false;
-            this.buttonFlag = true;
-            stopAllBackupPlan(data.id).then( res => {
-                const {message} = res.data;
-                this.$message.success( message );
-                this.fetchAll();
-            }).catch( error => {
-                this.$message.error( error );
-            }).then( () => {
-                this.buttonFlag = false
-            })
+            if(data.id){
+                this.buttonFlag = true;
+                stopAllBackupPlan(data.id).then( res => {
+                    const {message} = res.data;
+                    this.$message.success( message );
+                    this.fetchAll();
+                }).catch( error => {
+                    this.$message.error( error );
+                }).then( () => {
+                    this.buttonFlag = false
+                })
+            }
         }
     }
 }
