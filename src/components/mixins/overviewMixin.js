@@ -4,9 +4,14 @@ const overviewMixin = {
     return {
       productionData: {},
       ebackupData: {},
-      applicationData: [],
+      productionSalesInfo: [],
+      ebackupSalesInfo: [],
       dialogVisible: false,
       btnLoading: false,
+      productionPage: 1,
+      productionPageSize: 10,
+      ebackupPage: 1,
+      ebackupPageSize: 10,
     };
   },
   computed: {
@@ -15,12 +20,52 @@ const overviewMixin = {
     },
     rightDire() {
       return this.$refs.rightDire;
+    },
+    showProduction() {
+      return !['',null,'null'].includes(this.productionData.serviceIp);
+    },
+    showEbackup() {
+      return !['',null,'null'].includes(this.ebackupData.serviceIp);
+    },
+    productionInfo() {
+      if(this.productionData.salesInfo){
+        this.productionSalesInfo = this.productionData.salesInfo.slice();
+        return this.productionSalesInfo.sort(function(a,b){
+          return b.salesamount-a.salesamount;
+        }).slice(0,5);
+      }
+      else
+        return [];
+    },
+    ebackupInfo() {
+      if(this.ebackupData.salesInfo) {
+        this.ebackupSalesInfo = this.ebackupData.salesInfo.slice();
+        return this.ebackupSalesInfo.sort(function(a,b){
+          return b.salesamount-a.salesamount;
+        }).slice(0,5);
+      }
+      else
+        return [];
+    },
+    productionTotal() {
+      return this.productionData.salesInfo?
+             this.productionData.salesInfo.length:0;
+    },
+    ebackupTotal() {
+      return this.ebackupData.salesInfo?
+             this.ebackupData.salesInfo.length:0;
     }
   },
   created() {
     this.fetchData();
   },
   methods: {
+    productionCurrentChange(val) {
+      this.productionPage = val;
+    },
+    ebackupCurrentChange(val) {
+      this.ebackupPage = val;
+    },
     // 绘图环境，起点坐标，终点坐标，三角斜边-直线夹角，三角斜边长度，箭头线宽度，箭头颜色，方向
     drawArrow(ctx, fromX, fromY, toX, toY, theta, headlen, width, color, dire) {
       this.leftDire.getContext('2d').clearRect(0, 0, this.leftDire.width, this.leftDire.height);

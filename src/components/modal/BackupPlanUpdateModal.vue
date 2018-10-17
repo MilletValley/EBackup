@@ -4,14 +4,16 @@
                :visible.sync="modalVisible"
                :before-close="beforeModalClose"
                @open="modalOpened"
-               @close="modalClosed">
+               @close="modalClosed"
+               v-if="backupPlan">
       <span slot="title">
-        更新备份计划
+        {{disable ? "查看备份计划": "更新备份计划"}}
         <span style="color: #999999"> (ID: {{backupPlan.id}})</span>
       </span>
       <el-form :model="formData"
                label-width="110px"
                ref="updateForm"
+               :disabled="disable"
                :rules="rules"
                size="small">
         <el-form-item label="备份计划名称"
@@ -65,7 +67,7 @@
                       v-show="formData.timeStrategy === 4">
           <el-checkbox-group v-model="formData.weekPoints">
             <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                                :label="Number(w)"
+                                :label="w"
                                 :key="w">{{ weekMapping[w] }}</el-checkbox-button>
           </el-checkbox-group>
         </el-form-item>
@@ -123,7 +125,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button type="primary"
+        <el-button type="primary" v-if="!disable"
                    :loading="btnLoading"
                    @click="confirmBtnClick">确定</el-button>
         <el-button @click="cancel">取消</el-button>
@@ -141,8 +143,11 @@ export default {
   props: {
     backupPlan: {
       type: Object,
-      required: true,
+      // required: true,
     },
+    disable:{
+      type: Boolean
+    }
   },
   methods: {
     confirmBtnClick() {
@@ -161,6 +166,10 @@ export default {
       });
     },
     modalOpened() {
+      // 当备份策略时间点为空时（非按天、周、月）需要初始化才会显示
+      if (this.backupPlan.config.timePoints.length === 0) {
+        this.backupPlan.config.timePoints.push({ value: '00:00', key: Date.now() })
+      }
       const { id, name, config, backupPath, backupSystem } = this.backupPlan;
       const { timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,

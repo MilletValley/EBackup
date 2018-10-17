@@ -15,6 +15,9 @@ const strategyMapping = {
   oracle: {
     1: [0, 2, 3, 4, 5],
   },
+  mysql: {
+    1: [0, 2, 3, 4, 5],
+  },
   vm: {
     1: [0, 2, 3, 4, 5],
   },
@@ -33,8 +36,10 @@ const strategyMapping = {
 const mapping = {
   oracle: '实例',
   sqlserver: '数据库',
+  mysql: '数据库',
   windows: '恢复路径',
   linux: '恢复路径',
+  vm: '新虚拟机名'
 };
 
 const backupPlanModalMixin = {
@@ -297,6 +302,10 @@ const backupPlanModalMixin = {
         }
         if ([3, 4, 5].includes(timeStrategy)) {
           config.timePoints = filteredTimePoints(timePoints);
+          // 全备+增备下按星期重排
+          if (timeStrategy === 4) {
+            config.weekPoints.sort((a, b) => a - b);
+          }
         }
         if (this.type === 'windows') {
           resolve({ name, backupPath, backupSystem, config });
@@ -339,7 +348,7 @@ const restorePlanModalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     id: {
@@ -401,9 +410,6 @@ const restorePlanModalMixin = {
     const baseFormData = {
       name: '',
       hostIp: '',
-      loginName: '',
-      password: '',
-      detailInfo: '',
       startTime: '',
       singleTime: '',
       datePoints: [],
@@ -417,6 +423,7 @@ const restorePlanModalMixin = {
     }
     return {
       // 原始表单值
+      hiddenPassword: true,
       originFormData: Object.assign({}, baseFormData),
       formData: Object.assign({}, baseFormData),
       strategys, // 时间策略
@@ -427,7 +434,7 @@ const restorePlanModalMixin = {
           { required: true, message: '请输入主机IP', trigger: 'blur' },
           {
             pattern:
-              '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+              '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
             message: 'IP地址不正确',
             trigger: 'blur',
           },
@@ -495,6 +502,14 @@ const restorePlanModalMixin = {
     isFileHost() {
       return this.type === 'windows' || this.type === 'linux';
     },
+    isHW() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'hwVirtual';
+    },
+    isVMware() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual';
+    }
   },
   methods: {
     // 时间点去重排序

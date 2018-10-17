@@ -20,6 +20,10 @@
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
+        <el-button type="primary"
+                   @click="batchSwitch">批量切换</el-button>
+      </el-form-item>
+      <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
                    @click="refreshData">刷新</el-button>
       </el-form-item>
@@ -54,16 +58,36 @@
                 justify="space-around">
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <div>
-                <i-icon name="host-production"
-                        :class="$style.hostIcon"></i-icon>
-                <span>{{ hostLink.primaryHost.name }}</span>
-              </div>
+              <el-popover placement="right"
+                          trigger="hover"
+                          width="300"
+                          :disabled="!hostLink.vipIpMark"
+                          :open-delay="200">
+                <h4 style="margin: 5px 0; padding: 3px 0;">子节点</h4>
+                <p v-if="!(hostLink.primaryNodes && hostLink.primaryNodes.length)">暂无子节点</p>
+                <div v-else>
+                  <p v-for="primaryNode in hostLink.primaryNodes"
+                     :key="primaryNode.id">
+                     <el-row>
+                       <el-col :span="12">{{ primaryNode.name }}</el-col>
+                       <el-col :span="12">{{ primaryNode.hostIp }}</el-col>
+                     </el-row>
+                  </p>
+                </div>
+                <div slot="reference" style="display: inline-block">
+                  <i-icon name="host-production"
+                          :class="$style.hostIcon"></i-icon>
+                  <span>{{ hostLink.primaryHost.name }}</span>
+                </div>
+              </el-popover>
+              <i-icon :class="$style.vipIcon"
+                      name="vip"
+                      v-if="hostLink.vipIpMark && hostLink.vipIpMark === 1"></i-icon>
               <div>
                 <i-icon name="ip"
                         :class="$style.hostIpIcon"></i-icon>
                 <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 1"
+                <el-tooltip v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'"
                             placement="right"
                             effect="light">
                   <div slot="content">
@@ -161,11 +185,14 @@
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
+              <i-icon :class="$style.vipIcon"
+                      name="vip"
+                      v-if="hostLink.vipIpMark && hostLink.vipIpMark === 2 "></i-icon>
               <div>
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.viceHost.name }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 2"
+                <el-tooltip v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'"
                             placement="right"
                             effect="light">
                   <div slot="content">
@@ -173,8 +200,66 @@
                     <br/>服务IP：{{ hostLink.viceHost.serviceIp }}
                   </div>
                   <i-icon :class="$style.serviceIcon"
+                          style="margin-top: 3px"
                           name="service"></i-icon>
                 </el-tooltip>
+                <el-tooltip v-if="simpleSwitchGoing(hostLink)"
+                            content="易备设备切换IP中"
+                            effect="light"
+                            placement="right"
+                            :open-delay="200">
+                  <i class="el-icon-loading"
+                     :class="$style.simpleSwitchGoing"></i>
+                </el-tooltip>
+                <el-popover placement="right"
+                            trigger="hover"
+                            width="300"
+                            v-else
+                            :open-delay="200">
+                  <el-form size="mini"
+                           label-size="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  v-if="osIsWindows(hostLink.viceHost.osName)"
+                                  label="易备IP">
+                      {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  v-else
+                                  label="服务IP">
+                      {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
+                      {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
+                    </el-form-item>
+                  </el-form>
+                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+                  <p v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">暂无操作</p>
+                  <el-form v-else
+                            size="mini"
+                            label-width="70px">
+                    <el-form-item :class="$style.switchFormItem"
+                                  :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                      {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="状态">
+                      <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
+                              size="mini">
+                        {{ hostLink.simpleSwitch.state | switchStateFilter }}
+                      </el-tag>
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="切换信息">
+                      {{ hostLink.simpleSwitch.message }}
+                    </el-form-item>
+                    <el-form-item :class="$style.switchFormItem"
+                                  label="完成时间">
+                      {{ hostLink.simpleSwitch.switchTime }}
+                    </el-form-item>
+                  </el-form>
+                  <i-icon :class="$style.simpleSwitch"
+                          slot="reference"
+                          name="simpleSwitch"
+                          @click.native="simpleSwitchIp(hostLink)"></i-icon>  
+                </el-popover>
               </div>
               <div>
                 <i-icon name="ip"
@@ -277,11 +362,11 @@
               <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换实例中...</span>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
               </div>
               <div v-else>
                 <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换实例</el-button>
+                           @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                 <el-button type="text"
                            @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
               </div>
@@ -301,7 +386,7 @@
                 </el-col>
                 <el-col :span="5"
                         :class="$style.dbInfoCol">
-                  <h5>实例名</h5>
+                  <h5>{{instanceName}}</h5>
                   <p>{{ dbLink.viceDatabase.instanceName }}</p>
                 </el-col>
                 <el-col :span="5"
@@ -330,6 +415,7 @@
     </section>
     <switch-modal :visible="switchModalVisible"
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
+                  :ready-to-simple-switch="readyToSimpleSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
@@ -340,10 +426,17 @@
                                 :type="databaseType"
                                 :btn-loading="btnLoading"
                                 @confirm="createLink"></database-link-create-modal>
+    <batch-switch-modal :visible.sync="switchDialog"
+                        :originLinks="switchLinks"
+                        :flag="flag"
+                        :btn-loading="btnLoading"
+                        :databaseType="databaseType"
+                        @confirm="addSwitchPlan"></batch-switch-modal>
   </section>
 </template>
 <script>
 import SwitchModal from '../modal/SwitchModal';
+import BatchSwitchModal from '../modal/BatchSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import {
@@ -360,8 +453,10 @@ import {
 } from '../../api/sqlserver';
 import {
   createSwitches as switchHostIp,
+  vipSwitches as switchVip,
   fetchAll,
   deleteLinks,
+  simpleSwitch
 } from '../../api/host';
 import { validatePassword } from '../../api/user';
 import {
@@ -372,6 +467,7 @@ import {
   switchManualMapping,
 } from '../../utils/constant';
 import takeoverMixin from '../mixins/takeoverMixins';
+import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
 import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -393,7 +489,7 @@ const createSwitchMethod = {
 };
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, batchSwitchMinxin],
   data() {
     return {
       items: [], // 所有的数据库
@@ -402,11 +498,19 @@ export default {
       switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
+      readyToSimpleSwitch: {},
       btnLoading: false,
+      timer: null,
     };
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.setTimer(this.timer);
+  },
+  destroyed: function() {
+    this.clearTimer(this.timer);
   },
   watch: {
     $route: function() {
@@ -513,7 +617,7 @@ export default {
     instanceName() {
       if (this.databaseType === 'oracle') {
         return '实例名';
-      } else if (this.databaseType === 'sqlserver') {
+      } else {
         return '数据库名';
       }
     },
@@ -568,6 +672,7 @@ export default {
     },
     cancelSwitch() {
       this.databaseLinkIdsReadyToSwitch = [];
+      this.readyToSimpleSwitch = {}
       this.hostLinkIdReadyToSwitch = -1;
       this.switchModalVisible = false;
     },
@@ -577,23 +682,74 @@ export default {
        * 2.判断是切换IP还是切换实例，调用不用的请求
        * 3.1.切换IP：修改该设备连接的最近切换记录
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
+       * 3.3 易备库单切IP
+       * 3.4 rac环境下切IP
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
-        switchHostIp(this.hostLinkIdReadyToSwitch, formData)
+        if(formData === 'vip') {
+          switchVip(this.hostLinkIdReadyToSwitch)
+            .then(res => {
+              const { data } = res.data;
+              this.links.find(
+                link => link.id === this.hostLinkIdReadyToSwitch
+              ).latestSwitch = data;
+              this.switchModalVisible = false;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading = false;
+            });
+        } else {
+          switchHostIp(this.hostLinkIdReadyToSwitch)
+            .then(res => {
+              const { data } = res.data;
+              this.links.find(
+                link => link.id === this.hostLinkIdReadyToSwitch
+              ).latestSwitch = data;
+              this.switchModalVisible = false;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading = false;
+            });
+        }
+      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) {
+        this.btnLoading = true;
+        const req = {
+          originViceIp: this.simpleSwitchOriginIp(this.readyToSimpleSwitch),
+          targetViceIp: this.simpleSwitchTargetIp(this.readyToSimpleSwitch)
+        };
+        const id = this.readyToSimpleSwitch.id;
+        simpleSwitch(id, req)
           .then(res => {
-            const { data } = res.data;
-            this.links.find(
-              link => link.id === this.hostLinkIdReadyToSwitch
-            ).latestSwitch = data;
+            const { data } = res.data
+            if(this.osIsWindows(this.readyToSimpleSwitch.viceHost.osName)) {
+              this.links.find(
+                link => link.id === id
+              ).simpleSwitch = data;
+            } else { // 切换成功，Linux下服务IP位置发生变化
+              if(data.state === 2) {
+                if(this.links.find(link => link.id).serviceIpMark === 1) {
+                  this.links.find(link => link.id).serviceIpMark = 2;
+                } else {
+                  this.links.find(link => link.id).serviceIpMark = 1;
+                }
+              }
+            }
+            this.$message({message: data.message, type: this.messageType(data.state)})
             this.switchModalVisible = false;
           })
           .catch(error => {
-            this.$message.error(error);
+            this.$message.error(error)
           })
           .then(() => {
             this.btnLoading = false;
-          });
+          })
       } else {
         this.btnLoading = true;
         createSwitchMethod[this.databaseType]({
@@ -639,15 +795,42 @@ export default {
       this.hostLinkIdReadyToSwitch = hostLink.id;
       this.switchModalVisible = true;
     },
+    simpleSwitchIp(hostLink) {
+      this.readyToSimpleSwitch = hostLink;
+      this.switchModalVisible = true;
+    },
+    // 单切进行中
+    simpleSwitchGoing(hostLink) {
+      return this.hasSimpleSwitch(hostLink.simpleSwitch) && hostLink.simpleSwitch.state === 1
+    },
+    // 单切返回的提示信息类型
+    messageType(state) {
+      switch(state) {
+        case 1:
+          return 'info'
+        case 2:
+          return 'success'
+        case 3:
+          return 'error'
+        default:
+          return ''
+      }
+    },
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
-        this.$router.push({ name: 'oracleLinkDetail', params: {id: String(linkId)} });
+        this.$router.push({
+          name: 'oracleLinkDetail',
+          params: { id: String(linkId) },
+        });
       } else if (this.databaseType === 'sqlserver') {
-        this.$router.push({ name: 'sqlserverLinkDetail', params: {id: String(linkId)} });
+        this.$router.push({
+          name: 'sqlserverLinkDetail',
+          params: { id: String(linkId) },
+        });
       }
     },
     createLink(data) {
@@ -691,12 +874,30 @@ export default {
         })
         .catch(error => {});
     },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        Promise.all([
+          fetchDatabaseMethod[this.databaseType](),
+          fetchLinksMethod[this.databaseType](),
+        ]).then(resArr => {
+          const { data } = resArr[0].data;
+          const { data: links } = resArr[1].data;
+          this.items = data;
+          this.links = links;
+        });
+      }, 20000);
+    },
+    clearTimer() {
+      clearInterval(this.timer);
+    },
   },
 
   components: {
     IIcon,
     SwitchModal,
     DatabaseLinkCreateModal,
+    BatchSwitchModal,
   },
 };
 </script>
@@ -728,13 +929,22 @@ $vice-color: #6d6d6d;
   background-color: #ffffff;
 }
 .hostInfo {
+  position: relative;
   text-align: center;
   margin: 1em 0;
 }
+.vipIcon {
+  position: absolute;
+  margin-top: 0.5em;
+  left: 100px;
+  width: 2em;
+  height: 2em;
+}
 .serviceIcon {
   position: absolute;
-  margin-left: 30px;
-  margin-top: -0.5em;
+  // margin-left: 30px;
+  right: 80px;
+  margin-top: -1em;
   width: 2em;
   height: 2em;
   transition: all 0.5s ease;
@@ -747,6 +957,28 @@ $vice-color: #6d6d6d;
   display: inline-block;
   vertical-align: -0.3em;
   margin-top: 10px;
+}
+.simpleSwitch {
+  position: absolute;
+  // margin-left: 75px;
+  right: 30px;
+  margin-top: 0.3em;
+  right: 30px;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+.simpleSwitchGoing {
+  position: absolute;
+  // margin-left: 75px;
+  right: 30px;
+  margin-top: 0.1em;
+  color: $primary-color;
+  font-size: 34px;
 }
 .hostIp {
   color: #909399;

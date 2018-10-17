@@ -2,7 +2,6 @@ import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import TabPanels from '@/components/TabPanels';
-import VmTabPanels from '@/components/VmTabPanels';
 import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
@@ -38,10 +37,17 @@ const detailPageMixin = {
       selectedBackupPlanId: -1,
       selectedBackupResultId: -1,
       singleRestoreCreateModalVisible: false,
+      timer: null,
     };
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.setTimer(this.timer);
+  },
+  destroyed() {
+    this.clearTimer(this.timer);
   },
   beforeRouteUpdate(to, from, next) {
     this.fetchData();
@@ -49,14 +55,14 @@ const detailPageMixin = {
   },
   computed: {
     selectedBackupPlan() {
-      return this.selectedBackupPlanId === -1
-        ? {}
-        : this.backupPlans.find(plan => plan.id === this.selectedBackupPlanId);
+      return this.selectedBackupPlanId === -1 ?
+        {} :
+        this.backupPlans.find(plan => plan.id === this.selectedBackupPlanId);
     },
     selectedRestorePlan() {
-      return this.selectedRestorePlanId === -1
-        ? {}
-        : this.restorePlans.find(
+      return this.selectedRestorePlanId === -1 ?
+        {} :
+        this.restorePlans.find(
           plan => plan.id === this.selectedRestorePlanId
         );
     },
@@ -73,7 +79,10 @@ const detailPageMixin = {
     },
     // 节流函数 5s只触发一次
     throttleMethod(fn) {
-      return throttle(fn, 5000, { leading: true, trailing: false });
+      return throttle(fn, 5000, {
+        leading: true,
+        trailing: false
+      });
     },
     // dropdown
     addPlanBtnClick(command) {
@@ -109,13 +118,21 @@ const detailPageMixin = {
           return '';
       }
     },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        this.RefreshTime();
+      }, 20000);
+    },
+    clearTimer() {
+      clearInterval(this.timer);
+    }
   },
   components: {
     IIcon,
     DatabaseUpdateModal,
     RestorePlanCreateModal,
     TabPanels,
-    VmTabPanels,
     SingleRestoreCreateModal,
     RestorePlanUpdateModal,
     BackupPlanCreateModal,

@@ -14,12 +14,14 @@ branches:
   only:
   - master
   - develop
+  - disaster-recover
+  - version2.3
 install: yarn
 script: npm run build
 before_deploy:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker build -t qiansy/ebackup:dev-latest .
-- docker tag qiansy/ebackup:dev-latest qiansy/ebackup:latest
+- docker tag qiansy/ebackup:dev-latest qiansy/ebackup:version2.3
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   - provider: script
@@ -32,3 +34,13 @@ deploy:
     on:
       branch:
         - master
+  - provider: script
+    script: bash ./build/docker_push.sh disaster-recover
+    on:
+      branch:
+        - disaster-recover
+  - provider: script
+    script: bash ./build/docker_push.sh version2.3
+    on:
+      branch:
+        - version2.3

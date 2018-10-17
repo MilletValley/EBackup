@@ -1,23 +1,23 @@
 <template>
   <section>
-    <el-form inline
-             size="small">
-      <el-form-item style="float: right;">
-        <el-button type="primary"
-                   @click="handleCreate()">添加</el-button>
-      </el-form-item>
-    </el-form>
+    <el-row>
+      <el-form inline
+               size="small">
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="handleCreate()">添加</el-button>
+        </el-form-item>
+      </el-form>
+    </el-row>
     <el-table :data="systemParameters"
               style="width: 100%">
-      </el-table-column>
-            <el-table-column prop="sysType"
+      <el-table-column prop="sysType"
                        label="系统类别"
                        :formatter="judgeSystem"
                        min-width="150"
                        fixed
                        align="center"></el-table-column>
-      </el-table-column>
-            <el-table-column prop="useType"
+      <el-table-column prop="useType"
                        label="使用类别"
                        :formatter="judgeUse"
                        min-width="130"
@@ -34,8 +34,17 @@
                        min-width="100"
                        header-align="center"
                        align="center"
-                       :formatter="stateFormatter"
-                       prop="state"></el-table-column>
+                       prop="state">
+        <template slot-scope="scope">
+          <span v-if="scope.row.state == 0">
+            <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px">
+            </i>
+          </span>
+          <span v-else>
+            <i class="el-icon-remove" style="color: #909399;font-size: 18px"></i>
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
                        min-width="140"
@@ -78,50 +87,56 @@
     </el-table>
     <!-- 修改 -->
     <el-dialog :visible.sync="updateModalVisible"
-               @close="updateClose">
+               @close="modalClose"
+               @open="updateModalOpened"
+               :before-close="handleClose">
       <span slot="title">
         修改参数
-        <span style="color: #999999">（ID: {{updateRow.id}}）</span>
+        <span style="color: #999999">（ID: {{formData.id}}）</span>
       </span>
-      <el-form :model="updateRow"
-               ref="updateRow"
+      <el-form :model="formData"
+               ref="formData"
                :rules="rules"
                label-width="110px"
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="updateRow.sysType" :label="1">Windows</el-radio>
-          <el-radio v-model="updateRow.sysType" :label="2">Linux</el-radio>
+          <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
+          <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
-          <el-radio v-model="updateRow.useType" :label="1">oracle</el-radio>
-          <el-radio v-model="updateRow.useType" :label="2">sqlserver</el-radio>
-          <el-radio v-model="updateRow.useType" :label="3">文件</el-radio>
-          <el-radio v-model="updateRow.useType" :label="4">虚拟机</el-radio>
+          <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
+          <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
+          <!-- <el-radio v-model="formData.useType" :label="5">mysql</el-radio> -->
+          <el-radio v-model="formData.useType" :label="3">文件</el-radio>
+          <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
         </el-form-item>
         <el-form-item label="地址"
                       prop="shareUrl">
-          <el-input v-model="updateRow.shareUrl"></el-input>
+          <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
         <el-form-item label="路径"
-                      v-show="updateRow.sysType === 2"
+                      v-if="formData.sysType === 2 && formData.useType ===3"
                       prop="mountUrl">
-          <el-input v-model="updateRow.mountUrl"></el-input>
+          <el-input v-model="formData.mountUrl"></el-input>
         </el-form-item>
         <el-form-item label="状态"
                       prop="state">
-          <el-radio v-model="updateRow.state" :label="0">启用</el-radio>
-          <el-radio v-model="updateRow.state" :label="1">禁用</el-radio>
+          <el-radio v-model="formData.state" :label="0">启用</el-radio>
+          <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <el-form-item label="系统登录名"
-                      prop="loginName">
-          <el-input v-model="updateRow.loginName"></el-input>
-        </el-form-item>
-        <el-form-item label="登录密码"
-                      prop="password">
-          <input-toggle v-model="updateRow.password"></input-toggle>
-        </el-form-item>
+        <template v-if="formData.sysType === 1 && formData.useType === 3">
+          <el-form-item label="系统登录名"
+                        prop="loginName">
+            <el-input v-model="formData.loginName"></el-input>
+          </el-form-item>
+          <el-form-item label="登录密码"
+                        prop="password">
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
+          </el-form-item>
+        </template>
       </el-form>
       <span slot="footer">
         <el-button type="primary" @click="updateConfirm" :loading="btnLoading">确定</el-button>
@@ -129,49 +144,56 @@
       </span>
     </el-dialog>
     <!-- 添加 -->
-    <el-dialog :visible.sync="createModalVisible">
+    <el-dialog :visible.sync="createModalVisible"
+               :before-close="handleClose"
+               @open="createModalOpened"
+               @close="modalClose">
       <span slot="title">
         添加参数
       </span>
-      <el-form :model="createRow"
-               ref="createRow"
+      <el-form :model="formData"
+               ref="formData"
                :rules="rules"
                label-width="110px"
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="createRow.sysType" :label="1">Windows</el-radio>
-          <el-radio v-model="createRow.sysType" :label="2">Linux</el-radio>
+          <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
+          <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
-          <el-radio v-model="createRow.useType" :label="1">oracle</el-radio>
-          <el-radio v-model="createRow.useType" :label="2">sqlserver</el-radio>
-          <el-radio v-model="createRow.useType" :label="3">文件</el-radio>
-          <el-radio v-model="createRow.useType" :label="4">虚拟机</el-radio>
+          <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
+          <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
+          <!-- <el-radio v-model="formData.useType" :label="5">mysql</el-radio> -->
+          <el-radio v-model="formData.useType" :label="3">文件</el-radio>
+          <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
         </el-form-item>
         <el-form-item label="地址"
                       prop="shareUrl">
-          <el-input v-model="createRow.shareUrl"></el-input>
+          <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
         <el-form-item label="路径"
-                      v-show="createRow.sysType === 2"
+                      v-if="formData.sysType === 2 && formData.useType===3"
                       prop="mountUrl">
-          <el-input v-model="createRow.mountUrl"></el-input>
+          <el-input v-model="formData.mountUrl"></el-input>
         </el-form-item>
         <el-form-item label="状态"
                       prop="state">
-          <el-radio v-model="createRow.state" :label="0">启用</el-radio>
-          <el-radio v-model="createRow.state" :label="1">禁用</el-radio>
+          <el-radio v-model="formData.state" :label="0">启用</el-radio>
+          <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <el-form-item label="系统登录名"
-                      prop="loginName">
-          <el-input v-model="createRow.loginName"></el-input>
-        </el-form-item>
-        <el-form-item label="登录密码"
-                      prop="password">
-          <input-toggle v-model="createRow.password"></input-toggle>
-        </el-form-item>
+        <template v-if="formData.sysType === 1 && formData.useType===3">
+          <el-form-item label="系统登录名"
+                        prop="loginName">
+            <el-input v-model="formData.loginName"></el-input>
+          </el-form-item>
+          <el-form-item label="登录密码"
+                        prop="password">
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
+          </el-form-item>
+        </template>
       </el-form>
       <span slot="footer">
         <el-button type="primary" @click="createConfirm" :loading="btnLoading">确定</el-button>
@@ -185,6 +207,7 @@
 import { fetchAll, modifyOne, createOne, deleteOne } from '../../api/systemParam';
 import { sysTypeMapping, useTypeMapping, systemStateMapping } from '../../utils/constant';
 import InputToggle from '@/components/InputToggle';
+import isEqual from 'lodash/isEqual';
 
 export default {
   name: 'SystemParam',
@@ -193,27 +216,11 @@ export default {
       systemParameters: [],
       createModalVisible: false,
       updateModalVisible: false,
-      listIndex: '',
+      listId: '',
       btnLoading: false,
-      updateRow: {
-        id: -1,
-        shareUrl: '',
-        loginName: '',
-        password: '',
-        mountUrl: '',
-        useType: -1,
-        sysType: -1,
-        state: -1,
-      },
-      createRow: {
-        shareUrl: '',
-        loginName: '',
-        password: '',
-        mountUrl: '',
-        useType: 1,
-        sysType: 1,
-        state: 0,
-      },
+      formData: {},
+      originFormData: {},
+      hiddenPassword: true,
       rules: {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
@@ -239,18 +246,6 @@ export default {
   created() {
     this.fetchData();
   },
-  computed: {
-    create() {
-      if(this.createRow.sysType===1)
-        this.createRow.mountUrl=null;
-      return this.createRow;
-    },
-    update() {
-      if(this.updateRow.sysType===1)
-        this.updateRow.mountUrl=null;
-      return this.updateRow;
-    }
-  },
   methods: {
     fetchData() {
       fetchAll()
@@ -270,9 +265,6 @@ export default {
     judgeUse(data) {
       return useTypeMapping[data.useType];
     },
-    stateFormatter(row, column, cellValue) {
-      return systemStateMapping[cellValue];
-    },
     changeState(index, row) {
       let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
       newRow.state = newRow.state===0?1:0;
@@ -288,17 +280,29 @@ export default {
         })
     },
     handleUpdate(index, row) {
-      const newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
-      this.updateRow = newRow;
-      this.listIndex = index;
+      this.listId = row.id;
       this.updateModalVisible = true;
+    },
+    updateModalOpened(index, row) {
+      this.formData = Object.assign({},this.systemParameters.find(list => list.id === this.listId));
+      this.originFormData = Object.assign({},this.systemParameters.find(list => list.id === this.listId));
     },
     handleCreate() {
       this.createModalVisible = true;
-      this.$nextTick(() => {
-        // 等待dom同步后打开模态框
-        this.$refs.createRow.resetFields();
-      });
+    },
+    createModalOpened() {
+      const baseFormData = {
+        id: -1,
+        shareUrl: '',
+        loginName: '',
+        password: '',
+        mountUrl: '',
+        useType: 1,
+        sysType: 1,
+        state: 0,
+      }
+      this.formData = Object.assign({}, baseFormData);
+      this.originFormData = Object.assign({}, baseFormData);
     },
     handleDelete(index, row) {
       this.$confirm(
@@ -325,16 +329,20 @@ export default {
       });
     },
     updateConfirm() {
-      this.$refs.updateRow.validate(valid => {
+      this.$refs.formData.validate(valid => {
         if (valid) {
           this.btnLoading=true;
-          modifyOne(this.update)
+          modifyOne(this.formData)
           .then(response => {
-            this.$message.success(response.data.message);
+            const { data, message } = response.data;
+            this.$message.success(message);
             this.updateModalVisible = false;
-            this.systemParameters.splice(this.listIndex, 1, response.data.data);
+            this.systemParameters.splice(this.systemParameters.findIndex(systemParameter => systemParameter.id === data.id),
+            1,
+            data);
             this.systemParameters.sort((a,b) =>
             {return a.state-b.state});
+            this.listId = '';
           })
           .catch(error => {
             this.$message.error(error);
@@ -346,10 +354,10 @@ export default {
       });
     },
     createConfirm() {
-      this.$refs.createRow.validate(valid => {
+      this.$refs.formData.validate(valid => {
         if (valid) {
           this.btnLoading=true;
-          createOne(this.create)
+          createOne(this.formData)
             .then(response => {
               this.$message.success(response.data.message);
               this.createModalVisible = false;
@@ -366,8 +374,22 @@ export default {
         }
       });
     },
-    updateClose() {
-      this.$refs['updateRow'].clearValidate();
+    handleClose(done) {
+      if (!isEqual(this.formData, this.originFormData)) {
+        this.$confirm('有未保存的修改，是否退出？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {
+          });
+      } else {
+        this.createModalVisible = false;
+        this.updateModalVisible = false;
+      }
+    },
+    modalClose() {
+      this.$refs.formData.clearValidate();
+      this.hiddenPassword = true;
     },
   },
   components: {

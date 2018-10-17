@@ -4,11 +4,11 @@
       <div class="login-box">
         <el-form class="login-form" label-position="left">
           <div class="login-head"> <img src="../assets/logo.png" class="login-img"></div>
-          <el-form-item label="用户名" props="loginName">
+          <el-form-item label="用户名" props="loginName" class="login-name">
             <el-input type="text" required v-model="loginName" auto-complete="off" @keyup.enter.native="doPassword">
             </el-input>
           </el-form-item>
-          <el-form-item label="密码">
+          <el-form-item label="密码" class="login-pass">
             <el-input type="password" required v-model="password" auto-complete="off" ref="isAutofocus" @keyup.enter.native="doLogin">
             </el-input>
           </el-form-item>
@@ -21,13 +21,12 @@
         </el-form>
       </div>
     </section>
-    <section class="home-copyright">
-      <div>
-        <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
-        <p>Powered By esay standby<br/></p>
-        <p>Version 2.0.0<br/></p>
-      </div>
-    </section>
+    <div class="home-copyright">
+      <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
+      <p>Powered By esay standby<br/></p>
+      <p>Version 2.0.0<br/></p>
+      <p>武汉四通信服易备数据中心应用连续性管理系统<br/></p>
+    </div>
 </div>
 </template>
 <script>
@@ -89,11 +88,15 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
+#app {
+  position: relative;
+}
 .root {
   background-image: url("../assets/homePage3.jpg");
   background-size: 100% auto;
   background-repeat: no-repeat;
+  width: 100%;
 }
 
 @font-face {
@@ -127,7 +130,7 @@ input:-webkit-autofill,
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  padding: 15% 0 5%;
+  padding-top: 13%;
 }
 
 .login-content .logo {
@@ -143,10 +146,11 @@ input:-webkit-autofill,
 
 .login-content .login-box {
   position: relative;
-  min-width: 390px;
-  min-height: 430px;
+  width: 390px;
+  height: 430px;
   font-weight: 700;
   background-color: #fff;
+  margin: 0 auto;
   -webkit-box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
           box-shadow: 0px 29px 147.5px 102.5px rgba(0, 0, 0, 0.05), 0px 29px 95px 0px rgba(0, 0, 0, 0.16);
   -webkit-perspective: 800px;
@@ -190,15 +194,6 @@ input:-webkit-autofill,
   transition: all 0.5s ease-in-out;
 }
 
-@media (max-width: 351px) {
-  .login-content .login-box {
-    min-width: 100%;
-  }
-  .login-content .login-box .login-form {
-    width: 100%;
-  }
-}
-
 .el-form-item {
     margin-bottom: 10px;
 }
@@ -206,10 +201,54 @@ input:-webkit-autofill,
 .el-button {
     font-weight: 700;
 }
-.home-copyright p{
+.home-copyright {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  width: 100%;
+}
+.home-copyright p {
   text-align: center;
   display: block;
   font-size: 12px;
   color: #666;
+  margin: 0;
+  padding: 2px;
+}
+@media screen and (max-width: 1460px) {
+  .login-content {
+    /* padding-top: 200px; */
+  }
+  .login-content .login-box {
+    width: 300px;
+    height: 350px;
+    margin-top: -50px;
+  }
+  .login-content .login-box .login-button {
+    width: 222px;
+    height: 35px;
+  }
+  .login-content .login-box .login-head {
+    margin-top: -10px;
+  }
+  .login-content {
+    padding-bottom: 2px;
+  }
+}
+</style>
+<style>
+@media screen and (max-width: 1460px) {
+  .login-name .el-form-item__label,
+  .login-pass .el-form-item__label {
+    line-height: 30px;
+  }
+  .login-name .el-form-item__content,
+  .login-pass .el-form-item__content {
+    line-height: 24px;
+  }
+  .login-name .el-input__inner,
+  .login-name .el-input__inner {
+    height: 35px;
+  }
 }
 </style>

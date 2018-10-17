@@ -19,8 +19,8 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
       </el-row>
-      <el-row>
-        <el-col :span="12">
+      <el-row v-if="!isVMware && !isHW">
+        <el-col :span="12" >
           <el-form-item label="恢复设备"
                         prop="hostIp">
             <el-select v-model="formData.hostIp"
@@ -42,7 +42,38 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
+      <el-row v-if="isHW">
+        <el-col :span="24">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-form-item label="恢复磁盘名"
+                      prop="diskName"
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+          <el-input v-model="formData.diskName"></el-input>
+        </el-form-item>
+      </el-row>
+      <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName">
@@ -55,7 +86,8 @@
                         :rules="[
           { required: true, message: '请输入登录密码', trigger: 'blur' },
         ]">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
@@ -64,6 +96,7 @@
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
                     v-for="s in Object.keys(strategys)"
+                    v-if="type!=='vm'||s==='1'"
                     :key="s">{{ strategys[s] }}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -124,10 +157,10 @@
 
     </el-form>
     <span slot="footer">
-      <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
                  @click="confirmBtnClick"
                  :loading="btnLoading">确定</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
     </span>
   </el-dialog>
 </template>
@@ -139,6 +172,7 @@ import {
 } from '../../utils/constant';
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
+import { createRestorePlan as createMySqlRestorePlan } from '../../api/mysql';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
@@ -150,9 +184,15 @@ export default {
         if (valid) {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              // const { loginName, detailInfo} = config;
+              // let conf = Object.assign({},config);
+              // if(this.isVMware){
+              //   conf.loginName = detailInfo;
+              //   conf.detailInfo = loginName;
+              // }
               this.$emit('confirm', {
                 id: this.database.id,
-                data: { name, config },
+                data: { name, config},
               });
             })
             .catch(error => {
@@ -164,12 +204,35 @@ export default {
       });
     },
     modalOpened() {
-      this.formData.detailInfo = this.database.instanceName;
-      this.originFormData.detailInfo = this.database.instanceName;
+      let customData;
+      if(this.isVMware || this.isHW){
+        customData = {
+          newName: '',
+          oldName: this.database.vmName,
+          diskName: '',
+        }
+      }else{
+        customData = {
+          loginName: '',
+          password: '',
+          detailInfo: this.database.instanceName,
+        }
+      }
+      this.formData = Object.assign({}, this.formData, customData)
+      console.log(this.formData)
+      // if(this.isVMware){
+      //   //loginname暂时用来存放虚拟机名称
+      //   this.formData.oldName = this.database.vmName;
+      //   this.originFormData.loginName = this.database.vmName;
+      // }else{
+      //   this.formData.detailInfo = this.database.instanceName;
+      //   this.originFormData.detailInfo = this.database.instanceName;
+      // }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.restorePlanCreateForm.clearValidate();
+      this.hiddenPassword = true;
     },
   },
 };
