@@ -21,6 +21,9 @@
                 justify="space-around">
           <el-col :span="10">
             <div :class="$style.hostInfo">
+              <i-icon :class="$style.vipIcon"
+                      name="vip"
+                      v-if="link.vipIpMark && link.vipIpMark === 1 "></i-icon>
               <i-icon name="ip"
                       :class="$style.hostIpIcon"></i-icon>
               <el-tooltip :content="'生产设备：'+`${link.primaryHost.name}`"
@@ -54,6 +57,9 @@
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
+              <i-icon :class="$style.vipIcon"
+                      name="vip"
+                      v-if="link.vipIpMark && link.vipIpMark === 2 "></i-icon>
               <i-icon name="ip"
                       :class="$style.hostIpIcon"></i-icon>
               <el-tooltip :content="'易备设备：'+`${link.viceHost.name}`"
@@ -210,6 +216,7 @@ $vice-color: #6d6d6d;
 .hostInfo {
   text-align: center;
   margin: 1em 0;
+  position: relative;
 }
 .hostIcon {
   vertical-align: -0.3em;
@@ -220,6 +227,11 @@ $vice-color: #6d6d6d;
   display: inline-block;
   vertical-align: -0.3em;
   margin-top: 10px;
+}
+.vipIcon {
+  position: absolute;
+  top: 12px;
+  left: 110px;
 }
 .hostIp {
   color: #909399;
