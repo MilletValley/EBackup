@@ -1,7 +1,7 @@
 <template>
   <section>
-    <div style="margin-bottom: 15px;">
-      <el-row :gutter="20">
+    <div style="margin-bottom: 22px;">
+      <el-row>
         <el-col :span="6" >
           <el-input v-if="!buttonfalg" placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
