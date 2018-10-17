@@ -134,8 +134,8 @@ const serviceIpMarkMapping = {
 };
 
 const vmHostServerTypeMapping = {
-  1: 'VMware',
-  2: '华为虚拟机'
+  1: 'vCenter',
+  2: '物理主机'
 };
 
 export {
