@@ -24,7 +24,7 @@
                         class="envIcon"></i-icon>
           <span>应用界面</span>
         </div>
-        <el-table :data="this.applicationData">
+        <el-table :data="this.radio==='生产环境'?this.productionInfo:this.ebackupInfo">
           <el-table-column
             prop="name"
             label="姓名"
@@ -74,7 +74,9 @@
                           class="envIcon"></i-icon>
             <span>生产环境</span>
           </div>
-          <el-table :data="this.productionData.salesInfo">
+          <el-table :data="this.productionData.salesInfo?
+                           this.productionData.salesInfo.slice((productionPage-1)*productionPageSize,productionPage*productionPageSize):
+                           this.productionData.salesInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -106,6 +108,15 @@
               min-width="50">
             </el-table-column>
           </el-table>
+          <div class="block">
+            <el-pagination
+              @current-change="productionCurrentChange"
+              :current-page.sync="productionPage"
+              :page-size="productionPageSize"
+              layout="total, prev, pager, next"
+              :total="productionTotal">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="12">
@@ -115,7 +126,9 @@
                           class="envIcon"></i-icon>
             <span>易备环境</span>
           </div>
-          <el-table :data="this.ebackupData.salesInfo">
+          <el-table :data="this.ebackupData.salesInfo?
+                           this.ebackupData.salesInfo.slice((ebackupPage-1)*ebackupPageSize,ebackupPage*ebackupPageSize):
+                           this.ebackupData.salesInfo">
             <el-table-column
               prop="name"
               label="姓名"
@@ -147,6 +160,15 @@
               min-width="50">
             </el-table-column>
           </el-table>
+          <div class="block">
+            <el-pagination
+              @current-change="ebackupCurrentChange"
+              :current-page.sync="ebackupPage"
+              :page-size="ebackupPageSize"
+              layout="total, prev, pager, next"
+              :total="ebackupTotal">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -174,8 +196,8 @@ export default {
       fetchProduction()
       .then(res => {
         this.productionData = res.data.data;
-        this.applicationData = this.productionData.salesInfo;
-        this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
+        if(this.radio==='生产环境')
+          this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -183,6 +205,8 @@ export default {
       fetchEbackup()
       .then(res => {
         this.ebackupData = res.data.data;
+        if(this.radio==='易备环境')
+          this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
       })
       .catch(error => {
         error => Promise.reject(error);
@@ -220,10 +244,8 @@ export default {
           this.productionData = resArr[0].data.data;
           this.ebackupData = resArr[1].data.data;
           if(this.radio==='生产环境') {
-            this.applicationData = this.productionData.salesInfo;
             this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
           } else {
-            this.applicationData = this.ebackupData.salesInfo;
             this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
           }
         })
@@ -239,10 +261,8 @@ export default {
     switchEnvironment() {
       if(this.radio === '易备环境') {
         this.drawArrow(this.rightDire.getContext('2d'),20,30,130,140,45,10,3,'#27ca27',1);
-        this.applicationData = this.ebackupData.salesInfo;
       } else {
         this.drawArrow(this.leftDire.getContext('2d'),280,30,170,140,45,10,3,'#27ca27',0);
-        this.applicationData = this.productionData.salesInfo;
       }
     },
   },

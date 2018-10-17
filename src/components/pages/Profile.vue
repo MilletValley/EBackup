@@ -35,8 +35,16 @@
         <div class="text item">
           <el-row :gutter="20">
             <el-col :span="6"></el-col>
+            <el-col :span="6" class="el-col-left">邮箱：</el-col>
+            <el-col :span="6">{{ email }}</el-col>
+            <el-col :span="6"></el-col>
+          </el-row>
+        </div>
+        <div class="text item">
+          <el-row :gutter="20">
+            <el-col :span="6"></el-col>
             <el-col :span="6" class="el-col-left">角色：</el-col>
-            <el-col :span="6">{{ roles[0].name }}</el-col>
+            <el-col :span="6">{{ roles===undefined?'':roles[0].name }}</el-col>
             <el-col :span="6"></el-col>
           </el-row>
         </div>
@@ -51,36 +59,53 @@
       </el-card>
       <el-dialog title="更改信息"
                 :visible.sync = "dialogVisible"
-                :before-close = "closeDialog">
-          <el-form ref="form"
-                  status-icon
-                  :model="form"
-                  :rules="rules"
-                  label-width="110px">
+                :before-close = "closeDialog"
+                @close="modalClosed">
+          <el-form ref="updateForm"
+                   status-icon
+                   :model="form"
+                   :rules="rules"
+                   label-width="110px"
+                   size="small">
             <el-form-item label="新用户名"
                           prop="newUsername">
               <el-input v-model="form.newUsername"></el-input>
             </el-form-item>
-              <el-form-item label="新密码"
-                            prop="newPassword">
-                <el-input type="password"
-                          v-model="form.newPassword"></el-input>
-              </el-form-item>
-              <el-form-item label="确认密码"
-                            prop="checkPass">
-                <el-input type="password"
-                          v-model="form.checkPass"></el-input>
-              </el-form-item>
-              <el-form-item label="原始密码"
-                            prop="oldPassword">
-                <el-input type="password"
-                          v-model="form.oldPassword"></el-input>
-              </el-form-item>
+            <el-row>
+              <el-col :span="12" class="form-col">
+                <el-form-item label="邮箱" prop="email">
+                  <el-input v-model="form.email"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12" class="form-col">
+                <el-form-item prop="receive">
+                  <el-checkbox v-model="form.receive"
+                               :true-label="1"
+                               :false-label="0">接收</el-checkbox>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-form-item label="新密码"
+                          prop="newPassword">
+              <el-input type="password"
+                        v-model="form.newPassword"></el-input>
+            </el-form-item>
+            <el-form-item label="确认密码"
+                          prop="checkPass">
+              <el-input type="password"
+                        v-model="form.checkPass"></el-input>
+            </el-form-item>
+            <el-form-item label="原始密码"
+                          prop="oldPassword">
+              <el-input type="password"
+                        v-model="form.oldPassword"></el-input>
+            </el-form-item>
           </el-form>
           <span slot="footer">
             <el-button type="primary"
-                       @click="submitForm('form')">确定</el-button>
-            <el-button @click="cancel('form')">取消</el-button>
+                       @click="submitForm"
+                       :loading="btnLoading">确定</el-button>
+            <el-button @click="cancel">取消</el-button>
           </span>
         </el-dialog>
       </section>
@@ -88,6 +113,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { changeUserInfo } from '../../api/user';
+import isEqual from 'lodash/isEqual';
 
 export default {
   name: 'Profile',
@@ -111,7 +137,7 @@ export default {
         callback(new Error('请输入新密码'));
       } else {
         if (this.form.checkPass !== '') {
-          this.$refs.form.validateField('checkPass');
+          this.$refs.updateForm.validateField('checkPass');
         }
         callback();
       }
@@ -125,16 +151,19 @@ export default {
         callback();
       }
     };
+    const baseFormData = {
+      newUsername: '',
+      newPassword: '',
+      oldPassword: '',
+      checkPass: '',
+      email: '',
+      receive: 1,
+    };
     return {
       dialogVisible: false,
-      isEdit: false,
-      isClose: false,
-      form: {
-        newUsername: '',
-        newPassword: '',
-        oldPassword: '',
-        checkPass: '',
-      },
+      btnLoading: false,
+      form: Object.assign({}, baseFormData),
+      originFormData: Object.assign({}, baseFormData),
       rules: {
         newUsername: [
           {
@@ -202,54 +231,52 @@ export default {
         this.dialogVisible = true;
       }
     },
-    closeDialog() {
-      if(this.isEdit && (this.form.newUsername!=""||this.form.newPassword!=""||this.form.oldPassword!=""||this.form.checkPass!="")){
-        this.isEdit = false;
-        this.isClose = false;
-        this.$confirm('有未保存的修改，是否退出?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.dialogVisible = false;
-          this.$refs['form'].resetFields();
-          this.isClose = true;
-        }).catch(() => {});
+    closeDialog(done) {
+      if (!isEqual(this.form, this.originFormData)) {
+        this.$confirm('有未保存的修改，是否退出？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {
+          });
       } else {
         this.dialogVisible = false;
-        this.$refs['form'].resetFields();
       }
     },
-    submitForm(form) {
-      this.$refs[form].validate((valid) => {
+    modalClosed() {
+      this.form = { ...this.originFormData };
+      this.$refs.updateForm.resetFields();
+    },
+    submitForm() {
+      this.$refs.updateForm.validate(valid => {
         if (valid) {
-          this.dialogVisible = false;
-          this.$store.dispatch("updateUserInfo",this.form);
+          this.btnLoading=true;
+          this.updateInfo(this.form)
+            .then(res => {
+              this.dialogVisible = false;
+              this.$message.success(res.data.message);
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading=false;
+            });
         } else {
           return false;
         }
       });
     },
-    cancel(form) {
+    cancel() {
       this.dialogVisible = false;
-      this.$refs['form'].resetFields();
-    }
-  },
-  watch: {
-    'form':{
-    handler:function(newForm,oldForm){
-      if(!this.isClose)
-      {
-        this.isEdit = true;
-      }
-      else
-        this.isClose = false;
+      this.$refs['updateForm'].resetFields();
     },
-    deep:true,
-    }
+    ...mapActions({
+      updateInfo: 'updateUserInfo',
+    })
   },
   computed:{
-    ...mapGetters(['userId','loginName','roles','state','userName']),
+    ...mapGetters(['userId','loginName','roles','state','userName', 'email', 'receive']),
   }
 };
 </script>
@@ -260,12 +287,12 @@ export default {
 .box-card {
   width: 100%;
 }
-.el-col {
+.item .el-col {
   border-radius: 4px;
   height: 30px;
   line-height: 30px;
 }
-.el-col-left {
+.text .el-col-left {
   text-align: right;
 }
 </style>

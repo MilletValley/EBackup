@@ -211,7 +211,7 @@ export default {
     instanceName() {
       if (this.databaseType === 'oracle') {
         return '实例名';
-      } else if (this.databaseType === 'sqlserver') {
+      } else {
         return '数据库名';
       }
     },
@@ -252,6 +252,8 @@ export default {
     },
     switchStateIconClass(value) {
       switch (value) {
+        case 0:
+          return ['el-icon-time', this.$style.waitingColor];
         case 1:
           return ['el-icon-loading'];
         case 2:

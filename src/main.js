@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'element-ui/lib/theme-chalk/display.css';
+import 'babel-polyfill';
 import App from './App';
 import store from './store/index';
 import router from './router';

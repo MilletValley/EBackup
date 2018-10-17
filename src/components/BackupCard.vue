@@ -24,8 +24,7 @@
     </div>
     <el-row type="flex">
       <el-col :span="18">
-        <el-form inline
-                 label-width="100px"
+        <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划开始时间"
                         :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
@@ -113,6 +112,9 @@
                   <i v-else-if="backupOperation.state === 1"
                      class="el-icon-loading"
                      :class="operationStateStyle"></i>
+                  <i v-else-if="backupOperation.state === 3"
+                     class="el-icon-warning"
+                     :class="operationStateStyle"></i>
                   <span :class="operationStateStyle">{{operationState || '-'}}</span>
                 </div>
               </el-tooltip>
@@ -158,7 +160,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'windows', 'linux', 'vm', ''].includes(
+        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(
           value
         );
       },
@@ -201,6 +203,8 @@ export default {
         return this.$style.waitingColor;
       } else if (this.backupOperation.state === 1) {
         return this.$style.loadingColor;
+      } else if(this.backupOperation.state === 3) {
+        return this.$style.errorColor;
       } else return '';
     },
   },

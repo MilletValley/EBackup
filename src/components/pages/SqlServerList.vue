@@ -1,28 +1,44 @@
 <template>
   <section>
-    <el-form inline
-             size="small">
-      <el-form-item style="float: right;">
-        <el-button type="info"
-                   @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
-      </el-form-item>
-      <el-form-item style="float: right;">
-        <el-button type="primary"
-                   @click="createModalVisible = true">添加</el-button>
-      </el-form-item>
-    </el-form>
-    <el-table :data="items"
-              style="width: 100%">
-      <el-table-column label="名称"
+    <el-row>
+      <el-form inline
+               size="medium">
+        <el-form-item style="float: left">
+          <el-input placeholder="请输入名称"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
+            <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+          </el-input>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="info"
+                    @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="createModalVisible = true">添加</el-button>
+        </el-form-item>
+      </el-form>
+    </el-row>
+    <el-table :data="currentItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+              style="width: 100%"
+              @filter-change="filterChange"
+              v-if="items">
+      <el-table-column label="序号"
+                       min-width="100"
                        fixed
+                       align="center">
+        <template slot-scope="scope">
+            {{scope.$index+1+(currentPage-1)*pagesize}}
+        </template>
+      </el-table-column>
+      <el-table-column label="名称"
                        min-width="200"
                        align="center">
         <template slot-scope="scope">
-          <el-button type="text">
-            <router-link :to="`${scope.row.id}`"
-                         append
-                         :class="$style.link">{{scope.row.name}}</router-link>
-          </el-button>
+          <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.name}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="instanceName"
@@ -39,19 +55,33 @@
                        align="center"></el-table-column>
       <el-table-column prop="role"
                        label="角色"
+                       :filters="stateFilters"
+                       column-key="role"
                        width="100"
-                       :formatter="databaseRoleFormatter"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="roleTagType(scope.row.role)"
+                  size="mini">
+            {{ databaseRole(scope.row.role) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="state"
                        label="状态"
                        width="100"
-                       :formatter="stateFormatter"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="stateTagType(scope.row.state)"
+                  size="mini">
+            {{ databaseState(scope.row.state) }}
+          </el-tag>
+        </template>      
+      </el-table-column>
       <el-table-column label="操作"
                        fixed="right"
                        width="150"
                        header-align="center"
-                       align="right">
+                       align="center">
         <template slot-scope="scope">
           <el-button type="primary"
                      icon="el-icon-edit"
@@ -68,6 +98,18 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="block" style="text-align: right">
+      <el-pagination @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :current-page="currentPage"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pagesize"
+                     background
+                     layout="total, sizes, prev, pager, next, jumper"
+                     :total="currentItems|filterBySearch(filterItem).length"
+                     v-if="items">
+      </el-pagination>
+    </div>
     <database-create-modal type="sqlserver"
                            :visible.sync="createModalVisible"
                            :btn-loading="btnLoading"
@@ -95,6 +137,7 @@ export default {
         .then(res => {
           const { data: sqlservers } = res.data;
           this.items = sqlservers;
+          this.currentItems = this.items;
         })
         .catch(error => {
           this.$message.error(error);

@@ -3,7 +3,8 @@
              :visible.sync="modalVisible"
              :before-close="beforeModalClose"
              @open="modalOpened"
-             @close="modalClosed">
+             @close="modalClosed"
+             v-if="restorePlan">
     <span slot="title">
       更新恢复计划
       <span style="color: #999999"> (ID: {{restorePlan.id}})</span>
@@ -20,7 +21,7 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
       </el-row>
-      <el-row>
+      <el-row v-if="!isVMware && !isHW">
         <el-col :span="12">
           <el-form-item label="恢复设备"
                         prop="hostIp">
@@ -42,11 +43,42 @@
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"
-                      disabled></el-input>
+                      :disabled="!this.isHW"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
+      <el-row v-if="isHW">
+        <el-col :span="24">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="isVMware">
+        <el-form-item label="恢复磁盘名"
+                      prop="diskName"
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+          <el-input v-model="formData.diskName"></el-input>
+        </el-form-item>
+      </el-row>
+      <el-row v-if="!this.isHW && !isVMware">
         <el-col :span="12">
           <el-form-item label="登录名"
                         prop="loginName"
@@ -57,7 +89,8 @@
         <el-col :span="12">
           <el-form-item label="登录密码"
                         prop="password">
-            <input-toggle v-model="formData.password"></input-toggle>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
@@ -66,6 +99,7 @@
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
                     v-for="s in Object.keys(strategys)"
+                    v-if="type!=='vm'||s==='1'"
                     :key="s">{{ strategys[s] }}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -90,7 +124,7 @@
                     v-show="formData.timeStrategy == 2">
         <el-checkbox-group v-model="formData.weekPoints">
           <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                              :label="Number(w)"
+                              :label="w"
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>
@@ -126,24 +160,24 @@
 
     </el-form>
     <span slot="footer">
-      <el-button @click="cancelButtonClick">取消</el-button>
       <el-button type="primary"
                  @click="confirmBtnClick"
                  :loading="btnLoading">确定</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
 import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
-
+import { fetchRestoreOperation} from '../../api/virtuals';
 export default {
   name: 'RestorePlanUpdateModal',
   mixins: [restorePlanModalMixin],
   props: {
     restorePlan: {
       type: Object,
-      required: true,
+      // required: true,
     },
   },
   methods: {
@@ -152,6 +186,13 @@ export default {
         if (valid) {
           this.pruneData(this.formData)
             .then(({ name, config }) => {
+              //数据转换，detailInfo=旧虚拟机名，loginName=新虚拟机名，界面中detailInfo表示新虚拟机名
+              // const { loginName, detailInfo} = config;
+              // let conf = Object.assign({},config);
+              // if(this.isVMware){
+              //   conf.loginName = detailInfo;
+              //   conf.detailInfo = loginName;
+              // }
               this.$emit('confirm', {
                 id: this.restorePlan.id,
                 name,
@@ -167,8 +208,26 @@ export default {
       });
     },
     modalOpened() {
+      //查询详情获取新虚拟机名称，loginName=新虚拟机名
+      let lName;
+      // if(this.isVMware){
+      //   fetchRestoreOperation(this.restorePlan.id).then( res => {
+      //     lName = res.data.data.config.loginName;
+      //     this.format(lName);
+      //   })
+      // }else{
+        this.format(lName);
+      // }
+    },
+    format(lName){
+      if (this.restorePlan.config.timePoints.length === 0) {
+        this.restorePlan.config.timePoints.push({ value: '00:00', key: Date.now() })
+      }
       const {
         id,
+        newName,
+        oldName,
+        diskName,
         singleTime,
         startTime,
         timePoints,
@@ -176,10 +235,15 @@ export default {
         datePoints,
         timeStrategy,
         database,
+        hostIp: configHostIp
       } = this.restorePlan.config;
-      const { instanceName: detailInfo, loginName, host } = database;
-      const { name: hostName, hostIp } = host;
-      this.originFormData = {
+      // const { instanceName, vmName, loginName, host } = database;
+      // const detailInfo = this.isVMware ? lName : instanceName;
+      // const { name: hostName, hostIp: hostHostIp } = host;
+      // let curHostIp = this.isVMware ? configHostIp : hostHostIp;
+      // let curLoginName = this.isVMware ? vmName : loginName;
+
+      const baseData = {
         name: this.restorePlan.name,
         id,
         singleTime,
@@ -188,11 +252,54 @@ export default {
         weekPoints,
         datePoints,
         timeStrategy,
-        detailInfo,
-        loginName,
-        hostName,
-        hostIp,
       };
+      let customData;
+      if(this.isVMware || this.isHW){
+        customData = {
+          newName,
+          oldName,
+          diskName,
+          hostIp: configHostIp
+        }
+      }else{
+        const { instanceName: detailInfo, loginName, host } = database;
+        const { name: hostName, hostIp } = host;
+        customData = {
+          detailInfo,
+          loginName,
+          hostName,
+          hostIp
+        }
+      }
+      this.originFormData = Object.assign({}, baseData, customData);
+      // this.originFormData = {
+      //   name: this.restorePlan.name,
+      //   id,
+      //   singleTime,
+      //   startTime: timeStrategy === 1 ? '' : startTime,
+      //   timePoints,
+      //   weekPoints,
+      //   datePoints,
+      //   timeStrategy,
+      //   detailInfo,
+      //   loginName,
+      //   hostName,
+      //   hostIp,
+      // };
+      // this.originFormData = {
+      //   name: this.restorePlan.name,
+      //   id,
+      //   singleTime,
+      //   startTime: timeStrategy === 1 ? '' : startTime,
+      //   timePoints,
+      //   weekPoints,
+      //   datePoints,
+      //   timeStrategy,
+      //   detailInfo,
+      //   loginName: curLoginName,
+      //   hostName,
+      //   hostIp: curHostIp,
+      // };
       // 时间点类型是对象数组[{value, key},{},...]，使用cloneDeep的方式复制一份新的数组对象
       // 避免引用到一个数组对象引起的BUG
       this.formData = {
@@ -202,6 +309,7 @@ export default {
     },
     modalClosed() {
       this.$refs.restorePlanUpdateForm.clearValidate();
+      this.hiddenPassword = true;
       this.$emit('cancel');
     },
   },
