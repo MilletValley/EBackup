@@ -100,7 +100,7 @@ export default {
             {
                 required: true,
                 message: `请选择设备`,
-                trigger: ['blur', 'change'],
+                trigger: ['blur'],
             }
         ],
         serverIp: [

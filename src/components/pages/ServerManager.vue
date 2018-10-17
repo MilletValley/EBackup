@@ -196,9 +196,53 @@ export default {
                 //         this.serverTableData = d;
                 //     });
                 // }
+                this.btnLoading = false;
                 this.serverModalVisible = false;
-                this.$message.success(message);
-                this.fetchData();
+                this.$confirm(
+                    '主机添加成功，请确认是否需要扫描虚拟机？',
+                    '提示',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'success',
+                        beforeClose: (action, instance, done) => {
+                            if (action === 'confirm') {
+                                instance.confirmButtonLoading = true;
+                                instance.confirmButtonText = '扫描中...';
+                                // setTimeout(() => {
+                                //     done();
+                                //     setTimeout(() => {
+                                //     instance.confirmButtonLoading = false;
+                                //     }, 300);
+                                // }, 3000);
+                                // } else {
+                                // done();
+                                // }
+                                rescan(data).then( resp => {
+                                    this.$message.success( resp.data.message);
+                                    // this.fetchData();
+                                }).catch( error => {
+                                    this.$message.error( error)
+                                }).then( () => {
+                                    done();
+                                    instance.confirmButtonLoading = false;
+                                })
+                            }else {
+                                done();
+                            }
+                        }
+                    }
+                )
+                .then(action => {
+                    console.log(action)
+                    this.fetchData();
+                }).catch( () => {
+                    console.log(222)
+                    this.fetchData();
+                });
+                // this.serverModalVisible = false;
+                // this.$message.success(message);
+                // this.fetchData();
             }).catch( error => {
                 this.$message.error(error);
             }).then( () => {
