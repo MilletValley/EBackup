@@ -127,12 +127,22 @@ export default {
             this.$router.push({name: 'collectManager'});
         },
         deletePlan(scope){
-            deletePlan(scope.row.id).then( res => {
-                this.$message.success( res.data.message);
-                this.fetchAll();
-            }).catch( error => {
-                this.$message.error( error );
-            })
+            this.$confirm(
+                '请确认是否删除',
+                '提示',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }
+            ).then(() => {
+                deletePlan(scope.row.id).then( res => {
+                    this.$message.success( res.data.message);
+                    this.fetchAll();
+                }).catch( error => {
+                    this.$message.error( error );
+                });
+            }).catch( () => {});
         },
         view(scope){
             this.selectedBackupPlan = scope.row;

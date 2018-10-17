@@ -182,12 +182,22 @@ export default {
             clearInterval(this.timer);
         },
         deletePlan(scope){
-            deleteVirtualBackupPlan(scope.row.id).then( res => {
-                this.$message.success( '删除成功');
-                this.fetchAll();
-            }).catch( error => {
-                this.$message.error( error);
-            })
+            this.$confirm(
+                '请确认是否删除',
+                '提示',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }
+            ).then(() => {
+                deleteVirtualBackupPlan(scope.row.id).then( res => {
+                    this.$message.success( '删除成功');
+                    this.fetchAll();
+                }).catch( error => {
+                    this.$message.error( error);
+                });
+            }).catch( () => {});
         },
         filterFn(item, i){
             return item.vm[i].includes( this.filter[i]);
