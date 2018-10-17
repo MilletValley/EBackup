@@ -137,7 +137,7 @@ export default {
         linux: '恢复路径',
         vm: '虚拟机',
       };
-      return mapping[this.type];
+      return mapping[this.type] ? mapping[this.type] : '';
     },
     isVMware() {
       // const path = this.$route.path;
