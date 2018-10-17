@@ -70,7 +70,8 @@
                      :key="primaryNode.id">
                      <el-row>
                        <el-col :span="12">{{ primaryNode.name }}</el-col>
-                       <el-col :span="12">{{ primaryNode.hostIp }}</el-col>
+                       <el-col :span="12"
+                               :class="$style.hostIp">{{ primaryNode.hostIp }}</el-col>
                      </el-row>
                   </p>
                 </div>
@@ -84,11 +85,24 @@
                 <el-row>
                   <el-col :span="8"
                           style="min-height: 1px;">
-                    <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1">
-                      <i-icon :class="$style.ipIcon"
-                              name="vip"></i-icon>
-                      <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
-                    </div>
+                    <el-popover placement="right"
+                                trigger="hover"
+                                width="150"
+                                :open-delay="200">
+                      <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
+                      <p v-if="!sonNodeVip(hostLink).length">暂无</p>
+                      <div v-else>
+                        <p v-for="vip in sonNodeVip(hostLink)"
+                           :key="vip.id"
+                           :class="$style.hostIp">{{ vip }}</p>
+                      </div>
+                      <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
+                           slot="reference">
+                        <i-icon :class="$style.ipIcon"
+                                name="vip"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
+                      </div>
+                    </el-popover>
                   </el-col>
                   <el-col :span="8">
                     <i-icon name="ip"
@@ -256,11 +270,24 @@
                 <el-row>
                   <el-col :span="8"
                           style="min-height: 1px;">
-                    <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2">
-                      <i-icon :class="$style.ipIcon"
-                              name="vip"></i-icon>
-                      <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
-                    </div>
+                    <el-popover placement="right"
+                                trigger="hover"
+                                width="150"
+                                :open-delay="200">
+                      <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
+                      <p v-if="!sonNodeVip(hostLink).length">暂无</p>
+                      <div v-else>
+                        <p v-for="vip in sonNodeVip(hostLink)"
+                           :key="vip.id"
+                           :class="$style.hostIp">{{ vip }}</p>
+                      </div>
+                      <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2"
+                           slot="reference">
+                        <i-icon :class="$style.ipIcon"
+                                name="vip"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
+                      </div>
+                    </el-popover>
                   </el-col>
                   <el-col :span="8">
                     <i-icon name="ip"
@@ -883,6 +910,12 @@ export default {
         })
         .catch(error => {});
     },
+    // 非主节点VIP集合
+    sonNodeVip(hostLink) {
+      if(hostLink.primaryNodes)
+        return hostLink.primaryNodes.map(node => node.vip)
+      return []
+    },
     setTimer() {
       this.clearTimer();
       this.timer = setInterval(() => {
@@ -970,9 +1003,8 @@ $vice-color: #6d6d6d;
 .simpleSwitch {
   position: absolute;
   // margin-left: 75px;
-  right: 30px;
   margin-top: -0.3em;
-  right: 30px;
+  right: 80px;
   width: 2em;
   height: 2em;
   cursor: pointer;
@@ -984,8 +1016,8 @@ $vice-color: #6d6d6d;
 .simpleSwitchGoing {
   position: absolute;
   // margin-left: 75px;
-  right: 30px;
-  margin-top: 0.1em;
+  right: 80px;
+  margin-top: -0.2em;
   color: $primary-color;
   font-size: 34px;
 }

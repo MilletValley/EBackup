@@ -77,14 +77,20 @@
         </el-table-column>
         <el-table-column label="切IP"
                          align="center"
-                         min-width="120">
+                         min-width="80">
           <template slot-scope="scope">
             <el-select v-model="scope.row.flag"
+                       :class="$style.ipSelect"
+                       size="small"
+                       @clear="clearSelect(scope.row)"
+                       clearable
+                       placeholder="--请选择--"
                        :disabled="switchIpDisable(scope.row)">
               <el-option v-for="item in switchIpType"
+                         v-show="item.value !== 0 "
                          :key="item.id"
                          :disabled="!canSwitchVip(scope.row.primaryHost) && item.value === 2"
-                         :label="item.label"
+                         :label="selectLabelType(scope.row.primaryHost, item)"
                          :value="item.value"></el-option>
             </el-select>
           </template>
@@ -138,7 +144,7 @@ export default {
       multipleSelection: [],
       links: [],
       switchIpType: [
-        { value: 0, label: '不切' },
+        { value: 0, label: '--请选择--' },
         { value: 1, label: '切服务/临时/scanIP' },
         { value: 2, label: '切VIP' },
         { value: 3, label: '单切' },
@@ -264,6 +270,26 @@ export default {
     switchDatabaseDisable(state) {
       return state === 1
     },
+    clearSelect(hostLink) {
+      hostLink.flag=this.flag;
+    },
+    selectLabelType(primaryHost, item) {
+      if(item.value === 1) {
+        if(primaryHost.osName === 'Windows') {
+          return '临时IP'
+        } else if(primaryHost.osName === 'Linux') {
+          if(primaryHost.isRacMark) {
+            return '服务IP'
+          } else {
+            return 'scanIP'
+          }
+        } else {
+          return ''
+        }
+      } else {
+        return item.label
+      }
+    }
   },
   computed: {
     dialogVisible: {
@@ -335,6 +361,11 @@ export default {
 }
 .planForm {
   margin-top: 20px;
+}
+.ipSelect {
+  input {
+    text-align: center;
+  }
 }
 .dialogFooter {
   margin-top: -20px;
