@@ -38,9 +38,9 @@ body {
 }
 .detail-icon {
   display: block;
-  margin: 8px auto;
+  margin: 0.5em auto;
   width: 70%;
-  height: 50px;
+  height: 3.125em; /* 兼容浏览器的字体大小不同而引起的图标错位问题*/
   min-width: 30px;
 }
 .detail-header .content {

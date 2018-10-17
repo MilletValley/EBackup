@@ -185,19 +185,20 @@ export default {
             this.btnLoading = true;
             addServer(server).then( res => {
                 const {data, message} = res.data;
-                if(this.serverTableData.findIndex( e => e.id === data.id) === -1){
-                    let fData = data
-                    fData.disabled = false;
-                    fData.icon = 'el-icon-refresh';
-                    this.serverTableData.unshift(fData);
-                    let d = Object.assign([], this.serverTableData);
-                    this.serverTableData = [];
-                    this.$nextTick( () => {
-                        this.serverTableData = d;
-                    });
-                }
+                // if(this.serverTableData.findIndex( e => e.id === data.id) === -1){
+                //     let fData = data
+                //     fData.disabled = false;
+                //     fData.icon = 'el-icon-refresh';
+                //     this.serverTableData.unshift(fData);
+                //     let d = Object.assign([], this.serverTableData);
+                //     this.serverTableData = [];
+                //     this.$nextTick( () => {
+                //         this.serverTableData = d;
+                //     });
+                // }
                 this.serverModalVisible = false;
                 this.$message.success(message);
+                this.fetchData();
             }).catch( error => {
                 this.$message.error(error);
             }).then( () => {
@@ -241,12 +242,22 @@ export default {
             })
         },
         deleteServer(scope){
-            deleteServer(scope.row.id).then( res => {
-                this.$message.success( res.data.message);
-                this.fetchData();
-            }).catch( error => {
-                this.$message.error( error);
-            })
+            this.$confirm(
+                '请确认是否删除',
+                '提示',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }
+            ).then(() => {
+                deleteServer(scope.row.id).then( res => {
+                    this.$message.success( res.data.message);
+                    this.fetchData();
+                }).catch( error => {
+                    this.$message.error( error);
+                });
+            }).catch( () => {});
         }
     }
 }
