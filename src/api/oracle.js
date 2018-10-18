@@ -208,6 +208,13 @@ const createSwitches = data =>
     data,
   });
 
+const createSimpleSwitches = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-simple-switches',
+    data
+  });
+
 const fetchSwitches = linkId =>
   baseApi.request({
     method: 'get',
@@ -250,6 +257,7 @@ export {
   fetchRestoreOperation,
   fetchLinks,
   createSwitches,
+  createSimpleSwitches,
   createLinks,
   fetchSwitches,
   fetchLink,

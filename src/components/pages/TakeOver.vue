@@ -265,6 +265,13 @@
                           name="simpleSwitch"
                           @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                 </el-popover>
+                <i-icon name="notSimpleSwitchDb"
+                        :class="$style.simpleSwitchDb"
+                        v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)&&databaseType==='oracle'"></i-icon>
+                <i-icon name="simpleSwitchDb"
+                        :class="$style.simpleSwitchDb"
+                        v-else-if="databaseType==='oracle'"
+                        @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
               </div>
               <div>
                 <el-row>
@@ -401,10 +408,21 @@
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
               </div>
               <div v-else>
-                <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
-                <el-button type="text"
-                           @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                <div v-if="databaseType==='oracle'">
+                  <el-button type="text"
+                            @click="switchDatabase(dbLink.id)">双切</el-button>
+                  <el-button type="text"
+                            :disabled="dbLink.primaryDatabase.role === 2"
+                            @click="simpleSwitchDatabase(dbLink.id)">单切</el-button>
+                  <el-button type="text"
+                            @click="jumpToLinkDetail(dbLink.id)">详情</el-button>
+                </div>
+                <div v-else>
+                  <el-button type="text"
+                            @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
+                  <el-button type="text"
+                            @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                </div>
               </div>
             </div>
           </el-col>
@@ -453,6 +471,7 @@
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
                   :ready-to-simple-switch="readyToSimpleSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
+                  :is-simple-switch="isSimpleSwitch"
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
@@ -480,6 +499,7 @@ import {
   fetchLinks as fetchLinksOracle,
   createLinks as createLinksOracle,
   createSwitches as switchOracle,
+  createSimpleSwitches as simpleSwitchOracle,
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -523,6 +543,13 @@ const createSwitchMethod = {
   oracle: switchOracle,
   sqlserver: switchSqlserver,
 };
+const createSimpleSwitchMethod = {
+  oracle: simpleSwitchOracle
+}
+const switchMethod = {
+  true: createSimpleSwitchMethod,
+  false: createSwitchMethod
+}
 export default {
   name: 'TakeOver',
   mixins: [takeoverMixin, batchSwitchMinxin],
@@ -536,6 +563,7 @@ export default {
       hostLinkIdReadyToSwitch: -1,
       readyToSimpleSwitch: {},
       btnLoading: false,
+      isSimpleSwitch: false, // 标记单切还是双切
       timer: null,
     };
   },
@@ -711,6 +739,7 @@ export default {
       this.readyToSimpleSwitch = {}
       this.hostLinkIdReadyToSwitch = -1;
       this.switchModalVisible = false;
+      this.isSimpleSwitch = false;
     },
     confirmSwitch(formData) {
       /**
@@ -723,6 +752,7 @@ export default {
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
+        // 切vip
         if(formData === 'vip') {
           switchVip(this.hostLinkIdReadyToSwitch)
             .then(res => {
@@ -739,6 +769,7 @@ export default {
               this.btnLoading = false;
             });
         } else {
+          //  切服务IP、scanIP、临时IP
           switchHostIp(this.hostLinkIdReadyToSwitch)
             .then(res => {
               const { data } = res.data;
@@ -788,7 +819,7 @@ export default {
           })
       } else {
         this.btnLoading = true;
-        createSwitchMethod[this.databaseType]({
+        switchMethod[this.isSimpleSwitch][this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
         })
           .then(res => {
@@ -809,9 +840,15 @@ export default {
           });
       }
     },
+    // 双切
     switchDatabase(databaseLinkId) {
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
       this.switchModalVisible = true;
+    },
+    // 单切
+    simpleSwitchDatabase(databaseLinkId) {
+      this.switchDatabase(databaseLinkId);
+      this.isSimpleSwitch = true;
     },
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
@@ -826,6 +863,11 @@ export default {
         .map(dbLink => dbLink.id);
       this.databaseLinkIdsReadyToSwitch = links;
       this.switchModalVisible = true;
+    },
+    // 单切备库
+    simpleSwitchMultiDatabases(hostLink) {
+      this.switchMultiDatabaseToEbackup(hostLink);
+      this.isSimpleSwitch = true;
     },
     switchHostIp(hostLink) {
       this.hostLinkIdReadyToSwitch = hostLink.id;
@@ -893,11 +935,6 @@ export default {
         .then(() => {
           deleteLinks(hostLink.id)
             .then(res => {
-              // this.links.splice(
-              //   this.links.findIndex(link => link.id === hostLink.id),
-              //   1
-              // );
-              // this.$message.success('连接解除成功');
               const { data: cancelOperation } = res.data;
               this.links.find(
                 link => link.id === hostLink.id
@@ -1000,11 +1037,23 @@ $vice-color: #6d6d6d;
   vertical-align: -0.3em;
   margin-top: 10px;
 }
+.simpleSwitchDb {
+  position: absolute;
+  margin-top: -0.3em;
+  right: 90px;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
+}
 .simpleSwitch {
   position: absolute;
   // margin-left: 75px;
   margin-top: -0.3em;
-  right: 80px;
+  right: 50px;
   width: 2em;
   height: 2em;
   cursor: pointer;
@@ -1016,7 +1065,7 @@ $vice-color: #6d6d6d;
 .simpleSwitchGoing {
   position: absolute;
   // margin-left: 75px;
-  right: 80px;
+  right: 50px;
   margin-top: -0.2em;
   color: $primary-color;
   font-size: 34px;
