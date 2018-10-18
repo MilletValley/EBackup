@@ -50,7 +50,7 @@
         <el-button type="primary"
                    @click="confirm"
                    :loading="btnLoading">确定</el-button>
-        <el-button @click="cancelBtnClick">取消</el-button>
+        <el-button @click="cancelBtnClick" v-show="!btnLoading">取消</el-button>
       </span>
     </el-dialog>
   </section>

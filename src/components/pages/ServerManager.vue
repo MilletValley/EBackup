@@ -58,7 +58,8 @@
                             placement="top"
                             effect="light">
                         <el-button type="danger"
-                                    icon="el-icon-delete"
+                                    :icon="scope.row.delBtnIcon"
+                                    :disabled="scope.row.disabled"
                                     circle
                                     size="mini"
                                     :class="$style.miniCricleIconBtn"
@@ -106,7 +107,7 @@ export default {
             btnLoading: false,
             backupPlanCreateModalVisible: false,
             serverModalVisible: false,
-            refreshBtn: false
+            refreshBtn: false,
         }
     },
     computed: {
@@ -129,6 +130,7 @@ export default {
                 let tdata = data.map( e => {
                     e.disabled = false;
                     e.icon = 'el-icon-refresh';
+                    e.delBtnIcon = 'el-icon-delete';
                     return e;
                 })
                 this.serverTableData = tdata;
@@ -172,58 +174,68 @@ export default {
         },
         submitServerFn(data){
             let server = Object.assign({},data);
-            this.btnLoading = true;
-            addServer(server).then( res => {
-                const {data, message} = res.data;
-                // if(this.serverTableData.findIndex( e => e.id === data.id) === -1){
-                //     let fData = data
-                //     fData.disabled = false;
-                //     fData.icon = 'el-icon-refresh';
-                //     this.serverTableData.unshift(fData);
-                //     let d = Object.assign([], this.serverTableData);
-                //     this.serverTableData = [];
-                //     this.$nextTick( () => {
-                //         this.serverTableData = d;
-                //     });
-                // }
-                this.btnLoading = false;
-                this.serverModalVisible = false;
-                this.$confirm(
-                    '主机添加成功，请确认是否需要扫描虚拟机？',
-                    '提示',
-                    {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'success',
-                        beforeClose: (action, instance, done) => {
-                            if (action === 'confirm') {
-                                instance.confirmButtonLoading = true;
-                                instance.confirmButtonText = '扫描中...';
-                                rescan(data).then( resp => {
-                                    this.$message.success( resp.data.message);
-                                    // this.fetchData();
-                                }).catch( error => {
-                                    this.$message.error( error)
-                                }).then( () => {
+            const h = this.$createElement;
+            this.$msgbox(
+                {
+                    title: '警告',
+                    message: h('p', null, [
+                        h('span', null, '当前添加主机的类型为'),
+                        h('i', {style: 'color:rgb(158, 158, 22)'}, vmHostServerTypeMapping[data.serverType]),
+                        h('span',null, '，请确认是否继续？')
+                    ]),
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                    showCancelButton: true
+                }
+            )
+            .then(action => {
+                this.btnLoading = true;
+                addServer(server).then( res => {
+                    const {data, message} = res.data;
+                    this.btnLoading = false;
+                    this.serverModalVisible = false;
+                    this.$confirm(
+                        '主机添加成功，请确认是否需要扫描虚拟机？',
+                        '提示',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'success',
+                            showCancelButton: true,
+                            beforeClose: (action, instance, done) => {
+                                if (action === 'confirm') {
+                                    instance.confirmButtonLoading = true;
+                                    instance.confirmButtonText = '扫描中...';
+                                    instance.showCancelButton = false
+                                    rescan(data).then( resp => {
+                                        this.$message.success( resp.data.message);
+                                    }).catch( error => {
+                                        this.$message.error( error)
+                                    }).then( () => {
+                                        done();
+                                        instance.confirmButtonLoading = false;
+                                        instance.showCancelButton = true;
+                                    })
+                                }else {
                                     done();
-                                    instance.confirmButtonLoading = false;
-                                })
-                            }else {
-                                done();
+                                }
                             }
                         }
-                    }
-                )
-                .then(action => {
-                    this.fetchData();
-                }).catch( () => {
-                    this.fetchData();
-                });
-            }).catch( error => {
-                this.$message.error(error);
-            }).then( () => {
-                this.btnLoading = false;
-            })
+                    )
+                    .then(action => {
+                        this.fetchData();
+                    }).catch( () => {
+                        this.fetchData();
+                    });
+                }).catch( error => {
+                    this.$message.error(error);
+                }).then( () => {
+                    this.btnLoading = false;
+                })
+            }).catch( () => {
+                return
+            });
         },
         buttonClickHandler(){
             if(this.isSelect){
@@ -263,7 +275,7 @@ export default {
         },
         deleteServer(scope){
             this.$confirm(
-                '请确认是否删除',
+                '请确认是否删除？',
                 '提示',
                 {
                     confirmButtonText: '确定',
@@ -271,11 +283,16 @@ export default {
                     type: 'warning'
                 }
             ).then(() => {
+                scope.row.disabled = true;
+                scope.row.delBtnIcon = 'el-icon-loading';
                 deleteServer(scope.row.id).then( res => {
                     this.$message.success( res.data.message);
                     this.fetchData();
                 }).catch( error => {
                     this.$message.error( error);
+                }).then(() => {
+                    scope.row.disabled = false;
+                    scope.row.delBtnIcon = 'el-icon-delete';
                 });
             }).catch( () => {});
         }

@@ -128,7 +128,7 @@ export default {
         },
         deletePlan(scope){
             this.$confirm(
-                '请确认是否删除',
+                '请确认是否删除？',
                 '提示',
                 {
                     confirmButtonText: '确定',
