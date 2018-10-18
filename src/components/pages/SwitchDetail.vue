@@ -21,9 +21,21 @@
                 justify="space-around">
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon :class="$style.vipIcon"
+              <el-popover placement="right"
+                          trigger="hover"
+                          width="150"
+                          :open-delay="200">
+                <p :class="$style.hostIp">{{ link.primaryHost.vip }}</p>
+                <p v-for="vip in sonNodeVip(link)"
+                   :key="vip.id"
+                   :class="$style.hostIp">{{ vip }}</p>
+                <div slot="reference"
+                     style="display: inline-block">
+                  <i-icon :class="$style.vipIcon"
                       name="vip"
                       v-if="link.vipIpMark && link.vipIpMark === 1 "></i-icon>
+                </div>
+              </el-popover>
               <i-icon name="ip"
                       :class="$style.hostIpIcon"></i-icon>
               <el-tooltip :content="'生产设备：'+`${link.primaryHost.name}`"
@@ -57,9 +69,21 @@
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon :class="$style.vipIcon"
-                      name="vip"
-                      v-if="link.vipIpMark && link.vipIpMark === 2 "></i-icon>
+              <el-popover placement="right"
+                          trigger="hover"
+                          width="150"
+                          :open-delay="200">
+                <p :class="$style.hostIp">{{ link.primaryHost.vip }}</p>
+                <p v-for="vip in sonNodeVip(link)"
+                   :key="vip.id"
+                   :class="$style.hostIp">{{ vip }}</p>
+                <div slot="reference"
+                     style="display: inline-block">
+                  <i-icon :class="$style.vipIcon"
+                          name="vip"
+                          v-if="link.vipIpMark && link.vipIpMark === 2 "></i-icon>
+                </div>
+              </el-popover>
               <i-icon name="ip"
                       :class="$style.hostIpIcon"></i-icon>
               <el-tooltip :content="'易备设备：'+`${link.viceHost.name}`"
@@ -154,6 +178,11 @@ export default {
           const { data } = res.data;
           this.plan = data
         })
+    },
+    sonNodeVip(hostLink) {
+      if(hostLink.primaryNodes)
+        return hostLink.primaryNodes.map(node => node.vip)
+      return []
     },
     setTimer() {
       this.clearTimer();

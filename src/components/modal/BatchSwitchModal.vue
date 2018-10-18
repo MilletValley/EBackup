@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column label="生产设备IP"
                          align="center"
-                         min-width="120px"
+                         min-width="100px"
                          show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip :content="`${scope.row.primaryHost.name}`"
@@ -50,7 +50,7 @@
         </el-table-column>
         <el-table-column label="易备设备IP"
                          align="center"
-                         min-width="120">
+                         min-width="100">
           <template slot-scope="scope">
             <el-tooltip :content="`${scope.row.viceHost.name}`"
                         effect="light"
@@ -61,7 +61,7 @@
         </el-table-column>
         <el-table-column label="服务/临时IP"
                          align="center"
-                         min-width="120">
+                         min-width="140">
           <template slot-scope="scope">
             <!-- 服务IP -->
             <span v-if="scope.row.primaryHost.osName==='Linux'">
@@ -77,13 +77,20 @@
         </el-table-column>
         <el-table-column label="切IP"
                          align="center"
-                         min-width="120">
+                         min-width="80">
           <template slot-scope="scope">
             <el-select v-model="scope.row.flag"
+                       :class="$style.ipSelect"
+                       size="small"
+                       @clear="clearSelect(scope.row)"
+                       clearable
+                       placeholder="--请选择--"
                        :disabled="switchIpDisable(scope.row)">
               <el-option v-for="item in switchIpType"
+                         v-show="item.value !== 0 "
                          :key="item.id"
-                         :label="item.label"
+                         :disabled="!canSwitchVip(scope.row.primaryHost) && item.value === 2"
+                         :label="selectLabelType(scope.row.primaryHost, item)"
                          :value="item.value"></el-option>
             </el-select>
           </template>
@@ -137,8 +144,8 @@ export default {
       multipleSelection: [],
       links: [],
       switchIpType: [
-        { value: 0, label: '不切' },
-        { value: 1, label: '切服务IP' },
+        { value: 0, label: '--请选择--' },
+        { value: 1, label: '切服务/临时/scanIP' },
         { value: 2, label: '切VIP' },
         { value: 3, label: '单切' },
       ]
@@ -232,6 +239,10 @@ export default {
         this.$message.warning('请选择需要执行切换的设备')
       }
     },
+    // 切vip是否可选，在Linux，rac环境下才可选
+    canSwitchVip(primaryHost) {
+      return primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0
+    },
     // 切IP是否可用：设备最近操作为切换IP或解除连接时不可用(切换中... 解除连接中...), 切换后实例角色不一致时不可用
     switchIpDisable(switchLink) {
       const onGoing = (switchLink.latestSwitch) && (switchLink.latestSwitch.state === 1 && [2, 3].includes(switchLink.latestSwitch.type))
@@ -259,6 +270,26 @@ export default {
     switchDatabaseDisable(state) {
       return state === 1
     },
+    clearSelect(hostLink) {
+      hostLink.flag=this.flag;
+    },
+    selectLabelType(primaryHost, item) {
+      if(item.value === 1) {
+        if(primaryHost.osName === 'Windows') {
+          return '临时IP'
+        } else if(primaryHost.osName === 'Linux') {
+          if(primaryHost.isRacMark) {
+            return '服务IP'
+          } else {
+            return 'scanIP'
+          }
+        } else {
+          return ''
+        }
+      } else {
+        return item.label
+      }
+    }
   },
   computed: {
     dialogVisible: {
@@ -293,11 +324,16 @@ export default {
         return []
       } else {
         return this.multipleSelection.map(item => {
-          return {
+          let switchItem = {
             hostLinkId: item.id,
             flag: item.flag,
-            linkIds: item.linkIds
+            linkIds: item.linkIds,
           }
+          if(item.flag === 3) { // 单切时需在原结构中加入切换目标及原IP
+            switchItem.originViceIp = this.simpleSwitchOriginIp(item);
+            switchItem.targetViceIp = this.simpleSwitchTargetIp(item);
+          }
+          return switchItem;
         })
       }
     }
@@ -325,6 +361,11 @@ export default {
 }
 .planForm {
   margin-top: 20px;
+}
+.ipSelect {
+  input {
+    text-align: center;
+  }
 }
 .dialogFooter {
   margin-top: -20px;
