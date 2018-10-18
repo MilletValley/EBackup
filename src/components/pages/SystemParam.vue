@@ -112,6 +112,12 @@
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
         </el-form-item>
+        <el-form-item label="Windows系统版本"
+                      v-if="formData.sysType === 1 && formData.useType === 2"
+                      prop="windowsType">
+          <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
+          <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
+        </el-form-item>
         <el-form-item label="地址"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
@@ -126,7 +132,8 @@
           <el-radio v-model="formData.state" :label="0">启用</el-radio>
           <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <template v-if="formData.sysType === 1 && formData.useType === 3">
+        <!-- <template v-if="formData.sysType === 1 && formData.useType === 3"> -->
+        <template v-if="isShowLogin">
           <el-form-item label="系统登录名"
                         prop="loginName">
             <el-input v-model="formData.loginName"></el-input>
@@ -154,7 +161,7 @@
       <el-form :model="formData"
                ref="formData"
                :rules="rules"
-               label-width="110px"
+               label-width="130px"
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
@@ -168,6 +175,12 @@
           <!-- <el-radio v-model="formData.useType" :label="5">mysql</el-radio> -->
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
+        </el-form-item>
+        <el-form-item label="Windows系统版本"
+                      v-if="formData.sysType === 1 && formData.useType === 2"
+                      prop="windowsType">
+          <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
+          <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
         <el-form-item label="地址"
                       prop="shareUrl">
@@ -183,7 +196,8 @@
           <el-radio v-model="formData.state" :label="0">启用</el-radio>
           <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <template v-if="formData.sysType === 1 && formData.useType===3">
+        <!-- <template v-if="(formData.sysType === 1 && formData.useType===3) || formData.windowsType === 1"> -->
+        <template v-if="isShowLogin">
           <el-form-item label="系统登录名"
                         prop="loginName">
             <el-input v-model="formData.loginName"></el-input>
@@ -205,7 +219,7 @@
 
 <script>
 import { fetchAll, modifyOne, createOne, deleteOne } from '../../api/systemParam';
-import { sysTypeMapping, useTypeMapping, systemStateMapping } from '../../utils/constant';
+import { sysTypeMapping, windowsTypeMapping, useTypeMapping, systemStateMapping } from '../../utils/constant';
 import InputToggle from '@/components/InputToggle';
 import isEqual from 'lodash/isEqual';
 
@@ -243,6 +257,15 @@ export default {
       },
     }
   },
+  computed: {
+    isShowLogin(){
+      if(this.formData.sysType === 1 && this.formData.useType===3){
+        return true
+      }else if(this.formData.sysType === 1 && this.formData.useType===2 && this.formData.windowsType === 1){
+        return true
+      }else return false
+    }
+  },
   created() {
     this.fetchData();
   },
@@ -260,7 +283,14 @@ export default {
         })
     },
     judgeSystem(data) {
-      return sysTypeMapping[data.sysType];
+      let str = '';
+      if(sysTypeMapping[data.sysType]){
+        str += sysTypeMapping[data.sysType];
+      }
+      if(windowsTypeMapping[data.windowsType]){
+        str += windowsTypeMapping[data.windowsType];
+      }
+      return str;
     },
     judgeUse(data) {
       return useTypeMapping[data.useType];
@@ -297,6 +327,7 @@ export default {
         loginName: '',
         password: '',
         mountUrl: '',
+        windowsType: 2,
         useType: 1,
         sysType: 1,
         state: 0,

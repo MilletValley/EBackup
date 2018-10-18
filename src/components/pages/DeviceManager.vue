@@ -60,6 +60,7 @@
                        align="center"></el-table-column>
       <el-table-column prop="osName"
                        label="操作系统"
+                       :formatter="judgeOsName"
                        :filters="osNameFilters"
                        column-key="filterOsName"
                        min-width="120"
@@ -117,7 +118,7 @@ import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
-import { hostTypeMapping, databaseTypeMapping } from '../../utils/constant';
+import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
@@ -136,7 +137,9 @@ export default {
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
-        {text: 'Linux', value: 'Linux'}
+        {text: 'Linux', value: 'Linux'},
+        {text: 'Windows2003', value: 'Windows2003'},
+        {text: 'Windows2008及以上', value: 'Windows2008及以上'},
       ],
       hostTypeTerm: [],
       databaseTypeTerm: [],
@@ -166,6 +169,13 @@ export default {
   methods: {
     judgeHost(data) {
       return hostTypeMapping[data.hostType];
+    },
+    judgeOsName(data){
+      let str = data.osName;
+      if(windowsTypeMapping[data.windowsType]){
+        str += windowsTypeMapping[data.windowsType]
+      }
+      return str;
     },
     judgeDatabase(data) {
       return databaseTypeMapping[data.databaseType];
