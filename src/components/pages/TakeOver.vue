@@ -63,14 +63,15 @@
                           width="300"
                           :disabled="!hostLink.vipIpMark"
                           :open-delay="200">
-                <h4 style="margin: 5px 0; padding: 3px 0;">子节点</h4>
+                <h4 style="margin: 5px 0; padding: 3px 0;">非主节点</h4>
                 <p v-if="!(hostLink.primaryNodes && hostLink.primaryNodes.length)">暂无子节点</p>
                 <div v-else>
                   <p v-for="primaryNode in hostLink.primaryNodes"
                      :key="primaryNode.id">
                      <el-row>
                        <el-col :span="12">{{ primaryNode.name }}</el-col>
-                       <el-col :span="12">{{ primaryNode.hostIp }}</el-col>
+                       <el-col :span="12"
+                               :class="$style.hostIp">{{ primaryNode.hostIp }}</el-col>
                      </el-row>
                   </p>
                 </div>
@@ -80,23 +81,41 @@
                   <span>{{ hostLink.primaryHost.name }}</span>
                 </div>
               </el-popover>
-              <i-icon :class="$style.vipIcon"
-                      name="vip"
-                      v-if="hostLink.vipIpMark && hostLink.vipIpMark === 1"></i-icon>
               <div>
-                <i-icon name="ip"
-                        :class="$style.hostIpIcon"></i-icon>
-                <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'"
-                            placement="right"
-                            effect="light">
-                  <div slot="content">
-                    提供服务中
-                    <br/>服务IP：{{ hostLink.primaryHost.serviceIp }}
-                  </div>
-                  <i-icon :class="$style.serviceIcon"
-                          name="service"></i-icon>
-                </el-tooltip>
+                <el-row>
+                  <el-col :span="8"
+                          style="min-height: 1px;">
+                    <el-popover placement="right"
+                                trigger="hover"
+                                width="150"
+                                :open-delay="200">
+                      <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
+                      <p v-if="!sonNodeVip(hostLink).length">暂无</p>
+                      <div v-else>
+                        <p v-for="vip in sonNodeVip(hostLink)"
+                           :key="vip.id"
+                           :class="$style.hostIp">{{ vip }}</p>
+                      </div>
+                      <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
+                           slot="reference">
+                        <i-icon :class="$style.ipIcon"
+                                name="vip"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
+                      </div>
+                    </el-popover>
+                  </el-col>
+                  <el-col :span="8">
+                    <i-icon name="ip"
+                            :class="$style.ipIcon"></i-icon>
+                    <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
+                  </el-col>
+                  <el-col :span="8"
+                          v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'">
+                    <i-icon :class="$style.ipIcon"
+                            name="service"></i-icon>
+                    <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
+                  </el-col>
+                </el-row>
               </div>
             </div>
           </el-col>
@@ -185,24 +204,10 @@
           </el-col>
           <el-col :span="10">
             <div :class="$style.hostInfo">
-              <i-icon :class="$style.vipIcon"
-                      name="vip"
-                      v-if="hostLink.vipIpMark && hostLink.vipIpMark === 2 "></i-icon>
               <div>
                 <i-icon name="host-ebackup"
                         :class="$style.hostIcon"></i-icon>
                 <span>{{ hostLink.viceHost.name }}</span>
-                <el-tooltip v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'"
-                            placement="right"
-                            effect="light">
-                  <div slot="content">
-                    提供服务中
-                    <br/>服务IP：{{ hostLink.viceHost.serviceIp }}
-                  </div>
-                  <i-icon :class="$style.serviceIcon"
-                          style="margin-top: 3px"
-                          name="service"></i-icon>
-                </el-tooltip>
                 <el-tooltip v-if="simpleSwitchGoing(hostLink)"
                             content="易备设备切换IP中"
                             effect="light"
@@ -262,9 +267,40 @@
                 </el-popover>
               </div>
               <div>
-                <i-icon name="ip"
-                        :class="$style.hostIpIcon"></i-icon>
-                <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
+                <el-row>
+                  <el-col :span="8"
+                          style="min-height: 1px;">
+                    <el-popover placement="right"
+                                trigger="hover"
+                                width="150"
+                                :open-delay="200">
+                      <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
+                      <p v-if="!sonNodeVip(hostLink).length">暂无</p>
+                      <div v-else>
+                        <p v-for="vip in sonNodeVip(hostLink)"
+                           :key="vip.id"
+                           :class="$style.hostIp">{{ vip }}</p>
+                      </div>
+                      <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2"
+                           slot="reference">
+                        <i-icon :class="$style.ipIcon"
+                                name="vip"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
+                      </div>
+                    </el-popover>
+                  </el-col>
+                  <el-col :span="8">
+                    <i-icon name="ip"
+                            :class="$style.ipIcon"></i-icon>
+                    <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
+                  </el-col>
+                  <el-col :span="8"
+                          v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'">
+                    <i-icon :class="$style.ipIcon"
+                            name="service"></i-icon>
+                    <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
+                  </el-col>
+                </el-row>
               </div>
             </div>
           </el-col>
@@ -874,6 +910,12 @@ export default {
         })
         .catch(error => {});
     },
+    // 非主节点VIP集合
+    sonNodeVip(hostLink) {
+      if(hostLink.primaryNodes)
+        return hostLink.primaryNodes.map(node => node.vip)
+      return []
+    },
     setTimer() {
       this.clearTimer();
       this.timer = setInterval(() => {
@@ -952,7 +994,7 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
-.hostIpIcon {
+.ipIcon {
   width: 2em;
   display: inline-block;
   vertical-align: -0.3em;
@@ -961,9 +1003,8 @@ $vice-color: #6d6d6d;
 .simpleSwitch {
   position: absolute;
   // margin-left: 75px;
-  right: 30px;
-  margin-top: 0.3em;
-  right: 30px;
+  margin-top: -0.3em;
+  right: 80px;
   width: 2em;
   height: 2em;
   cursor: pointer;
@@ -975,8 +1016,8 @@ $vice-color: #6d6d6d;
 .simpleSwitchGoing {
   position: absolute;
   // margin-left: 75px;
-  right: 30px;
-  margin-top: 0.1em;
+  right: 80px;
+  margin-top: -0.2em;
   color: $primary-color;
   font-size: 34px;
 }
