@@ -127,12 +127,22 @@ export default {
             this.$router.push({name: 'collectManager'});
         },
         deletePlan(scope){
-            deletePlan(scope.row.id).then( res => {
-                this.$message.success( res.data.message);
-                this.fetchAll();
-            }).catch( error => {
-                this.$message.error( error );
-            })
+            this.$confirm(
+                '请确认是否删除',
+                '提示',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }
+            ).then(() => {
+                deletePlan(scope.row.id).then( res => {
+                    this.$message.success( res.data.message);
+                    this.fetchAll();
+                }).catch( error => {
+                    this.$message.error( error );
+                });
+            }).catch( () => {});
         },
         view(scope){
             this.selectedBackupPlan = scope.row;
@@ -151,16 +161,18 @@ export default {
         selectedhandler(data){
             console.log(data)
             this.deviceModalVisible = false;
-            this.buttonFlag = true;
-            stopAllBackupPlan(data.id).then( res => {
-                const {message} = res.data;
-                this.$message.success( message );
-                this.fetchAll();
-            }).catch( error => {
-                this.$message.error( error );
-            }).then( () => {
-                this.buttonFlag = false
-            })
+            if(data.id){
+                this.buttonFlag = true;
+                stopAllBackupPlan(data.id).then( res => {
+                    const {message} = res.data;
+                    this.$message.success( message );
+                    this.fetchAll();
+                }).catch( error => {
+                    this.$message.error( error );
+                }).then( () => {
+                    this.buttonFlag = false
+                })
+            }
         }
     }
 }

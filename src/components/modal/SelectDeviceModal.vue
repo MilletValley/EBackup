@@ -19,29 +19,29 @@
             </el-table-column>
             <el-table-column prop="hostIp"
                             label="设备IP"
-                            min-width="150"
+                            min-width="130"
                             align="center"></el-table-column>
             <el-table-column prop="serviceIp"
                             label="操作IP"
-                            min-width="150"
+                            min-width="130"
                             align="center"></el-table-column>
             <el-table-column prop="hostType"
                             label="设备类型"
                             :formatter="judgeHost"
-                            min-width="150"
+                            min-width="80"
                             align="center"></el-table-column>
             <el-table-column prop="databaseType"
                             label="用途类型"
                             :formatter="judgeDatabase"
-                            min-width="150"
+                            min-width="80"
                             align="center"></el-table-column>
             <el-table-column prop="osName"
                             label="操作系统"
-                            min-width="150"
+                            min-width="90"
                             align="center"></el-table-column>
             <el-table-column prop="loginName"
                             label="登录账号"
-                            min-width="140"
+                            min-width="80"
                             align="center"></el-table-column>
         
         </el-table>
