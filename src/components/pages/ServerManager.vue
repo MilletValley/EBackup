@@ -18,10 +18,6 @@
             </el-table-column>
             <el-table-column label="主机名" prop="serverName" align="left"
                         min-width="200">
-                <!-- <template slot-scope="scope">
-                    <router-link :to="`/vm/virtual/${scope.row.id}`"
-                                :class="$style.link">{{scope.row.vmName}}</router-link>
-                </template> -->
             </el-table-column>
             <el-table-column prop="hostName" align="left"
                             label="所属设备"
@@ -143,21 +139,15 @@ export default {
             })
         },
         addBackupPlan(data) {
-            console.log(data);
             let plan = Object.assign({}, data);
             let vmIds = this.currentSelect.map( e => {
                 return e.id;
             });
             plan.vmList = vmIds;
-            console.log(plan);
             this.btnLoading = true;
             createMultipleVirtualBackupPlan(plan)
                 .then(res => {
-                const { message } = res.data;
-                // // 刷新情况下可能会出现两个添加后的计划
-                // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
-                //     this.backupPlans.unshift(backupPlan)
-                // }
+                    const { message } = res.data;
                     this.backupPlanCreateModalVisible = false;
                     this.$confirm(
                         '备份计划添加成功，是否跳转到备份计划页面',
@@ -173,11 +163,11 @@ export default {
                     });
                 })
                 .catch(error => {
-                this.$message.error(error);
-                return false;
+                    this.$message.error(error);
+                    return false;
                 })
                 .then(() => {
-                this.btnLoading = false;
+                    this.btnLoading = false;
                 });
         },
         submitServerFn(data){
@@ -209,15 +199,6 @@ export default {
                             if (action === 'confirm') {
                                 instance.confirmButtonLoading = true;
                                 instance.confirmButtonText = '扫描中...';
-                                // setTimeout(() => {
-                                //     done();
-                                //     setTimeout(() => {
-                                //     instance.confirmButtonLoading = false;
-                                //     }, 300);
-                                // }, 3000);
-                                // } else {
-                                // done();
-                                // }
                                 rescan(data).then( resp => {
                                     this.$message.success( resp.data.message);
                                     // this.fetchData();
@@ -234,15 +215,10 @@ export default {
                     }
                 )
                 .then(action => {
-                    console.log(action)
                     this.fetchData();
                 }).catch( () => {
-                    console.log(222)
                     this.fetchData();
                 });
-                // this.serverModalVisible = false;
-                // this.$message.success(message);
-                // this.fetchData();
             }).catch( error => {
                 this.$message.error(error);
             }).then( () => {
