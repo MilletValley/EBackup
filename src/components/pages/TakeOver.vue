@@ -268,10 +268,15 @@
                 <i-icon name="notSimpleSwitchDb"
                         :class="$style.simpleSwitchDb"
                         v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)&&databaseType==='oracle'"></i-icon>
-                <i-icon name="simpleSwitchDb"
+                <el-popover v-else-if="databaseType==='oracle'"
+                            content="易备实例单切"
+                            effect="light"
+                            placement="right"
+                            :open-delay="200">
+                  <i-icon name="simpleSwitchDb"
                         :class="$style.simpleSwitchDb"
-                        v-else-if="databaseType==='oracle'"
                         @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
+                </el-popover>
               </div>
               <div>
                 <el-row>
@@ -402,13 +407,24 @@
                         :class="$style.switchIcon"
                         slot="reference"></i-icon>
               </el-popover>
-              <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
+              <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
               </div>
+              <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4">
+                <i class="el-icon-loading"></i>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                  {{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}中...
+                </span>
+              </div>
               <div v-else>
                 <div v-if="databaseType==='oracle'">
+                  <div>
+                    <el-button type="text"
+                             @click="failOver(dbLink)"
+                             :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
+                  </div>
                   <el-button type="text"
                             @click="switchDatabase(dbLink.id)">双切</el-button>
                   <el-button type="text"
@@ -500,6 +516,7 @@ import {
   createLinks as createLinksOracle,
   createSwitches as switchOracle,
   createSimpleSwitches as simpleSwitchOracle,
+  failOver as failOverOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -947,6 +964,28 @@ export default {
         })
         .catch(error => {});
     },
+    failOver(dbLink) {
+      this.$confirm(`此操作${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          failOverOracle(dbLink.id)
+            .then(res => {
+              const { data: failOverOperation } = res.data;
+              this.databaseLinks.find(
+                link => link.id === dbLink.id
+              ).latestSwitch = failOverOperation;
+              this.fetchData(); // 用于刷新此实例连接中failOverState的状态
+              this.$message.info(`正在尝试${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，请等待`);
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(error => {});
+    },
     // 非主节点VIP集合
     sonNodeVip(hostLink) {
       if(hostLink.primaryNodes)
@@ -1079,7 +1118,8 @@ $vice-color: #6d6d6d;
   text-align: center;
   margin: 5px 0 0;
 }
-.removeHostLink {
+.removeHostLink,
+.failOver {
   color: $delete-color;
   padding: 2px 0 3px;
   &:focus {
