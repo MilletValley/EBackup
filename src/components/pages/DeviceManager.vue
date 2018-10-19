@@ -116,7 +116,7 @@
 import { listMixin } from '../mixins/databaseListMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
-import { fetchAll, deleteOne } from '../../api/host';
+// import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
 import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../utils/constant';
 
@@ -138,8 +138,8 @@ export default {
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
         {text: 'Linux', value: 'Linux'},
-        {text: 'Windows2003', value: 'Windows2003'},
-        {text: 'Windows2008及以上', value: 'Windows2008及以上'},
+        // {text: 'Windows2003', value: 'Windows2003'},
+        // {text: 'Windows2008及以上', value: 'Windows2008及以上'},
       ],
       hostTypeTerm: [],
       databaseTypeTerm: [],
@@ -156,6 +156,11 @@ export default {
       return this.$store.getters.selectedHost(this.selectedId);
     },
   },
+  watch: {
+    hostsInVuex(data){
+      this.filterTableItem = this.hostsInVuex;
+    }
+  },
   created() {
     // if (sessionStorage.getItem("store") ) {
     //     this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
@@ -165,6 +170,7 @@ export default {
     //     sessionStorage.setItem("store",JSON.stringify(this.$store.state))
     // })
     this.filterTableItem = this.hostsInVuex
+    this.fetchHosts()
   },
   methods: {
     judgeHost(data) {
@@ -172,8 +178,8 @@ export default {
     },
     judgeOsName(data){
       let str = data.osName;
-      if(windowsTypeMapping[data.windowsType]){
-        str += windowsTypeMapping[data.windowsType]
+      if(data.osName === 'Windows' && data.databaseType === 2 && windowsTypeMapping[data.windowsType]){
+        str += (' ' + windowsTypeMapping[data.windowsType]);
       }
       return str;
     },
@@ -181,6 +187,15 @@ export default {
       return databaseTypeMapping[data.databaseType];
     },
     fetchData() {},
+    fetchHosts(){
+      // 判断是刷新还是页面正常跳转
+      if(this.$route.meta.isRefresh){
+        return
+      }
+      this.fetchAll().catch( error => {
+        this.$message.error( error);
+      });
+    },
     filterChange(filters) {
       this.filterTableItem = this.hostsInVuex;
       if(Object.keys(filters)[0] === 'filterHostType') {
@@ -249,11 +264,23 @@ export default {
       update: 'updateHost',
       delete: 'deleteHost',
       create: 'createHost',
+      fetchAll: 'fetchHost'
     }),
   },
   components: {
     HostCreateModal,
     HostUpdateModal,
+  },
+  beforeRouteEnter (to, from, next) {
+      // 在渲染该组件的对应路由被 confirm 前调用
+      // 不！能！获取组件实例 `this`
+      // 因为当守卫执行前，组件实例还没被创建
+      if(from.path === '/'){
+        to.meta.isRefresh = true;
+      }else{
+        to.meta.isRefresh = false;
+      }
+      next();
   },
 };
 </script>

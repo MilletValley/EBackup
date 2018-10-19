@@ -287,7 +287,7 @@ export default {
       if(sysTypeMapping[data.sysType]){
         str += sysTypeMapping[data.sysType];
       }
-      if(windowsTypeMapping[data.windowsType]){
+      if(data.useType === 2 && data.sysType === 1 && windowsTypeMapping[data.windowsType]){
         str += windowsTypeMapping[data.windowsType];
       }
       return str;
