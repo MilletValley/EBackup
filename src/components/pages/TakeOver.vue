@@ -265,18 +265,20 @@
                           name="simpleSwitch"
                           @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                 </el-popover>
-                <i-icon name="notSimpleSwitchDb"
-                        :class="$style.simpleSwitchDb"
-                        v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)&&databaseType==='oracle'"></i-icon>
-                <el-popover v-else-if="databaseType==='oracle'"
-                            content="易备实例单切"
-                            effect="light"
-                            placement="right"
-                            :open-delay="200">
-                  <i-icon name="simpleSwitchDb"
-                        :class="$style.simpleSwitchDb"
-                        @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
-                </el-popover>
+                <span v-if="databaseType==='oracle'">
+                  <i-icon name="notSimpleSwitchDb"
+                          :class="$style.simpleSwitchDb"
+                          v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
+                  <el-tooltip v-else
+                              content="易备实例单切"
+                              effect="light"
+                              placement="right"
+                              :open-delay="200">
+                    <i-icon name="simpleSwitchDb"
+                            :class="$style.simpleSwitchDb"
+                            @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
+                  </el-tooltip>
+                </span>
               </div>
               <div>
                 <el-row>
