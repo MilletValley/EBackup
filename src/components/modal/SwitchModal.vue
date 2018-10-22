@@ -289,9 +289,9 @@ export default {
     btnLoading: {
       type: Boolean,
     },
-    // isSimpleSwitch: {
-    //   type: Boolean
-    // }
+    isSimpleSwitch: {
+      type: Boolean
+    }
   },
   data() {
     return {
