@@ -114,6 +114,7 @@
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
+import { webSocketMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 // import { fetchAll, deleteOne } from '../../api/host';
@@ -122,7 +123,7 @@ import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../
 
 export default {
   name: 'DeviceManager',
-  mixins: [listMixin],
+  mixins: [listMixin, webSocketMixin],
   data() {
     return {
       selectedId: '',
@@ -133,7 +134,8 @@ export default {
       databaseTypeFilters: [
         {text: 'oracle', value: 1},
         {text: 'sqlserver', value: 2},
-        {text: '虚拟机', value: 4}
+        {text: '虚拟机', value: 4},
+        {text: 'mysql', value: 5}
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},

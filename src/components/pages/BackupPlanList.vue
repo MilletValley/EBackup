@@ -9,15 +9,17 @@
         <el-row>
             <el-table
                 :data="tableData"
+                :default-sort="{ prop: 'startTime', order: 'descending' }"
                 style="width: 100%;">
                 <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
-                        <vm-backup-table :id="props.row.id"></vm-backup-table>
+                        <vm-backup-table :id="props.row.id" :status.sync="props.row.status"></vm-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column
                 label="计划名称"
                 align="center"
+                :sortable="true"
                 prop="name">
                 </el-table-column>
                 <el-table-column
@@ -35,8 +37,27 @@
                 <el-table-column
                 label="备份开始时间"
                 align="center"
+                :sortable="true"
                 prop="startTime">
                 </el-table-column>
+                <!-- <el-table-column  label="状态"
+                    align="center"
+                    prop="status">
+                    <template slot-scope="scope">
+                        <i v-if="scope.row.status === 0"
+                            class="el-icon-time"
+                            :class="$style.waitingColor"></i>
+                        <i v-else-if="scope.row.status === 1"
+                            class="el-icon-loading"
+                            :class="$style.loadingColor"></i>
+                        <i v-else-if="scope.row.status === 2"
+                            class="el-icon-success"
+                            :class="$style.successColor"></i>
+                        <i v-else-if="scope.row.status === 3"
+                            class="el-icon-warning"
+                            :class="$style.errorColor"></i>
+                    </template>
+                </el-table-column> -->
                 <el-table-column label="操作"
                                 width="150"
                                 header-align="center"
@@ -112,7 +133,10 @@ export default {
         fetchAll(){
             fetchVmBackupPlanList().then( res => {
                 const {data} = res.data;
-                this.tableData = data;
+                this.tableData = data
+                // this.tableData = data.map( e => {
+                //     return Object.assign({}, e, {status: 0});
+                // });
             }).catch( error => {
                 this.$message.error(error);
             })
@@ -173,7 +197,14 @@ export default {
                     this.buttonFlag = false
                 })
             }
-        }
+        },
+        sortChangeFn({ column, prop, order }){
+            console.log(this.defaultSort)
+            if(JSON.stringify(this.defaultSort) === JSON.stringify({prop, order})){
+                return;
+            }
+            this.defaultSort = {prop, order};
+        },
     }
 }
 </script>

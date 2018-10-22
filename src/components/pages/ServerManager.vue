@@ -157,7 +157,7 @@ export default {
                         {
                             confirmButtonText: '是',
                             cancelButtonText: '否',
-                            type: 'warning'
+                            type: 'success'
                         }
                     ).then( () => {
                         this.$router.push({name: 'backup'});

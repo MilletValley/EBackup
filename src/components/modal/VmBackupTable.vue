@@ -12,7 +12,7 @@
         <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
-                <router-link :to="scope.row.vm.type === '1' ? `/vm/virtual/${scope.row.vm.id}` : `/vm/hwVirtual/${scope.row.vm.id}`"
+                <router-link :to="scope.row.vm.type === 1 ? `/vm/virtual/${scope.row.vm.id}` : `/vm/hwVirtual/${scope.row.vm.id}`"
                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
@@ -106,6 +106,9 @@ export default {
     props:{
         id: {
             type: Number
+        },
+        status: {
+            type: Number
         }
     },
     data(){
@@ -127,6 +130,33 @@ export default {
         fetchAll(){
             this.loading = true
             getVmsBackupResult(this.id).then( res => {
+                // const {data} = res.data;
+                // let state,wait = 0, complete = 0;
+                // for(let i ;i<data.length;i++){
+                //     if(data[i].state === 1){
+                //         state = 1;
+                //         return
+                //     }else if(data[i].state === 3){
+                //         state = 3;
+                //         return
+                //     }else if(data[i].state === 0){
+                //         wait++;
+                //     }else if(data[i].state === 2 ){
+                //         complete++;
+                //     }
+                // }
+                // if(!state){
+                //     if(wait !== 0 && complete !== 0){
+                //         state = 1;
+                //     }else if( wait === 0 && complete === 0){
+                //         state = 0;
+                //     }else if(wait !== 0 && complete === 0){
+                //         state = 0;
+                //     }else{
+                //         state = 2;
+                //     }
+                // }
+                // this.$emit('update:status', state);
                 this.tableData = res.data.data;
             }).catch( error => {
                 this.$message.error(error);

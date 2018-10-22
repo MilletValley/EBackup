@@ -43,7 +43,7 @@
                     <el-table-column label="名称"
                                 min-width="200">
                         <template slot-scope="scope">
-                            <router-link :to="scope.row.type === '1' ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
+                            <router-link :to="scope.row.type === 1 ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
                                         :class="$style.link">{{scope.row.vmName}}</router-link>
                         </template>
                     </el-table-column>

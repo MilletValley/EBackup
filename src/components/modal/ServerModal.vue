@@ -81,7 +81,7 @@ export default {
           serverIp: '',
           serverLoginName: '',
           serverPassword: '',
-          serverType: 1,
+          serverType: 2,
       };
     return {
       originFormData: data,
