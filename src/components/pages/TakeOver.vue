@@ -265,6 +265,20 @@
                           name="simpleSwitch"
                           @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                 </el-popover>
+                <span v-if="databaseType==='oracle'">
+                  <i-icon name="notSimpleSwitchDb"
+                          :class="$style.simpleSwitchDb"
+                          v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
+                  <el-tooltip v-else
+                              content="易备实例单切"
+                              effect="light"
+                              placement="right"
+                              :open-delay="200">
+                    <i-icon name="simpleSwitchDb"
+                            :class="$style.simpleSwitchDb"
+                            @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
+                  </el-tooltip>
+                </span>
               </div>
               <div>
                 <el-row>
@@ -395,16 +409,38 @@
                         :class="$style.switchIcon"
                         slot="reference"></i-icon>
               </el-popover>
-              <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
+              <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
                    style="margin-top: 6px;">
                 <i class="el-icon-loading"></i>
                 <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
               </div>
+              <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4">
+                <i class="el-icon-loading"></i>
+                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                  {{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}中...
+                </span>
+              </div>
               <div v-else>
-                <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
-                <el-button type="text"
-                           @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                <div v-if="databaseType==='oracle'">
+                  <div>
+                    <el-button type="text"
+                             @click="failOver(dbLink)"
+                             :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
+                  </div>
+                  <el-button type="text"
+                            @click="switchDatabase(dbLink.id)">双切</el-button>
+                  <el-button type="text"
+                            :disabled="dbLink.primaryDatabase.role === 2"
+                            @click="simpleSwitchDatabase(dbLink.id)">单切</el-button>
+                  <el-button type="text"
+                            @click="jumpToLinkDetail(dbLink.id)">详情</el-button>
+                </div>
+                <div v-else>
+                  <el-button type="text"
+                            @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
+                  <el-button type="text"
+                            @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                </div>
               </div>
             </div>
           </el-col>
@@ -453,6 +489,7 @@
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
                   :ready-to-simple-switch="readyToSimpleSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
+                  :is-simple-switch="isSimpleSwitch"
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
@@ -480,6 +517,8 @@ import {
   fetchLinks as fetchLinksOracle,
   createLinks as createLinksOracle,
   createSwitches as switchOracle,
+  createSimpleSwitches as simpleSwitchOracle,
+  failOver as failOverOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -523,6 +562,13 @@ const createSwitchMethod = {
   oracle: switchOracle,
   sqlserver: switchSqlserver,
 };
+const createSimpleSwitchMethod = {
+  oracle: simpleSwitchOracle
+}
+const switchMethod = {
+  true: createSimpleSwitchMethod,
+  false: createSwitchMethod
+}
 export default {
   name: 'TakeOver',
   mixins: [takeoverMixin, batchSwitchMinxin],
@@ -536,6 +582,7 @@ export default {
       hostLinkIdReadyToSwitch: -1,
       readyToSimpleSwitch: {},
       btnLoading: false,
+      isSimpleSwitch: false, // 标记单切还是双切
       timer: null,
     };
   },
@@ -711,6 +758,7 @@ export default {
       this.readyToSimpleSwitch = {}
       this.hostLinkIdReadyToSwitch = -1;
       this.switchModalVisible = false;
+      this.isSimpleSwitch = false;
     },
     confirmSwitch(formData) {
       /**
@@ -723,6 +771,7 @@ export default {
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
+        // 切vip
         if(formData === 'vip') {
           switchVip(this.hostLinkIdReadyToSwitch)
             .then(res => {
@@ -739,6 +788,7 @@ export default {
               this.btnLoading = false;
             });
         } else {
+          //  切服务IP、scanIP、临时IP
           switchHostIp(this.hostLinkIdReadyToSwitch)
             .then(res => {
               const { data } = res.data;
@@ -788,7 +838,7 @@ export default {
           })
       } else {
         this.btnLoading = true;
-        createSwitchMethod[this.databaseType]({
+        switchMethod[this.isSimpleSwitch][this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
         })
           .then(res => {
@@ -809,9 +859,15 @@ export default {
           });
       }
     },
+    // 双切
     switchDatabase(databaseLinkId) {
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
       this.switchModalVisible = true;
+    },
+    // 单切
+    simpleSwitchDatabase(databaseLinkId) {
+      this.switchDatabase(databaseLinkId);
+      this.isSimpleSwitch = true;
     },
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
@@ -826,6 +882,11 @@ export default {
         .map(dbLink => dbLink.id);
       this.databaseLinkIdsReadyToSwitch = links;
       this.switchModalVisible = true;
+    },
+    // 单切备库
+    simpleSwitchMultiDatabases(hostLink) {
+      this.switchMultiDatabaseToEbackup(hostLink);
+      this.isSimpleSwitch = true;
     },
     switchHostIp(hostLink) {
       this.hostLinkIdReadyToSwitch = hostLink.id;
@@ -893,16 +954,33 @@ export default {
         .then(() => {
           deleteLinks(hostLink.id)
             .then(res => {
-              // this.links.splice(
-              //   this.links.findIndex(link => link.id === hostLink.id),
-              //   1
-              // );
-              // this.$message.success('连接解除成功');
               const { data: cancelOperation } = res.data;
               this.links.find(
                 link => link.id === hostLink.id
               ).latestSwitch = cancelOperation;
               this.$message.info('正在尝试解除连接，请等待');
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(error => {});
+    },
+    failOver(dbLink) {
+      this.$confirm(`此操作${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          failOverOracle(dbLink.id)
+            .then(res => {
+              const { data: failOverOperation } = res.data;
+              this.databaseLinks.find(
+                link => link.id === dbLink.id
+              ).latestSwitch = failOverOperation;
+              this.fetchData(); // 用于刷新此实例连接中failOverState的状态
+              this.$message.info(`正在尝试${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，请等待`);
             })
             .catch(error => {
               this.$message.error(error);
@@ -1000,11 +1078,23 @@ $vice-color: #6d6d6d;
   vertical-align: -0.3em;
   margin-top: 10px;
 }
+.simpleSwitchDb {
+  position: absolute;
+  margin-top: -0.3em;
+  right: 90px;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
+}
 .simpleSwitch {
   position: absolute;
   // margin-left: 75px;
   margin-top: -0.3em;
-  right: 80px;
+  right: 50px;
   width: 2em;
   height: 2em;
   cursor: pointer;
@@ -1016,7 +1106,7 @@ $vice-color: #6d6d6d;
 .simpleSwitchGoing {
   position: absolute;
   // margin-left: 75px;
-  right: 80px;
+  right: 50px;
   margin-top: -0.2em;
   color: $primary-color;
   font-size: 34px;
@@ -1030,7 +1120,8 @@ $vice-color: #6d6d6d;
   text-align: center;
   margin: 5px 0 0;
 }
-.removeHostLink {
+.removeHostLink,
+.failOver {
   color: $delete-color;
   padding: 2px 0 3px;
   &:focus {
