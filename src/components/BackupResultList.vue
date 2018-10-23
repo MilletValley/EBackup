@@ -290,6 +290,7 @@ export default {
     },
     resetFn(){
       this.$refs.filterForm.resetFields();
+      this.filterHandler();
     }
   },
   computed: {
@@ -311,7 +312,22 @@ export default {
       });
       const map = {};
       data.forEach((result, index) => {
-        // 当索引为0时，!0等于true，此处不建议用所以，可以绑定id进行唯一标识
+        const {size} = result;
+        let fmtSize = 0;
+        if(size < 1024){
+          fmtSize = size + 'K';
+        }else{
+          let res = size / 1024 / 1024;
+          if(res < 1){
+            fmtSize = parseInt( res * 1024) + 'M';
+          }else if(res > 1024){
+            fmtSize = parseInt(res / 1024) + 'T';
+          }else{
+            fmtSize = parseInt(res) + 'G';
+          }
+        }
+        result.size = fmtSize;
+        // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
         if (!map[result.fileResource]) {
           // map[result.fileResource] = index;
           map[result.fileResource] = {

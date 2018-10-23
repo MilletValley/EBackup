@@ -68,9 +68,6 @@ export default {
             radioValue: this.selected.hostId
         }
     },
-    mounted(){
-        console.log(11)
-    },
     watch: {
         visible(val){
             if(val){

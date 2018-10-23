@@ -8,6 +8,8 @@
         </el-col>
     </el-row>
     <el-table :data="curTableData" @select="selectDbChangeFn"  :ref="refTable"
+                @sort-change="sortChangeFn"
+                :default-sort="defaultSort"
            @select-all="((selection) => selectAll(selection, curTableData))">
         <el-table-column   
             type="selection"
@@ -21,9 +23,11 @@
         </el-table-column>
         <el-table-column label="虚拟机名称"
                     align="left"
+                    prop="vmName"
+                    sortable="custom"
                     min-width="200">
             <template slot-scope="scope">
-                <router-link :to="scope.row.type === '1' ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
+                <router-link :to="scope.row.type === 1 ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
                             :class="$style.link">{{scope.row.vmName}}</router-link>
             </template>
         </el-table-column>
@@ -72,7 +76,8 @@ export default {
             pagesize: 10,
             currentPage: 1,
             filterItem: '',
-            inputSearch: ''
+            inputSearch: '',
+            defaultSort:{prop: 'vmName', order: 'descending'},
         }
     },
     mounted(){
@@ -126,6 +131,23 @@ export default {
             // }else{
                 data = this.tableData.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
             // }
+            //排序
+            console.log(this.defaultSort)
+            data = data.sort( (a, b) => {
+                let val1 = a[this.defaultSort.prop];
+                let val2 = b[this.defaultSort.prop];
+                if(!isNaN(Number(val1)) && !isNaN(Number(val2))){
+                    val1 = Number(val1);
+                    val2 = Number(val2);
+                }
+                if(val1 < val2){
+                    return this.defaultSort.order === 'descending' ? 1 : -1;
+                }else if(val1 > val2){
+                    return this.defaultSort.order === 'descending' ? -1 : 1;
+                }else{
+                    return 0;
+                }
+            });
             data = data.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
             this.$nextTick( () => {
                 data.forEach( e => {
@@ -222,6 +244,13 @@ export default {
         searchByName() {
             this.filterItem = this.inputSearch;
             this.currentPage = 1;
+        },
+        sortChangeFn({ column, prop, order }){
+            console.log(this.defaultSort)
+            if(JSON.stringify(this.defaultSort) === JSON.stringify({prop, order})){
+                return;
+            }
+            this.defaultSort = {prop, order};
         },
     }
 }
