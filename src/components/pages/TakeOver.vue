@@ -54,9 +54,8 @@
       <div v-for="hostLink in links"
            :key="hostLink.id">
         <div :class="$style.hostLinkContainer">
-          <fieldset :class="hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
-            <legend v-if="hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
-            <legend v-else>非RAC环境</legend>
+          <fieldset :class="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
+            <legend v-if="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
             <el-row type="flex"
                     justify="space-around">
               <el-col :span="10">
@@ -1063,11 +1062,7 @@ $vice-color: #6d6d6d;
   }
 }
 .hostLinkNotRac {
-  border-radius: 5px;
-  border: 1px dotted $vice-color;
-  & legend {
-    color: $vice-color;
-  }
+  border: 0;
 }
 .hostInfo {
   position: relative;
