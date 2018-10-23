@@ -73,6 +73,11 @@ const sysTypeMapping = {
   2: 'Linux',
 };
 
+// Windows系统版本
+const windowsTypeMapping = {
+  1: '2003',
+  2: '2008及以上'
+};
 // 使用类别
 const useTypeMapping = {
   1: 'oracle',
@@ -149,6 +154,7 @@ export {
   databaseStateMapping,
   hostTypeMapping,
   sysTypeMapping,
+  windowsTypeMapping,
   useTypeMapping,
   systemStateMapping,
   databaseTypeMapping,

@@ -1,7 +1,7 @@
 <template>
   <section>
-    <div style="margin-bottom: 15px;">
-      <el-row :gutter="20">
+    <div style="margin-bottom: 22px;">
+      <el-row>
         <el-col :span="6" >
           <el-input v-if="!buttonfalg" placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
@@ -219,16 +219,27 @@ export default {
         this.btnLoading = true;
         createMultipleVirtualBackupPlan(plan)
             .then(res => {
-            const { message } = res.data;
-            this.backupPlanCreateModalVisible = false;
-            this.$message.success(message);
+              const { message } = res.data;
+              this.backupPlanCreateModalVisible = false;
+              this.$confirm(
+                  '备份计划添加成功，是否跳转到备份计划页面',
+                  '提示',
+                  {
+                      confirmButtonText: '是',
+                      cancelButtonText: '否',
+                      type: 'success'
+                  }
+              ).then( () => {
+                  this.$router.push({name: 'backup'});
+              }).catch( action => {
+              });
             })
             .catch(error => {
-            this.$message.error(error);
-            return false;
+              this.$message.error(error);
+              return false;
             })
             .then(() => {
-            this.btnLoading = false;
+              this.btnLoading = false;
             });
     },
   }

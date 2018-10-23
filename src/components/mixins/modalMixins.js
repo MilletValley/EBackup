@@ -53,6 +53,7 @@ const genModalMixin = type => {
         password: '',
         hostType: 1,
         databaseType: 1,
+        windowsType: 2,
         oracleVersion: '',
         storagePath: '',
         sharingPath: '',

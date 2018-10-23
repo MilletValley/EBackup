@@ -9,7 +9,7 @@
       </span>
       <el-form :model="formData"
                :rules="rules"
-               label-width="110px"
+               label-width="130px"
                ref="createForm"
                size="small">
         <el-form-item label="设备名"
@@ -78,6 +78,12 @@
                     :label="5">mysql</el-radio> -->
           <el-radio v-model="formData.databaseType"
                     :label="4">虚拟机</el-radio>
+        </el-form-item>
+        <el-form-item label="Windows系统版本"
+                      v-if="formData.osName === 'Windows' && formData.databaseType === 2"
+                      prop="windowsType">
+          <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
+          <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
         <el-form-item label="oracle版本"
                       prop="oracleVersion"

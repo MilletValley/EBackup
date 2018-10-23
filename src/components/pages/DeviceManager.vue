@@ -60,6 +60,7 @@
                        align="center"></el-table-column>
       <el-table-column prop="osName"
                        label="操作系统"
+                       :formatter="judgeOsName"
                        :filters="osNameFilters"
                        column-key="filterOsName"
                        min-width="120"
@@ -117,7 +118,7 @@ import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
-import { hostTypeMapping, databaseTypeMapping } from '../../utils/constant';
+import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
@@ -153,24 +154,46 @@ export default {
       return this.$store.getters.selectedHost(this.selectedId);
     },
   },
-  created() {
-    if (sessionStorage.getItem("store") ) {
-        this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
+  watch: {
+    hostsInVuex(data){
+      this.filterTableItem = this.hostsInVuex;
     }
-    //在页面刷新时将vuex里的信息保存到sessionStorage里
-    window.addEventListener("beforeunload",()=>{
-        sessionStorage.setItem("store",JSON.stringify(this.$store.state))
-    })
+  },
+  created() {
+    // if (sessionStorage.getItem("store") ) {
+    //     this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
+    // }
+    // //在页面刷新时将vuex里的信息保存到sessionStorage里
+    // window.addEventListener("beforeunload",()=>{
+    //     sessionStorage.setItem("store",JSON.stringify(this.$store.state))
+    // })
     this.filterTableItem = this.hostsInVuex
+    this.fetchHosts()
   },
   methods: {
     judgeHost(data) {
       return hostTypeMapping[data.hostType];
     },
+    judgeOsName(data){
+      let str = data.osName;
+      if(data.osName === 'Windows' && data.databaseType === 2 && windowsTypeMapping[data.windowsType]){
+        str += (' ' + windowsTypeMapping[data.windowsType]);
+      }
+      return str;
+    },
     judgeDatabase(data) {
       return databaseTypeMapping[data.databaseType];
     },
     fetchData() {},
+    fetchHosts(){
+      // 判断是刷新还是页面正常跳转
+      if(this.$route.meta.isRefresh){
+        return
+      }
+      this.fetchAll().catch( error => {
+        this.$message.error( error);
+      });
+    },
     filterChange(filters) {
       this.filterTableItem = this.hostsInVuex;
       if(Object.keys(filters)[0] === 'filterHostType') {
@@ -239,11 +262,23 @@ export default {
       update: 'updateHost',
       delete: 'deleteHost',
       create: 'createHost',
+      fetchAll: 'fetchHost'
     }),
   },
   components: {
     HostCreateModal,
     HostUpdateModal,
+  },
+  beforeRouteEnter (to, from, next) {
+      // 在渲染该组件的对应路由被 confirm 前调用
+      // 不！能！获取组件实例 `this`
+      // 因为当守卫执行前，组件实例还没被创建
+      if(from.path === '/'){
+        to.meta.isRefresh = true;
+      }else{
+        to.meta.isRefresh = false;
+      }
+      next();
   },
 };
 </script>

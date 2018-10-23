@@ -1,18 +1,22 @@
 <template>
   <section>
     <el-row>
-      <el-form inline>
-        <el-form-item style="float: left" class="input-with-select">
-          <el-input placeholder="请输入名称"
-                    v-model="inputSearch"
-                    @keyup.enter.native="searchByName">
-            <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
-          </el-input>          
-        </el-form-item>
-        <el-form-item style="float: right;">
-          <el-button type="primary"
-                    @click="createModalVisible = true">添加</el-button>
-        </el-form-item>
+      <el-form >
+        <el-col :span="6">
+          <el-form-item>
+            <el-input placeholder="请输入名称"
+                      v-model="inputSearch"
+                      @keyup.enter.native="searchByName">
+              <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+            </el-input>          
+          </el-form-item>
+        </el-col>
+        <el-col :span="18" style="text-align:right">
+          <el-form-item>
+            <el-button type="primary"
+                      @click="createModalVisible = true">添加</el-button>
+          </el-form-item>
+        </el-col>
       </el-form>
     </el-row>
     <el-table :data="items|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
