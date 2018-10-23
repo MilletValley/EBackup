@@ -1,6 +1,6 @@
 import { linkStateMapping, databaseStateMapping } from '../../utils/constant';
 
-const hostState = {
+const DashboardTab = {
   data() {
     return {
       filterState: [
@@ -115,4 +115,4 @@ const hostState = {
     },
   }
 };
-export default hostState;
+export default DashboardTab;
