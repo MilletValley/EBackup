@@ -100,7 +100,7 @@
         <ul>
           <li>
             <h5>当前状态</h5>
-            <div>
+            <div v-if="!isFileBackupResult">
               <el-tooltip :disabled="!isFileBackupResult || backupOperation.state !== 1"
                           :content="backupOperation.process"
                           placement="left"
@@ -119,6 +119,16 @@
                 </div>
               </el-tooltip>
             </div>
+            <div v-else>
+              <div>
+                <span v-if="type === 'windows'" :class="operationStateStyle">{{diskInfo || '-'}}</span>
+              </div>
+              <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
+              <el-progress style="margin-right:20px" :percentage="progressNum" :status="progressStatus" :text-inside="true" :stroke-width="17">
+              </el-progress>
+            </div>
+            
+            
           </li>
           <li>
             <h5>备份开始时间</h5>
@@ -126,7 +136,8 @@
           </li>
           <li>
             <h5>已持续时间</h5>
-            <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div>
+            <!-- <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div> -->
+            <div v-if="intervalTime">{{intervalTime | durationFilter}}</div>
             <div v-else>-</div>
           </li>
           <li v-if="!isFileBackupResult">
@@ -170,9 +181,19 @@ export default {
       required: true,
     },
   },
+  data(){
+    return {
+      progressNum: 0,
+      disk:'D:',
+      intervalTime: 0,
+      intervalObj: null
+    }
+  },
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
+      this.formatProcess(operation);
+      this.setInter(operation);
       return operation;
     },
     backupConfig() {
@@ -207,6 +228,29 @@ export default {
         return this.$style.errorColor;
       } else return '';
     },
+    progressStatus(){
+      if(this.backupOperation.state === 2){
+        return 'success';
+      }else if(this.backupOperation.state === 3){
+        return 'exception';
+      }else return '';
+    },
+    diskInfo(){
+      let str = '';
+      if(this.type === 'windows'){
+       if(this.backupOperation.backupSystem === 'nosys'){
+        //  str = '正在备份卷(D:)';
+         str = `正在备份卷(${this.disk})`;
+       }else if(this.backupOperation.backupSystem === 'sys'){
+         if(this.disk === 'C:'){
+           str = `正在备份卷(C:),卷(${this.disk})待备份`;
+         }else{
+           str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
+         }
+       }
+      }
+      return str;
+    }
   },
   methods: {
     planDeleteBtnClick() {
@@ -226,7 +270,59 @@ export default {
     refreshBtnClick() {
       this.$emit('refresh', this.id);
     },
+    setInter(data){
+      const {state, consume} = data;
+      if(consume){
+        this.intervalTime = consume;
+        if(state === 1){
+          clearInterval(this.intervalObj);
+          this.intervalObj = setInterval(() => {
+            this.intervalTime = this.intervalTime + 1;
+          },1000);
+        }else{
+          clearInterval(this.intervalObj);
+        }
+      }
+    },
+    formatIcon(data){
+      if (data === 0) {
+        return this.$style.waitingColor + ' el-icon-time';
+      } else if (data === 1) {
+        return this.$style.loadingColor + ' el-icon-loading';
+      } else if(data === 3) {
+        return this.$style.errorColor + ' el-icon-warning';
+      } else if(data === 2){
+        return this.$style.successColor + ' el-icon-success';
+      }else return '';
+    },
+    formatProcess(oper){
+      const {process: data, size} = oper;
+      if(this.type === 'windows'){
+        if(!data){
+          return;
+        }
+        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
+        const result = data.match(reg);
+        this.disk = result[1];
+        if(result[2]){
+          const num = Number(result[2].substring(0,result[2].length - 1));
+          this.progressNum = num || num === 0 ? num : 0;
+        }
+      }else{
+        if(data && size){
+          if(Number(size)){
+            let num = (Number(data) / Number(size)).toFixed(2) * 100;
+            this.progressNum = num || num === 0 ? num : 0;
+          }
+          // const num = Number(data.substring(0, data.length - 1));
+          // this.progressNum = num && num === 0 ? num : 0;
+        }
+      }
+    }
   },
+  destroyed(){
+    clearInterval(this.intervalObj);
+  }
 };
 </script>
 <style lang="scss" module>
@@ -253,7 +349,7 @@ export default {
     text-align: right;
   }
   div {
-    margin-left: 5px;
+    // margin-left: 5px;
     text-align: right;
   }
   ul {
