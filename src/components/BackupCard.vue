@@ -238,16 +238,16 @@ export default {
     diskInfo(){
       let str = '';
       if(this.type === 'windows'){
-       if(this.backupOperation.backupSystem === 'nosys'){
-         str = '正在备份卷(D:)';
-       }else if(this.backupOperation.backupSystem === 'sys'){
-         console.log(this.disk)
-         if(this.disk === 'C:'){
-           str = '正在备份卷(C:),卷(D:)待备份';
-         }else{
-           str = '卷(C:)已备份完成,正在备份卷(D:)';
-         }
-       }
+        if(this.backupOperation.backupSystem === 'nosys'){
+          //  str = '正在备份卷(D:)';
+          str = `正在备份卷(${this.disk})`;
+        }else if(this.backupOperation.backupSystem === 'sys'){
+          if(this.disk === 'C:'){
+            str = `正在备份卷(C:),卷(${this.disk})待备份`;
+          }else{
+            str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
+          }
+        }
       }
       return str;
     }
@@ -278,7 +278,6 @@ export default {
           clearInterval(this.intervalObj);
           this.intervalObj = setInterval(() => {
             this.intervalTime = this.intervalTime + 1;
-            console.log(this.intervalTime)
           },1000);
         }else{
           clearInterval(this.intervalObj);
