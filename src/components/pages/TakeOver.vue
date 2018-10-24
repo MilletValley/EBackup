@@ -268,7 +268,7 @@
                               name="simpleSwitch"
                               @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                     </el-popover>
-                    <span v-if="databaseType==='oracle'">
+                    <!-- <span v-if="databaseType==='oracle'">
                       <i-icon name="notSimpleSwitchDb"
                               :class="$style.simpleSwitchDb"
                               v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
@@ -281,7 +281,7 @@
                                 :class="$style.simpleSwitchDb"
                                 @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
                       </el-tooltip>
-                    </span>
+                    </span> -->
                   </div>
                   <div>
                     <el-row>
@@ -425,7 +425,11 @@
                     </span>
                   </div>
                   <div v-else>
-                    <div v-if="databaseType==='oracle'">
+                    <el-button type="text"
+                               @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
+                    <el-button type="text"
+                               @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                    <!-- <div v-if="databaseType==='oracle'">
                       <div>
                         <el-button type="text"
                                 @click="failOver(dbLink)"
@@ -444,7 +448,7 @@
                                 @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                       <el-button type="text"
                                 @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </el-col>
