@@ -144,6 +144,10 @@
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
+          <li v-if="isFileBackupResult && type === 'linux'">
+            <h5>已备份大小</h5>
+            <div>{{backupSize || '-'}}</div>
+          </li>
         </ul>
       </el-col>
     </el-row>
@@ -250,6 +254,29 @@ export default {
         }
       }
       return str;
+    },
+    backupSize(){
+      let {process} = this.backupOperation;
+      let fmtSize = 0;
+      if(this.type === 'linux'){
+        process = Number(process);
+        if(!process){
+          return;
+        }
+        if(process < 1024){
+          fmtSize = process + 'K';
+        }else{
+          let res = process / 1024 / 1024;
+          if(res < 1){
+            fmtSize = parseInt( res * 1024) + 'M';
+          }else if(res > 1024){
+            fmtSize = parseInt(res / 1024) + 'T';
+          }else{
+            fmtSize = parseInt(res) + 'G';
+          }
+        }
+      }
+      return fmtSize;
     }
   },
   methods: {
@@ -311,7 +338,10 @@ export default {
       }else{
         if(data && size){
           if(Number(size)){
+            // 取百分比
             let num = (Number(data) / Number(size)).toFixed(2) * 100;
+            // 分20个阶段
+            num = parseInt(parseInt(num) / 5) * 5;
             this.progressNum = num || num === 0 ? num : 0;
           }
           // const num = Number(data.substring(0, data.length - 1));

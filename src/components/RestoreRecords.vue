@@ -32,7 +32,7 @@
                           :open-delay="300">
                 
                 <span v-if="isFile || isVMware" >{{ item.config.hostIp }}</span>
-                <span v-else>{{ item.config.database.host.hostIp }}</span>
+                <span v-else>{{ item.config.database ? item.config.database.host.hostIp : '' }}</span>
               </el-tooltip>
             </p>
 
@@ -44,7 +44,7 @@
                           :open-delay="300">
                 <span v-if="isVMware">{{item.config.newName }}</span>
                 <span v-else-if="isFile">{{ item.config.detailInfo }}</span>
-                <span v-else>{{item.config.database.instanceName }}</span>
+                <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
               </el-tooltip>
             </p>
 
