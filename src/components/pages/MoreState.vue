@@ -404,13 +404,13 @@
   </section>
 </template>
 <script>
-import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../api/home';
-import { backupStrategyMapping } from '../utils/constant';
-import hostState from './mixins/hostStateTabMixins';
-import baseMixin from './mixins/baseMixins';
+import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
+import { backupStrategyMapping } from '../../utils/constant';
+import DashboardTab from '../mixins/DashboardTabMixins';
+import baseMixin from '../mixins/baseMixins';
 export default {
   name: 'MoreState',
-  mixins: [baseMixin, hostState],
+  mixins: [baseMixin, DashboardTab],
   data() {
     return {
       databaseBackup: [],

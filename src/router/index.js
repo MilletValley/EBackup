@@ -30,7 +30,7 @@ import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 // import Overview from '@/components/pages/Overview';
 // import BackupRecoverView from '@/components/pages/BackupRecoverView';
 // import TakeOverView from '@/components/pages/TakeOverView';
-import MoreState from '@/components/MoreState';
+import MoreState from '@/components/pages/MoreState';
 // import CollectManager from '@/components/pages/CollectManager';
 import DeviceDetails from '@/components/pages/DeviceDetails';
 import BackupPlanList from '@/components/pages/BackupPlanList';

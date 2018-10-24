@@ -418,7 +418,7 @@
 import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 import { backupStrategyMapping, databaseTypeMapping } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
-import hostState from '../mixins/hostStateTabMixins'
+import DashboardTab from '../mixins/DashboardTabMixins'
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -427,7 +427,7 @@ require('echarts/lib/component/title');
 require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, hostState],
+  mixins: [baseMixin, DashboardTab],
   created() {
     this.fetchData();
   },

@@ -146,7 +146,7 @@ export default {
       switchIpType: [
         { value: 0, label: '--请选择--' },
         { value: 1, label: '切服务/临时/scanIP' },
-        { value: 2, label: '切VIP' },
+        { value: 2, label: 'VIP' },
         { value: 3, label: '单切' },
       ]
     }
