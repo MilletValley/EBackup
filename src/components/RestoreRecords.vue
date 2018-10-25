@@ -20,7 +20,8 @@
                    :class="$style.ongoingRestoreCard">
             <div>
               <span>
-                <i :class="['el-icon-loading', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
+                <!-- <i :class="['el-icon-loading', $style.successColor]"></i> {{ item.consume | durationFilter }}</span> -->
+                <i :class="['el-icon-loading', $style.successColor]"></i> <timer :val="item.consume"></timer> </span>
               <span :class="[$style.restoreStartTime, 'hidden-']">{{item.startTime}}</span>
             </div>
 
@@ -47,7 +48,7 @@
                   <span v-else>{{ item.config.database ? item.config.database.host.hostIp : '' }}</span>
                 </el-tooltip>
               </el-col>
-              <el-col v-if="type === 'linux'" :span="12">
+              <el-col v-if="isFile" :span="12">
                 <el-progress  :percentage="fmtProgress(item)" :text-inside="true" :stroke-width="17">
                 </el-progress>
               </el-col>
@@ -77,14 +78,13 @@
                   <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
                 </el-tooltip>
               </el-col>
-              <el-col :span=12 style="text-align:right" v-if="type === 'linux'">
+              <el-col :span=12 style="text-align:right" v-if="isFile">
                 <i-icon name="size"
                         :class="$style.ongoingRestoreIcon"></i-icon>
                 <el-tooltip content="已恢复大小"
                             placement="right"
                             :open-delay="300">
                   <span>{{ item | sizeFormat(type) }}</span>
-                  <!-- <span>{{ sizeFmt(null,null,item.progress) }}</span> -->
                 </el-tooltip>
               </el-col>
               
@@ -124,7 +124,7 @@
                          align="center"
                          min-width="200px">
         </el-table-column>
-        <el-table-column v-if="type === 'linux'" 
+        <el-table-column v-if="isFile" 
                          prop="backupResult.size"
                          :formatter="sizeFmt"
                          label="大小"
@@ -155,6 +155,7 @@
 </template>
 <script>
 import IIcon from './IIcon';
+import Timer from './Timer';
 import baseMixin from './mixins/baseMixins';
 import { fmtSizeFn } from '../utils/common';
 
@@ -216,7 +217,7 @@ export default {
       }else if(type === 'windows'){
         const process = Number(data.progress.replace(/[^0-9]/ig,""));
         const size = Number(data.size);
-        const restoreSize = size * process;
+        const restoreSize = size * process / 100;
         fmtSize = fmtSizeFn(restoreSize);
       }
       return fmtSize ? fmtSize : '-';
@@ -235,17 +236,18 @@ export default {
         const progress = Number(data.progress);
         const size = Number(data.size);
         process = Math.round((progress / size) * 100);
-        if(process > 100){
-          process = 100;
+        if(process > 99){
+          process = 99;
         }
       }else if(this.type === 'windows'){
         process = Number(data.progress.replace(/[^0-9]/ig,""));
       }
       return process ? process : 0;
-    }
+    },
   },
   components: {
     IIcon,
+    Timer
   },
 };
 </script>

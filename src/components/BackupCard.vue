@@ -137,14 +137,18 @@
           <li>
             <h5>已持续时间</h5>
             <!-- <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div> -->
-            <div v-if="intervalTime">{{intervalTime | durationFilter}}</div>
+            <!-- <div v-if="intervalTime">{{intervalTime | durationFilter}}</div> -->
+            <div v-if="backupOperation.consume">
+              <timer v-if="backupOperation.state === 1" :val="backupOperation.consume"></timer>
+              <span v-else>{{backupOperation.consume | durationFilter}}</span>
+            </div>
             <div v-else>-</div>
           </li>
           <li v-if="!isFileBackupResult">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
-          <li v-if="isFileBackupResult && type === 'linux'">
+          <li v-if="isFileBackupResult">
             <h5>已备份大小</h5>
             <div>{{backupSize || '-'}}</div>
           </li>
@@ -156,6 +160,7 @@
 <script>
 import throttle from 'lodash/throttle';
 import baseMixin from './mixins/baseMixins';
+import Timer from './Timer';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -167,6 +172,9 @@ import { fmtSizeFn } from '../utils/common';
 export default {
   name: 'BackupCard',
   mixins: [baseMixin],
+  components: {
+    Timer
+  },
   props: {
     id: {
       type: Number,
@@ -189,16 +197,13 @@ export default {
   data(){
     return {
       progressNum: 0,
-      disk:'D:',
-      intervalTime: 0,
-      intervalObj: null
+      disk:'D:'
     }
   },
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
       this.formatProcess(operation);
-      this.setInter(operation);
       return operation;
     },
     backupConfig() {
@@ -263,11 +268,14 @@ export default {
       return str;
     },
     backupSize(){
-      let {process} = this.backupOperation;
+      let {process, size} = this.backupOperation;
       let fmtSize = 0;
       if(this.type === 'linux'){
         process = Number(process);
         fmtSize = fmtSizeFn(process);
+      }else if(this.type === 'windows'){
+        fmtSize = this.progressNum * Number(size) / 100;
+        fmtSize = fmtSizeFn(fmtSize);
       }
       return fmtSize ? fmtSize : '-';
     }
@@ -290,20 +298,6 @@ export default {
     refreshBtnClick() {
       this.$emit('refresh', this.id);
     },
-    setInter(data){
-      const {state, consume} = data;
-      if(consume){
-        this.intervalTime = consume;
-        if(state === 1){
-          clearInterval(this.intervalObj);
-          this.intervalObj = setInterval(() => {
-            this.intervalTime = this.intervalTime + 1;
-          },1000);
-        }else{
-          clearInterval(this.intervalObj);
-        }
-      }
-    },
     formatIcon(data){
       if (data === 0) {
         return this.$style.waitingColor + ' el-icon-time';
@@ -316,7 +310,11 @@ export default {
       }else return '';
     },
     formatProcess(oper){
-      const {process: data, size} = oper;
+      const {process: data, size, state} = oper;
+      if(state === 2){
+        this.progressNum = 100;
+        return;
+      }
       if(this.type === 'windows'){
         if(!data){
           return;
@@ -325,7 +323,7 @@ export default {
         const result = data.match(reg);
         this.disk = result[1];
         if(result[2]){
-          const num = Number(result[2].substring(0,result[2].length - 1));
+          let num = Number(result[2].substring(0,result[2].length - 1));
           this.progressNum = num || num === 0 ? num : 0;
         }
       }else if(this.type === 'linux'){
@@ -333,16 +331,13 @@ export default {
           if(Number(size)){
             // 取百分比
             let num = (Number(data) / Number(size)) * 100;
-            // 分20个阶段
-            num = Math.round(num / 5) * 5;
+            // 此处不能作四舍五入
+            num = parseInt(num > 99 ? 99 : num);
             this.progressNum = num || num === 0 ? num : 0;
           }
         }
       }
     }
-  },
-  destroyed(){
-    clearInterval(this.intervalObj);
   }
 };
 </script>
