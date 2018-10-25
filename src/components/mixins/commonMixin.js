@@ -70,9 +70,10 @@ const filterMixin = {
 const webSocketMixin = {
   data() {
     return {
+      wsuri: null,
       websock: null,
       heartCheck: {
-        timeout: 10000, // 1分钟发一次心跳
+        timeout: 60000, // 1分钟发一次心跳
         timeoutObj: null,
         serverTimeoutObj: null,
         errorTimeObj: null,
@@ -106,32 +107,38 @@ const webSocketMixin = {
     initWebsocket() {
       // const wsuri = 'ws://121.40.165.18:8800';
       // const wsuri = process.env.WS_API + '/test';
-      this.websock = new WebSocket('ws://localhost:8095/', 'echo-protocol-aaa');
+      if(typeof WebSocket == 'undefined'){
+        return;
+      }
+      if(!this.wsuri){
+        return;
+      }
+      this.websock = new WebSocket(process.env.WS_API + this.wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onopen = this.websocketonopen;
       // this.websock. = this.websocket;
       this.websock.onerror = this.websocketonerror;
       this.websock.onclose = this.websocketclose;
     },
-    sendMessage() {
-      // 参数
-      const agentData = 'mymessage';
-      // 若是ws开启状态
-      if (this.websock.readyState === this.websock.OPEN) {
-        this.websocketsend(agentData);
-      } else if (this.websock.readyState === this.websock.CONNECTING) { // 若是 正在开启状态，则等待300毫秒
-        const that = this; // 保存当前对象this
-        setTimeout(() => {
-          that.websocketsend(agentData);
-        }, 300);
-      } else { // 若未开启 ，则等待500毫秒
-        this.initWebSocket();
-        const that = this; // 保存当前对象this
-        setTimeout(() => {
-          that.websocketsend(agentData);
-        }, 500);
-      }
-    },
+    // sendMessage() {
+    //   // 参数
+    //   const agentData = 'mymessage';
+    //   // 若是ws开启状态
+    //   if (this.websock.readyState === this.websock.OPEN) {
+    //     this.websocketsend(agentData);
+    //   } else if (this.websock.readyState === this.websock.CONNECTING) { // 若是 正在开启状态，则等待300毫秒
+    //     const that = this; // 保存当前对象this
+    //     setTimeout(() => {
+    //       that.websocketsend(agentData);
+    //     }, 300);
+    //   } else { // 若未开启 ，则等待500毫秒
+    //     this.initWebSocket();
+    //     const that = this; // 保存当前对象this
+    //     setTimeout(() => {
+    //       that.websocketsend(agentData);
+    //     }, 500);
+    //   }
+    // },
     websocketonopen() {
       // console.log('连接成功');
       this.heartCheck.reset();
@@ -150,6 +157,7 @@ const webSocketMixin = {
       console.log('获取数据', e);
       this.heartCheck.reset();
       this.heartCheck.start();
+      this.wsCall(e);
       // const redata = JSON.parse(e.data);
       // console.log(redata);
     },

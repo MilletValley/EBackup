@@ -123,9 +123,11 @@ import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../
 
 export default {
   name: 'DeviceManager',
-  mixins: [listMixin, webSocketMixin],
+  // mixins: [listMixin, webSocketMixin],
+  mixins: [listMixin],
   data() {
     return {
+      wsuri: '/test',
       selectedId: '',
       hostTypeFilters: [
         {text: '生产环境', value: 1},
@@ -140,8 +142,6 @@ export default {
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
         {text: 'Linux', value: 'Linux'},
-        // {text: 'Windows2003', value: 'Windows2003'},
-        // {text: 'Windows2008及以上', value: 'Windows2008及以上'},
       ],
       hostTypeTerm: [],
       databaseTypeTerm: [],
@@ -261,6 +261,9 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
+    },
+    wsCall(e) {
+      console.log('ws回调', e);
     },
     ...mapActions({
       update: 'updateHost',

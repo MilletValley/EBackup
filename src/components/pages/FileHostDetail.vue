@@ -162,7 +162,7 @@ export default {
         fetchBackupOperation(this.selectedBackupPlanId)
           .then(response => {
             const { data } = response.data;
-            const { state, startTime, consume, size } = data;
+            const { state, startTime, consume, size, process } = data;
             Object.assign(
               this.backupPlans.find(
                 plan => plan.id === this.selectedBackupPlanId
@@ -172,6 +172,7 @@ export default {
                 startTime,
                 consume,
                 size,
+                process
               }
             );
           })

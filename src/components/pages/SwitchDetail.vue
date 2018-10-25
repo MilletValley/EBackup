@@ -29,12 +29,10 @@
                 <p v-for="vip in sonNodeVip(link)"
                    :key="vip.id"
                    :class="$style.hostIp">{{ vip }}</p>
-                <div slot="reference"
-                     style="display: inline-block">
-                  <i-icon :class="$style.vipIcon"
-                      name="vip"
-                      v-if="link.vipIpMark && link.vipIpMark === 1 "></i-icon>
-                </div>
+                <i-icon :class="$style.vipIcon"
+                        name="vip"
+                        slot="reference"
+                        v-if="link.vipIpMark && link.vipIpMark === 1 "></i-icon>
               </el-popover>
               <i-icon name="ip"
                       :class="$style.hostIpIcon"></i-icon>
@@ -77,12 +75,10 @@
                 <p v-for="vip in sonNodeVip(link)"
                    :key="vip.id"
                    :class="$style.hostIp">{{ vip }}</p>
-                <div slot="reference"
-                     style="display: inline-block">
-                  <i-icon :class="$style.vipIcon"
-                          name="vip"
-                          v-if="link.vipIpMark && link.vipIpMark === 2 "></i-icon>
-                </div>
+                <i-icon :class="$style.vipIcon"
+                        name="vip"
+                        slot="reference"
+                        v-if="link.vipIpMark && link.vipIpMark === 2 "></i-icon>
               </el-popover>
               <i-icon name="ip"
                       :class="$style.hostIpIcon"></i-icon>

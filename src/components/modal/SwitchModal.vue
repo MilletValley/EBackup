@@ -208,7 +208,7 @@
             <div v-if="databaseLinksReadyToSwitch.length > 0"
                  v-for="link in databaseLinksReadyToSwitch"
                  :key="link.id">
-              <p>
+              <p v-if="!isSimpleSwitch">
                 <span :class="$style.switchModalName">{{ link.primaryDatabase.name }}</span>
                 <span :class="$style.switchModalDetail">{{ link.primaryDatabase.instanceName}}</span>
                 <el-tag size="mini">角色变更</el-tag>
@@ -289,6 +289,9 @@ export default {
     btnLoading: {
       type: Boolean,
     },
+    isSimpleSwitch: {
+      type: Boolean
+    }
   },
   data() {
     return {

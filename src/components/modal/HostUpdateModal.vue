@@ -170,7 +170,6 @@ export default {
       });
     },
     modalOpened() {
-      console.log(this.itemInfo)
       this.originFormData = { ...this.itemInfo };
       this.formData = { ...this.itemInfo };
     },

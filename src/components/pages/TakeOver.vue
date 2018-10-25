@@ -51,408 +51,455 @@
 
         </el-col>
       </el-row>
-      <div :class="$style.hostLinkContainer"
-           v-for="hostLink in links"
+      <div v-for="hostLink in links"
            :key="hostLink.id">
-        <el-row type="flex"
-                justify="space-around">
-          <el-col :span="10">
-            <div :class="$style.hostInfo">
-              <el-popover placement="right"
-                          trigger="hover"
-                          width="300"
-                          :disabled="!hostLink.vipIpMark"
-                          :open-delay="200">
-                <h4 style="margin: 5px 0; padding: 3px 0;">非主节点</h4>
-                <p v-if="!(hostLink.primaryNodes && hostLink.primaryNodes.length)">暂无子节点</p>
-                <div v-else>
-                  <p v-for="primaryNode in hostLink.primaryNodes"
-                     :key="primaryNode.id">
-                     <el-row>
-                       <el-col :span="12">{{ primaryNode.name }}</el-col>
-                       <el-col :span="12"
-                               :class="$style.hostIp">{{ primaryNode.hostIp }}</el-col>
-                     </el-row>
-                  </p>
+        <div :class="$style.hostLinkContainer">
+          <fieldset :class="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
+            <legend v-if="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
+            <el-row type="flex"
+                    justify="space-around">
+              <el-col :span="10">
+                <div :class="$style.hostInfo">
+                  <el-popover placement="right"
+                              trigger="hover"
+                              width="300"
+                              :disabled="!hostLink.vipIpMark"
+                              :open-delay="200">
+                    <h4 style="margin: 5px 0; padding: 3px 0;">非主节点</h4>
+                    <p v-if="!(hostLink.primaryNodes && hostLink.primaryNodes.length)">暂无子节点</p>
+                    <div v-else>
+                      <p v-for="primaryNode in hostLink.primaryNodes"
+                        :key="primaryNode.id">
+                        <el-row>
+                          <el-col :span="12">{{ primaryNode.name }}</el-col>
+                          <el-col :span="12"
+                                  :class="$style.hostIp">{{ primaryNode.hostIp }}</el-col>
+                        </el-row>
+                      </p>
+                    </div>
+                    <div slot="reference" style="display: inline-block">
+                      <i-icon name="host-production"
+                              :class="$style.hostIcon"></i-icon>
+                      <span>{{ hostLink.primaryHost.name }}</span>
+                    </div>
+                  </el-popover>
+                  <div>
+                    <el-row>
+                      <el-col :span="8"
+                              style="min-height: 1px;">
+                        <el-popover placement="right"
+                                    trigger="hover"
+                                    width="150"
+                                    :open-delay="200">
+                          <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
+                          <p v-if="!sonNodeVip(hostLink).length">暂无</p>
+                          <div v-else>
+                            <p v-for="vip in sonNodeVip(hostLink)"
+                              :key="vip.id"
+                              :class="$style.hostIp">{{ vip }}</p>
+                          </div>
+                          <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
+                               style="display: inline-block"
+                               slot="reference">
+                            <i-icon :class="$style.ipIcon"
+                                    name="vip"></i-icon>
+                            <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
+                          </div>
+                        </el-popover>
+                      </el-col>
+                      <el-col :span="8">
+                        <i-icon name="ip"
+                                :class="$style.ipIcon"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
+                      </el-col>
+                      <el-col :span="8"
+                              v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'">
+                        <i-icon :class="$style.ipIcon"
+                                name="service"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
+                      </el-col>
+                    </el-row>
+                  </div>
                 </div>
-                <div slot="reference" style="display: inline-block">
-                  <i-icon name="host-production"
-                          :class="$style.hostIcon"></i-icon>
-                  <span>{{ hostLink.primaryHost.name }}</span>
-                </div>
-              </el-popover>
-              <div>
-                <el-row>
-                  <el-col :span="8"
-                          style="min-height: 1px;">
+              </el-col>
+              <el-col :span="4">
+                <div :class="$style.hostSwitch">
+                  <div>
                     <el-popover placement="right"
                                 trigger="hover"
-                                width="150"
+                                width="300"
                                 :open-delay="200">
-                      <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
-                      <p v-if="!sonNodeVip(hostLink).length">暂无</p>
-                      <div v-else>
-                        <p v-for="vip in sonNodeVip(hostLink)"
-                           :key="vip.id"
-                           :class="$style.hostIp">{{ vip }}</p>
-                      </div>
-                      <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
-                           slot="reference">
-                        <i-icon :class="$style.ipIcon"
-                                name="vip"></i-icon>
-                        <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
-                      </div>
+                      <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
+                      <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
+                      <el-form v-else-if="hostLink.latestSwitch.type === 2"
+                              size="mini"
+                              label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换内容">
+                          <span>{{ hostLink.latestSwitch.content }}</span>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换方式">
+                          <span>{{ hostLink.latestSwitch.manual | switchManualFilter }}</span>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="hostLink.latestSwitch.state === 2 ? 'success' : 'danger' "
+                                  size="mini">
+                            {{ hostLink.latestSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      v-if="hostLink.latestSwitch.state !== 1"
+                                      label="完成时间">
+                          <span>{{ hostLink.latestSwitch.switchTime }}</span>
+                        </el-form-item>
+                      </el-form>
+                      <el-form v-else-if="hostLink.latestSwitch.type === 3"
+                              size="mini"
+                              label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="解除信息">
+                          <span>{{ hostLink.latestSwitch.content }}</span>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="switchStateStyle(hostLink.latestSwitch.state)"
+                                  size="mini">
+                            {{ hostLink.latestSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                      </el-form>
+                      <i-icon name="link"
+                              :class="$style.hostSwitchIcon"
+                              slot="reference"></i-icon>
                     </el-popover>
-                  </el-col>
-                  <el-col :span="8">
-                    <i-icon name="ip"
-                            :class="$style.ipIcon"></i-icon>
-                    <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
-                  </el-col>
-                  <el-col :span="8"
-                          v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'">
-                    <i-icon :class="$style.ipIcon"
-                            name="service"></i-icon>
-                    <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
-                  </el-col>
-                </el-row>
-              </div>
-            </div>
-          </el-col>
-          <el-col :span="4">
-            <div :class="$style.hostSwitch">
-              <div>
-                <el-popover placement="right"
-                            trigger="hover"
-                            width="300"
-                            :open-delay="200">
-                  <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                  <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
-                  <el-form v-else-if="hostLink.latestSwitch.type === 2"
-                           size="mini"
-                           label-width="70px">
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="切换内容">
-                      <span>{{ hostLink.latestSwitch.content }}</span>
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="切换方式">
-                      <span>{{ hostLink.latestSwitch.manual | switchManualFilter }}</span>
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="状态">
-                      <el-tag :type="hostLink.latestSwitch.state === 2 ? 'success' : 'danger' "
-                              size="mini">
-                        {{ hostLink.latestSwitch.state | switchStateFilter }}
-                      </el-tag>
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  v-if="hostLink.latestSwitch.state !== 1"
-                                  label="完成时间">
-                      <span>{{ hostLink.latestSwitch.switchTime }}</span>
-                    </el-form-item>
-                  </el-form>
-                  <el-form v-else-if="hostLink.latestSwitch.type === 3"
-                           size="mini"
-                           label-width="70px">
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="解除信息">
-                      <span>{{ hostLink.latestSwitch.content }}</span>
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="状态">
-                      <el-tag :type="switchStateStyle(hostLink.latestSwitch.state)"
-                              size="mini">
-                        {{ hostLink.latestSwitch.state | switchStateFilter }}
-                      </el-tag>
-                    </el-form-item>
-                  </el-form>
-                  <i-icon name="link"
-                          :class="$style.hostSwitchIcon"
-                          slot="reference"></i-icon>
-                </el-popover>
-              </div>
-              <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
-                   style="margin-top: 12px;">
-                <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
-              </div>
-              <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
-                   style="margin-top: 12px;">
-                <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
-              </div>
-              <template v-else>
-                <div style="margin: -3px 0 -6px;">
-                  <el-button type="text"
-                             :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
-                             @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
-                  <el-button type="text"
-                             @click="switchHostIp(hostLink)">切IP</el-button>
-                  <el-button type="text"
-                             :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                             @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
-                </div>
-                <div v-show="!enterFromMenu">
-                  <el-button type="text"
-                             @click="removeHostLink(hostLink)"
-                             :class="$style.removeHostLink">解除连接</el-button>
-                </div>
-              </template>
+                  </div>
+                  <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
+                      style="margin-top: 12px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
+                  </div>
+                  <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
+                      style="margin-top: 12px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
+                  </div>
+                  <template v-else>
+                    <div style="margin: -3px 0 -6px;">
+                      <el-button type="text"
+                                :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
+                                @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
+                      <el-button type="text"
+                                @click="switchHostIp(hostLink)">切IP</el-button>
+                      <el-button type="text"
+                                :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                                @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                    </div>
+                    <div v-show="!enterFromMenu">
+                      <el-button type="text"
+                                @click="removeHostLink(hostLink)"
+                                :class="$style.removeHostLink">解除连接</el-button>
+                    </div>
+                  </template>
 
-            </div>
-          </el-col>
-          <el-col :span="10">
-            <div :class="$style.hostInfo">
-              <div>
-                <i-icon name="host-ebackup"
-                        :class="$style.hostIcon"></i-icon>
-                <span>{{ hostLink.viceHost.name }}</span>
-                <el-tooltip v-if="simpleSwitchGoing(hostLink)"
-                            content="易备设备切换IP中"
-                            effect="light"
-                            placement="right"
-                            :open-delay="200">
-                  <i class="el-icon-loading"
-                     :class="$style.simpleSwitchGoing"></i>
-                </el-tooltip>
-                <el-popover placement="right"
-                            trigger="hover"
-                            width="300"
-                            v-else
-                            :open-delay="200">
-                  <el-form size="mini"
-                           label-size="70px">
-                    <el-form-item :class="$style.switchFormItem"
-                                  v-if="osIsWindows(hostLink.viceHost.osName)"
-                                  label="易备IP">
-                      {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  v-else
-                                  label="服务IP">
-                      {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
-                      {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
-                    </el-form-item>
-                  </el-form>
-                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                  <p v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">暂无操作</p>
-                  <el-form v-else
+                </div>
+              </el-col>
+              <el-col :span="10">
+                <div :class="$style.hostInfo">
+                  <div>
+                    <i-icon name="host-ebackup"
+                            :class="$style.hostIcon"></i-icon>
+                    <span>{{ hostLink.viceHost.name }}</span>
+                    <el-tooltip v-if="simpleSwitchGoing(hostLink)"
+                                content="易备设备切换IP中"
+                                effect="light"
+                                placement="right"
+                                :open-delay="200">
+                      <i class="el-icon-loading"
+                        :class="$style.simpleSwitchGoing"></i>
+                    </el-tooltip>
+                    <el-popover placement="right"
+                                trigger="hover"
+                                width="300"
+                                v-else
+                                :open-delay="200">
+                      <el-form size="mini"
+                              label-size="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      v-if="osIsWindows(hostLink.viceHost.osName)"
+                                      label="易备IP">
+                          {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      v-else
+                                      label="服务IP">
+                          {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
+                          {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
+                        </el-form-item>
+                      </el-form>
+                      <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+                      <p v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">暂无操作</p>
+                      <el-form v-else
+                                size="mini"
+                                label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                          {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
+                                  size="mini">
+                            {{ hostLink.simpleSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换信息">
+                          {{ hostLink.simpleSwitch.message }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="完成时间">
+                          {{ hostLink.simpleSwitch.switchTime }}
+                        </el-form-item>
+                      </el-form>
+                      <i-icon :class="$style.simpleSwitch"
+                              slot="reference"
+                              name="simpleSwitch"
+                              @click.native="simpleSwitchIp(hostLink)"></i-icon>  
+                    </el-popover>
+                    <!-- <span v-if="databaseType==='oracle'">
+                      <i-icon name="notSimpleSwitchDb"
+                              :class="$style.simpleSwitchDb"
+                              v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
+                      <el-tooltip v-else
+                                  content="易备实例单切"
+                                  effect="light"
+                                  placement="right"
+                                  :open-delay="200">
+                        <i-icon name="simpleSwitchDb"
+                                :class="$style.simpleSwitchDb"
+                                @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
+                      </el-tooltip>
+                    </span> -->
+                  </div>
+                  <div>
+                    <el-row>
+                      <el-col :span="8"
+                              style="min-height: 1px;">
+                        <el-popover placement="right"
+                                    trigger="hover"
+                                    width="150"
+                                    :open-delay="200">
+                          <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
+                          <p v-if="!sonNodeVip(hostLink).length">暂无</p>
+                          <div v-else>
+                            <p v-for="vip in sonNodeVip(hostLink)"
+                              :key="vip.id"
+                              :class="$style.hostIp">{{ vip }}</p>
+                          </div>
+                          <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2"
+                               style="display: inline-block"
+                              slot="reference">
+                            <i-icon :class="$style.ipIcon"
+                                    name="vip"></i-icon>
+                            <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
+                          </div>
+                        </el-popover>
+                      </el-col>
+                      <el-col :span="8">
+                        <i-icon name="ip"
+                                :class="$style.ipIcon"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
+                      </el-col>
+                      <el-col :span="8"
+                              v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'">
+                        <i-icon :class="$style.ipIcon"
+                                name="service"></i-icon>
+                        <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
+              </el-col>
+            </el-row>
+            <!-- 数据库连接的排列 -->
+            <el-row v-for="dbLink in hostLink.databaseLinks"
+                    :key="dbLink.id">
+              <el-col :span="10">
+                <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
+                  <el-row type="flex"
+                          align="middle">
+                    <el-col :span="8">
+                      <h4>
+                        <router-link :class="dbLink.primaryDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                                    :to="`/db/${databaseType}/${dbLink.primaryDatabase.id}`">
+                          {{dbLink.primaryDatabase.name}}
+                        </router-link>
+                      </h4>
+                    </el-col>
+                    <el-col :span="5"
+                            :class="$style.dbInfoCol">
+                      <h5>{{instanceName}}</h5>
+                      <p>{{ dbLink.primaryDatabase.instanceName }}</p>
+                    </el-col>
+                    <el-col :span="5"
+                            :class="$style.dbInfoCol">
+                      <h5>登录名</h5>
+                      <p>{{ dbLink.primaryDatabase.loginName }}</p>
+                    </el-col>
+                    <el-col :span="3"
+                            :class="$style.dbInfoCol">
+                      <h5>状态</h5>
+                      <p>
+                        <el-tag :type="databaseStateStyle(dbLink.primaryDatabase.state)"
+                                size="mini">{{ dbLink.primaryDatabase.state | databaseStateFilter }}</el-tag>
+                      </p>
+                    </el-col>
+                    <el-col :span="3">
+                      <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
+                        <span style="font-size: 3vw;">{{ dbLink.primaryDatabase.role | databaseRoleFilter}}</span>
+                      </div>
+                    </el-col>
+                  </el-row>
+
+                </div>
+              </el-col>
+              <el-col :span="4">
+                <div :class="$style.databaseSwitch">
+                  <el-popover placement="right"
+                              trigger="hover"
+                              width="300"
+                              :open-delay="200">
+                    <el-form size="mini"
+                            label-width="70px">
+                      <el-form-item :class="$style.switchFormItem"
+                                    label="连接状态">
+                        <el-tag :type="databaseLinkStateStyle(dbLink.state)"
+                                size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
+                      </el-form-item>
+                      <el-form-item :class="$style.switchFormItem"
+                                    label="信息">
+                        <span>{{ dbLink.errMsg }}</span>
+                      </el-form-item>
+                    </el-form>
+                    <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+                    <p v-if="!dbLink.latestSwitch">暂无操作</p>
+                    <el-form v-else
                             size="mini"
                             label-width="70px">
-                    <el-form-item :class="$style.switchFormItem"
-                                  :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
-                      {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="状态">
-                      <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
-                              size="mini">
-                        {{ hostLink.simpleSwitch.state | switchStateFilter }}
-                      </el-tag>
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="切换信息">
-                      {{ hostLink.simpleSwitch.message }}
-                    </el-form-item>
-                    <el-form-item :class="$style.switchFormItem"
-                                  label="完成时间">
-                      {{ hostLink.simpleSwitch.switchTime }}
-                    </el-form-item>
-                  </el-form>
-                  <i-icon :class="$style.simpleSwitch"
-                          slot="reference"
-                          name="simpleSwitch"
-                          @click.native="simpleSwitchIp(hostLink)"></i-icon>  
-                </el-popover>
-              </div>
-              <div>
-                <el-row>
-                  <el-col :span="8"
-                          style="min-height: 1px;">
-                    <el-popover placement="right"
-                                trigger="hover"
-                                width="150"
-                                :open-delay="200">
-                      <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
-                      <p v-if="!sonNodeVip(hostLink).length">暂无</p>
-                      <div v-else>
-                        <p v-for="vip in sonNodeVip(hostLink)"
-                           :key="vip.id"
-                           :class="$style.hostIp">{{ vip }}</p>
-                      </div>
-                      <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2"
-                           slot="reference">
-                        <i-icon :class="$style.ipIcon"
-                                name="vip"></i-icon>
-                        <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
-                      </div>
-                    </el-popover>
-                  </el-col>
-                  <el-col :span="8">
-                    <i-icon name="ip"
-                            :class="$style.ipIcon"></i-icon>
-                    <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
-                  </el-col>
-                  <el-col :span="8"
-                          v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'">
-                    <i-icon :class="$style.ipIcon"
-                            name="service"></i-icon>
-                    <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
-                  </el-col>
-                </el-row>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
-        <!-- 数据库连接的排列 -->
-        <el-row v-for="dbLink in hostLink.databaseLinks"
-                :key="dbLink.id">
-          <el-col :span="10">
-            <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
-              <el-row type="flex"
-                      align="middle">
-                <el-col :span="8">
-                  <h4>
-                    <router-link :class="dbLink.primaryDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                                 :to="`/db/${databaseType}/${dbLink.primaryDatabase.id}`">
-                      {{dbLink.primaryDatabase.name}}
-                    </router-link>
-                  </h4>
-                </el-col>
-                <el-col :span="5"
-                        :class="$style.dbInfoCol">
-                  <h5>{{instanceName}}</h5>
-                  <p>{{ dbLink.primaryDatabase.instanceName }}</p>
-                </el-col>
-                <el-col :span="5"
-                        :class="$style.dbInfoCol">
-                  <h5>登录名</h5>
-                  <p>{{ dbLink.primaryDatabase.loginName }}</p>
-                </el-col>
-                <el-col :span="3"
-                        :class="$style.dbInfoCol">
-                  <h5>状态</h5>
-                  <p>
-                    <el-tag :type="databaseStateStyle(dbLink.primaryDatabase.state)"
-                            size="mini">{{ dbLink.primaryDatabase.state | databaseStateFilter }}</el-tag>
-                  </p>
-                </el-col>
-                <el-col :span="3">
-                  <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
-                    <span style="font-size: 3vw;">{{ dbLink.primaryDatabase.role | databaseRoleFilter}}</span>
+                      <el-form-item :class="$style.switchFormItem"
+                                    label="切换内容">
+                        <span>{{ dbLink.latestSwitch.content }}</span>
+                      </el-form-item>
+                      <el-form-item :class="$style.switchFormItem"
+                                    label="切换方式">
+                        <span>{{ dbLink.latestSwitch.manual | switchManualFilter }}</span>
+                      </el-form-item>
+                      <el-form-item :class="$style.switchFormItem"
+                                    label="状态">
+                        <el-tag size="mini"
+                                :type="switchStateStyle(dbLink.latestSwitch.state)">
+                          {{ dbLink.latestSwitch.state | switchStateFilter }}
+                        </el-tag>
+                      </el-form-item>
+                      <el-form-item :class="$style.switchFormItem"
+                                    v-if="dbLink.latestSwitch.state !== 1"
+                                    label="完成时间">
+                        <span>{{ dbLink.latestSwitch.switchTime }}</span>
+                      </el-form-item>
+                    </el-form>
+                    <i-icon :name="`switch-${dbLink.state}`"
+                            :class="$style.switchIcon"
+                            slot="reference"></i-icon>
+                  </el-popover>
+                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
+                      style="margin-top: 6px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
-                </el-col>
-              </el-row>
-
-            </div>
-          </el-col>
-          <el-col :span="4">
-            <div :class="$style.databaseSwitch">
-              <el-popover placement="right"
-                          trigger="hover"
-                          width="300"
-                          :open-delay="200">
-                <el-form size="mini"
-                         label-width="70px">
-                  <el-form-item :class="$style.switchFormItem"
-                                label="连接状态">
-                    <el-tag :type="databaseLinkStateStyle(dbLink.state)"
-                            size="mini">{{ dbLink.state | linkStateFilter }}</el-tag>
-                  </el-form-item>
-                  <el-form-item :class="$style.switchFormItem"
-                                label="信息">
-                    <span>{{ dbLink.errMsg }}</span>
-                  </el-form-item>
-                </el-form>
-                <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                <p v-if="!dbLink.latestSwitch">暂无操作</p>
-                <el-form v-else
-                         size="mini"
-                         label-width="70px">
-                  <el-form-item :class="$style.switchFormItem"
-                                label="切换内容">
-                    <span>{{ dbLink.latestSwitch.content }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.switchFormItem"
-                                label="切换方式">
-                    <span>{{ dbLink.latestSwitch.manual | switchManualFilter }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.switchFormItem"
-                                label="状态">
-                    <el-tag size="mini"
-                            :type="switchStateStyle(dbLink.latestSwitch.state)">
-                      {{ dbLink.latestSwitch.state | switchStateFilter }}
-                    </el-tag>
-                  </el-form-item>
-                  <el-form-item :class="$style.switchFormItem"
-                                v-if="dbLink.latestSwitch.state !== 1"
-                                label="完成时间">
-                    <span>{{ dbLink.latestSwitch.switchTime }}</span>
-                  </el-form-item>
-                </el-form>
-                <i-icon :name="`switch-${dbLink.state}`"
-                        :class="$style.switchIcon"
-                        slot="reference"></i-icon>
-              </el-popover>
-              <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1"
-                   style="margin-top: 6px;">
-                <i class="el-icon-loading"></i>
-                <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
-              </div>
-              <div v-else>
-                <el-button type="text"
-                           @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
-                <el-button type="text"
-                           @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
-              </div>
-            </div>
-          </el-col>
-          <el-col :span="10">
-            <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
-              <el-row type="flex"
-                      align="middle">
-                <el-col :span="8">
-                  <h4>
-                    <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                                 :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
-                      {{dbLink.viceDatabase.name}}
-                    </router-link>
-                  </h4>
-                </el-col>
-                <el-col :span="5"
-                        :class="$style.dbInfoCol">
-                  <h5>{{instanceName}}</h5>
-                  <p>{{ dbLink.viceDatabase.instanceName }}</p>
-                </el-col>
-                <el-col :span="5"
-                        :class="$style.dbInfoCol">
-                  <h5>登录名</h5>
-                  <p>{{ dbLink.viceDatabase.loginName }}</p>
-                </el-col>
-                <el-col :span="3"
-                        :class="$style.dbInfoCol">
-                  <h5>状态</h5>
-                  <p>
-                    <el-tag :type="databaseStateStyle(dbLink.viceDatabase.state)"
-                            size="mini">{{ dbLink.viceDatabase.state | databaseStateFilter }}</el-tag>
-                  </p>
-                </el-col>
-                <el-col :span="3">
-                  <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
-                    <span style="font-size: 3vw;">{{ dbLink.viceDatabase.role | databaseRoleFilter}}</span>
+                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                      {{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}中...
+                    </span>
                   </div>
-                </el-col>
-              </el-row>
-            </div>
-          </el-col>
-        </el-row>
+                  <div v-else>
+                    <el-button type="text"
+                               @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
+                    <el-button type="text"
+                               @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                    <!-- <div v-if="databaseType==='oracle'">
+                      <div>
+                        <el-button type="text"
+                                @click="failOver(dbLink)"
+                                :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
+                      </div>
+                      <el-button type="text"
+                                @click="switchDatabase(dbLink.id)">双切</el-button>
+                      <el-button type="text"
+                                :disabled="dbLink.primaryDatabase.role === 2"
+                                @click="simpleSwitchDatabase(dbLink.id)">单切</el-button>
+                      <el-button type="text"
+                                @click="jumpToLinkDetail(dbLink.id)">详情</el-button>
+                    </div>
+                    <div v-else>
+                      <el-button type="text"
+                                @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
+                      <el-button type="text"
+                                @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                    </div> -->
+                  </div>
+                </div>
+              </el-col>
+              <el-col :span="10">
+                <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
+                  <el-row type="flex"
+                          align="middle">
+                    <el-col :span="8">
+                      <h4>
+                        <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                                    :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
+                          {{dbLink.viceDatabase.name}}
+                        </router-link>
+                      </h4>
+                    </el-col>
+                    <el-col :span="5"
+                            :class="$style.dbInfoCol">
+                      <h5>{{instanceName}}</h5>
+                      <p>{{ dbLink.viceDatabase.instanceName }}</p>
+                    </el-col>
+                    <el-col :span="5"
+                            :class="$style.dbInfoCol">
+                      <h5>登录名</h5>
+                      <p>{{ dbLink.viceDatabase.loginName }}</p>
+                    </el-col>
+                    <el-col :span="3"
+                            :class="$style.dbInfoCol">
+                      <h5>状态</h5>
+                      <p>
+                        <el-tag :type="databaseStateStyle(dbLink.viceDatabase.state)"
+                                size="mini">{{ dbLink.viceDatabase.state | databaseStateFilter }}</el-tag>
+                      </p>
+                    </el-col>
+                    <el-col :span="3">
+                      <div :class="dbLink.viceDatabase.role === 1 ? $style.primaryRole : $style.viceRole">
+                        <span style="font-size: 3vw;">{{ dbLink.viceDatabase.role | databaseRoleFilter}}</span>
+                      </div>
+                    </el-col>
+                  </el-row>
+                </div>
+              </el-col>
+            </el-row>
+          </fieldset>
+        </div>
       </div>
     </section>
     <switch-modal :visible="switchModalVisible"
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
                   :ready-to-simple-switch="readyToSimpleSwitch"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
+                  :is-simple-switch="isSimpleSwitch"
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
@@ -480,6 +527,8 @@ import {
   fetchLinks as fetchLinksOracle,
   createLinks as createLinksOracle,
   createSwitches as switchOracle,
+  createSimpleSwitches as simpleSwitchOracle,
+  failOver as failOverOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -523,6 +572,13 @@ const createSwitchMethod = {
   oracle: switchOracle,
   sqlserver: switchSqlserver,
 };
+const createSimpleSwitchMethod = {
+  oracle: simpleSwitchOracle
+}
+const switchMethod = {
+  true: createSimpleSwitchMethod,
+  false: createSwitchMethod
+}
 export default {
   name: 'TakeOver',
   mixins: [takeoverMixin, batchSwitchMinxin],
@@ -536,6 +592,7 @@ export default {
       hostLinkIdReadyToSwitch: -1,
       readyToSimpleSwitch: {},
       btnLoading: false,
+      isSimpleSwitch: false, // 标记单切还是双切
       timer: null,
     };
   },
@@ -711,6 +768,7 @@ export default {
       this.readyToSimpleSwitch = {}
       this.hostLinkIdReadyToSwitch = -1;
       this.switchModalVisible = false;
+      this.isSimpleSwitch = false;
     },
     confirmSwitch(formData) {
       /**
@@ -723,6 +781,7 @@ export default {
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
+        // 切vip
         if(formData === 'vip') {
           switchVip(this.hostLinkIdReadyToSwitch)
             .then(res => {
@@ -739,6 +798,7 @@ export default {
               this.btnLoading = false;
             });
         } else {
+          //  切服务IP、scanIP、临时IP
           switchHostIp(this.hostLinkIdReadyToSwitch)
             .then(res => {
               const { data } = res.data;
@@ -788,7 +848,7 @@ export default {
           })
       } else {
         this.btnLoading = true;
-        createSwitchMethod[this.databaseType]({
+        switchMethod[this.isSimpleSwitch][this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
         })
           .then(res => {
@@ -809,9 +869,15 @@ export default {
           });
       }
     },
+    // 双切
     switchDatabase(databaseLinkId) {
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
       this.switchModalVisible = true;
+    },
+    // 单切
+    simpleSwitchDatabase(databaseLinkId) {
+      this.switchDatabase(databaseLinkId);
+      this.isSimpleSwitch = true;
     },
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
@@ -826,6 +892,11 @@ export default {
         .map(dbLink => dbLink.id);
       this.databaseLinkIdsReadyToSwitch = links;
       this.switchModalVisible = true;
+    },
+    // 单切备库
+    simpleSwitchMultiDatabases(hostLink) {
+      this.switchMultiDatabaseToEbackup(hostLink);
+      this.isSimpleSwitch = true;
     },
     switchHostIp(hostLink) {
       this.hostLinkIdReadyToSwitch = hostLink.id;
@@ -893,16 +964,33 @@ export default {
         .then(() => {
           deleteLinks(hostLink.id)
             .then(res => {
-              // this.links.splice(
-              //   this.links.findIndex(link => link.id === hostLink.id),
-              //   1
-              // );
-              // this.$message.success('连接解除成功');
               const { data: cancelOperation } = res.data;
               this.links.find(
                 link => link.id === hostLink.id
               ).latestSwitch = cancelOperation;
               this.$message.info('正在尝试解除连接，请等待');
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(error => {});
+    },
+    failOver(dbLink) {
+      this.$confirm(`此操作${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          failOverOracle(dbLink.id)
+            .then(res => {
+              const { data: failOverOperation } = res.data;
+              this.databaseLinks.find(
+                link => link.id === dbLink.id
+              ).latestSwitch = failOverOperation;
+              this.fetchData(); // 用于刷新此实例连接中failOverState的状态
+              this.$message.info(`正在尝试${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，请等待`);
             })
             .catch(error => {
               this.$message.error(error);
@@ -964,11 +1052,21 @@ $vice-color: #6d6d6d;
 }
 
 .hostLinkContainer {
-  padding: 5px;
+  // padding: 5px;
   margin: 10px 0;
   // border: 1px solid #ababab;
   border-radius: 5px;
   background-color: #ffffff;
+}
+.hostLinkIsRac {
+  border: 1px dotted $primary-color;
+  border-radius: 5px;
+  & legend {
+    color: $primary-color
+  }
+}
+.hostLinkNotRac {
+  border: 0;
 }
 .hostInfo {
   position: relative;
@@ -1000,11 +1098,23 @@ $vice-color: #6d6d6d;
   vertical-align: -0.3em;
   margin-top: 10px;
 }
+.simpleSwitchDb {
+  position: absolute;
+  margin-top: -0.3em;
+  right: 90px;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: scale(1.2);
+  }
+}
 .simpleSwitch {
   position: absolute;
   // margin-left: 75px;
   margin-top: -0.3em;
-  right: 80px;
+  right: 50px;
   width: 2em;
   height: 2em;
   cursor: pointer;
@@ -1016,7 +1126,7 @@ $vice-color: #6d6d6d;
 .simpleSwitchGoing {
   position: absolute;
   // margin-left: 75px;
-  right: 80px;
+  right: 50px;
   margin-top: -0.2em;
   color: $primary-color;
   font-size: 34px;
@@ -1030,7 +1140,8 @@ $vice-color: #6d6d6d;
   text-align: center;
   margin: 5px 0 0;
 }
-.removeHostLink {
+.removeHostLink,
+.failOver {
   color: $delete-color;
   padding: 2px 0 3px;
   &:focus {

@@ -113,7 +113,7 @@
                        label="原文件路径"
                        prop="fileResource"
                        min-width="180px"
-                       align="left"
+                       align="center"
                        header-align="center"></el-table-column>
       <el-table-column v-else
                        label="备份文件名"
@@ -174,6 +174,7 @@ import dayjs from 'dayjs';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import baseMixin from './mixins/baseMixins';
 import { backupResultMapping } from '../utils/constant';
+import { fmtSizeFn } from '../utils/common';
 
 export default {
   name: 'BackupResultList',
@@ -313,20 +314,8 @@ export default {
       const map = {};
       data.forEach((result, index) => {
         const {size} = result;
-        let fmtSize = 0;
-        if(size < 1024){
-          fmtSize = size + 'K';
-        }else{
-          let res = size / 1024 / 1024;
-          if(res < 1){
-            fmtSize = parseInt( res * 1024) + 'M';
-          }else if(res > 1024){
-            fmtSize = parseInt(res / 1024) + 'T';
-          }else{
-            fmtSize = parseInt(res) + 'G';
-          }
-        }
-        result.size = fmtSize;
+        let fmtSize = fmtSizeFn(size);
+        result.size = fmtSize ? fmtSize : 0;
         // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
         if (!map[result.fileResource]) {
           // map[result.fileResource] = index;
