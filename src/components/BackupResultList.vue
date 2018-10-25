@@ -174,6 +174,7 @@ import dayjs from 'dayjs';
 import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
 import baseMixin from './mixins/baseMixins';
 import { backupResultMapping } from '../utils/constant';
+import { fmtSizeFn } from '../utils/common';
 
 export default {
   name: 'BackupResultList',
@@ -313,20 +314,8 @@ export default {
       const map = {};
       data.forEach((result, index) => {
         const {size} = result;
-        let fmtSize = 0;
-        if(size < 1024){
-          fmtSize = size + 'K';
-        }else{
-          let res = size / 1024 / 1024;
-          if(res < 1){
-            fmtSize = Math.round( res * 1024) + 'M';
-          }else if(res > 1024){
-            fmtSize = Math.round(res / 1024) + 'T';
-          }else{
-            fmtSize = Math.round(res) + 'G';
-          }
-        }
-        result.size = fmtSize;
+        let fmtSize = fmtSizeFn(size);
+        result.size = fmtSize ? fmtSize : 0;
         // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
         if (!map[result.fileResource]) {
           // map[result.fileResource] = index;

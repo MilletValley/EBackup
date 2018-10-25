@@ -156,25 +156,8 @@
 <script>
 import IIcon from './IIcon';
 import baseMixin from './mixins/baseMixins';
-const fmt = (process) => {
-  let fmtSize = null;
-  if(!process){
-    return;
-  }
-  if(process < 1024){
-    fmtSize = process + 'K';
-  }else{
-    let res = process / 1024 / 1024;
-    if(res < 1){
-      fmtSize = Math.round( res * 1024) + 'M';
-    }else if(res > 1024){
-      fmtSize = Math.round(res / 1024) + 'T';
-    }else{
-      fmtSize = Math.round(res) + 'G';
-    }
-  }
-  return fmtSize;
-}
+import { fmtSizeFn } from '../utils/common';
+
 export default {
   name: 'RestoreRecords',
   mixins: [baseMixin],
@@ -226,15 +209,15 @@ export default {
         const process = Number(data.progress);
         const size = Number(data.size);
         if(process > size){
-          fmtSize = fmt(size);
+          fmtSize = fmtSizeFn(size);
         }else{
-          fmtSize = fmt(process);
+          fmtSize = fmtSizeFn(process);
         }
       }else if(type === 'windows'){
         const process = Number(data.progress.replace(/[^0-9]/ig,""));
         const size = Number(data.size);
         const restoreSize = size * process;
-        fmtSize = fmt(restoreSize);
+        fmtSize = fmtSizeFn(restoreSize);
       }
       return fmtSize ? fmtSize : '-';
     }
@@ -243,7 +226,7 @@ export default {
     sizeFmt(row, column, cellValue, index){
       let fmtSize = null;
       const process = Number(cellValue);
-      fmtSize = fmt(process);
+      fmtSize = fmtSizeFn(process);
       return fmtSize ? fmtSize : '-';
     },
     fmtProgress(data){

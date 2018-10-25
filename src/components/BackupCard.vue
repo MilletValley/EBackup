@@ -162,6 +162,7 @@ import {
   weekMapping,
   operationStateMapping,
 } from '../utils/constant';
+import { fmtSizeFn } from '../utils/common';
 
 export default {
   name: 'BackupCard',
@@ -242,14 +243,20 @@ export default {
     diskInfo(){
       let str = '';
       if(this.type === 'windows'){
-        if(this.backupOperation.backupSystem === 'nosys'){
-          //  str = '正在备份卷(D:)';
-          str = `正在备份卷(${this.disk})`;
-        }else if(this.backupOperation.backupSystem === 'sys'){
-          if(this.disk === 'C:'){
-            str = `正在备份卷(C:),卷(${this.disk})待备份`;
-          }else{
-            str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
+        if(this.backupOperation.state === 0){
+          str = '未开始';
+        }else if(this.backupOperation.state === 2){
+          str = this.backupOperation.backupSystem === 'sys' ? `卷(C:)已备份完成,卷(${this.disk})已备份完成` : `卷(${this.disk})已备份完成`;
+        }else if(this.backupOperation.state === 1){
+          if(this.backupOperation.backupSystem === 'nosys'){
+            //  str = '正在备份卷(D:)';
+            str = `正在备份卷(${this.disk})`;
+          }else if(this.backupOperation.backupSystem === 'sys'){
+            if(this.disk === 'C:'){
+              str = `正在备份卷(C:)`;
+            }else{
+              str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
+            }
           }
         }
       }
@@ -260,23 +267,9 @@ export default {
       let fmtSize = 0;
       if(this.type === 'linux'){
         process = Number(process);
-        if(!process){
-          return;
-        }
-        if(process < 1024){
-          fmtSize = process + 'K';
-        }else{
-          let res = process / 1024 / 1024;
-          if(res < 1){
-            fmtSize = Math.round( res * 1024) + 'M';
-          }else if(res > 1024){
-            fmtSize = Math.round(res / 1024) + 'T';
-          }else{
-            fmtSize = Math.round(res) + 'G';
-          }
-        }
+        fmtSize = fmtSizeFn(process);
       }
-      return fmtSize;
+      return fmtSize ? fmtSize : '-';
     }
   },
   methods: {
@@ -335,17 +328,15 @@ export default {
           const num = Number(result[2].substring(0,result[2].length - 1));
           this.progressNum = num || num === 0 ? num : 0;
         }
-      }else{
+      }else if(this.type === 'linux'){
         if(data && size){
           if(Number(size)){
             // 取百分比
-            let num = (Number(data) / Number(size)).toFixed(2) * 100;
+            let num = (Number(data) / Number(size)) * 100;
             // 分20个阶段
-            num = parseInt(parseInt(num) / 5) * 5;
+            num = Math.round(num / 5) * 5;
             this.progressNum = num || num === 0 ? num : 0;
           }
-          // const num = Number(data.substring(0, data.length - 1));
-          // this.progressNum = num && num === 0 ? num : 0;
         }
       }
     }
