@@ -27,7 +27,6 @@
       </el-table-column>
       <el-table-column label="序号"
                        width="50"
-                       fixed
                        align="center">
         <template slot-scope="scope">
             {{scope.$index+1+(currentPage-1)*pagesize}}
@@ -35,7 +34,7 @@
       </el-table-column>
       <el-table-column label="名称"
                        header-align="center"
-                       fixed
+                       align="center"
                        min-width="200">
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
@@ -46,10 +45,12 @@
       <el-table-column prop="vmPath"
                        label="路径"
                        header-align="center"
+                       align="center"
                        min-width="200"></el-table-column>
       <el-table-column prop="vmHostName"
                        label="所属物理主机"
                        min-width="150"
+                       header-align="center"
                        align="center"></el-table-column>
     </el-table>
     <div class="block" style="text-align: right">
