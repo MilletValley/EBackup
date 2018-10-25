@@ -113,7 +113,7 @@
                        label="原文件路径"
                        prop="fileResource"
                        min-width="180px"
-                       align="left"
+                       align="center"
                        header-align="center"></el-table-column>
       <el-table-column v-else
                        label="备份文件名"
@@ -319,11 +319,11 @@ export default {
         }else{
           let res = size / 1024 / 1024;
           if(res < 1){
-            fmtSize = parseInt( res * 1024) + 'M';
+            fmtSize = Math.round( res * 1024) + 'M';
           }else if(res > 1024){
-            fmtSize = parseInt(res / 1024) + 'T';
+            fmtSize = Math.round(res / 1024) + 'T';
           }else{
-            fmtSize = parseInt(res) + 'G';
+            fmtSize = Math.round(res) + 'G';
           }
         }
         result.size = fmtSize;

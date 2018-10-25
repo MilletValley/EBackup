@@ -268,11 +268,11 @@ export default {
         }else{
           let res = process / 1024 / 1024;
           if(res < 1){
-            fmtSize = parseInt( res * 1024) + 'M';
+            fmtSize = Math.round( res * 1024) + 'M';
           }else if(res > 1024){
-            fmtSize = parseInt(res / 1024) + 'T';
+            fmtSize = Math.round(res / 1024) + 'T';
           }else{
-            fmtSize = parseInt(res) + 'G';
+            fmtSize = Math.round(res) + 'G';
           }
         }
       }
