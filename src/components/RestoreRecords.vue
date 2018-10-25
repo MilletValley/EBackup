@@ -20,11 +20,12 @@
                    :class="$style.ongoingRestoreCard">
             <div>
               <span>
-                <i :class="['el-icon-time', $style.successColor]"></i> {{ item.consume | durationFilter }}</span>
+                <!-- <i :class="['el-icon-loading', $style.successColor]"></i> {{ item.consume | durationFilter }}</span> -->
+                <i :class="['el-icon-loading', $style.successColor]"></i> <timer :val="item.consume"></timer> </span>
               <span :class="[$style.restoreStartTime, 'hidden-']">{{item.startTime}}</span>
             </div>
 
-            <p>
+            <!-- <p>
               <i-icon name="ip"
                       :class="$style.ongoingRestoreIcon"></i-icon>
               <el-tooltip content="目标设备IP"
@@ -32,11 +33,28 @@
                           :open-delay="300">
                 
                 <span v-if="isFile || isVMware" >{{ item.config.hostIp }}</span>
-                <span v-else>{{ item.config.database.host.hostIp }}</span>
+                <span v-else>{{ item.config.database ? item.config.database.host.hostIp : '' }}</span>
               </el-tooltip>
-            </p>
+            </p> -->
+            <el-row v-if="true" :class="$style.margin14">
+              <el-col :span="12">
+                <i-icon name="ip"
+                        :class="$style.ongoingRestoreIcon"></i-icon>
+                <el-tooltip content="目标设备IP"
+                            placement="right"
+                            :open-delay="300">
+                  
+                  <span v-if="isFile || isVMware" >{{ item.config.hostIp }}</span>
+                  <span v-else>{{ item.config.database ? item.config.database.host.hostIp : '' }}</span>
+                </el-tooltip>
+              </el-col>
+              <el-col v-if="isFile" :span="12">
+                <el-progress  :percentage="fmtProgress(item)" :text-inside="true" :stroke-width="17">
+                </el-progress>
+              </el-col>
+            </el-row>
 
-            <p>
+            <!-- <p>
               <i-icon name="instance"
                       :class="$style.ongoingRestoreIcon"></i-icon>
               <el-tooltip :content="detailInfoDisplayName"
@@ -44,9 +62,33 @@
                           :open-delay="300">
                 <span v-if="isVMware">{{item.config.newName }}</span>
                 <span v-else-if="isFile">{{ item.config.detailInfo }}</span>
-                <span v-else>{{item.config.database.instanceName }}</span>
+                <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
               </el-tooltip>
-            </p>
+            </p> -->
+
+            <el-row :class="$style.margin14">
+              <el-col :span=12>
+                <i-icon name="instance"
+                        :class="$style.ongoingRestoreIcon"></i-icon>
+                <el-tooltip :content="detailInfoDisplayName"
+                            placement="right"
+                            :open-delay="300">
+                  <span v-if="isVMware">{{item.config.newName }}</span>
+                  <span v-else-if="isFile">{{ item.config.detailInfo }}</span>
+                  <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
+                </el-tooltip>
+              </el-col>
+              <el-col :span=12 style="text-align:right" v-if="isFile">
+                <i-icon name="size"
+                        :class="$style.ongoingRestoreIcon"></i-icon>
+                <el-tooltip content="已恢复大小"
+                            placement="right"
+                            :open-delay="300">
+                  <span>{{ item | sizeFormat(type) }}</span>
+                </el-tooltip>
+              </el-col>
+              
+            </el-row>
 
           </el-card>
         </el-col>
@@ -82,6 +124,13 @@
                          align="center"
                          min-width="200px">
         </el-table-column>
+        <el-table-column v-if="isFile" 
+                         prop="backupResult.size"
+                         :formatter="sizeFmt"
+                         label="大小"
+                         align="center"
+                         width="120px">
+        </el-table-column>
         <el-table-column prop="state"
                          label="状态"
                          align="center"
@@ -106,7 +155,9 @@
 </template>
 <script>
 import IIcon from './IIcon';
+import Timer from './Timer';
 import baseMixin from './mixins/baseMixins';
+import { fmtSizeFn } from '../utils/common';
 
 export default {
   name: 'RestoreRecords',
@@ -140,9 +191,6 @@ export default {
       return mapping[this.type] ? mapping[this.type] : '';
     },
     isVMware() {
-      // const path = this.$route.path;
-      // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-      console.log(this.type)
       if(this.type === 'vm'){
         return true;
       }
@@ -155,8 +203,51 @@ export default {
       return false;
     },
   },
+  filters:{
+    sizeFormat(data, type){
+      let fmtSize = null;
+      if(type === 'linux'){
+        const process = Number(data.progress);
+        const size = Number(data.size);
+        if(process > size){
+          fmtSize = fmtSizeFn(size);
+        }else{
+          fmtSize = fmtSizeFn(process);
+        }
+      }else if(type === 'windows'){
+        const process = Number(data.progress.replace(/[^0-9]/ig,""));
+        const size = Number(data.size);
+        const restoreSize = size * process / 100;
+        fmtSize = fmtSizeFn(restoreSize);
+      }
+      return fmtSize ? fmtSize : '-';
+    }
+  },
+  methods: {
+    sizeFmt(row, column, cellValue, index){
+      let fmtSize = null;
+      const process = Number(cellValue);
+      fmtSize = fmtSizeFn(process);
+      return fmtSize ? fmtSize : '-';
+    },
+    fmtProgress(data){
+      let process = 0;
+      if(this.type === 'linux'){
+        const progress = Number(data.progress);
+        const size = Number(data.size);
+        process = Math.round((progress / size) * 100);
+        if(process > 99){
+          process = 99;
+        }
+      }else if(this.type === 'windows'){
+        process = Number(data.progress.replace(/[^0-9]/ig,""));
+      }
+      return process ? process : 0;
+    },
+  },
   components: {
     IIcon,
+    Timer
   },
 };
 </script>
@@ -193,5 +284,9 @@ export default {
   width: 2em;
   display: inline-block;
   vertical-align: -0.2em;
+}
+.margin14{
+  margin-top: 1em;
+  margin-bottom: 1em
 }
 </style>
