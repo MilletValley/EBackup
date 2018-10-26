@@ -23,13 +23,17 @@
           <el-input disabled
                     :value="`${formData.host.name || ''}(${formData.host.hostIp || ''})`"></el-input>
         </el-form-item>
-
+        <el-form-item :label="databaseOrInstance"
+                      prop="instanceName">
+          <el-input v-model="formData.instanceName"
+                    :placeholder="`请输入要备份的${databaseOrInstance}`"></el-input>
+        </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item :label="databaseOrInstance"
-                          prop="instanceName">
-              <el-input v-model="formData.instanceName"
-                        :placeholder="`请输入要备份的${databaseOrInstance}`"></el-input>
+            <el-form-item label="端口号"
+                          prop="dbPort">
+              <el-input v-model.number="formData.dbPort"
+                        placeholder="请输入端口号"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -102,6 +106,7 @@ export default {
             loginName,
             password,
             dbVersion,
+            dbPort,
             application,
           } = this.formData;
           this.$emit('confirm', {
@@ -111,6 +116,7 @@ export default {
             loginName,
             password,
             dbVersion,
+            dbPort,
             application,
           });
         } else {

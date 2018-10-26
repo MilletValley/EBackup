@@ -268,7 +268,7 @@
                               name="simpleSwitch"
                               @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                     </el-popover>
-                    <!-- <span v-if="databaseType==='oracle'">
+                    <span v-if="databaseType==='oracle'">
                       <i-icon name="notSimpleSwitchDb"
                               :class="$style.simpleSwitchDb"
                               v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
@@ -281,7 +281,7 @@
                                 :class="$style.simpleSwitchDb"
                                 @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
                       </el-tooltip>
-                    </span> -->
+                    </span>
                   </div>
                   <div>
                     <el-row>
@@ -425,16 +425,16 @@
                     </span>
                   </div>
                   <div v-else>
-                    <el-button type="text"
+                    <!-- <el-button type="text"
                                @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                     <el-button type="text"
-                               @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
-                    <!-- <div v-if="databaseType==='oracle'">
-                      <div>
+                               @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button> -->
+                    <div v-if="databaseType==='oracle'">
+                      <!-- <div v-if="hostLink.primaryHost.oracleVersion===1">
                         <el-button type="text"
                                 @click="failOver(dbLink)"
                                 :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
-                      </div>
+                      </div> -->
                       <el-button type="text"
                                 @click="switchDatabase(dbLink.id)">双切</el-button>
                       <el-button type="text"
@@ -448,7 +448,7 @@
                                 @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                       <el-button type="text"
                                 @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
-                    </div> -->
+                    </div>
                   </div>
                 </div>
               </el-col>
@@ -498,6 +498,7 @@
     <switch-modal :visible="switchModalVisible"
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
                   :ready-to-simple-switch="readyToSimpleSwitch"
+                  :ready-to-remove-host-link="readyToRemoveHostLink"
                   :database-links-ready-to-switch="databaseLinksReadyToSwitch"
                   :is-simple-switch="isSimpleSwitch"
                   @cancel="cancelSwitch"
@@ -591,6 +592,7 @@ export default {
       databaseLinkIdsReadyToSwitch: [],
       hostLinkIdReadyToSwitch: -1,
       readyToSimpleSwitch: {},
+      readyToRemoveHostLink: {},
       btnLoading: false,
       isSimpleSwitch: false, // 标记单切还是双切
       timer: null,
@@ -765,7 +767,8 @@ export default {
     },
     cancelSwitch() {
       this.databaseLinkIdsReadyToSwitch = [];
-      this.readyToSimpleSwitch = {}
+      this.readyToSimpleSwitch = {};
+      this.readyToRemoveHostLink = {};
       this.hostLinkIdReadyToSwitch = -1;
       this.switchModalVisible = false;
       this.isSimpleSwitch = false;
@@ -778,6 +781,7 @@ export default {
        * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
        * 3.3 易备库单切IP
        * 3.4 rac环境下切IP
+       * 3.5 解除连接
        */
       if (!!~this.hostLinkIdReadyToSwitch) {
         this.btnLoading = true;
@@ -846,6 +850,23 @@ export default {
           .then(() => {
             this.btnLoading = false;
           })
+      } else if(Object.keys(this.readyToRemoveHostLink).length > 0) {
+        this.btnLoading = true;
+        deleteLinks(this.readyToRemoveHostLink.id)
+          .then(res => {
+            const { data: cancelOperation } = res.data;
+            this.links.find(
+              link => link.id === this.readyToRemoveHostLink.id
+            ).latestSwitch = cancelOperation;
+            this.switchModalVisible = false;
+            this.$message.info('正在尝试解除连接，请等待');
+          })
+          .catch(error => {
+            this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
+          });
       } else {
         this.btnLoading = true;
         switchMethod[this.isSimpleSwitch][this.databaseType]({
@@ -878,6 +899,11 @@ export default {
     simpleSwitchDatabase(databaseLinkId) {
       this.switchDatabase(databaseLinkId);
       this.isSimpleSwitch = true;
+    },
+    // 解除连接
+    removeHostLink(hostLink) {
+      this.switchModalVisible = true;
+      this.readyToRemoveHostLink = hostLink;
     },
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
@@ -954,27 +980,6 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
-    },
-    removeHostLink(hostLink) {
-      this.$confirm('此操作将取消设备连接，是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      })
-        .then(() => {
-          deleteLinks(hostLink.id)
-            .then(res => {
-              const { data: cancelOperation } = res.data;
-              this.links.find(
-                link => link.id === hostLink.id
-              ).latestSwitch = cancelOperation;
-              this.$message.info('正在尝试解除连接，请等待');
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-        })
-        .catch(error => {});
     },
     failOver(dbLink) {
       this.$confirm(`此操作${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
@@ -1149,6 +1154,7 @@ $vice-color: #6d6d6d;
   }
   &:hover {
     color: lighten($delete-color, 10%);
+    transform:scale(1.2);
   }
 }
 .primaryDatabaseInfo {

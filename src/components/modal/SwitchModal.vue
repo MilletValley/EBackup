@@ -226,6 +226,29 @@
               </p>
             </div>
             <!-- 切实例结束 -->
+            <!-- 解除连接开始 -->
+            <div v-if="isRemoveHostLink">
+              <p>
+                <span :class="$style.productionEnvColor">
+                  <i-icon name="production-env"
+                          style="vertical-align: -0.3em;"></i-icon>
+                  {{ '生产环境' }}
+                </span>
+                <span :class="$style.switchModalName">
+                  {{ readyToRemoveHostLink.primaryHost.name }}
+                </span>
+                与
+                <span :class="$style.ebackupEnvColor">
+                    <i-icon name="ebackup-env"
+                            style="vertical-align: -0.3em;"></i-icon>
+                    {{ '易备环境' }}
+                  </span>
+                  <span :class="$style.switchModalName">
+                    {{ readyToRemoveHostLink.viceHost.name }}
+                </span>的连接将被取消
+              </p>
+            </div>
+            <!-- 解除连接结束 -->
           </div>
           <!-- <template v-if="hostLinkReadyToSwitch">
             <el-form :model="formData"
@@ -284,6 +307,9 @@ export default {
       default: [],
     },
     readyToSimpleSwitch: {
+      type: Object
+    },
+    readyToRemoveHostLink: {
       type: Object
     },
     btnLoading: {
@@ -364,6 +390,10 @@ export default {
     // 单切IP
     switchSimpleIp() {
       return this.readyToSimpleSwitch&&Object.keys(this.readyToSimpleSwitch).length>0
+    },
+    // 解除连接
+    isRemoveHostLink() {
+      return this.readyToRemoveHostLink&&Object.keys(this.readyToRemoveHostLink).length>0
     }
     // oppsiteServiceIpMark() {
     //   return this.hostLinkReadyToSwitch.serviceIpMark === 1 ? 2 : 1;
@@ -378,6 +408,7 @@ export default {
       this.$emit('cancel');
     },
     switchModalOpend() {
+      console.log(this.readyToRemoveHostLink);
       if(this.switchIpInRac) {
         this.switchRacIp = 'scanIp'
       }
