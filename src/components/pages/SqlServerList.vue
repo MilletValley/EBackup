@@ -16,6 +16,10 @@
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
+                    @click="batchCreateModalVisible = true">批量添加</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary"
                     @click="createModalVisible = true">添加</el-button>
         </el-form-item>
       </el-form>
@@ -119,17 +123,28 @@
                            :btn-loading="btnLoading"
                            :item-info="selectedDb"
                            @confirm="updateDb"></database-update-modal>
+    <batch-database-create-modal type="sqlserver"
+                           :visible.sync="batchCreateModalVisible"
+                           :btn-loading="btnLoading"
+                           @confirm="batchCreateDb"></batch-database-create-modal>
   </section>
 </template>
 <script>
 import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/sqlserver';
+import BatchDatabaseCreateModal from '@/components/modal/BatchDatabaseCreateModal';
+import { fetchAll, deleteOne, createOne, modifyOne,batchCreate,
+  scanDatabase } from '../../api/sqlserver';
 import { listMixin } from '../mixins/databaseListMixin';
 
 export default {
   name: 'SqlServer',
   mixins: [listMixin],
+  data(){
+    return {
+      batchCreateModalVisible: false,
+    }
+  },
   methods: {
     // 从服务器获取所有的Oracle数据库
     fetchData() {
@@ -201,10 +216,25 @@ export default {
           this.btnLoading = false;
         });
     },
+    batchCreateDb(data){
+      this.btnLoading = true;
+      batchCreate(data)
+        .then(res => {
+          this.batchCreateModalVisible = false;
+          this.fetchData();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    }
   },
   components: {
     DatabaseCreateModal,
     DatabaseUpdateModal,
+    BatchDatabaseCreateModal
   },
 };
 </script>

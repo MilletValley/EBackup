@@ -3,6 +3,7 @@
     <el-input :value="value"
               :type="hiddenPassword ? 'password' : 'text'"
               @input="inputChange"
+              :disabled="disabled"
               :hidden.sync="hiddenPassword">
       <i-icon :class="$style.icon"
               slot="suffix"
@@ -18,7 +19,8 @@ export default {
   name: 'input-toggle',
   props: {
     value: String,
-    hidden: Boolean
+    hidden: Boolean,
+    disabled:Boolean
   },
   computed: {
     iconName() {
