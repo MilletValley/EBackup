@@ -114,17 +114,20 @@
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
+import { webSocketMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
-import { fetchAll, deleteOne } from '../../api/host';
+// import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
 import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
+  // mixins: [listMixin, webSocketMixin],
   mixins: [listMixin],
   data() {
     return {
+      wsuri: '/test',
       selectedId: '',
       hostTypeFilters: [
         {text: '生产环境', value: 1},
@@ -133,7 +136,8 @@ export default {
       databaseTypeFilters: [
         {text: 'oracle', value: 1},
         {text: 'sqlserver', value: 2},
-        {text: '虚拟机', value: 4}
+        {text: '虚拟机', value: 4},
+        {text: 'mysql', value: 5}
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
@@ -191,7 +195,8 @@ export default {
         return
       }
       this.fetchAll().catch( error => {
-        this.$message.error( error);
+        // this.$message.error( error);
+        this.errorMessage( error);
       });
     },
     filterChange(filters) {
@@ -222,7 +227,8 @@ export default {
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          this.$message.error(error);
+          // this.$message.error(error);
+          this.errorMessage(error);
         })
         .then(() => {
           this.btnLoading = false;
@@ -241,7 +247,8 @@ export default {
           });
         })
         .catch(error => {
-          if (error !== 'cancel') this.$message.error(error);
+          // if (error !== 'cancel') this.$message.error(error);
+          if (error !== 'cancel') this.errorMessage(error);
         });
     },
     updateItem(host) {
@@ -252,11 +259,15 @@ export default {
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          this.$message.error(error);
+          // this.$message.error(error);
+          this.errorMessage(error);
         })
         .then(() => {
           this.btnLoading = false;
         });
+    },
+    wsCall(e) {
+      console.log('ws回调', e);
     },
     ...mapActions({
       update: 'updateHost',

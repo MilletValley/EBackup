@@ -13,8 +13,10 @@ import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
 import './utils/icon-svg';
+import global from './utils/global';
 
 Vue.use(ElementUI);
+Vue.use(global);
 Vue.config.productionTip = false;
 
 dayjs.locale('zh-cn');
