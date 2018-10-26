@@ -1,4 +1,5 @@
 import { linkStateMapping, databaseStateMapping } from '../../utils/constant';
+import { fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 
 const DashboardTab = {
   data() {
@@ -17,40 +18,68 @@ const DashboardTab = {
       backupStateInfo: ['filehostBackupState', 'databaseBackupState', 'vmBackupState'],
       restoreStateInfo: ['databaseRestoreState', 'filehostRestoreState'],
       takeoverStateInfo: ['initconnNumState'],
-      filterTableData: []
+      databaseBackup: [],
+      databaseRestore: [],
+      initconnNum: [],
+      filehostBackup: [],
+      filehostRestore: [],
+      vmBackup: [],
+      filterTableData: [],
+      activeName: ''
     };
   },
   computed: {
     currentTableData() {
-      switch (this.activeName) {
-        case 'databaseBackup':
-          return this.databaseBackup;
-        case 'databaseRestore':
-          return this.databaseRestore;
-        case 'initconnNum':
-          return this.initconnNum;
-        case 'filehostBackup':
-          return this.filehostBackup;
-        case 'filehostRestore':
-          return this.filehostRestore;
-        case 'vmBackup':
-          return this.vmBackup;
-        default:
-          return [];
-      }
+      // 当前显示的表格的值根据当前tab获取
+      return this[this.activeName];
     }
   },
-  filters: {
-    filterByPage(data, currentPage, pagesize) {
-      if (!data) {
-        return [];
-      }
-      return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
-    }
+  watch: {
+    currentTableData() {
+      this.filterTableData = this.currentTableData;
+    },
   },
   methods: {
-    tabClick() {
-      this.filterTableData = this.currentTableData;
+    fetchTabData() {
+      fetchBackup()
+        .then(res => {
+          const { data } = res.data;
+          this.databaseBackup = this.filterArray(data, 1);
+          this.filehostBackup = this.filterArray(data, 2);
+          this.vmBackup = this.filterArray(data, 3);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchRestore()
+        .then(res => {
+          const { data } = res.data;
+          this.databaseRestore = this.filterArray(data, 1);
+          this.filehostRestore = this.filterArray(data, 2);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+      fetchInitconn()
+        .then(res => {
+          const { data } = res.data;
+          const initconnData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
+          this.initconnNum = this.$route.name === 'dashboard' ? initconnData.slice(0, 5) : initconnData;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    filterArray(data, type) {
+      // 首页返回结果前五个元素，设备详情也返回所有结果
+      if (data.length > 0) {
+        const dataBySortAndType = data.filter(item => item.type === type).sort((a, b) => Date.parse(b.endTime) - Date.parse(a.endTime));
+        if (this.$route.name === 'dashboard') {
+          return dataBySortAndType.slice(0, 5);
+        }
+        return dataBySortAndType;
+      }
+      return [];
     },
     beforeTabLeave(newName, oldName) {
       this.$refs[oldName].clearFilter();

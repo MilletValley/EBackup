@@ -53,6 +53,9 @@
                   <el-form-item label="实例名：">
                     <span>{{ details.instanceName }}</span>
                   </el-form-item>
+                  <el-form-item label="端口号：">
+                    <span>{{ details.dbPort }}</span>
+                  </el-form-item>
                   <el-form-item label="数据库账号：">
                     <span>{{ details.loginName }}</span>
                   </el-form-item>
@@ -162,6 +165,7 @@
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :selection-hosts="availableHostsForRestore"
                                  :btn-loading="btnLoading"
+                                 :database="details"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>

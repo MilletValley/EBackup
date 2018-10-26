@@ -66,10 +66,6 @@
                     @filter-change="stateFilterChange"
                     ref="databaseBackup"
                     style="width: 100%">
-            <el-table-column type="index"
-                             min-width="50"
-                             align="center"
-                             fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
                              show-overflow-tooltip
@@ -127,10 +123,6 @@
                     @filter-change="stateFilterChange"
                     ref="databaseRestore"
                     style="width: 100%">
-            <el-table-column type="index"
-                             min-width="50"
-                             align="center"
-                             fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
                              align="center"
@@ -178,10 +170,6 @@
                     ref="initconnNum"
                     @filter-change="stateFilterChange"
                     style="width: 100%">
-            <el-table-column type="index"
-                             min-width="50"
-                             align="center"
-                             fixed></el-table-column>
             <el-table-column prop="instanceName"
                              label="实例名"
                              show-overflow-tooltip
@@ -243,10 +231,6 @@
                     @filter-change="stateFilterChange"
                     ref="filehostBackup"
                     style="width: 100%">
-            <el-table-column type="index"
-                             min-width="50"
-                             align="center"
-                             fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
                              align="center"
@@ -304,10 +288,6 @@
                     @filter-change="stateFilterChange"
                     ref="filehostRestore"
                     style="width: 100%">
-            <el-table-column type="index"
-                             min-width="50"
-                             align="center"
-                             fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
                              show-overflow-tooltip
@@ -355,10 +335,6 @@
                     @filter-change="stateFilterChange"
                     ref="vmBackup"
                     style="width: 100%">
-            <el-table-column type="index"
-                             min-width="50"
-                             align="center"
-                             fixed></el-table-column>
             <el-table-column prop="ascription"
                              label="名称"
                              show-overflow-tooltip
@@ -415,7 +391,7 @@
   </section>
 </template>
 <script>
-import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
+import { fetchAll } from '../../api/home';
 import { backupStrategyMapping, databaseTypeMapping } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
 import DashboardTab from '../mixins/DashboardTabMixins'
@@ -430,17 +406,12 @@ export default {
   mixins: [baseMixin, DashboardTab],
   created() {
     this.fetchData();
+    this.fetchTabData();
+    this.activeName = 'databaseBackup'
   },
   data() {
     return {
       total: {},
-      databaseBackup: [],
-      databaseRestore: [],
-      initconnNum: [],
-      filehostBackup: [],
-      filehostRestore: [],
-      vmBackup: [],
-      activeName: 'databaseBackup'
     };
   },
   computed: {
@@ -467,48 +438,9 @@ export default {
         .catch(error => {
           error => Promise.reject(error);
         });
-      fetchBackup()
-        .then(res => {
-          this.databaseBackup=this.filterArray(res.data.data,1);
-          this.filehostBackup=this.filterArray(res.data.data,2);
-          this.vmBackup=this.filterArray(res.data.data,3);
-          this.filterTableData = this.databaseBackup;
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        });
-      fetchRestore()
-        .then(res => {
-          this.databaseRestore=this.filterArray(res.data.data,1);
-          this.filehostRestore=this.filterArray(res.data.data,2);
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        });
-      fetchInitconn()
-        .then(res => {
-          this.initconnNum=res.data.data.sort(function(a, b) {
-          return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
-        }).slice(0,5)
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        });
     },
-    filterArray(data, type) {
-      data.map(function(item) {
-        for(let i in item) {
-          item[i]=(item[i]===null||item[i]==='null')?'':item[i];
-        }
-      });
-      return data.filter(function(item) {
-        return item.type === type;
-      }).sort(function(a, b) {
-        return Date.parse(b.endTime)-Date.parse(a.endTime);
-      }).slice(0,5);
-    },
-    backupItem(data) {
-      return backupStrategyMapping[data.backupType];
+    tabClick() {
+      this.filterTableData = this.currentTableData;
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));

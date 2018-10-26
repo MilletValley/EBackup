@@ -180,7 +180,7 @@
                         size="mini">
                   {{ databaseTypeConverter(scope.row.viceState) }}
                 </el-tag>
-              </template>              
+              </template>
             </el-table-column>
             <el-table-column label="连接状态"
                              prop="overState"
@@ -388,7 +388,8 @@
                              fixed="right"></el-table-column>
           </el-table>
         </el-tab-pane>
-        <div class="block" style="text-align: right">
+      </el-tabs>
+      <div class="block" style="text-align: right; margin-top: 10px">
           <el-pagination @size-change="handleSizeChange"
                          @current-change="handleCurrentChange"
                          :current-page.sync="currentPage"
@@ -399,12 +400,10 @@
                          :total="filterTableData.length">
           </el-pagination>
         </div>
-      </el-tabs>
     </template>
   </section>
 </template>
 <script>
-import { fetchAll, fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 import { backupStrategyMapping } from '../../utils/constant';
 import DashboardTab from '../mixins/DashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
@@ -413,77 +412,23 @@ export default {
   mixins: [baseMixin, DashboardTab],
   data() {
     return {
-      databaseBackup: [],
-      databaseRestore: [],
-      initconnNum: [],
-      filehostBackup: [],
-      filehostRestore: [],
-      vmBackup: [],
       currentPage: 1,
-      pagesize: 10,
-      activeName: '',
+      pagesize: 10
     }
   },
   created() {
-    this.fetchData();
+    this.fetchTabData();
     this.activeName = this.$route.query.activeName;
   },
+  filters: {
+    filterByPage(data, currentPage, pagesize) {
+      if (!data) {
+        return [];
+      }
+      return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
+    }
+  },
   methods: {
-    fetchData() {
-      fetchBackup()
-        .then(res => {
-          this.databaseBackup=this.filterArray(res.data.data,1);
-          this.filehostBackup=this.filterArray(res.data.data,2);
-          this.vmBackup=this.filterArray(res.data.data,3);
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        });
-      fetchRestore()
-        .then(res => {
-          this.databaseRestore=this.filterArray(res.data.data,1);
-          this.filehostRestore=this.filterArray(res.data.data,2);
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        });
-      fetchInitconn()
-        .then(res => {
-          this.initconnNum=res.data.data.sort(function(a, b) {
-          return Date.parse(b.initFinishTime)-Date.parse(a.initFinishTime);
-          })
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        })
-        .then(() => {
-          this.filterTableData = this.currentTableData;
-        });
-    },
-    filterArray(data, type) {
-      data.map(function(item) {
-        for(let i in item) {
-          item[i]=(item[i]===null||item[i]==='null')?'':item[i];
-        }
-      });
-      return data.filter(function(item) {
-        return item.type === type;
-      }).sort(function(a, b) {
-        return Date.parse(b.endTime)-Date.parse(a.endTime);
-      })
-    },
-    backupItem(data) {
-      return backupStrategyMapping[data.backupType];
-    },
-    judgePrimary(data) {
-      return databaseStateMapping[data.primaryState];
-    },
-    judgeVice(data) {
-      return databaseStateMapping[data.viceState];
-    },
-    judgeOver(data) {
-      return linkStateMapping[data.overState];
-    },
     handleClick(tab,event) {
       this.currentPage = 1;
       this.filterTableData = this.currentTableData;
