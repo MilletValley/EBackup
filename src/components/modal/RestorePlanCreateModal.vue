@@ -20,25 +20,29 @@
         </el-form-item>
       </el-row>
       <el-row v-if="!isVMware && !isHW">
+        <el-form-item label="恢复设备"
+                      prop="hostIp">
+          <el-select v-model="formData.hostIp"
+                      style="width: 100%;">
+            <el-option v-for="host in selectionHosts"
+                        :key="host.id"
+                        :value="host.hostIp"
+                        :label="`${host.name}(${host.hostIp})`">
+              <span style="float: left">{{ host.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-col :span="12" >
-          <el-form-item label="恢复设备"
-                        prop="hostIp">
-            <el-select v-model="formData.hostIp"
-                       style="width: 100%;">
-              <el-option v-for="host in selectionHosts"
-                         :key="host.id"
-                         :value="host.hostIp"
-                         :label="`${host.name}(${host.hostIp})`">
-                <span style="float: left">{{ host.name }}</span>
-                <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="端口号"
+                        prop="dbPort">
+            <el-input v-model.number="formData.dbPort"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -216,8 +220,10 @@ export default {
           loginName: '',
           password: '',
           detailInfo: this.database.instanceName,
+          dbPort: this.database.dbPort
         }
       }
+      console.log(this.database)
       this.formData = Object.assign({}, this.formData, customData)
       console.log(this.formData)
       // if(this.isVMware){

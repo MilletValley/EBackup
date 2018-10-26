@@ -11,31 +11,32 @@
              ref="singleRestoreForm"
              size="small">
       <el-row v-if="!isVMware">
-        <el-col :span=12>
-          <el-form-item label="恢复设备"
-                        v-if="!this.isHW"
-                        prop="hostIp">
-            <el-input v-if="isFileHost"
-                      v-model="formData.hostIp"></el-input>
-            <el-select v-else
-                       v-model="formData.hostIp"
-                       style="width: 100%;">
-              <el-option v-for="host in selectionHosts"
-                         :key="host.id"
-                         :value="host.hostIp"
-                         :label="`${host.name}(${host.hostIp})`">
-                <span style="float: left">{{ host.name }}</span>
-                <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span=12>
-          <el-form-item :label="detailInfoDisplayName"
-                        prop="detailInfo">
-            <el-input v-model="formData.detailInfo"></el-input>
-          </el-form-item>
-        </el-col>
+        <el-form-item label="恢复设备"
+                      v-if="!this.isHW"
+                      prop="hostIp">
+          <el-input v-if="isFileHost"
+                    v-model="formData.hostIp"></el-input>
+          <el-select v-else
+                      v-model="formData.hostIp"
+                      style="width: 100%;">
+            <el-option v-for="host in selectionHosts"
+                        :key="host.id"
+                        :value="host.hostIp"
+                        :label="`${host.name}(${host.hostIp})`">
+              <span style="float: left">{{ host.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="detailInfoDisplayName"
+                      prop="detailInfo">
+          <el-input v-model="formData.detailInfo"></el-input>
+        </el-form-item>
+        <el-form-item label="端口号"
+                      prop="dbPort"
+                      v-if="['oracle', 'sqlserver', 'mysql'].includes(this.type)">
+          <el-input v-model.number="formData.dbPort"></el-input>
+        </el-form-item>
       </el-row>
       <el-row v-if="isVMware">
         <el-col :span="12">
@@ -151,6 +152,9 @@ export default {
           loginName: '',
           password: '',
           detailInfo: this.database ? this.database.instanceName : '',
+        }
+        if(['oracle', 'sqlserver', 'mysql'].includes(this.type)) {
+          customData.dbPort = this.database.dbPort; // mysql，sqlserver，oracle恢复时需填端口号
         }
       }
       this.formData = Object.assign({}, this.formData, customData)

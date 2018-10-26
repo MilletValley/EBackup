@@ -446,6 +446,16 @@ const restorePlanModalMixin = {
             trigger: 'blur',
           },
         ],
+        dbPort: [{
+          required: true,
+          message: '请输入端口号',
+          trigger: 'blur'
+        },
+        {
+          pattern: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
+          message: '请输入0-65535之间的数字',
+          trigger: 'blur'
+        }],
         loginName: [
           { required: true, message: '请输入登录名', trigger: 'blur' },
         ],
