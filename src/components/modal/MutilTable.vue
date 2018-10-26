@@ -20,6 +20,9 @@
             type="index"
             align="left"
             width="50">
+            <template slot-scope="scope">
+                {{scope.$index+1+(currentPage-1)*pagesize}}
+            </template>
         </el-table-column>
         <el-table-column label="虚拟机名称"
                     align="left"

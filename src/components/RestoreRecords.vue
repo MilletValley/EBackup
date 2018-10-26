@@ -236,11 +236,11 @@ export default {
         const progress = Number(data.progress);
         const size = Number(data.size);
         process = Math.round((progress / size) * 100);
-        if(process > 99){
-          process = 99;
-        }
       }else if(this.type === 'windows'){
         process = Number(data.progress.replace(/[^0-9]/ig,""));
+      }
+      if(process > 99){
+        process = 99;
       }
       return process ? process : 0;
     },
