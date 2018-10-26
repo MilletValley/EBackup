@@ -70,7 +70,7 @@ const hostTypeMapping = {
 const sysTypeMapping = {
   // 0: '通用',
   1: 'Windows',
-  2: 'Linux',
+  2: 'Linux'
 };
 
 // Windows系统版本
@@ -78,13 +78,17 @@ const windowsTypeMapping = {
   1: '2003',
   2: '2008及以上'
 };
+const pathTypeMapping = {
+  1: '共享文件夹路径',
+  2: 'NFS路径'
+};
 // 使用类别
 const useTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
   3: '文件',
   4: '虚拟机',
-  // 5: 'mysql'
+  5: 'mysql'
 };
 
 const systemStateMapping = {
@@ -97,7 +101,7 @@ const databaseTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
   4: '虚拟机',
-  // 5: 'mysql'
+  5: 'mysql'
 };
 
 // 数据库连接状态
@@ -155,6 +159,7 @@ export {
   hostTypeMapping,
   sysTypeMapping,
   windowsTypeMapping,
+  pathTypeMapping,
   useTypeMapping,
   systemStateMapping,
   databaseTypeMapping,

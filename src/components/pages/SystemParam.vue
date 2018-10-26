@@ -108,7 +108,7 @@
                       prop="useType">
           <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
           <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
-          <!-- <el-radio v-model="formData.useType" :label="5">mysql</el-radio> -->
+          <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
         </el-form-item>
@@ -172,7 +172,7 @@
                       prop="useType">
           <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
           <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
-          <!-- <el-radio v-model="formData.useType" :label="5">mysql</el-radio> -->
+          <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
         </el-form-item>

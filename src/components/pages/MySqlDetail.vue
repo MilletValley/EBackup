@@ -74,7 +74,7 @@
                     <span>{{ details.host.hostIp }}</span>
                   </el-form-item>
                   <el-form-item label="所属系统：">
-                    <span>{{ details.application }}</span>
+                    <span>{{ details.application || '-' }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
