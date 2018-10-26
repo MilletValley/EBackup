@@ -202,8 +202,9 @@ input:-webkit-autofill,
     font-weight: 700;
 }
 .home-copyright {
-  position: absolute;
-  bottom: 2px;
+  /* position: absolute; */
+  margin-top: 40px;
+  margin-bottom: 5px;
   left: 0;
   width: 100%;
 }

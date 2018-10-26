@@ -78,6 +78,10 @@ const windowsTypeMapping = {
   1: '2003',
   2: '2008及以上'
 };
+const pathTypeMapping = {
+  1: '共享文件夹路径',
+  2: 'NFS路径'
+};
 // 使用类别
 const useTypeMapping = {
   1: 'oracle',
@@ -155,6 +159,7 @@ export {
   hostTypeMapping,
   sysTypeMapping,
   windowsTypeMapping,
+  pathTypeMapping,
   useTypeMapping,
   systemStateMapping,
   databaseTypeMapping,

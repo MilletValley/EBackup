@@ -141,7 +141,7 @@ export default {
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
-        {text: 'Linux', value: 'Linux'},
+        {text: 'Linux', value: 'Linux'}
       ],
       hostTypeTerm: [],
       databaseTypeTerm: [],
@@ -195,7 +195,8 @@ export default {
         return
       }
       this.fetchAll().catch( error => {
-        this.$message.error( error);
+        // this.$message.error( error);
+        this.errorMessage( error);
       });
     },
     filterChange(filters) {
@@ -226,7 +227,8 @@ export default {
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          this.$message.error(error);
+          // this.$message.error(error);
+          this.errorMessage(error);
         })
         .then(() => {
           this.btnLoading = false;
@@ -245,7 +247,8 @@ export default {
           });
         })
         .catch(error => {
-          if (error !== 'cancel') this.$message.error(error);
+          // if (error !== 'cancel') this.$message.error(error);
+          if (error !== 'cancel') this.errorMessage(error);
         });
     },
     updateItem(host) {
@@ -256,7 +259,8 @@ export default {
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          this.$message.error(error);
+          // this.$message.error(error);
+          this.errorMessage(error);
         })
         .then(() => {
           this.btnLoading = false;
