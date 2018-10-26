@@ -216,17 +216,10 @@ export default {
           this.btnLoading = false;
         });
     },
-    // scanDatabase(data){
-    //   console.log('扫描', data)
-    //   this.scanBtnLoading = true;
-    // },
     batchCreateDb(data){
-      console.log('创建', data)
       this.btnLoading = true;
       batchCreate(data)
         .then(res => {
-          // const { data: db } = res.data;
-          // this.items.push(db);
           this.batchCreateModalVisible = false;
           this.fetchData();
         })

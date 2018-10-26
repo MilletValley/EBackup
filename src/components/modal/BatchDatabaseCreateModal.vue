@@ -162,7 +162,35 @@ const vm = {
       inputSearch: '',
       currentSelect: [],
       tableData: ['123','3123','31231','3241','879797','97897','980'],
-      confirmData:''
+      confirmData:'',
+      rules: {
+        adminUser: [{
+          required: true,
+          message: `请输入管理员登录账号`,
+          trigger: 'blur',
+        },
+        {
+          length: 20,
+          message: '长度在20个字符以内',
+          trigger: 'blur'
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
+        ],
+        adminPassword: [{
+          required: true,
+          message: `请输入管理员登录密码`,
+          trigger: 'blur',
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        }],
+      }
     };
   },
   created(){
