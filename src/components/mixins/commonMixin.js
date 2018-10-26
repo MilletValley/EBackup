@@ -107,10 +107,10 @@ const webSocketMixin = {
     initWebsocket() {
       // const wsuri = 'ws://121.40.165.18:8800';
       // const wsuri = process.env.WS_API + '/test';
-      if(typeof WebSocket == 'undefined'){
+      if (typeof WebSocket === 'undefined') {
         return;
       }
-      if(!this.wsuri){
+      if (!this.wsuri) {
         return;
       }
       this.websock = new WebSocket(process.env.WS_API + this.wsuri);
@@ -154,7 +154,6 @@ const webSocketMixin = {
       }, 10000);
     },
     websocketonmessage(e) {
-      console.log('获取数据', e);
       this.heartCheck.reset();
       this.heartCheck.start();
       this.wsCall(e);
@@ -165,9 +164,9 @@ const webSocketMixin = {
       // console.log('发送数据');
       this.websock.send(Data);
     },
-    websocketclose(e) {
+    websocketclose() {
       // console.log('连接成功')
-      console.log('断开连接', e);
+      // console.log('断开连接', e);
       this.websock.close();
       // this.initWebsocket();
     },
