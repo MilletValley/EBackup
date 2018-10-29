@@ -85,7 +85,7 @@
               <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
             </el-col>
             <el-col :span="12" :offset="6">
-              <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+              <el-input placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select" size="small">
                 <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
               </el-input>
             </el-col>
@@ -161,7 +161,7 @@ const vm = {
       filterItem: '',
       inputSearch: '',
       currentSelect: [],
-      tableData: ['123','3123','31231','3241','879797','97897','980'],
+      tableData: [],
       confirmData:'',
       rules: {
         adminUser: [{

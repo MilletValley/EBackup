@@ -14,6 +14,13 @@
         <el-form-item label="恢复设备"
                       v-if="!this.isHW"
                       prop="hostIp">
+          <span slot="label">恢复设备
+              <el-popover placement="top" trigger="hover"
+                  content="类型为易备环境的设备"
+                  >
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+          </span>  
           <el-input v-if="isFileHost"
                     v-model="formData.hostIp"></el-input>
           <el-select v-else

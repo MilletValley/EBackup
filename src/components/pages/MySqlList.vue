@@ -163,7 +163,7 @@ export default {
         .then(res => {
           const { data: mysql, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          mysql.id = this.selectedDb.id;
+          // mysql.id = this.selectedDb.id;
           this.items.splice(
             this.items.findIndex(db => db.id === mysql.id),
             1,

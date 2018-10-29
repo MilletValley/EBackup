@@ -199,7 +199,7 @@ export default {
         .then(res => {
           const { data: sqlserver, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          sqlserver.id = this.selectedDb.id;
+          // sqlserver.id = this.selectedDb.id;
           this.items.splice(
             this.items.findIndex(db => db.id === sqlserver.id),
             1,

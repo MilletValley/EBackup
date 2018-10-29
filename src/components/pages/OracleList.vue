@@ -185,7 +185,7 @@ export default {
         .then(res => {
           const { data: oracle, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          oracle.id = this.selectedDb.id;
+          // oracle.id = this.selectedDb.id;
           this.items.splice(
             this.items.findIndex(db => db.id === oracle.id),
             1,
