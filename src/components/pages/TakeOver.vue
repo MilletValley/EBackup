@@ -51,7 +51,7 @@
 
         </el-col>
       </el-row>
-      <div v-for="hostLink in links"
+      <div v-for="hostLink in sortByStartTime(links)"
            :key="hostLink.id">
         <div :class="$style.hostLinkContainer">
           <fieldset :class="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
@@ -324,7 +324,7 @@
               </el-col>
             </el-row>
             <!-- 数据库连接的排列 -->
-            <el-row v-for="dbLink in hostLink.databaseLinks"
+            <el-row v-for="dbLink in sortByCreateTime(hostLink.databaseLinks)"
                     :key="dbLink.id">
               <el-col :span="10">
                 <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
@@ -523,6 +523,7 @@ import SwitchModal from '../modal/SwitchModal';
 import BatchSwitchModal from '../modal/BatchSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
+import dayjs from 'dayjs';
 import {
   fetchAll as fetchAllOracle,
   fetchLinks as fetchLinksOracle,
@@ -1026,6 +1027,34 @@ export default {
     clearTimer() {
       clearInterval(this.timer);
     },
+    sortByCreateTime(data){
+      return data.slice().sort( (a, b) => {
+        const val1 = a.primaryDatabase.createTime;
+        const val2 = b.primaryDatabase.createTime;
+        // 默认是时间排序
+        if(dayjs(val1) < dayjs(val2)){
+            return 1;
+        }else if(dayjs(val1) > dayjs(val2)){
+            return  -1;
+        }else{
+            return 0;
+        }
+      });
+    },
+    sortByStartTime(data){
+      return data.slice().sort( (a, b) => {
+        const val1 = a.startTime;
+        const val2 = b.startTime;
+        // 默认是时间排序
+        if(dayjs(val1) < dayjs(val2)){
+            return 1;
+        }else if(dayjs(val1) > dayjs(val2)){
+            return  -1;
+        }else{
+            return 0;
+        }
+      });
+    }
   },
 
   components: {

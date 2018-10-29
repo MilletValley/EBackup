@@ -102,8 +102,10 @@
   </el-dialog>
 </template>
 <script>
+import { sortMixin } from '../mixins/commonMixin';
 export default {
   name: 'DatabaseLinkCreateModal',
+  mixins: [sortMixin],
   props: {
     productionHosts: {
       type: Array,
@@ -176,7 +178,8 @@ export default {
       );
     },
     databaseTabs() {
-      return this.selectedProductionHost.databases || [];
+      const data = this.selectedProductionHost.databases || [];
+      return this.sortFn(data, 'createTime');
     },
     instanceName() {
       if (this.type === 'oracle') {

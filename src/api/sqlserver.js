@@ -225,6 +225,22 @@ const fetchLinkByLinkId = linkId =>
     url: `/sqlserver-links/${linkId}`,
   });
 
+// 批量添加数据库
+const batchCreate = dbs =>
+  baseApi.request({
+    method: 'post',
+    url: '/database/create/batch',
+    data: dbs
+  });
+
+// 根据设备扫描数据库
+const scanDatabase = host =>
+  baseApi.request({
+    method: 'put',
+    url: '/database/scan',
+    data: host
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -253,4 +269,6 @@ export {
   fetchSwitches,
   fetchLink,
   fetchLinkByLinkId,
+  batchCreate,
+  scanDatabase
 };
