@@ -24,7 +24,7 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="currentItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+    <el-table :data="sortFn(currentItems, 'createTime')|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               style="width: 100%"
               @filter-change="filterChange"
               v-if="items">
@@ -136,10 +136,11 @@ import BatchDatabaseCreateModal from '@/components/modal/BatchDatabaseCreateModa
 import { fetchAll, deleteOne, createOne, modifyOne,batchCreate,
   scanDatabase } from '../../api/sqlserver';
 import { listMixin } from '../mixins/databaseListMixin';
+import { sortMixin } from '../mixins/commonMixin';
 
 export default {
   name: 'SqlServer',
-  mixins: [listMixin],
+  mixins: [listMixin, sortMixin],
   data(){
     return {
       batchCreateModalVisible: false,
@@ -199,7 +200,7 @@ export default {
         .then(res => {
           const { data: sqlserver, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          sqlserver.id = this.selectedDb.id;
+          // sqlserver.id = this.selectedDb.id;
           this.items.splice(
             this.items.findIndex(db => db.id === sqlserver.id),
             1,

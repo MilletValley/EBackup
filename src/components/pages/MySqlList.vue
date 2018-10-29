@@ -19,7 +19,7 @@
         </el-col>
       </el-form>
     </el-row>
-    <el-table :data="items|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+    <el-table :data="sortFn(items, 'createTime')|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               style="width: 100%"
               v-if="items">
       <el-table-column label="序号"
@@ -105,10 +105,11 @@ import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/mysql';
 import { listMixin } from '../mixins/databaseListMixin';
+import { sortMixin } from '../mixins/commonMixin';
 
 export default {
   name: 'MySqlList',
-  mixins: [listMixin],
+  mixins: [listMixin, sortMixin],
   methods: {
     // 从服务器获取所有的MySql数据库
     fetchData() {
@@ -163,7 +164,7 @@ export default {
         .then(res => {
           const { data: mysql, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          mysql.id = this.selectedDb.id;
+          // mysql.id = this.selectedDb.id;
           this.items.splice(
             this.items.findIndex(db => db.id === mysql.id),
             1,

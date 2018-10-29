@@ -226,19 +226,19 @@ const fetchLinkByLinkId = linkId =>
   });
 
 // 批量添加数据库
-const batchCreate = data => 
+const batchCreate = dbs =>
   baseApi.request({
     method: 'post',
     url: '/database/create/batch',
-    data: data
+    data: dbs
   });
 
 // 根据设备扫描数据库
-const scanDatabase = data => 
+const scanDatabase = host =>
   baseApi.request({
     method: 'put',
     url: '/database/scan',
-    data: data
+    data: host
   });
 
 export {
