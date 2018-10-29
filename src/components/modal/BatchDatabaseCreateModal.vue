@@ -90,7 +90,7 @@
               </el-input>
             </el-col>
             
-            <el-table :data="curTableData" @select="selectDbChangeFn"  ref="refTable" size="small"  height="251px" 
+            <el-table :data="curTableData" @select="selectDbChangeFn"  ref="refTable" size="small" 
                   @select-all="((selection) => selectAll(selection, curTableData))">
                 <el-table-column   
                     type="selection"
@@ -118,18 +118,15 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
-                :page-sizes="[5, 10, 15, 20]"
                 :page-size="pagesize"
+                small
                 background
-                layout="total, sizes, prev, pager, next, jumper"
+                layout="prev, pager, next, jumper"
                 v-if="tableData"
                 :total="tableData|filterBySearch(filterItem).length">
             </el-pagination>
           </el-row>
-          
         </el-form-item>
-
-        
       </el-form>
       <span slot="footer">
         <el-button type="primary"
