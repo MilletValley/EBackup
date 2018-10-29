@@ -20,7 +20,7 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="currentItems|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
+    <el-table :data="sortFn(currentItems, 'createTime')|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               style="width: 100%"
               @filter-change="filterChange"
               v-if="items">
@@ -126,10 +126,10 @@ import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/oracle';
 import { listMixin } from '../mixins/databaseListMixin';
-
+import { sortMixin } from '../mixins/commonMixin';
 export default {
   name: 'OracleList',
-  mixins: [listMixin],
+  mixins: [listMixin, sortMixin],
   methods: {
     // 从服务器获取所有的Oracle数据库
     fetchData() {

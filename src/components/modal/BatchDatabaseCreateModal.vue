@@ -13,6 +13,13 @@
                size="small">
         <el-form-item label="所属设备"
                       prop="hostId">
+          <span slot="label">所属设备
+              <el-popover placement="top" trigger="hover"
+                  content="类型为生产环境的设备"
+                  >
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+          </span>    
           <el-select v-model="formData.hostId" :disabled="scanBtnDisable"
                      style="width: 100%;">
             <el-option v-for="host in availableHosts"
@@ -26,27 +33,6 @@
           <el-input v-model="formData.dbPort"
                     placeholder="请输入端口号" disabled></el-input>
         </el-form-item>
-        <!-- <el-form-item label="主机IP"
-                      prop="hostIp">
-          <el-input v-model="formData.hostIp"
-                    placeholder="请输入服务器IP"></el-input>
-        </el-form-item> -->
-        <!-- <el-row>
-          <el-col :span="12">
-            <el-form-item :label="databaseOrInstance"
-                          prop="instanceName">
-              <el-input v-model="formData.instanceName"
-                        :placeholder="`请输入要备份的${databaseOrInstance}`"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="数据库版本"
-                          prop="dbVersion">
-              <el-input v-model="formData.dbVersion"
-                        placeholder="可选"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row> -->
         <el-row>
           <el-col :span="12">
             <el-form-item label="管理员账号"
@@ -63,13 +49,6 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="16">
-            <!-- <el-form-item label="所属业务系统"
-                          prop="application">
-              <el-input v-model="formData.application"
-                        placeholder="可选"></el-input>
-            </el-form-item> -->
-          </el-col>
           <el-col>
             <el-form-item >
               <el-button type="primary" @click="scanDatabase" :loading="scanBtnLoading" :disabled="scanBtnDisable">扫描数据库</el-button>
@@ -77,7 +56,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-        
         
         <el-form-item label="数据库" v-if="showDatabase">
           <el-row style="width:80%" >
@@ -331,6 +309,7 @@ const vm = {
     reset(){
       this.tableData = [];
       this.currentSelect = [];
+      this.currentPage = 1;
       this.showDatabase = false;
       this.scanBtnDisable = false;
       this.isIndeterminate = false;
