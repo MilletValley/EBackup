@@ -220,7 +220,9 @@ export default {
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.singleRestoreForm.clearValidate();
-      this.$refs.tree.setCheckedKeys([]);
+      if(this.isFileHost) {
+        this.$refs.tree.setCheckedKeys([]);
+      }
     },
     nodeClick(item, checked, node) {
       if(checked) {

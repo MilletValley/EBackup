@@ -18,7 +18,6 @@ import global from './utils/global';
 Vue.use(ElementUI);
 Vue.use(global);
 Vue.config.productionTip = false;
-window.eventBus = new Vue(); // 文件系统用来发送文件列表数据，文件详情页接收
 
 dayjs.locale('zh-cn');
 

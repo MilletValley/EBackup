@@ -114,6 +114,7 @@ import { detailPageMixin } from '../mixins/detailPageMixins';
 import {
   modifyOne,
   fetchOne,
+  fetchAll,
   fetchBackupPlans,
   fetchBackupResults,
   fetchOriginPath,
@@ -187,17 +188,16 @@ export default {
       fileHostOriginPath: []
     };
   },
-  created() {
-    eventBus.$on('jumpToDetail', (filteredInfos) => {
-      this.filteredInfos = filteredInfos
-      console.log(this.filteredInfos)
-    })
-  },
-  beforeDestroy () {
-    eventBus.$off('jumpToDetail');
-  },
   methods: {
     fetchData() {
+      fetchAll() // 获取文件列表信息
+        .then(res => {
+          const { data: infos } = res.data;
+          this.filteredInfos = infos;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
       fetchOne(this.id)
         .then(res => {
           const { data: db } = res.data;
@@ -236,8 +236,8 @@ export default {
       });
     },
     // 单次恢复的源恢复路径请求
-    fetchFileHostOriginPath() {
-      fetchOriginPath(this.id)
+    fetchFileHostOriginPath(id) {
+      fetchOriginPath(id)
         .then(res => {
           const { data: fileHostPath } = res.data;
           this.fileHostOriginPath = fileHostPath;

@@ -274,7 +274,6 @@ export default {
     },
     // 点击恢复按钮
     restoreBtnClick({ id }) {
-      console.log(this.handleData)
       this.$emit('single-restore-btn-click', id);
       // this.selectedId = id;
       // this.singleRestoreModalVisible = true;
