@@ -22,6 +22,13 @@
       <el-row v-if="!isVMware && !isHW">
         <el-form-item label="恢复设备"
                       prop="hostIp">
+          <span slot="label">恢复设备
+              <el-popover placement="top" trigger="hover"
+                  content="类型为易备环境的设备"
+                  >
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+          </span>  
           <el-select v-model="formData.hostIp"
                       style="width: 100%;">
             <el-option v-for="host in selectionHosts"
@@ -223,7 +230,6 @@ export default {
           dbPort: this.database.dbPort
         }
       }
-      console.log(this.database)
       this.formData = Object.assign({}, this.formData, customData)
       console.log(this.formData)
       // if(this.isVMware){

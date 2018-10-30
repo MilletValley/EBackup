@@ -19,6 +19,13 @@
         </el-form-item>
         <el-form-item label="所属设备"
                       prop="hostId">
+          <span slot="label">所属设备
+              <el-popover placement="top" trigger="hover"
+                  content="类型为生产环境的设备"
+                  >
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+          </span>            
           <el-select v-model="formData.hostId"
                      style="width: 100%;">
             <el-option v-for="host in availableHosts"
