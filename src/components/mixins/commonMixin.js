@@ -34,21 +34,20 @@ const paginationMixin = {
 const sortMixin = {
   methods: {
     sortFn(data, column) {
-      return data.slice().sort( (a, b) => {
+      return data.slice().sort((a, b) => {
         const val1 = a[column];
         const val2 = b[column];
         // 默认是时间排序
-        if(dayjs(val1) < dayjs(val2)){
-            return 1;
-        }else if(dayjs(val1) > dayjs(val2)){
-            return  -1;
-        }else{
-            return 0;
+        if (dayjs(val1) < dayjs(val2)) {
+          return 1;
+        } else if (dayjs(val1) > dayjs(val2)) {
+          return -1;
         }
+        return 0;
       });
     }
   }
-}
+};
 
 const filterMixin = {
   data() {

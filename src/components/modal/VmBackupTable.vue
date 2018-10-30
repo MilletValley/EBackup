@@ -37,17 +37,8 @@
                         min-width="150"
                         label="状态">
             <template slot-scope="scope">
-                <!-- <el-tooltip 
-                            :content="tipsText(scope.row.vmBackupResult)"
-                            placement="left"
-                            effect="light">
-                    <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i>
-                </el-tooltip> -->
                 <el-progress :text-inside="false" :stroke-width="12" :percentage="formatProcess(scope.row)" :status="formatState(scope.row.state)">
-                    
                 </el-progress>
-                <!-- <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i> -->
-                
             </template>
         </el-table-column>
         <el-table-column prop="consume" align="left"
@@ -84,7 +75,6 @@
         :page-size="pageSize"
         background
         layout="total, sizes, prev, pager, next, jumper"
-        v-if="tableData"
         :total="currentTableData.length">
     </el-pagination>
 </div>
@@ -107,80 +97,37 @@ export default {
         id: {
             type: Number
         },
-        status: {
-            type: Number
+        tableData: {
+            type: Array,
+            default: () => []
         }
     },
     data(){
         return {
-            tableData: [],
             loading: false,
             timer: null,
             inputSearch: ''
         }
     },
     mounted(){
-        this.fetchAll();
-        this.setTimer(this.timer);
+        // this.fetchAll();
+        // this.setTimer(this.timer);
     },
     destroyed() {
-        this.clearTimer(this.timer);
+        // this.clearTimer(this.timer);
     },
     methods: {
         fetchAll(){
             this.loading = true
             getVmsBackupResult(this.id).then( res => {
-                // const {data} = res.data;
-                // let state,wait = 0, complete = 0;
-                // for(let i ;i<data.length;i++){
-                //     if(data[i].state === 1){
-                //         state = 1;
-                //         return
-                //     }else if(data[i].state === 3){
-                //         state = 3;
-                //         return
-                //     }else if(data[i].state === 0){
-                //         wait++;
-                //     }else if(data[i].state === 2 ){
-                //         complete++;
-                //     }
-                // }
-                // if(!state){
-                //     if(wait !== 0 && complete !== 0){
-                //         state = 1;
-                //     }else if( wait === 0 && complete === 0){
-                //         state = 0;
-                //     }else if(wait !== 0 && complete === 0){
-                //         state = 0;
-                //     }else{
-                //         state = 2;
-                //     }
-                // }
-                // this.$emit('update:status', state);
-                this.tableData = res.data.data;
+               
+                // this.tableData = res.data.data;
             }).catch( error => {
                 this.$message.error(error);
             }).then( () => {
                 this.loading = false
             })
         },
-        // operationStateStyle(state) {
-        //     if (state === 0) {
-        //         return this.$style.waitingColor + ' el-icon-time';
-        //     } else if (state === 1) {
-        //         return this.$style.loadingColor + ' el-icon-loading';
-        //     } else if(state === 3) {
-        //         return this.$style.errorColor + ' el-icon-warning';
-        //     } else if(state === 2){
-        //         return this.$style.successColor + ' el-icon-success';
-        //     }else return '';
-        // },
-        // tipsText(data){
-        //     if(data.state === 1){
-        //         return data.processSpeed;
-        //     }
-        //     return operationStateMapping[data.state];
-        // },
         formatProcess(data){
             if(data.state === 1){
                 return data.processSpeed;
@@ -200,17 +147,17 @@ export default {
             }
             return ''
         },
-        setTimer() {
-            this.clearTimer();
-            this.timer = setInterval(() => {
-                getVmsBackupResult(this.id).then( res => {
-                    this.tableData = res.data.data;
-                })
-            }, 10000);
-        },
-        clearTimer() {
-            clearInterval(this.timer);
-        },
+        // setTimer() {
+        //     this.clearTimer();
+        //     this.timer = setInterval(() => {
+        //         getVmsBackupResult(this.id).then( res => {
+        //             // this.tableData = res.data.data;
+        //         })
+        //     }, 10000);
+        // },
+        // clearTimer() {
+        //     clearInterval(this.timer);
+        // },
         deletePlan(scope){
             this.$confirm(
                 '请确认是否删除？',

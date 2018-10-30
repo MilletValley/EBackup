@@ -1,7 +1,6 @@
 const applyFilterMethods = (originData, methods) =>
   methods.reduce((a, b) => a.filter(b), originData);
 
-
 const fmtSizeFn = process => {
   let size = null;
   if (!process) {

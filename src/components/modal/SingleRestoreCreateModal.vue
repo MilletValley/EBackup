@@ -165,7 +165,7 @@ export default {
         }
       }
       this.formData = Object.assign({}, this.formData, customData)
-      console.log(this.formData)
+      this.originFormData = { ...this.formData };
       // if(this.isVMware){
       //   this.formData.loginName = this.database.vmName;
       //   this.originFormData.loginName = this.database.vmName;
