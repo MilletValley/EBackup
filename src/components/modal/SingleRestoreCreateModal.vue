@@ -104,7 +104,8 @@
           <el-form-item label="密码"
                         prop="password"
                         :rules="[{ required: true, message: '请输入登录密码', trigger: 'blur' },]">
-            <el-input v-model="formData.password"></el-input>
+            <input-toggle v-model="formData.password"
+                          :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
@@ -131,6 +132,7 @@ import dayjs from 'dayjs';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 import IIcon from '@/components/IIcon';
+import { fmtSizeFn } from '../../utils/common';
 
 export default {
   name: 'SingleRestoreCreateModal',
@@ -139,7 +141,8 @@ export default {
   data() {
     return {
       recoveringStrategys: recoveringStrategyMapping,
-      treeVisible: false
+      treeVisible: false,
+      hiddenPassword: true
     };
   },
   computed: {
@@ -157,14 +160,16 @@ export default {
     filterToTime(date) {
       if(!date)
         return '-'
-      return new Date(parseInt(date) * 1000).toLocaleDateString().replace(/\//g, '-') + ' ' +
-             new Date(parseInt(date) * 1000).toTimeString().substr(0, 8)
+      return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
+             new Date(parseInt(date)).toTimeString().substr(0, 8)
     },
     // 单位：b->tb
     filterToTb(size) {
       if(!size)
         return '-'
-      return (size / Math.pow(1024, 4)).toFixed(2) + "T"
+      else if(size<1024)
+        return `${size}B`
+      return fmtSizeFn(Math.round(size/1024));
     }
   },
   methods: {
@@ -211,7 +216,11 @@ export default {
           customData.originDetailInfo = ''; // 文件单次恢复增加源路径
         }
       }
-      this.formData = Object.assign({}, this.formData, customData)
+      this.originFormData = Object.assign({}, this.originFormData, customData);
+      this.formData = { ...this.originFormData };
+      this.$nextTick( () => {
+        this.$refs.singleRestoreForm.clearValidate();
+      });
       // if(this.isVMware){
       //   this.formData.loginName = this.database.vmName;
       //   this.originFormData.loginName = this.database.vmName;
@@ -219,10 +228,10 @@ export default {
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
-      this.$refs.singleRestoreForm.clearValidate();
       if(this.isFileHost) {
         this.$refs.tree.setCheckedKeys([]);
       }
+      this.hiddenPassword = true;
     },
     nodeClick(item, checked, node) {
       if(checked) {

@@ -99,6 +99,7 @@
                             @confirm="updateDetails"
                             :item-info="details"></file-host-update-modal>
     <single-restore-create-modal :type="systemType"
+                                 v-if="systemType"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :btn-loading="btnLoading"
@@ -357,7 +358,7 @@ export default {
     systemType() {
       return this.details && this.details.osName
         ? this.details.osName.toLowerCase()
-        : '';
+        : 'windows';
     },
     availableHostsForRestore() { // 单次立即恢复模态框中的可选设备
       // return this.filteredInfos.filter(host => host.osName === 'Linux')

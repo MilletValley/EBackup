@@ -459,7 +459,7 @@ const restorePlanModalMixin = {
         originDetailInfo: [
           {
             validator: originPathValidate,
-            trigger: 'blur'
+            trigger: 'change'
           }
         ],
         dbPort: [{
