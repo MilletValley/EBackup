@@ -68,7 +68,6 @@
             </el-form>
           </el-col>
         </el-row>
-
       </div>
     </header>
     <tab-panels :id="Number(id)"
@@ -103,6 +102,9 @@
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :btn-loading="btnLoading"
+                                 :tree-data="treeData"
+                                 :file-host-origin-path="fileHostOriginPath"
+                                 :selection-hosts="availableHostsForRestore"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -114,6 +116,7 @@ import {
   fetchOne,
   fetchBackupPlans,
   fetchBackupResults,
+  fetchOriginPath,
   createBackupPlan,
   updateBackupPlan,
   fetchRestorePlans,
@@ -180,7 +183,18 @@ export default {
             this.$message.error(error);
           });
       }),
+      filteredInfos: [],
+      fileHostOriginPath: []
     };
+  },
+  created() {
+    eventBus.$on('jumpToDetail', (filteredInfos) => {
+      this.filteredInfos = filteredInfos
+      console.log(this.filteredInfos)
+    })
+  },
+  beforeDestroy () {
+    eventBus.$off('jumpToDetail');
   },
   methods: {
     fetchData() {
@@ -220,6 +234,17 @@ export default {
         const { data: records } = res.data;
         this.restoreRecords = records;
       });
+    },
+    // 单次恢复的源恢复路径请求
+    fetchFileHostOriginPath() {
+      fetchOriginPath(this.id)
+        .then(res => {
+          const { data: fileHostPath } = res.data;
+          this.fileHostOriginPath = fileHostPath;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     RefreshTime() {
       fetchBackupPlans(this.id)
@@ -334,6 +359,22 @@ export default {
         ? this.details.osName.toLowerCase()
         : '';
     },
+    availableHostsForRestore() { // 单次立即恢复模态框中的可选设备
+      // return this.filteredInfos.filter(host => host.osName === 'Linux')
+      return this.filteredInfos
+    },
+    treeData() { // 数组转树状结构对象, 用于生成单次立即恢复模态框中的源路径树状图
+      let tree = this.fileHostOriginPath.filter(father => {
+        let branchArr = this.fileHostOriginPath.filter(child => {
+          return father.id === child.parentId && child.id !== child.parentId
+        })
+        if(branchArr.length>0) {
+          father.children = branchArr;
+        }
+        return father.id === father.parentId
+      })
+      return tree
+    }
   },
   components: {
     FileHostUpdateModal,

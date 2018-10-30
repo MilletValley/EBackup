@@ -20,20 +20,46 @@
                   >
                   <i class="el-icon-info" slot="reference"></i>
               </el-popover>
-          </span>  
-          <el-input v-if="isFileHost"
-                    v-model="formData.hostIp"></el-input>
-          <el-select v-else
-                      v-model="formData.hostIp"
-                      style="width: 100%;">
+          </span>
+          <el-select v-model="formData.hostIp"
+                     style="width: 100%;">
             <el-option v-for="host in selectionHosts"
                         :key="host.id"
                         :value="host.hostIp"
-                        :label="`${host.name}(${host.hostIp})`">
-              <span style="float: left">{{ host.name }}</span>
+                        :label="`${isFileHost ? host.hostName : host.name}(${host.hostIp})`">
+              <span style="float: left">{{ isFileHost ? host.hostName : host.name }}</span>
               <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item v-if="isFileHost"
+                      label="恢复源路径"
+                      prop="originDetailInfo">
+          <el-popover placement="bottom"
+                      style="height: 300px"
+                      v-model="treeVisible">
+            <div :class="$style.tree">
+              <el-tree :data="treeData"
+                      node-key="id"
+                      highlight-current
+                      :check-strictly="true"
+                      :expand-on-click-node="false"
+                      @node-click="nodeClick"
+                      ref="tree"
+                      :class="$style.treeStyle">
+                <div class="custom-tree-node"
+                      slot-scope="{ node, data }">
+                  <i-icon :name="data.children?'folder':'papers'"
+                          :class="$style.fileHostIcon"></i-icon>
+                  <span>{{ data.fileName }}</span>
+                  <span :class="$style.treeFileSize">{{ data.length | filterToTb }}</span>
+                  <span :class="$style.treeFileTime">{{ data.lastUpTime | filterToTime }}</span>
+                </div>
+              </el-tree>
+            </div>
+            <el-input v-model="formData.originDetailInfo"
+                      slot="reference"></el-input>
+          </el-popover>
         </el-form-item>
         <el-form-item :label="detailInfoDisplayName"
                       prop="detailInfo">
@@ -104,13 +130,16 @@
 import dayjs from 'dayjs';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
+import IIcon from '@/components/IIcon';
 
 export default {
   name: 'SingleRestoreCreateModal',
+  props: ['treeData', 'fileHostOriginPath'],
   mixins: [restorePlanModalMixin],
   data() {
     return {
       recoveringStrategys: recoveringStrategyMapping,
+      treeVisible: false
     };
   },
   computed: {
@@ -122,6 +151,21 @@ export default {
     //   const path = this.$route.path;
     //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     // }
+  },
+  filters: {
+    // 时间戳转日期
+    filterToTime(date) {
+      if(!date)
+        return '-'
+      return new Date(parseInt(date) * 1000).toLocaleDateString().replace(/\//g, '-') + ' ' +
+             new Date(parseInt(date) * 1000).toTimeString().substr(0, 8)
+    },
+    // 单位：b->tb
+    filterToTb(size) {
+      if(!size)
+        return '-'
+      return (size / Math.pow(1024, 4)).toFixed(2) + "T"
+    }
   },
   methods: {
     confirmBtnClick() {
@@ -163,9 +207,11 @@ export default {
         if(['oracle', 'sqlserver', 'mysql'].includes(this.type)) {
           customData.dbPort = this.database.dbPort; // mysql，sqlserver，oracle恢复时需填端口号
         }
+        if(this.isFileHost) {
+          customData.originDetailInfo = ''; // 文件单次恢复增加源路径
+        }
       }
       this.formData = Object.assign({}, this.formData, customData)
-      console.log(this.formData)
       // if(this.isVMware){
       //   this.formData.loginName = this.database.vmName;
       //   this.originFormData.loginName = this.database.vmName;
@@ -174,9 +220,60 @@ export default {
     modalClosed() {
       this.formData = { ...this.originFormData };
       this.$refs.singleRestoreForm.clearValidate();
+      this.$refs.tree.setCheckedKeys([]);
     },
+    nodeClick(item, checked, node) {
+      if(checked) {
+        this.formData.originDetailInfo = item.path
+      } else {
+        this.formData.originDetailInfo = '';
+      }
+      this.treeVisible = false;
+    }
   },
+  components: {
+    IIcon
+  }
 };
 </script>
-<style>
+<style lang="scss" module>
+.treeFileSize,
+.treeFileTime {
+  color: #909399;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 0.2em;
+}
+.treeFileSize {
+  position: absolute;
+  left: 420px;
+}
+.treeFileTime {
+  position: absolute;
+  left: 280px;
+}
+.fileHostIcon {
+  vertical-align: -0.2em;
+  height: 1.4em;
+}
+.tree{
+  overflow-y: auto;
+  // overflow-x: scroll;
+  width:500px;
+  max-height: 200px;
+  .el-tree {
+    max-width: 100%;
+    display:inline-block !important;
+  }
+}
+.treeStyle {
+  .treeStyle .el-tree-node.is-expanded {
+    background-color: blue;
+    .el-tree-node__children {
+      height: 300px;
+      overflow: scroll;
+    }
+  }
+}
 </style>
+

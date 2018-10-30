@@ -91,6 +91,9 @@ export default {
       return applyFilterMethods(this.items, filterMethods);
     },
   },
+  destroyed() {
+    eventBus.$emit('jumpToDetail', this.filteredInfos);
+  },
   methods: {
     fetchData() {
       fetchAll()
