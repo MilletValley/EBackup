@@ -54,7 +54,7 @@
               <span>{{ scope.row.id }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="存储路径">
+                          label="存储目标路径">
               <span>{{ scope.row.path }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
@@ -62,9 +62,9 @@
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="原文件路径"
-                          v-if="isFileBackupResult">
-              <span>{{ scope.row.fileResource }}</span>
+                          label="NFS目标路径"
+                          v-if="type==='linux'">
+              <span>{{ scope.row.nfsTargetPath }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="文件名"
@@ -76,9 +76,9 @@
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="NFS目标路径"
-                          v-if="type==='linux'">
-              <span>{{ scope.row.nfsTargetPath }}</span>
+                          label="源文件路径"
+                          v-if="isFileBackupResult">
+              <span>{{ scope.row.fileResource }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="文件标识符"
@@ -114,7 +114,7 @@
                        width="200px"
                        align="center"></el-table-column>
       <el-table-column v-if="isFileBackupResult"
-                       label="原文件路径"
+                       label="源文件路径"
                        prop="fileResource"
                        min-width="180px"
                        align="center"

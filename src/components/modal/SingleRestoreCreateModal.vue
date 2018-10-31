@@ -57,7 +57,10 @@
                       slot-scope="{ node, data }">
                   <i-icon :name="data.documentType&&data.documentType==='2'?'folder':'papers'"
                           :class="$style.fileHostIcon"></i-icon>
-                  <span :class="$style.treeName">{{ data.fileName }}</span>
+                  <el-tooltip :content="data.fileName"
+                              placement="top-start">
+                    <span :class="$style.treeName">{{ data.fileName }}</span>
+                  </el-tooltip>
                   <span :class="$style.treeFileSize">{{ data.length | filterToTb }}</span>
                   <span :class="$style.treeFileTime">{{ data.lastUpTime | filterToTime }}</span>
                 </div>
@@ -277,17 +280,17 @@ export default {
   margin-top: 0.2em;
 }
 .treeName {
-  width: 250px;
+  width: 280px;
   display: inline-block;
   overflow: hidden;
 }
 .treeFileSize {
   position: absolute;
-  left: 515px;
+  right: 20px;
 }
 .treeFileTime {
   position: absolute;
-  left: 375px;
+  right: 90px;
 }
 .fileHostIcon {
   vertical-align: -0.2em;

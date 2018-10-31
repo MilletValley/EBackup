@@ -67,13 +67,13 @@
             </p> -->
             <el-row :class="$style.margin14">
               <el-col :span=12>
-                <i-icon name="instance"
+                <i-icon :name="type==='linux'?'nfsPath':'instance'"
                         :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip :content="detailInfoDisplayName"
+                <el-tooltip :content="type==='linux'?'源NFS路径':detailInfoDisplayName"
                             placement="right"
                             :open-delay="300">
                   <span v-if="isVMware">{{item.config.newName }}</span>
-                  <span v-else-if="isFile">{{ item.config.detailInfo }}</span>
+                  <span v-else-if="isFile">{{ type==='linux'?item.config.nfsSourcePath:item.config.detailInfo }}</span>
                   <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
                 </el-tooltip>
               </el-col>
@@ -88,23 +88,14 @@
               </el-col>
             </el-row>
             <el-row :class="$style.margin14"
-                    v-if="isFile&&type==='linux'">
-              <el-col :span=12>
-                <i-icon name="sourcePath"
+                    v-if="type==='linux'">
+              <el-col :span=24>
+                <i-icon name="instance"
                         :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip content="恢复源路径"
+                <el-tooltip content="恢复方向"
                             placement="right"
                             :open-delay="300">
-                  <span>{{ item.config.pointSourcePath }}</span>
-                </el-tooltip>
-              </el-col>
-              <el-col :span=12 style="text-align:right">
-                <i-icon name="nfsPath"
-                        :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip content="恢复源NFS路径"
-                            placement="right"
-                            :open-delay="300">
-                  <span>{{ item.config.nfsSourcePath }}</span>
+                  <span>{{ item.config.pointSourcePath }}=>{{item.config.detailInfo}}</span>
                 </el-tooltip>
               </el-col>
             </el-row>
@@ -119,33 +110,33 @@
         <el-table-column prop="startTime"
                          label="开始时间"
                          align="center"
-                         width="200px">
+                         width="150px">
         </el-table-column>
         <el-table-column prop="endTime"
                          label="结束时间"
                          align="center"
-                         width="200px">
+                         width="150px">
         </el-table-column>
         <el-table-column prop="hostIp"
                          :label="isVMware ? '恢复主机IP' : '恢复设备IP'"
                          align="center"
-                         min-width="200px">
+                         min-width="150px">
         </el-table-column>
         <el-table-column v-if="!isVMware"
                          prop="detailInfo"
                          :label="detailInfoDisplayName"
                          align="center"
-                         min-width="200px"></el-table-column>
+                         min-width="150px"></el-table-column>
         <el-table-column v-if="type==='linux'"
-                         prop="pointSourceTarget"
+                         prop="pointSourcePath"
                          label="恢复源路径"
                          align="center"
-                         min-width="200px"></el-table-column>
+                         min-width="150px"></el-table-column>
         <el-table-column v-if="type==='linux'"
-                         prop="nfsSourceTarget"
+                         prop="nfsSourcePath"
                          label="恢复源NFS路径"
                          align="center"
-                         min-width="200px"></el-table-column>
+                         min-width="150px"></el-table-column>
         <el-table-column v-if="isVMware" 
                          prop="newName"
                          label="新虚拟机名"
@@ -157,12 +148,12 @@
                          :formatter="sizeFmt"
                          label="大小"
                          align="center"
-                         width="120px">
+                         width="70px">
         </el-table-column>
         <el-table-column prop="state"
                          label="状态"
                          align="center"
-                         width="100px">
+                         width="70px">
           <template slot-scope="scope">
             <el-tooltip :disabled="scope.row.state === 0"
                         :content="scope.row.errorMsg"
@@ -212,8 +203,8 @@ export default {
         oracle: '实例',
         sqlserver: '数据库',
         mysql: '数据库',
-        windows: '恢复路径',
-        linux: '恢复路径',
+        windows: '恢复目标路径',
+        linux: '恢复目标路径',
         vm: '虚拟机',
       };
       return mapping[this.type] ? mapping[this.type] : '';

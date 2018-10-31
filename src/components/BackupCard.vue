@@ -24,33 +24,33 @@
     </div>
     <el-row type="flex">
       <el-col :span="18">
-        <el-form :label-width="type==='linux'?'130px':'100px'"
+        <el-form label-width="100px"
                  size="mini"
                  :class="type==='linux' ? $style.backupCardForm : ''">
           <el-form-item label="计划开始时间"
-                        :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}"
-                        :class="backupCardFormItemStyle">
+                        :class="$style.backupCardFormItem"
+                        :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
             <span>{{ backupConfig.startTime }}</span>
           </el-form-item>
           <el-form-item v-if="type === 'windows'"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         label="是否备份系统"
                         style="width: 40%">
             <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
           </el-form-item>
           <el-form-item label="备份策略"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ backupStrategy }}</span>
           </el-form-item>
           <el-form-item label="时间策略"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ timeStrateg }}</span>
           </el-form-item>
           <el-form-item label="时间"
                         v-if="backupConfig.timeStrategy === 0"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -59,7 +59,7 @@
           </el-form-item>
           <el-form-item label="星期"
                         v-if="backupConfig.timeStrategy === 4"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -70,7 +70,7 @@
           </el-form-item>
           <el-form-item label="日期"
                         v-if="backupConfig.timeStrategy === 5"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -81,7 +81,7 @@
           </el-form-item>
           <el-form-item label="时间"
                         v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -92,28 +92,28 @@
           </el-form-item>
           <el-form-item label="间隔"
                         v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
                       size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="备份源路径"
+          <el-form-item label="源文件路径"
                         v-if="type === 'windows' || type === 'linux'"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="40%">
             <span>{{ backupOperation.backupPath }}</span>
           </el-form-item>
-          <el-form-item label="备份目标路径"
+          <el-form-item label="存储目标路径"
                         v-if="type === 'linux'"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="40%">
             <span>{{ backupOperation.pointTargetPath }}</span>
           </el-form-item>
-          <el-form-item label="备份NFS目标路径"
+          <el-form-item label="NFS目标路径"
                         v-if="type === 'linux'"
-                        :class="backupCardFormItemStyle"
+                        :class="$style.backupCardFormItem"
                         style="40%">
             <span>{{ backupOperation.nfsTargetPath }}</span>
           </el-form-item>
@@ -303,11 +303,6 @@ export default {
       }
       return fmtSize ? fmtSize : '-';
     },
-    backupCardFormItemStyle() {
-      return {
-        '$style.backupCardFormItem': this.type === 'linux'
-      }
-    }
   },
   methods: {
     planDeleteBtnClick() {
@@ -389,7 +384,6 @@ export default {
 .backupCardForm {
   .backupCardFormItem {
     margin-bottom: 0;
-    background-color: red;
   }
 }
 .operationInfo {
