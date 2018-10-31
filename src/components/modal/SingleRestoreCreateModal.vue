@@ -21,8 +21,12 @@
                   <i class="el-icon-info" slot="reference"></i>
               </el-popover>
           </span>
+          <el-input v-model="formData.hostIp"
+                    placeholder="请输入恢复设备"
+                    v-if="isFileHost&&type==='windows'"></el-input>
           <el-select v-model="formData.hostIp"
-                     style="width: 100%;">
+                     style="width: 100%;"
+                     v-else>
             <el-option v-for="host in selectionHosts"
                         :key="host.id"
                         :value="host.hostIp"
@@ -32,13 +36,15 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="isFileHost"
+        <el-form-item v-if="isFileHost&&type==='linux'"
                       label="恢复源路径"
                       prop="originDetailInfo">
           <el-popover placement="bottom"
-                      style="height: 300px"
+                      style="height: 300px;"
                       v-model="treeVisible">
-            <div :class="$style.tree">
+            <div :class="$style.tree"
+                 ref="outerTree"
+                 id="outerTree">
               <el-tree :data="treeData"
                       node-key="id"
                       highlight-current
@@ -49,15 +55,16 @@
                       :class="$style.treeStyle">
                 <div class="custom-tree-node"
                       slot-scope="{ node, data }">
-                  <i-icon :name="data.children?'folder':'papers'"
+                  <i-icon :name="data.documentType&&data.documentType==='2'?'folder':'papers'"
                           :class="$style.fileHostIcon"></i-icon>
-                  <span>{{ data.fileName }}</span>
+                  <span :class="$style.treeName">{{ data.fileName }}</span>
                   <span :class="$style.treeFileSize">{{ data.length | filterToTb }}</span>
                   <span :class="$style.treeFileTime">{{ data.lastUpTime | filterToTime }}</span>
                 </div>
               </el-tree>
             </div>
             <el-input v-model="formData.originDetailInfo"
+                      ref="originPathInput"
                       slot="reference"></el-input>
           </el-popover>
         </el-form-item>
@@ -109,7 +116,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item v-if="isFileHost"
+      <el-form-item v-if="isFileHost&&type==='windows'"
                     label="覆盖策略"
                     prop="reveringStrategy">
         <el-radio-group v-model="formData.recoveringStrategy">
@@ -214,12 +221,25 @@ export default {
         }
         if(this.isFileHost) {
           customData.originDetailInfo = ''; // 文件单次恢复增加源路径
+          customData.documentType = ''; // 文件类型
+          customData.recoveringStrategy = 1; //
         }
       }
       this.originFormData = Object.assign({}, this.originFormData, customData);
       this.formData = { ...this.originFormData };
       this.$nextTick( () => {
         this.$refs.singleRestoreForm.clearValidate();
+        if(this.$refs.outerTree) { // 源路径树形图宽度 = 源路径输入框宽度
+          // 外层父元素渲染在最外层且存在padding值
+          let treeParentNode = document.getElementById('outerTree').parentNode;
+          treeParentNode.style.paddingLeft = 0;
+          treeParentNode.style.paddingRight = 0;
+          this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
+          const that = this;
+          window.onresize = function windowResize() {
+            that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px';
+          };
+        }
       });
       // if(this.isVMware){
       //   this.formData.loginName = this.database.vmName;
@@ -228,14 +248,15 @@ export default {
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
-      if(this.isFileHost) {
+      if(this.isFileHost&&this.type==='linux') {
         this.$refs.tree.setCheckedKeys([]);
       }
       this.hiddenPassword = true;
     },
     nodeClick(item, checked, node) {
       if(checked) {
-        this.formData.originDetailInfo = item.path
+        this.formData.originDetailInfo = item.path;
+        this.formData.documentType = item.documentType;
       } else {
         this.formData.originDetailInfo = '';
       }
@@ -255,13 +276,18 @@ export default {
   font-size: 0.9em;
   margin-top: 0.2em;
 }
+.treeName {
+  width: 250px;
+  display: inline-block;
+  overflow: hidden;
+}
 .treeFileSize {
   position: absolute;
-  left: 420px;
+  left: 515px;
 }
 .treeFileTime {
   position: absolute;
-  left: 280px;
+  left: 375px;
 }
 .fileHostIcon {
   vertical-align: -0.2em;
@@ -270,7 +296,7 @@ export default {
 .tree{
   overflow-y: auto;
   // overflow-x: scroll;
-  width:500px;
+  // width:564px;
   max-height: 200px;
   .el-tree {
     max-width: 100%;

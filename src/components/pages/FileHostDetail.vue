@@ -194,7 +194,7 @@ export default {
       fetchAll() // 获取文件列表信息
         .then(res => {
           const { data: infos } = res.data;
-          this.filteredInfos = infos;
+          this.filteredInfos = infos.filter(info => info.osName==='Linux');
         })
         .catch(error => {
           this.$message.error(error);

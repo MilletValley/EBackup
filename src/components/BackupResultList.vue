@@ -46,7 +46,7 @@
       <el-table-column type="expand">
         <template slot-scope="scope">
           <el-form inline
-                   label-width="90px"
+                   label-width="100px"
                    size="small"
                    class="result-detail-form">
             <el-form-item :class="$style.detailFormItem"
@@ -72,9 +72,13 @@
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="结束时间"
-                          >
+                          label="结束时间">
               <span>{{ scope.row.endTime }}</span>
+            </el-form-item>
+            <el-form-item :class="$style.detailFormItem"
+                          label="NFS目标路径"
+                          v-if="type==='linux'">
+              <span>{{ scope.row.nfsTargetPath }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="文件标识符"

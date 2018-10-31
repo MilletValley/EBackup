@@ -65,7 +65,6 @@
                 <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
               </el-tooltip>
             </p> -->
-
             <el-row :class="$style.margin14">
               <el-col :span=12>
                 <i-icon name="instance"
@@ -87,9 +86,28 @@
                   <span>{{ item | sizeFormat(type) }}</span>
                 </el-tooltip>
               </el-col>
-              
             </el-row>
-
+            <el-row :class="$style.margin14"
+                    v-if="isFile&&type==='linux'">
+              <el-col :span=12>
+                <i-icon name="sourcePath"
+                        :class="$style.ongoingRestoreIcon"></i-icon>
+                <el-tooltip content="恢复源路径"
+                            placement="right"
+                            :open-delay="300">
+                  <span>{{ item.config.pointSourcePath }}</span>
+                </el-tooltip>
+              </el-col>
+              <el-col :span=12 style="text-align:right">
+                <i-icon name="nfsPath"
+                        :class="$style.ongoingRestoreIcon"></i-icon>
+                <el-tooltip content="恢复源NFS路径"
+                            placement="right"
+                            :open-delay="300">
+                  <span>{{ item.config.nfsSourcePath }}</span>
+                </el-tooltip>
+              </el-col>
+            </el-row>
           </el-card>
         </el-col>
       </el-row>
@@ -113,11 +131,21 @@
                          align="center"
                          min-width="200px">
         </el-table-column>
-        <el-table-column v-if="!isVMware" prop="detailInfo"
+        <el-table-column v-if="!isVMware"
+                         prop="detailInfo"
                          :label="detailInfoDisplayName"
                          align="center"
-                         min-width="200px">
-        </el-table-column>
+                         min-width="200px"></el-table-column>
+        <el-table-column v-if="type==='linux'"
+                         prop="pointSourceTarget"
+                         label="恢复源路径"
+                         align="center"
+                         min-width="200px"></el-table-column>
+        <el-table-column v-if="type==='linux'"
+                         prop="nfsSourceTarget"
+                         label="恢复源NFS路径"
+                         align="center"
+                         min-width="200px"></el-table-column>
         <el-table-column v-if="isVMware" 
                          prop="newName"
                          label="新虚拟机名"
