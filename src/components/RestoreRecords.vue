@@ -245,7 +245,8 @@ export default {
   methods: {
     sizeFmt(row, column, cellValue, index){
       let fmtSize = null;
-      const process = Number(cellValue);
+      let size = this.type==='linux'?row.size:row.backupResult.size;
+      const process = Number(size);
       fmtSize = fmtSizeFn(process);
       return fmtSize ? fmtSize : '-';
     },
