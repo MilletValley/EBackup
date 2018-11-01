@@ -25,26 +25,32 @@
     <el-row type="flex">
       <el-col :span="18">
         <el-form label-width="100px"
-                 size="mini">
+                 size="mini"
+                 :class="type==='linux' ? $style.backupCardForm : ''">
           <el-form-item label="计划开始时间"
+                        :class="$style.backupCardFormItem"
                         :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
             <span>{{ backupConfig.startTime }}</span>
           </el-form-item>
           <el-form-item v-if="type === 'windows'"
+                        :class="$style.backupCardFormItem"
                         label="是否备份系统"
                         style="width: 40%">
             <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
           </el-form-item>
           <el-form-item label="备份策略"
+                        :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ backupStrategy }}</span>
           </el-form-item>
           <el-form-item label="时间策略"
+                        :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ timeStrateg }}</span>
           </el-form-item>
           <el-form-item label="时间"
                         v-if="backupConfig.timeStrategy === 0"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -53,6 +59,7 @@
           </el-form-item>
           <el-form-item label="星期"
                         v-if="backupConfig.timeStrategy === 4"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -63,6 +70,7 @@
           </el-form-item>
           <el-form-item label="日期"
                         v-if="backupConfig.timeStrategy === 5"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -73,6 +81,7 @@
           </el-form-item>
           <el-form-item label="时间"
                         v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -83,15 +92,30 @@
           </el-form-item>
           <el-form-item label="间隔"
                         v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
                       size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="备份路径"
-                        v-if="type === 'windows' || type === 'linux'">
+          <el-form-item label="源文件路径"
+                        v-if="type === 'windows' || type === 'linux'"
+                        :class="$style.backupCardFormItem"
+                        style="40%">
             <span>{{ backupOperation.backupPath }}</span>
+          </el-form-item>
+          <el-form-item label="存储目标路径"
+                        v-if="type === 'linux'"
+                        :class="$style.backupCardFormItem"
+                        style="40%">
+            <span>{{ backupOperation.pointTargetPath }}</span>
+          </el-form-item>
+          <el-form-item label="NFS目标路径"
+                        v-if="type === 'linux'"
+                        :class="$style.backupCardFormItem"
+                        style="40%">
+            <span>{{ backupOperation.nfsTargetPath }}</span>
           </el-form-item>
         </el-form>
       </el-col>
@@ -278,7 +302,7 @@ export default {
         fmtSize = fmtSizeFn(fmtSize);
       }
       return fmtSize ? fmtSize : '-';
-    }
+    },
   },
   methods: {
     planDeleteBtnClick() {
@@ -355,6 +379,11 @@ export default {
   transition: all 0.5s ease;
   &:hover {
     transform: rotate(180deg);
+  }
+}
+.backupCardForm {
+  .backupCardFormItem {
+    margin-bottom: 0;
   }
 }
 .operationInfo {

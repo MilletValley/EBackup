@@ -54,8 +54,8 @@
       <div v-for="hostLink in sortByStartTime(links)"
            :key="hostLink.id">
         <div :class="$style.hostLinkContainer">
-          <fieldset :class="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
-            <legend v-if="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
+          <fieldset :class="hostLink.primaryHost&&hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
+            <legend v-if="hostLink.primaryHost&&hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
             <el-row type="flex"
                     justify="space-around">
               <el-col :span="10">

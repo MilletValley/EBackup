@@ -14,6 +14,12 @@ const fetchOne = id =>
     url: `/file-hosts/${id}`,
   });
 
+const fetchOriginPath = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/file-host-backup-results/${id}/file-host-origin-path`,
+  });
+
 const createOne = data =>
   baseApi.request({
     method: 'post',
@@ -121,6 +127,7 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
+  fetchOriginPath,
   createBackupPlan,
   deleteBackupPlan,
   updateBackupPlan,
