@@ -72,7 +72,7 @@
                     <span>{{ details.host.name }}</span>
                   </el-form-item>
                   <el-form-item label="操作系统：">
-                    <span>{{ details.host.osName }}</span>
+                    <span>{{ judgeOsName(details.host) }}</span>
                   </el-form-item>
                   <el-form-item label="所属设备：">
                     <span>{{ details.host.name }}</span>
@@ -187,6 +187,7 @@ import {
   fetchLink,
 } from '../../api/sqlserver';
 import takeoverMixin from '../mixins/takeoverMixins';
+import { windowsTypeMapping } from '../../utils/constant';
 
 export default {
   name: 'SqlServerDetail',
@@ -487,6 +488,13 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
+    },
+    judgeOsName(data){
+      let str = data.osName;
+      if(data.osName === 'Windows' && data.databaseType === 2 && windowsTypeMapping[data.windowsType]){
+        str += (' ' + windowsTypeMapping[data.windowsType]);
+      }
+      return str;
     },
   },
 };
