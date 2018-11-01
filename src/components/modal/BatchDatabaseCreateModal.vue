@@ -31,7 +31,7 @@
         <el-form-item label="端口"
                       prop="dbPort">
           <el-input v-model="formData.dbPort"
-                    placeholder="请输入端口号" disabled></el-input>
+                    placeholder="请输入端口号" :disabled="scanBtnDisable"></el-input>
         </el-form-item>
         <el-row>
           <el-col :span="12">
