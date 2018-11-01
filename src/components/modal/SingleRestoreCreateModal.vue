@@ -61,7 +61,7 @@
                               placement="top-start">
                     <span :class="$style.treeName">{{ data.fileName }}</span>
                   </el-tooltip>
-                  <span :class="$style.treeFileSize">{{ data.length | filterToTb }}</span>
+                  <span :class="$style.treeFileSize" v-if="data.documentType==='1'">{{ data.length | filterToTb }}</span>
                   <span :class="$style.treeFileTime">{{ data.lastUpTime | filterToTime }}</span>
                 </div>
               </el-tree>
