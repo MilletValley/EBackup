@@ -74,9 +74,9 @@
                           v-model="multiFormData[index].viceLoginName"></el-input>
               </el-form-item>
               <el-form-item label="备库密码">
-                <el-input :disabled="keep"
-                          type="password"
-                          v-model="multiFormData[index].vicePassword"></el-input>
+                <input-toggle v-model="multiFormData[index].vicePassword"
+                              :disabled="keep"
+                              :hidden.sync="hiddenPassword"></input-toggle>
               </el-form-item>
               <el-form-item label="保持锁定">
                 <el-switch :disabled="!multiFormData[0].viceLoginName || !multiFormData[0].vicePassword"
@@ -103,6 +103,7 @@
 </template>
 <script>
 import { sortMixin } from '../mixins/commonMixin';
+import InputToggle from '@/components/InputToggle';
 export default {
   name: 'DatabaseLinkCreateModal',
   mixins: [sortMixin],
@@ -134,6 +135,7 @@ export default {
       multiFormData: [], // 多个tab页内的表单数据
       originRequestData: [],
       keep: false,
+      hiddenPassword: true
     };
   },
   watch: {
@@ -249,8 +251,12 @@ export default {
       this.selectedProductionHostId = '';
       this.selectedEbackupHostId = '';
       this.currentTab = '';
+      this.hiddenPassword = true;
     },
   },
+  components: {
+    InputToggle
+  }
 };
 </script>
 <style lang="scss" module>

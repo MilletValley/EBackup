@@ -240,7 +240,7 @@ export default {
           this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
           const that = this;
           window.onresize = function windowResize() {
-            that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px';
+            treeParentNode&&(that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px');
           };
         }
       });

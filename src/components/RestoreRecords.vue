@@ -225,6 +225,7 @@ export default {
   filters:{
     sizeFormat(data, type){
       let fmtSize = null;
+      const { state } = data;
       if(type === 'linux'){
         const process = Number(data.progress);
         const size = Number(data.size);
@@ -239,7 +240,7 @@ export default {
         const restoreSize = size * process / 100;
         fmtSize = fmtSizeFn(restoreSize);
       }
-      return fmtSize ? fmtSize : '-';
+      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     }
   },
   methods: {
@@ -248,7 +249,7 @@ export default {
       let size = this.type==='linux'?row.size:row.backupResult.size;
       const process = Number(size);
       fmtSize = fmtSizeFn(process);
-      return fmtSize ? fmtSize : '-';
+      return fmtSize ? fmtSize : 0;
     },
     fmtProgress(data){
       let process = 0;
