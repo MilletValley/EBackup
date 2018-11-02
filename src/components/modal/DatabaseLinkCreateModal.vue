@@ -42,6 +42,7 @@
                        v-model="selectedDbPort"
                        placeholder="选择端口号">
               <el-option v-for="port in dbPorts"
+                         :disabled="!databaseTabs.length"
                          :key="port.id"
                          :label="port"
                          :value="port"></el-option>
@@ -201,7 +202,7 @@ export default {
       return this.sortFn(data, 'createTime');
     },
     dbPorts() {
-      return this.databaseOnProductionHost.map(db => db.dbPort);
+      return Array.from(new Set(this.databaseOnProductionHost.map(db => db.dbPort)));
     },
     databaseTabs() {
       return this.databaseOnProductionHost.filter(db => db.dbPort === this.selectedDbPort);

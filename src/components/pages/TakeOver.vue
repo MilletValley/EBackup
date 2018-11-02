@@ -651,7 +651,9 @@ export default {
     hostsDatabaseMap() {
       const res = {};
       this.specialHosts.forEach(host => {
-        const databases = this.items.filter(db => db.host.id === host.id);
+        const databases = this.items.filter(
+          db => db.host.id === host.id && !this.databaseLinks.map(dbLink => dbLink.primaryDatabase.id).includes(db.id)
+        );
         res[host.id] = {
           databases,
         };
@@ -667,11 +669,7 @@ export default {
     // 可以进行初始化连接操作的生产设备
     // 该设备下可能没有数据库／实例 需要进一步筛选
     availableProductionHosts() {
-      return this.productionHosts
-        .filter(
-          host => !this.links.find(link => link.primaryHost.id === host.id)
-        )
-        .map(host => {
+      return this.productionHosts.map(host => {
           const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
@@ -679,9 +677,7 @@ export default {
     // 可以进行初始化连接操作的易备设备
     // 该设备可能有数据库／实例 需要进一步筛选
     availableEbackupHosts() {
-      return this.ebackupHosts
-        .filter(host => !this.links.find(link => link.viceHost.id === host.id))
-        .map(host => {
+      return this.ebackupHosts.map(host => {
           const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });

@@ -297,6 +297,7 @@ export default {
   overflow: hidden;
   max-width: 100%;
   display: inline-block;
+  text-overflow: ellipsis;
 }
 .restoreStartTime {
   font-size: 0.8em;
