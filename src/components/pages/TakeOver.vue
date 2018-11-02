@@ -1127,7 +1127,7 @@ $vice-color: #6d6d6d;
   }
 }
 .ipIcon {
-  width: 2em;
+  width: 1.6em;
   display: inline-block;
   vertical-align: -0.3em;
   margin-top: 10px;

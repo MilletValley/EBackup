@@ -66,18 +66,21 @@
               </el-tooltip>
             </p> -->
             <el-row :class="$style.margin14">
-              <el-col :span=12>
-                <i-icon :name="type==='linux'?'nfsPath':'instance'"
-                        :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip :content="type==='linux'?'源NFS路径':detailInfoDisplayName"
+              <el-col :span=18>
+                <el-tooltip :content="type==='linux'?`源NFS路径: ${item.config.nfsSourcePath}`:detailInfoDisplayName"
                             placement="right"
                             :open-delay="300">
-                  <span v-if="isVMware">{{item.config.newName }}</span>
-                  <span v-else-if="isFile">{{ type==='linux'?item.config.nfsSourcePath:item.config.detailInfo }}</span>
-                  <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
+                  <div :class="$style.wordsOverFlow">
+                    <i-icon :name="type==='linux'?'nfsPath':'instance'"
+                            :class="$style.ongoingRestoreIcon"></i-icon>
+                    <span v-if="isVMware">{{item.config.newName }}</span>
+                    <span v-else-if="isFile"
+                          style="display: inline">{{ type==='linux'?item.config.nfsSourcePath:item.config.detailInfo }}</span>
+                    <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
+                  </div>
                 </el-tooltip>
               </el-col>
-              <el-col :span=12 style="text-align:right" v-if="isFile">
+              <el-col :span=6 style="text-align:right" v-if="isFile">
                 <i-icon name="size"
                         :class="$style.ongoingRestoreIcon"></i-icon>
                 <el-tooltip content="已恢复大小"
@@ -90,12 +93,14 @@
             <el-row :class="$style.margin14"
                     v-if="type==='linux'">
               <el-col :span=24>
-                <i-icon name="instance"
-                        :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip content="恢复方向"
+                <el-tooltip :content="`恢复方向: ${item.config.pointSourcePath}=>${item.config.detailInfo}`"
                             placement="right"
                             :open-delay="300">
-                  <span>{{ item.config.pointSourcePath }}=>{{item.config.detailInfo}}</span>
+                  <div :class="$style.wordsOverFlow">
+                    <i-icon name="instance"
+                            :class="$style.ongoingRestoreIcon"></i-icon>
+                    <span>{{ item.config.pointSourcePath }}=>{{item.config.detailInfo}}</span>
+                  </div>
                 </el-tooltip>
               </el-col>
             </el-row>
@@ -286,6 +291,12 @@ export default {
 }
 .ongoingRestoreCard {
   font-size: 14px;
+}
+.wordsOverFlow {
+  white-space:nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  display: inline-block;
 }
 .restoreStartTime {
   font-size: 0.8em;
