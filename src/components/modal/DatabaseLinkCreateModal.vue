@@ -29,8 +29,7 @@
               <el-option v-for="host in ebackupHosts"
                          :key="host.id"
                          :label="host.name"
-                         :value="host.id"
-                         :disabled="!!host.databases.length"></el-option>
+                         :value="host.id"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
