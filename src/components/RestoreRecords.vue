@@ -110,12 +110,12 @@
         <el-table-column prop="startTime"
                          label="开始时间"
                          align="center"
-                         width="150px">
+                         min-width="150px">
         </el-table-column>
         <el-table-column prop="endTime"
                          label="结束时间"
                          align="center"
-                         width="150px">
+                         min-width="150px">
         </el-table-column>
         <el-table-column prop="hostIp"
                          :label="isVMware ? '恢复主机IP' : '恢复设备IP'"
@@ -148,12 +148,12 @@
                          :formatter="sizeFmt"
                          label="大小"
                          align="center"
-                         width="70px">
+                         min-width="70px">
         </el-table-column>
         <el-table-column prop="state"
                          label="状态"
                          align="center"
-                         width="70px">
+                         min-width="70px">
           <template slot-scope="scope">
             <el-tooltip :disabled="scope.row.state === 0"
                         :content="scope.row.errorMsg"
@@ -225,6 +225,7 @@ export default {
   filters:{
     sizeFormat(data, type){
       let fmtSize = null;
+      const { state } = data;
       if(type === 'linux'){
         const process = Number(data.progress);
         const size = Number(data.size);
@@ -239,7 +240,7 @@ export default {
         const restoreSize = size * process / 100;
         fmtSize = fmtSizeFn(restoreSize);
       }
-      return fmtSize ? fmtSize : '-';
+      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     }
   },
   methods: {
@@ -248,7 +249,7 @@ export default {
       let size = this.type==='linux'?row.size:row.backupResult.size;
       const process = Number(size);
       fmtSize = fmtSizeFn(process);
-      return fmtSize ? fmtSize : '-';
+      return fmtSize ? fmtSize : 0;
     },
     fmtProgress(data){
       let process = 0;

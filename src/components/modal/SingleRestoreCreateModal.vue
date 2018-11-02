@@ -61,7 +61,7 @@
                               placement="top-start">
                     <span :class="$style.treeName">{{ data.fileName }}</span>
                   </el-tooltip>
-                  <span :class="$style.treeFileSize">{{ data.length | filterToTb }}</span>
+                  <span :class="$style.treeFileSize" v-if="data.documentType==='1'">{{ data.length | filterToTb }}</span>
                   <span :class="$style.treeFileTime">{{ data.lastUpTime | filterToTime }}</span>
                 </div>
               </el-tree>
@@ -240,7 +240,7 @@ export default {
           this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
           const that = this;
           window.onresize = function windowResize() {
-            that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px';
+            treeParentNode&&(that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px');
           };
         }
       });

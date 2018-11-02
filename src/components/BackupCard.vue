@@ -292,7 +292,7 @@ export default {
       return str;
     },
     backupSize(){
-      let {process, size} = this.backupOperation;
+      let {process, size, state} = this.backupOperation;
       let fmtSize = 0;
       if(this.type === 'linux'){
         process = Number(process);
@@ -301,7 +301,7 @@ export default {
         fmtSize = this.progressNum * Number(size) / 100;
         fmtSize = fmtSizeFn(fmtSize);
       }
-      return fmtSize ? fmtSize : '-';
+      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     },
   },
   methods: {

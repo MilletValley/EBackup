@@ -62,9 +62,9 @@
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="NFS目标路径"
-                          v-if="type==='linux'">
-              <span>{{ scope.row.nfsTargetPath }}</span>
+                          label="源文件路径"
+                          v-if="isFileBackupResult">
+              <span>{{ scope.row.fileResource }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="文件名"
@@ -76,13 +76,13 @@
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="源文件路径"
-                          v-if="isFileBackupResult">
-              <span>{{ scope.row.fileResource }}</span>
+                          label="NFS目标路径"
+                          v-if="type==='linux'">
+              <span>{{ scope.row.nfsTargetPath }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="文件标识符"
-                          v-if="isFileBackupResult">
+                          v-if="type==='windows'">
               <span>{{ scope.row.identifier }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
@@ -110,8 +110,8 @@
       </el-table-column>
       <el-table-column label="文件标识符"
                        prop="identifier"
-                       v-if="isFileBackupResult"
-                       width="200px"
+                       v-if="type==='windows'"
+                       min-width="180px"
                        align="center"></el-table-column>
       <el-table-column v-if="isFileBackupResult"
                        label="源文件路径"
@@ -127,20 +127,20 @@
                        header-align="center"></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
-                       min-width="200px"
+                       min-width="150px"
                        align="center"></el-table-column>
       <el-table-column label="结束时间"
                        prop="endTime"
-                       min-width="200px"
+                       min-width="150px"
                        :sortable="true"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
-                       width="120px"
+                       min-width="100px"
                        align="center"></el-table-column>
       <el-table-column label="状态"
                        prop="state"
-                       width="70px"
+                       min-width="70px"
                        align="center">
         <template slot-scope="scope">
           <i v-if="scope.row.state === 0"
@@ -152,7 +152,7 @@
         </template>
       </el-table-column>
       <el-table-column label="操作"
-                       width="140px"
+                       min-width="100px"
                        align="center"
                        v-if="!this.isVM">
         <template slot-scope="scope">
