@@ -35,8 +35,21 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="选择端口号">
+            <el-select style="width: 90%;"
+                       v-model="selectedDbPort"
+                       placeholder="选择端口号">
+              <el-option v-for="port in dbPorts"
+                         :key="port.id"
+                         :label="port"
+                         :value="port"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
     </el-form>
-
     <section :class="$style.configureTabContainer">
       <el-tabs value="default"
                type="border-card"
@@ -131,6 +144,7 @@ export default {
     return {
       selectedProductionHostId: '', // 选择的生产设备ID
       selectedEbackupHostId: '', // 选择的易备设备ID
+      selectedDbPort: '', // 选择端口号
       currentTab: '', // 当前Tab页name
       multiFormData: [], // 多个tab页内的表单数据
       originRequestData: [],
@@ -143,6 +157,9 @@ export default {
      * 主设备变更时，清空表单数据，重制tab页
      */
     selectedProductionHostId(value) {
+      this.selectedDbPort = this.dbPorts[0] || ''
+    },
+    selectedDbPort(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
         primaryDatabaseId: db.id,
         // primaryLsn: '',
@@ -179,9 +196,15 @@ export default {
         ) || {}
       );
     },
-    databaseTabs() {
+    databaseOnProductionHost() {
       const data = this.selectedProductionHost.databases || [];
       return this.sortFn(data, 'createTime');
+    },
+    dbPorts() {
+      return this.databaseOnProductionHost.map(db => db.dbPort);
+    },
+    databaseTabs() {
+      return this.databaseOnProductionHost.filter(db => db.dbPort === this.selectedDbPort);
     },
     instanceName() {
       if (this.type === 'oracle') {
@@ -250,6 +273,7 @@ export default {
     modalClosed() {
       this.selectedProductionHostId = '';
       this.selectedEbackupHostId = '';
+      this.selectedDbPort = '';
       this.currentTab = '';
       this.hiddenPassword = true;
     },
