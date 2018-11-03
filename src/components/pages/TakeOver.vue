@@ -505,6 +505,7 @@
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
+                                :links="links"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
                                 :type="databaseType"
@@ -556,7 +557,7 @@ import {
 import takeoverMixin from '../mixins/takeoverMixins';
 import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
-import { items, links, hosts, hosts2 } from '../../utils/mock-data';
+// import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
 const fetchDatabaseMethod = {
   oracle: fetchAllOracle,
@@ -969,7 +970,18 @@ export default {
         .then(res => {
           const { data: link } = res.data;
           this.linkCreateModalVisible = false;
-          this.links.push(link);
+          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === link.id);
+          if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
+            const databaseLinks = this.links.find(linked => linked.id === link.id).databaseLinks;
+            link.databaseLinks = link.databaseLinks.concat(databaseLinks);
+            this.links.splice(
+              alreadyLinkedIndex,
+              1,
+              link
+            );
+          } else { // 新创建的设备连接与实例连接
+            this.links.push(link);
+          }
         })
         .catch(error => {
           this.$message.error(error);

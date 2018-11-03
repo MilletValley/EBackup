@@ -29,7 +29,8 @@
               <el-option v-for="host in ebackupHosts"
                          :key="host.id"
                          :label="host.name"
-                         :value="host.id"></el-option>
+                         :value="host.id"
+                         :disabled="!ebackupHostsAvailable(host.id)"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -127,6 +128,9 @@ export default {
     ebackupHosts: {
       type: Array,
     },
+    links: {
+      type: Array
+    },
     visible: {
       type: Boolean,
     },
@@ -138,7 +142,7 @@ export default {
     },
     btnLoading: {
       type: Boolean,
-    }
+    },
   },
   data() {
     return {
@@ -157,7 +161,8 @@ export default {
      * 主设备变更时，清空表单数据，重制tab页
      */
     selectedProductionHostId(value) {
-      this.selectedDbPort = this.dbPorts[0] || ''
+      this.selectedDbPort = this.dbPorts[0] || '';
+      this.selectedEbackupHostId = '';
     },
     selectedDbPort(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
@@ -266,6 +271,18 @@ export default {
           this.currentTab = errorDbId;
           this.$message.warning('初始化信息不能为空');
         });
+    },
+    ebackupHostsAvailable(id) {
+      const ebackupHostIdsLinkedProductionHost = this.links
+        .filter(link => link.primaryHost.id === this.selectedProductionHostId)
+        .map(link => link.viceHost.id);
+      if(!this.selectedProductionHostId) { //未选择主设备时，备设备不可选
+        return false;
+      } else if(!ebackupHostIdsLinkedProductionHost.length) { // 当前已选主设备无连接
+        return true;
+      } else {  // 数组是当前已选主设备所连的备设备
+        return ebackupHostIdsLinkedProductionHost.includes(id);
+      }
     },
     modalOpened() {
       // this.originRequestData = { ...this.requestData };

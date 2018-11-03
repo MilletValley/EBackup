@@ -93,13 +93,13 @@
             <el-row :class="$style.margin14"
                     v-if="type==='linux'">
               <el-col :span=24>
-                <el-tooltip :content="`恢复方向: ${item.config.pointSourcePath}=>${item.config.detailInfo}`"
+                <el-tooltip :content="`恢复方向: ${item.config.originDetailInfo}=>${item.config.detailInfo}`"
                             placement="right"
                             :open-delay="300">
                   <div :class="$style.wordsOverFlow">
                     <i-icon name="instance"
                             :class="$style.ongoingRestoreIcon"></i-icon>
-                    <span>{{ item.config.pointSourcePath }}=>{{item.config.detailInfo}}</span>
+                    <span>{{ item.config.originDetailInfo }}=>{{item.config.detailInfo}}</span>
                   </div>
                 </el-tooltip>
               </el-col>
