@@ -353,6 +353,9 @@ export default {
         }
         const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
         const result = data.match(reg);
+        if(!result){
+          return;
+        }
         if(result[1]){
           this.disk = result[1];
         }
