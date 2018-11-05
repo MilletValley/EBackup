@@ -30,7 +30,7 @@
                          :key="host.id"
                          :label="host.name"
                          :value="host.id"
-                         :disabled="!!host.databases.length"></el-option>
+                         :disabled="!ebackupHostsAvailable(host.id)"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -42,6 +42,7 @@
                        v-model="selectedDbPort"
                        placeholder="选择端口号">
               <el-option v-for="port in dbPorts"
+                         :disabled="!databaseTabs.length"
                          :key="port.id"
                          :label="port"
                          :value="port"></el-option>
@@ -127,6 +128,9 @@ export default {
     ebackupHosts: {
       type: Array,
     },
+    links: {
+      type: Array
+    },
     visible: {
       type: Boolean,
     },
@@ -138,7 +142,7 @@ export default {
     },
     btnLoading: {
       type: Boolean,
-    }
+    },
   },
   data() {
     return {
@@ -157,7 +161,8 @@ export default {
      * 主设备变更时，清空表单数据，重制tab页
      */
     selectedProductionHostId(value) {
-      this.selectedDbPort = this.dbPorts[0] || ''
+      this.selectedDbPort = this.dbPorts[0] || '';
+      this.selectedEbackupHostId = '';
     },
     selectedDbPort(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
@@ -201,7 +206,7 @@ export default {
       return this.sortFn(data, 'createTime');
     },
     dbPorts() {
-      return this.databaseOnProductionHost.map(db => db.dbPort);
+      return Array.from(new Set(this.databaseOnProductionHost.map(db => db.dbPort)));
     },
     databaseTabs() {
       return this.databaseOnProductionHost.filter(db => db.dbPort === this.selectedDbPort);
@@ -266,6 +271,18 @@ export default {
           this.currentTab = errorDbId;
           this.$message.warning('初始化信息不能为空');
         });
+    },
+    ebackupHostsAvailable(id) {
+      const ebackupHostIdsLinkedProductionHost = this.links
+        .filter(link => link.primaryHost.id === this.selectedProductionHostId)
+        .map(link => link.viceHost.id);
+      if(!this.selectedProductionHostId) { //未选择主设备时，备设备不可选
+        return false;
+      } else if(!ebackupHostIdsLinkedProductionHost.length) { // 当前已选主设备无连接
+        return true;
+      } else {  // 数组是当前已选主设备所连的备设备
+        return ebackupHostIdsLinkedProductionHost.includes(id);
+      }
     },
     modalOpened() {
       // this.originRequestData = { ...this.requestData };

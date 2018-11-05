@@ -505,6 +505,7 @@
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
+                                :links="links"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
                                 :type="databaseType"
@@ -556,7 +557,7 @@ import {
 import takeoverMixin from '../mixins/takeoverMixins';
 import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
-import { items, links, hosts, hosts2 } from '../../utils/mock-data';
+// import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
 const fetchDatabaseMethod = {
   oracle: fetchAllOracle,
@@ -651,7 +652,9 @@ export default {
     hostsDatabaseMap() {
       const res = {};
       this.specialHosts.forEach(host => {
-        const databases = this.items.filter(db => db.host.id === host.id);
+        const databases = this.items.filter(
+          db => db.host.id === host.id && !this.databaseLinks.map(dbLink => dbLink.primaryDatabase.id).includes(db.id)
+        );
         res[host.id] = {
           databases,
         };
@@ -667,11 +670,7 @@ export default {
     // 可以进行初始化连接操作的生产设备
     // 该设备下可能没有数据库／实例 需要进一步筛选
     availableProductionHosts() {
-      return this.productionHosts
-        .filter(
-          host => !this.links.find(link => link.primaryHost.id === host.id)
-        )
-        .map(host => {
+      return this.productionHosts.map(host => {
           const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
@@ -679,9 +678,7 @@ export default {
     // 可以进行初始化连接操作的易备设备
     // 该设备可能有数据库／实例 需要进一步筛选
     availableEbackupHosts() {
-      return this.ebackupHosts
-        .filter(host => !this.links.find(link => link.viceHost.id === host.id))
-        .map(host => {
+      return this.ebackupHosts.map(host => {
           const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
@@ -973,7 +970,18 @@ export default {
         .then(res => {
           const { data: link } = res.data;
           this.linkCreateModalVisible = false;
-          this.links.push(link);
+          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === link.id);
+          if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
+            const databaseLinks = this.links.find(linked => linked.id === link.id).databaseLinks;
+            link.databaseLinks = link.databaseLinks.concat(databaseLinks);
+            this.links.splice(
+              alreadyLinkedIndex,
+              1,
+              link
+            );
+          } else { // 新创建的设备连接与实例连接
+            this.links.push(link);
+          }
         })
         .catch(error => {
           this.$message.error(error);
