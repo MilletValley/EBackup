@@ -317,7 +317,16 @@ export default {
       const map = {};
       data.forEach((result, index) => {
         const {size} = result;
-        let fmtSize = fmtSizeFn(size);
+        let fmtSize = 0;
+        if(this.type === 'windows'){
+          if(Number(size) < 1024){
+            fmtSize = `${size}B`;
+          }else{
+            fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
+          }
+        }else{
+          fmtSize = fmtSizeFn(size);
+        }
         result.size = fmtSize ? fmtSize : 0;
         // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
         if (!map[result.fileResource]) {
