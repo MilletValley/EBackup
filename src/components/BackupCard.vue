@@ -173,7 +173,7 @@
             <div>{{backupOperation.size || '-'}}</div>
           </li>
           <li v-if="isFileBackupResult">
-            <h5>已备份大小</h5>
+            <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}</h5>
             <div>{{backupSize || '-'}}</div>
           </li>
         </ul>
@@ -221,7 +221,7 @@ export default {
   data(){
     return {
       progressNum: 0,
-      disk:'D:'
+      disk:''
     }
   },
   computed: {
@@ -275,18 +275,20 @@ export default {
         if(this.backupOperation.state === 0){
           str = '未开始';
         }else if(this.backupOperation.state === 2){
-          str = this.backupOperation.backupSystem === 'sys' ? `卷(C:)已备份完成,卷(${this.disk})已备份完成` : `卷(${this.disk})已备份完成`;
+          // str = this.backupOperation.backupSystem === 'sys' ? `卷(C:)已备份完成,卷(${this.disk})已备份完成` : `卷(${this.disk})已备份完成`;
+          str = '已完成';
         }else if(this.backupOperation.state === 1){
-          if(this.backupOperation.backupSystem === 'nosys'){
-            //  str = '正在备份卷(D:)';
-            str = `正在备份卷(${this.disk})`;
-          }else if(this.backupOperation.backupSystem === 'sys'){
-            if(this.disk === 'C:'){
-              str = `正在备份卷(C:)`;
-            }else{
-              str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
-            }
-          }
+          // if(this.backupOperation.backupSystem === 'nosys'){
+          //   //  str = '正在备份卷(D:)';
+          //   str = `正在备份卷(${this.disk})`;
+          // }else if(this.backupOperation.backupSystem === 'sys'){
+          //   if(this.disk === 'C:'){
+          //     str = `正在备份卷(C:)`;
+          //   }else{
+          //     str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
+          //   }
+          // }
+          str = `正在备份卷(${this.disk})`;
         }
       }
       return str;
@@ -298,8 +300,10 @@ export default {
         process = Number(process);
         fmtSize = fmtSizeFn(process);
       }else if(this.type === 'windows'){
-        fmtSize = this.progressNum * Number(size) / 100;
-        fmtSize = fmtSizeFn(fmtSize);
+        // const num = size.match(/\d+(\.\d+)?/);
+        // fmtSize = this.progressNum * Number(size) / 100;
+        // fmtSize = fmtSizeFn(fmtSize);
+        fmtSize = size;
       }
       return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     },
@@ -345,7 +349,9 @@ export default {
         }
         const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
         const result = data.match(reg);
-        this.disk = result[1];
+        if(result[1]){
+          this.disk = result[1];
+        }
         if(result[2]){
           let num = Number(result[2].substring(0,result[2].length - 1));
           this.progressNum = num || num === 0 ? num : 0;
