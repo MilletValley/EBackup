@@ -98,7 +98,7 @@ const detailPageMixin = {
     },
     initSingleRestoreModal(id) {
       // 如果是单次恢复文件系统，则需要请求源恢复路径
-      if (this.systemType === 'windows' || this.systemType === 'linux') {
+      if (this.systemType === 'linux') {
         this.fetchFileHostOriginPath(id);
       }
       this.selectedBackupResultId = id;
