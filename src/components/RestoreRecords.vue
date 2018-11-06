@@ -251,9 +251,16 @@ export default {
   methods: {
     sizeFmt(row, column, cellValue, index){
       let fmtSize = null;
-      let size = this.type==='linux'?row.size:row.backupResult.size;
-      const process = Number(size);
-      fmtSize = fmtSizeFn(process);
+      let size = this.type==='linux' ? row.size : row.backupResult.size;
+      if(this.type === 'windows') {
+        if(Number(size) < 1024) {
+          fmtSize = `${size}B`
+        } else {
+          fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
+        }
+      } else {
+        fmtSize = fmtSizeFn(size);
+      }
       return fmtSize ? fmtSize : 0;
     },
     fmtProgress(data){
