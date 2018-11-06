@@ -13,7 +13,6 @@
         <el-button type="info"
                    @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
       </el-form-item>
-
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="primary"
@@ -48,14 +47,17 @@
               <span>易备环境</span>
             </h2>
           </div>
-
         </el-col>
       </el-row>
       <div v-for="hostLink in sortByStartTime(links)"
            :key="hostLink.id">
         <div :class="$style.hostLinkContainer">
-          <fieldset :class="hostLink.primaryHost&&hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
-            <legend v-if="hostLink.primaryHost&&hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
+          <fieldset :class="$style.hostLinkInOs">
+            <legend>
+              <span v-if="hostLink.primaryHost.osName === 'Windows'">Windows</span>
+              <span v-else-if="hostLink.primaryHost.osName === 'Linux'&&hostLink.primaryHost.isRacMark === 1">Linux</span>
+              <span v-else>RAC</span>
+            </legend>
             <el-row type="flex"
                     justify="space-around">
               <el-col :span="10">
@@ -1134,7 +1136,7 @@ $vice-color: #6d6d6d;
   border-radius: 5px;
   background-color: #ffffff;
 }
-.hostLinkIsRac {
+.hostLinkInOs {
   border: 1px dotted $primary-color;
   border-radius: 5px;
   & legend {
