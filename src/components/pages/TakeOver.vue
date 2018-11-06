@@ -77,7 +77,7 @@
                         </el-row>
                       </p>
                     </div>
-                    <div slot="reference" style="display: inline-block">
+                    <div slot="reference" :class="$style.wordHover">
                       <i-icon name="host-production"
                               :class="$style.hostIcon"></i-icon>
                       <span>{{ hostLink.primaryHost.name }}</span>
@@ -99,7 +99,7 @@
                               :class="$style.hostIp">{{ vip }}</p>
                           </div>
                           <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
-                               style="display: inline-block"
+                               :class="$style.wordHover"
                                slot="reference">
                             <i-icon :class="$style.ipIcon"
                                     name="vip"></i-icon>
@@ -114,9 +114,16 @@
                       </el-col>
                       <el-col :span="8"
                               v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'">
-                        <i-icon :class="$style.ipIcon"
+                        <el-tooltip content="提供服务中"
+                                    effect="light"
+                                    placement="right"
+                                    :open-delay="200">
+                          <div :class="$style.wordHover">
+                            <i-icon :class="$style.ipIcon"
                                 name="service"></i-icon>
-                        <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
+                            <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
+                          </div>
+                        </el-tooltip>
                       </el-col>
                     </el-row>
                   </div>
@@ -222,7 +229,7 @@
                     <el-popover placement="right"
                                 trigger="hover"
                                 width="300"
-                                v-else
+                                v-else-if="availableSimpleSwitchIp(hostLink.primaryHost)"
                                 :open-delay="200">
                       <el-form size="mini"
                               label-size="70px">
@@ -268,10 +275,15 @@
                               name="simpleSwitch"
                               @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                     </el-popover>
-                    <span v-if="databaseType==='oracle'">
-                      <i-icon name="notSimpleSwitchDb"
-                              :class="$style.simpleSwitchDb"
-                              v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
+                    <span v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
+                      <el-tooltip v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                                  content="无可单切的实例"
+                                  effect="light"
+                                  placement="right"
+                                  :open-delay="200">
+                        <i-icon name="notSimpleSwitchDb"
+                                :class="$style.simpleSwitchDb"></i-icon>
+                      </el-tooltip>
                       <el-tooltip v-else
                                   content="易备实例单切"
                                   effect="light"
@@ -299,8 +311,8 @@
                               :class="$style.hostIp">{{ vip }}</p>
                           </div>
                           <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2"
-                               style="display: inline-block"
-                              slot="reference">
+                               :class="$style.wordHover"
+                               slot="reference">
                             <i-icon :class="$style.ipIcon"
                                     name="vip"></i-icon>
                             <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
@@ -314,9 +326,16 @@
                       </el-col>
                       <el-col :span="8"
                               v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'">
-                        <i-icon :class="$style.ipIcon"
-                                name="service"></i-icon>
-                        <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
+                        <el-tooltip content="提供服务中"
+                                    effect="light"
+                                    placement="right"
+                                    :open-delay="200">
+                          <div :class="$style.wordHover">
+                            <i-icon :class="$style.ipIcon"
+                                    name="service"></i-icon>
+                            <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
+                          </div>
+                        </el-tooltip>
                       </el-col>
                     </el-row>
                   </div>
@@ -429,7 +448,7 @@
                                @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                     <el-button type="text"
                                @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button> -->
-                    <div v-if="databaseType==='oracle'">
+                    <div v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
                       <!-- <div v-if="hostLink.primaryHost.oracleVersion===1">
                         <el-button type="text"
                                 @click="failOver(dbLink)"
@@ -951,6 +970,16 @@ export default {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
     },
+    // 可以单切实例的环境：windows、linux的rac环境下11g的oracle数据库
+    availableSimpleSwitchDb(primaryHost) {
+      if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1))
+        return primaryHost.databaseType === 1 && primaryHost.oracleVersion === 2;
+      return false;
+    },
+    // 可以单切IP的环境：windows、linux的rac环境下
+    availableSimpleSwitchIp(primaryHost) {
+      return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
+    },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
         this.$router.push({
@@ -1087,6 +1116,11 @@ $vice-color: #6d6d6d;
 }
 .envIcon {
   vertical-align: -0.3em;
+}
+.wordHover {
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.5s ease;
 }
 .hostIcon {
   vertical-align: -0.3em;
