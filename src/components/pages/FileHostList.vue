@@ -111,7 +111,7 @@ export default {
         .then(() => {
           deleteOne(info.id)
             .then(() => {
-              this.items.splice($index, 1);
+              this.items.splice(this.items.findIndex(res => info.id === res.id), 1);
               this.$message.success({
                 message: '删除成功!',
               });
