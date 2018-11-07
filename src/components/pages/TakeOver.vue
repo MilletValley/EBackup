@@ -972,13 +972,16 @@ export default {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
     },
-    // 可以单切实例的环境：windows、linux的rac环境下11g的oracle数据库
+    // 可以单切实例的环境：windows、rac的10g、11g，linux的11g
     availableSimpleSwitchDb(primaryHost) {
-      if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1))
+      if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0)) {
+        return primaryHost.databaseType === 1
+      } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1 ) {
         return primaryHost.databaseType === 1 && primaryHost.oracleVersion === 2;
+      }
       return false;
     },
-    // 可以单切IP的环境：windows、linux的rac环境下
+    // 可以单切IP的环境：windows、linux的非rac环境下
     availableSimpleSwitchIp(primaryHost) {
       return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
     },
