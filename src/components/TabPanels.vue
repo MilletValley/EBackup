@@ -61,14 +61,11 @@
                             @single-restore-btn-click="singleRestoreBtnClick"></backup-result-list>
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
-                   name="restore"
-                   :disabled="this.type === 'vm'&&this.isVM">
-        <template v-if="!this.isVM">
-          <restore-records :type="type"
-                           :plans="ongoingRestorePlan"
-                           :records="restoreRecords"
-                           @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
-        </template>
+                   name="restore">
+        <restore-records :type="type"
+                         :plans="ongoingRestorePlan"
+                         :records="restoreRecords"
+                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -94,7 +91,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     backupPlans: {
@@ -153,13 +150,8 @@ export default {
       return this.restorePlans.filter(plan => plan.state === 1);
     },
     isFileBackupResult() {
-      return this.type === 'windows' || this.type === 'linux' || (this.type === 'vm'&&this.isVM);
+      return this.type === 'windows' || this.type === 'linux';
     },
-    isVM() {
-      const path = this.$route.path;
-      // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-      return false
-    }
   },
   methods: {
     switchPane({ name }) {

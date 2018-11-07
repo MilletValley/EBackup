@@ -59,7 +59,7 @@
                        align="center"></el-table-column>
       <el-table-column prop="role"
                        label="角色"
-                       :filters="stateFilters"
+                       :filters="roleFilters"
                        column-key="role"
                        width="100"
                        align="center">

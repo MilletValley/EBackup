@@ -35,15 +35,26 @@
                        label="设备名"
                        min-width="150"
                        align="center">
+        <template slot-scope="scope">
+          <span v-html="showData(scope.row.name, scope.column.property)"></span>
+        </template>
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"
                        min-width="150"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <span v-html="showData(scope.row.hostIp, scope.column.property)"></span>
+        </template>
+      </el-table-column>
       <el-table-column prop="serviceIp"
                        label="操作IP"
                        min-width="150"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <span v-html="showData(scope.row.serviceIp, scope.column.property)"></span>
+        </template>
+      </el-table-column>
       <el-table-column prop="hostType"
                        label="设备类型"
                        :formatter="judgeHost"
@@ -137,7 +148,8 @@ export default {
         {text: 'oracle', value: 1},
         {text: 'sqlserver', value: 2},
         {text: '虚拟机', value: 4},
-        {text: 'mysql', value: 5}
+        {text: 'mysql', value: 5},
+        {text: 'db2', value: 6}
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
@@ -187,6 +199,14 @@ export default {
     },
     judgeDatabase(data) {
       return databaseTypeMapping[data.databaseType];
+    },
+    // 搜索关键字高亮
+    showData(val, property) {
+      val = val + '';
+      if (val.includes(this.filterItem) && this.filterItem && this.selectTag === property) {
+        return val.replace(this.filterItem, '<font color="#409EFF">'+this.filterItem+'</font>');
+      }
+      return val;
     },
     fetchData() {},
     fetchHosts(){

@@ -40,13 +40,13 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-col :span="12" >
+        <el-col :span="['oracle', 'sqlserver', 'mysql'].includes(type)?12:24" >
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-if="['oracle', 'sqlserver', 'mysql'].includes(type)">
           <el-form-item label="端口号"
                         prop="dbPort">
             <el-input v-model.number="formData.dbPort"></el-input>
@@ -184,6 +184,7 @@ import {
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
 import { createRestorePlan as createMySqlRestorePlan } from '../../api/mysql';
+import { createRestorePlan as createDB2RestorePlan } from '../../api/db2'
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {

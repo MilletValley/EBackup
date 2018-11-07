@@ -5,14 +5,15 @@ import {
 
 const listMixin = {
   data() {
+    const roleFilters = [
+      { text: '无连接', value: 0 },
+      { text: '主库', value: 1 },
+      { text: '备库', value: 2 }
+    ];
     return {
       items: [],
       currentItems: [],
-      stateFilters: [
-        { text: '无连接', value: 0 },
-        { text: '主库', value: 1 },
-        { text: '备库', value: 2 }
-      ],
+      roleFilters,
       selectedId: '',
       createModalVisible: false,
       updateModalVisible: false,
@@ -22,13 +23,8 @@ const listMixin = {
       filterItem: '',
       currentPage: 1,
       pagesize: 10,
-      selectTag: 'name',
-      currentPosition: ''
+      selectTag: 'name'
     };
-  },
-  mounted() {
-    const path = this.$route.path;
-    this.currentPosition = path.substring(path.lastIndexOf('/') + 1, path.length);
   },
   filters: {
     filterBySearch(tableData, arg) { // 未带搜索项
@@ -40,14 +36,8 @@ const listMixin = {
     filterByTag(tableData, arg, tag) { // 带有搜索项
       if (!tableData) {
         return [];
-      } else if (tag === 'name') {
-        return tableData.filter(v => !v.name || v.name.toLowerCase().includes(arg.toLowerCase()));
-      } else if (tag === 'hostIp') {
-        return tableData.filter(v => !v.hostIp || v.hostIp.includes(arg));
-      } else if (tag === 'serviceIp') {
-        return tableData.filter(v => !v.serviceIp || v.serviceIp.includes(arg));
       }
-      return tableData;
+      return tableData.filter(v => !v[tag] || v[tag].toLowerCase().includes(arg.toLowerCase()));
     },
     filterByPage(data, currentPage, pagesize) {
       if (!data) {
@@ -129,17 +119,8 @@ const listMixin = {
       }
     },
     searchByName() {
-      if (this.currentPosition === 'devicemanager') {
-        if (this.selectTag === '') {
-          this.$message.warning({ message: '请选择搜索项' });
-        } else {
-          this.filterItem = this.inputSearch;
-          this.currentPage = 1;
-        }
-      } else {
-        this.filterItem = this.inputSearch;
-        this.currentPage = 1;
-      }
+      this.filterItem = this.inputSearch;
+      this.currentPage = 1;
     },
     handleSizeChange(size) {
       this.pagesize = size;

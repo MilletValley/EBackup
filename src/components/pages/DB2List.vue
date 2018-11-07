@@ -1,28 +1,23 @@
 <template>
   <section>
     <el-row>
-      <el-form inline
-               size="medium">
+      <el-form size="medium"
+               inline>
         <el-form-item style="float: left">
           <el-input placeholder="请输入名称"
                     v-model="inputSearch"
                     @keyup.enter.native="searchByName">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
-          </el-input>          
-        </el-form-item>
-        <el-form-item style="float: right;">
-          <el-button type="info"
-                    @click="$router.push({name: 'oracleTakeOver'})">一键接管</el-button>
+          </el-input>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="createModalVisible = true">添加</el-button>
+                     @click="createModalVisible = true">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
     <el-table :data="sortFn(currentItems, 'createTime')|filterBySearch(filterItem)|filterByPage(currentPage, pagesize)"
               style="width: 100%"
-              @filter-change="filterChange"
               v-if="items">
       <el-table-column label="序号"
                        min-width="100"
@@ -53,19 +48,6 @@
                        label="登录账号"
                        min-width="150"
                        align="center"></el-table-column>
-      <el-table-column prop="role"
-                       label="角色"
-                       :filters="roleFilters"
-                       column-key="role"
-                       width="100"
-                       align="center">
-        <template slot-scope="scope">
-          <el-tag :type="roleTagType(scope.row.role)"
-                  size="mini">
-            {{ databaseRole(scope.row.role) }}
-          </el-tag>
-        </template>
-      </el-table-column>
       <el-table-column prop="state"
                        label="状态"
                        width="100"
@@ -110,11 +92,11 @@
                      v-if="items">
       </el-pagination>
     </div>
-    <database-create-modal type="oracle"
+    <database-create-modal type="db2"
                            :visible.sync="createModalVisible"
                            :btn-loading="btnLoading"
                            @confirm="createDb"></database-create-modal>
-    <database-update-modal type="oracle"
+    <database-update-modal type="db2"
                            :visible.sync="updateModalVisible"
                            :btn-loading="btnLoading"
                            :item-info="selectedDb"
@@ -124,14 +106,13 @@
 <script>
 import DatabaseCreateModal from '@/components/DatabaseCreateModal';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/oracle';
+import { fetchAll, deleteOne, createOne, modifyOne } from '../../api/db2';
 import { listMixin } from '../mixins/databaseListMixin';
 import { sortMixin } from '../mixins/commonMixin';
 export default {
-  name: 'OracleList',
+  name: 'DB2List',
   mixins: [listMixin, sortMixin],
   methods: {
-    // 从服务器获取所有的Oracle数据库
     fetchData() {
       fetchAll()
         .then(res => {
@@ -141,7 +122,7 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
-        });
+        })
     },
     deleteDb({ row: db, $index }) {
       this.$confirm('确认删除此数据库?', '提示', {
@@ -186,13 +167,12 @@ export default {
       this.btnLoading = true;
       modifyOne(data)
         .then(res => {
-          const { data: oracle, message } = res.data;
+          const { data: db2, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          // oracle.id = this.selectedDb.id;
           this.items.splice(
-            this.items.findIndex(db => db.id === oracle.id),
+            this.items.findIndex(db => db.id === db2.id),
             1,
-            oracle
+            db2
           );
           this.selectedId = '';
           this.updateModalVisible = false;
@@ -204,14 +184,15 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
-    },
+    }
   },
   components: {
     DatabaseCreateModal,
     DatabaseUpdateModal,
   },
-};
+}
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
+

@@ -45,14 +45,14 @@
                     :placeholder="`请输入要备份的${databaseOrInstance}`"></el-input>
         </el-form-item>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="12" v-if="['oracle', 'sqlserver', 'mysql'].includes(type)">
             <el-form-item label="端口号"
                           prop="dbPort">
               <el-input v-model.number="formData.dbPort"
                         placeholder="请输入端口号"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="['oracle', 'sqlserver', 'mysql'].includes(type)?12:24">
             <el-form-item label="数据库版本"
                           prop="dbVersion">
               <el-input v-model="formData.dbVersion"
