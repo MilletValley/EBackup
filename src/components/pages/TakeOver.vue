@@ -439,6 +439,13 @@
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
+                  <div v-if="dbLink.failOverOnGoing"
+                       style="margin-top: 6px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                      {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
+                    </span>
+                  </div>
                   <div v-else>
                     <div v-if="hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.oracleVersion===2">
                       <el-button type="text"
@@ -1009,6 +1016,7 @@ export default {
         type: 'warning',
       })
         .then(() => {
+          this.$set(dbLink, 'failOverOnGoing', true); // 标识是否正在开启或关闭故障转移
           const req = {
             linkId: dbLink.id,
             data: {
@@ -1026,6 +1034,9 @@ export default {
             })
             .catch(error => {
               this.$message.error(error);
+            }).
+            then(() => {
+              this.$delete(dbLink, 'failOverOnGoing');
             });
         })
         .catch(error => {});
