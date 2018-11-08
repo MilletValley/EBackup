@@ -233,10 +233,11 @@ const fetchLinkByLinkId = linkId =>
     url: `/oracle-links/${linkId}`,
   });
 
-const failOver = linkId =>
+const failOver = ({ linkId, data }) =>
   baseApi.request({
     method: 'patch',
-    url: `oracle-links/${linkId}/fail-over`
+    url: `oracle-links/${linkId}/fail-over`,
+    data
   });
 
 export {

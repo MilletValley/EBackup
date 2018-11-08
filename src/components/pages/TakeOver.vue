@@ -439,17 +439,11 @@
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
-                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      {{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}中...
-                    </span>
-                  </div>
                   <div v-else>
-                    <div v-if="hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.oracleVersion===1">
+                    <div v-if="hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.oracleVersion===2">
                       <el-button type="text"
                               @click="failOver(dbLink)"
-                              :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
+                              :class="$style.failOver">{{dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
                     <div v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
                       <el-button type="text"
@@ -599,6 +593,13 @@ const switchMethod = {
   true: createSimpleSwitchMethod,
   false: createSwitchMethod
 }
+
+const switchOneIp = {
+  vip: switchVip,
+  scanIp: switchHostIp,
+  allNot: switchHostIp
+}
+
 export default {
   name: 'TakeOver',
   mixins: [takeoverMixin, batchSwitchMinxin],
@@ -792,48 +793,29 @@ export default {
       /**
        * 1.验证密码；
        * 2.判断是切换IP还是切换实例，调用不用的请求
-       * 3.1.切换IP：修改该设备连接的最近切换记录
-       * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
+       * 3.1.切换IP：修改该设备连接的最近切换记录--服务IP、临时IP、scanIp、vip，服务IP、临时IP、scanIP用同一个url
+       * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用），单切或双向切换
        * 3.3 易备库单切IP
-       * 3.4 rac环境下切IP
-       * 3.5 解除连接
+       * 3.4 解除连接
        */
-      if (!!~this.hostLinkIdReadyToSwitch) {
+      if (!!~this.hostLinkIdReadyToSwitch) { // 切IP
         this.btnLoading = true;
-        // 切vip
-        if(formData === 'vip') {
-          switchVip(this.hostLinkIdReadyToSwitch)
-            .then(res => {
-              const { data } = res.data;
-              this.links.find(
-                link => link.id === this.hostLinkIdReadyToSwitch
-              ).latestSwitch = data;
-              this.switchModalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            })
-            .then(() => {
-              this.btnLoading = false;
-            });
-        } else {
-          //  切服务IP、scanIP、临时IP
-          switchHostIp(this.hostLinkIdReadyToSwitch)
-            .then(res => {
-              const { data } = res.data;
-              this.links.find(
-                link => link.id === this.hostLinkIdReadyToSwitch
-              ).latestSwitch = data;
-              this.switchModalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            })
-            .then(() => {
-              this.btnLoading = false;
-            });
-        }
-      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) {
+        // 切vip或者切服务IP、scanIP、临时IP
+        switchOneIp[formData](this.hostLinkIdReadyToSwitch)
+          .then(res => {
+            const { data } = res.data;
+            this.links.find(
+              link => link.id === this.hostLinkIdReadyToSwitch
+            ).latestSwitch = data;
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
+          });
+      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) { // IP单切
         this.btnLoading = true;
         const req = {
           originViceIp: this.simpleSwitchOriginIp(this.readyToSimpleSwitch),
@@ -865,7 +847,7 @@ export default {
           .then(() => {
             this.btnLoading = false;
           })
-      } else if(Object.keys(this.readyToRemoveHostLink).length > 0) {
+      } else if(Object.keys(this.readyToRemoveHostLink).length > 0) { // 解除连接
         this.btnLoading = true;
         deleteLinks(this.readyToRemoveHostLink.id)
           .then(res => {
@@ -882,7 +864,7 @@ export default {
           .then(() => {
             this.btnLoading = false;
           });
-      } else {
+      } else { // 实例单切或双切
         this.btnLoading = true;
         switchMethod[this.isSimpleSwitch][this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
@@ -1021,20 +1003,26 @@ export default {
         });
     },
     failOver(dbLink) {
-      this.$confirm(`此操作${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
+      this.$confirm(`此操作将${dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
         .then(() => {
-          failOverOracle(dbLink.id)
+          const req = {
+            linkId: dbLink.id,
+            data: {
+              failOverState: dbLink.failOverState
+            }
+          }
+          failOverOracle(req)
             .then(res => {
               const { data: failOverOperation } = res.data;
+              const msgType = !failOverOperation.operationState?'success':'error';
               this.databaseLinks.find(
                 link => link.id === dbLink.id
-              ).latestSwitch = failOverOperation;
-              this.fetchData(); // 用于刷新此实例连接中failOverState的状态
-              this.$message.info(`正在尝试${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，请等待`);
+              ).failOverState = failOverOperation.failOverState;
+              this.$message[msgType](failOverOperation.msg);
             })
             .catch(error => {
               this.$message.error(error);

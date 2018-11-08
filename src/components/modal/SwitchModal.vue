@@ -95,12 +95,13 @@
             <!-- 服务IP结束 -->
             <!-- scanIp、vip开始 -->
             <div v-else-if="switchIpInRac">
-              <el-radio-group v-model="switchRacIp"
-                              size="mini">
-                <el-radio-button label="scanIp">scanIp</el-radio-button>
-                <el-radio-button label="vip">VIP</el-radio-button>
+              <el-radio-group v-model="switchScanipOrVip"
+                              size="mini"
+                              style="text-align: center">
+                <el-radio label="scanIp">scanIp</el-radio>
+                <el-radio label="vip">VIP</el-radio>
               </el-radio-group>
-              <div v-if="switchRacIp === 'scanIp'">
+              <div v-if="switchScanipOrVip === 'scanIp'">
                 <p>scanIp
                   <span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span> 将由</p>
                 <p>
@@ -322,7 +323,7 @@ export default {
   data() {
     return {
       password: '',
-      switchRacIp: '',
+      switchScanipOrVip: 'allNot',// scanIP=>scanIp;vip=>vip;服务IP、临时IP、实例等=>allNot
       formData: {
         // tempIp: '',
         defaultGateway: '',
@@ -371,19 +372,19 @@ export default {
       }
       return res;
     },
-    // 切服务IP
+    // linux下--切服务IP
     switchServiceIp() {
       return this.hostLinkReadyToSwitch&&
              this.hostLinkReadyToSwitch.primaryHost.osName==='Linux'&&
              this.hostLinkReadyToSwitch.primaryHost.isRacMark===1
     },
-    // rac环境下的切IP
+    // rac环境下--scanIp或vip
     switchIpInRac() {
       return this.hostLinkReadyToSwitch&&
              this.hostLinkReadyToSwitch.primaryHost.osName==='Linux'&&
              this.hostLinkReadyToSwitch.primaryHost.isRacMark===0
     },
-    // 切临时IP
+    // windows下--切临时IP
     switchTempIp() {
       return this.hostLinkReadyToSwitch&&this.hostLinkReadyToSwitch.primaryHost.osName==='Windows'
     },
@@ -402,14 +403,14 @@ export default {
   methods: {
     switchModalClosed() {
       this.password = '';
-      this.switchRacIp = '';
+      this.switchScanipOrVip = 'allNot';
       this.formData.mask = '';
       this.formData.defaultGateway = '';
       this.$emit('cancel');
     },
     switchModalOpend() {
       if(this.switchIpInRac) {
-        this.switchRacIp = 'scanIp'
+        this.switchScanipOrVip = 'scanIp'
       }
     },
     cancelSwitch() {
@@ -421,7 +422,7 @@ export default {
         .then(() => {
           if (!this.formData.mask) this.formData.mask = '255.255.255.0';
           // this.$emit('confirm', this.formData);
-          this.$emit('confirm', this.switchRacIp);
+          this.$emit('confirm', this.switchScanipOrVip);
           this.password = '';
         })
         .catch(error => {
