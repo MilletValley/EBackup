@@ -193,7 +193,9 @@ const detailPageMixin = {
     // dropdown
     addPlanBtnClick(command) {
       if (command === 'backup') {
-        this.backupPlanCreateModalVisible = true;
+        // this.backupPlanCreateModalVisible = true;
+        this.backupPlanModalVisible = true;
+        this.action = 'create';
       } else if (command === 'restore') {
         this.restorePlanCreateModalVisible = true;
       }
@@ -203,23 +205,17 @@ const detailPageMixin = {
       this.backupPlans.splice(updateIndex, 1, plan);
     },
     initSingleRestoreModal(id) {
-      // 如果是单次恢复文件系统，则需要请求源恢复路径
-      if (this.systemType === 'linux') {
-        this.fetchFileHostOriginPath(id);
-      }
       this.selectedBackupResultId = id;
       this.singleRestoreCreateModalVisible = true;
     },
     selectRestorePlan(restorePlanId) {
-      // this.selectedRestorePlanId = restorePlanId;
       this.selectedRestorePlan = this.restorePlans.find(plan => plan.id === restorePlanId);
       this.restorePlanUpdateModalVisible = true;
     },
     selectBackupPlan(backupPlanId) {
-      // this.selectedBackupPlanId = backupPlanId;
       this.selectedBackupPlan = this.backupPlans.find(plan => plan.id === backupPlanId);
-      console.log(this.selectedBackupPlan);
-      this.backupPlanUpdateModalVisible = true;
+      this.backupPlanModalVisible = true;
+      this.action = 'update';
     },
     roleIconName(role) {
       switch (role) {
@@ -295,7 +291,6 @@ const detailPageMixin = {
       this.getBackupPlanList();
       this.getBackupResults();
       this.getRestorePlans();
-
       this.getRestoreRecords();
     },
     RefreshTime() {
@@ -318,41 +313,6 @@ const detailPageMixin = {
       .then(() => {
         this.btnLoading = false;
       });
-    },
-    // 添加备份计划
-    addBackupPlan(plan) {
-      this.btnLoading = true;
-      createBackupPlan(this.type, { id: this.id, plan })
-        .then(res => {
-          console.log(res)
-          const { message } = res.data;
-          this.backupPlanCreateModalVisible = false;
-          this.$message.success(message);
-          this.getBackupPlanList();
-        })
-        .catch(error => {
-          this.$message.error(error);
-          return false;
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    updateBackupPlan(id, plan) {
-      this.btnLoading = true;
-      updateBackupPlan(this.type, { id, plan })
-        .then(res => {
-          const { message } = res.data;
-          this.backupPlanUpdateModalVisible = false;
-          this.$message.success(message);
-          this.getBackupPlanList();
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
     },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {

@@ -5,91 +5,85 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="vmware"
+            <i-icon name="db2"
                     class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
-                    align="middle">
-              <el-col :span="8"
-                      class="title">
-                <h1>{{details.vmName}}</h1>
+                    justify="middle">
+              <el-col :span="8">
+                <h1>{{details.name}}</h1>
               </el-col>
               <el-col :span="12"
                       :offset="4"
                       class="action">
                 <el-dropdown size="mini"
-                             trigger="click"
-                             placement="bottom"
-                             @command="addPlanBtnClick">
+                            trigger="click"
+                            placement="bottom"
+                            @command="addPlanBtnClick">
                   <el-button size="mini"
-                             plain>添加计划
+                              plain>添加计划
                     <i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
-                    <el-dropdown-item command="restore"
-                                      >恢复计划</el-dropdown-item>
+                    <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button v-if="false" size="mini"
-                           type="primary"
-                           @click="detailsEditModal = true"
-                           >编辑</el-button>
+                <el-button size="mini"
+                            type="primary"
+                            @click="detailsEditModal = true">编辑</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
-                     label-position="left"
-                     label-width="130px"
-                     inline
-                     size="small"
-                     class="item-info">
-              <el-row class="margin-right5">
-                <el-row>
-                  <el-form-item label="操作系统：">
-                    <div>{{ details.host.osName }}</div>
+                    label-position="left"
+                    label-width="100px"
+                    size="small"
+                    class="item-info">
+              <el-row style="margin-right: 5px;">
+                <el-col :span="8">
+                  <el-form-item label="数据库名：">
+                    <span>{{ details.instanceName }}</span>
                   </el-form-item>
-                </el-row>
-                <el-row>
-                  <el-col :span="8">
-                    <el-form-item label="所属设备IP：">
-                      <div>{{ details.host.hostIp }}</div>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="所属物理主机IP：">
-                      <div>{{ details.vmHostName }}</div>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <!-- <el-col :span="8">
-                  <el-form-item label="虚拟机账号：">
-                    <div>{{ details.host.loginName }}</div>
+                  <el-form-item label="端口号：">
+                    <span>{{ details.dbPort }}</span>
                   </el-form-item>
-                  <el-form-item label="虚拟机密码：">
-                    <div>●●●●●●●●</div>
+                  <el-form-item label="数据库账号：">
+                    <span>{{ details.loginName }}</span>
                   </el-form-item>
-                  <el-form-item label="所属物理主机：">
-                    <div>{{ details.vmHostName }}</div>
+                  <el-form-item label="数据库密码：">
+                    <span>●●●●●●●●</span>
+                  </el-form-item>
+                  <el-form-item label="数据库状态：">
+                    <el-tag :type="databaseStateStyle(details.state)"
+                            size="mini">{{ details.state | databaseStateFilter }}</el-tag>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
+                  <el-form-item label="主机名：">
+                    <span>{{ details.host.name }}</span>
+                  </el-form-item>
                   <el-form-item label="操作系统：">
-                    <div>{{ details.host.osName }}</div>
+                    <span>{{ details.host.osName }}</span>
+                  </el-form-item>
+                  <el-form-item label="所属设备：">
+                    <span>{{ details.host.name }}</span>
                   </el-form-item>
                   <el-form-item label="设备IP：">
-                    <div>{{ details.host.hostIp }}</div>
+                    <span>{{ details.host.hostIp }}</span>
                   </el-form-item>
-                </el-col> -->
+                  <el-form-item label="所属系统：">
+                    <span>{{ details.application || '-' }}</span>
+                  </el-form-item>
+                </el-col>
               </el-row>
             </el-form>
           </el-col>
         </el-row>
-
       </div>
     </header>
     <tab-panels :id="Number(id)"
-                type="vm"
+                type="db2"
                 :backup-plans="backupPlans"
                 :restore-plans="restorePlans"
                 :results="results"
@@ -104,67 +98,65 @@
                 @switchpane="switchPane"
                 @restoreinfo:refresh="updateRestorePlanAndRecords"
                 :restoreRecords="restoreRecords"></tab-panels>
-    <backup-plan-create-modal type="vm"
-                     :visible.sync="backupPlanCreateModalVisible"
-                     :btn-loading="btnLoading"
-                     @confirm="addBackupPlan"></backup-plan-create-modal>
-    <backup-plan-update-modal type="vm"
+    <backup-plan-create-modal type="db2"
+                              :visible.sync="backupPlanCreateModalVisible"
+                              :btn-loading="btnLoading"
+                              @confirm="addBackupPlan"></backup-plan-create-modal>
+    <backup-plan-update-modal type="db2"
                               :visible.sync="backupPlanUpdateModalVisible"
                               :btn-loading="btnLoading"
                               :backup-plan="selectedBackupPlan"
                               @confirm="updateBackupPlan"
                               @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
-    <restore-plan-create-modal type="vm"
+    <restore-plan-create-modal type="db2"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
                                :btn-loading="btnLoading"
+                               :selection-hosts="availableHostsForRestore"
                                @confirm="addRestorePlan"></restore-plan-create-modal>
-    <restore-plan-update-modal type="vm"
+    <restore-plan-update-modal type="db2"
                                :database="details"
                                :visible.sync="restorePlanUpdateModalVisible"
                                :btn-loading="btnLoading"
                                :restore-plan="selectedRestorePlan"
                                @confirm="updateRestorePlan"
                                @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
-    <virtual-update-modal type="vm"
+    <database-update-modal type="db2"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
                            :btn-loading="btnLoading"
-                           @confirm="updateDetails"></virtual-update-modal>
-    <single-restore-create-modal type="vm"
+                           @confirm="updateDetails"></database-update-modal>
+    <single-restore-create-modal type="db2"
                                  :id="selectedBackupResultId"
-                                 :database="details"
                                  :visible.sync="singleRestoreCreateModalVisible"
+                                 :selection-hosts="availableHostsForRestore"
                                  :btn-loading="btnLoading"
+                                 :database="details"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
 <script>
 import throttle from 'lodash/throttle';
-import VirtualUpdateModal from '@/components/modal/VirtualUpdateModal';
 import { detailPageMixin } from '../mixins/detailPageMixins';
-
 import {
-  fetchOne,
   modifyOne,
+  fetchOne,
   fetchBackupPlans,
+  createBackupPlan,
+  updateBackupPlan,
   fetchBackupResults,
-  createVirtualBackupPlan,
-  updateVirtualBackupPlan,
-  deleteVirtualBackupPlan,
-  fetchBackupOperation,
-  createSingleRestorePlan,
   fetchRestorePlans,
   fetchRestoreRecords,
-  createRestorePlan,
-  deleteRestorePlan,
-  updateRestorePlan,
+  fetchBackupOperation,
   fetchRestoreOperation,
-  createMultipleVirtualBackupPlan
-} from '../../api/virtuals';
-
+  deleteRestorePlan,
+  deleteBackupPlan,
+  createSingleRestorePlan,
+  createRestorePlan,
+  updateRestorePlan,
+} from '../../api/db2';
 export default {
-  name: 'VMwareDetail',
+  name: 'DB2Detail',
   mixins: [detailPageMixin],
   data() {
     return {
@@ -196,7 +188,7 @@ export default {
             this.$message.error(error);
           });
       }),
-      selectedBackupPlanId: -1,
+      // selectedBackupPlanId: -1,
       // TODO: 暂时使用一个data变量存储选择的计划id，也许有更优雅的实现方式
       throttleRefreshBackup: this.throttleMethod(() => {
         fetchBackupOperation(this.selectedBackupPlanId)
@@ -217,8 +209,9 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
-          })
+          });
       }),
+      // selectedRestorePlanId: -1,
       throttleRefreshRestore: this.throttleMethod(() => {
         fetchRestoreOperation(this.selectedRestorePlanId)
           .then(response => {
@@ -237,26 +230,32 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
-          })
+          });
       }),
     };
   },
   computed: {
+    // 用于恢复的设备
+    // 1.易备环境下的设备
+    // 2.DB2类型设备
+    // 3.没有“安装”数据库
+    availableHostsForRestore() {
+      const db2EbackupHosts = this.$store.getters.hostsWithDB2.filter(
+        h => h.hostType === 2
+      );
+      return db2EbackupHosts;
+    },
   },
   methods: {
     fetchData() {
       fetchOne(this.id)
         .then(res => {
-          const { data: vm } = res.data;
-          this.details = vm;
+          const { data: db } = res.data;
+          this.details = db;
         })
         .catch(error => {
           this.$message.error(error);
-          const path = this.$route.path;
-          if(this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual')
-            this.$router.push({ name: 'VmwareList' });
-          else
-            this.$router.push({ name: 'HWwareList' });
+          this.$router.push({ name: 'db2List' });
         })
         .then(() => {
           this.infoLoading = false;
@@ -301,26 +300,16 @@ export default {
         this.restorePlans = plans;
       });
     },
+    // 添加备份计划
     addBackupPlan(plan) {
       this.btnLoading = true;
-      // createVirtualBackupPlan({ id: this.id, plan })
-      const data = Object.assign( {}, plan, {vmList: [this.id]});
-      createMultipleVirtualBackupPlan(data)
+      createBackupPlan({ id: this.id, plan })
         .then(res => {
-          console.log(res)
-          const {  message } = res.data;
+          const { data: backupPlan, message } = res.data;
           // 刷新情况下可能会出现两个添加后的计划
-          // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
-          //   this.backupPlans.unshift(backupPlan)
-          // }
-          fetchBackupPlans(this.id)
-          .then(res => {
-            const { data: plans } = res.data;
-            this.backupPlans = plans;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
+          if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
+            this.backupPlans.unshift(backupPlan)
+          }
           this.backupPlanCreateModalVisible = false;
           this.$message.success(message);
         })
@@ -334,7 +323,7 @@ export default {
     },
     updateBackupPlan(id, plan) {
       this.btnLoading = true;
-      updateVirtualBackupPlan({ id, plan })
+      updateBackupPlan({ id, plan })
         .then(res => {
           const { data: plan, message } = res.data;
           // FIXME: 修改ID
@@ -378,14 +367,12 @@ export default {
         });
     },
     deleteBackupPlan(planId) {
-      deleteVirtualBackupPlan(planId).then(() => {
+      deleteBackupPlan(planId).then(() => {
         this.backupPlans.splice(
           this.backupPlans.findIndex(plan => plan.id === planId),
           1
         );
         this.$message.success('删除成功');
-      }).catch( error => {
-        this.$message.error( error)
       });
     },
     addRestorePlan(restorePlan) {
@@ -428,10 +415,10 @@ export default {
       this.btnLoading = true;
       modifyOne(data)
         .then(res => {
-          const { data: virtual, message } = res.data;
+          const { data: db2, message } = res.data;
           // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          virtual.id = this.details.id;
-          this.details = virtual;
+          db2.id = this.details.id;
+          this.details = db2;
           this.detailsEditModal = false;
           this.$message.success(message);
         })
@@ -465,20 +452,52 @@ export default {
           this.btnLoading = false;
         });
     },
+    databaseStateStyle(value) {
+      switch (value) {
+        case 0:
+          return 'info';
+        case 1:
+          return 'success';
+        case 2:
+          return 'danger';
+      }
+    },
   },
-  components: {
-    VirtualUpdateModal,
-  },
-};
+}
 </script>
-<style>
-.el-col .el-form-item {
-  display: block;
+<style lang="scss" module>
+@import '../../style/common.scss';
+.roleIconHeader {
+  padding: 5px;
+  margin: -5px 5px;
+  vertical-align: -0.2em;
+}
+.roleIconOppsition {
+  vertical-align: -0.2em;
+  padding: 3px;
+  margin: -3px 0 -3px 1px;
+}
+.switchIcon {
+  width: 1.7em;
+  height: 1.7em;
+  vertical-align: -0.5em;
+}
+.databaseLink {
+  composes: link;
+  font-size: 1.2em;
+  // color: rgb(170, 84, 27);
+}
+.linkInfo {
+  text-align: right;
+}
+.moreLink {
+  composes: link;
+  font-size: 0.9em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 </style>
-<style scoped>
-.margin-right5{
-  margin-right: 5px;
-}
-</style>
+
+
 

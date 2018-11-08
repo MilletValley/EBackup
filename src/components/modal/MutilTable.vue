@@ -135,7 +135,6 @@ export default {
                 data = this.tableData.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
             // }
             //排序
-            console.log(this.defaultSort)
             data = data.sort( (a, b) => {
                 let val1 = a[this.defaultSort.prop];
                 let val2 = b[this.defaultSort.prop];
@@ -249,7 +248,6 @@ export default {
             this.currentPage = 1;
         },
         sortChangeFn({ column, prop, order }){
-            console.log(this.defaultSort)
             if(JSON.stringify(this.defaultSort) === JSON.stringify({prop, order})){
                 return;
             }

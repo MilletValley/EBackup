@@ -65,20 +65,22 @@
                 <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
               </el-tooltip>
             </p> -->
-
             <el-row :class="$style.margin14">
-              <el-col :span=12>
-                <i-icon name="instance"
-                        :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip :content="detailInfoDisplayName"
+              <el-col :span=18>
+                <el-tooltip :content="type==='linux'?`源NFS路径: ${item.config.nfsSourcePath}`:detailInfoDisplayName"
                             placement="right"
                             :open-delay="300">
-                  <span v-if="isVMware">{{item.config.newName }}</span>
-                  <span v-else-if="isFile">{{ item.config.detailInfo }}</span>
-                  <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
+                  <div :class="$style.wordsOverFlow">
+                    <i-icon :name="type==='linux'?'nfsPath':'instance'"
+                            :class="$style.ongoingRestoreIcon"></i-icon>
+                    <span v-if="isVMware">{{item.config.newName }}</span>
+                    <span v-else-if="isFile"
+                          style="display: inline">{{ type==='linux'?item.config.nfsSourcePath:item.config.detailInfo }}</span>
+                    <span v-else>{{item.config.database ? item.config.database.instanceName : '' }}</span>
+                  </div>
                 </el-tooltip>
               </el-col>
-              <el-col :span=12 style="text-align:right" v-if="isFile">
+              <el-col :span=6 style="text-align:right" v-if="isFile">
                 <i-icon name="size"
                         :class="$style.ongoingRestoreIcon"></i-icon>
                 <el-tooltip content="已恢复大小"
@@ -87,9 +89,21 @@
                   <span>{{ item | sizeFormat(type) }}</span>
                 </el-tooltip>
               </el-col>
-              
             </el-row>
-
+            <el-row :class="$style.margin14"
+                    v-if="type==='linux'">
+              <el-col :span=24>
+                <el-tooltip :content="`恢复方向: ${item.config.originDetailInfo}=>${item.config.detailInfo}`"
+                            placement="right"
+                            :open-delay="300">
+                  <div :class="$style.wordsOverFlow">
+                    <i-icon name="instance"
+                            :class="$style.ongoingRestoreIcon"></i-icon>
+                    <span>{{ item.config.originDetailInfo }}=>{{item.config.detailInfo}}</span>
+                  </div>
+                </el-tooltip>
+              </el-col>
+            </el-row>
           </el-card>
         </el-col>
       </el-row>
@@ -101,23 +115,33 @@
         <el-table-column prop="startTime"
                          label="开始时间"
                          align="center"
-                         width="200px">
+                         min-width="150px">
         </el-table-column>
         <el-table-column prop="endTime"
                          label="结束时间"
                          align="center"
-                         width="200px">
+                         min-width="150px">
         </el-table-column>
         <el-table-column prop="hostIp"
                          :label="isVMware ? '恢复主机IP' : '恢复设备IP'"
                          align="center"
-                         min-width="200px">
+                         min-width="150px">
         </el-table-column>
-        <el-table-column v-if="!isVMware" prop="detailInfo"
+        <el-table-column v-if="!isVMware"
+                         prop="detailInfo"
                          :label="detailInfoDisplayName"
                          align="center"
-                         min-width="200px">
-        </el-table-column>
+                         min-width="150px"></el-table-column>
+        <el-table-column v-if="type==='linux'"
+                         prop="pointSourcePath"
+                         label="恢复源路径"
+                         align="center"
+                         min-width="150px"></el-table-column>
+        <el-table-column v-if="type==='linux'"
+                         prop="nfsSourcePath"
+                         label="恢复源NFS路径"
+                         align="center"
+                         min-width="150px"></el-table-column>
         <el-table-column v-if="isVMware" 
                          prop="newName"
                          label="新虚拟机名"
@@ -129,12 +153,12 @@
                          :formatter="sizeFmt"
                          label="大小"
                          align="center"
-                         width="120px">
+                         min-width="70px">
         </el-table-column>
         <el-table-column prop="state"
                          label="状态"
                          align="center"
-                         width="100px">
+                         min-width="70px">
           <template slot-scope="scope">
             <el-tooltip :disabled="scope.row.state === 0"
                         :content="scope.row.errorMsg"
@@ -166,7 +190,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     plans: {
@@ -184,8 +208,9 @@ export default {
         oracle: '实例',
         sqlserver: '数据库',
         mysql: '数据库',
-        windows: '恢复路径',
-        linux: '恢复路径',
+        db2: '数据库',
+        windows: '恢复目标路径',
+        linux: '恢复目标路径',
         vm: '虚拟机',
       };
       return mapping[this.type] ? mapping[this.type] : '';
@@ -206,6 +231,7 @@ export default {
   filters:{
     sizeFormat(data, type){
       let fmtSize = null;
+      const { state } = data;
       if(type === 'linux'){
         const process = Number(data.progress);
         const size = Number(data.size);
@@ -220,15 +246,23 @@ export default {
         const restoreSize = size * process / 100;
         fmtSize = fmtSizeFn(restoreSize);
       }
-      return fmtSize ? fmtSize : '-';
+      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     }
   },
   methods: {
     sizeFmt(row, column, cellValue, index){
       let fmtSize = null;
-      const process = Number(cellValue);
-      fmtSize = fmtSizeFn(process);
-      return fmtSize ? fmtSize : '-';
+      let size = this.type==='linux' ? row.size : row.backupResult.size;
+      if(this.type === 'windows') {
+        if(Number(size) < 1024) {
+          fmtSize = `${size}B`
+        } else {
+          fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
+        }
+      } else {
+        fmtSize = fmtSizeFn(size);
+      }
+      return fmtSize ? fmtSize : 0;
     },
     fmtProgress(data){
       let process = 0;
@@ -265,6 +299,13 @@ export default {
 }
 .ongoingRestoreCard {
   font-size: 14px;
+}
+.wordsOverFlow {
+  white-space:nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  display: inline-block;
+  text-overflow: ellipsis;
 }
 .restoreStartTime {
   font-size: 0.8em;

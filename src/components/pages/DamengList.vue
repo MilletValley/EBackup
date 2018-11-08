@@ -1,0 +1,146 @@
+<template>
+  <section>
+    <el-row>
+      <el-col :span="8">
+          <el-input placeholder="请输入名称"
+                    v-model="inputSearch"
+                    @keyup.enter.native="searchByName">
+              <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+          </el-input>    
+      </el-col>
+      <el-col :span="16" class="text-right">
+          <el-button type="primary"
+                      @click="addFn">添加</el-button>
+      </el-col>
+    </el-row>
+    <el-row class="margin-top20">
+      <el-table
+        :data="processedTableData">
+        <el-table-column label="序号"
+                        width="50px"
+                        align="center">
+          <template slot-scope="scope">
+              {{scope.$index+1}}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="名称"
+          align="center"
+          min-width="180">
+          <template slot-scope="scope">
+              <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.name}}</router-link>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="instanceName"
+          label="数据库名"
+          align="center"
+          min-width="180">
+        </el-table-column>
+        <el-table-column
+          prop="host.name"
+          label="所属设备"
+          align="center"
+          min-width="180">
+        </el-table-column>
+        <el-table-column
+          prop="dbPort"
+          label="端口"
+          align="center"
+          width="80">
+        </el-table-column>
+        <el-table-column
+          prop="state"
+          label="连接状态"
+          align="center"
+          :formatter="stateFormatter"
+          width="80">
+        </el-table-column>
+        <el-table-column
+          prop="createTime"
+          label="创建时间"
+          align="center"
+          width="180">
+        </el-table-column>
+        <el-table-column label="操作"
+                        width="150"
+                        header-align="center"
+                        align="center">
+          <template slot-scope="scope">
+            <el-button type="primary"
+                      icon="el-icon-edit"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="modifyDb(scope)"></el-button>
+            <el-button type="danger"
+                      icon="el-icon-delete"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="deleteDb(scope)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination class="margin-top10 text-right"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 15, 20]"
+          :page-size="pageSize"
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+      </el-pagination>
+    </el-row>
+    <dm-db-create-modal type="dm"
+                        :visible.sync="createModalVisible"
+                        :btn-loading="btnLoading"
+                        :data="currentSelectData"
+                        @confirm="confirmCall"></dm-db-create-modal>
+  </section>
+</template>
+<script>
+import DmDbCreateModal from '@/components/modal/DmDbCreateModal';
+import tableMixin from '../mixins/databaseTableMixin';
+export default {
+  name: 'DamengList',
+  mixins: [tableMixin],
+  data(){
+    return {
+      databaseType: 'dm',
+    }
+  },
+  methods: {
+    filterFn(item, i){
+      return item[i].includes( this.filter[i]);
+    },
+    searchByName(){
+      const name = this.inputSearch;
+      this.filter = Object.assign({},{name});
+      this.currentPage = 1;
+    },
+  },
+  components: {
+    DmDbCreateModal
+  },
+};
+</script>
+<style lang="scss" module>
+@import '../../style/common.scss';
+</style>
+<style scoped>
+.margin-top20{
+  margin-top: 20px;
+}
+.margin-top10{
+  margin-top: 10px;
+}
+.text-right{
+  text-align: right;
+}
+</style>
+

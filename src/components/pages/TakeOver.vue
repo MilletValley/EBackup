@@ -13,7 +13,6 @@
         <el-button type="info"
                    @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
       </el-form-item>
-
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="primary"
@@ -48,14 +47,17 @@
               <span>易备环境</span>
             </h2>
           </div>
-
         </el-col>
       </el-row>
       <div v-for="hostLink in sortByStartTime(links)"
            :key="hostLink.id">
         <div :class="$style.hostLinkContainer">
-          <fieldset :class="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0 ? $style.hostLinkIsRac : $style.hostLinkNotRac">
-            <legend v-if="hostLink.primaryHost.isRacMark === 0&&hostLink.primaryHost.isRacMark === 0">RAC环境</legend>
+          <fieldset :class="$style.hostLinkInOs">
+            <legend>
+              <span v-if="hostLink.primaryHost.osName === 'Windows'">Windows</span>
+              <span v-else-if="hostLink.primaryHost.osName === 'Linux'&&hostLink.primaryHost.isRacMark === 1">Linux</span>
+              <span v-else>RAC</span>
+            </legend>
             <el-row type="flex"
                     justify="space-around">
               <el-col :span="10">
@@ -77,7 +79,7 @@
                         </el-row>
                       </p>
                     </div>
-                    <div slot="reference" style="display: inline-block">
+                    <div slot="reference" :class="$style.wordHover">
                       <i-icon name="host-production"
                               :class="$style.hostIcon"></i-icon>
                       <span>{{ hostLink.primaryHost.name }}</span>
@@ -99,7 +101,7 @@
                               :class="$style.hostIp">{{ vip }}</p>
                           </div>
                           <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
-                               style="display: inline-block"
+                               :class="$style.wordHover"
                                slot="reference">
                             <i-icon :class="$style.ipIcon"
                                     name="vip"></i-icon>
@@ -114,9 +116,16 @@
                       </el-col>
                       <el-col :span="8"
                               v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'">
-                        <i-icon :class="$style.ipIcon"
+                        <el-tooltip content="提供服务中"
+                                    effect="light"
+                                    placement="right"
+                                    :open-delay="200">
+                          <div :class="$style.wordHover">
+                            <i-icon :class="$style.ipIcon"
                                 name="service"></i-icon>
-                        <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
+                            <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
+                          </div>
+                        </el-tooltip>
                       </el-col>
                     </el-row>
                   </div>
@@ -222,7 +231,7 @@
                     <el-popover placement="right"
                                 trigger="hover"
                                 width="300"
-                                v-else
+                                v-else-if="availableSimpleSwitchIp(hostLink.primaryHost)"
                                 :open-delay="200">
                       <el-form size="mini"
                               label-size="70px">
@@ -268,10 +277,15 @@
                               name="simpleSwitch"
                               @click.native="simpleSwitchIp(hostLink)"></i-icon>  
                     </el-popover>
-                    <span v-if="databaseType==='oracle'">
-                      <i-icon name="notSimpleSwitchDb"
-                              :class="$style.simpleSwitchDb"
-                              v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"></i-icon>
+                    <span v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
+                      <el-tooltip v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                                  content="无可单切的实例"
+                                  effect="light"
+                                  placement="right"
+                                  :open-delay="200">
+                        <i-icon name="notSimpleSwitchDb"
+                                :class="$style.simpleSwitchDb"></i-icon>
+                      </el-tooltip>
                       <el-tooltip v-else
                                   content="易备实例单切"
                                   effect="light"
@@ -299,8 +313,8 @@
                               :class="$style.hostIp">{{ vip }}</p>
                           </div>
                           <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 2"
-                               style="display: inline-block"
-                              slot="reference">
+                               :class="$style.wordHover"
+                               slot="reference">
                             <i-icon :class="$style.ipIcon"
                                     name="vip"></i-icon>
                             <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
@@ -314,9 +328,16 @@
                       </el-col>
                       <el-col :span="8"
                               v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'">
-                        <i-icon :class="$style.ipIcon"
-                                name="service"></i-icon>
-                        <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
+                        <el-tooltip content="提供服务中"
+                                    effect="light"
+                                    placement="right"
+                                    :open-delay="200">
+                          <div :class="$style.wordHover">
+                            <i-icon :class="$style.ipIcon"
+                                    name="service"></i-icon>
+                            <span :class="$style.hostIp">{{ hostLink.viceHost.serviceIp }}</span>
+                          </div>
+                        </el-tooltip>
                       </el-col>
                     </el-row>
                   </div>
@@ -418,23 +439,13 @@
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
-                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      {{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}中...
-                    </span>
-                  </div>
                   <div v-else>
-                    <!-- <el-button type="text"
-                               @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
-                    <el-button type="text"
-                               @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button> -->
-                    <div v-if="databaseType==='oracle'">
-                      <!-- <div v-if="hostLink.primaryHost.oracleVersion===1">
-                        <el-button type="text"
-                                @click="failOver(dbLink)"
-                                :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
-                      </div> -->
+                    <div v-if="hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.oracleVersion===2">
+                      <el-button type="text"
+                              @click="failOver(dbLink)"
+                              :class="$style.failOver">{{dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}</el-button>
+                    </div>
+                    <div v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
                       <el-button type="text"
                                 @click="switchDatabase(dbLink.id)">双切</el-button>
                       <el-button type="text"
@@ -505,6 +516,7 @@
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
+                                :links="links"
                                 :ebackup-hosts="availableEbackupHosts"
                                 :visible.sync="linkCreateModalVisible"
                                 :type="databaseType"
@@ -556,7 +568,7 @@ import {
 import takeoverMixin from '../mixins/takeoverMixins';
 import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 // 模拟数据
-import { items, links, hosts, hosts2 } from '../../utils/mock-data';
+// import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
 const fetchDatabaseMethod = {
   oracle: fetchAllOracle,
@@ -581,6 +593,13 @@ const switchMethod = {
   true: createSimpleSwitchMethod,
   false: createSwitchMethod
 }
+
+const switchOneIp = {
+  vip: switchVip,
+  scanIp: switchHostIp,
+  allNot: switchHostIp
+}
+
 export default {
   name: 'TakeOver',
   mixins: [takeoverMixin, batchSwitchMinxin],
@@ -651,7 +670,9 @@ export default {
     hostsDatabaseMap() {
       const res = {};
       this.specialHosts.forEach(host => {
-        const databases = this.items.filter(db => db.host.id === host.id);
+        const databases = this.items.filter(
+          db => db.host.id === host.id && !this.databaseLinks.map(dbLink => dbLink.primaryDatabase.id).includes(db.id)
+        );
         res[host.id] = {
           databases,
         };
@@ -667,11 +688,7 @@ export default {
     // 可以进行初始化连接操作的生产设备
     // 该设备下可能没有数据库／实例 需要进一步筛选
     availableProductionHosts() {
-      return this.productionHosts
-        .filter(
-          host => !this.links.find(link => link.primaryHost.id === host.id)
-        )
-        .map(host => {
+      return this.productionHosts.map(host => {
           const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
@@ -679,9 +696,7 @@ export default {
     // 可以进行初始化连接操作的易备设备
     // 该设备可能有数据库／实例 需要进一步筛选
     availableEbackupHosts() {
-      return this.ebackupHosts
-        .filter(host => !this.links.find(link => link.viceHost.id === host.id))
-        .map(host => {
+      return this.ebackupHosts.map(host => {
           const databases = this.hostsDatabaseMap[host.id].databases || [];
           return { databases, ...host };
         });
@@ -778,48 +793,29 @@ export default {
       /**
        * 1.验证密码；
        * 2.判断是切换IP还是切换实例，调用不用的请求
-       * 3.1.切换IP：修改该设备连接的最近切换记录
-       * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用）
+       * 3.1.切换IP：修改该设备连接的最近切换记录--服务IP、临时IP、scanIp、vip，服务IP、临时IP、scanIP用同一个url
+       * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用），单切或双向切换
        * 3.3 易备库单切IP
-       * 3.4 rac环境下切IP
-       * 3.5 解除连接
+       * 3.4 解除连接
        */
-      if (!!~this.hostLinkIdReadyToSwitch) {
+      if (!!~this.hostLinkIdReadyToSwitch) { // 切IP
         this.btnLoading = true;
-        // 切vip
-        if(formData === 'vip') {
-          switchVip(this.hostLinkIdReadyToSwitch)
-            .then(res => {
-              const { data } = res.data;
-              this.links.find(
-                link => link.id === this.hostLinkIdReadyToSwitch
-              ).latestSwitch = data;
-              this.switchModalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            })
-            .then(() => {
-              this.btnLoading = false;
-            });
-        } else {
-          //  切服务IP、scanIP、临时IP
-          switchHostIp(this.hostLinkIdReadyToSwitch)
-            .then(res => {
-              const { data } = res.data;
-              this.links.find(
-                link => link.id === this.hostLinkIdReadyToSwitch
-              ).latestSwitch = data;
-              this.switchModalVisible = false;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            })
-            .then(() => {
-              this.btnLoading = false;
-            });
-        }
-      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) {
+        // 切vip或者切服务IP、scanIP、临时IP
+        switchOneIp[formData](this.hostLinkIdReadyToSwitch)
+          .then(res => {
+            const { data } = res.data;
+            this.links.find(
+              link => link.id === this.hostLinkIdReadyToSwitch
+            ).latestSwitch = data;
+            this.switchModalVisible = false;
+          })
+          .catch(error => {
+            this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
+          });
+      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) { // IP单切
         this.btnLoading = true;
         const req = {
           originViceIp: this.simpleSwitchOriginIp(this.readyToSimpleSwitch),
@@ -851,7 +847,7 @@ export default {
           .then(() => {
             this.btnLoading = false;
           })
-      } else if(Object.keys(this.readyToRemoveHostLink).length > 0) {
+      } else if(Object.keys(this.readyToRemoveHostLink).length > 0) { // 解除连接
         this.btnLoading = true;
         deleteLinks(this.readyToRemoveHostLink.id)
           .then(res => {
@@ -868,7 +864,7 @@ export default {
           .then(() => {
             this.btnLoading = false;
           });
-      } else {
+      } else { // 实例单切或双切
         this.btnLoading = true;
         switchMethod[this.isSimpleSwitch][this.databaseType]({
           linkIds: this.databaseLinkIdsReadyToSwitch,
@@ -954,6 +950,19 @@ export default {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
     },
+    // 可以单切实例的环境：windows、rac的10g、11g，linux的11g
+    availableSimpleSwitchDb(primaryHost) {
+      if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0)) {
+        return primaryHost.databaseType === 1
+      } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1 ) {
+        return primaryHost.databaseType === 1 && primaryHost.oracleVersion === 2;
+      }
+      return false;
+    },
+    // 可以单切IP的环境：windows、linux的非rac环境下
+    availableSimpleSwitchIp(primaryHost) {
+      return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
+    },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
         this.$router.push({
@@ -973,7 +982,18 @@ export default {
         .then(res => {
           const { data: link } = res.data;
           this.linkCreateModalVisible = false;
-          this.links.push(link);
+          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === link.id);
+          if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
+            const databaseLinks = this.links.find(linked => linked.id === link.id).databaseLinks;
+            link.databaseLinks = link.databaseLinks.concat(databaseLinks);
+            this.links.splice(
+              alreadyLinkedIndex,
+              1,
+              link
+            );
+          } else { // 新创建的设备连接与实例连接
+            this.links.push(link);
+          }
         })
         .catch(error => {
           this.$message.error(error);
@@ -983,20 +1003,26 @@ export default {
         });
     },
     failOver(dbLink) {
-      this.$confirm(`此操作${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
+      this.$confirm(`此操作将${dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
         .then(() => {
-          failOverOracle(dbLink.id)
+          const req = {
+            linkId: dbLink.id,
+            data: {
+              failOverState: dbLink.failOverState
+            }
+          }
+          failOverOracle(req)
             .then(res => {
               const { data: failOverOperation } = res.data;
+              const msgType = !failOverOperation.operationState?'success':'error';
               this.databaseLinks.find(
                 link => link.id === dbLink.id
-              ).latestSwitch = failOverOperation;
-              this.fetchData(); // 用于刷新此实例连接中failOverState的状态
-              this.$message.info(`正在尝试${dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}，请等待`);
+              ).failOverState = failOverOperation.failOverState;
+              this.$message[msgType](failOverOperation.msg);
             })
             .catch(error => {
               this.$message.error(error);
@@ -1080,6 +1106,11 @@ $vice-color: #6d6d6d;
 .envIcon {
   vertical-align: -0.3em;
 }
+.wordHover {
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
 .hostIcon {
   vertical-align: -0.3em;
   width: 2em;
@@ -1092,7 +1123,7 @@ $vice-color: #6d6d6d;
   border-radius: 5px;
   background-color: #ffffff;
 }
-.hostLinkIsRac {
+.hostLinkInOs {
   border: 1px dotted $primary-color;
   border-radius: 5px;
   & legend {
@@ -1127,7 +1158,7 @@ $vice-color: #6d6d6d;
   }
 }
 .ipIcon {
-  width: 2em;
+  width: 1.6em;
   display: inline-block;
   vertical-align: -0.3em;
   margin-top: 10px;

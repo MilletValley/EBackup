@@ -59,7 +59,7 @@
                        align="center"></el-table-column>
       <el-table-column prop="role"
                        label="角色"
-                       :filters="stateFilters"
+                       :filters="roleFilters"
                        column-key="role"
                        width="100"
                        align="center">
@@ -168,7 +168,10 @@ export default {
         .then(() => {
           deleteOne(db.id)
             .then(() => {
-              this.items.splice($index, 1);
+              this.items.splice(
+                this.items.findIndex(item => item.id === db.id),
+                1
+              );
               this.$message.success({
                 message: '删除成功!',
               });

@@ -30,13 +30,27 @@
                          :key="host.id"
                          :label="host.name"
                          :value="host.id"
-                         :disabled="!!host.databases.length"></el-option>
+                         :disabled="!ebackupHostsAvailable(host.id)"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="选择端口号">
+            <el-select style="width: 90%;"
+                       v-model="selectedDbPort"
+                       placeholder="选择端口号">
+              <el-option v-for="port in dbPorts"
+                         :disabled="!databaseTabs.length"
+                         :key="port.id"
+                         :label="port"
+                         :value="port"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
-
     <section :class="$style.configureTabContainer">
       <el-tabs value="default"
                type="border-card"
@@ -74,9 +88,9 @@
                           v-model="multiFormData[index].viceLoginName"></el-input>
               </el-form-item>
               <el-form-item label="备库密码">
-                <el-input :disabled="keep"
-                          type="password"
-                          v-model="multiFormData[index].vicePassword"></el-input>
+                <input-toggle v-model="multiFormData[index].vicePassword"
+                              :disabled="keep"
+                              :hidden.sync="hiddenPassword"></input-toggle>
               </el-form-item>
               <el-form-item label="保持锁定">
                 <el-switch :disabled="!multiFormData[0].viceLoginName || !multiFormData[0].vicePassword"
@@ -103,6 +117,7 @@
 </template>
 <script>
 import { sortMixin } from '../mixins/commonMixin';
+import InputToggle from '@/components/InputToggle';
 export default {
   name: 'DatabaseLinkCreateModal',
   mixins: [sortMixin],
@@ -112,6 +127,9 @@ export default {
     },
     ebackupHosts: {
       type: Array,
+    },
+    links: {
+      type: Array
     },
     visible: {
       type: Boolean,
@@ -124,16 +142,18 @@ export default {
     },
     btnLoading: {
       type: Boolean,
-    }
+    },
   },
   data() {
     return {
       selectedProductionHostId: '', // 选择的生产设备ID
       selectedEbackupHostId: '', // 选择的易备设备ID
+      selectedDbPort: '', // 选择端口号
       currentTab: '', // 当前Tab页name
       multiFormData: [], // 多个tab页内的表单数据
       originRequestData: [],
       keep: false,
+      hiddenPassword: true
     };
   },
   watch: {
@@ -141,6 +161,10 @@ export default {
      * 主设备变更时，清空表单数据，重制tab页
      */
     selectedProductionHostId(value) {
+      this.selectedDbPort = this.dbPorts[0] || '';
+      this.selectedEbackupHostId = '';
+    },
+    selectedDbPort(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
         primaryDatabaseId: db.id,
         // primaryLsn: '',
@@ -177,9 +201,15 @@ export default {
         ) || {}
       );
     },
-    databaseTabs() {
+    databaseOnProductionHost() {
       const data = this.selectedProductionHost.databases || [];
       return this.sortFn(data, 'createTime');
+    },
+    dbPorts() {
+      return Array.from(new Set(this.databaseOnProductionHost.map(db => db.dbPort)));
+    },
+    databaseTabs() {
+      return this.databaseOnProductionHost.filter(db => db.dbPort === this.selectedDbPort);
     },
     instanceName() {
       if (this.type === 'oracle') {
@@ -242,15 +272,32 @@ export default {
           this.$message.warning('初始化信息不能为空');
         });
     },
+    ebackupHostsAvailable(id) {
+      const ebackupHostIdsLinkedProductionHost = this.links
+        .filter(link => link.primaryHost.id === this.selectedProductionHostId)
+        .map(link => link.viceHost.id);
+      if(!this.selectedProductionHostId) { //未选择主设备时，备设备不可选
+        return false;
+      } else if(!ebackupHostIdsLinkedProductionHost.length) { // 当前已选主设备无连接
+        return true;
+      } else {  // 数组是当前已选主设备所连的备设备
+        return ebackupHostIdsLinkedProductionHost.includes(id);
+      }
+    },
     modalOpened() {
       // this.originRequestData = { ...this.requestData };
     },
     modalClosed() {
       this.selectedProductionHostId = '';
       this.selectedEbackupHostId = '';
+      this.selectedDbPort = '';
       this.currentTab = '';
+      this.hiddenPassword = true;
     },
   },
+  components: {
+    InputToggle
+  }
 };
 </script>
 <style lang="scss" module>

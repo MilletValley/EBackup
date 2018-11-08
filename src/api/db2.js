@@ -6,39 +6,39 @@ const timePoints2Obj = timePointsStrArr =>
 const fetchAll = () =>
   baseApi.request({
     method: 'get',
-    url: '/oracles',
+    url: '/db2s',
   });
 
 const fetchOne = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}`,
+    url: `/db2s/${id}`,
   });
 
-const createOne = oracleData =>
+const createOne = db2Data =>
   baseApi.request({
     method: 'post',
-    url: '/oracles',
-    data: oracleData,
+    url: '/db2s',
+    data: db2Data,
   });
 
 const deleteOne = id =>
   baseApi.request({
     method: 'delete',
-    url: `/oracles/${id}`,
+    url: `/db2s/${id}`,
   });
 
-const modifyOne = oracleData =>
+const modifyOne = db2Data =>
   baseApi.request({
     method: 'patch',
-    url: `/oracles/${oracleData.id}`,
-    data: oracleData,
+    url: `/db2s/${db2Data.id}`,
+    data: db2Data,
   });
 
 const deleteSome = ids =>
   baseApi.request({
     method: 'delete',
-    url: '/oracles',
+    url: '/db2s',
     data: ids,
   });
 
@@ -46,7 +46,7 @@ const fetchBackupPlans = id =>
   baseApi
     .request({
       method: 'get',
-      url: `/oracles/${id}/oracle-backup-plans`,
+      url: `/db2s/${id}/db2-backup-plans`,
     })
     .then(res => {
       const { data: plans } = res.data;
@@ -61,21 +61,21 @@ const fetchBackupPlans = id =>
 const fetchBackupResults = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}/results`,
+    url: `/db2s/${id}/results`,
   });
 
 // API https://nei.netease.com/interface/detail/?pid=28187&id=88119
-const createOracleBackupPlan = ({ id, plan }) =>
+const createDB2BackupPlan = ({ id, plan }) =>
   baseApi.request({
     method: 'post',
-    url: `/oracles/${id}/oracle-backup-plans`,
+    url: `/db2s/${id}/db2-backup-plans`,
     data: plan,
   });
 const createBackupPlan = ({ id, plan }) =>
   baseApi
     .request({
       method: 'post',
-      url: `/oracles/${id}/oracle-backup-plans`,
+      url: `/db2s/${id}/db2-backup-plans`,
       data: plan,
     })
     .then(res => {
@@ -87,13 +87,13 @@ const createBackupPlan = ({ id, plan }) =>
 const deleteBackupPlan = id =>
   baseApi.request({
     method: 'delete',
-    url: `/oracle-backup-plans/${id}`,
+    url: `/db2-backup-plans/${id}`,
   });
 
-const updateOracleBackupPlan = ({ id, plan }) =>
+const updateDB2BackupPlan = ({ id, plan }) =>
   baseApi.request({
     method: 'patch',
-    url: `/oracle-backup-plans/${id}`,
+    url: `/db2-backup-plans/${id}`,
     data: plan,
   });
 
@@ -101,7 +101,7 @@ const updateBackupPlan = ({ id, plan }) =>
   baseApi
     .request({
       method: 'patch',
-      url: `/oracle-backup-plans/${id}`,
+      url: `/db2-backup-plans/${id}`,
       data: plan,
     })
     .then(res => {
@@ -113,14 +113,14 @@ const updateBackupPlan = ({ id, plan }) =>
 const fetchBackupOperation = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracle-backup-plans/${id}`,
+    url: `/db2-backup-plans/${id}`,
   });
 
 const createSingleRestorePlan = ({ id, data }) =>
   baseApi
     .request({
       method: 'post',
-      url: `/oracle-backup-results/${id}/oracle-restore-plans`,
+      url: `/db2-backup-results/${id}/db2-restore-plans`,
       data,
     })
     .then(res => {
@@ -132,7 +132,7 @@ const fetchRestorePlans = id =>
   baseApi
     .request({
       method: 'get',
-      url: `/oracles/${id}/oracle-restore-plans`,
+      url: `/db2s/${id}/db2-restore-plans`,
     })
     .then(res => {
       const { data: plans } = res.data;
@@ -147,14 +147,14 @@ const fetchRestorePlans = id =>
 const fetchRestoreRecords = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracles/${id}/restore-records`,
+    url: `/db2s/${id}/restore-records`,
   });
 
 const createRestorePlan = ({ id, data }) =>
   baseApi
     .request({
       method: 'post',
-      url: `/oracles/${id}/oracle-restore-plans`,
+      url: `/db2s/${id}/db2-restore-plans`,
       data,
     })
     .then(res => {
@@ -166,14 +166,14 @@ const createRestorePlan = ({ id, data }) =>
 const deleteRestorePlan = planId =>
   baseApi.request({
     method: 'delete',
-    url: `/oracle-restore-plans/${planId}`,
+    url: `/db2-restore-plans/${planId}`,
   });
 
 const updateRestorePlan = data =>
   baseApi
     .request({
       method: 'patch',
-      url: `/oracle-restore-plans/${data.id}`,
+      url: `/db2-restore-plans/${data.id}`,
       data,
     })
     .then(res => {
@@ -185,59 +185,7 @@ const updateRestorePlan = data =>
 const fetchRestoreOperation = id =>
   baseApi.request({
     method: 'get',
-    url: `/oracle-restore-plans/${id}`,
-  });
-
-const fetchLinks = () =>
-  baseApi.request({
-    method: 'get',
-    url: '/oracle-links',
-  });
-
-const createLinks = data =>
-  baseApi.request({
-    method: 'post',
-    url: '/oracle-links',
-    data,
-  });
-
-const createSwitches = data =>
-  baseApi.request({
-    method: 'post',
-    url: '/oracle-switches',
-    data,
-  });
-
-const createSimpleSwitches = data =>
-  baseApi.request({
-    method: 'post',
-    url: '/oracle-simple-switches',
-    data
-  });
-
-const fetchSwitches = linkId =>
-  baseApi.request({
-    method: 'get',
-    url: `/oracle-links/${linkId}/switches`,
-  });
-
-const fetchLink = oracleId =>
-  baseApi.request({
-    method: 'get',
-    url: `/oracles/${oracleId}/oracle-links`,
-  });
-
-const fetchLinkByLinkId = linkId =>
-  baseApi.request({
-    method: 'get',
-    url: `/oracle-links/${linkId}`,
-  });
-
-const failOver = ({ linkId, data }) =>
-  baseApi.request({
-    method: 'patch',
-    url: `oracle-links/${linkId}/fail-over`,
-    data
+    url: `/db2-restore-plans/${id}`,
   });
 
 export {
@@ -249,10 +197,10 @@ export {
   modifyOne,
   fetchBackupPlans,
   fetchBackupResults,
-  createOracleBackupPlan,
+  createDB2BackupPlan,
   createBackupPlan,
   deleteBackupPlan,
-  updateOracleBackupPlan,
+  updateDB2BackupPlan,
   updateBackupPlan,
   fetchBackupOperation,
   createSingleRestorePlan,
@@ -261,13 +209,5 @@ export {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation,
-  fetchLinks,
-  createSwitches,
-  createSimpleSwitches,
-  createLinks,
-  fetchSwitches,
-  fetchLink,
-  fetchLinkByLinkId,
-  failOver
+  fetchRestoreOperation
 };

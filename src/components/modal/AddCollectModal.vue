@@ -175,11 +175,8 @@ export default {
   methods: {
     // 点击确认按钮触发
     confirm() {
-      console.log(this.formData.vmHostServerUser)
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          console.log(this.formData.vmHostServerUser)
-          console.log(this.formData)
           this.$emit('confirm', this.formData);
         } else {
           this.activeNames = ['1', '2']
@@ -194,7 +191,6 @@ export default {
       this.hiddenPassword1 = true;
     },
     handleChange(val){
-      console.log(val);
     }
   },
   components: {

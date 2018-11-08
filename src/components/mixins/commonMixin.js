@@ -5,20 +5,24 @@ const paginationMixin = {
     return {
       currentPage: 1,
       pageSize: 10,
+      total: 0
     };
   },
   computed: {
+    // 分页处理
     processedTableData() {
-      const data = this.currentTableData;
-      return data.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
-    }
-  },
-  watch: {
-    tableData(data) {
+      const tData = this.currentTableData ? this.currentTableData : this.tableData;
+      let data = [...tData];
+      this.total = data.length;
       // 判断当前页是否有数据，如果没有则显示上一页
       if (data.length <= (this.currentPage - 1) * this.pageSize) {
         this.currentPage = this.currentPage === 1 ? this.currentPage : this.currentPage - 1;
       }
+      if(this.sortFn && this.defaultSort){
+        data = this.sortFn(data, this.defaultSort.prop, this.defaultSort.order);
+      }
+      console.log(data)
+      return data.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
     }
   },
   methods: {
@@ -33,15 +37,15 @@ const paginationMixin = {
 
 const sortMixin = {
   methods: {
-    sortFn(data, column) {
+    sortFn(data, column,order) {
       return data.slice().sort((a, b) => {
         const val1 = a[column];
         const val2 = b[column];
         // 默认是时间排序
-        if (dayjs(val1) < dayjs(val2)) {
-          return 1;
-        } else if (dayjs(val1) > dayjs(val2)) {
-          return -1;
+        if (val1 < val2) {
+          return order === 'ascending' ? -1 : 1;
+        } else if (val1 > val2) {
+          return order === 'ascending' ? 1 : -1;
         }
         return 0;
       });
@@ -60,25 +64,6 @@ const filterMixin = {
       let filterData = this.tableData;
       Object.keys(this.filter).forEach(i => {
         if (this.filter[i] && this.filter[i].length > 0) {
-          // filterData = this.tableData.filter(item => {
-          //   // if (Array.isArray(this.filter[i])) {
-          //   //   if (this.filter[i].includes(item[i])) {
-          //   //     return true;
-          //   //   }
-          //   // } else {
-          //   //   // if(item[i].toLowerCase().includes(this.filter[i].toLowerCase())){
-          //   //   //     return true;
-          //   //   // }
-          //   //   // if (item[i].includes(this.filter[i])) {
-          //   //   //   return true;
-          //   //   // }
-          //   //   return this.filterFn(item, i);
-          //   //   // return item['vm'][i].includes(this.filter[i]);
-          //   // }
-          //   // return false;
-          //   // 判断方法无法固定
-          //   return this.filterFn(item, i);
-          // });
           filterData = this.tableData.filter(item => this.filterFn(item, i));
         }
       });

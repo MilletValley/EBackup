@@ -101,12 +101,10 @@ const vm = {
   data() {
     return {};
   },
-
   methods: {
     // 点击确认按钮触发
     confirm() {
       this.$refs.itemCreateForm.validate(valid => {
-        console.log(this.formData)
         if (valid) {
           const {
             instanceName,

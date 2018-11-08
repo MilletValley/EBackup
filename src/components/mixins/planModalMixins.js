@@ -18,6 +18,9 @@ const strategyMapping = {
   mysql: {
     1: [0, 2, 3, 4, 5],
   },
+  db2: {
+    1: [0, 2, 3, 4, 5]
+  },
   vm: {
     1: [0, 2, 3, 4, 5],
   },
@@ -37,8 +40,9 @@ const mapping = {
   oracle: '实例',
   sqlserver: '数据库',
   mysql: '数据库',
-  windows: '恢复路径',
-  linux: '恢复路径',
+  db2: '数据库',
+  windows: '恢复目标路径',
+  linux: '恢复目标路径',
   vm: '新虚拟机名'
 };
 
@@ -348,7 +352,7 @@ const restorePlanModalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', 'dm', ''].includes(value);
       },
     },
     id: {
@@ -406,6 +410,15 @@ const restorePlanModalMixin = {
         callback();
       }
     };
+    const originPathValidate = (rule, value, callback) => {
+      if (!this.formData.originDetailInfo && this.isFileHost) {
+        callback(new Error('请输入文件恢复源路径'));
+      } else if (!this.fileHostOriginPath.map(originPath => originPath.path).includes(value)) {
+        callback(new Error('文件恢复源路径不存在'));
+      } else {
+        callback();
+      }
+    };
     const detailInfoDisplayName = mapping[this.type];
     const baseFormData = {
       name: '',
@@ -420,6 +433,7 @@ const restorePlanModalMixin = {
     // 文件单次恢复 增加覆盖策略
     if (this.isFileHost) {
       baseFormData.recoveringStrategy = 1;
+      baseFormData.originDetailInfo = '';
     }
     return {
       // 原始表单值
@@ -445,6 +459,12 @@ const restorePlanModalMixin = {
             message: `请输入${detailInfoDisplayName}`,
             trigger: 'blur',
           },
+        ],
+        originDetailInfo: [
+          {
+            validator: originPathValidate,
+            trigger: 'change'
+          }
         ],
         dbPort: [{
           required: true,

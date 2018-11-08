@@ -88,7 +88,9 @@ const useTypeMapping = {
   2: 'sqlserver',
   3: '文件',
   4: '虚拟机',
-  5: 'mysql'
+  5: 'mysql',
+  6: 'db2',
+  7: '达梦数据库'
 };
 
 const systemStateMapping = {
@@ -101,7 +103,9 @@ const databaseTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
   4: '虚拟机',
-  5: 'mysql'
+  5: 'mysql',
+  6: 'db2',
+  7: '达梦数据库'
 };
 
 // 数据库连接状态

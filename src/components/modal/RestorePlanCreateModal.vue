@@ -184,6 +184,7 @@ import {
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
 import { createRestorePlan as createMySqlRestorePlan } from '../../api/mysql';
+import { createRestorePlan as createDB2RestorePlan } from '../../api/db2'
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {

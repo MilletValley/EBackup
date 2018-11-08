@@ -46,7 +46,7 @@
       <el-table-column type="expand">
         <template slot-scope="scope">
           <el-form inline
-                   label-width="90px"
+                   label-width="100px"
                    size="small"
                    class="result-detail-form">
             <el-form-item :class="$style.detailFormItem"
@@ -54,7 +54,7 @@
               <span>{{ scope.row.id }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="存储路径">
+                          label="存储目标路径">
               <span>{{ scope.row.path }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
@@ -62,7 +62,7 @@
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="原文件路径"
+                          label="源文件路径"
                           v-if="isFileBackupResult">
               <span>{{ scope.row.fileResource }}</span>
             </el-form-item>
@@ -72,13 +72,17 @@
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="结束时间"
-                          >
+                          label="结束时间">
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
+                          label="NFS目标路径"
+                          v-if="type==='linux'">
+              <span>{{ scope.row.nfsTargetPath }}</span>
+            </el-form-item>
+            <el-form-item :class="$style.detailFormItem"
                           label="文件标识符"
-                          v-if="isFileBackupResult">
+                          v-if="type==='windows'">
               <span>{{ scope.row.identifier }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
@@ -106,11 +110,11 @@
       </el-table-column>
       <el-table-column label="文件标识符"
                        prop="identifier"
-                       v-if="isFileBackupResult"
-                       width="200px"
+                       v-if="type==='windows'"
+                       min-width="180px"
                        align="center"></el-table-column>
       <el-table-column v-if="isFileBackupResult"
-                       label="原文件路径"
+                       label="源文件路径"
                        prop="fileResource"
                        min-width="180px"
                        align="center"
@@ -123,20 +127,20 @@
                        header-align="center"></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
-                       min-width="200px"
+                       min-width="150px"
                        align="center"></el-table-column>
       <el-table-column label="结束时间"
                        prop="endTime"
-                       min-width="200px"
+                       min-width="150px"
                        :sortable="true"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
-                       width="120px"
+                       min-width="100px"
                        align="center"></el-table-column>
       <el-table-column label="状态"
                        prop="state"
-                       width="70px"
+                       min-width="70px"
                        align="center">
         <template slot-scope="scope">
           <i v-if="scope.row.state === 0"
@@ -148,9 +152,8 @@
         </template>
       </el-table-column>
       <el-table-column label="操作"
-                       width="140px"
-                       align="center"
-                       v-if="!this.isVM">
+                       min-width="100px"
+                       align="center">
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
@@ -189,7 +192,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(
           value
         );
       },
@@ -274,7 +277,6 @@ export default {
     },
     // 点击恢复按钮
     restoreBtnClick({ id }) {
-      console.log(this.handleData)
       this.$emit('single-restore-btn-click', id);
       // this.selectedId = id;
       // this.singleRestoreModalVisible = true;
@@ -301,11 +303,6 @@ export default {
     isFileBackupResult() {
       return this.type === 'windows' || this.type === 'linux';
     },
-    isVM() {
-      const path = this.$route.path;
-      // return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
-      return false
-    },
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
     handleData() {
       const data = this.data.map((r, i, arr) => {
@@ -314,7 +311,16 @@ export default {
       const map = {};
       data.forEach((result, index) => {
         const {size} = result;
-        let fmtSize = fmtSizeFn(size);
+        let fmtSize = 0;
+        if(this.type === 'windows'){
+          if(Number(size) < 1024){
+            fmtSize = `${size}B`;
+          }else{
+            fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
+          }
+        }else{
+          fmtSize = fmtSizeFn(size);
+        }
         result.size = fmtSize ? fmtSize : 0;
         // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
         if (!map[result.fileResource]) {

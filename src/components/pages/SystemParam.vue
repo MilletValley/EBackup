@@ -111,6 +111,7 @@
           <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
+          <el-radio v-model="formData.useType" :label="7">达梦数据库</el-radio>
         </el-form-item>
         <el-form-item label="Windows系统版本"
                       v-if="formData.sysType === 1 && formData.useType === 2"
@@ -173,6 +174,7 @@
           <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
           <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
           <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
+          <el-radio v-model="formData.useType" :label="7">达梦数据库</el-radio>
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
         </el-form-item>
@@ -363,7 +365,11 @@ export default {
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.btnLoading=true;
-          modifyOne(this.formData)
+          let data = {...this.formData};
+          if(!(data.sysType === 1 && data.useType === 2)){
+            delete data.windowsType
+          }
+          modifyOne(data)
           .then(response => {
             const { data, message } = response.data;
             this.$message.success(message);
@@ -388,7 +394,11 @@ export default {
       this.$refs.formData.validate(valid => {
         if (valid) {
           this.btnLoading=true;
-          createOne(this.formData)
+          let data = {...this.formData};
+          if(!(data.sysType === 1 && data.useType === 2)){
+            delete data.windowsType
+          }
+          createOne(data)
             .then(response => {
               this.$message.success(response.data.message);
               this.createModalVisible = false;

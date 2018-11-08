@@ -68,7 +68,6 @@
             </el-form>
           </el-col>
         </el-row>
-
       </div>
     </header>
     <tab-panels :id="Number(id)"
@@ -100,9 +99,13 @@
                             @confirm="updateDetails"
                             :item-info="details"></file-host-update-modal>
     <single-restore-create-modal :type="systemType"
+                                 v-if="systemType"
                                  :id="selectedBackupResultId"
                                  :visible.sync="singleRestoreCreateModalVisible"
                                  :btn-loading="btnLoading"
+                                 :tree-data="treeData"
+                                 :file-host-origin-path="fileHostOriginPath"
+                                 :selection-hosts="availableHostsForRestore"
                                  @confirm="addSingleRestorePlan"></single-restore-create-modal>
   </section>
 </template>
@@ -112,8 +115,10 @@ import { detailPageMixin } from '../mixins/detailPageMixins';
 import {
   modifyOne,
   fetchOne,
+  fetchAll,
   fetchBackupPlans,
   fetchBackupResults,
+  fetchOriginPath,
   createBackupPlan,
   updateBackupPlan,
   fetchRestorePlans,
@@ -180,10 +185,20 @@ export default {
             this.$message.error(error);
           });
       }),
+      filteredInfos: [],
+      fileHostOriginPath: []
     };
   },
   methods: {
     fetchData() {
+      fetchAll() // 获取文件列表信息
+        .then(res => {
+          const { data: infos } = res.data;
+          this.filteredInfos = infos.filter(info => info.osName==='Linux');
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
       fetchOne(this.id)
         .then(res => {
           const { data: db } = res.data;
@@ -220,6 +235,17 @@ export default {
         const { data: records } = res.data;
         this.restoreRecords = records;
       });
+    },
+    // 单次恢复的源恢复路径请求
+    fetchFileHostOriginPath(id) {
+      fetchOriginPath(id)
+        .then(res => {
+          const { data: fileHostPath } = res.data;
+          this.fileHostOriginPath = fileHostPath;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     RefreshTime() {
       fetchBackupPlans(this.id)
@@ -332,8 +358,24 @@ export default {
     systemType() {
       return this.details && this.details.osName
         ? this.details.osName.toLowerCase()
-        : '';
+        : 'windows';
     },
+    availableHostsForRestore() { // 单次立即恢复模态框中的可选设备
+      // return this.filteredInfos.filter(host => host.osName === 'Linux')
+      return this.filteredInfos
+    },
+    treeData() { // 数组转树状结构对象, 用于生成单次立即恢复模态框中的源路径树状图
+      let tree = this.fileHostOriginPath.filter(father => {
+        let branchArr = this.fileHostOriginPath.filter(child => {
+          return father.id === child.parentId && child.id !== child.parentId
+        })
+        if(branchArr.length>0) {
+          father.children = branchArr;
+        }
+        return father.id === father.parentId
+      })
+      return tree
+    }
   },
   components: {
     FileHostUpdateModal,

@@ -47,7 +47,6 @@ export default {
   },
   methods: {
     sendMsg: function(item,index) {
-      console.log("ok");
       for(let i=0; i<this.ipAddress.length; i++){
         this.temp[i] = this.ipAddress[i].value;
       }

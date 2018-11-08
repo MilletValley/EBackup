@@ -75,7 +75,7 @@
         :page-size="pageSize"
         background
         layout="total, sizes, prev, pager, next, jumper"
-        :total="currentTableData.length">
+        :total="total">
     </el-pagination>
 </div>
 </template>
@@ -90,9 +90,9 @@ import {
   operationStateMapping,
 } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
-import {paginationMixin, filterMixin} from '../mixins/commonMixin';
+import {paginationMixin, filterMixin, sortMixin} from '../mixins/commonMixin';
 export default {
-    mixins: [baseMixin, paginationMixin, filterMixin],
+    mixins: [baseMixin, paginationMixin, filterMixin, sortMixin],
     props:{
         id: {
             type: Number
@@ -106,7 +106,8 @@ export default {
         return {
             loading: false,
             timer: null,
-            inputSearch: ''
+            inputSearch: '',
+            defaultSort:{prop: 'startTime', order: 'descending'},
         }
     },
     mounted(){

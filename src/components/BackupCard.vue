@@ -25,26 +25,32 @@
     <el-row type="flex">
       <el-col :span="18">
         <el-form label-width="100px"
-                 size="mini">
+                 size="mini"
+                 :class="type==='linux' ? $style.backupCardForm : ''">
           <el-form-item label="计划开始时间"
+                        :class="$style.backupCardFormItem"
                         :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
             <span>{{ backupConfig.startTime }}</span>
           </el-form-item>
           <el-form-item v-if="type === 'windows'"
+                        :class="$style.backupCardFormItem"
                         label="是否备份系统"
                         style="width: 40%">
             <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
           </el-form-item>
           <el-form-item label="备份策略"
+                        :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ backupStrategy }}</span>
           </el-form-item>
           <el-form-item label="时间策略"
+                        :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ timeStrateg }}</span>
           </el-form-item>
           <el-form-item label="时间"
                         v-if="backupConfig.timeStrategy === 0"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -53,6 +59,7 @@
           </el-form-item>
           <el-form-item label="星期"
                         v-if="backupConfig.timeStrategy === 4"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -63,6 +70,7 @@
           </el-form-item>
           <el-form-item label="日期"
                         v-if="backupConfig.timeStrategy === 5"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -73,6 +81,7 @@
           </el-form-item>
           <el-form-item label="时间"
                         v-if="[3,4,5].indexOf(backupConfig.timeStrategy) >= 0"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
@@ -83,15 +92,30 @@
           </el-form-item>
           <el-form-item label="间隔"
                         v-if="backupConfig.timeStrategy === 1|| backupConfig.timeStrategy === 2"
+                        :class="$style.backupCardFormItem"
                         style="width: 100%">
             <div>
               <el-tag :class="$style.infoTag"
                       size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="备份路径"
-                        v-if="type === 'windows' || type === 'linux'">
+          <el-form-item label="源文件路径"
+                        v-if="type === 'windows' || type === 'linux'"
+                        :class="$style.backupCardFormItem"
+                        style="40%">
             <span>{{ backupOperation.backupPath }}</span>
+          </el-form-item>
+          <el-form-item label="存储目标路径"
+                        v-if="type === 'linux'"
+                        :class="$style.backupCardFormItem"
+                        style="40%">
+            <span>{{ backupOperation.pointTargetPath }}</span>
+          </el-form-item>
+          <el-form-item label="NFS目标路径"
+                        v-if="type === 'linux'"
+                        :class="$style.backupCardFormItem"
+                        style="40%">
+            <span>{{ backupOperation.nfsTargetPath }}</span>
           </el-form-item>
         </el-form>
       </el-col>
@@ -149,7 +173,7 @@
             <div>{{backupOperation.size || '-'}}</div>
           </li>
           <li v-if="isFileBackupResult">
-            <h5>已备份大小</h5>
+            <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}</h5>
             <div>{{backupSize || '-'}}</div>
           </li>
         </ul>
@@ -184,7 +208,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(
           value
         );
       },
@@ -197,7 +221,7 @@ export default {
   data(){
     return {
       progressNum: 0,
-      disk:'D:'
+      disk:''
     }
   },
   computed: {
@@ -251,34 +275,42 @@ export default {
         if(this.backupOperation.state === 0){
           str = '未开始';
         }else if(this.backupOperation.state === 2){
-          str = this.backupOperation.backupSystem === 'sys' ? `卷(C:)已备份完成,卷(${this.disk})已备份完成` : `卷(${this.disk})已备份完成`;
+          // str = this.backupOperation.backupSystem === 'sys' ? `卷(C:)已备份完成,卷(${this.disk})已备份完成` : `卷(${this.disk})已备份完成`;
+          str = '已完成';
         }else if(this.backupOperation.state === 1){
-          if(this.backupOperation.backupSystem === 'nosys'){
-            //  str = '正在备份卷(D:)';
-            str = `正在备份卷(${this.disk})`;
-          }else if(this.backupOperation.backupSystem === 'sys'){
-            if(this.disk === 'C:'){
-              str = `正在备份卷(C:)`;
-            }else{
-              str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
-            }
-          }
+          // if(this.backupOperation.backupSystem === 'nosys'){
+          //   //  str = '正在备份卷(D:)';
+          //   str = `正在备份卷(${this.disk})`;
+          // }else if(this.backupOperation.backupSystem === 'sys'){
+          //   if(this.disk === 'C:'){
+          //     str = `正在备份卷(C:)`;
+          //   }else{
+          //     str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
+          //   }
+          // }
+          str = `正在备份卷(${this.disk})`;
         }
       }
       return str;
     },
     backupSize(){
-      let {process, size} = this.backupOperation;
+      let {process, size, state} = this.backupOperation;
       let fmtSize = 0;
       if(this.type === 'linux'){
         process = Number(process);
         fmtSize = fmtSizeFn(process);
       }else if(this.type === 'windows'){
-        fmtSize = this.progressNum * Number(size) / 100;
-        fmtSize = fmtSizeFn(fmtSize);
+        // const num = size.match(/\d+(\.\d+)?/);
+        // fmtSize = this.progressNum * Number(size) / 100;
+        // fmtSize = fmtSizeFn(fmtSize);
+        if(Number(size) < 1024){
+          fmtSize = `${size}B`;
+        }else{
+          fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
+        }
       }
-      return fmtSize ? fmtSize : '-';
-    }
+      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
+    },
   },
   methods: {
     planDeleteBtnClick() {
@@ -321,7 +353,12 @@ export default {
         }
         const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
         const result = data.match(reg);
-        this.disk = result[1];
+        if(!result){
+          return;
+        }
+        if(result[1]){
+          this.disk = result[1];
+        }
         if(result[2]){
           let num = Number(result[2].substring(0,result[2].length - 1));
           this.progressNum = num || num === 0 ? num : 0;
@@ -355,6 +392,11 @@ export default {
   transition: all 0.5s ease;
   &:hover {
     transform: rotate(180deg);
+  }
+}
+.backupCardForm {
+  .backupCardFormItem {
+    margin-bottom: 0;
   }
 }
 .operationInfo {
