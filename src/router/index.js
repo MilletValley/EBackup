@@ -17,6 +17,8 @@ import FileHostList from '@/components/pages/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 import MySqlList from '@/components/pages/MySqlList';
 import MySqlDetail from '@/components/pages/MySqlDetail';
+import DB2List from '@/components/pages/DB2List';
+import DB2Detail from '@/components/pages/DB2Detail';
 import SwitchList from '@/components/pages/SwitchList';
 import SwitchDetail from '@/components/pages/SwitchDetail';
 import NoFound from '@/components/pages/NoFound';
@@ -227,7 +229,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sqlserver dba', 'mysql dba'],
+      roles: ['oracle dba', 'sqlserver dba', 'mysql dba', 'db2 dba'],
     },
     children: [
       {
@@ -386,6 +388,25 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'db2',
+        name: 'db2List',
+        component: DB2List,
+        meta: {
+          title: 'DB2',
+          roles: ['db2 dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'DB2列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
@@ -443,6 +464,28 @@ export const asyncRouters = [
             {
               name: 'MySql列表',
               path: '/db/mysql',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'db2/:id',
+        props: true,
+        component: DB2Detail,
+        meta: {
+          roles: ['db2 dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'DB2列表',
+              path: '/db/db2',
             },
             {
               name: '数据库详情',

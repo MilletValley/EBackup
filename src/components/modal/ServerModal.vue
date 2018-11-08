@@ -188,7 +188,6 @@ export default {
     },
     // 关闭之前 验证是否有修改
     hasModifiedBeforeClose(fn) {
-        console.log(this.formData, this.originFormData)
         if (isEqual(this.formData, this.originFormData)) {
             fn();
         } else {

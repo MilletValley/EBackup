@@ -18,6 +18,9 @@ const strategyMapping = {
   mysql: {
     1: [0, 2, 3, 4, 5],
   },
+  db2: {
+    1: [0, 2, 3, 4, 5]
+  },
   vm: {
     1: [0, 2, 3, 4, 5],
   },
@@ -37,6 +40,7 @@ const mapping = {
   oracle: '实例',
   sqlserver: '数据库',
   mysql: '数据库',
+  db2: '数据库',
   windows: '恢复目标路径',
   linux: '恢复目标路径',
   vm: '新虚拟机名'
@@ -348,7 +352,7 @@ const restorePlanModalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     id: {

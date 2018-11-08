@@ -46,6 +46,12 @@
                       :disabled="!this.isHW"></el-input>
           </el-form-item>
         </el-col>
+        <el-col :span="24">
+          <el-form-item label="端口号"
+                        prop="dbPort">
+            <el-input v-model.number="formData.dbPort"></el-input>
+          </el-form-item>
+        </el-col>
       </el-row>
       <el-row v-if="isHW">
         <el-col :span="24">
@@ -235,6 +241,7 @@ export default {
         datePoints,
         timeStrategy,
         database,
+        dbPort,
         hostIp: configHostIp
       } = this.restorePlan.config;
       // const { instanceName, vmName, loginName, host } = database;
@@ -246,6 +253,7 @@ export default {
       const baseData = {
         name: this.restorePlan.name,
         id,
+        dbPort,
         singleTime,
         startTime: timeStrategy === 1 ? '' : startTime,
         timePoints,

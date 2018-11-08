@@ -14,7 +14,7 @@ const genModalMixin = type => {
         type: String,
         required: true,
         validator(value) {
-          return ['oracle', 'sqlserver', 'mysql', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(value);
+          return ['oracle', 'sqlserver', 'mysql', 'db2', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(value);
         },
       },
       btnLoading: {
@@ -85,6 +85,7 @@ const genModalMixin = type => {
         oracle: databaseBaseFormData,
         sqlserver: databaseBaseFormData,
         mysql: databaseBaseFormData,
+        db2: databaseBaseFormData,
         filehost: fileHostBaseFormData,
         host: hostBaseFormData,
         vm: virtualFormData,
@@ -94,9 +95,26 @@ const genModalMixin = type => {
         oracle: 'oracle数据库',
         sqlserver: 'sql server数据库',
         mysql: 'mysql数据库',
+        db2: 'db2数据库',
         filehost: '服务器',
         host: '设备'
       };
+      const databaseUseType = [
+        { value: 1, text: 'oracle' },
+        { value: 2, text: 'sqlserver' },
+        { value: 4, text: '虚拟机' },
+        { value: 5, text: 'mysql' },
+        { value: 6, text: 'db2' }
+      ];
+      const options = [ // 区分oracle10G和11G
+        {
+          value: 1,
+          label: '10G'
+        }, {
+          value: 2,
+          label: '11G'
+        }
+      ];
       const rules = {
         name: [{
           required: true,
@@ -246,17 +264,12 @@ const genModalMixin = type => {
         // trigger增加change更方便 但是再次打开modal会显示出验证结果
         // 猜测是因为初始化时，触发了change事件
         rules,
+        databaseUseType,
         hiddenPassword: true,
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
         isLoading: false,
-        options: [{
-          value: 1,
-          label: '10G'
-        }, {
-          value: 2,
-          label: '11G'
-        }],
+        options,
         words: [],
       };
     },
@@ -290,17 +303,24 @@ const genModalMixin = type => {
           h => h.hostType === 1
         );
       },
+      db2Hosts() {
+        return this.$store.getters.hostsWithDB2.filter(
+          h => h.hostType === 1
+        );
+      },
       availableHosts() {
         if (this.type === 'oracle') {
           return this.oracleHosts;
         } else if (this.type === 'sqlserver') {
           return this.sqlserverHosts;
+        } else if (this.type === 'db2') {
+          return this.db2Hosts;
         }
         return this.mysqlHosts;
       },
     },
     mounted() {
-      for (let i = 67; i < 91; i++) {
+      for (let i = 67; i < 91; i++) { // C-Z盘 盘符
         const word = {};
         word.value = String.fromCharCode(i);
         this.words.push(word);

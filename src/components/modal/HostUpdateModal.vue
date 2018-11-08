@@ -72,14 +72,10 @@
         </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">
-          <el-radio v-model="formData.databaseType"
-                    :label="1">oracle</el-radio>
-          <el-radio v-model="formData.databaseType"
-                    :label="2">sqlserver</el-radio>
-          <el-radio v-model="formData.databaseType"
-                    :label="5">mysql</el-radio>
-          <el-radio v-model="formData.databaseType"
-                    :label="4">虚拟机</el-radio>
+          <el-radio v-for="db in databaseUseType"
+                    :key="db.value"
+                    v-model="formData.databaseType"
+                    :label="db.value">{{ db.text }}</el-radio>
         </el-form-item>
         <el-form-item label="Windows系统版本"
                       v-if="formData.osName === 'Windows' && formData.databaseType === 2"

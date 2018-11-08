@@ -184,6 +184,7 @@ import {
 import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
 import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
 import { createRestorePlan as createMySqlRestorePlan } from '../../api/mysql';
+import { createRestorePlan as createDB2RestorePlan } from '../../api/db2'
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 
 export default {
@@ -231,7 +232,6 @@ export default {
         }
       }
       this.formData = Object.assign({}, this.formData, customData)
-      console.log(this.formData)
       // if(this.isVMware){
       //   //loginname暂时用来存放虚拟机名称
       //   this.formData.oldName = this.database.vmName;
