@@ -23,7 +23,7 @@
           </span>
           <el-input v-model="formData.hostIp"
                     placeholder="请输入恢复设备"
-                    v-if="isFileHost&&type==='windows'"></el-input>
+                    v-if="type==='windows'"></el-input>
           <el-select v-model="formData.hostIp"
                      style="width: 100%;"
                      v-else>
@@ -36,7 +36,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="isFileHost&&type==='linux'"
+        <el-form-item v-if="type==='linux'"
                       label="恢复源路径"
                       prop="originDetailInfo">
           <el-popover placement="bottom"
@@ -77,7 +77,7 @@
         </el-form-item>
         <el-form-item label="端口号"
                       prop="dbPort"
-                      v-if="['oracle', 'sqlserver', 'mysql'].includes(this.type)">
+                      v-if="['oracle', 'sqlserver', 'mysql', 'db2'].includes(type)">
           <el-input v-model.number="formData.dbPort"></el-input>
         </el-form-item>
       </el-row>
@@ -119,7 +119,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item v-if="isFileHost&&type==='windows'"
+      <el-form-item v-if="type==='windows'"
                     label="覆盖策略"
                     prop="reveringStrategy">
         <el-radio-group v-model="formData.recoveringStrategy">
@@ -219,7 +219,7 @@ export default {
           password: '',
           detailInfo: this.database ? this.database.instanceName : '',
         }
-        if(['oracle', 'sqlserver', 'mysql'].includes(this.type)) {
+        if(['oracle', 'sqlserver', 'mysql', 'db2'].includes(this.type)) {
           customData.dbPort = this.database.dbPort; // mysql，sqlserver，oracle恢复时需填端口号
         }
         if(this.isFileHost) {
@@ -251,7 +251,7 @@ export default {
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
-      if(this.isFileHost&&this.type==='linux') {
+      if(this.type==='linux') {
         this.$refs.tree.setCheckedKeys([]);
       }
       this.hiddenPassword = true;

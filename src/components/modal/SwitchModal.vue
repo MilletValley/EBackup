@@ -408,7 +408,6 @@ export default {
       this.$emit('cancel');
     },
     switchModalOpend() {
-      console.log(this.readyToRemoveHostLink);
       if(this.switchIpInRac) {
         this.switchRacIp = 'scanIp'
       }

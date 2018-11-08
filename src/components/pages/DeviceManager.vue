@@ -287,7 +287,6 @@ export default {
         });
     },
     wsCall(e) {
-      console.log('ws回调', e);
     },
     ...mapActions({
       update: 'updateHost',

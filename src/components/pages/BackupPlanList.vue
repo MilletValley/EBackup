@@ -183,7 +183,6 @@ export default {
             this.deviceModalVisible = true;
         },
         selectedhandler(data){
-            console.log(data)
             this.deviceModalVisible = false;
             if(data.id){
                 this.buttonFlag = true;
@@ -199,7 +198,6 @@ export default {
             }
         },
         sortChangeFn({ column, prop, order }){
-            console.log(this.defaultSort)
             if(JSON.stringify(this.defaultSort) === JSON.stringify({prop, order})){
                 return;
             }

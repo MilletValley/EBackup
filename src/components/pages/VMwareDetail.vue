@@ -290,7 +290,6 @@ export default {
       const data = Object.assign( {}, plan, {vmList: [this.id]});
       createMultipleVirtualBackupPlan(data)
         .then(res => {
-          console.log(res)
           const {  message } = res.data;
           // 刷新情况下可能会出现两个添加后的计划
           // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {

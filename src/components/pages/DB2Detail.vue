@@ -45,9 +45,9 @@
                   <el-form-item label="数据库名：">
                     <span>{{ details.instanceName }}</span>
                   </el-form-item>
-                  <!-- <el-form-item label="端口号：">
+                  <el-form-item label="端口号：">
                     <span>{{ details.dbPort }}</span>
-                  </el-form-item> -->
+                  </el-form-item>
                   <el-form-item label="数据库账号：">
                     <span>{{ details.loginName }}</span>
                   </el-form-item>
@@ -57,9 +57,6 @@
                   <el-form-item label="数据库状态：">
                     <el-tag :type="databaseStateStyle(details.state)"
                             size="mini">{{ details.state | databaseStateFilter }}</el-tag>
-                  </el-form-item>
-                  <el-form-item label="所属系统：">
-                    <span>{{ details.application || '-' }}</span>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
@@ -75,9 +72,9 @@
                   <el-form-item label="设备IP：">
                     <span>{{ details.host.hostIp }}</span>
                   </el-form-item>
-                  <!-- <el-form-item label="所属系统：">
+                  <el-form-item label="所属系统：">
                     <span>{{ details.application || '-' }}</span>
-                  </el-form-item> -->
+                  </el-form-item>
                 </el-col>
               </el-row>
             </el-form>

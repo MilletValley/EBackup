@@ -446,16 +446,12 @@
                     </span>
                   </div>
                   <div v-else>
-                    <!-- <el-button type="text"
-                               @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
-                    <el-button type="text"
-                               @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button> -->
+                    <div v-if="hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.oracleVersion===1">
+                      <el-button type="text"
+                              @click="failOver(dbLink)"
+                              :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
+                    </div>
                     <div v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
-                      <!-- <div v-if="hostLink.primaryHost.oracleVersion===1">
-                        <el-button type="text"
-                                @click="failOver(dbLink)"
-                                :class="$style.failOver">{{dbLink.failOverState===0?'关闭故障转移':'开启故障转移'}}</el-button>
-                      </div> -->
                       <el-button type="text"
                                 @click="switchDatabase(dbLink.id)">双切</el-button>
                       <el-button type="text"

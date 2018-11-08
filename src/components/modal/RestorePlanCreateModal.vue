@@ -40,13 +40,13 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-col :span="['oracle', 'sqlserver', 'mysql'].includes(type)?12:24" >
+        <el-col :span="12" >
           <el-form-item :label="detailInfoDisplayName"
                         prop="detailInfo">
             <el-input v-model="formData.detailInfo"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="['oracle', 'sqlserver', 'mysql'].includes(type)">
+        <el-col :span="12">
           <el-form-item label="端口号"
                         prop="dbPort">
             <el-input v-model.number="formData.dbPort"></el-input>
@@ -232,7 +232,6 @@ export default {
         }
       }
       this.formData = Object.assign({}, this.formData, customData)
-      console.log(this.formData)
       // if(this.isVMware){
       //   //loginname暂时用来存放虚拟机名称
       //   this.formData.oldName = this.database.vmName;
