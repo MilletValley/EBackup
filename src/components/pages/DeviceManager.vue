@@ -42,6 +42,7 @@
                        align="center"></el-table-column>
       <el-table-column prop="serviceIp"
                        label="操作IP"
+                       :formatter="judgeServiceIp"
                        min-width="150"
                        align="center"></el-table-column>
       <el-table-column prop="hostType"
@@ -175,6 +176,9 @@ export default {
     this.fetchHosts()
   },
   methods: {
+    judgeServiceIp(data){
+      return data.serviceIp ? data.serviceIp : '';
+    },
     judgeHost(data) {
       return hostTypeMapping[data.hostType];
     },
