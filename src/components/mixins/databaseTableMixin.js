@@ -15,7 +15,6 @@ const tableMixin = {
   mixins: [paginationMixin, filterMixin, sortMixin],
   data(){
     return {
-      // databaseType: 'dm',
       createModalVisible : false,
       btnLoading: false,
       inputSearch: '',

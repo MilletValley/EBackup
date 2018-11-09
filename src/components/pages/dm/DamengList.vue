@@ -104,8 +104,8 @@
   </section>
 </template>
 <script>
-import DmDbCreateModal from '@/components/modal/DmDbCreateModal';
-import tableMixin from '../mixins/databaseTableMixin';
+import DmDbCreateModal from '@/components/pages/dm/DmDbCreateModal';
+import tableMixin from '@/components/mixins/databaseTableMixin';
 export default {
   name: 'DamengList',
   mixins: [tableMixin],
@@ -130,7 +130,7 @@ export default {
 };
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
+@import '@/style/common.scss';
 </style>
 <style scoped>
 .margin-top20{

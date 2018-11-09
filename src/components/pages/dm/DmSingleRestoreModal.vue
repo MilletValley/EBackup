@@ -1,0 +1,154 @@
+<template>
+  <el-dialog custom-class="min-width-dialog"
+             :before-close="beforeModalClose"
+             @close="modalClosed"
+             :visible.sync="modalVisible">
+    <span slot="title">
+      执行恢复操作
+    </span>
+    <el-form size="small"
+             label-position="right"
+             label-width="100px"
+             :model="formData"
+             :rules="rules"
+             ref="singleRestorePlanForm">
+        <el-form-item label="恢复设备"
+                      prop="hostIp">
+          <span slot="label">恢复设备
+              <el-popover placement="top" trigger="hover"
+                  content="类型为易备环境的设备"
+                  >
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+          </span>  
+          <el-select v-model="formData.hostIp"
+                      style="width: 100%;">
+            <el-option v-for="host in availableHostsForRestore"
+                        :key="host.id"
+                        :value="host.hostIp"
+                        :label="`${host.name}(${host.hostIp})`">
+              <span style="float: left">{{ host.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+				<el-row>
+					<el-col :span="12" >
+						<el-form-item label="数据库名"
+													prop="dbName">
+							<el-input v-model="formData.dbName"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="端口号"
+													prop="dbPort">
+							<el-input v-model.number="formData.dbPort"></el-input>
+						</el-form-item>
+					</el-col>
+				</el-row>
+        
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="登录名"
+													prop="loginName">
+							<el-input v-model="formData.loginName"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="登录密码"
+													prop="password">
+							<input-toggle v-model="formData.password"
+														:hidden.sync="hiddenPassword"></input-toggle>
+						</el-form-item>
+					</el-col>
+				</el-row>
+    </el-form>
+    <span slot="footer">
+      <el-button type="primary"
+                 @click="confirmBtnClick"
+                 :loading="btnLoading">确定</el-button>
+      <el-button @click="cancelButtonClick">取消</el-button>
+    </span>
+  </el-dialog>
+</template>
+<script>
+import dayjs from 'dayjs';
+import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+const baseFormData = {
+	hostIp: '',
+	dbName: '',
+	dbPort: '',
+	loginName: '',
+	password: '',
+};
+
+export default {
+  name: 'singleRestorePlanModal',
+	mixins: [restorePlanModalMixin],
+	props: {
+		resultId: {
+			type: Number,
+			required: true
+		}
+	},
+  data() {
+    return {
+      type: 'dm',
+      formData: Object.assign({}, baseFormData), // 备份数据
+      originFormData: Object.assign({}, baseFormData), // 原始数据
+      rules: {
+				hostIp: [
+          { required: true, message: '请输入设备', trigger: 'blur' },
+          {
+            pattern:
+              '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
+            message: 'IP地址不正确',
+            trigger: 'blur',
+          },
+        ],
+				dbName: [
+					{
+						required: true,
+						message: `请输入数据库名`,
+						trigger: 'blur',
+					},
+				],
+				dbPort: [{
+					required: true,
+					message: '请输入端口号',
+					trigger: 'blur'
+				},
+				{
+					pattern: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
+					message: '请输入0-65535之间的数字',
+					trigger: 'blur'
+				}],
+				loginName: [
+					{ required: true, message: '请输入登录名', trigger: 'blur' },
+				],
+				password: [
+				  { required: true, message: '请输入登录密码', trigger: 'blur' },
+				],
+      },
+    };
+  },
+  methods: {
+		confirmBtnClick() {
+      this.$refs.singleRestorePlanForm.validate(valid => {
+				if(valid){
+					const name = dayjs().format('YYYYMMDDHHmmss');
+					const config = {...this.formData, timeStrategy: 1, singleTime: '' }
+					this.$emit('confirm', {id: this.resultId, data: {name, config}});
+				}
+      });
+		},
+    modalClosed() {
+      this.formData = { ...baseFormData };
+      this.$refs.singleRestorePlanForm.clearValidate();
+      this.hiddenPassword = true;
+    },
+  },
+};
+</script>
+<style >
+</style>

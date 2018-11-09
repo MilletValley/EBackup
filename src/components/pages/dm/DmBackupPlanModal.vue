@@ -55,7 +55,7 @@
 <script>
 import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
-import { backupPlanModalMixin } from '../mixins/backupPlanModalMixin';
+import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
 const baseFormData = {
@@ -145,7 +145,7 @@ export default {
 			console.log(this.formData)
     },
     modalClosed() {
-			this.formData = { ...this.originFormData };
+			this.formData = { ...baseFormData };
 			this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.createForm.clearValidate();
     },

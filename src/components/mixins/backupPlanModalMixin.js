@@ -170,56 +170,11 @@ const restorePlanModalMixin = {
 		}
 	},
 	data() {
-		const baseFormData = {
-			name: '',
-			hostIp: '',
-			startTime: '',
-			singleTime: '',
-			datePoints: [],
-			timePoints: [{ value: '00:00', key: Date.now() }],
-			weekPoints: [], // 必须初始化为数组，checkbox group才能识别
-			timeStrategy: 1, // 默认单次执行
-		};
-		// 文件单次恢复 增加覆盖策略
-		if (this.isFileHost) {
-			baseFormData.recoveringStrategy = 1;
-		}
 		return {
 			// 原始表单值
 			hiddenPassword: true,
-			originFormData: Object.assign({}, baseFormData),
-			formData: Object.assign({}, baseFormData),
-			strategys, // 时间策略
-			weekMapping, // 星期映射
-			rules: {
-				name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
-				hostIp: [
-					{ required: true, message: '请输入主机IP', trigger: 'blur' },
-					{
-						pattern:
-							'^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
-						message: 'IP地址不正确',
-						trigger: 'blur',
-					},
-				],
-
-				dbPort: [{
-					required: true,
-					message: '请输入端口号',
-					trigger: 'blur'
-				},
-				{
-					pattern: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
-					message: '请输入0-65535之间的数字',
-					trigger: 'blur'
-				}],
-				loginName: [
-					{ required: true, message: '请输入登录名', trigger: 'blur' },
-				],
-				// password: [
-				//   { required: true, message: '请输入登录密码', trigger: 'blur' },
-				// ],
-			},
+			originFormData: {},
+			formData: {},
 		};
 	},
 	computed: {

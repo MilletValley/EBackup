@@ -81,15 +81,7 @@
 </template>
 <script>
 import isEqual from 'lodash/isEqual';
-import {
-  restoreTimeStrategyMapping as strategys,
-  weekMapping,
-} from '../../utils/constant';
-import { createRestorePlan as createSqlserverRestorePlan } from '../../api/sqlserver';
-import { createRestorePlan as createOracleRestorePlan } from '../../api/oracle';
-import { createRestorePlan as createMySqlRestorePlan } from '../../api/mysql';
-import { createRestorePlan as createDB2RestorePlan } from '../../api/db2';
-import { restorePlanModalMixin } from '../mixins/backupPlanModalMixin';
+import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 
 import TimeInterval from '@/components/common/TimeInterval';
 
@@ -176,30 +168,6 @@ export default {
 				});
       });
 		},
-    // confirmBtnClick() {
-    //   this.$refs.restorePlanCreateForm.validate(valid => {
-    //     if (valid) {
-    //       this.pruneData(this.formData)
-    //         .then(({ name, config }) => {
-    //           // const { loginName, detailInfo} = config;
-    //           // let conf = Object.assign({},config);
-    //           // if(this.isVMware){
-    //           //   conf.loginName = detailInfo;
-    //           //   conf.detailInfo = loginName;
-    //           // }
-    //           this.$emit('confirm', {
-    //             id: this.database.id,
-    //             data: { name, config },
-    //           });
-    //         })
-    //         .catch(error => {
-    //           this.$message.error(error);
-    //         });
-    //     } else {
-    //       return false;
-    //     }
-    //   });
-		// },
 		fmtData(plan){
       if (plan.config.timePoints.length === 0) {
         plan.config.timePoints.push({ value: '00:00', key: Date.now() })
@@ -224,7 +192,8 @@ export default {
 			console.log(this.formData)
     },
     modalClosed() {
-      this.formData = { ...this.originFormData };
+			this.formData = { ...baseFormData };
+			this.$refs.timeIntervalComponent.clearValidate();
       this.$refs.restorePlanCreateForm.clearValidate();
       this.hiddenPassword = true;
     },

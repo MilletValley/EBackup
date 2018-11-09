@@ -2,12 +2,6 @@ import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import TabPanels from '@/components/TabPanels';
-import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
-import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
-import RestorePlanCreateModal from '@/components/modal/RestorePlanCreateModal';
-import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
-import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
-
 import {
 	databaseRoleMapping,
 	linkStateMapping,
@@ -43,7 +37,7 @@ const detailPageMixin = {
 				host: {},
 			},
 			link: {},
-			detailsEditModal: false,
+			// detailsEditModal: false,
 			btnLoading: false,
 			backupPlans: [],
 			restorePlans: [], // 恢复计划
@@ -51,12 +45,7 @@ const detailPageMixin = {
 			results: [], // 备份集
 			backupPlanModalVisible: false,
 			restorePlanModalVisible: false,
-			backupPlanCreateModalVisible: false,
-			backupPlanUpdateModalVisible: false,
-			restorePlanCreateModalVisible: false,
-			restorePlanUpdateModalVisible: false,
-			// selectedRestorePlanId: -1,
-			// selectedBackupPlanId: -1,
+
 			selectedBackupPlan: {},
 			selectedBackupResultId: -1,
 			selectedRestorePlan: {},
@@ -151,28 +140,6 @@ const detailPageMixin = {
 		next();
 	},
 	computed: {
-		// 用于恢复的设备
-		// 1.易备环境下的设备
-		// 2.type类型设备
-		// 3.没有“安装”数据库
-		availableHostsForRestore() {
-			const mysqlEbackupHosts = this.$store.getters[`${this.type}Hosts`].filter(
-				h => h.hostType === 2
-			);
-			return mysqlEbackupHosts;
-		},
-		// selectedBackupPlan() {
-		//   return this.selectedBackupPlanId === -1 ?
-		//     {} :
-		//     this.backupPlans.find(plan => plan.id === this.selectedBackupPlanId);
-		// },
-		// selectedRestorePlan() {
-		//   return this.selectedRestorePlanId === -1 ?
-		//     {} :
-		//     this.restorePlans.find(
-		//       plan => plan.id === this.selectedRestorePlanId
-		//     );
-		// },
 		role() {
 			if (!this.details || !this.detilas.role) return databaseRoleMapping[0];
 			return databaseRoleMapping[this.details.role];
@@ -202,10 +169,10 @@ const detailPageMixin = {
 				this.restoreAction = 'create';
 			}
 		},
-		// 更新备份计划
-		updateBackupPlan(updateIndex, plan) {
-			this.backupPlans.splice(updateIndex, 1, plan);
-		},
+		// // 更新备份计划
+		// updateBackupPlan(updateIndex, plan) {
+		// 	this.backupPlans.splice(updateIndex, 1, plan);
+		// },
 		initSingleRestoreModal(id) {
 			this.selectedBackupResultId = id;
 			this.singleRestoreCreateModalVisible = true;
@@ -387,6 +354,9 @@ const detailPageMixin = {
 				.then(() => {
 					this.btnLoading = false;
 				});
+		},
+		singleConfirmCallback(plan){
+			this.addSingleRestorePlan(plan);
 		},
 		addSingleRestorePlan(plan) {
 			this.btnLoading = true;
