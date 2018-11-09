@@ -52,7 +52,7 @@
                        min-width="150"
                        align="center">
         <template slot-scope="scope">
-          <span v-html="showData(scope.row.serviceIp, scope.column.property)"></span>
+          <span v-html="showData(scope.row.serviceIp ? scope.row.serviceIp : '', scope.column.property)"></span>
         </template>
       </el-table-column>
       <el-table-column prop="hostType"
