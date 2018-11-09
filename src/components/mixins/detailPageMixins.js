@@ -303,7 +303,8 @@ const detailPageMixin = {
       this.getRestorePlans();
     },
     confirmCallback(plan, type){
-      (type === 'update' ? updateBackupPlan(this.type, { id:plan.id, plan }) : createBackupPlan(this.type, { id: this.id, plan }))
+      console.log(this.id)
+      (type === 'update' ? updateBackupPlan(this.type, { id:this.id, plan }) : createBackupPlan(this.type, { id: this.id, plan }))
       .then( res => {
         console.log(res)
         const { message } = res.data;

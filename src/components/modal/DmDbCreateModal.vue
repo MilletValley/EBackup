@@ -116,11 +116,9 @@ const rules = {
     message: '请选择设备',
     trigger: 'change'
   }],
-  instanceName: [{
+  dbName: [{
     required: true,
-    message: `请输入${
-      this.type === 'oracle' || this.type === 'dm' ? '实例名' : '数据库名'
-    }`,
+    message: '请输入数据库名',
     trigger: 'blur',
   },{
     max: 20,
@@ -210,7 +208,7 @@ const vm = {
     },
     availableHosts() {
       return this.$store.getters.dmHosts.filter(
-        h => h.hostType !== 1
+        h => h.hostType === 1
       );
     },
   },
@@ -222,7 +220,7 @@ const vm = {
         if (valid) {
           const {
             id,
-            instanceName,
+            dbName,
             name,
             loginName,
             password,
@@ -231,7 +229,7 @@ const vm = {
           } = this.formData;
           this.$emit('confirm', {
             id,
-            instanceName,
+            dbName,
             name,
             loginName,
             password,

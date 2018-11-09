@@ -95,6 +95,13 @@
                             :backup-plan="selectedBackupPlan">
 
     </dm-backup-plan-modal>
+    <dm-restore-plan-modal   :btn-loading="btnLoading"
+                            :visible.sync="restorePlanModalVisible"
+                            @confirm="restoreConfirmCallback"
+                            :action="restoreAction"
+                            :restore-plan="selectedRestorePlan">
+
+    </dm-restore-plan-modal>
     <!-- <backup-plan-create-modal type="dm"
                               :visible.sync="backupPlanCreateModalVisible"
                               :btn-loading="btnLoading"
@@ -105,7 +112,7 @@
                               :backup-plan="selectedBackupPlan"
                               @confirm="updateBackupPlan"
                               @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal> -->
-    <restore-plan-create-modal type="dm"
+    <!-- <restore-plan-create-modal type="dm"
                                :database="details"
                                :visible.sync="restorePlanCreateModalVisible"
                                :btn-loading="btnLoading"
@@ -117,7 +124,7 @@
                                :btn-loading="btnLoading"
                                :restore-plan="selectedRestorePlan"
                                @confirm="updateRestorePlan"
-                               @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
+                               @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal> -->
     <!-- <database-update-modal type="dm"
                            :visible.sync="detailsEditModal"
                            :item-info="details"
@@ -140,17 +147,20 @@ import { detailPageMixin } from '../mixins/dbDetailsPageMixin';
 // } from '../../api/database';
 
 import DmBackupPlanModal from '@/components/modal/DmBackupPlanModal';
+import DmRestorePlanModal from '@/components/modal/DmRestorePlanModal';
 
 export default {
   name: 'DmDetail',
   mixins: [detailPageMixin],
   components: {
-    DmBackupPlanModal
+    DmBackupPlanModal,
+    DmRestorePlanModal
   },
   data(){
     return {
       type: 'dm',
-      action: 'create'
+      action: 'create',
+      restoreAction: 'create'
     }
   },
   // data() {

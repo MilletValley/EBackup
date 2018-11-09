@@ -97,8 +97,11 @@ export default {
       this.$refs.createForm.validate(valid => {
 				this.$refs.timeStrategyComponent.validate().then(res => {
 					if (valid && res) {
-						console.log(this.formData)
-						const data = this.pruneFormData(this.formData);
+						let data = this.pruneFormData(this.formData);
+						if(this.action === 'update'){
+							data.id = this.backupPlan.id;
+							data.config.id = this.backupPlan.config.id;
+						}
 						this.$emit('confirm', data, this.action);
 					} 
 				}).catch( error => {
@@ -114,7 +117,7 @@ export default {
         backupData.config.timePoints.push({ value: '00:00', key: Date.now() })
       }
 			const { name, config, ...other} = backupData;
-      const { timeInterval, timePoints, ...otherConfig } = config;
+      const { id, timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
         minuteInterval = 10;
       if (otherConfig.timeStrategy === 1) {

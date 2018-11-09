@@ -21,9 +21,9 @@ const backupPlanModalMixin = {
 			type: String
 		}
 	},
-	data(){
+	data() {
 		return {
-			formData: {}, 
+			formData: {},
 			originFormData: {}
 		}
 	},
@@ -38,14 +38,14 @@ const backupPlanModalMixin = {
 				}
 			},
 		},
-		title(){
-			if(this.action === 'update'){
+		title() {
+			if (this.action === 'update') {
 				return '更新备份计划';
-			}else if (this.action === 'query'){
+			} else if (this.action === 'query') {
 				return '查看备份计划';
 			}
-			return '添加备份计划'
-		}
+			return '添加备份计划';
+		},
 	},
 	methods: {
 		// 时间点去重排序
@@ -62,7 +62,6 @@ const backupPlanModalMixin = {
 		},
 		pruneFormData(formData) {
 			const {
-				id,
 				name,
 				timeStrategy,
 				singleTime,
@@ -125,7 +124,7 @@ const backupPlanModalMixin = {
 					config.weekPoints.sort((a, b) => a - b);
 				}
 			}
-			return {id, name, config};
+			return { name, config };
 		},
 		cancel() {
 			this.hasModifiedBeforeClose(() => {
@@ -156,19 +155,6 @@ const backupPlanModalMixin = {
 
 const restorePlanModalMixin = {
 	props: {
-		type: {
-			type: String,
-			validator(value) {
-				return ['oracle', 'sqlserver', 'mysql', 'windows', 'linux', 'vm', '', 'dm'].includes(value);
-			},
-		},
-		id: {
-			type: Number,
-			// required: true,
-		},
-		database: {
-			type: Object,
-		},
 		visible: {
 			type: Boolean,
 			required: true,
@@ -176,48 +162,14 @@ const restorePlanModalMixin = {
 		btnLoading: {
 			type: Boolean,
 		},
-		selectionHosts: {
-			type: Array,
-			// required: true,
+		restorePlan: {
+			type: Object
 		},
+		action: {
+			type: String
+		}
 	},
 	data() {
-		const singleTimeValidate = (rule, value, callback) => {
-			if (this.formData.timeStrategy === 1 && !value) {
-				callback(new Error('请输入恢复时间'));
-			} else {
-				callback();
-			}
-		};
-		const startTimeValidate = (rule, value, callback) => {
-			if ([2, 3].indexOf(this.formData.timeStrategy) !== -1 && !value) {
-				callback(new Error('请输入计划时间'));
-			} else {
-				callback();
-			}
-		};
-		const weekPointsValidate = (rule, value, callback) => {
-			if (this.formData.timeStrategy === 2 && value.length === 0) {
-				callback(new Error('请输入循环星期'));
-			} else {
-				callback();
-			}
-		};
-		const timePointsValidate = (rule, value, callback) => {
-			if (this.formData.timePoints.every(p => !p.value)) {
-				callback(new Error('请输入时间点'));
-			} else {
-				callback();
-			}
-		};
-		const datePointsValidate = (rule, value, callback) => {
-			if (this.formData.timeStrategy === 3 && value.length === 0) {
-				callback(new Error('请输入循环日期'));
-			} else {
-				callback();
-			}
-		};
-		const detailInfoDisplayName = mapping[this.type];
 		const baseFormData = {
 			name: '',
 			hostIp: '',
@@ -250,13 +202,7 @@ const restorePlanModalMixin = {
 						trigger: 'blur',
 					},
 				],
-				detailInfo: [
-					{
-						required: true,
-						message: `请输入${detailInfoDisplayName}`,
-						trigger: 'blur',
-					},
-				],
+
 				dbPort: [{
 					required: true,
 					message: '请输入端口号',
@@ -273,36 +219,6 @@ const restorePlanModalMixin = {
 				// password: [
 				//   { required: true, message: '请输入登录密码', trigger: 'blur' },
 				// ],
-				singleTime: [
-					{
-						validator: singleTimeValidate,
-						trigger: 'blur',
-					},
-				],
-				startTime: [
-					{
-						validator: startTimeValidate,
-						trigger: 'blur',
-					},
-				],
-				weekPoints: [
-					{
-						validator: weekPointsValidate,
-						trigger: 'blur',
-					},
-				],
-				timePoints: [
-					{
-						validator: timePointsValidate,
-						trigger: 'blur',
-					}
-				],
-				datePoints: [
-					{
-						validator: datePointsValidate,
-						trigger: 'blur',
-					},
-				],
 			},
 		};
 	},
@@ -317,20 +233,24 @@ const restorePlanModalMixin = {
 				}
 			},
 		},
-		detailInfoDisplayName() {
-			return mapping[this.type];
+		title() {
+			if (this.action === 'update') {
+				return '更新恢复计划';
+			} else if (this.action === 'query') {
+				return '查看恢复计划';
+			}
+			return '添加恢复计划'
 		},
-		isFileHost() {
-			return this.type === 'windows' || this.type === 'linux';
+		// 用于恢复的设备
+		// 1.易备环境下的设备
+		// 2.type类型设备
+		// 3.没有“安装”数据库
+		availableHostsForRestore() {
+			const mysqlEbackupHosts = this.$store.getters[`${this.type}Hosts`].filter(
+				h => h.hostType === 2
+			);
+			return mysqlEbackupHosts;
 		},
-		isHW() {
-			const path = this.$route.path;
-			return this.$route.path.substring(4, path.lastIndexOf('/')) === 'hwVirtual';
-		},
-		isVMware() {
-			const path = this.$route.path;
-			return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual';
-		}
 	},
 	methods: {
 		// 时间点去重排序
@@ -346,7 +266,8 @@ const restorePlanModalMixin = {
 			);
 		},
 		// 精简计划数据，返回不同时间策略下所需要的数据
-		pruneData(formData) {
+		pruneFormData(formData) {
+			console.log(formData)
 			const {
 				name,
 				timeStrategy,
@@ -359,41 +280,31 @@ const restorePlanModalMixin = {
 				...other
 			} = formData;
 			let config;
-			const filteredTimePoints = this.filteredTimePoints;
-			return new Promise((resolve, reject) => {
-				if (timeStrategy === 1) {
-					if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
-					config = { timeStrategy, recoveringStrategy, singleTime, ...other };
-				} else {
-					if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
-					// if (timePoints.every(p => !p.value)) {
-					//   reject('请至少输入一个时间点');
-					// }
-					if (timeStrategy === 2) {
-						// 按周循环
-						config = {
-							timeStrategy,
-							startTime,
-							timePoints,
-							weekPoints,
-							...other,
-						};
-					} else if (timeStrategy === 3) {
-						// 按月循环
-						config = {
-							timeStrategy,
-							startTime,
-							timePoints,
-							datePoints,
-							...other,
-						};
-					}
-					config.timePoints = filteredTimePoints(timePoints);
+			if (timeStrategy === 1) {
+				config = { timeStrategy, recoveringStrategy, singleTime, ...other };
+			} else {
+				if (timeStrategy === 2) {
+					// 按周循环
+					config = {
+						timeStrategy,
+						startTime,
+						timePoints,
+						weekPoints,
+						...other,
+					};
+				} else if (timeStrategy === 3) {
+					// 按月循环
+					config = {
+						timeStrategy,
+						startTime,
+						timePoints,
+						datePoints,
+						...other,
+					};
 				}
-				resolve({ name, config });
-			});
-
-			// return { name, config };
+			}
+			config.timePoints = this.filteredTimePoints(timePoints);
+			return { name, config };
 		},
 		// 点击取消按钮
 		cancelButtonClick() {
