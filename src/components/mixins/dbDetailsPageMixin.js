@@ -266,9 +266,9 @@ const detailPageMixin = {
 			this.getRestorePlans();
 		},
 		confirmCallback(plan, type) {
+			this.btnLoading = true;
 			(type === 'update' ? updateBackupPlan(this.type, { id: plan.id, plan }) : createBackupPlan(this.type, { id: this.id, plan }))
 				.then(res => {
-					console.log(res)
 					const { message } = res.data;
 					this.backupPlanModalVisible = false;
 					this.$message.success(message);
@@ -283,7 +283,7 @@ const detailPageMixin = {
 				});
 		},
 		restoreConfirmCallback(plan, type) {
-			console.log(plan)
+			this.btnLoading = true;
 			(type === 'update' ? updateRestorePlan(this.type, { id: plan.id, plan }) : createRestorePlan(this.type, { id: this.id, plan }))
 				.then(res => {
 					console.log(res)
@@ -332,7 +332,7 @@ const detailPageMixin = {
 				this.$message.error(error);
 			});
 		},
-		singleConfirmCallback(plan){
+		singleConfirmCallback(plan) {
 			this.addSingleRestorePlan(plan);
 		},
 		addSingleRestorePlan(plan) {

@@ -82,7 +82,7 @@
                      :key="plan.id"
                      :backupPlan="plan"
                      @refresh="refreshSingleBackupPlan"
-                     @deletePlan="deleteRestorePlan"
+                     @deletePlan="deleteBackupPlan"
                      @updatePlan="selectBackupPlan(plan.id)"></backup-card>
       </template>
       <template slot="restoreCard">

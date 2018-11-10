@@ -35,7 +35,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="instanceName"
+          prop="dbName"
           label="数据库名"
           align="center"
           min-width="180">
