@@ -1,5 +1,7 @@
+import { fmtSizeFn } from '@/utils/common';
 import { linkStateMapping, databaseStateMapping } from '../../utils/constant';
 import { fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
+
 
 const DashboardTab = {
   data() {
@@ -89,6 +91,10 @@ const DashboardTab = {
     },
     linkTypeConverter(state) { // 连接状态
       return linkStateMapping[state];
+    },
+    sizeFormatter(row, column, cellValue) {
+      const size = fmtSizeFn(cellValue);
+      return size || '-';
     },
     stateFilterChange(filter) {
       this.currentPage = 1;
