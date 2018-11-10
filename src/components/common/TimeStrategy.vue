@@ -250,15 +250,15 @@ export default {
   },
   methods: {
     validate() {
-      return this.$refs.timeForm.validate().then( res => {
-				return this.validateData();
-			})
-		},
-		clearValidate() {
-			this.$refs.timeForm.clearValidate();
-		},
-		validateData(){
-			const {
+      return this.$refs.timeForm.validate().then(res => {
+        return this.validateData();
+      });
+    },
+    clearValidate() {
+      this.$refs.timeForm.clearValidate();
+    },
+    validateData() {
+      const {
         timeStrategy,
         singleTime,
         startTime,
@@ -272,11 +272,11 @@ export default {
         switch (timeStrategy) {
           case 0:
             if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
-            
+
             break;
           case 1:
             if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
-            
+
             break;
           case 2:
             if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
@@ -300,10 +300,10 @@ export default {
             }
             break;
           default:
-				}
-				resolve(true);
-    	});
-		}
+        }
+        resolve(true);
+      });
+    },
   },
 };
 </script>

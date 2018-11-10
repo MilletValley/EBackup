@@ -158,33 +158,29 @@ export default {
   },
   methods: {
     validate() {
-      console.log(2222)
-      return this.$refs.timeIntervalForm.validate().then( res => {
-        console.log(333)
-				return this.validateData();
-			})
-		},
-		clearValidate() {
-			this.$refs.timeIntervalForm.clearValidate();
-		},
-		// 精简计划数据，返回不同时间策略下所需要的数据
-		validateData() {
-			const {
-				timeStrategy,
-				startTime,
-				singleTime,
-      } = this.formData;
-      console.log(444)
-			return new Promise((resolve, reject) => {
-				if (timeStrategy === 1) {
-					if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
-				} else {
-					if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
+      console.log(2222);
+      return this.$refs.timeIntervalForm.validate().then(res => {
+        console.log(333);
+        return this.validateData();
+      });
+    },
+    clearValidate() {
+      this.$refs.timeIntervalForm.clearValidate();
+    },
+    // 精简计划数据，返回不同时间策略下所需要的数据
+    validateData() {
+      const { timeStrategy, startTime, singleTime } = this.formData;
+      console.log(444);
+      return new Promise((resolve, reject) => {
+        if (timeStrategy === 1) {
+          if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
+        } else {
+          if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
         }
-        console.log(555)
-				resolve(true);
-			});
-		},
+        console.log(555);
+        resolve(true);
+      });
+    },
   },
 };
 </script>

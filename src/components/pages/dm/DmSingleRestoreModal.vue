@@ -76,46 +76,46 @@ import dayjs from 'dayjs';
 import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 const baseFormData = {
-	hostIp: '',
-	dbName: '',
-	dbPort: '',
-	loginName: '',
-	password: '',
+  hostIp: '',
+  dbName: '',
+  dbPort: '',
+  loginName: '',
+  password: '',
 };
 
 export default {
   name: 'singleRestorePlanModal',
-	mixins: [restorePlanModalMixin],
-	props: {
-		resultId: {
-			type: Number,
-			required: true
-		}
-	},
+  mixins: [restorePlanModalMixin],
+  props: {
+    resultId: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       type: 'dm',
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
-				hostIp: validate.selelctHost,
-				dbName: validate.dbName,
-				dbPort: validate.dbPort,
-				loginName: validate.dbLoginName,
-				password: validate.dbPassword,
+        hostIp: validate.selelctHost,
+        dbName: validate.dbName,
+        dbPort: validate.dbPort,
+        loginName: validate.dbLoginName,
+        password: validate.dbPassword,
       },
     };
   },
   methods: {
-		confirmBtnClick() {
+    confirmBtnClick() {
       this.$refs.singleRestorePlanForm.validate(valid => {
-				if(valid){
-					const name = dayjs().format('YYYYMMDDHHmmss');
-					const config = {...this.formData, timeStrategy: 1, singleTime: '' }
-					this.$emit('confirm', {id: this.resultId, data: {name, config}});
-				}
+        if (valid) {
+          const name = dayjs().format('YYYYMMDDHHmmss');
+          const config = { ...this.formData, timeStrategy: 1, singleTime: '' };
+          this.$emit('confirm', { id: this.resultId, data: { name, config } });
+        }
       });
-		},
+    },
     modalClosed() {
       this.formData = { ...baseFormData };
       this.$refs.singleRestorePlanForm.clearValidate();

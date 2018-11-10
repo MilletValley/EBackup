@@ -60,27 +60,27 @@ import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
 import validate from '@/utils/validate';
 const baseFormData = {
-      name: '',
-      startTime: '',
-      singleTime: '',
-      datePoints: [],
-      timePoints: [{ value: '00:00', key: Date.now() }],
-      weekPoints: [], // 必须初始化为数组，checkbox group才能识别
-      hourInterval: 1,
-      minuteInterval: 10,
-			backupStrategy: 1,
-			logStrategy: 1,
-      timeStrategy: 0,
-    };
+  name: '',
+  startTime: '',
+  singleTime: '',
+  datePoints: [],
+  timePoints: [{ value: '00:00', key: Date.now() }],
+  weekPoints: [], // 必须初始化为数组，checkbox group才能识别
+  hourInterval: 1,
+  minuteInterval: 10,
+  backupStrategy: 1,
+  logStrategy: 1,
+  timeStrategy: 0,
+};
 export default {
   name: 'BackupPlanCreateModal',
-  mixins: [ backupPlanModalMixin],
+  mixins: [backupPlanModalMixin],
   components: {
     TimeStrategy,
   },
   data() {
     return {
-			type: 'dm',
+      type: 'dm',
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
@@ -90,34 +90,37 @@ export default {
     };
   },
   methods: {
-		// 切换备份策略时 同时更新时间策略为第一个可用值
+    // 切换备份策略时 同时更新时间策略为第一个可用值
     backupStrategyChange(label) {
-			this.formData.timeStrategy = 0;
+      this.formData.timeStrategy = 0;
     },
     confirmBtnClick() {
       this.$refs.createForm.validate(valid => {
-				this.$refs.timeStrategyComponent.validate().then(res => {
-					if (valid && res) {
-						let data = this.pruneFormData(this.formData);
-						if(this.action === 'update'){
-							data.id = this.backupPlan.id;
-							data.config.id = this.backupPlan.config.id;
-						}
-						this.$emit('confirm', data, this.action);
-					} 
-				}).catch( error => {
-					if(error && valid){
-						this.$message.error(error);
-					}
-				});
+        this.$refs.timeStrategyComponent
+          .validate()
+          .then(res => {
+            if (valid && res) {
+              let data = this.pruneFormData(this.formData);
+              if (this.action === 'update') {
+                data.id = this.backupPlan.id;
+                data.config.id = this.backupPlan.config.id;
+              }
+              this.$emit('confirm', data, this.action);
+            }
+          })
+          .catch(error => {
+            if (error && valid) {
+              this.$message.error(error);
+            }
+          });
       });
-		},
-		fmtData(backupData){
-			// 当备份策略时间点为空时（非按天、周、月）需要初始化才会显示
+    },
+    fmtData(backupData) {
+      // 当备份策略时间点为空时（非按天、周、月）需要初始化才会显示
       if (backupData.config.timePoints.length === 0) {
-        backupData.config.timePoints.push({ value: '00:00', key: Date.now() })
+        backupData.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
-			const { name, config, ...other} = backupData;
+      const { name, config, ...other } = backupData;
       const { id, timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
         minuteInterval = 10;
@@ -126,28 +129,28 @@ export default {
       } else if (otherConfig.timeStrategy === 2) {
         hourInterval = Math.round(timeInterval / 60);
       }
-			return {
-				name,
+      return {
+        name,
         minuteInterval,
         hourInterval,
         timePoints: cloneDeep(timePoints),
-				...otherConfig,
-				// ...other
-			};
-		},
-		modalOpened() {
-			console.log(this.backupPlan)
-			if(this.action === 'update' || this.action === 'query'){
-        this.originFormData = this.fmtData({...this.backupPlan});
-      }else{
+        ...otherConfig,
+        // ...other
+      };
+    },
+    modalOpened() {
+      console.log(this.backupPlan);
+      if (this.action === 'update' || this.action === 'query') {
+        this.originFormData = this.fmtData({ ...this.backupPlan });
+      } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
-			this.formData = Object.assign({}, this.originFormData);
-			console.log(this.formData)
+      this.formData = Object.assign({}, this.originFormData);
+      console.log(this.formData);
     },
     modalClosed() {
-			this.formData = { ...baseFormData };
-			this.$refs.timeStrategyComponent.clearValidate();
+      this.formData = { ...baseFormData };
+      this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.createForm.clearValidate();
     },
   },

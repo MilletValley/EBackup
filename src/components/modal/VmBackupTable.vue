@@ -121,7 +121,6 @@ export default {
         fetchAll(){
             this.loading = true
             getVmsBackupResult(this.id).then( res => {
-               
                 // this.tableData = res.data.data;
             }).catch( error => {
                 this.$message.error(error);

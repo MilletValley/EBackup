@@ -16,14 +16,14 @@ const createDatabase = (type, data) =>
   baseApi.request({
     method: 'post',
     url: `/${type}s`,
-    data: data
+    data
   });
 // 修改数据库，主要为修改密码
 const updateDatabase = (type, data) =>
   baseApi.request({
     method: 'patch',
     url: `/${type}s/${data.id}`,
-    data: data
+    data
   });
 // 删除数据库
 const deleteDatabase = (type, id) =>

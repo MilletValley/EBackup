@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 
 const paginationMixin = {
   data() {
@@ -18,7 +17,7 @@ const paginationMixin = {
       if (data.length <= (this.currentPage - 1) * this.pageSize) {
         this.currentPage = this.currentPage === 1 ? this.currentPage : this.currentPage - 1;
       }
-      if(this.sortFn && this.defaultSort){
+      if (this.sortFn && this.defaultSort) {
         data = this.sortFn(data, this.defaultSort.prop, this.defaultSort.order);
       }
       return data.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
@@ -36,7 +35,7 @@ const paginationMixin = {
 
 const sortMixin = {
   methods: {
-    sortFn(data, column,order) {
+    sortFn(data, column, order) {
       return data.slice().sort((a, b) => {
         const val1 = a[column];
         const val2 = b[column];

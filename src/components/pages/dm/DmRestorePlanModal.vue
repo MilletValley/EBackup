@@ -81,23 +81,23 @@
 </template>
 <script>
 import isEqual from 'lodash/isEqual';
-import {restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
 
 const baseFormData = {
-	name: '',
-	hostIp: '',
-	dbName: '',
-	dbPort: '',
-	loginName: '',
-	password: '',
-	startTime: '',
-	singleTime: '',
-	datePoints: [],
-	timePoints: [{ value: '00:00', key: Date.now() }],
-	weekPoints: [], // 必须初始化为数组，checkbox group才能识别
-	timeStrategy: 1, // 默认单次执行
+  name: '',
+  hostIp: '',
+  dbName: '',
+  dbPort: '',
+  loginName: '',
+  password: '',
+  startTime: '',
+  singleTime: '',
+  datePoints: [],
+  timePoints: [{ value: '00:00', key: Date.now() }],
+  weekPoints: [], // 必须初始化为数组，checkbox group才能识别
+  timeStrategy: 1, // 默认单次执行
 };
 
 export default {
@@ -112,61 +112,67 @@ export default {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
-				name: validate.planName,
-				hostIp: validate.selectHost,
-				dbName: validate.dbName,
-				dbPort: validate.dbPort,
-				loginName: validate.dbLoginName,
-				password: validate.dbPassword,
+        name: validate.planName,
+        hostIp: validate.selectHost,
+        dbName: validate.dbName,
+        dbPort: validate.dbPort,
+        loginName: validate.dbLoginName,
+        password: validate.dbPassword,
       },
     };
   },
   methods: {
-		confirmBtnClick() {
+    confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
-				this.$refs.timeIntervalComponent.validate().then(res => {
-					if (valid && res) {
-						let data = this.pruneFormData(this.formData);
-						if(this.action === 'update'){
-							data.id = this.restorePlan.id;
-							data.config.id = this.restorePlan.config.id;
-						}
-						this.$emit('confirm', data, this.action);
-					} 
-				})
-				.catch( error => {
-					if(error && valid){
-						this.$message.error(error);
-					}
-				});
+        this.$refs.timeIntervalComponent
+          .validate()
+          .then(res => {
+            if (valid && res) {
+              let data = this.pruneFormData(this.formData);
+              if (this.action === 'update') {
+                data.id = this.restorePlan.id;
+                data.config.id = this.restorePlan.config.id;
+              }
+              this.$emit('confirm', data, this.action);
+            }
+          })
+          .catch(error => {
+            if (error && valid) {
+              this.$message.error(error);
+            }
+          });
       });
-		},
-		fmtData(plan){
+    },
+    fmtData(plan) {
       if (plan.config.timePoints.length === 0) {
-        plan.config.timePoints.push({ value: '00:00', key: Date.now() })
-			}
-			const {name, config, ...other} = plan;
-      const {id, startTime, timeStrategy, ...otherConfig} = config;
-			return {
-				name,
-				startTime: timeStrategy === 1 ? '' : startTime,
-				timeStrategy,
-				...otherConfig
-			}
+        plan.config.timePoints.push({ value: '00:00', key: Date.now() });
+      }
+      const { name, config, ...other } = plan;
+      const { id, startTime, timeStrategy, ...otherConfig } = config;
+      return {
+        name,
+        startTime: timeStrategy === 1 ? '' : startTime,
+        timeStrategy,
+        ...otherConfig,
+      };
     },
     modalOpened() {
-			console.log(this.restorePlan)
-			if(this.action === 'update' || this.action === 'query'){
-        this.originFormData = Object.assign({}, baseFormData, this.fmtData({...this.restorePlan}));
-      }else{
+      console.log(this.restorePlan);
+      if (this.action === 'update' || this.action === 'query') {
+        this.originFormData = Object.assign(
+          {},
+          baseFormData,
+          this.fmtData({ ...this.restorePlan })
+        );
+      } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
-			this.formData = Object.assign({}, this.originFormData);
-			console.log(this.formData)
+      this.formData = Object.assign({}, this.originFormData);
+      console.log(this.formData);
     },
     modalClosed() {
-			this.formData = { ...baseFormData };
-			this.$refs.timeIntervalComponent.clearValidate();
+      this.formData = { ...baseFormData };
+      this.$refs.timeIntervalComponent.clearValidate();
       this.$refs.restorePlanCreateForm.clearValidate();
       this.hiddenPassword = true;
     },

@@ -40,7 +40,7 @@ const createBackupPlan = (type, { id, plan }) =>
       data: plan,
     })
     .then(res => {
-      if(res.data.data.config){
+      if (res.data.data.config) {
         const { timePoints } = res.data.data.config;
         res.data.data.config.timePoints = timePoints2Obj(timePoints);
       }
@@ -68,7 +68,7 @@ const updateBackupPlan = (type, { id, plan }) =>
       data: plan,
     })
     .then(res => {
-      if(res.data.data.config){
+      if (res.data.data.config) {
         const { timePoints } = res.data.data.config;
         res.data.data.config.timePoints = timePoints2Obj(timePoints);
       }
@@ -89,7 +89,7 @@ const createSingleRestorePlan = (type, { id, data }) =>
       data,
     })
     .then(res => {
-      if(res.data.data.config){
+      if (res.data.data.config) {
         const { timePoints } = res.data.data.config;
         res.data.data.config.timePoints = timePoints2Obj(timePoints);
       }
@@ -125,7 +125,7 @@ const createRestorePlan = (type, { id, data }) =>
       data,
     })
     .then(res => {
-      if(res.data.data.config){
+      if (res.data.data.config) {
         const { timePoints } = res.data.data.config;
         res.data.data.config.timePoints = timePoints2Obj(timePoints);
       }
@@ -146,7 +146,7 @@ const updateRestorePlan = (type, data) =>
       data,
     })
     .then(res => {
-      if(res.data.data.config){
+      if (res.data.data.config) {
         const { timePoints } = res.data.data.config;
         res.data.data.config.timePoints = timePoints2Obj(timePoints);
       }
