@@ -55,7 +55,7 @@
 <script>
 import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
-import { baseModalMixin, backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
 import validate from '@/utils/validate';
@@ -74,7 +74,7 @@ const baseFormData = {
     };
 export default {
   name: 'BackupPlanCreateModal',
-  mixins: [baseModalMixin, backupPlanModalMixin],
+  mixins: [ backupPlanModalMixin],
   components: {
     TimeStrategy,
   },

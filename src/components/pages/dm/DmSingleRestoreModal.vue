@@ -73,7 +73,7 @@
 </template>
 <script>
 import dayjs from 'dayjs';
-import { baseModalMixin, restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 const baseFormData = {
 	hostIp: '',
@@ -85,7 +85,7 @@ const baseFormData = {
 
 export default {
   name: 'singleRestorePlanModal',
-	mixins: [baseModalMixin, restorePlanModalMixin],
+	mixins: [restorePlanModalMixin],
 	props: {
 		resultId: {
 			type: Number,

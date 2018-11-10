@@ -21,7 +21,6 @@ const paginationMixin = {
       if(this.sortFn && this.defaultSort){
         data = this.sortFn(data, this.defaultSort.prop, this.defaultSort.order);
       }
-      console.log(data)
       return data.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
     }
   },

@@ -81,7 +81,7 @@
 </template>
 <script>
 import isEqual from 'lodash/isEqual';
-import { baseModalMixin, restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import {restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
 
@@ -102,7 +102,7 @@ const baseFormData = {
 
 export default {
   name: 'RestorePlanCreateModal',
-  mixins: [baseModalMixin, restorePlanModalMixin],
+  mixins: [restorePlanModalMixin],
   components: {
     TimeInterval,
   },

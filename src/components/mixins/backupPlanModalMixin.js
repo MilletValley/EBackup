@@ -1,6 +1,5 @@
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-
 const baseModalMixin = {
 	props: {
 		visible: {
@@ -55,6 +54,7 @@ const baseModalMixin = {
 };
 
 const backupPlanModalMixin = {
+	mixins: [baseModalMixin],
 	props: {
 		btnLoading: {
 			type: Boolean,
@@ -159,6 +159,7 @@ const backupPlanModalMixin = {
 };
 
 const restorePlanModalMixin = {
+	mixins: [baseModalMixin],
 	props: {
 		btnLoading: {
 			type: Boolean,
