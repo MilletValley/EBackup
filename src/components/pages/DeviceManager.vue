@@ -52,7 +52,7 @@
                        min-width="150"
                        align="center">
         <template slot-scope="scope">
-          <span v-html="showData(scope.row.serviceIp, scope.column.property)"></span>
+          <span v-html="showData(scope.row.serviceIp || '', scope.column.property)"></span>
         </template>
       </el-table-column>
       <el-table-column prop="hostType"
@@ -149,7 +149,8 @@ export default {
         {text: 'sqlserver', value: 2},
         {text: '虚拟机', value: 4},
         {text: 'mysql', value: 5},
-        {text: 'db2', value: 6}
+        {text: 'db2', value: 6},
+        {text: '达梦', value: 7},
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},

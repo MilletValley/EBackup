@@ -224,7 +224,7 @@
                              min-width="100">
             </el-table-column>
             <el-table-column prop="name"
-                             label="实例名"
+                             label="主机名"
                              show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
@@ -244,6 +244,7 @@
             </el-table-column>
             <el-table-column prop="backupSize"
                              label="备份集大小"
+                             :formatter="sizeFormatter"
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
