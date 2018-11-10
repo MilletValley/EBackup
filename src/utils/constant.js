@@ -153,7 +153,8 @@ const serviceIpMarkMapping = {
 
 const vmHostServerTypeMapping = {
   1: 'vCenter',
-  2: '物理主机'
+  2: '物理主机',
+  3: 'FusionSphere'
 };
 
 export {

@@ -125,6 +125,7 @@
   </section>
 </template>
 <script>
+import dayjs from 'dayjs';
 import throttle from 'lodash/throttle';
 import { applyFilterMethods } from '@/utils/common';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
@@ -169,7 +170,7 @@ export default {
       if (this.planFilterForm.hiddenCompletePlan) {
         filterMethods.push(plan => plan.state !== 2);
       }
-      return applyFilterMethods(this.backupPlans, filterMethods);
+      return applyFilterMethods(this.backupPlans, filterMethods).sort((a,b) => dayjs(b.createTime) - dayjs(a.createTime));
     },
     filteredRestorePlans() {
       if (this.planFilterForm.planType !== 'restore') {

@@ -37,10 +37,12 @@
         </el-form-item>
         <el-form-item label="主机类型："
                     prop="serverType">
-        <el-radio v-model="formData.serverType"
+          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)"
                     :label="1">vCenter</el-radio>
-        <el-radio v-model="formData.serverType"
+          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)"
                     :label="2">物理主机</el-radio>
+          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType !== 3)"
+                    :label="3">FusionSphere</el-radio>
         </el-form-item>
       </el-form>
       <select-device-modal @confirm="selectedhandler"  :selected="{ hostId:this.formData.hostId, hostName: this.formData.hostName }"
@@ -64,25 +66,24 @@ export default {
   name: '',
   props: {
     visible: {
-        type: Boolean,
-        required: true,
+      type: Boolean,
+      required: true,
     },
     btnLoading: {
-        type: Boolean,
+      type: Boolean,
     },
-    type: {
-    }
+    type: {},
   },
-  data(){
-      let data = {
-          serverName: '',
-          hostId: null,
-          hostName: '',
-          serverIp: '',
-          serverLoginName: '',
-          serverPassword: '',
-          serverType: 2,
-      };
+  data() {
+    let data = {
+      serverName: '',
+      hostId: null,
+      hostName: '',
+      serverIp: '',
+      serverLoginName: '',
+      serverPassword: '',
+      serverType: 2,
+    };
     return {
       originFormData: data,
       formData: Object.assign({}, data),
@@ -90,76 +91,81 @@ export default {
       deviceModalVisible: false,
       rules: {
         serverName: [
-            {
-                required: true,
-                message: `请输入主机名`,
-                trigger: 'blur',
-            }
+          {
+            required: true,
+            message: `请输入主机名`,
+            trigger: 'blur',
+          },
         ],
         hostName: [
-            {
-                required: true,
-                message: `请选择设备`,
-                trigger: ['blur'],
-            }
+          {
+            required: true,
+            message: `请选择设备`,
+            trigger: ['blur'],
+          },
         ],
         serverIp: [
           {
             required: true,
             message: '请输入主机IP',
-            trigger: 'blur'
+            trigger: 'blur',
           },
           {
-            pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
+            pattern:
+              '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
             message: 'IP地址不正确',
             trigger: 'blur',
-          }
+          },
         ],
-        serverLoginName: [{
-          required: true,
-          message: `请输入主机登录账号`,
-          trigger: 'blur',
-        },
-        {
-          length: 20,
-          message: '长度在20个字符以内',
-          trigger: 'blur'
-        },
-        {
-          pattern: '^[^\\s]*$',
-          message: '不能包含空格',
-          trigger: ['blur'],
-        }],
-        serverPassword: [{
-          required: true,
-          message: `请输入主机登录密码`,
-          trigger: 'blur',
-        },
-        {
-          pattern: '^[^\\s]*$',
-          message: '不能包含空格',
-          trigger: ['blur'],
-        }]
-      }
-    }
+        serverLoginName: [
+          {
+            required: true,
+            message: `请输入主机登录账号`,
+            trigger: 'blur',
+          },
+          {
+            length: 20,
+            message: '长度在20个字符以内',
+            trigger: 'blur',
+          },
+          {
+            pattern: '^[^\\s]*$',
+            message: '不能包含空格',
+            trigger: ['blur'],
+          },
+        ],
+        serverPassword: [
+          {
+            required: true,
+            message: `请输入主机登录密码`,
+            trigger: 'blur',
+          },
+          {
+            pattern: '^[^\\s]*$',
+            message: '不能包含空格',
+            trigger: ['blur'],
+          },
+        ],
+      },
+    };
   },
   computed: {
-      modalVisible: {
-        get() {
-          return this.visible;
-        },
-        set(value) {
-          if (!value) {
-            this.$emit('update:visible', value);
-          }
-        },
+    modalVisible: {
+      get() {
+        return this.visible;
       },
-      hostName(){
-          return this.formData.hostName;
+      set(value) {
+        if (!value) {
+          this.$emit('update:visible', value);
+        }
       },
-      showDevice(){
-        return this.type === 'device';
-      }
+    },
+    hostName() {
+      return this.formData.hostName;
+    },
+    showDevice() {
+      return this.type === 'device';
+    },
   },
   methods: {
     // 点击确认按钮触发
@@ -178,42 +184,48 @@ export default {
     },
     // 点击取消按钮触发
     cancelBtnClick() {
-        this.hasModifiedBeforeClose(() => {
-            this.$emit('update:visible', false); // 关闭modal
-        });
+      this.hasModifiedBeforeClose(() => {
+        this.$emit('update:visible', false); // 关闭modal
+      });
     },
     // 退出之前，判断是否有未保存的修改
     beforeModalClose(done) {
-        this.hasModifiedBeforeClose(done);
+      this.hasModifiedBeforeClose(done);
     },
     // 关闭之前 验证是否有修改
     hasModifiedBeforeClose(fn) {
-        if (isEqual(this.formData, this.originFormData)) {
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
             fn();
-        } else {
-            this.$confirm('有未保存的修改，是否退出？', {
-            type: 'warning',
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            })
-            .then(() => {
-                fn();
-            })
-            .catch(() => {});
-        }
+          })
+          .catch(() => {});
+      }
     },
-    selectHostFn(){
-        this.deviceModalVisible = true
+    selectHostFn() {
+      this.deviceModalVisible = true;
     },
-    selectedhandler(data){
-        const {id:hostId, name:hostName} = data;
-        this.formData = Object.assign(this.formData, {hostId, hostName});
-        this.deviceModalVisible = false;
-    }
+    selectedhandler(data) {
+      const { id: hostId, name: hostName, databaseType, osName } = data;
+      let serverType;
+      if(databaseType === 4 && osName === 'Linux'){
+        serverType = 3;
+      }else{
+        serverType = 2;
+      }
+      this.formData = Object.assign(this.formData, { hostId, hostName, serverType });
+      this.deviceModalVisible = false;
+    },
   },
   components: {
     InputToggle,
-    SelectDeviceModal
+    SelectDeviceModal,
   },
 };
 </script>
