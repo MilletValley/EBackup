@@ -27,7 +27,7 @@
         <el-form label-width="100px"
                  size="mini"
                  :class="type==='linux' ? $style.backupCardForm : ''">
-          <el-form-item label="计划开始时间"
+          <el-form-item label="计划创建时间"
                         :class="$style.backupCardFormItem"
                         :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
             <span>{{ backupConfig.startTime }}</span>

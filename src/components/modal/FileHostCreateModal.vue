@@ -8,7 +8,7 @@
         添加服务器
       </span>
       <el-form :model="formData"
-               :rules="rules"
+               :rules="fileHostRules"
                label-width="110px"
                ref="createForm"
                size="small">
