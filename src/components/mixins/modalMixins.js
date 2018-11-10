@@ -90,6 +90,10 @@ const genModalMixin = type => {
         vm: virtualFormData,
         vmManageCollect: vmManageCollectFormData
       };
+      const maxLengthFn = (w, maxLength) => {
+        const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
+        return (w.length - t.length) * 2 + t.length > maxLength; // 判断长度
+      };
       const loginType = {
         oracle: 'oracle数据库',
         sqlserver: 'sql server数据库',
@@ -163,8 +167,14 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          max: 20,
-          message: '长度在20个字符以内',
+          validator: (rule, value, callback) => {
+            const length = maxLengthFn(value, 64);
+            if (length) {
+              callback(new Error('长度在64个字符以内，注：中文占2个字符'));
+            } else {
+              callback();
+            }
+          },
           trigger: 'blur',
         },
         {
