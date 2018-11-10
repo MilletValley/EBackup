@@ -24,23 +24,28 @@
           </el-form-item>
 
         </el-form>
-        <backup-card :id="plan.id"
+        <!-- <backup-card :id="plan.id"
                      :type="type"
                      v-for="plan in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"
                      @refresh="backupPlanRefresh"
                      @deletePlan="backupPlanDeleted"
-                     @updatePlan="selectBackupPlan(plan.id)"></backup-card>
+                     @updatePlan="selectBackupPlan(plan.id)"></backup-card> -->
+        <!-- 备份计划面板 -->
+        <slot name="backupCard"></slot>
+
         <template v-if="!isFileBackupResult">
-          <restore-card :id="plan.id"
+          <!-- <restore-card :id="plan.id"
                         :type="type"
                         v-for="plan in filteredRestorePlans"
                         :key="plan.id"
                         :restore-plan="plan"
                         @refresh="restorePlanRefresh"
                         @deletePlan="restorePlanDeleted"
-                        @updatePlan="selectRestorePlan(plan.id)"></restore-card>
+                        @updatePlan="selectRestorePlan(plan.id)"></restore-card> -->
+          <!-- 恢复计划面板 -->
+          <slot name="restoreCard"></slot>             
         </template>
 
       </el-tab-pane>
@@ -56,16 +61,20 @@
                        @click="this.$emit('result:refresh')">刷新</el-button> -->
           </el-form-item>
         </el-form>
-        <backup-result-list :type="type"
+        <!-- <backup-result-list :type="type"
                             :data="results"
-                            @single-restore-btn-click="singleRestoreBtnClick"></backup-result-list>
+                            @single-restore-btn-click="singleRestoreBtnClick"></backup-result-list> -->
+        <!-- 备份集列表-->
+        <slot name="backupResult"></slot>
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
                    name="restore">
-        <restore-records :type="type"
+        <!-- <restore-records :type="type"
                          :plans="ongoingRestorePlan"
                          :records="restoreRecords"
-                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records>
+                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records> -->
+        <!-- 恢复记录列表-->
+        <slot name="restoreRecord"></slot>                
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -74,47 +83,23 @@
 <script>
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import BackupCard from '@/components/BackupCard';
-import RestoreCard from '@/components/RestoreCard';
-import BackupResultList from '@/components/BackupResultList';
-import RestoreRecords from '@/components/RestoreRecords';
-import RestorePlanUpdateModal from '@/components/modal/RestorePlanUpdateModal';
-import { applyFilterMethods } from '../utils/common';
+import { applyFilterMethods } from '../../utils/common';
 
 export default {
   name: 'TabPanels',
   props: {
-    id: {
-      type: Number,
-    },
-    type: {
-      type: String,
-      validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(value);
-      },
-    },
-    backupPlans: {
-      type: Array,
-    },
-    restorePlans: {
-      type: Array,
-    },
-    results: {
-      type: Array,
-    },
-    restoreRecords: {
-      type: Array,
-    },
+    planFilterForm: {
+      type: Object
+    }
   },
   data() {
     return {
       activeTab: 'plans', // 激活的tab页
       // 备份计划筛选条件
-      planFilterForm: {
-        hiddenCompletePlan: false,
-        planType: 'backup',
-      },
+      // planFilterForm: {
+      //   hiddenCompletePlan: false,
+      //   planType: 'backup',
+      // },
       // 恢复计划筛选条件
       restorePlanFilterForm: {
         hiddenCompletePlan: false,
@@ -194,11 +179,6 @@ export default {
   },
   components: {
     IIcon,
-    DatabaseUpdateModal,
-    BackupCard,
-    RestoreCard,
-    BackupResultList,
-    RestoreRecords,
   },
 };
 </script>

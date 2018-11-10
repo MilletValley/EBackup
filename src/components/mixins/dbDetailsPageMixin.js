@@ -1,7 +1,7 @@
 import throttle from 'lodash/throttle';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
-import TabPanels from '@/components/TabPanels';
+import TabPanels from '@/components/common/TabPanels';
 import {
 	databaseRoleMapping,
 	linkStateMapping,
@@ -161,7 +161,6 @@ const detailPageMixin = {
 		// dropdown
 		addPlanBtnClick(command) {
 			if (command === 'backup') {
-				// this.backupPlanCreateModalVisible = true;
 				this.backupPlanModalVisible = true;
 				this.action = 'create';
 			} else if (command === 'restore') {
@@ -169,19 +168,18 @@ const detailPageMixin = {
 				this.restoreAction = 'create';
 			}
 		},
-		// // 更新备份计划
-		// updateBackupPlan(updateIndex, plan) {
-		// 	this.backupPlans.splice(updateIndex, 1, plan);
-		// },
+		// 单次恢复弹窗
 		initSingleRestoreModal(id) {
 			this.selectedBackupResultId = id;
 			this.singleRestoreCreateModalVisible = true;
 		},
+		// 修改恢复计划
 		selectRestorePlan(restorePlanId) {
 			this.selectedRestorePlan = this.restorePlans.find(plan => plan.id === restorePlanId);
 			this.restorePlanModalVisible = true;
 			this.restoreAction = 'update';
 		},
+		// 修改备份计划
 		selectBackupPlan(backupPlanId) {
 			this.selectedBackupPlan = this.backupPlans.find(plan => plan.id === backupPlanId);
 			this.backupPlanModalVisible = true;
@@ -334,27 +332,6 @@ const detailPageMixin = {
 				this.$message.error(error);
 			});
 		},
-		addRestorePlan(restorePlan) {
-			this.btnLoading = true;
-			createRestorePlan(this.type, restorePlan)
-				.then(res => {
-					const { data: restorePlan, message } = res.data;
-					// // 刷新情况下可能会出现两个添加后的计划
-					// if (this.restorePlans.findIndex(plan => plan.id === restorePlan.id) === -1) {
-					//   this.restorePlans.unshift(restorePlan)
-					// }
-					this.restorePlanCreateModalVisible = false;
-					this.$message.success(message);
-					this.getRestorePlans();
-				})
-				.catch(error => {
-					this.$message.error(error);
-					return false;
-				})
-				.then(() => {
-					this.btnLoading = false;
-				});
-		},
 		singleConfirmCallback(plan){
 			this.addSingleRestorePlan(plan);
 		},
@@ -393,30 +370,6 @@ const detailPageMixin = {
 					this.btnLoading = false;
 				});
 		},
-		// 更新恢复计划
-		updateRestorePlan(data) {
-			this.btnLoading = true;
-			updateRestorePlan(this.type, data)
-				.then(res => {
-					const { data: plan, message } = res.data;
-					// FIXME: 修改ID
-					// plan.id = this.selectedRestorePlanId;
-					// this.restorePlans.splice(
-					//   this.restorePlans.findIndex(p => p.id === plan.id),
-					//   1,
-					//   plan
-					// );
-					this.restorePlanUpdateModalVisible = false;
-					this.$message.success(message);
-					this.getRestorePlans();
-				})
-				.catch(error => {
-					this.$message.error(error);
-				})
-				.then(() => {
-					this.btnLoading = false;
-				});
-		},
 		databaseStateStyle(value) {
 			switch (value) {
 				case 0:
@@ -431,12 +384,7 @@ const detailPageMixin = {
 	components: {
 		IIcon,
 		DatabaseUpdateModal,
-		RestorePlanCreateModal,
 		TabPanels,
-		SingleRestoreCreateModal,
-		RestorePlanUpdateModal,
-		BackupPlanCreateModal,
-		BackupPlanUpdateModal,
 	},
 	filters: {
 		linkStateFilter(value) {

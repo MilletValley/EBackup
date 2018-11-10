@@ -1,24 +1,10 @@
 import isEqual from 'lodash/isEqual';
-import dayjs from 'dayjs';
 import InputToggle from '@/components/InputToggle';
-import {
-	restoreTimeStrategyMapping as strategys,
-	weekMapping,
-} from '../../utils/constant';
 
-const backupPlanModalMixin = {
+const baseModalMixin = {
 	props: {
 		visible: {
 			type: Boolean,
-		},
-		btnLoading: {
-			type: Boolean,
-		},
-		backupPlan: {
-			type: Object
-		},
-		action: {
-			type: String
 		}
 	},
 	data() {
@@ -37,7 +23,50 @@ const backupPlanModalMixin = {
 					this.$emit('update:visible', value);
 				}
 			},
+		}
+	},
+	methods: {
+		// 点击取消按钮
+		cancelButtonClick() {
+			this.hasModifiedBeforeClose(() => {
+				this.modalVisible = false;
+			});
 		},
+		// 关闭之前 验证是否有修改
+		beforeModalClose(done) {
+			this.hasModifiedBeforeClose(done);
+		},
+		hasModifiedBeforeClose(fn) {
+			if (isEqual(this.formData, this.originFormData)) {
+				fn();
+			} else {
+				this.$confirm('有未保存的修改，是否退出？', {
+					type: 'warning',
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+				})
+					.then(() => {
+						fn();
+					})
+					.catch(() => { });
+			}
+		},
+	}
+};
+
+const backupPlanModalMixin = {
+	props: {
+		btnLoading: {
+			type: Boolean,
+		},
+		backupPlan: {
+			type: Object
+		},
+		action: {
+			type: String
+		}
+	},
+	computed: {
 		title() {
 			if (this.action === 'update') {
 				return '更新备份计划';
@@ -125,40 +154,12 @@ const backupPlanModalMixin = {
 				}
 			}
 			return { name, config };
-		},
-		cancel() {
-			this.hasModifiedBeforeClose(() => {
-				this.modalVisible = false;
-			});
-		},
-		// 关闭之前 验证是否有修改
-		beforeModalClose(done) {
-			this.hasModifiedBeforeClose(done);
-		},
-		hasModifiedBeforeClose(fn) {
-			if (isEqual(this.formData, this.originFormData)) {
-				fn();
-			} else {
-				this.$confirm('有未保存的修改，是否退出？', {
-					type: 'warning',
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
-				})
-					.then(() => {
-						fn();
-					})
-					.catch(() => { });
-			}
-		},
+		}
 	},
 };
 
 const restorePlanModalMixin = {
 	props: {
-		visible: {
-			type: Boolean,
-			required: true,
-		},
 		btnLoading: {
 			type: Boolean,
 		},
@@ -173,21 +174,9 @@ const restorePlanModalMixin = {
 		return {
 			// 原始表单值
 			hiddenPassword: true,
-			originFormData: {},
-			formData: {},
 		};
 	},
 	computed: {
-		modalVisible: {
-			get() {
-				return this.visible;
-			},
-			set(value) {
-				if (!value) {
-					this.$emit('update:visible', value);
-				}
-			},
-		},
 		title() {
 			if (this.action === 'update') {
 				return '更新恢复计划';
@@ -222,7 +211,6 @@ const restorePlanModalMixin = {
 		},
 		// 精简计划数据，返回不同时间策略下所需要的数据
 		pruneFormData(formData) {
-			console.log(formData)
 			const {
 				name,
 				timeStrategy,
@@ -261,35 +249,10 @@ const restorePlanModalMixin = {
 			config.timePoints = this.filteredTimePoints(timePoints);
 			return { name, config };
 		},
-		// 点击取消按钮
-		cancelButtonClick() {
-			this.hasModifiedBeforeClose(() => {
-				this.modalVisible = false;
-			});
-		},
-		// 关闭之前 验证是否有修改
-		beforeModalClose(done) {
-			this.hasModifiedBeforeClose(done);
-		},
-		hasModifiedBeforeClose(fn) {
-			if (isEqual(this.formData, this.originFormData)) {
-				fn();
-			} else {
-				this.$confirm('有未保存的修改，是否退出？', {
-					type: 'warning',
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
-				})
-					.then(() => {
-						fn();
-					})
-					.catch(() => { });
-			}
-		},
 	},
 	components: {
 		InputToggle,
 	},
 };
 
-export { restorePlanModalMixin, backupPlanModalMixin };
+export { baseModalMixin, restorePlanModalMixin, backupPlanModalMixin };

@@ -81,8 +81,8 @@
 </template>
 <script>
 import isEqual from 'lodash/isEqual';
-import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
-
+import { baseModalMixin, restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
 
 const baseFormData = {
@@ -102,7 +102,7 @@ const baseFormData = {
 
 export default {
   name: 'RestorePlanCreateModal',
-  mixins: [restorePlanModalMixin],
+  mixins: [baseModalMixin, restorePlanModalMixin],
   components: {
     TimeInterval,
   },
@@ -112,39 +112,12 @@ export default {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
-				name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
-				hostIp: [
-          { required: true, message: '请输入设备', trigger: 'blur' },
-          {
-            pattern:
-              '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
-            message: 'IP地址不正确',
-            trigger: 'blur',
-          },
-        ],
-				dbName: [
-					{
-						required: true,
-						message: `请输入数据库名`,
-						trigger: 'blur',
-					},
-				],
-				dbPort: [{
-					required: true,
-					message: '请输入端口号',
-					trigger: 'blur'
-				},
-				{
-					pattern: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
-					message: '请输入0-65535之间的数字',
-					trigger: 'blur'
-				}],
-				loginName: [
-					{ required: true, message: '请输入登录名', trigger: 'blur' },
-				],
-				password: [
-				  { required: true, message: '请输入登录密码', trigger: 'blur' },
-				],
+				name: validate.planName,
+				hostIp: validate.selectHost,
+				dbName: validate.dbName,
+				dbPort: validate.dbPort,
+				loginName: validate.dbLoginName,
+				password: validate.dbPassword,
       },
     };
   },

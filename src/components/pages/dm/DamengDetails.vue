@@ -53,6 +53,9 @@
                     <el-tag :type="databaseStateStyle(details.state)"
                             size="mini">{{ details.state | databaseStateFilter }}</el-tag>
                   </el-form-item>
+                  <el-form-item label="数据库版本：">
+                    <span>{{ details.dbVersion }}</span>
+                  </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="所属设备：">
@@ -72,29 +75,42 @@
 
       </div>
     </header>
-    <tab-panels :id="Number(id)"
-                type="mysql"
-                :backup-plans="backupPlans"
-                :restore-plans="restorePlans"
-                :results="results"
-                @single-restore-btn-click="initSingleRestoreModal"
-                @backupplan:refresh="refreshSingleBackupPlan"
-                @backupplan:update="updateBackupPlan"
-                @backupplan:delete="deleteBackupPlan"
-                @restoreplan:refresh="refreshSingleRestorePlan"
-                @restoreplan:delete="deleteRestorePlan"
-                @select-restore-plan="selectRestorePlan"
-                @select-backup-plan="selectBackupPlan"
-                @switchpane="switchPane"
-                @restoreinfo:refresh="updateRestorePlanAndRecords"
-                :restoreRecords="restoreRecords"></tab-panels>
+    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm">
+      <template slot="backupCard">
+        <backup-card :id="plan.id"
+                     v-for="plan in filteredBackupPlans"
+                     :key="plan.id"
+                     :backupPlan="plan"
+                     @refresh="refreshSingleBackupPlan"
+                     @deletePlan="deleteRestorePlan"
+                     @updatePlan="selectBackupPlan(plan.id)"></backup-card>
+      </template>
+      <template slot="restoreCard">
+        <restore-card :id="plan.id"
+                        v-for="plan in filteredRestorePlans"
+                        :key="plan.id"
+                        :restore-plan="plan"
+                        @refresh="refreshSingleRestorePlan"
+                        @deletePlan="deleteRestorePlan"
+                        @updatePlan="selectRestorePlan(plan.id)"></restore-card>
+      </template>
+      <template slot="backupResult">
+        <backup-result-list :data="results"
+                            @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
+      </template>
+      <template slot="restoreRecord">
+        <restore-records :restore-plan="restorePlans"
+                         :records="restoreRecords"
+                         @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
+      </template>
+    </tab-panels>
     <dm-backup-plan-modal   :btn-loading="btnLoading"
                             :visible.sync="backupPlanModalVisible"
                             @confirm="confirmCallback"
                             :action="action"
                             :backup-plan="selectedBackupPlan">
-
     </dm-backup-plan-modal>
+
     <dm-restore-plan-modal   :btn-loading="btnLoading"
                             :visible.sync="restorePlanModalVisible"
                             @confirm="restoreConfirmCallback"
@@ -110,10 +126,15 @@
 </template>
 <script>
 import throttle from 'lodash/throttle';
+import { applyFilterMethods } from '@/utils/common';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import DmBackupPlanModal from '@/components/pages/dm/DmBackupPlanModal';
 import DmRestorePlanModal from '@/components/pages/dm/DmRestorePlanModal';
 import DmSingleRestoreModal from '@/components/pages/dm/DmSingleRestoreModal';
+import BackupCard from '@/components/pages/dm/BackupCard';
+import BackupResultList from '@/components/pages/dm/BackupResultList';
+import RestoreCard from '@/components/pages/dm/RestoreCard';
+import RestoreRecords from '@/components/pages/dm/RestoreRecords';
 
 export default {
   name: 'DmDetail',
@@ -121,15 +142,46 @@ export default {
   components: {
     DmBackupPlanModal,
     DmRestorePlanModal,
-    DmSingleRestoreModal
+    DmSingleRestoreModal,
+    BackupCard,
+    BackupResultList,
+    RestoreCard,
+    RestoreRecords
   },
   data(){
     return {
       type: 'dm',
       action: 'create',
-      restoreAction: 'create'
+      restoreAction: 'create',
+      planFilterForm: {
+        hiddenCompletePlan: false,
+        planType: 'backup',
+      },
     }
-  }
+  },
+  computed: {
+    // 筛选后得备份计划
+    filteredBackupPlans() {
+      if (this.planFilterForm.planType !== 'backup') {
+        return [];
+      }
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.backupPlans, filterMethods);
+    },
+    filteredRestorePlans() {
+      if (this.planFilterForm.planType !== 'restore') {
+        return [];
+      }
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.restorePlans, filterMethods);
+    },
+  },
 };
 </script>
 <style lang="scss" module>

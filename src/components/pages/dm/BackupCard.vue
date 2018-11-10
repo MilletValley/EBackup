@@ -25,23 +25,21 @@
     <el-row type="flex">
       <el-col :span="18">
         <el-form label-width="100px"
-                 size="mini"
-                 :class="type==='linux' ? $style.backupCardForm : ''">
+                 size="mini">
           <el-form-item label="计划开始时间"
                         :class="$style.backupCardFormItem"
-                        :style="{ width: type !== 'windows' && type !== 'linux' ? '100%' : '40%'}">
+                        :style="{ width: '100%'}">
             <span>{{ backupConfig.startTime }}</span>
-          </el-form-item>
-          <el-form-item v-if="type === 'windows'"
-                        :class="$style.backupCardFormItem"
-                        label="是否备份系统"
-                        style="width: 40%">
-            <span>{{ backupOperation.backupSystem === 'sys' ? '是' : '否' }}</span>
           </el-form-item>
           <el-form-item label="备份策略"
                         :class="$style.backupCardFormItem"
                         style="width: 40%">
             <span>{{ backupStrategy }}</span>
+          </el-form-item>
+          <el-form-item label="日志策略"
+                        :class="$style.backupCardFormItem"
+                        style="width: 40%">
+            <span>{{ logStrategy }}</span>
           </el-form-item>
           <el-form-item label="时间策略"
                         :class="$style.backupCardFormItem"
@@ -99,24 +97,6 @@
                       size="small">{{backupConfig.timeInterval}}分钟</el-tag>
             </div>
           </el-form-item>
-          <el-form-item label="源文件路径"
-                        v-if="type === 'windows' || type === 'linux'"
-                        :class="$style.backupCardFormItem"
-                        style="40%">
-            <span>{{ backupOperation.backupPath }}</span>
-          </el-form-item>
-          <el-form-item label="存储目标路径"
-                        v-if="type === 'linux'"
-                        :class="$style.backupCardFormItem"
-                        style="40%">
-            <span>{{ backupOperation.pointTargetPath }}</span>
-          </el-form-item>
-          <el-form-item label="NFS目标路径"
-                        v-if="type === 'linux'"
-                        :class="$style.backupCardFormItem"
-                        style="40%">
-            <span>{{ backupOperation.nfsTargetPath }}</span>
-          </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="6"
@@ -124,8 +104,8 @@
         <ul>
           <li>
             <h5>当前状态</h5>
-            <div v-if="!isFileBackupResult">
-              <el-tooltip :disabled="!isFileBackupResult || backupOperation.state !== 1"
+            <div>
+              <el-tooltip 
                           :content="backupOperation.process"
                           placement="left"
                           effect="light">
@@ -143,16 +123,6 @@
                 </div>
               </el-tooltip>
             </div>
-            <div v-else>
-              <div>
-                <span v-if="type === 'windows'" :class="operationStateStyle">{{diskInfo || '-'}}</span>
-              </div>
-              <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
-              <el-progress style="margin-right:20px" :percentage="progressNum" :status="progressStatus" :text-inside="true" :stroke-width="17">
-              </el-progress>
-            </div>
-            
-            
           </li>
           <li>
             <h5>备份开始时间</h5>
@@ -160,22 +130,17 @@
           </li>
           <li>
             <h5>已持续时间</h5>
-            <!-- <div v-if="backupOperation.consume">{{backupOperation.consume | durationFilter}}</div> -->
-            <!-- <div v-if="intervalTime">{{intervalTime | durationFilter}}</div> -->
             <div v-if="backupOperation.consume">
               <timer v-if="backupOperation.state === 1" :val="backupOperation.consume"></timer>
               <span v-else>{{backupOperation.consume | durationFilter}}</span>
             </div>
             <div v-else>-</div>
           </li>
-          <li v-if="!isFileBackupResult">
+          <li>
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
-          <li v-if="isFileBackupResult">
-            <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}</h5>
-            <div>{{backupSize || '-'}}</div>
-          </li>
+          
         </ul>
       </el-col>
     </el-row>
@@ -183,15 +148,16 @@
 </template>
 <script>
 import throttle from 'lodash/throttle';
-import baseMixin from './mixins/baseMixins';
-import Timer from './Timer';
+import baseMixin from '@/components/mixins/baseMixins';
+import Timer from '@/components/Timer';
 import {
   backupStrategyMapping,
+  logStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
-} from '../utils/constant';
-import { fmtSizeFn } from '../utils/common';
+} from '@/utils/constant';
+import { fmtSizeFn } from '@/utils/common';
 
 export default {
   name: 'BackupCard',
@@ -204,15 +170,6 @@ export default {
       type: Number,
       required: true,
     },
-    type: {
-      type: String,
-      required: true,
-      validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', 'dm', ''].includes(
-          value
-        );
-      },
-    },
     backupPlan: {
       type: Object,
       required: true,
@@ -221,13 +178,11 @@ export default {
   data(){
     return {
       progressNum: 0,
-      disk:''
     }
   },
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
-      this.formatProcess(operation);
       return operation;
     },
     backupConfig() {
@@ -235,6 +190,9 @@ export default {
     },
     backupStrategy() {
       return backupStrategyMapping[this.backupPlan.config.backupStrategy];
+    },
+    logStrategy(){
+      return logStrategyMapping[this.backupPlan.config.logStrategy];
     },
     timeStrateg() {
       return timeStrategyMapping[this.backupPlan.config.timeStrategy];
@@ -249,10 +207,6 @@ export default {
     backupStrategyType() {
       return this.backupConfig.timeStrategy === 0 ? '单次' : '循环';
     },
-    // 是否为文件备份
-    isFileBackupResult() {
-      return this.type === 'windows' || this.type === 'linux';
-    },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {
         return this.$style.waitingColor;
@@ -261,55 +215,6 @@ export default {
       } else if(this.backupOperation.state === 3) {
         return this.$style.errorColor;
       } else return '';
-    },
-    progressStatus(){
-      if(this.backupOperation.state === 2){
-        return 'success';
-      }else if(this.backupOperation.state === 3){
-        return 'exception';
-      }else return '';
-    },
-    diskInfo(){
-      let str = '';
-      if(this.type === 'windows'){
-        if(this.backupOperation.state === 0){
-          str = '未开始';
-        }else if(this.backupOperation.state === 2){
-          // str = this.backupOperation.backupSystem === 'sys' ? `卷(C:)已备份完成,卷(${this.disk})已备份完成` : `卷(${this.disk})已备份完成`;
-          str = '已完成';
-        }else if(this.backupOperation.state === 1){
-          // if(this.backupOperation.backupSystem === 'nosys'){
-          //   //  str = '正在备份卷(D:)';
-          //   str = `正在备份卷(${this.disk})`;
-          // }else if(this.backupOperation.backupSystem === 'sys'){
-          //   if(this.disk === 'C:'){
-          //     str = `正在备份卷(C:)`;
-          //   }else{
-          //     str = `卷(C:)已备份完成,正在备份卷(${this.disk})`;
-          //   }
-          // }
-          str = `正在备份卷(${this.disk})`;
-        }
-      }
-      return str;
-    },
-    backupSize(){
-      let {process, size, state} = this.backupOperation;
-      let fmtSize = 0;
-      if(this.type === 'linux'){
-        process = Number(process);
-        fmtSize = fmtSizeFn(process);
-      }else if(this.type === 'windows'){
-        // const num = size.match(/\d+(\.\d+)?/);
-        // fmtSize = this.progressNum * Number(size) / 100;
-        // fmtSize = fmtSizeFn(fmtSize);
-        if(Number(size) < 1024){
-          fmtSize = `${size}B`;
-        }else{
-          fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
-        }
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     },
   },
   methods: {
@@ -341,45 +246,11 @@ export default {
         return this.$style.successColor + ' el-icon-success';
       }else return '';
     },
-    formatProcess(oper){
-      const {process: data, size, state} = oper;
-      if(state === 2){
-        this.progressNum = 100;
-        return;
-      }
-      if(this.type === 'windows'){
-        if(!data){
-          return;
-        }
-        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-        const result = data.match(reg);
-        if(!result){
-          return;
-        }
-        if(result[1]){
-          this.disk = result[1];
-        }
-        if(result[2]){
-          let num = Number(result[2].substring(0,result[2].length - 1));
-          this.progressNum = num || num === 0 ? num : 0;
-        }
-      }else if(this.type === 'linux'){
-        if(data && size){
-          if(Number(size)){
-            // 取百分比
-            let num = (Number(data) / Number(size)) * 100;
-            // 此处不能作四舍五入
-            num = parseInt(num > 99 ? 99 : num);
-            this.progressNum = num || num === 0 ? num : 0;
-          }
-        }
-      }
-    }
   }
 };
 </script>
 <style lang="scss" module>
-@import '../style/color.scss';
+@import '@/style/color.scss';
 .backupCard {
   margin-bottom: 15px;
 }

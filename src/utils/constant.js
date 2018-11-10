@@ -16,6 +16,11 @@ const backupStrategyMapping = {
   2: '全备+日志备份',
 };
 
+const logStrategyMapping = {
+  1: '备份日志',
+  2: '不备份日志'
+};
+
 const timeStrategyMapping = {
   0: '单次执行',
   1: '按分钟循环',
@@ -154,6 +159,7 @@ const vmHostServerTypeMapping = {
 export {
   operationStateMapping,
   backupStrategyMapping,
+  logStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   backupResultMapping,

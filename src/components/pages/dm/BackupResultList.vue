@@ -8,7 +8,7 @@
       </el-row>
       <el-row v-show="showFilter">
         <el-form ref="filterForm" :model="filterForm" label-width="150px" size="small">
-          <el-form-item v-if="!isFileBackupResult" label="备份文件名：" prop="fileName">
+          <el-form-item label="备份文件名：" prop="fileName">
             <el-input v-model="filterForm.fileName" style="width:400px"></el-input>
           </el-form-item>
           <el-form-item label="开始时间：" prop="startTime">
@@ -40,7 +40,7 @@
         </el-form>
       </el-row>
     </el-row>
-    <el-table :data="isFileBackupResult ? handleData : data|NotNullfilter|filterFn(filterValue)"
+    <el-table :data="data|NotNullfilter|filterFn(filterValue)"
               style="width: 100%; margin-top: 15px"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
@@ -54,6 +54,14 @@
               <span>{{ scope.row.id }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
+                          label="备份策略">
+              <span>{{scope.row.backupType |backupTypeFilter}}</span>
+            </el-form-item>
+            <el-form-item :class="$style.detailFormItem"
+                          label="日志策略">
+              <span>{{scope.row.logType |logTypeFilter}}</span>
+            </el-form-item>
+            <el-form-item :class="$style.detailFormItem"
                           label="存储目标路径">
               <span>{{ scope.row.path }}</span>
             </el-form-item>
@@ -62,28 +70,12 @@
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="源文件路径"
-                          v-if="isFileBackupResult">
-              <span>{{ scope.row.fileResource }}</span>
-            </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
-                          label="文件名"
-                          v-else>
+                          label="文件名">
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="结束时间">
               <span>{{ scope.row.endTime }}</span>
-            </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
-                          label="NFS目标路径"
-                          v-if="type==='linux'">
-              <span>{{ scope.row.nfsTargetPath }}</span>
-            </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
-                          label="文件标识符"
-                          v-if="type==='windows'">
-              <span>{{ scope.row.identifier }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="大小">
@@ -108,23 +100,29 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column label="文件标识符"
-                       prop="identifier"
-                       v-if="type==='windows'"
-                       min-width="180px"
-                       align="center"></el-table-column>
-      <el-table-column v-if="isFileBackupResult"
-                       label="源文件路径"
-                       prop="fileResource"
-                       min-width="180px"
-                       align="center"
-                       header-align="center"></el-table-column>
-      <el-table-column v-else
-                       label="备份文件名"
+      <el-table-column  label="备份文件名"
                        prop="fileName"
                        min-width="180px"
                        align="left"
                        header-align="center"></el-table-column>
+      <el-table-column  label="备份策略"
+                       prop="backupType"
+                       min-width="100px"
+                       align="center"
+                       header-align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.backupType |backupTypeFilter}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column  label="日志策略"
+                       prop="logType"
+                       min-width="100px"
+                       align="center"
+                       header-align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.logType |logTypeFilter}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
                        min-width="150px"
@@ -158,7 +156,6 @@
           <el-button type="text"
                      size="small"
                      :disabled="scope.row.state === 1"
-                     v-show="!(isFileBackupResult && scope.row.allowRestore === 0)"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
           <!-- <span style="cursor: pointer">
             <i class="el-icon-loading"></i>正在恢复
@@ -170,10 +167,9 @@
 </template>
 <script>
 import dayjs from 'dayjs';
-import SingleRestoreCreateModal from '@/components/modal/SingleRestoreCreateModal';
-import baseMixin from './mixins/baseMixins';
-import { backupResultMapping } from '../utils/constant';
-import { fmtSizeFn } from '../utils/common';
+import baseMixin from '@/components/mixins/baseMixins';
+import { backupResultMapping } from '@/utils/constant';
+import { fmtSizeFn } from '@/utils/common';
 
 export default {
   name: 'BackupResultList',
@@ -182,16 +178,6 @@ export default {
     data: {
       type: Array,
       required: true,
-    },
-    // filebakcup
-    type: {
-      type: String,
-      required: true,
-      validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'vm', ''].includes(
-          value
-        );
-      },
     },
   },
   data() {
@@ -264,6 +250,12 @@ export default {
         return flag;
       })
       return tData
+    },
+    backupTypeFilter(val){
+      return val === 0 ? "全备" : "增备";
+    },
+    logTypeFilter(val){
+      return val === 1 ? "备份日志" : "不备份日志";
     }
   },
   methods: {
@@ -296,67 +288,14 @@ export default {
     buttonIcon(){
       return this.showFilter ? 'el-icon-arrow-down' : 'el-icon-arrow-right'
     },
-    isFileBackupResult() {
-      return this.type === 'windows' || this.type === 'linux';
-    },
-    // 文件服务器备份集中 只有最新对备份集才能用于恢复
-    handleData() {
-      const data = this.data.map((r, i, arr) => {
-        return Object.assign({}, r);
-      });
-      const map = {};
-      data.forEach((result, index) => {
-        const {size} = result;
-        let fmtSize = 0;
-        if(this.type === 'windows'){
-          if(Number(size) < 1024){
-            fmtSize = `${size}B`;
-          }else{
-            fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
-          }
-        }else{
-          fmtSize = fmtSizeFn(size);
-        }
-        result.size = fmtSize ? fmtSize : 0;
-        // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
-        if (!map[result.fileResource]) {
-          // map[result.fileResource] = index;
-          map[result.fileResource] = {
-            index: index,
-            id:result.id
-          };
-        } else {
-          const lastIndex = map[result.fileResource].index;
-          // const lastIndex = map[result.fileResource];
-          if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
-            // map[result.fileResource] = index;
-            map[result.fileResource] = {
-              index: index,
-              id:result.id
-            };
-          }
-        }
-      });
-      return data.map((result, index) => {
-        for(let i in result) {
-          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
-        }
-        if (map[result.fileResource].id === result.id) {
-        // if (map[result.fileResource] === index) {
-          return Object.assign({}, result, { allowRestore: 1 });
-        } else {
-          return Object.assign({}, result, { allowRestore: 0 });
-        }
-      });
-    },
   },
-  components: {
-    SingleRestoreCreateModal,
-  },
+  // components: {
+  //   SingleRestoreCreateModal,
+  // },
 };
 </script>
 <style lang="scss" module>
-@import '../style/color.scss';
+@import '@/style/color.scss';
 .detailFormItem {
   margin: {
     right: 0 !important;

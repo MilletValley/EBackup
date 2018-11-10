@@ -88,73 +88,17 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
+import validate from '@/utils/validate';
 const rules = {
-  name: [{
-    required: true,
-    message: '请输入名称',
-    trigger: 'blur'
-  },{
-    max: 20,
-    message: '长度在20个字符以内',
-    trigger: 'blur'
-  },{
-    pattern: '^[^\\s]*$',
-    message: '不能包含空格',
-    trigger: ['blur'],
-  }],
-  dbPort: [{
-    required: true,
-    message: '请输入端口号',
-    trigger: 'blur'
-  },{
-    pattern: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
-    message: '请输入0-65535之间的数字',
-    trigger: 'blur'
-  }],
-  hostId: [{
-    required: true,
-    message: '请选择设备',
-    trigger: 'change'
-  }],
-  dbName: [{
-    required: true,
-    message: '请输入数据库名',
-    trigger: 'blur',
-  },{
-    max: 20,
-    message: '长度在20个字符以内',
-    trigger: 'blur',
-  },{
-    pattern: '^[^\\s]*$',
-    message: '不能包含空格',
-    trigger: ['blur'],
-  }],
-  loginName: [{
-    required: true,
-    message: `请输入数据库登录账号`,
-    trigger: 'blur',
-  },{
-    length: 20,
-    message: '长度在20个字符以内',
-    trigger: 'blur'
-  },{
-    pattern: '^[^\\s]*$',
-    message: '不能包含空格',
-    trigger: ['blur'],
-  }],
-  password: [{
-    required: true,
-    message: `请输入数据库登录密码`,
-    trigger: 'blur',
-  },{
-    pattern: '^[^\\s]*$',
-    message: '不能包含空格',
-    trigger: ['blur'],
-  }],
+  name: validate.name,
+  dbPort: validate.dbPort,
+  hostId: validate.selelctHost,
+  dbName: validate.dbName,
+  loginName: validate.dbLoginName,
+  password: validate.dbPassword,
 };
-
 const vm = {
-  name: 'DatabaseCreateModal',
+  name: 'DatabaseModal',
   mixins: [],
   props: {
     visible: {

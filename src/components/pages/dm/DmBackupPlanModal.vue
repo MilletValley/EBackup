@@ -47,7 +47,7 @@
         <el-button type="primary" v-if="action !== 'query'"
                    :loading="btnLoading"
                    @click="confirmBtnClick">确定</el-button>
-        <el-button @click="cancel">取消</el-button>
+        <el-button @click="cancelButtonClick">取消</el-button>
       </span>
     </el-dialog>
   </section>
@@ -55,9 +55,10 @@
 <script>
 import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
-import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import { baseModalMixin, backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
+import validate from '@/utils/validate';
 const baseFormData = {
       name: '',
       startTime: '',
@@ -73,7 +74,7 @@ const baseFormData = {
     };
 export default {
   name: 'BackupPlanCreateModal',
-  mixins: [backupPlanModalMixin],
+  mixins: [baseModalMixin, backupPlanModalMixin],
   components: {
     TimeStrategy,
   },
@@ -83,7 +84,7 @@ export default {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
-        name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+        name: validate.planName,
       },
       backupConfig: {},
     };
