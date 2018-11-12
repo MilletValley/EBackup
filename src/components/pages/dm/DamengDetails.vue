@@ -5,10 +5,7 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="mysql"
-                    class="detail-icon"></i-icon>
-            <!-- <img src="../../../assets/dm1.fw.png" alt="">
-            <img src="../../../assets/dm.ico" alt=""> -->
+            <img src="../../../assets/DM.fw.png" :class="$style.dmClass">
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
@@ -218,5 +215,11 @@ export default {
   position: absolute;
   bottom: 0;
   right: 0;
+}
+.dmClass {
+  width: 40px;
+  height: 32px;
+  margin-top: 15px;
+  margin-right: 8px;
 }
 </style>
