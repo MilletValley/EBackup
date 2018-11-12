@@ -258,6 +258,7 @@
              <!-- 已知bug，需要后台同步，暂不修改 -->
             <el-table-column prop="backupSize"
                              label="备份集大小"
+                             :formatter="sizeFormatter"
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
