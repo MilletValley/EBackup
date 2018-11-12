@@ -157,6 +157,17 @@ const vmHostServerTypeMapping = {
   3: 'FusionSphere'
 };
 
+const backupTypeMapping = {
+  1: '全备',
+  2: '增备',
+  3: '日志备份'
+};
+
+const yesOrNoMapping = {
+  1: '是',
+  2: '否'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -181,5 +192,7 @@ export {
   switchManualMapping,
   switchTypeMapping,
   serviceIpMarkMapping,
-  vmHostServerTypeMapping
+  vmHostServerTypeMapping,
+  backupTypeMapping,
+  yesOrNoMapping
 };

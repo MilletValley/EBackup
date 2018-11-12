@@ -1,14 +1,44 @@
 // eslint-disable-next-line
+
+const maxLengthFn = (w, maxLength) => {
+  if (String(w)) {
+    const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
+    return (w.length - t.length) * 2 + t.length > maxLength; // 判断长度
+  }
+  return false;
+};
+
+const validateLength = length =>
+  (rule, value, callback) => {
+    if (maxLengthFn(value, length)) {
+      callback(new Error(`长度在${length}个字符以内，注：中文占2个字符`));
+    } else {
+      callback();
+    }
+  };
+
 export default {
-  planName: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+  planName: [
+    {
+      required: true,
+      message: '请输入计划名称',
+      trigger: 'blur'
+    }, {
+      validator: validateLength(64),
+      trigger: 'blur'
+    }, {
+      pattern: '^[^\\s]*$',
+      message: '不能包含空格',
+      trigger: ['blur'],
+    }
+  ],
   name: [
     {
       required: true,
       message: '请输入名称',
       trigger: 'blur'
     }, {
-      max: 20,
-      message: '长度在20个字符以内',
+      validator: validateLength(64),
       trigger: 'blur'
     }, {
       pattern: '^[^\\s]*$',
@@ -36,9 +66,8 @@ export default {
       message: '请输入数据库名',
       trigger: 'blur',
     }, {
-      max: 20,
-      message: '长度在20个字符以内',
-      trigger: 'blur',
+      validator: validateLength(64),
+      trigger: 'blur'
     }, {
       pattern: '^[^\\s]*$',
       message: '不能包含空格',
@@ -51,8 +80,7 @@ export default {
       message: '请输入数据库登录账号',
       trigger: 'blur',
     }, {
-      length: 20,
-      message: '长度在20个字符以内',
+      validator: validateLength(64),
       trigger: 'blur'
     }, {
       pattern: '^[^\\s]*$',
@@ -65,6 +93,9 @@ export default {
       required: true,
       message: '请输入数据库登录密码',
       trigger: 'blur',
+    }, {
+      validator: validateLength(64),
+      trigger: 'blur'
     }, {
       pattern: '^[^\\s]*$',
       message: '不能包含空格',

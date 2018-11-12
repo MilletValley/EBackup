@@ -180,7 +180,7 @@ export default {
       if (this.planFilterForm.hiddenCompletePlan) {
         filterMethods.push(plan => plan.state !== 2);
       }
-      return applyFilterMethods(this.restorePlans, filterMethods);
+      return applyFilterMethods(this.restorePlans, filterMethods).sort((a,b) => dayjs(b.createTime) - dayjs(a.createTime));
     },
   },
 };

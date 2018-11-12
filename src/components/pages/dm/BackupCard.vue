@@ -105,8 +105,7 @@
           <li>
             <h5>当前状态</h5>
             <div>
-              <el-tooltip 
-                          :content="backupOperation.process"
+              <el-tooltip :content="backupOperation.process"
                           placement="left"
                           effect="light">
                 <div style="display: inline-block">

@@ -25,11 +25,11 @@ const tableMixin = {
     this.fetchData();
   },
   methods: {
-    // 从服务器获取所有的Oracle数据库
+    // 从服务器获取所有的数据库
     fetchData() {
       fetchListData(this.databaseType).then(res => {
         const { data } = res.data;
-        this.tableData = data;
+        this.tableData = Array.isArray(data) ? data : [];
       }).catch(error => {
         this.$message.error(error);
       });

@@ -108,20 +108,22 @@
       <el-table-column  label="备份策略"
                        prop="backupType"
                        min-width="100px"
+                       :formatter="backupTypeConverter"
                        align="center"
                        header-align="center">
-        <template slot-scope="scope">
+        <!-- <template slot-scope="scope">
           <span>{{scope.row.backupType |backupTypeFilter}}</span>
-        </template>
+        </template> -->
       </el-table-column>
-      <el-table-column  label="日志策略"
+      <el-table-column  label="备份日志"
                        prop="logType"
                        min-width="100px"
+                       :formatter="logTypeConverter"
                        align="center"
                        header-align="center">
-        <template slot-scope="scope">
+        <!-- <template slot-scope="scope">
           <span>{{scope.row.logType |logTypeFilter}}</span>
-        </template>
+        </template> -->
       </el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
@@ -157,9 +159,6 @@
                      size="small"
                      :disabled="scope.row.state === 1"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
-          <!-- <span style="cursor: pointer">
-            <i class="el-icon-loading"></i>正在恢复
-          </span> -->
         </template>
       </el-table-column>
     </el-table>
@@ -168,7 +167,7 @@
 <script>
 import dayjs from 'dayjs';
 import baseMixin from '@/components/mixins/baseMixins';
-import { backupResultMapping } from '@/utils/constant';
+import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 
 export default {
@@ -251,28 +250,28 @@ export default {
       })
       return tData
     },
-    backupTypeFilter(val){
-      return val === 0 ? "全备" : "增备";
-    },
-    logTypeFilter(val){
-      return val === 1 ? "备份日志" : "不备份日志";
-    }
+    // backupTypeFilter(val){
+    //   return backupTypeMapping[val];
+    // },
+    // logTypeFilter(val){
+    //   return val === 1 ? "备份日志" : "不备份日志";
+    // }
   },
   methods: {
     // 备份集状态码转文字
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
     },
+    backupTypeConverter(row, column, cellValue, index) {
+      return backupTypeMapping[cellValue];
+    },
+    logTypeConverter(row, column, cellValue, index) {
+      return yesOrNoMapping[cellValue];
+    },
     // 点击恢复按钮
     restoreBtnClick({ id }) {
       this.$emit('single-restore-btn-click', id);
-      // this.selectedId = id;
-      // this.singleRestoreModalVisible = true;
     },
-    // 添加单次恢复的回调
-    // confirmCallback(restorePlan) {
-    //   this.$emit('add-restore', restorePlan);
-    // },
     endTimeSortMethod(a, b) {
       return dayjs(a) - dayjs(b);
     },
@@ -286,12 +285,9 @@ export default {
   },
   computed: {
     buttonIcon(){
-      return this.showFilter ? 'el-icon-arrow-down' : 'el-icon-arrow-right'
+      return this.showFilter ? 'el-icon-arrow-down' : 'el-icon-arrow-right';
     },
   },
-  // components: {
-  //   SingleRestoreCreateModal,
-  // },
 };
 </script>
 <style lang="scss" module>
