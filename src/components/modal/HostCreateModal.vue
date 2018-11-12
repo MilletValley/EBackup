@@ -8,7 +8,7 @@
         添加设备
       </span>
       <el-form :model="formData"
-               :rules="rules"
+               :rules="hostRules"
                label-width="130px"
                ref="createForm"
                size="small">

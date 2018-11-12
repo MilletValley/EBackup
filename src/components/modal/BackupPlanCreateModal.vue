@@ -18,7 +18,6 @@
         </el-form-item>
         <el-form-item v-if="['windows', 'linux'].includes(type)"
                       label="备份路径"
-                      :rules="{required: true, message: '请输入备份路径', trigger: 'blur'}"
                       prop="backupPath">
           <el-input v-model="formData.backupPath"></el-input>
         </el-form-item>
@@ -39,7 +38,7 @@
                       :key="ts.code">{{ ts.value }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="计划开始时间"
+        <el-form-item label="计划创建时间"
                       v-show="[1,2,3,4,5].includes(formData.timeStrategy)"
                       prop="startTime">
           <el-date-picker v-model="formData.startTime"

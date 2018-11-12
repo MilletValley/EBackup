@@ -7,6 +7,14 @@ import {
   restoreTimeStrategyMapping as strategys,
   weekMapping,
 } from '../../utils/constant';
+import {
+  validateLength20,
+  validateLength30,
+  validateLength70,
+  validateLength100,
+  validateLength50,
+  maxLengthFn
+} from '../../utils/common';
 // 配置信息 如果有业务添加或者变更 可以直接修改这个对象
 const strategyMapping = {
   default: {
@@ -121,7 +129,14 @@ const backupPlanModalMixin = {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
-        name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+        name: [
+          { required: true, message: '请输入计划名称', trigger: 'blur' },
+          { validator: validateLength20, trigger: 'blur' }
+        ],
+        backupPath: [
+          { required: true, message: '请输入备份路径', trigger: 'blur' },
+          { validator: validateLength100, trigger: 'blur' }
+        ],
         singleTime: [
           {
             validator: singleTimeValidate,
@@ -409,6 +424,8 @@ const restorePlanModalMixin = {
     const originPathValidate = (rule, value, callback) => {
       if (!this.formData.originDetailInfo && this.isFileHost) {
         callback(new Error('请输入文件恢复源路径'));
+      } else if (maxLengthFn(value, 60)) {
+        callback(new Error('文件路径长度超过限制'));
       } else if (!this.fileHostOriginPath.map(originPath => originPath.path).includes(value)) {
         callback(new Error('文件恢复源路径不存在'));
       } else {
@@ -439,7 +456,10 @@ const restorePlanModalMixin = {
       strategys, // 时间策略
       weekMapping, // 星期映射
       rules: {
-        name: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+        name: [
+          { required: true, message: '请输入计划名称', trigger: 'blur' },
+          { validator: validateLength20, trigger: 'blur' }
+        ],
         hostIp: [
           { required: true, message: '请输入主机IP', trigger: 'blur' },
           {
@@ -455,12 +475,16 @@ const restorePlanModalMixin = {
             message: `请输入${detailInfoDisplayName}`,
             trigger: 'blur',
           },
+          {
+            validator: this.isFileHost ? validateLength70 : validateLength30,
+            trigger: 'blur'
+          }
         ],
         originDetailInfo: [
           {
             validator: originPathValidate,
             trigger: 'change'
-          }
+          },
         ],
         dbPort: [{
           required: true,
@@ -474,10 +498,12 @@ const restorePlanModalMixin = {
         }],
         loginName: [
           { required: true, message: '请输入登录名', trigger: 'blur' },
+          { validator: validateLength50, trigger: 'blur' }
         ],
-        // password: [
-        //   { required: true, message: '请输入登录密码', trigger: 'blur' },
-        // ],
+        password: [
+          { required: true, message: '请输入登录密码', trigger: 'blur' },
+          { validator: validateLength50, trigger: 'blur' }
+        ],
         singleTime: [
           {
             validator: singleTimeValidate,

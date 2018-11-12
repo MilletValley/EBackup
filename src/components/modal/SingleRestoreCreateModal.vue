@@ -23,7 +23,7 @@
           </span>
           <el-input v-model="formData.hostIp"
                     placeholder="请输入恢复设备"
-                    v-if="isFileHost&&type==='windows'"></el-input>
+                    v-if="type==='windows'"></el-input>
           <el-select v-model="formData.hostIp"
                      style="width: 100%;"
                      v-else>
@@ -36,7 +36,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="isFileHost&&type==='linux'"
+        <el-form-item v-if="type==='linux'"
                       label="恢复源路径"
                       prop="originDetailInfo">
           <el-popover placement="bottom"
@@ -90,7 +90,8 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
-                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' },
+                                 { validator: validateLength30, triggle: 'blur' }]"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
@@ -99,7 +100,8 @@
       <el-row v-if="isVMware">
         <el-form-item label="恢复磁盘名"
                       prop="diskName"
-                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
+                               { validator: validateLength30, triggle: 'blur' }]">
           <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
       </el-row>
@@ -112,14 +114,13 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="密码"
-                        prop="password"
-                        :rules="[{ required: true, message: '请输入登录密码', trigger: 'blur' },]">
+                        prop="password">
             <input-toggle v-model="formData.password"
                           :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item v-if="isFileHost&&type==='windows'"
+      <el-form-item v-if="type==='windows'"
                     label="覆盖策略"
                     prop="reveringStrategy">
         <el-radio-group v-model="formData.recoveringStrategy">
@@ -142,7 +143,7 @@ import dayjs from 'dayjs';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 import IIcon from '@/components/IIcon';
-import { fmtSizeFn } from '../../utils/common';
+import { fmtSizeFn, validateLength30 } from '../../utils/common';
 
 export default {
   name: 'SingleRestoreCreateModal',
@@ -250,7 +251,7 @@ export default {
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
-      if(this.isFileHost&&this.type==='linux') {
+      if(this.type==='linux') {
         this.$refs.tree.setCheckedKeys([]);
       }
       this.hiddenPassword = true;
@@ -263,7 +264,10 @@ export default {
         this.formData.originDetailInfo = '';
       }
       this.treeVisible = false;
-    }
+    },
+    validateLength30() {
+      return validateLength30;
+    },
   },
   components: {
     IIcon
