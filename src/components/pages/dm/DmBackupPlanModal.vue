@@ -92,7 +92,7 @@ export default {
   methods: {
     // 切换备份策略时 同时更新时间策略为第一个可用值
     backupStrategyChange(label) {
-      this.formData.timeStrategy = 0;
+      // this.formData.timeStrategy = 0;
     },
     confirmBtnClick() {
       this.$refs.createForm.validate(valid => {
@@ -141,7 +141,7 @@ export default {
     modalOpened() {
       console.log(this.backupPlan);
       if (this.action === 'update' || this.action === 'query') {
-        this.originFormData = this.fmtData({ ...this.backupPlan });
+        this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...this.backupPlan }));
       } else {
         this.originFormData = Object.assign({}, baseFormData);
       }

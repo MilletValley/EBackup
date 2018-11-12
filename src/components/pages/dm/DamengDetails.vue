@@ -7,6 +7,8 @@
           <el-col :span="1">
             <i-icon name="mysql"
                     class="detail-icon"></i-icon>
+            <!-- <img src="../../../assets/dm1.fw.png" alt="">
+            <img src="../../../assets/dm.ico" alt=""> -->
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
