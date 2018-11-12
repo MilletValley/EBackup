@@ -54,11 +54,11 @@
               <span>{{ scope.row.id }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="备份策略">
+                          label="备份类型">
               <span>{{scope.row.backupType |backupTypeFilter}}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="日志策略">
+                          label="备份日志">
               <span>{{scope.row.logType |logTypeFilter}}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
@@ -105,25 +105,23 @@
                        min-width="180px"
                        align="left"
                        header-align="center"></el-table-column>
-      <el-table-column  label="备份策略"
+      <el-table-column  label="备份类型"
                        prop="backupType"
                        min-width="100px"
-                       :formatter="backupTypeConverter"
                        align="center"
                        header-align="center">
-        <!-- <template slot-scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.backupType |backupTypeFilter}}</span>
-        </template> -->
+        </template>
       </el-table-column>
       <el-table-column  label="备份日志"
                        prop="logType"
                        min-width="100px"
-                       :formatter="logTypeConverter"
                        align="center"
                        header-align="center">
-        <!-- <template slot-scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.logType |logTypeFilter}}</span>
-        </template> -->
+        </template>
       </el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
@@ -250,23 +248,17 @@ export default {
       })
       return tData
     },
-    // backupTypeFilter(val){
-    //   return backupTypeMapping[val];
-    // },
-    // logTypeFilter(val){
-    //   return val === 1 ? "备份日志" : "不备份日志";
-    // }
+    backupTypeFilter(val){
+      return backupTypeMapping[val];
+    },
+    logTypeFilter(val){
+      return yesOrNoMapping[val];
+    }
   },
   methods: {
     // 备份集状态码转文字
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
-    },
-    backupTypeConverter(row, column, cellValue, index) {
-      return backupTypeMapping[cellValue];
-    },
-    logTypeConverter(row, column, cellValue, index) {
-      return yesOrNoMapping[cellValue];
     },
     // 点击恢复按钮
     restoreBtnClick({ id }) {
