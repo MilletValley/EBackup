@@ -222,7 +222,7 @@ const detailPageMixin = {
       fetchBackupPlans(this.type, this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.backupPlans = plans;
+          this.backupPlans = Array.isArray(plans) ? plans : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -232,7 +232,7 @@ const detailPageMixin = {
       fetchBackupResults(this.type, this.id)
         .then(res => {
           const { data: result } = res.data;
-          this.results = result;
+          this.results = Array.isArray(result) ? result : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -241,7 +241,7 @@ const detailPageMixin = {
     getRestorePlans() {
       fetchRestorePlans(this.type, this.id).then(res => {
         const { data: plans } = res.data;
-        this.restorePlans = plans;
+        this.restorePlans = Array.isArray(plans) ? plans : [];
       }).catch(error => {
         this.$message.error(error);
       });
@@ -249,7 +249,7 @@ const detailPageMixin = {
     getRestoreRecords() {
       fetchRestoreRecords(this.type, this.id).then(res => {
         const { data: records } = res.data;
-        this.restoreRecords = records;
+        this.restoreRecords = Array.isArray(records) ? records : [];
       }).catch(error => {
         this.$message.error(error);
       });
