@@ -149,7 +149,7 @@ export default {
       console.log(this.formData);
     },
     modalClosed() {
-      this.formData = { ...baseFormData };
+      // this.formData = { ...baseFormData };
       this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.createForm.clearValidate();
     },

@@ -5,7 +5,7 @@
               @open="modalOpen"
               @close="modalClosed">
       <span slot="title">
-        {{disabled ? `更新数据库(ID:${data.id})` : "添加数据库"}}
+        {{title}}
       </span>
       <el-form :model="formData"
                :rules="rules"
@@ -80,7 +80,7 @@
         <el-button type="primary"
                    @click="confirm"
                    :loading="btnLoading">确定</el-button>
-        <el-button @click="cancelBtnClick()">取消</el-button>
+        <el-button @click="cancelButtonClick()">取消</el-button>
       </span>
     </el-dialog>
   </section>
@@ -88,6 +88,7 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
+import { databaseModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 const rules = {
   name: validate.name,
@@ -99,68 +100,35 @@ const rules = {
 };
 const vm = {
   name: 'DatabaseModal',
-  mixins: [],
+  mixins: [databaseModalMixin],
   props: {
-    visible: {
-      type: Boolean,
-      required: true,
-    },
-    btnLoading: {
-      type: Boolean,
-      // required: true,
-    },
-    data: {
-      type: Object
-    }
   },
   data() {
     return {
       type: 'dm',
-      defaultData: {
+      rules: rules,
+      baseData: {
         name: '',
         hostId: '',
         dbName: '',
         dbPort: '',
         loginName: '',
         password: ''
-      },
-      formData: {},
-      currentData: {},
-      rules: rules,
-      hiddenPassword: true
+      }
     };
   },
   computed: {
-    modalVisible: {
-      get() {
-        return this.visible;
-      },
-      set(value) {
-        if (!value) {
-          this.$emit('update:visible', value);
-        }
-      },
-    },
     disabled(){
-      if(this.data){
-        return true
+      if(this.action === 'update'){
+        return true;
       }
-    },
-    // 区分不同数据库都提示信息
-    databaseOrInstance() {
-      return this.type === 'oracle' || this.type === 'dm' ? '实例名' : '数据库名';
-    },
-    availableHosts() {
-      return this.$store.getters.dmHosts.filter(
-        h => h.hostType === 1
-      );
+      return false;
     },
   },
   methods: {
     // 点击确认按钮触发
     confirm() {
       this.$refs.itemCreateForm.validate(valid => {
-        console.log(this.formData)
         if (valid) {
           const {
             id,
@@ -180,49 +148,24 @@ const vm = {
             dbPort,
             // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId),
-          }, this.data ? 'update':'create');
+          }, this.action);
         } else {
           return false;
         }
       });
     },
     modalOpen(){
-      if(this.data){
-        this.formData = Object.assign({},this.defaultData, this.data);
+      if(this.action === 'update'){
+        this.originFormData = Object.assign({},this.baseData, this.data);
       }else{
-        this.formData = {...this.defaultData}
+        this.originFormData = {...this.baseData}
       }
       console.log(this.formData)
-      this.currentData = {...this.formData}
+      this.formData = {...this.originFormData}
     },
     modalClosed() {
       this.$refs.itemCreateForm.clearValidate();
       this.hiddenPassword = true;
-    },
-    // 点击取消按钮触发
-    cancelBtnClick() {
-      this.hasModifiedBeforeClose(() => {
-        this.$emit('update:visible', false); // 关闭modal
-      });
-    },
-    beforeModalClose(done){
-      this.hasModifiedBeforeClose(done);
-    },
-    // 关闭之前 验证是否有修改
-    hasModifiedBeforeClose(fn) {
-      if (isEqual(this.formData, this.currentData)) {
-        fn();
-      } else {
-        this.$confirm('有未保存的修改，是否退出？', {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-        })
-          .then(() => {
-            fn();
-          })
-          .catch(() => {});
-      }
     },
   },
   components: {

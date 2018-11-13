@@ -171,7 +171,7 @@ export default {
       console.log(this.formData);
     },
     modalClosed() {
-      this.formData = { ...baseFormData };
+      // this.formData = { ...baseFormData };
       this.$refs.timeIntervalComponent.clearValidate();
       this.$refs.restorePlanCreateForm.clearValidate();
       this.hiddenPassword = true;

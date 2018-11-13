@@ -17,6 +17,7 @@ const tableMixin = {
       btnLoading: false,
       inputSearch: '',
       tableData: [],
+      action: 'create',
       currentSelectData: null,
       defaultSort: { prop: 'createTime', order: 'descending' },
     };
@@ -39,10 +40,12 @@ const tableMixin = {
     },
     addFn() {
       this.createModalVisible = true;
+      this.action = 'create';
       this.currentSelectData = null;
     },
     modifyDb(scope) {
       this.createModalVisible = true;
+      this.action = 'update';
       this.currentSelectData = scope.row;
     },
     confirmCall(data, type) {
@@ -58,8 +61,8 @@ const tableMixin = {
         this.btnLoading = false;
       });
     },
-    deleteDb(scope) {
-      this.$confirm('确认删除此数据库?', '提示', {
+    delete(scope, title) {
+      this.$confirm(title, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',

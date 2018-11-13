@@ -54,6 +54,48 @@ const baseModalMixin = {
   }
 };
 
+const databaseModalMixin = {
+  mixins: [baseModalMixin],
+  props: {
+    btnLoading: {
+      type: Boolean,
+    },
+    data: {
+      type: Object
+    },
+    action: {
+      type: String
+    }
+  },
+  data() {
+    return {
+      // 原始表单值
+      hiddenPassword: true,
+    };
+  },
+  computed: {
+    title() {
+      if (this.action === 'update') {
+        return '更新数据库';
+      } else if (this.action === 'query') {
+        return '查看数据库';
+      }
+      return '添加数据库';
+    },
+    availableHosts() {
+      const mysqlEbackupHosts = this.$store.getters[`${this.type}Hosts`].filter(
+        h => h.hostType === 1
+      );
+      return mysqlEbackupHosts;
+    },
+  },
+  methods: {
+  },
+  components: {
+    InputToggle,
+  },
+};
+
 const backupPlanModalMixin = {
   mixins: [baseModalMixin],
   props: {
@@ -255,4 +297,4 @@ const restorePlanModalMixin = {
   },
 };
 
-export { baseModalMixin, restorePlanModalMixin, backupPlanModalMixin };
+export { baseModalMixin, databaseModalMixin, restorePlanModalMixin, backupPlanModalMixin };

@@ -1,7 +1,9 @@
 // eslint-disable-next-line
 
 const maxLengthFn = (w, maxLength) => {
+  console.log(w)
   if (String(w)) {
+    console.log(w)
     const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
     return (w.length - t.length) * 2 + t.length > maxLength; // 判断长度
   }
@@ -100,6 +102,74 @@ export default {
       pattern: '^[^\\s]*$',
       message: '不能包含空格',
       trigger: ['blur'],
+    }
+  ],
+  // 文件系统校验
+  fileLoginName: [
+    {
+      required: true,
+      message: '请输入服务器登录密码',
+      trigger: 'blur',
+    }, {
+      validator: validateLength(64),
+      trigger: 'blur'
+    }, {
+      pattern: '^[^\\s]*$',
+      message: '不能包含空格',
+      trigger: ['blur'],
+    }
+  ],
+  filePassword: [
+    {
+      required: true,
+      message: '请输入服务器登录密码',
+      trigger: 'blur',
+    }, {
+      validator: validateLength(64),
+      trigger: 'blur'
+    }, {
+      pattern: '^[^\\s]*$',
+      message: '不能包含空格',
+      trigger: ['blur'],
+    }
+  ],
+  hostIp: [
+    {
+      required: true,
+      message: '请输入主机IP',
+      trigger: 'blur'
+    },
+    {
+      pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
+      message: 'IP地址不正确',
+      trigger: 'blur',
+    },
+  ],
+  hostName: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: 'blur'
+    },
+    {
+      validator: validateLength(64),
+      trigger: 'blur'
+    },
+    {
+      pattern: '^[^\\s]*$',
+      message: '不能包含空格',
+      trigger: ['blur'],
+    }
+  ],
+  osName: [{
+    required: true,
+    message: '请选择操作系统',
+    trigger: 'blur'
+  }],
+  application: [
+    {
+      validator: validateLength(64),
+      trigger: 'blur'
     }
   ],
 };

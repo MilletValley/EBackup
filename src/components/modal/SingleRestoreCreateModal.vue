@@ -10,7 +10,7 @@
              label-width="110px"
              ref="singleRestoreForm"
              size="small">
-      <el-row v-if="!isVMware">
+      <el-row v-if="!isVMware && !isHW">
         <el-form-item label="恢复设备"
                       v-if="!this.isHW"
                       prop="hostIp">
@@ -81,6 +81,11 @@
           <el-input v-model.number="formData.dbPort"></el-input>
         </el-form-item>
       </el-row>
+      <el-form-item label="新虚拟机名"   v-if="isHW"
+                    :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                    prop="newName">
+        <el-input v-model="formData.newName"></el-input>
+      </el-form-item>
       <el-row v-if="isVMware">
         <el-col :span="12">
           <el-form-item label="恢复主机IP"

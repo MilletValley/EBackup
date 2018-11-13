@@ -98,6 +98,7 @@
     </el-row>
     <database-modal :visible.sync="createModalVisible"
                     :btn-loading="btnLoading"
+                    :action="action"
                     :data="currentSelectData"
                     @confirm="confirmCall"></database-modal>
   </section>
@@ -122,6 +123,9 @@ export default {
       this.filter = Object.assign({},{name});
       this.currentPage = 1;
     },
+    deleteDb(scope) {
+      this.delete(scope, '确认删除此数据库?');
+    }
   },
   components: {
     DatabaseModal
