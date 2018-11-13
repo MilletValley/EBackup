@@ -144,7 +144,6 @@ import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 import IIcon from '@/components/IIcon';
 import { fmtSizeFn, validateLength30 } from '../../utils/common';
-
 export default {
   name: 'SingleRestoreCreateModal',
   props: ['treeData', 'fileHostOriginPath'],
@@ -165,6 +164,13 @@ export default {
     //   const path = this.$route.path;
     //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     // }
+  },
+  watch: {
+    '$store.state.nav.clientWidth'( val) {
+      if(this.$refs && this.$refs.originPathInput){
+        this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px'
+      }
+    }
   },
   filters: {
     // 时间戳转日期
@@ -239,9 +245,6 @@ export default {
           treeParentNode.style.paddingRight = 0;
           this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
           const that = this;
-          window.onresize = function windowResize() {
-            treeParentNode&&(that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px');
-          };
         }
       });
       // if(this.isVMware){

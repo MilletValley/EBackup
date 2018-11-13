@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapMutations } from 'vuex';
 import IIcon from './IIcon.vue';
 
 export default {
@@ -93,6 +93,7 @@ export default {
     const that = this;
     window.onresize = function windowResize() {
       that.clientWidth = document.documentElement.clientWidth;
+      that.setClientWidth(document.documentElement.clientWidth);
     };
   },
   created() {
@@ -119,6 +120,7 @@ export default {
   },
   methods: {
     ...mapActions(['logout', 'fetchHost']),
+    ...mapMutations(['setClientWidth']),
     handleCommand(command) {
       if (command === 'logout') {
         this._logout();
