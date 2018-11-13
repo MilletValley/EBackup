@@ -96,15 +96,14 @@
           :total="total">
       </el-pagination>
     </el-row>
-    <dm-database-modal type="dm"
-                        :visible.sync="createModalVisible"
-                        :btn-loading="btnLoading"
-                        :data="currentSelectData"
-                        @confirm="confirmCall"></dm-database-modal>
+    <database-modal :visible.sync="createModalVisible"
+                    :btn-loading="btnLoading"
+                    :data="currentSelectData"
+                    @confirm="confirmCall"></database-modal>
   </section>
 </template>
 <script>
-import DmDatabaseModal from '@/components/pages/dm/DmDatabaseModal';
+import DatabaseModal from '@/components/pages/dm/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 export default {
   name: 'DamengList',
@@ -125,7 +124,7 @@ export default {
     },
   },
   components: {
-    DmDatabaseModal
+    DatabaseModal
   },
 };
 </script>

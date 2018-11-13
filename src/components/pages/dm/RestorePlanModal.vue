@@ -6,7 +6,7 @@
              :visible.sync="modalVisible">
     <span slot="title">
       {{title}}
-      <span style="color: #999999"> (ID: {{restorePlan.id}})</span>
+      <!-- <span style="color: #999999"> (ID: {{restorePlan.id}})</span> -->
     </span>
     <el-form size="small"
              label-position="right"

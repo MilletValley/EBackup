@@ -103,24 +103,24 @@
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
-    <dm-backup-plan-modal   :btn-loading="btnLoading"
+    <backup-plan-modal   :btn-loading="btnLoading"
                             :visible.sync="backupPlanModalVisible"
                             @confirm="confirmCallback"
                             :action="action"
                             :backup-plan="selectedBackupPlan">
-    </dm-backup-plan-modal>
+    </backup-plan-modal>
 
-    <dm-restore-plan-modal   :btn-loading="btnLoading"
+    <restore-plan-modal   :btn-loading="btnLoading"
                             :visible.sync="restorePlanModalVisible"
                             @confirm="restoreConfirmCallback"
                             :action="restoreAction"
                             :restore-plan="selectedRestorePlan">
-    </dm-restore-plan-modal>
-    <dm-single-restore-modal   :btn-loading="btnLoading"
+    </restore-plan-modal>
+    <single-restore-modal   :btn-loading="btnLoading"
                             :result-id="selectedBackupResultId"
                             :visible.sync="singleRestoreCreateModalVisible"
                             @confirm="singleConfirmCallback">
-    </dm-single-restore-modal>
+    </single-restore-modal>
   </section>
 </template>
 <script>
@@ -128,9 +128,9 @@ import dayjs from 'dayjs';
 import throttle from 'lodash/throttle';
 import { applyFilterMethods } from '@/utils/common';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
-import DmBackupPlanModal from '@/components/pages/dm/DmBackupPlanModal';
-import DmRestorePlanModal from '@/components/pages/dm/DmRestorePlanModal';
-import DmSingleRestoreModal from '@/components/pages/dm/DmSingleRestoreModal';
+import BackupPlanModal from '@/components/pages/dm/BackupPlanModal';
+import RestorePlanModal from '@/components/pages/dm/RestorePlanModal';
+import SingleRestoreModal from '@/components/pages/dm/SingleRestoreModal';
 import BackupCard from '@/components/pages/dm/BackupCard';
 import BackupResultList from '@/components/pages/dm/BackupResultList';
 import RestoreCard from '@/components/pages/dm/RestoreCard';
@@ -140,9 +140,9 @@ export default {
   name: 'DmDetail',
   mixins: [detailPageMixin],
   components: {
-    DmBackupPlanModal,
-    DmRestorePlanModal,
-    DmSingleRestoreModal,
+    BackupPlanModal,
+    RestorePlanModal,
+    SingleRestoreModal,
     BackupCard,
     BackupResultList,
     RestoreCard,

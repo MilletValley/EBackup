@@ -7,7 +7,7 @@
                @close="modalClosed">
       <span slot="title">
 				{{title}}
-				<span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span>
+				<!-- <span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span> -->
       </span>
       <el-form :model="formData"
                label-width="110px"
