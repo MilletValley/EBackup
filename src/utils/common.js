@@ -1,6 +1,8 @@
 const applyFilterMethods = (originData, methods) =>
   methods.reduce((a, b) => a.filter(b), originData);
 
+const keepTwoDecimalFull = num =>
+  Math.round(num * 100) / 100;
 
 const fmtSizeFn = num => {
   let size = null;
@@ -12,15 +14,15 @@ const fmtSizeFn = num => {
     return `${num}B`;
   }
   if (process < 1024) {
-    size = `${Math.round(process)}K`;
+    size = `${keepTwoDecimalFull(process)}K`;
   } else {
     const res = process / 1024 / 1024;
     if (res < 1) {
-      size = `${Math.round(res * 1024)}M`;
+      size = `${keepTwoDecimalFull(res * 1024)}M`;
     } else if (res > 1024) {
-      size = `${Math.round(res / 1024)}T`;
+      size = `${keepTwoDecimalFull(res / 1024)}T`;
     } else {
-      size = `${Math.round(res)}G`;
+      size = `${keepTwoDecimalFull(res)}G`;
     }
   }
   return size;

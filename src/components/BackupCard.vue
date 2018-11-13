@@ -303,7 +303,7 @@ export default {
         // const num = size.match(/\d+(\.\d+)?/);
         // fmtSize = this.progressNum * Number(size) / 100;
         // fmtSize = fmtSizeFn(fmtSize);
-        fmtSize = fmtSizeFn(Math.round(Number(size)));
+        fmtSize = fmtSizeFn(Number(size));
       }
       return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
     },

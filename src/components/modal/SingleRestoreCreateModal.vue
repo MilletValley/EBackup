@@ -179,7 +179,7 @@ export default {
       if(!size)
         return '-'
       else
-      return fmtSizeFn(Math.round(size/1024));
+      return fmtSizeFn(Number(size));
     }
   },
   methods: {
