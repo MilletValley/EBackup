@@ -164,9 +164,6 @@ export default {
       this.$refs.itemUpdateForm.validate(valid => {
         if (valid) {
           let data = {...this.formData};
-          if(!(data.osName === 'Windows' && data.databaseType === 2)){
-            delete data.windowsType
-          }
           this.$emit('confirm', data);
         } else {
           return false;
