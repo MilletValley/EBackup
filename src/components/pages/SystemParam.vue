@@ -109,9 +109,10 @@
           <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
           <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
           <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
+          <el-radio v-model="formData.useType" :label="7">达梦数据库</el-radio>
           <el-radio v-model="formData.useType" :label="3">文件</el-radio>
           <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
-          <el-radio v-model="formData.useType" :label="7">达梦数据库</el-radio>
+          
         </el-form-item>
         <el-form-item label="Windows系统版本"
                       v-if="formData.sysType === 1 && formData.useType === 2"
@@ -124,7 +125,7 @@
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
         <el-form-item label="路径"
-                      v-if="formData.sysType === 2 && formData.useType ===3"
+                      v-if="formData.sysType === 2 && (formData.useType ===3 || formData.useType === 7)"
                       prop="mountUrl">
           <el-input v-model="formData.mountUrl"></el-input>
         </el-form-item>
@@ -189,7 +190,7 @@
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
         <el-form-item label="路径"
-                      v-if="formData.sysType === 2 && formData.useType===3"
+                      v-if="formData.sysType === 2 && (formData.useType===3 || formData.useType === 7)"
                       prop="mountUrl">
           <el-input v-model="formData.mountUrl"></el-input>
         </el-form-item>
