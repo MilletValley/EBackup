@@ -83,6 +83,14 @@ const fetchBackupOperation = (type, id) =>
   baseApi.request({
     method: 'get',
     url: `/${type}-backup-plans/${id}`,
+  }).then(res => {
+    if (res.data.data.config) {
+      const { timePoints } = res.data.data.config;
+      if (timePoints) {
+        res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      }
+    }
+    return res;
   });
 
 const createSingleRestorePlan = (type, { id, data }) =>
@@ -167,6 +175,14 @@ const fetchRestoreOperation = (type, id) =>
   baseApi.request({
     method: 'get',
     url: `/${type}-restore-plans/${id}`,
+  }).then(res => {
+    if (res.data.data.config) {
+      const { timePoints } = res.data.data.config;
+      if (timePoints) {
+        res.data.data.config.timePoints = timePoints2Obj(timePoints);
+      }
+    }
+    return res;
   });
 
 export {

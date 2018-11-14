@@ -61,32 +61,11 @@ const detailPageMixin = {
       },
 
       updateResults: this.throttleMethod(() => {
-        fetchBackupResults(this.type, this.id)
-          .then(res => {
-            const { data: result } = res.data;
-            this.results = result;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
+        this.getBackupResults();
       }),
       updateRestorePlanAndRecords: this.throttleMethod(() => {
-        fetchRestorePlans(this.type, this.id)
-          .then(res => {
-            const { data: restorePlans } = res.data;
-            this.restorePlans = restorePlans;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-        fetchRestoreRecords(this.type, this.id)
-          .then(res => {
-            const { data: restoreRecords } = res.data;
-            this.restoreRecords = restoreRecords;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
+        this.getRestorePlans();
+        this.getRestoreRecords();
       }),
       // selectedBackupPlanId: -1,
       // TODO: 暂时使用一个data变量存储选择的计划id，也许有更优雅的实现方式
@@ -94,17 +73,18 @@ const detailPageMixin = {
         fetchBackupOperation(this.type, id)
           .then(response => {
             const { data } = response.data;
-            const { state, startTime, consume, size } = data;
+            // const { state, startTime, consume, size } = data;
             Object.assign(
               this.backupPlans.find(
                 plan => plan.id === id
               ),
-              {
-                state,
-                startTime,
-                consume,
-                size,
-              }
+              data
+              // {
+              //   state,
+              //   startTime,
+              //   consume,
+              //   size,
+              // }
             );
           })
           .catch(error => {
@@ -116,16 +96,17 @@ const detailPageMixin = {
         fetchRestoreOperation(this.type, id)
           .then(response => {
             const { data } = response.data;
-            const { state, startTime, consume } = data;
+            // const { state, startTime, consume } = data;
             Object.assign(
               this.restorePlans.find(
                 plan => plan.id === id
               ),
-              {
-                state,
-                startTime,
-                consume,
-              }
+              data
+              // {
+              //   state,
+              //   startTime,
+              //   consume,
+              // }
             );
           })
           .catch(error => {
