@@ -13,12 +13,16 @@ import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMwareList from '@/components/pages/VmwareList';
 import VMwareDetail from '@/components/pages/VMwareDetail';
-import FileHostList from '@/components/pages/FileHostList';
-import FileHostDetail from '@/components/pages/FileHostDetail';
+// import FileHostList from '@/components/pages/FileHostList';
+import FileHostList from '@/components/pages/fileHost/FileHostList';
+import FileHostDetail from '@/components/pages/fileHost/FileHostDetail';
+// import FileHostDetail from '@/components/pages/FileHostDetail';
 import MySqlList from '@/components/pages/MySqlList';
 import MySqlDetail from '@/components/pages/MySqlDetail';
 import DB2List from '@/components/pages/DB2List';
 import DB2Detail from '@/components/pages/DB2Detail';
+import DamengList from '@/components/pages/dm/DamengList';
+import DamengDetails from '@/components/pages/dm/DamengDetails';
 import SwitchList from '@/components/pages/SwitchList';
 import SwitchDetail from '@/components/pages/SwitchDetail';
 import NoFound from '@/components/pages/NoFound';
@@ -88,7 +92,7 @@ export const asyncRouters = [
     meta: {
       title: '一键接管',
       icon: 'takeover',
-      roles: ['oracle dba', 'sqlserver dba'],
+      roles: ['oracle dba', 'sql server dba'],
     },
     children: [
       {
@@ -97,7 +101,7 @@ export const asyncRouters = [
         component: TakeOver,
         meta: {
           title: '总览',
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -115,7 +119,7 @@ export const asyncRouters = [
         name: 'sqlserverTakeOverView',
         component: TakeOver,
         meta: {
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -134,7 +138,7 @@ export const asyncRouters = [
         component: SwitchList,
         meta: {
           title: '灾备演练',
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -152,7 +156,7 @@ export const asyncRouters = [
         name: 'oracleSwitchDetail',
         component: SwitchDetail,
         meta: {
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -230,7 +234,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sqlserver dba', 'mysql dba', 'db2 dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba'],
     },
     children: [
       {
@@ -287,7 +291,7 @@ export const asyncRouters = [
         name: 'sqlserverTakeOver',
         component: TakeOver,
         meta: {
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -310,7 +314,7 @@ export const asyncRouters = [
         props: true,
         component: DatabaseLinkDetail,
         meta: {
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -356,7 +360,7 @@ export const asyncRouters = [
         component: SqlServerList,
         meta: {
           title: 'SQL Server',
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -408,6 +412,47 @@ export const asyncRouters = [
         },
       },
       {
+        path: 'dameng',
+        name: 'DamengList',
+        component: DamengList,
+        meta: {
+          title: '达梦',
+          roles: ['dameng dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '达梦数据库列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'dameng/:id',
+        props: true,
+        component: DamengDetails,
+        meta: {
+          roles: ['dameng dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '达梦数据库列表',
+              path: '/db/dameng',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
@@ -436,7 +481,7 @@ export const asyncRouters = [
         component: SqlServerDetail,
         name: 'sqlserverDetail',
         meta: {
-          role: 'sqlserver dba',
+          role: 'sql server dba',
           breadcrumb: [
             {
               name: '首页',

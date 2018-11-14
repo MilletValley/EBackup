@@ -120,7 +120,7 @@
               </div>
             </li>
             <li>
-              <h5>计划开始时间</h5>
+              <h5>计划创建时间</h5>
               <div>{{plan.createTime || '计划未开始'}}</div>
             </li>
             <li>

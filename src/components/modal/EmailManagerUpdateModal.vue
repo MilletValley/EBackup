@@ -9,6 +9,7 @@
       <el-form :model="formData"
           label-width="110px"
           ref="formData"
+          :rules="rules"
           size="small">
         <el-form-item label="主机名"
                       prop="mailHost">
@@ -51,12 +52,34 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
+import {
+  validateLength60,
+  validateLength100
+ } from '../../utils/common';
 export default {
   name: 'EmailManagerUpdateModal',
   data() {
+    const rules = {
+      mailHost: [
+        { validator: validateLength60, triggle: 'blur' },
+        { required: true, message: '请输入邮件服务器主机名', triggle: 'blur' }
+      ],
+      mailTransportProtocol: [
+        { required: true, message: '请选择邮件协议', triggle: 'blur' }
+      ],
+      emailLoginName: [
+        { required: true, message: '请输入登录名', triggle: 'blur' },
+        { validator: validateLength100, triggle: 'blur' }
+      ],
+      emailPassword: [
+        { required: true, message: '请输入登录密码', triggle: 'blur' },
+        { validator: validateLength100, triggle: 'blur' }
+      ]
+    }
     return {
       formData: {},
       originFormData: {},
+      rules,
       hiddenPassword: true
     }
   },

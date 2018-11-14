@@ -1,3 +1,4 @@
+import { fmtSizeFn } from '@/utils/common';
 import {
   linkStateMapping,
   databaseStateMapping,
@@ -131,6 +132,10 @@ const DashboardTab = {
     },
     linkTypeConverter(state) { // 连接状态
       return linkStateMapping[state];
+    },
+    sizeFormatter(row, column, cellValue) {
+      const size = fmtSizeFn(cellValue);
+      return size || '-';
     },
     stateTagType(state) { // 主备库el-tag类型
       switch (Number(state)) {

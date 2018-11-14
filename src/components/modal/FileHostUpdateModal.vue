@@ -10,7 +10,7 @@
         <span style="color: #999999">（ID: {{formData.id}}）</span>
       </span>
       <el-form :model="formData"
-               :rules="rules"
+               :rules="fileHostRules"
                label-width="110px"
                ref="itemUpdateForm"
                size="small">

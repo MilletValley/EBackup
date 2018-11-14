@@ -7,6 +7,9 @@ const baseMixin = {
       const h = Math.floor(value / hourSeconds);
       const m = Math.floor((value % hourSeconds) / minuteSeconds);
       const s = value % minuteSeconds;
+      if (!h && !m && !s) {
+        return '0秒';
+      }
       return `${h ? `${h}小时` : ''}${m ? `${m}分` : ''}${s ? `${s}秒` : ''} `;
     },
   },

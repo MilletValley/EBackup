@@ -158,9 +158,9 @@ export default {
       this.$emit('switchpane', name);
     },
     // 更新备份计划后的cb
-    backupPlanUpdated(data) {
-      this.$emit('backupplan:update', this.selectedBackupPlanIndex, data);
-    },
+    // backupPlanUpdated(data) {
+    //   this.$emit('backupplan:update', this.selectedBackupPlanIndex, data);
+    // },
     // 选择一个备份计划 点击计划编辑按钮时调用
     selectBackupPlan(planId) {
       this.$emit('select-backup-plan', planId);
