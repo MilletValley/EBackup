@@ -13,14 +13,14 @@
                       :key="ts.code">{{ ts.value }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="计划开始时间"
+        <el-form-item label="计划创建时间"
                       v-show="[1,2,3,4,5].includes(formData.timeStrategy)"
                       prop="startTime">
           <el-date-picker v-model="formData.startTime"
                           format="yyyy-MM-dd HH:mm:ss"
                           value-format="yyyy-MM-dd HH:mm:ss"
                           type="datetime"
-                          placeholder="选择计划开始时间">
+                          placeholder="选择计划创建时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="时间点"

@@ -36,7 +36,7 @@
       <el-col :span="18">
         <el-form label-width="100px"
                  size="mini">
-          <el-form-item label="计划开始时间"
+          <el-form-item label="计划创建时间"
                         v-if="restoreConfig.timeStrategy !== 1"
                         :style="{ width: '100%'}">
             <span>{{ restoreConfig.startTime }}</span>

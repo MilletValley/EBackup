@@ -15,7 +15,8 @@ import VMwareList from '@/components/pages/VmwareList';
 import VMwareDetail from '@/components/pages/VMwareDetail';
 // import FileHostList from '@/components/pages/FileHostList';
 import FileHostList from '@/components/pages/fileHost/FileHostList';
-import FileHostDetail from '@/components/pages/FileHostDetail';
+import FileHostDetail from '@/components/pages/fileHost/FileHostDetail';
+// import FileHostDetail from '@/components/pages/FileHostDetail';
 import MySqlList from '@/components/pages/MySqlList';
 import MySqlDetail from '@/components/pages/MySqlDetail';
 import DB2List from '@/components/pages/DB2List';
@@ -206,6 +207,7 @@ export const asyncRouters = [
         path: ':id',
         component: FileHostDetail,
         props: true,
+        name: 'filehostDetail',
         meta: {
           roles: ['file admin'],
           breadcrumb: [
@@ -454,6 +456,7 @@ export const asyncRouters = [
         path: 'oracle/:id',
         props: true,
         component: OracleDetail,
+        name: 'oracleDetail',
         meta: {
           roles: ['oracle dba'],
           breadcrumb: [
@@ -476,6 +479,7 @@ export const asyncRouters = [
         path: 'sqlserver/:id',
         props: true,
         component: SqlServerDetail,
+        name: 'sqlserverDetail',
         meta: {
           role: 'sql server dba',
           breadcrumb: [
@@ -498,6 +502,7 @@ export const asyncRouters = [
         path: 'mysql/:id',
         props: true,
         component: MySqlDetail,
+        name: 'mysqlDetail',
         meta: {
           roles: ['mysql dba'],
           breadcrumb: [
@@ -520,6 +525,7 @@ export const asyncRouters = [
         path: 'db2/:id',
         props: true,
         component: DB2Detail,
+        name: 'db2Detail',
         meta: {
           roles: ['db2 dba'],
           breadcrumb: [
@@ -600,6 +606,7 @@ export const asyncRouters = [
         path: 'virtual/:id',
         props: true,
         component: VMwareDetail,
+        name: 'virtualDetail',
         meta: {
           roles: ['vm admin'],
           breadcrumb: [
@@ -622,6 +629,7 @@ export const asyncRouters = [
         path: 'hwVirtual/:id',
         props: true,
         component: VMwareDetail,
+        name: 'hwVirtualDetail',
         meta: {
           roles: ['vm admin'],
           breadcrumb: [

@@ -7,7 +7,7 @@
                @close="modalClosed">
       <span slot="title">
 				{{title}}
-				<!-- <span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span> -->
+				<span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span>
       </span>
       <el-form :model="formData"
                label-width="110px"
@@ -19,23 +19,28 @@
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
+        <el-form-item label="备份路径"
+                      :rules="{required: true, message: '请输入备份路径', trigger: 'blur'}"
+                      prop="backupPath">
+          <el-input v-model="formData.backupPath"></el-input>
+        </el-form-item>
         <el-form-item label="备份策略"
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
-            <el-radio :label="0">全备</el-radio>
+            <!-- <el-radio :label="0">全备</el-radio> -->
 						<el-radio :label="1">全备+增备</el-radio>
           </el-radio-group>
         </el-form-item>
-				<el-form-item label="日志策略"
-                      prop="logStrategy">
-						<el-radio v-model="formData.logStrategy"
-                    :label="1">备份日志</el-radio>
-						<el-radio v-model="formData.logStrategy"
-                    :label="2">不备份日志</el-radio>
-        </el-form-item>
 				<!-- 时间策略 -->
 				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent"></time-strategy>
+        <el-form-item label="是否备份系统"
+                      prop="backupSys"
+                      v-if="type === 'windows'">
+          <el-switch v-model="formData.backupSystem"
+                     active-value="sys"
+                     inactive-value="nosys"></el-switch>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary" v-if="action !== 'query'"
@@ -55,6 +60,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import validate from '@/utils/validate';
 const baseFormData = {
   name: '',
+  backupPath: '',
+  backupSystem: 'nosys',
   startTime: '',
   singleTime: '',
   datePoints: [],
@@ -63,7 +70,6 @@ const baseFormData = {
   hourInterval: 1,
   minuteInterval: 10,
   backupStrategy: 1,
-  logStrategy: 1,
   timeStrategy: 0,
 };
 export default {
@@ -72,9 +78,14 @@ export default {
   components: {
     TimeStrategy,
   },
+  props: {
+    type: {
+      type: String
+    }
+  },
   data() {
     return {
-      type: 'dm',
+      // type: 'dm',
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
@@ -98,6 +109,12 @@ export default {
               if (this.action === 'update') {
                 data.id = this.backupPlan.id;
                 data.config.id = this.backupPlan.config.id;
+              }
+              const {backupPath, backupSystem} = this.formData
+              if (this.type === 'windows') {
+                data = Object.assign({}, data, {backupPath, backupSystem})
+              } else if (this.type === 'linux') {
+                data = Object.assign({}, data, {backupPath})
               }
               this.$emit('confirm', data, this.action);
             }
@@ -143,7 +160,7 @@ export default {
       console.log(this.formData);
     },
     modalClosed() {
-      // this.formData = { ...baseFormData };
+      this.formData = { ...baseFormData };
       this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.createForm.clearValidate();
     },

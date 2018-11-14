@@ -111,12 +111,14 @@
     </backup-plan-modal>
 
     <restore-plan-modal   :btn-loading="btnLoading"
-                            :visible.sync="restorePlanModalVisible"
-                            @confirm="restoreConfirmCallback"
-                            :action="restoreAction"
-                            :restore-plan="selectedRestorePlan">
+                          :details="details"
+                          :visible.sync="restorePlanModalVisible"
+                          @confirm="restoreConfirmCallback"
+                          :action="restoreAction"
+                          :restore-plan="selectedRestorePlan">
     </restore-plan-modal>
     <single-restore-modal   :btn-loading="btnLoading"
+                            :details="details"
                             :result-id="selectedBackupResultId"
                             :visible.sync="singleRestoreCreateModalVisible"
                             @confirm="singleConfirmCallback">

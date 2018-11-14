@@ -182,8 +182,9 @@ export default {
     filterToTime(date) {
       if(!date)
         return '-'
-      return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
-             new Date(parseInt(date)).toTimeString().substr(0, 8)
+      // return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
+      //        new Date(parseInt(date)).toTimeString().substr(0, 8)
+      return date.format('YYYYMMDDHHmmss');
     },
     // 单位：b->tb
     filterToTb(size) {

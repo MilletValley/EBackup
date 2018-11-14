@@ -1,6 +1,7 @@
 <template>
   <el-dialog custom-class="min-width-dialog"
              :before-close="beforeModalClose"
+             @open="modalOpened"
              @close="modalClosed"
              :visible.sync="modalVisible">
     <span slot="title">
@@ -121,6 +122,11 @@ export default {
       this.$refs.singleRestorePlanForm.clearValidate();
       this.hiddenPassword = true;
     },
+    modalOpened() {
+      const {dbName, dbPort} = this.details;
+      this.originFormData = Object.assign({}, baseFormData, {dbName, dbPort});
+      this.formData = Object.assign({}, this.originFormData);
+    }
   },
 };
 </script>

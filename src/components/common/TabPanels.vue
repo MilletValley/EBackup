@@ -24,26 +24,10 @@
           </el-form-item>
 
         </el-form>
-        <!-- <backup-card :id="plan.id"
-                     :type="type"
-                     v-for="plan in filteredBackupPlans"
-                     :key="plan.id"
-                     :backupPlan="plan"
-                     @refresh="backupPlanRefresh"
-                     @deletePlan="backupPlanDeleted"
-                     @updatePlan="selectBackupPlan(plan.id)"></backup-card> -->
         <!-- 备份计划面板 -->
         <slot name="backupCard"></slot>
 
         <template v-if="!isFileBackupResult">
-          <!-- <restore-card :id="plan.id"
-                        :type="type"
-                        v-for="plan in filteredRestorePlans"
-                        :key="plan.id"
-                        :restore-plan="plan"
-                        @refresh="restorePlanRefresh"
-                        @deletePlan="restorePlanDeleted"
-                        @updatePlan="selectRestorePlan(plan.id)"></restore-card> -->
           <!-- 恢复计划面板 -->
           <slot name="restoreCard"></slot>             
         </template>
@@ -56,23 +40,13 @@
                  :class="$style.filteFrorm"
                  style="text-align: right;">
           <el-form-item :class="$style.filterFormItem">
-            <!-- <el-button size="medium"
-                       type="text"
-                       @click="this.$emit('result:refresh')">刷新</el-button> -->
           </el-form-item>
         </el-form>
-        <!-- <backup-result-list :type="type"
-                            :data="results"
-                            @single-restore-btn-click="singleRestoreBtnClick"></backup-result-list> -->
         <!-- 备份集列表-->
         <slot name="backupResult"></slot>
       </el-tab-pane>
       <el-tab-pane label="恢复记录"
                    name="restore">
-        <!-- <restore-records :type="type"
-                         :plans="ongoingRestorePlan"
-                         :records="restoreRecords"
-                         @restoreinfo:refresh="$emit('restoreinfo:refresh')"></restore-records> -->
         <!-- 恢复记录列表-->
         <slot name="restoreRecord"></slot>                
       </el-tab-pane>
@@ -90,50 +64,21 @@ export default {
   props: {
     planFilterForm: {
       type: Object
+    },
+    type: {
+      type: String
     }
   },
   data() {
     return {
       activeTab: 'plans', // 激活的tab页
-      // 备份计划筛选条件
-      // planFilterForm: {
-      //   hiddenCompletePlan: false,
-      //   planType: 'backup',
-      // },
       // 恢复计划筛选条件
       restorePlanFilterForm: {
         hiddenCompletePlan: false,
       },
-      //备份集筛选条件
-      bakupResultFilterForm: {},
     };
   },
   computed: {
-    // 筛选后得备份计划
-    filteredBackupPlans() {
-      if (this.planFilterForm.planType !== 'backup') {
-        return [];
-      }
-      const filterMethods = [];
-      if (this.planFilterForm.hiddenCompletePlan) {
-        filterMethods.push(plan => plan.state !== 2);
-      }
-      return applyFilterMethods(this.backupPlans, filterMethods);
-    },
-    filteredRestorePlans() {
-      if (this.planFilterForm.planType !== 'restore') {
-        return [];
-      }
-      const filterMethods = [];
-      if (this.planFilterForm.hiddenCompletePlan) {
-        filterMethods.push(plan => plan.state !== 2);
-      }
-      return applyFilterMethods(this.restorePlans, filterMethods);
-    },
-    // 正在进行中的恢复计划
-    ongoingRestorePlan() {
-      return this.restorePlans.filter(plan => plan.state === 1);
-    },
     isFileBackupResult() {
       return this.type === 'windows' || this.type === 'linux';
     },
@@ -141,40 +86,6 @@ export default {
   methods: {
     switchPane({ name }) {
       this.$emit('switchpane', name);
-    },
-    // 更新备份计划后的cb
-    // backupPlanUpdated(data) {
-    //   this.$emit('backupplan:update', this.selectedBackupPlanIndex, data);
-    // },
-    // 选择一个备份计划 点击计划编辑按钮时调用
-    selectBackupPlan(planId) {
-      this.$emit('select-backup-plan', planId);
-    },
-    // 选择一个恢复计划 点击计划编辑按钮时调用
-    selectRestorePlan(planId) {
-      this.$emit('select-restore-plan', planId);
-    },
-    // 删除一个备份计划
-    backupPlanDeleted(planId) {
-      this.$emit('backupplan:delete', planId);
-    },
-    // 添加一个单次恢复后得cb
-    singleRestoreAdded(restorePlan) {
-      this.$emit('restoreplan:add', restorePlan);
-    },
-    restorePlanDeleted(planId) {
-      this.$emit('restoreplan:delete', planId);
-    },
-    // 刷新单个备份计划
-    backupPlanRefresh(backupplanId) {
-      this.$emit('backupplan:refresh', backupplanId);
-    },
-    restorePlanRefresh(planId) {
-      this.$emit('restoreplan:refresh', planId);
-    },
-    // 备份集中点击恢复按钮
-    singleRestoreBtnClick(id) {
-      this.$emit('single-restore-btn-click', id);
     },
   },
   components: {

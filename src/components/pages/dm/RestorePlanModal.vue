@@ -165,7 +165,8 @@ export default {
           this.fmtData({ ...this.restorePlan })
         );
       } else {
-        this.originFormData = Object.assign({}, baseFormData);
+        const {dbName, dbPort} = this.details;
+        this.originFormData = Object.assign({}, baseFormData, {dbName, dbPort});
       }
       this.formData = Object.assign({}, this.originFormData);
       console.log(this.formData);

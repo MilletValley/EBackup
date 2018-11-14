@@ -10,6 +10,11 @@ const backupResultMapping = {
   1: '失败',
 };
 
+const restoreResultMapping = {
+  0: '成功',
+  1: '失败'
+};
+
 const backupStrategyMapping = {
   0: '全备',
   1: '全备+增备',
@@ -168,6 +173,38 @@ const yesOrNoMapping = {
   2: '否'
 };
 
+// 首页备份恢复表格的信息(不含虚拟机)
+const dbTypeMapping = {
+  1: 'oracle',
+  2: 'sqlserver',
+  3: 'mysql',
+  4: 'db2',
+  5: '达梦'
+};
+// 首页数据库详情路由(不含虚拟机)
+const dbDetailRouterMapping = {
+  1: 'oracleDetail',
+  2: 'sqlserverDetail',
+  3: 'mysqlDetail',
+  4: 'db2Detail',
+  // 5: 'dmDetail'
+};
+// 首页数据库一键接管
+const dbTakeOverRouterMapping = {
+  1: 'oracleLinkDetail',
+  2: 'sqlserverLinkDetail'
+};
+
+// 首页虚拟机详情路由
+const vmDetailRouterMapping = {
+  1: 'virtualDetail',
+  2: 'hwVirtualDetail'
+};
+
+const vmTypeMapping = {
+  1: 'VMware',
+  2: '华为虚拟机'
+};
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -175,6 +212,7 @@ export {
   timeStrategyMapping,
   weekMapping,
   backupResultMapping,
+  restoreResultMapping,
   restoreTimeStrategyMapping,
   recoveringStrategyMapping,
   databaseStateMapping,
@@ -194,5 +232,10 @@ export {
   serviceIpMarkMapping,
   vmHostServerTypeMapping,
   backupTypeMapping,
+  dbTypeMapping,
+  dbDetailRouterMapping,
+  dbTakeOverRouterMapping,
+  vmDetailRouterMapping,
+  vmTypeMapping,
   yesOrNoMapping
 };

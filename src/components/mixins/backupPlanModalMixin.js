@@ -143,6 +143,8 @@ const backupPlanModalMixin = {
         timePoints,
         hourInterval,
         minuteInterval,
+        backupPath,
+        backupSystem,
         ...other
       } = formData;
       let config;
@@ -212,6 +214,9 @@ const restorePlanModalMixin = {
     },
     action: {
       type: String
+    },
+    details: {
+      type: Object
     }
   },
   data() {
