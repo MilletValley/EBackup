@@ -58,23 +58,34 @@
                  query: { activeName: activeName }})">MORE</el-button>
       <el-tabs type="border-card"
                v-model="activeName"
-               @tab-click="tabClick"
                :before-leave="beforeTabLeave">
         <el-tab-pane label="数据库备份"
                      name="databaseBackup">
-          <el-table :data="filterTableData"
-                    @filter-change="stateFilterChange"
+          <el-table :data="databaseBackup"
                     ref="databaseBackup"
                     style="width: 100%">
-            <el-table-column prop="ascription"
-                             label="名称"
+            <el-table-column label="名称"
                              show-overflow-tooltip
                              align="center"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.ascription }}
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column prop="name"
                              label="数据库名"
                              align="center"
                              show-overflow-tooltip
+                             min-width="100"></el-table-column>
+            <el-table-column label="数据库类型"
+                             align="center"
+                             prop="ddvType"
+                             :formatter="dbType"
+                             :filters="dbTypeFilter"
+                             :filter-method="filterHandle"
                              min-width="100"></el-table-column>
             <el-table-column label="备份结束时间"
                              align="center"
@@ -85,6 +96,7 @@
             </el-table-column>
             <el-table-column label="耗时"
                              align="center"
+                             show-overflow-tooltip
                              min-width="100">
               <template slot-scope="scope">
                 {{ scope.row.timeConsuming | durationFilter }}
@@ -96,8 +108,8 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
-                             :filters="filterState"
-                             column-key="databaseBackupState"
+                             :filters="filterBackupStateFilter"
+                             :filter-method="filterHandle"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
@@ -119,38 +131,51 @@
         </el-tab-pane>
         <el-tab-pane label="数据库恢复"
                      name="databaseRestore">
-          <el-table :data="filterTableData"
-                    @filter-change="stateFilterChange"
+          <el-table :data="databaseRestore"
                     ref="databaseRestore"
                     style="width: 100%">
-            <el-table-column prop="ascription"
-                             label="名称"
+            <el-table-column label="名称"
                              align="center"
                              show-overflow-tooltip
-                             min-width="180"></el-table-column>
+                             min-width="180">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.ascription }}
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column prop="name"
                              label="数据库名"
                              show-overflow-tooltip
                              align="center"
                              min-width="180"></el-table-column>
+            <el-table-column label="数据库类型"
+                             align="center"
+                             prop="ddvType"
+                             :formatter="dbType"
+                             :filters="dbTypeFilter"
+                             :filter-method="filterHandle"
+                             min-width="120"></el-table-column>
             <el-table-column label="恢复结束时间"
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
                 <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
-              </template>            
+              </template>
             </el-table-column>
             <el-table-column label="耗时"
                              align="center"
-                             min-width="180">
+                             min-width="180"
+                             show-overflow-tooltip>
               <template slot-scope="scope">
                 {{ scope.row.timeConsuming | durationFilter }}
               </template>
             </el-table-column>
-            <el-table-column label="恢复结果"
+            <el-table-column label="状态"
                              prop="restoreState"
-                             :filters="filterState"
-                             column-key="databaseRestoreState"
+                             :filters="filterRestoreStateFilter"
+                             :filter-method="filterHandle"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -166,22 +191,29 @@
         </el-tab-pane>
         <el-tab-pane label="一键接管"
                      name="initconnNum">
-          <el-table :data="filterTableData"
+          <el-table :data="initconnNum"
                     ref="initconnNum"
-                    @filter-change="stateFilterChange"
                     style="width: 100%">
-            <el-table-column prop="instanceName"
-                             label="实例名"
+            <el-table-column label="实例名"
                              show-overflow-tooltip
                              align="center"
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${dbTakeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.instanceName }}
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column prop="primaryHostIp"
                              label="主机IP"
                              align="center"
                              min-width="100"></el-table-column>
             <el-table-column label="主库状态"
                              align="center"
-                             min-width="100">
+                             min-width="100"
+                             :filters="dbStateFilter"
+                             :filter-method="filterHandle">
               <template slot-scope="scope">
                 <el-tag :type="stateTagType(scope.row.primaryState)"
                         size="mini">
@@ -195,6 +227,8 @@
                              min-width="100"></el-table-column>
             <el-table-column label="备库状态"
                              align="center"
+                             :filters="dbStateFilter"
+                             :filter-method="filterHandle"
                              min-width="100">
               <template slot-scope="scope">
                 <el-tag :type="stateTagType(scope.row.viceState)"
@@ -205,8 +239,8 @@
             </el-table-column>
             <el-table-column label="连接状态"
                              prop="overState"
-                             :filters="takeoverFilterState"
-                             column-key="initconnNumState"
+                             :filters="dbLinkStateFilter"
+                             :filter-method="filterHandle"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -227,15 +261,20 @@
         </el-tab-pane>
         <el-tab-pane label="文件备份"
                      name="filehostBackup">
-          <el-table :data="filterTableData"
-                    @filter-change="stateFilterChange"
+          <el-table :data="filehostBackup"
                     ref="filehostBackup"
                     style="width: 100%">
-            <el-table-column prop="ascription"
-                             label="名称"
+            <el-table-column label="名称"
                              align="center"
                              show-overflow-tooltip
-                             min-width="100"></el-table-column>
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.ascription }}
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column prop="name"
                              label="实例名"
                              show-overflow-tooltip
@@ -250,6 +289,7 @@
             </el-table-column>
             <el-table-column label="耗时"
                              align="center"
+                             show-overflow-tooltip
                              min-width="100">
               <template slot-scope="scope">
                 {{ scope.row.timeConsuming | durationFilter }}
@@ -261,8 +301,8 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
-                             :filters="filterState"
-                             column-key="filehostBackupState"
+                             :filters="filterBackupStateFilter"
+                             :filter-method="filterHandle"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
@@ -284,15 +324,20 @@
         </el-tab-pane>
         <el-tab-pane label="文件恢复"
                      name="filehostRestore">
-          <el-table :data="filterTableData"
-                    @filter-change="stateFilterChange"
+          <el-table :data="filehostRestore"
                     ref="filehostRestore"
                     style="width: 100%">
-            <el-table-column prop="ascription"
-                             label="名称"
+            <el-table-column label="名称"
                              show-overflow-tooltip
                              align="center"
-                             min-width="180"></el-table-column>
+                             min-width="180">
+              <template slot-scope="scope">
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.ascription }}
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column prop="name"
                              label="数据库名"
                              show-overflow-tooltip
@@ -307,15 +352,16 @@
             </el-table-column>
             <el-table-column label="耗时"
                              align="center"
+                             show-overflow-tooltip
                              min-width="180">
               <template slot-scope="scope">
                 {{ scope.row.timeConsuming | durationFilter }}
               </template>
             </el-table-column>
-            <el-table-column label="恢复结果"
+            <el-table-column label="状态"
                              prop="restoreState"
-                             :filters="filterState"
-                             column-key="filehostRestoreState"
+                             :filters="filterRestoreStateFilter"
+                             :filter-method="filterHandle"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -331,17 +377,30 @@
         </el-tab-pane>
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup">
-          <el-table :data="filterTableData"
-                    @filter-change="stateFilterChange"
+          <el-table :data="vmBackup"
                     ref="vmBackup"
                     style="width: 100%">
+            <el-table-column label="虚拟机名"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.name }}
+                </router-link>
+              </template>
+            </el-table-column>
             <el-table-column prop="ascription"
-                             label="名称"
+                             label="所属物理主机"
                              show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
-            <el-table-column prop="name"
-                             label="虚拟机名"
+            <el-table-column prop="ddvType"
+                             :formatter="vmType"
+                             :filters="vmTypeFilter"
+                             :filter-method="filterHandle"
+                             label="虚拟机类型"
                              show-overflow-tooltip
                              align="center"
                              min-width="100"></el-table-column>
@@ -354,6 +413,7 @@
             </el-table-column>
             <el-table-column label="耗时"
                              align="center"
+                             show-overflow-tooltip
                              min-width="100">
               <template slot-scope="scope">
                 {{ scope.row.timeConsuming | durationFilter }}
@@ -365,8 +425,8 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
-                             :filters="filterState"
-                             column-key="vmBackupState"
+                             :filters="filterBackupStateFilter"
+                             :filter-method="filterHandle"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
@@ -386,15 +446,76 @@
                              fixed="right"></el-table-column>
           </el-table>
         </el-tab-pane>
+        <el-tab-pane label="虚拟机恢复"
+                     name="vmRestore">
+          <el-table :data="vmRestore"
+                    ref="vmRestore"
+                    style="width: 100%">
+            <el-table-column label="虚拟机名"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="180">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.name }}
+                </router-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="ascription"
+                             label="所属物理主机"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="180"></el-table-column>
+            <el-table-column prop="ddvType"
+                             :formatter="vmType"
+                             :filters="vmTypeFilter"
+                             :filter-method="filterHandle"
+                             label="虚拟机类型"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="恢复结束时间"
+                             align="center"
+                             min-width="180">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+              </template>           
+            </el-table-column>
+            <el-table-column label="耗时"
+                             align="center"
+                             show-overflow-tooltip
+                             min-width="180">
+              <template slot-scope="scope">
+                {{ scope.row.timeConsuming | durationFilter }}
+              </template>
+            </el-table-column>
+            <el-table-column label="状态"
+                             prop="restoreState"
+                             :filters="filterRestoreStateFilter"
+                             :filter-method="filterHandle"
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <i v-if="scope.row.restoreState === 0"
+                  class="el-icon-success"
+                  style="color: #27ca27"></i>
+                <i v-else
+                  class="el-icon-error"
+                  style="color: #ca2727"></i>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </section>
 </template>
 <script>
 import { fetchAll } from '../../api/home';
-import { backupStrategyMapping, databaseTypeMapping } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
-import DashboardTab from '../mixins/DashboardTabMixins'
+import DashboardTab from '../mixins/DashboardTabMixins';
+import echartsLiquidfill from 'echarts-liquidfill';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -439,143 +560,439 @@ export default {
           error => Promise.reject(error);
         });
     },
-    tabClick() {
-      this.filterTableData = this.currentTableData;
+    calcPercent(success, fail) {
+      return ((success/(success+fail))*100).toFixed(2);
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
       let initConn = echarts.init(document.getElementById('initConn'));
-      restoreTotal.setOption({
-        tooltip: {
-            trigger: 'item',
-            formatter: "{a}{b} : {c} ({d}%)"
+      let backupOption = {
+        title: {
+          top: '55%',
+          left: 'center',
+          text: '',
+          textStyle: {
+            color: '#333',
+            fontStyle: 'normal',
+            fontWeight: 'normal',
+            fontSize: 14
+          },
+          subtext: '备份成功所占比例',
+          subtextStyle: {
+            color: '#666',
+            fontSize: 12
+          }
         },
-        series : [
+        legend: {
+          orient: 'vertical',
+          right: 'left',
+          data: ['成功', '失败']
+        },
+        color: ['#27ca27', '#aaa'],
+        tooltip: {
+          trigger: 'item',
+          formatter: function(res) {
+            if (res.componentSubType == 'liquidFill') {
+              return res.seriesName + ': ' + (res.value * 10000 / 100).toFixed(2) + '%';
+            } else {
+              return '<span class="ii" style="background:' + res.color + ' "></span>' + res.name +': '+ res.data.value + ' (' + res.percent + '%)<br/> ' +
+                     '<p>oracle: '+res.data.explain.oracle+'</p>'+
+                     '<p>sqlserver: '+res.data.explain.sqlserver+'</p>'+
+                     '<p>文件: '+res.data.explain.filehost+'</p>'+
+                     '<p>虚拟机: '+res.data.explain.vm+'</p>'
+            }
+          }
+        },
+        series: [
           {
-            name: '恢复',
-            type: 'pie',
-            radius: '80%',
-            center: ['50%','50%'],
-            data:[
-              {
-                value:this.total.totalRestoreNumSuccess,
-                name:'成功',
-                itemStyle: {
-                  color: '#27ca27'
-                }
-              },
-              {
-                value:this.total.totalRestoreNumFail,
-                name:'失败',
-                itemStyle: {
-                  color: '#ca2727'
-                }
-              }
-            ],
-            label:{
-              normal:{
-                show:true,
-                position:'inner',
-                formatter:'{c}\n',
-                length: 20,
-                textStyle: {
-                  fontWeight: 'normal',
-                  fontSize: 32,
-                }
+            type: 'liquidFill',
+            itemStyle: {
+              normal: {
+                opacity: 0.4,
+                shadowColor: 'blue'
               }
             },
+            radius: '60%',
+            name: '备份成功',
+            data: [{
+              value: (this.calcPercent(this.total.totalBackupNumSuccess, this.total.totalBackupNumFail))/100,
+              itemStyle: {
+                normal: {
+                  color: '#53d5ff',
+                  opacity: 0.6
+                }
+              }
+            }],
+            background: '#fff',
+            color: ['#53d5ff'],
+            center: ['50%', '50%'],
+            backgroundStyle: {
+                color: '#fff'
+            },
+            // label: {
+            //   normal: {
+            //     formatter: '',
+            //     textStyle: {
+            //         fontSize: 12
+            //     }
+            //   }
+            // },
+            outline: {
+              itemStyle: {
+                borderColor: '#86c5ff',
+                borderWidth: 0
+              },
+              borderDistance: 0
+            }
+          },
+          {
+            type: 'pie',
+            radius: ['60%', '70%'],
+            hoverAnimation: false, ////设置饼图默认的展开样式
+            // label: {
+            //   show: true,
+            //   normal: {
+            //     show: false,
+            //     position: 'center'
+            //   },
+            // },
             labelLine: {
+              normal: {
+                show: true
+              }
+            },
+            itemStyle: { // 此配置
+              normal: {
+                borderWidth: 2,
+                borderColor: '#ffffff',
+              },
+              emphasis: {
+                  borderWidth: 0,
+                  shadowBlur: 2,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            data: [
+            {
+              value: this.total.totalBackupNumSuccess,
+              name: '成功',
+              label: {
+                normal: {
+                  formatter: '{b} : {c}'+'\n'+'{d}%'
+                }
+              },
+              explain: {
+                'oracle': this.total.oracleBackupNumSuccess,
+                'sqlserver': this.total.sqlserverBackupNumSuccess,
+                'filehost': this.total.fileBackupNumSuccess,
+                'vm': this.total.vmBackupNumSuccess
+              }
+            },
+            {
+              value: this.total.totalBackupNumFail,
+              name: '失败',
+              label: {
+                normal: {
+                  formatter: '{b} : {c}'+'\n'+'{d}%'
+                }
+              },
+              explain: {
+                'oracle': this.total.oracleBackupNumFail,
+                'sqlserver': this.total.sqlserverBackupNumFail,
+                'filehost': this.total.fileBackupNumFail,
+                'vm': this.total.vmBackupNumFail
+              }
+            }]
+          }
+        ]
+      }
+      let restoreOption = {
+        title: {
+          top: '55%',
+          left: 'center',
+          text: '',
+          textStyle: {
+            color: '#333',
+            fontStyle: 'normal',
+            fontWeight: 'normal',
+            fontSize: 14
+          },
+          subtext: '恢复成功所占比例',
+          subtextStyle: {
+            color: '#666',
+            fontSize: 12
+          }
+        },
+        legend: {
+          orient: 'vertical',
+          right: 'left',
+          data: ['成功', '失败']
+        },
+        color: ['#27ca27', '#aaa'],
+        tooltip: {
+          trigger: 'item',
+          formatter: function(res) {
+            if (res.componentSubType == 'liquidFill') {
+              return res.seriesName + ': ' + (res.value * 10000 / 100).toFixed(2) + '%';
+            } else {
+              return '<span class="ii" style="background:' + res.color + ' "></span>' + res.name +': '+ res.data.value + ' (' + res.percent + '%)<br/> ' +
+                     '<p>oracle: '+res.data.explain.oracle+'</p>'+
+                     '<p>sqlserver: '+res.data.explain.sqlserver+'</p>'+
+                     '<p>文件: '+res.data.explain.filehost+'</p>'+
+                     '<p>虚拟机: '+res.data.explain.vm+'</p>'
+            }
+          }
+        },
+        series: [{
+          type: 'liquidFill',
+          itemStyle: {
             normal: {
-                show: false
+              opacity: 0.4,
+              shadowColor: 'blue'
             }
-        },
+          },
+          radius: '60%',
+          name: '恢复成功',
+          data: [{
+            value: (this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumFail))/100,
+            itemStyle: {
+              normal: {
+                color: '#53d5ff',
+                opacity: 0.6
+              }
+            }
+          }],
+          background: '#fff',
+          color: ['#53d5ff'],
+          center: ['50%', '50%'],
+          backgroundStyle: {
+              color: '#fff'
+          },
+          // label: {
+          //   normal: {
+          //     formatter: '',
+          //     textStyle: {
+          //         fontSize: 12
+          //     }
+          //   }
+          // },
+          outline: {
+            itemStyle: {
+              borderColor: '#86c5ff',
+              borderWidth: 0
+            },
+            borderDistance: 0
           }
-        ]
-      })
-      backupTotal.setOption({
-        tooltip: {
-            trigger: 'item',
-            formatter: "{a}{b} : {c} ({d}%)"
-        },
-        series : [
+          },
           {
-            name: '备份',
             type: 'pie',
-            radius: '80%',
-            center: ['50%','50%'],
-            data:[
-              {
-                value:this.total.totalBackupNumSuccess,
-                name:'成功',
-                itemStyle: {
-                  color: '#27ca27'
+            radius: ['60%', '70%'],
+            hoverAnimation: false, ////设置饼图默认的展开样式
+            // label: {
+            //   show: true,
+            //   normal: {
+            //     show: false,
+            //     position: 'center'
+            //   },
+            // },
+            labelLine: {
+              normal: {
+                show: true
+              }
+            },
+            itemStyle: { // 此配置
+              normal: {
+                borderWidth: 2,
+                borderColor: '#ffffff',
+              },
+              emphasis: {
+                  borderWidth: 0,
+                  shadowBlur: 2,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            data: [
+            {
+              value: this.total.totalRestoreNumSuccess,
+              name: '成功',
+              dataType: 1,
+              label: {
+                normal: {
+                  formatter: '{b} : {c}'+'\n'+'{d}%'
                 }
               },
-              {
-                value:this.total.totalBackupNumFail,
-                name:'失败',
-                itemStyle: {
-                  color: '#ca2727'
-                }
+              explain: {
+                'oracle': this.total.oracleRestoreNumSuccess,
+                'sqlserver': this.total.sqlserverRestoreNumSuccess,
+                'filehost': this.total.fileRestoreNumSuccess,
+                'vm': this.total.vmRestoreNumSuccess
               }
-            ],
-            label: {
-              normal:{
-                show:true,
-                position:'inner',
-                formatter:'{c}\n',
-                textStyle: {
-                  fontWeight: 'normal',
-                  fontSize: 32
-                }
-              }
-            }
-          }
-        ]
-      })
-      initConn.setOption({
-        tooltip: {
-            trigger: 'item',
-            formatter: "{a}{b} : {c} ({d}%)"
-        },
-        series : [
-          {
-            name: '一键接管',
-            type: 'pie',
-            radius: '80%',
-            center: ['50%','50%'],
-            data:[
-              {
-                value:this.total.initConnNumSuccess,
-                name:'正常',
-                itemStyle: {
-                  color: '#27ca27'
+            },
+            {
+              value: this.total.totalRestoreNumFail,
+              name: '失败',
+              label: {
+                normal: {
+                  formatter: '{b} : {c}'+'\n'+'{d}%'
                 }
               },
-              {
-                value:this.total.initConnNumFail,
-                name:'异常',
-                itemStyle: {
-                  color: '#ca2727'
-                }
+              explain: {
+                'oracle': this.total.oracleRestoreNumFail,
+                'sqlserver': this.total.sqlserverRestoreNumFail,
+                'filehost': this.total.fileRestoreNumFail,
+                'vm': this.total.vmRestoreNumFail
               }
-            ],
-            label: {
-              normal:{
-                show:true,
-                position:'inner',
-                formatter:'{c}\n',
-                textStyle: {
-                  fontWeight: 'normal',
-                  fontSize: 32
-                }
-              }
-            }
+            }]
           }
         ]
-      })
+      }
+      let initConnOption = {
+        title: {
+          top: '55%',
+          left: 'center',
+          text: '',
+          textStyle: {
+            color: '#333',
+            fontStyle: 'normal',
+            fontWeight: 'normal',
+            fontSize: 14
+          },
+          subtext: '接管成功所占比例',
+          subtextStyle: {
+            color: '#666',
+            fontSize: 12
+          }
+        },
+        legend: {
+          orient: 'vertical',
+          right: 'left',
+          data: ['成功', '失败']
+        },
+        color: ['#27ca27', '#aaa'],
+        tooltip: {
+          trigger: 'item',
+          formatter: function(res) {
+            if (res.componentSubType == 'liquidFill') {
+              return res.seriesName + ': ' + (res.value * 10000 / 100).toFixed(2) + '%';
+            } else {
+              return '<span class="ii" style="background:' + res.color + ' "></span>' + res.name +': '+ res.data.value + ' (' + res.percent + '%)<br/> '
+            }
+          }
+        },
+        series: [{
+          type: 'liquidFill',
+          itemStyle: {
+            normal: {
+              opacity: 0.4,
+              shadowColor: 'blue'
+            }
+          },
+          radius: '60%',
+          name: '接管成功',
+          data: [{
+            value: (this.calcPercent(this.total.initConnNumSuccess, this.total.initConnNumFail))/100,
+            itemStyle: {
+              normal: {
+                color: '#53d5ff',
+                opacity: 0.6
+              }
+            }
+          }],
+          background: '#fff',
+          color: ['#53d5ff'],
+          center: ['50%', '50%'],
+          backgroundStyle: {
+              color: '#fff'
+          },
+          // label: {
+          //   normal: {
+          //     formatter: '',
+          //     textStyle: {
+          //         fontSize: 12
+          //     }
+          //   }
+          // },
+          outline: {
+            itemStyle: {
+              borderColor: '#86c5ff',
+              borderWidth: 0
+            },
+            borderDistance: 0
+          }
+          },
+          {
+            type: 'pie',
+            radius: ['60%', '70%'],
+            hoverAnimation: false, ////设置饼图默认的展开样式
+            // label: {
+            //   show: true,
+            //   normal: {
+            //     show: false,
+            //     position: 'center'
+            //   },
+            // },
+            labelLine: {
+              normal: {
+                show: true
+              }
+            },
+            itemStyle: { // 此配置
+              normal: {
+                borderWidth: 2,
+                borderColor: '#ffffff',
+              },
+              emphasis: {
+                  borderWidth: 0,
+                  shadowBlur: 2,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            data: [
+            {
+              value: this.total.initConnNumSuccess,
+              name: '成功',
+              label: {
+                normal: {
+                  formatter: '{b} : {c}'+'\n'+'{d}%'
+                }
+              },
+            },
+            {
+              value: this.total.initConnNumFail,
+              name: '失败',
+              label: {
+                normal: {
+                  formatter: '{b} : {c}'+'\n'+'{d}%'
+                }
+              },
+            }]
+          }
+        ]
+      }
+      backupTotal.setOption(backupOption),
+      restoreTotal.setOption(restoreOption),
+      initConn.setOption(initConnOption),
+      backupTotal.on('click', params => {
+        // const success = backupOption.series[1].data[0].name;
+        // const error = backupOption.series[1].data[1].name;
+        if(params.name.includes('成功')) {
+          alert('备份成功');
+        } else if(params.name.includes('失败')) {
+          alert('备份失败');
+        } else {
+        }
+      }),
+      restoreTotal.on('click', params => {
+        // console.log(params)
+      }),
+      initConn.on('click', params => {
+        // console.log(params)
+      }),
       barChart.setOption({
         legend: {},
         tooltip: {},
@@ -619,6 +1036,11 @@ export default {
    },
 };
 </script>
+<style lang="scss" module>
+@import '../../style/common.scss';
+$success-color: rgba(145, 199, 174, 1);
+$error-color: rgba(212, 130, 101, 1);
+</style>
 <style scoped>
 .title {
   font-weight: 400;

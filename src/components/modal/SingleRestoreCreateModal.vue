@@ -164,14 +164,22 @@ export default {
     //   const path = this.$route.path;
     //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     // }
+    originPathInputLength() {
+    // this.$refs.originPathInput.$el.offsetWidth + 'px';
+    let tets = this.hiddenPassword
+    console.log(11)
+    return this.hiddenPassword;
+      console.log(this.$refs.originPathInput.$el.offsetWidth + 'px');
+    }
   },
   filters: {
     // 时间戳转日期
     filterToTime(date) {
       if(!date)
         return '-'
-      return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
-             new Date(parseInt(date)).toTimeString().substr(0, 8)
+      // return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
+      //        new Date(parseInt(date)).toTimeString().substr(0, 8)
+      return date.format('YYYYMMDDHHmmss');
     },
     // 单位：b->tb
     filterToTb(size) {
@@ -235,12 +243,13 @@ export default {
         if(this.$refs.outerTree) { // 源路径树形图宽度 = 源路径输入框宽度
           // 外层父元素渲染在最外层且存在padding值
           let treeParentNode = document.getElementById('outerTree').parentNode;
+          let singleRestoreForm = document.getElementById('outerTree');
           treeParentNode.style.paddingLeft = 0;
           treeParentNode.style.paddingRight = 0;
           this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
           const that = this;
-          window.onresize = function windowResize() {
-            treeParentNode&&(that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px');
+          singleRestoreForm.onresize = function singleRestoreFormResize() {
+            that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px';
           };
         }
       });
