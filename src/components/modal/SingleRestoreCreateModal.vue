@@ -95,7 +95,8 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
-                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' },
+                                 { validator: validateLength30, triggle: 'blur' }]"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
@@ -104,7 +105,8 @@
       <el-row v-if="isVMware">
         <el-form-item label="恢复磁盘名"
                       prop="diskName"
-                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
+                               { validator: validateLength30, triggle: 'blur' }]">
           <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
       </el-row>
@@ -117,8 +119,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="密码"
-                        prop="password"
-                        :rules="[{ required: true, message: '请输入登录密码', trigger: 'blur' },]">
+                        prop="password">
             <input-toggle v-model="formData.password"
                           :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
@@ -147,8 +148,7 @@ import dayjs from 'dayjs';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 import IIcon from '@/components/IIcon';
-import { fmtSizeFn } from '../../utils/common';
-
+import { fmtSizeFn, validateLength30 } from '../../utils/common';
 export default {
   name: 'SingleRestoreCreateModal',
   props: ['treeData', 'fileHostOriginPath'],
@@ -170,6 +170,13 @@ export default {
     //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     // }
   },
+  watch: {
+    '$store.state.nav.clientWidth'( val) {
+      if(this.$refs && this.$refs.originPathInput){
+        this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px'
+      }
+    }
+  },
   filters: {
     // 时间戳转日期
     filterToTime(date) {
@@ -183,7 +190,7 @@ export default {
       if(!size)
         return '-'
       else
-      return fmtSizeFn(Math.round(size/1024));
+      return fmtSizeFn(Number(size));
     }
   },
   methods: {
@@ -243,9 +250,6 @@ export default {
           treeParentNode.style.paddingRight = 0;
           this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
           const that = this;
-          window.onresize = function windowResize() {
-            treeParentNode&&(that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px');
-          };
         }
       });
       // if(this.isVMware){
@@ -268,7 +272,10 @@ export default {
         this.formData.originDetailInfo = '';
       }
       this.treeVisible = false;
-    }
+    },
+    validateLength30() {
+      return validateLength30;
+    },
   },
   components: {
     IIcon

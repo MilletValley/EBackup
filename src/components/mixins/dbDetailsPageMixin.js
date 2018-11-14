@@ -1,4 +1,6 @@
 import throttle from 'lodash/throttle';
+import dayjs from 'dayjs';
+import { applyFilterMethods } from '@/utils/common';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import TabPanels from '@/components/common/TabPanels';
@@ -51,6 +53,12 @@ const detailPageMixin = {
       selectedRestorePlan: {},
       singleRestoreCreateModalVisible: false,
       timer: null,
+      action: 'create',
+      restoreAction: 'create',
+      planFilterForm: {
+        hiddenCompletePlan: false,
+        planType: 'backup',
+      },
 
       updateResults: this.throttleMethod(() => {
         fetchBackupResults(this.type, this.id)
@@ -143,6 +151,27 @@ const detailPageMixin = {
     role() {
       if (!this.details || !this.detilas.role) return databaseRoleMapping[0];
       return databaseRoleMapping[this.details.role];
+    },
+    // 筛选后得备份计划
+    filteredBackupPlans() {
+      if (this.planFilterForm.planType !== 'backup') {
+        return [];
+      }
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.backupPlans, filterMethods).sort((a, b) => dayjs(b.createTime) - dayjs(a.createTime));
+    },
+    filteredRestorePlans() {
+      if (this.planFilterForm.planType !== 'restore') {
+        return [];
+      }
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.restorePlans, filterMethods).sort((a, b) => dayjs(b.createTime) - dayjs(a.createTime));
     },
   },
   methods: {

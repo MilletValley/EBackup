@@ -1,4 +1,11 @@
 import isEqual from 'lodash/isEqual';
+import {
+  validateLength20,
+  validateLength30,
+  validateLength40,
+  validateLength50,
+  validateLength80,
+} from '../../utils/common';
 
 const genModalMixin = type => {
   if (!['database', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(type)) {
@@ -107,24 +114,24 @@ const genModalMixin = type => {
         { value: 6, text: 'db2' },
         { value: 7, text: '达梦数据库' }
       ];
-      const options = [ // 区分oracle10G和11G
+      const ipFormat = [
         {
-          value: 1,
-          label: '10G'
-        }, {
-          value: 2,
-          label: '11G'
-        }
-      ];
-      const rules = {
-        name: [{
-          required: true,
-          message: '请输入名称',
-          trigger: 'blur'
+          pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
+          message: 'IP地址不正确',
+          trigger: 'blur',
         },
         {
-          max: 20,
-          message: '长度在20个字符以内',
+          validateLength30,
+          trigger: 'blur'
+        }];
+      const baseRules = {
+        loginName: [{
+          required: true,
+          message: `请输入${loginType[this.type]}登录账号`,
+          trigger: 'blur',
+        },
+        {
+          validator: validateLength20,
           trigger: 'blur'
         },
         {
@@ -133,6 +140,87 @@ const genModalMixin = type => {
           trigger: ['blur'],
         },
         ],
+        password: [{
+          required: true,
+          message: `请输入${loginType[this.type]}登录密码`,
+          trigger: 'blur',
+        },
+        {
+          validator: validateLength40,
+          trigger: 'blur'
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: ['blur'],
+        },
+        ],
+        hostIp: [{
+          required: true,
+          message: '请输入主机IP',
+          trigger: 'blur'
+        },
+        {
+          pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
+          message: 'IP地址不正确',
+          trigger: 'blur',
+        },
+        {
+          validator: validateLength20,
+          trigger: 'blur'
+        }],
+      };
+      const hostRules = { // 设备管理输入校验
+        name: [{
+          required: true,
+          message: '请输入设备名称',
+          trigger: 'blur'
+        },
+        {
+          validator: validateLength50,
+          trigger: 'blur',
+        },
+        {
+          pattern: '^[^\\s]*$',
+          message: '不能包含空格',
+          trigger: 'blur',
+        }],
+        hostIp: baseRules.hostIp,
+        serviceIp: ipFormat,
+        vip: ipFormat,
+        tempVip: ipFormat,
+        hostType: [{
+          required: true,
+          message: '请选择设备类型',
+          trigger: 'blur'
+        }],
+        osName: [{
+          required: true,
+          message: '请选择操作系统',
+          trigger: 'blur'
+        }],
+        oracleVersion: [{
+          required: true,
+          message: '请选择Oracle版本',
+          trigger: 'blur'
+        }],
+        storagePath: [{
+          required: true,
+          message: '请选择存储盘符',
+          trigger: 'change',
+        }],
+        loginName: baseRules.loginName,
+        password: baseRules.password
+      };
+      const rules = { // 数据库、虚拟机
+        name: [{
+          validator: validateLength50,
+          trigger: 'blur'
+        }],
+        dbVersion: [{
+          validator: validateLength80,
+          trigger: 'blur'
+        }],
         dbPort: [{
           required: true,
           message: '请输入端口号',
@@ -148,27 +236,6 @@ const genModalMixin = type => {
           message: '请选择设备',
           trigger: 'change'
         }],
-        hostIp: [{
-          required: true,
-          message: '请输入主机IP',
-          trigger: 'blur'
-        },
-        {
-          pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
-          message: 'IP地址不正确',
-          trigger: 'blur',
-        },
-        ],
-        serviceIp: [{
-          pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
-          message: 'IP地址不正确',
-          trigger: 'blur',
-        }],
-        hostType: [{
-          required: true,
-          message: '请选择设备类型',
-          trigger: 'blur'
-        }],
         databaseType: [{
           required: true,
           message: '请选择数据库类型',
@@ -182,8 +249,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          max: 20,
-          message: '长度在20个字符以内',
+          validator: validateLength40,
           trigger: 'blur',
         },
         {
@@ -192,85 +258,66 @@ const genModalMixin = type => {
           trigger: ['blur'],
         },
         ],
+        application: [
+          {
+            validator: validateLength30,
+            trigger: 'blur'
+          }
+        ],
+        loginName: baseRules.loginName,
+        password: baseRules.password,
+        hostIp: baseRules.hostIp,
+      };
+      // 文件服务器备份必填 0530反馈
+      const fileHostRules = {
         osName: [{
           required: true,
           message: '请选择操作系统',
           trigger: 'blur'
         }],
-        oracleVersion: [{
-          required: true,
-          message: '请选择Oracle版本',
-          trigger: 'blur'
-        }],
-        loginName: [{
-          required: true,
-          message: `请输入${loginType[this.type]}登录账号`,
-          trigger: 'blur',
-        },
-        {
-          length: 20,
-          message: '长度在20个字符以内',
-          trigger: 'blur'
-        },
-        {
-          pattern: '^[^\\s]*$',
-          message: '不能包含空格',
-          trigger: ['blur'],
-        },
-        ],
-        password: [{
-          required: true,
-          message: `请输入${loginType[this.type]}登录密码`,
-          trigger: 'blur',
-        },
-        {
-          pattern: '^[^\\s]*$',
-          message: '不能包含空格',
-          trigger: ['blur'],
-        },
-        ],
-        storagePath: [{
-          required: true,
-          message: '请输入存储盘符',
-          trigger: 'change',
-        }],
-      };
-      // 文件服务器备份必填 0530反馈
-      if (this.type === 'filehost') {
-        rules.osName = [{
-          required: true,
-          message: '请选择操作系统',
-          trigger: 'change'
-        }];
-        rules.hostName = [{
+        hostName: [{
           required: true,
           message: '请输入名称',
           trigger: 'blur'
         },
         {
-          max: 20,
-          message: '长度在20个字符以内',
+          validator: validateLength20,
           trigger: 'blur'
         },
         {
           pattern: '^[^\\s]*$',
           message: '不能包含空格',
           trigger: ['blur'],
-        },
-        ];
-      }
+        }],
+        application: [{
+          validator: validateLength20,
+          trigger: 'blur'
+        }],
+        hostIp: baseRules.hostIp,
+        loginName: baseRules.loginName,
+        password: baseRules.password
+      };
       return {
         originFormData: Object.assign({}, baseData[this.type]), // 原始值
         formData: Object.assign({}, baseData[this.type]),
         // trigger增加change更方便 但是再次打开modal会显示出验证结果
         // 猜测是因为初始化时，触发了change事件
-        rules,
         databaseUseType,
+        rules,
+        baseRules,
+        hostRules, // 设备校验规则
+        fileHostRules,
         hiddenPassword: true,
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
         isLoading: false,
-        options,
+        options: [{
+          value: 1,
+          label: '10G'
+        }, {
+          value: 2,
+          label: '11G'
+        }],
         words: [],
       };
     },

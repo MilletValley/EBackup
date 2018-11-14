@@ -13,7 +13,8 @@ import OracleDetail from '@/components/pages/OracleDetail';
 import SqlServerDetail from '@/components/pages/SqlServerDetail';
 import VMwareList from '@/components/pages/VmwareList';
 import VMwareDetail from '@/components/pages/VMwareDetail';
-import FileHostList from '@/components/pages/FileHostList';
+// import FileHostList from '@/components/pages/FileHostList';
+import FileHostList from '@/components/pages/fileHost/FileHostList';
 import FileHostDetail from '@/components/pages/FileHostDetail';
 import MySqlList from '@/components/pages/MySqlList';
 import MySqlDetail from '@/components/pages/MySqlDetail';
@@ -90,7 +91,7 @@ export const asyncRouters = [
     meta: {
       title: '一键接管',
       icon: 'takeover',
-      roles: ['oracle dba', 'sqlserver dba'],
+      roles: ['oracle dba', 'sql server dba'],
     },
     children: [
       {
@@ -99,7 +100,7 @@ export const asyncRouters = [
         component: TakeOver,
         meta: {
           title: '总览',
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -117,7 +118,7 @@ export const asyncRouters = [
         name: 'sqlserverTakeOverView',
         component: TakeOver,
         meta: {
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -136,7 +137,7 @@ export const asyncRouters = [
         component: SwitchList,
         meta: {
           title: '灾备演练',
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -154,7 +155,7 @@ export const asyncRouters = [
         name: 'oracleSwitchDetail',
         component: SwitchDetail,
         meta: {
-          roles: ['oracle dba', 'sqlserver dba'],
+          roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -231,7 +232,7 @@ export const asyncRouters = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sqlserver dba', 'mysql dba', 'db2 dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba'],
     },
     children: [
       {
@@ -288,7 +289,7 @@ export const asyncRouters = [
         name: 'sqlserverTakeOver',
         component: TakeOver,
         meta: {
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -311,7 +312,7 @@ export const asyncRouters = [
         props: true,
         component: DatabaseLinkDetail,
         meta: {
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -357,7 +358,7 @@ export const asyncRouters = [
         component: SqlServerList,
         meta: {
           title: 'SQL Server',
-          roles: ['sqlserver dba'],
+          roles: ['sql server dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -476,7 +477,7 @@ export const asyncRouters = [
         props: true,
         component: SqlServerDetail,
         meta: {
-          role: 'sqlserver dba',
+          role: 'sql server dba',
           breadcrumb: [
             {
               name: '首页',

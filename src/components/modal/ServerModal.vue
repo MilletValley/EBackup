@@ -61,6 +61,15 @@
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal';
+import {
+  validateLength10,
+  validateLength20,
+  validateLength30,
+  validateLength40,
+  validateLength50,
+  validateLength60,
+  validateLength100,
+} from '../../utils/common';
 
 export default {
   name: '',
@@ -96,6 +105,10 @@ export default {
             message: `请输入主机名`,
             trigger: 'blur',
           },
+          {
+            validator: validateLength30,
+            trigger: 'blur',
+          },
         ],
         hostName: [
           {
@@ -108,6 +121,10 @@ export default {
           {
             required: true,
             message: '请输入主机IP',
+            trigger: 'blur',
+          },
+          {
+            validator: validateLength20,
             trigger: 'blur',
           },
           {
@@ -124,8 +141,7 @@ export default {
             trigger: 'blur',
           },
           {
-            length: 20,
-            message: '长度在20个字符以内',
+            validator: validateLength30,
             trigger: 'blur',
           },
           {
@@ -138,6 +154,10 @@ export default {
           {
             required: true,
             message: `请输入主机登录密码`,
+            trigger: 'blur',
+          },
+          {
+            validator: validateLength30,
             trigger: 'blur',
           },
           {
