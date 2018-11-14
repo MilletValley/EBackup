@@ -10,7 +10,7 @@
         <span style="color: #999999">（ID: {{formData.id}}）</span>
       </span>
       <el-form :model="formData"
-               :rules="rules"
+               :rules="hostRules"
                label-width="110px"
                ref="itemUpdateForm"
                size="small">
@@ -160,9 +160,6 @@ export default {
       this.$refs.itemUpdateForm.validate(valid => {
         if (valid) {
           let data = {...this.formData};
-          if(!(data.osName === 'Windows' && data.databaseType === 2)){
-            delete data.windowsType
-          }
           this.$emit('confirm', data);
         } else {
           return false;

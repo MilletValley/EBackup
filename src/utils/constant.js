@@ -21,6 +21,11 @@ const backupStrategyMapping = {
   2: '全备+日志备份',
 };
 
+const logStrategyMapping = {
+  1: '备份日志',
+  2: '不备份日志'
+};
+
 const timeStrategyMapping = {
   0: '单次执行',
   1: '按分钟循环',
@@ -94,7 +99,8 @@ const useTypeMapping = {
   3: '文件',
   4: '虚拟机',
   5: 'mysql',
-  6: 'db2'
+  6: 'db2',
+  7: '达梦数据库'
 };
 
 const systemStateMapping = {
@@ -108,7 +114,8 @@ const databaseTypeMapping = {
   2: 'sqlserver',
   4: '虚拟机',
   5: 'mysql',
-  6: 'db2'
+  6: 'db2',
+  7: '达梦数据库'
 };
 
 // 数据库连接状态
@@ -151,7 +158,19 @@ const serviceIpMarkMapping = {
 
 const vmHostServerTypeMapping = {
   1: 'vCenter',
-  2: '物理主机'
+  2: '物理主机',
+  3: 'FusionSphere'
+};
+
+const backupTypeMapping = {
+  1: '全备',
+  2: '增备',
+  3: '日志备份'
+};
+
+const yesOrNoMapping = {
+  1: '是',
+  2: '否'
 };
 
 // 首页备份恢复表格的信息(不含虚拟机)
@@ -186,10 +205,10 @@ const vmTypeMapping = {
   1: 'VMware',
   2: '华为虚拟机'
 };
-
 export {
   operationStateMapping,
   backupStrategyMapping,
+  logStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   backupResultMapping,
@@ -212,9 +231,11 @@ export {
   switchTypeMapping,
   serviceIpMarkMapping,
   vmHostServerTypeMapping,
+  backupTypeMapping,
   dbTypeMapping,
   dbDetailRouterMapping,
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
-  vmTypeMapping
+  vmTypeMapping,
+  yesOrNoMapping
 };

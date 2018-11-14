@@ -40,12 +40,29 @@
             </el-row>
             <el-form v-loading="infoLoading"
                      label-position="left"
-                     label-width="120px"
+                     label-width="130px"
                      inline
                      size="small"
                      class="item-info">
-              <el-row style="margin-right: 5px;">
-                <el-col :span="8">
+              <el-row class="margin-right5">
+                <el-row>
+                  <el-form-item label="操作系统：">
+                    <div>{{ details.host.osName }}</div>
+                  </el-form-item>
+                </el-row>
+                <el-row>
+                  <el-col :span="8">
+                    <el-form-item label="所属设备IP：">
+                      <div>{{ details.host.hostIp }}</div>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="所属物理主机IP：">
+                      <div>{{ details.vmHostName }}</div>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <!-- <el-col :span="8">
                   <el-form-item label="虚拟机账号：">
                     <div>{{ details.host.loginName }}</div>
                   </el-form-item>
@@ -63,7 +80,7 @@
                   <el-form-item label="设备IP：">
                     <div>{{ details.host.hostIp }}</div>
                   </el-form-item>
-                </el-col>
+                </el-col> -->
               </el-row>
             </el-form>
           </el-col>
@@ -456,6 +473,11 @@ export default {
 <style>
 .el-col .el-form-item {
   display: block;
+}
+</style>
+<style scoped>
+.margin-right5{
+  margin-right: 5px;
 }
 </style>
 

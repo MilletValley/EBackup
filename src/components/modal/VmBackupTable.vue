@@ -37,17 +37,8 @@
                         min-width="150"
                         label="状态">
             <template slot-scope="scope">
-                <!-- <el-tooltip 
-                            :content="tipsText(scope.row.vmBackupResult)"
-                            placement="left"
-                            effect="light">
-                    <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i>
-                </el-tooltip> -->
                 <el-progress :text-inside="false" :stroke-width="12" :percentage="formatProcess(scope.row)" :status="formatState(scope.row.state)">
-                    
                 </el-progress>
-                <!-- <i  :class="operationStateStyle(scope.row.vmBackupResult.state)"></i> -->
-                
             </template>
         </el-table-column>
         <el-table-column prop="consume" align="left"
@@ -84,15 +75,15 @@
         :page-size="pageSize"
         background
         layout="total, sizes, prev, pager, next, jumper"
-        v-if="tableData"
-        :total="currentTableData.length">
+        :total="total">
     </el-pagination>
 </div>
 </template>
 <script>
 import {
-    deleteVirtualBackupPlan,
-  getVmsBackupResult} from '../../api/virtuals';
+  deleteVirtualBackupPlan,
+  getVmsBackupResult,
+} from '../../api/virtuals';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -100,145 +91,109 @@ import {
   operationStateMapping,
 } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
-import {paginationMixin, filterMixin} from '../mixins/commonMixin';
+import { paginationMixin, filterMixin, sortMixin } from '../mixins/commonMixin';
 export default {
-    mixins: [baseMixin, paginationMixin, filterMixin],
-    props:{
-        id: {
-            type: Number
-        },
-        status: {
-            type: Number
-        }
+  mixins: [baseMixin, paginationMixin, filterMixin, sortMixin],
+  props: {
+    id: {
+      type: Number,
     },
-    data(){
-        return {
-            tableData: [],
-            loading: false,
-            timer: null,
-            inputSearch: ''
-        }
+    tableData: {
+      type: Array,
+      default: () => [],
     },
-    mounted(){
-        this.fetchAll();
-        this.setTimer(this.timer);
+  },
+  data() {
+    return {
+      loading: false,
+      timer: null,
+      inputSearch: '',
+      defaultSort: { prop: 'startTime', order: 'descending' },
+    };
+  },
+  mounted() {
+    // this.fetchAll();
+    // this.setTimer(this.timer);
+  },
+  destroyed() {
+    // this.clearTimer(this.timer);
+  },
+  methods: {
+    fetchAll() {
+      this.loading = true;
+      getVmsBackupResult(this.id)
+        .then(res => {
+          this.tableData = res.data.data;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.loading = false;
+        });
     },
-    destroyed() {
-        this.clearTimer(this.timer);
+    formatProcess(data) {
+      if (data.state === 1) {
+        return data.processSpeed;
+      } else if (data.state === 0) {
+        return 0;
+      } else if (data.state === 2) {
+        return 100;
+      } else if (data.state === 3) {
+        return data.processSpeed;
+      }
     },
-    methods: {
-        fetchAll(){
-            this.loading = true
-            getVmsBackupResult(this.id).then( res => {
-                // const {data} = res.data;
-                // let state,wait = 0, complete = 0;
-                // for(let i ;i<data.length;i++){
-                //     if(data[i].state === 1){
-                //         state = 1;
-                //         return
-                //     }else if(data[i].state === 3){
-                //         state = 3;
-                //         return
-                //     }else if(data[i].state === 0){
-                //         wait++;
-                //     }else if(data[i].state === 2 ){
-                //         complete++;
-                //     }
-                // }
-                // if(!state){
-                //     if(wait !== 0 && complete !== 0){
-                //         state = 1;
-                //     }else if( wait === 0 && complete === 0){
-                //         state = 0;
-                //     }else if(wait !== 0 && complete === 0){
-                //         state = 0;
-                //     }else{
-                //         state = 2;
-                //     }
-                // }
-                // this.$emit('update:status', state);
-                this.tableData = res.data.data;
-            }).catch( error => {
-                this.$message.error(error);
-            }).then( () => {
-                this.loading = false
+    formatState(state) {
+      if (state === 2) {
+        return 'success';
+      } else if (state === 3) {
+        return 'exception';
+      }
+      return '';
+    },
+    // setTimer() {
+    //     this.clearTimer();
+    //     this.timer = setInterval(() => {
+    //         getVmsBackupResult(this.id).then( res => {
+    //             // this.tableData = res.data.data;
+    //         })
+    //     }, 10000);
+    // },
+    // clearTimer() {
+    //     clearInterval(this.timer);
+    // },
+    deletePlan(scope) {
+      this.$confirm('请确认是否删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          deleteVirtualBackupPlan(scope.row.id)
+            .then(res => {
+              this.$message.success('删除成功');
+              // this.fetchAll();
+              this.tableData.splice(
+                this.tableData.findIndex(item => item.id === scope.row.id),
+                1
+              );
             })
-        },
-        // operationStateStyle(state) {
-        //     if (state === 0) {
-        //         return this.$style.waitingColor + ' el-icon-time';
-        //     } else if (state === 1) {
-        //         return this.$style.loadingColor + ' el-icon-loading';
-        //     } else if(state === 3) {
-        //         return this.$style.errorColor + ' el-icon-warning';
-        //     } else if(state === 2){
-        //         return this.$style.successColor + ' el-icon-success';
-        //     }else return '';
-        // },
-        // tipsText(data){
-        //     if(data.state === 1){
-        //         return data.processSpeed;
-        //     }
-        //     return operationStateMapping[data.state];
-        // },
-        formatProcess(data){
-            if(data.state === 1){
-                return data.processSpeed;
-            }else if (data.state === 0){
-                return 0;
-            }else if (data.state === 2){
-                return 100
-            }else if (data.state === 3){
-                return data.processSpeed;
-            }
-        },
-        formatState(state){
-            if(state === 2){
-                return 'success';
-            }else if( state === 3){
-                return 'exception'
-            }
-            return ''
-        },
-        setTimer() {
-            this.clearTimer();
-            this.timer = setInterval(() => {
-                getVmsBackupResult(this.id).then( res => {
-                    this.tableData = res.data.data;
-                })
-            }, 10000);
-        },
-        clearTimer() {
-            clearInterval(this.timer);
-        },
-        deletePlan(scope){
-            this.$confirm(
-                '请确认是否删除？',
-                '提示',
-                {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }
-            ).then(() => {
-                deleteVirtualBackupPlan(scope.row.id).then( res => {
-                    this.$message.success( '删除成功');
-                    this.fetchAll();
-                }).catch( error => {
-                    this.$message.error( error);
-                });
-            }).catch( () => {});
-        },
-        filterFn(item, i){
-            return item.vm[i].includes( this.filter[i]);
-        },
-        searchByName(){
-            const vmName = this.inputSearch
-            this.filter = Object.assign({},{vmName});
-            this.currentPage = 1;
-        }
-    }
-}
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(() => {});
+    },
+    filterFn(item, i) {
+      return item.vm[i].includes(this.filter[i]);
+    },
+    searchByName() {
+      const vmName = this.inputSearch;
+      this.filter = Object.assign({}, { vmName });
+      this.currentPage = 1;
+    },
+  },
+};
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';

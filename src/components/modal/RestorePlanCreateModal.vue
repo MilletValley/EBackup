@@ -231,7 +231,9 @@ export default {
           dbPort: this.database.dbPort
         }
       }
-      this.formData = Object.assign({}, this.formData, customData)
+      this.formData = Object.assign({}, this.formData, customData);
+      this.originFormData = { ...this.formData };
+      console.log(this.formData)
       // if(this.isVMware){
       //   //loginname暂时用来存放虚拟机名称
       //   this.formData.oldName = this.database.vmName;

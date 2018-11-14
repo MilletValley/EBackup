@@ -10,7 +10,7 @@
              label-width="110px"
              ref="singleRestoreForm"
              size="small">
-      <el-row v-if="!isVMware">
+      <el-row v-if="!isVMware && !isHW">
         <el-form-item label="恢复设备"
                       v-if="!this.isHW"
                       prop="hostIp">
@@ -81,6 +81,11 @@
           <el-input v-model.number="formData.dbPort"></el-input>
         </el-form-item>
       </el-row>
+      <el-form-item label="新虚拟机名"   v-if="isHW"
+                    :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                    prop="newName">
+        <el-input v-model="formData.newName"></el-input>
+      </el-form-item>
       <el-row v-if="isVMware">
         <el-col :span="12">
           <el-form-item label="恢复主机IP"
@@ -90,7 +95,8 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
-                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' },
+                                 { validator: validateLength30, triggle: 'blur' }]"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
@@ -99,7 +105,8 @@
       <el-row v-if="isVMware">
         <el-form-item label="恢复磁盘名"
                       prop="diskName"
-                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
+                               { validator: validateLength30, triggle: 'blur' }]">
           <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
       </el-row>
@@ -112,8 +119,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="密码"
-                        prop="password"
-                        :rules="[{ required: true, message: '请输入登录密码', trigger: 'blur' },]">
+                        prop="password">
             <input-toggle v-model="formData.password"
                           :hidden.sync="hiddenPassword"></input-toggle>
           </el-form-item>
@@ -142,8 +148,7 @@ import dayjs from 'dayjs';
 import { restorePlanModalMixin } from '../mixins/planModalMixins';
 import { recoveringStrategyMapping } from '../../utils/constant';
 import IIcon from '@/components/IIcon';
-import { fmtSizeFn } from '../../utils/common';
-
+import { fmtSizeFn, validateLength30 } from '../../utils/common';
 export default {
   name: 'SingleRestoreCreateModal',
   props: ['treeData', 'fileHostOriginPath'],
@@ -164,12 +169,12 @@ export default {
     //   const path = this.$route.path;
     //   return this.$route.path.substring(4, path.lastIndexOf('/'))==='virtual'
     // }
-    originPathInputLength() {
-    // this.$refs.originPathInput.$el.offsetWidth + 'px';
-    let tets = this.hiddenPassword
-    console.log(11)
-    return this.hiddenPassword;
-      console.log(this.$refs.originPathInput.$el.offsetWidth + 'px');
+  },
+  watch: {
+    '$store.state.nav.clientWidth'( val) {
+      if(this.$refs && this.$refs.originPathInput){
+        this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px'
+      }
     }
   },
   filters: {
@@ -185,9 +190,8 @@ export default {
     filterToTb(size) {
       if(!size)
         return '-'
-      else if(size<1024)
-        return `${size}B`
-      return fmtSizeFn(Math.round(size/1024));
+      else
+      return fmtSizeFn(Number(size));
     }
   },
   methods: {
@@ -243,14 +247,10 @@ export default {
         if(this.$refs.outerTree) { // 源路径树形图宽度 = 源路径输入框宽度
           // 外层父元素渲染在最外层且存在padding值
           let treeParentNode = document.getElementById('outerTree').parentNode;
-          let singleRestoreForm = document.getElementById('outerTree');
           treeParentNode.style.paddingLeft = 0;
           treeParentNode.style.paddingRight = 0;
           this.$refs.outerTree.style.width = this.$refs.originPathInput.$el.offsetWidth + 'px';
           const that = this;
-          singleRestoreForm.onresize = function singleRestoreFormResize() {
-            that.$refs.outerTree.style.width = that.$refs.originPathInput.$el.offsetWidth + 'px';
-          };
         }
       });
       // if(this.isVMware){
@@ -273,7 +273,10 @@ export default {
         this.formData.originDetailInfo = '';
       }
       this.treeVisible = false;
-    }
+    },
+    validateLength30() {
+      return validateLength30;
+    },
   },
   components: {
     IIcon
