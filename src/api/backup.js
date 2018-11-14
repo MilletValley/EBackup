@@ -131,12 +131,12 @@ const fetchRestoreRecords = (type, id) =>
     url: `/${type}s/${id}/restore-records`,
   });
 
-const createRestorePlan = (type, { id, data }) =>
+const createRestorePlan = (type, { id, plan }) =>
   baseApi
     .request({
       method: 'post',
       url: `/${type}s/${id}/${type}-restore-plans`,
-      data,
+      data: plan,
     })
     .then(res => {
       if (res.data.data.config) {
@@ -159,7 +159,7 @@ const updateRestorePlan = (type, data) =>
     .request({
       method: 'patch',
       url: `/${type}-restore-plans/${data.id}`,
-      data,
+      data: data.plan,
     })
     .then(res => {
       if (res.data.data.config) {
