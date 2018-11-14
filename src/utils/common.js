@@ -30,15 +30,15 @@ const fmtSizeFn = num => {
 
 const maxLengthFn = (w, maxLength) => {
   if (String(w)) {
-    const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // Ìæ»»ÖÐÎÄ
-    return (w.length - t.length) * 2 + t.length > maxLength; // ÅÐ¶Ï³¤¶È
+    const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // æ›¿æ¢ä¸­æ–‡
+    return (w.length - t.length) * 2 + t.length > maxLength; // åˆ¤æ–­é•¿åº¦
   }
   return false;
 };
 
 const validateLength10 = (rule, value, callback) => {
   if (maxLengthFn(value, 10)) {
-    callback(new Error('³¤¶ÈÔÚ10¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨10ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -46,7 +46,7 @@ const validateLength10 = (rule, value, callback) => {
 
 const validateLength20 = (rule, value, callback) => {
   if (maxLengthFn(value, 20)) {
-    callback(new Error('³¤¶ÈÔÚ20¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨20ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -54,7 +54,7 @@ const validateLength20 = (rule, value, callback) => {
 
 const validateLength30 = (rule, value, callback) => {
   if (maxLengthFn(value, 30)) {
-    callback(new Error('³¤¶ÈÔÚ30¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨30ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -62,7 +62,7 @@ const validateLength30 = (rule, value, callback) => {
 
 const validateLength40 = (rule, value, callback) => {
   if (maxLengthFn(value, 40)) {
-    callback(new Error('³¤¶ÈÔÚ40¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨40ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -70,7 +70,7 @@ const validateLength40 = (rule, value, callback) => {
 
 const validateLength50 = (rule, value, callback) => {
   if (maxLengthFn(value, 50)) {
-    callback(new Error('³¤¶ÈÔÚ50¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨50ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -78,7 +78,7 @@ const validateLength50 = (rule, value, callback) => {
 
 const validateLength60 = (rule, value, callback) => {
   if (maxLengthFn(value, 60)) {
-    callback(new Error('³¤¶ÈÔÚ60¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨60ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -86,7 +86,7 @@ const validateLength60 = (rule, value, callback) => {
 
 const validateLength70 = (rule, value, callback) => {
   if (maxLengthFn(value, 70)) {
-    callback(new Error('³¤¶ÈÔÚ70¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨70ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -94,7 +94,7 @@ const validateLength70 = (rule, value, callback) => {
 
 const validateLength80 = (rule, value, callback) => {
   if (maxLengthFn(value, 80)) {
-    callback(new Error('³¤¶ÈÔÚ80¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨80ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
@@ -102,7 +102,7 @@ const validateLength80 = (rule, value, callback) => {
 
 const validateLength100 = (rule, value, callback) => {
   if (maxLengthFn(value, 100)) {
-    callback(new Error('³¤¶ÈÔÚ100¸ö×Ö·ûÒÔÄÚ£¬×¢£ºÖÐÎÄÕ¼2¸ö×Ö·û'));
+    callback(new Error('é•¿åº¦åœ¨100ä¸ªå­—ç¬¦ä»¥å†…ï¼Œæ³¨ï¼šä¸­æ–‡å 2ä¸ªå­—ç¬¦'));
   } else {
     callback();
   }
