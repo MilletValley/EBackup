@@ -49,10 +49,10 @@
                    label-width="100px"
                    size="small"
                    class="result-detail-form">
-            <el-form-item :class="$style.detailFormItem"
+            <!-- <el-form-item :class="$style.detailFormItem"
                           label="ID">
               <span>{{ scope.row.id }}</span>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item :class="$style.detailFormItem"
                           label="备份类型">
               <span>{{scope.row.backupType |backupTypeFilter}}</span>

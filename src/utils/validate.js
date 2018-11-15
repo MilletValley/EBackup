@@ -57,7 +57,7 @@ export default {
       trigger: 'blur'
     }
   ],
-  selelctHost: [
+  selectHost: [
     { required: true, message: '请选择设备', trigger: 'blur' }
   ],
   dbName: [
@@ -200,4 +200,8 @@ export default {
     { required: true, message: '请输入登录密码', trigger: 'blur' },
     { validator: validateLength(64), trigger: 'blur' }
   ],
+  // 通用
+  maxLength100: [
+    { validator: validateLength(100), trigger: 'blur' }
+  ]
 };

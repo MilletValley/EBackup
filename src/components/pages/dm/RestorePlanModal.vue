@@ -81,11 +81,12 @@
 </template>
 <script>
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
 
-const baseFormData = {
+const basiceFormData = {
   name: '',
   hostIp: '',
   dbName: '',
@@ -109,8 +110,8 @@ export default {
   data() {
     return {
       type: 'dm',
-      formData: Object.assign({}, baseFormData), // 备份数据
-      originFormData: Object.assign({}, baseFormData), // 原始数据
+      // formData: Object.assign({}, baseFormData), // 备份数据
+      // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
         hostIp: validate.selectHost,
@@ -148,16 +149,17 @@ export default {
         plan.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
       const { name, config, ...other } = plan;
-      const { id, startTime, timeStrategy, ...otherConfig } = config;
+      const { id, startTime, timePoints, timeStrategy, ...otherConfig } = config;
       return {
         name,
         startTime: timeStrategy === 1 ? '' : startTime,
+        timePoints: cloneDeep(timePoints),
         timeStrategy,
         ...otherConfig,
       };
     },
     modalOpened() {
-      console.log(this.restorePlan);
+      const baseFormData = cloneDeep(basiceFormData);
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign(
           {},

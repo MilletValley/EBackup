@@ -191,6 +191,7 @@
         </el-form-item>
         <el-form-item label="路径"
                       v-if="formData.sysType === 2 && (formData.useType===3 || formData.useType === 7)"
+                      :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
                       prop="mountUrl">
           <el-input v-model="formData.mountUrl"></el-input>
         </el-form-item>
@@ -224,6 +225,7 @@
 import { fetchAll, modifyOne, createOne, deleteOne } from '../../api/systemParam';
 import { sysTypeMapping, windowsTypeMapping, useTypeMapping, systemStateMapping } from '../../utils/constant';
 import InputToggle from '@/components/InputToggle';
+import validate from '@/utils/validate';
 import isEqual from 'lodash/isEqual';
 
 export default {
@@ -238,6 +240,7 @@ export default {
       formData: {},
       originFormData: {},
       hiddenPassword: true,
+      validate: validate,
       rules: {
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
