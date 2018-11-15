@@ -55,6 +55,10 @@
               <span>{{scope.row.backupType |backupTypeFilter}}</span>
             </el-form-item> -->
             <el-form-item :class="$style.detailFormItem"
+                          label="备份计划名称">
+              <span>{{ scope.row.planName }}</span>
+            </el-form-item>
+            <el-form-item :class="$style.detailFormItem"
                           label="存储目标路径">
               <span>{{ scope.row.path }}</span>
             </el-form-item>
@@ -111,6 +115,11 @@
       <el-table-column label="源文件路径"
                        prop="fileResource"
                        min-width="180px"
+                       align="center"
+                       header-align="center"></el-table-column>
+      <el-table-column label="备份计划名"
+                       prop="planName"
+                       min-width="110px"
                        align="center"
                        header-align="center"></el-table-column>
       <!-- <el-table-column  label="备份类型"
