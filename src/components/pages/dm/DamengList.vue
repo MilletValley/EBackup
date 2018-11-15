@@ -56,8 +56,13 @@
           prop="state"
           label="连接状态"
           align="center"
-          :formatter="stateFormatter"
           width="80">
+          <template slot-scope="scope">
+          <el-tag :type="stateTagType(scope.row.state)"
+                  size="mini">
+            {{ databaseState(scope.row.state) }}
+          </el-tag>
+        </template>
         </el-table-column>
         <el-table-column
           prop="createTime"

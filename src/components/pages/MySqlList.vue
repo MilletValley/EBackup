@@ -54,8 +54,14 @@
       <el-table-column prop="state"
                        label="状态"
                        width="100"
-                       :formatter="stateFormatter"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="stateTagType(scope.row.state)"
+                  size="mini">
+            {{ databaseState(scope.row.state) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作"
                        fixed="right"
                        width="150"
