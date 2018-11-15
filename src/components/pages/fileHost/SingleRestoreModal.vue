@@ -9,14 +9,15 @@
     </span>
     <el-form size="small"
              label-position="right"
-             label-width="100px"
+             label-width="110px"
              :model="formData"
              :rules="rules"
              ref="singleRestorePlanForm">
-        <el-form-item label="恢复设备"
+        <el-form-item label="恢复主机"
+                      :rules="type === 'windows' ? validate.hostIp: { required: true, message: '请选择主机', trigger: 'blur' }"
                       prop="hostIp">
           <el-input v-model="formData.hostIp"
-                    placeholder="请输入恢复设备"
+                    placeholder="请输入恢复主机IP"
                     v-if="type==='windows'"></el-input>
           <el-select  v-model="formData.hostIp"
                       v-if="type === 'linux'"
@@ -32,6 +33,7 @@
         </el-form-item>
         <el-form-item v-if="type==='linux'"
                       label="恢复源路径"
+                      class="is-required"
                       prop="originDetailInfo">
           <el-popover placement="bottom"
                       style="height: 300px;"
@@ -109,6 +111,9 @@ import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin'
 import validate from '@/utils/validate';
 import { recoveringStrategyMapping } from '@/utils/constant';
 import {
+  maxLengthFn
+} from '@/utils/common';
+import {
   fetchAll,
   fetchOriginPath,
 } from '@/api/fileHost';
@@ -119,11 +124,12 @@ const baseFormData = {
   // linux
   documentType: '',
   // windows
-  recoveringStrategy: '',
+  recoveringStrategy: 1,
   detailInfo: '',
   loginName: '',
   password: '',
 };
+
 
 export default {
   name: 'singleRestorePlanModal',
@@ -139,18 +145,34 @@ export default {
     }
   },
   data() {
+    const originPathValidate = (rule, value, callback) => {
+      if (!this.formData.originDetailInfo ) {
+        callback(new Error('请输入文件恢复源路径'));
+      } else if (maxLengthFn(value, 60)) {
+        callback(new Error('文件路径长度超过限制'));
+      } else if (!this.fileHostOriginPath.map(originPath => originPath.path).includes(value)) {
+        callback(new Error('文件恢复源路径不存在'));
+      } else {
+        callback();
+      }
+    };
     return {
       // type: 'dm',
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       recoveringStrategys: recoveringStrategyMapping,
       treeVisible: false,
+      validate: validate,
       rules: {
-        // hostIp: validate.selelctHost,
-        // dbName: validate.dbName,
-        // dbPort: validate.dbPort,
-        // loginName: validate.dbLoginName,
-        // password: validate.dbPassword,
+        originDetailInfo: [
+          {
+            validator: originPathValidate,
+            trigger: 'change'
+          }
+        ],
+        detailInfo: validate.targetPath,
+        loginName: validate.loginName,
+        password: validate.password,
       },
       selectionHosts: [],
       fileHostOriginPath: []

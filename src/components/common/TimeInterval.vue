@@ -5,7 +5,7 @@
              :model="formData"
              :rules="rules"
              ref="timeIntervalForm">
-      <el-form-item label="时间策略"
+      <el-form-item label="时间策略" class="is-required"
                     style="width: 100%">
         <el-radio-group v-model="formData.timeStrategy">
           <el-radio :label="Number(s)"
@@ -14,7 +14,7 @@
                     :key="s">{{ strategys[s] }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="恢复时间"
+      <el-form-item label="恢复时间" class="is-required"
                     prop="singleTime"
                     v-show="formData.timeStrategy == 1">
         <el-date-picker type="datetime"
@@ -22,7 +22,7 @@
                         value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.singleTime"></el-date-picker>
       </el-form-item>
-      <el-form-item label="计划时间"
+      <el-form-item label="计划时间" class="is-required"
                     prop="startTime"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
         <el-date-picker type="datetime"
@@ -30,7 +30,7 @@
                         value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.startTime"></el-date-picker>
       </el-form-item>
-      <el-form-item label="选择星期"
+      <el-form-item label="选择星期" class="is-required"
                     prop="weekPoints"
                     v-show="formData.timeStrategy == 2">
         <el-checkbox-group v-model="formData.weekPoints">
@@ -39,7 +39,7 @@
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>
-      <el-form-item label="选择日期"
+      <el-form-item label="选择日期" class="is-required"
                     prop="datePoints"
                     v-show="formData.timeStrategy == 3">
         <el-select v-model="formData.datePoints"
@@ -51,7 +51,7 @@
                      :label="day + '号'"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="时间点"
+      <el-form-item label="时间点" class="is-required"
                     style="width: 100%"
                     prop="timePoints"
                     v-for="(p, index) in formData.timePoints"
@@ -126,31 +126,31 @@ export default {
         singleTime: [
           {
             validator: singleTimeValidate,
-            trigger: 'blur',
+            trigger: ['blur']
           },
         ],
         startTime: [
           {
             validator: startTimeValidate,
-            trigger: 'blur',
+            trigger: ['blur']
           },
         ],
         weekPoints: [
           {
             validator: weekPointsValidate,
-            trigger: 'blur',
+            trigger: ['change']
           },
         ],
         timePoints: [
           {
             validator: timePointsValidate,
-            trigger: 'blur',
+            trigger: ['change']
           },
         ],
         datePoints: [
           {
             validator: datePointsValidate,
-            trigger: 'blur',
+            trigger: ['change']
           },
         ],
       },
@@ -177,7 +177,6 @@ export default {
         } else {
           if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
         }
-        console.log(555);
         resolve(true);
       });
     },

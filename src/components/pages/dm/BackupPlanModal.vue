@@ -19,7 +19,7 @@
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
-        <el-form-item label="备份策略"
+        <el-form-item label="备份策略" class="is-required"
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
@@ -27,7 +27,7 @@
 						<el-radio :label="1">全备+增备</el-radio>
           </el-radio-group>
         </el-form-item>
-				<el-form-item label="日志策略"
+				<el-form-item label="日志策略" class="is-required"
                       prop="logStrategy">
 						<el-radio v-model="formData.logStrategy"
                     :label="1">备份日志</el-radio>
@@ -53,7 +53,7 @@ import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
 import validate from '@/utils/validate';
-const baseFormData = {
+const basicFormData = {
   name: '',
   startTime: '',
   singleTime: '',
@@ -75,8 +75,8 @@ export default {
   data() {
     return {
       type: 'dm',
-      formData: Object.assign({}, baseFormData), // 备份数据
-      originFormData: Object.assign({}, baseFormData), // 原始数据
+      // formData: Object.assign({}, baseFormData), // 备份数据
+      // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
       },
@@ -133,14 +133,14 @@ export default {
       };
     },
     modalOpened() {
-      console.log(this.backupPlan);
+      // timePoints会被改变，暂不知原因，待分析
+      const baseFormData = cloneDeep(basicFormData)
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...this.backupPlan }));
       } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
       this.formData = Object.assign({}, this.originFormData);
-      console.log(this.formData);
     },
     modalClosed() {
       // this.formData = { ...baseFormData };
