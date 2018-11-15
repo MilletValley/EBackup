@@ -35,8 +35,21 @@ const tableMixin = {
         this.$message.error(error);
       });
     },
-    stateFormatter(row, column, cellValue) {
-      return databaseStateMapping[cellValue];
+    databaseState(state) {
+      return databaseStateMapping[state];
+    },
+    stateTagType(state) {
+      switch (state) {
+        case 1:
+          return 'success';
+        case 2:
+        case 3:
+          return 'danger';
+        case 4:
+          return 'warning';
+        default:
+          return '';
+      }
     },
     addFn() {
       this.createModalVisible = true;

@@ -239,6 +239,8 @@ export default {
         return 'success';
       }else if(this.backupOperation.state === 3){
         return 'exception';
+      }else if(this.backupOperation.state === 0 && this.progressNum !== 0){
+        return 'success';
       }else return '';
     },
     diskInfo(){
@@ -324,6 +326,8 @@ export default {
             let num = (Number(data) / Number(size)) * 100;
             if (state === 0 && num >= 100) {
               num = 100;
+            }else if(num > 0 && num < 1){
+              num = 1;
             }else{
               // 此处不能作四舍五入
               num = parseInt(num > 99 ? 99 : num);
