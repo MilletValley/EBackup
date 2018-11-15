@@ -20,11 +20,10 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
         <el-form-item label="备份路径"
-                      :rules="{required: true, message: '请输入备份路径', trigger: 'blur'}"
                       prop="backupPath">
           <el-input v-model="formData.backupPath"></el-input>
         </el-form-item>
-        <el-form-item label="备份策略"
+        <el-form-item label="备份策略" class="is-required"
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
@@ -34,7 +33,7 @@
         </el-form-item>
 				<!-- 时间策略 -->
 				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent"></time-strategy>
-        <el-form-item label="是否备份系统"
+        <el-form-item label="是否备份系统" class="is-required"
                       prop="backupSys"
                       v-if="type === 'windows'">
           <el-switch v-model="formData.backupSystem"
@@ -58,7 +57,7 @@ import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
 import validate from '@/utils/validate';
-const baseFormData = {
+const basicFormData = {
   name: '',
   backupPath: '',
   backupSystem: 'nosys',
@@ -86,10 +85,11 @@ export default {
   data() {
     return {
       // type: 'dm',
-      formData: Object.assign({}, baseFormData), // 备份数据
-      originFormData: Object.assign({}, baseFormData), // 原始数据
+      // formData: Object.assign({}, baseFormData), // 备份数据
+      // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
+        backupPath: validate.backupPath
       },
       backupConfig: {},
     };
@@ -150,7 +150,8 @@ export default {
       };
     },
     modalOpened() {
-      console.log(this.backupPlan);
+      // timePoints会被改变，暂不知原因，待分析
+      const baseFormData = cloneDeep(basicFormData);
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...this.backupPlan }));
       } else {
@@ -160,7 +161,7 @@ export default {
       console.log(this.formData);
     },
     modalClosed() {
-      this.formData = { ...baseFormData };
+      // this.formData = { ...baseFormData };
       this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.createForm.clearValidate();
     },

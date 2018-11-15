@@ -106,6 +106,7 @@
             <h5>当前状态</h5>
             <div>
               <el-tooltip :content="backupOperation.process"
+                          :disabled="backupOperation.state !== 1"
                           placement="left"
                           effect="light">
                 <div style="display: inline-block">

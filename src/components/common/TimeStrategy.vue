@@ -5,7 +5,7 @@
                ref="timeForm"
                :rules="rules"
                size="small">
-        <el-form-item label="时间策略"
+        <el-form-item label="时间策略" class="is-required"
                       prop="timeStrategy">
           <el-radio-group v-model="formData.timeStrategy">
             <el-radio :label="ts.code"
@@ -13,7 +13,7 @@
                       :key="ts.code">{{ ts.value }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="计划创建时间"
+        <el-form-item label="计划创建时间" class="is-required"
                       v-show="[1,2,3,4,5].includes(formData.timeStrategy)"
                       prop="startTime">
           <el-date-picker v-model="formData.startTime"
@@ -23,7 +23,7 @@
                           placeholder="选择计划创建时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="时间点"
+        <el-form-item label="时间点" class="is-required"
                       v-show="formData.timeStrategy === 0"
                       prop="singleTime">
           <el-date-picker v-model="formData.singleTime"
@@ -33,7 +33,8 @@
                           placeholder="选择执行单次备份的时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="选择星期"
+        <el-form-item label="选择星期"  class="is-required"
+                      prop="weekPoints"
                       v-show="formData.timeStrategy === 4">
           <el-checkbox-group v-model="formData.weekPoints">
             <el-checkbox-button v-for="w in Object.keys(weekMapping)"
@@ -41,7 +42,8 @@
                                 :key="w">{{ weekMapping[w] }}</el-checkbox-button>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="选择日期"
+        <el-form-item label="选择日期"  class="is-required"
+                      prop="datePoints"
                       v-show="formData.timeStrategy === 5">
           <el-select v-model="formData.datePoints"
                      multiple
@@ -52,7 +54,7 @@
                        :label="day + '号'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="`时间点${index+1}`"
+        <el-form-item :label="`时间点${index+1}`" 
                       style="width: 100%"
                       v-for="(p, index) in formData.timePoints"
                       :key="p.key"
@@ -68,7 +70,7 @@
                      v-show="index + 1 === formData.timePoints.length"
                      @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
         </el-form-item>
-        <el-form-item label="循环周期"
+        <el-form-item label="循环周期" class="is-required"
                       prop="minuteInterval"
                       v-show="formData.timeStrategy === 1">
           <el-input-number v-model="formData.minuteInterval"
@@ -77,7 +79,7 @@
                            :step="10"
                            contrls-position="right"></el-input-number>
         </el-form-item>
-        <el-form-item label="循环周期"
+        <el-form-item label="循环周期" class="is-required"
                       prop="hourInterval"
                       v-show="formData.timeStrategy === 2">
           <el-input-number v-model="formData.hourInterval"
@@ -204,13 +206,13 @@ export default {
         weekPoints: [
           {
             validator: weekPointsValidate,
-            trigger: 'blur',
+            trigger: 'change',
           },
         ],
         datePoints: [
           {
             validator: datePointsValidate,
-            trigger: 'blur',
+            trigger: 'change',
           },
         ],
         minuteInterval: [

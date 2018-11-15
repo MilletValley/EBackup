@@ -170,4 +170,34 @@ export default {
       trigger: 'blur'
     }
   ],
+  backupPath: [
+    {
+      required: true,
+      message: '请输入备份路径',
+      trigger: 'blur'
+    },
+    {
+      validator: validateLength(100),
+      trigger: 'blur'
+    },
+  ],
+  targetPath: [
+    {
+      required: true,
+      message: '请输入恢复目标路径',
+      trigger: 'blur'
+    },
+    {
+      validator: validateLength(100),
+      trigger: 'blur'
+    },
+  ],
+  loginName: [
+    { required: true, message: '请输入登录名', trigger: 'blur' },
+    { validator: validateLength(64), trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入登录密码', trigger: 'blur' },
+    { validator: validateLength(64), trigger: 'blur' }
+  ],
 };
