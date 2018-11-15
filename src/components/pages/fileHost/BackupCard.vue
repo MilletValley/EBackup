@@ -127,7 +127,11 @@
               <div>
                 <span v-if="type === 'windows'" :class="operationStateStyle">{{diskInfo || '-'}}</span>
               </div>
-              <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
+              <el-tooltip :content="operationState"
+                      placement="top-end"
+                      effect="light">
+                <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
+              </el-tooltip>
               <el-progress style="margin-right:20px" :percentage="progressNum" :status="progressStatus" :text-inside="true" :stroke-width="17">
               </el-progress>
             </div>
@@ -145,7 +149,13 @@
             <div v-else>-</div>
           </li>
           <li>
-            <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}</h5>
+            <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}
+              <el-popover placement="left" trigger="hover"
+                  content="已备份文件总大小，非本次备份大小"
+                  >
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+            </h5>
             <div>{{backupSize || '-'}}</div>
           </li>
         </ul>
@@ -193,6 +203,7 @@ export default {
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
+      this.formatProcess(operation);
       return operation;
     },
     backupConfig() {
@@ -311,8 +322,12 @@ export default {
           if(Number(size)){
             // 取百分比
             let num = (Number(data) / Number(size)) * 100;
-            // 此处不能作四舍五入
-            num = parseInt(num > 99 ? 99 : num);
+            if (state === 0 && num >= 100) {
+              num = 100;
+            }else{
+              // 此处不能作四舍五入
+              num = parseInt(num > 99 ? 99 : num);
+            }
             this.progressNum = num || num === 0 ? num : 0;
           }
         }
