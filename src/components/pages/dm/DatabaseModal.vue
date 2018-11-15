@@ -93,7 +93,7 @@ import validate from '@/utils/validate';
 const rules = {
   name: validate.name,
   dbPort: validate.dbPort,
-  hostId: validate.selelctHost,
+  hostId: validate.selectHost,
   dbName: validate.dbName,
   loginName: validate.dbLoginName,
   password: validate.dbPassword,

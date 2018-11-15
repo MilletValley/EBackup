@@ -99,7 +99,7 @@ export default {
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
-        hostIp: validate.selelctHost,
+        hostIp: validate.selectHost,
         dbName: validate.dbName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
