@@ -52,15 +52,11 @@
             <!-- <el-form-item :class="$style.detailFormItem"
                           label="ID">
               <span>{{ scope.row.id }}</span>
-            </el-form-item> -->
+            </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="备份类型">
               <span>{{scope.row.backupType |backupTypeFilter}}</span>
-            </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
-                          label="备份日志">
-              <span>{{scope.row.logType |logTypeFilter}}</span>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item :class="$style.detailFormItem"
                           label="存储目标路径">
               <span>{{ scope.row.path }}</span>
@@ -105,7 +101,7 @@
                        min-width="180px"
                        align="left"
                        header-align="center"></el-table-column>
-      <el-table-column  label="备份类型"
+      <!-- <el-table-column  label="备份类型"
                        prop="backupType"
                        min-width="100px"
                        align="center"
@@ -113,16 +109,7 @@
         <template slot-scope="scope">
           <span>{{scope.row.backupType |backupTypeFilter}}</span>
         </template>
-      </el-table-column>
-      <el-table-column  label="备份日志"
-                       prop="logType"
-                       min-width="100px"
-                       align="center"
-                       header-align="center">
-        <template slot-scope="scope">
-          <span>{{scope.row.logType |logTypeFilter}}</span>
-        </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="开始时间"
                        prop="startTime"
                        min-width="150px"
@@ -163,7 +150,9 @@
   </section>
 </template>
 <script>
+import dayjs from 'dayjs';
 import baseMixin from '@/components/mixins/baseMixins';
+import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
 import backupResultMixin from '@/components/mixins/backupResultMixin';
 
 export default {

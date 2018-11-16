@@ -57,7 +57,7 @@ export default {
       trigger: 'blur'
     }
   ],
-  selectHost: [
+  selelctHost: [
     { required: true, message: '请选择设备', trigger: 'blur' }
   ],
   dbName: [
@@ -181,6 +181,7 @@ export default {
       trigger: 'blur'
     },
   ],
+  // 文件-恢复-
   targetPath: [
     {
       required: true,
@@ -200,8 +201,14 @@ export default {
     { required: true, message: '请输入登录密码', trigger: 'blur' },
     { validator: validateLength(64), trigger: 'blur' }
   ],
-  // 通用
-  maxLength100: [
-    { validator: validateLength(100), trigger: 'blur' }
+  // 虚拟机-恢复-新虚拟机名称
+  newVmName: [
+    { required: true, message: '请输入新虚拟机名', trigger: 'blur' },
+    { validator: validateLength(64), triggle: 'blur' }
+  ],
+  // 虚拟机-恢复-恢复磁盘名
+  diskName: [
+    { required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
+    { validator: validateLength(64), triggle: 'blur' }
   ]
 };

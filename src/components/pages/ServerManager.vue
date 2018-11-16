@@ -270,7 +270,7 @@ export default {
       scope.row.disabled = true;
       scope.row.icon = 'el-icon-loading';
       const type = scope.row.serverType;
-      const time = type === 3 ? 30000 : 0;
+      const time = type === 3 && scope.row.vmList.length === 0  ? 30000 : 0;
       setTimeout(() => {
         rescan(scope.row)
           .then(res => {

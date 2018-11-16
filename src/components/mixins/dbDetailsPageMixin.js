@@ -222,7 +222,16 @@ const detailPageMixin = {
         })
         .catch(error => {
           this.$message.error(error);
-          this.$router.push({ name: `${this.type}List` });
+          if (this.type === 'virtual') {
+            const path = this.$route.path;
+            if (this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual') {
+              this.$router.push({ name: 'VmwareList' });
+            } else {
+              this.$router.push({ name: 'HWwareList' });
+            }
+          } else {
+            this.$router.push({ name: `${this.type}List` });
+          }
         })
         .then(() => {
           this.infoLoading = false;

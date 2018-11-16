@@ -96,7 +96,7 @@
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
                         :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' },
-                                 { validator: validateLength30, triggle: 'blur' }]"
+                                 { validator: validateLength30(), triggle: 'blur' }]"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
@@ -106,7 +106,7 @@
         <el-form-item label="恢复磁盘名"
                       prop="diskName"
                       :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
-                               { validator: validateLength30, triggle: 'blur' }]">
+                               { validator: validateLength30(), triggle: 'blur' }]">
           <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
       </el-row>

@@ -3,19 +3,17 @@
     <el-dialog custom-class="min-width-dialog"
                :visible.sync="modalVisible"
                :before-close="beforeModalClose"
-							 @open="modalOpened"
+               @open="modalOpened"
                @close="modalClosed">
       <span slot="title">
-				{{title}}
-				<!-- <span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span> -->
+         {{title}}
       </span>
       <el-form :model="formData"
                label-width="110px"
                ref="createForm"
-							 :disabled="action === 'query'"
                :rules="rules"
                size="small">
-        <el-form-item label="备份计划名称" 
+        <el-form-item label="备份计划名称"
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
@@ -23,22 +21,14 @@
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
-            <el-radio :label="0">全备</el-radio>
 						<el-radio :label="1">全备+增备</el-radio>
           </el-radio-group>
-        </el-form-item>
-				<el-form-item label="日志策略" class="is-required"
-                      prop="logStrategy">
-						<el-radio v-model="formData.logStrategy"
-                    :label="1">备份日志</el-radio>
-						<el-radio v-model="formData.logStrategy"
-                    :label="2">不备份日志</el-radio>
         </el-form-item>
 				<!-- 时间策略 -->
 				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent"></time-strategy>
       </el-form>
       <span slot="footer">
-        <el-button type="primary" v-if="action !== 'query'"
+        <el-button type="primary"
                    :loading="btnLoading"
                    @click="confirmBtnClick">确定</el-button>
         <el-button @click="cancelButtonClick">取消</el-button>
@@ -47,8 +37,8 @@
   </section>
 </template>
 <script>
-import dayjs from 'dayjs';
-import isEqual from 'lodash/isEqual';
+// import dayjs from 'dayjs';
+// import isEqual from 'lodash/isEqual';
 import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
 import cloneDeep from 'lodash/cloneDeep';
@@ -63,22 +53,25 @@ const basicFormData = {
   hourInterval: 1,
   minuteInterval: 10,
   backupStrategy: 1,
-  logStrategy: 1,
   timeStrategy: 0,
 };
 export default {
-  name: 'BackupPlanCreateModal',
+  name: 'BackupPlanModal',
   mixins: [backupPlanModalMixin],
   components: {
     TimeStrategy,
+  },
+  props: {
+    vmType: {
+      type: String
+    }
   },
   data() {
     return {
       type: 'dm',
       rules: {
-        name: validate.planName,
+        name: validate.planName
       },
-      backupConfig: {},
     };
   },
   methods: {
@@ -132,16 +125,16 @@ export default {
     },
     modalOpened() {
       // timePoints会被改变，暂不知原因，待分析
-      const baseFormData = cloneDeep(basicFormData)
+      const baseFormData = cloneDeep(basicFormData);
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...this.backupPlan }));
       } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
       this.formData = Object.assign({}, this.originFormData);
+      console.log(this.formData);
     },
     modalClosed() {
-      // this.formData = { ...baseFormData };
       this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.createForm.clearValidate();
     },

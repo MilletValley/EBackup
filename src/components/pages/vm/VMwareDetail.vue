@@ -5,14 +5,15 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <img src="../../../assets/DM.fw.png" :class="$style.dmClass">
+            <i-icon name="vmware"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1>{{details.name}}</h1>
+                <h1>{{details.vmName}}</h1>
               </el-col>
               <el-col :span="12"
                       :offset="4"
@@ -27,46 +28,36 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
-                    <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
+                    <el-dropdown-item command="restore"
+                                      >恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <!-- <el-button size="mini"
-                           type="primary"
-                           @click="detailsEditModal = true">编辑</el-button> -->
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
                      label-position="left"
                      label-width="130px"
+                     inline
                      size="small"
                      class="item-info">
-              <el-row style="margin-right: 5px;">
-                <el-col :span="8">
-                  <el-form-item label="数据库名：">
-                    <span>{{ details.dbName }}</span>
-                  </el-form-item>
-                  <el-form-item label="端口号：">
-                    <span>{{ details.dbPort }}</span>
-                  </el-form-item>
-                  <el-form-item label="数据库连接状态：">
-                    <el-tag :type="databaseStateStyle(details.state)"
-                            size="mini">{{ details.state | databaseStateFilter }}</el-tag>
-                  </el-form-item>
-                  <el-form-item label="数据库版本：">
-                    <span>{{ details.dbVersion }}</span>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="所属设备：">
-                    <span>{{ details.host.name }}</span>
-                  </el-form-item>
-                  <el-form-item label="设备IP：">
-                    <span>{{ details.host.hostIp }}</span>
-                  </el-form-item>
+              <el-row class="margin-right5">
+                <el-row>
                   <el-form-item label="操作系统：">
-                    <span>{{ details.host.osName }}</span>
+                    <div>{{ details.host.osName }}</div>
                   </el-form-item>
-                </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="8">
+                    <el-form-item label="所属设备IP：">
+                      <div>{{ details.host.hostIp }}</div>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="所属物理主机IP：">
+                      <div>{{ details.vmHostName }}</div>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
               </el-row>
             </el-form>
           </el-col>
@@ -112,6 +103,7 @@
 
     <restore-plan-modal   :btn-loading="btnLoading"
                           :details="details"
+                          :vm-type="vmType"
                           :visible.sync="restorePlanModalVisible"
                           @confirm="restoreConfirmCallback"
                           :action="restoreAction"
@@ -119,6 +111,7 @@
     </restore-plan-modal>
     <single-restore-modal   :btn-loading="btnLoading"
                             :details="details"
+                            :vm-type="vmType"
                             :result-id="selectedBackupResultId"
                             :visible.sync="singleRestoreCreateModalVisible"
                             @confirm="singleConfirmCallback">
@@ -126,20 +119,36 @@
   </section>
 </template>
 <script>
-import dayjs from 'dayjs';
-import throttle from 'lodash/throttle';
-import { applyFilterMethods } from '@/utils/common';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
-import BackupPlanModal from '@/components/pages/dm/BackupPlanModal';
-import RestorePlanModal from '@/components/pages/dm/RestorePlanModal';
-import SingleRestoreModal from '@/components/pages/dm/SingleRestoreModal';
-import BackupCard from '@/components/pages/dm/BackupCard';
-import BackupResultList from '@/components/pages/dm/BackupResultList';
-import RestoreCard from '@/components/pages/dm/RestoreCard';
-import RestoreRecords from '@/components/pages/dm/RestoreRecords';
+import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
+import RestorePlanModal from '@/components/pages/vm/RestorePlanModal';
+import SingleRestoreModal from '@/components/pages/vm/SingleRestoreModal';
+import BackupCard from '@/components/pages/vm/BackupCard';
+import BackupResultList from '@/components/pages/vm/BackupResultList';
+import RestoreCard from '@/components/pages/vm/RestoreCard';
+import RestoreRecords from '@/components/pages/vm/RestoreRecords';
+
+import {
+  fetchOne,
+  modifyOne,
+  fetchBackupPlans,
+  fetchBackupResults,
+  createVirtualBackupPlan,
+  updateVirtualBackupPlan,
+  deleteVirtualBackupPlan,
+  fetchBackupOperation,
+  createSingleRestorePlan,
+  fetchRestorePlans,
+  fetchRestoreRecords,
+  createRestorePlan,
+  deleteRestorePlan,
+  updateRestorePlan,
+  fetchRestoreOperation,
+  createMultipleVirtualBackupPlan,
+} from '@/api/virtuals';
 
 export default {
-  name: 'DmDetail',
+  name: 'VMwareDetail',
   mixins: [detailPageMixin],
   components: {
     BackupPlanModal,
@@ -148,53 +157,84 @@ export default {
     BackupCard,
     BackupResultList,
     RestoreCard,
-    RestoreRecords
+    RestoreRecords,
   },
-  data(){
+  data() {
     return {
-      type: 'dm',
-    }
+      type: 'virtual',
+    };
   },
   computed: {
+    vmType() {
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual' ? 'VMware' : 'HW';
+      // return this.details && this.details.type === 1 ? 'VMware' : 'HW';
+    },
+  },
+  methods: {
+    addBackupPlan(plan) {
+      this.btnLoading = true;
+      // createVirtualBackupPlan({ id: this.id, plan })
+      const data = Object.assign({}, plan, { vmList: [this.id] });
+      createMultipleVirtualBackupPlan(data)
+        .then(res => {
+          const { message } = res.data;
+          // 刷新情况下可能会出现两个添加后的计划
+          // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
+          //   this.backupPlans.unshift(backupPlan)
+          // }
+          fetchBackupPlans(this.id)
+            .then(res => {
+              const { data: plans } = res.data;
+              this.backupPlans = plans;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+          this.backupPlanCreateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    updateBackupPlan(id, plan) {
+      this.btnLoading = true;
+      updateVirtualBackupPlan({ id, plan })
+        .then(res => {
+          const { data: plan, message } = res.data;
+          // FIXME: 修改ID
+          plan.id = this.selectedBackupPlanId;
+          this.backupPlans.splice(
+            this.backupPlans.findIndex(p => p.id === plan.id),
+            1,
+            plan
+          );
+          this.backupPlanUpdateModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
   },
 };
 </script>
-<style lang="scss" module>
-@import '@/style/common.scss';
-.roleIconHeader {
-  padding: 5px;
-  margin: -5px 5px;
-  vertical-align: -0.2em;
-}
-.roleIconOppsition {
-  vertical-align: -0.2em;
-  padding: 3px;
-  margin: -3px 0 -3px 1px;
-}
-.switchIcon {
-  width: 1.7em;
-  height: 1.7em;
-  vertical-align: -0.5em;
-}
-.databaseLink {
-  composes: link;
-  font-size: 1.2em;
-  // color: rgb(170, 84, 27);
-}
-.linkInfo {
-  text-align: right;
-}
-.moreLink {
-  composes: link;
-  font-size: 0.9em;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-}
-.dmClass {
-  width: 40px;
-  height: 32px;
-  margin-top: 15px;
-  margin-right: 8px;
+<style>
+.el-col .el-form-item {
+  display: block;
 }
 </style>
+<style scoped>
+.margin-right5 {
+  margin-right: 5px;
+}
+</style>
+
