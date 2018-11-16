@@ -138,7 +138,12 @@ export default {
     },
     $route: function() {
       this.vmItems=[];
+      this.buttonfalg = false;
+      this.currentSelectDb = []
       this.currentPage=1;
+      this.pagesize = 10;
+      this.inputSearch = '';
+      this.filterItem = '';
       this.fetchData();
     }
   },

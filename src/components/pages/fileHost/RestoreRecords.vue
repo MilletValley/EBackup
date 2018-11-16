@@ -112,7 +112,7 @@
                          min-width="150px">
         </el-table-column>
         <el-table-column prop="hostIp"
-                         label="恢复设备IP"
+                         label="恢复主机IP"
                          align="center"
                          min-width="150px">
         </el-table-column>

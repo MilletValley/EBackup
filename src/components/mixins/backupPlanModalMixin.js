@@ -293,7 +293,9 @@ const restorePlanModalMixin = {
           ...other,
         };
       }
-      config.timePoints = this.filteredTimePoints(timePoints);
+      if ([2, 3].includes(timeStrategy)) {
+        config.timePoints = this.filteredTimePoints(timePoints);
+      }
       return { name, config };
     },
   },

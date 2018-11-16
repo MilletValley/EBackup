@@ -87,7 +87,7 @@
 						</el-form-item>
 					</el-col>
 				</el-row>
-        <el-form-item v-if="type==='windows'"
+        <el-form-item v-if="type==='windows'" class="is-required"
                     label="覆盖策略"
                     prop="reveringStrategy">
           <el-radio-group v-model="formData.recoveringStrategy">

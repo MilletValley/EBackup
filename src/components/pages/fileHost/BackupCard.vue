@@ -28,6 +28,7 @@
                  :class="type==='linux' ? $style.backupCardForm : ''"
                  size="mini">
           <el-form-item label="计划创建时间"
+                        v-if="backupConfig.timeStrategy !== 0"
                         :class="$style.backupCardFormItem"
                         :style="{ width: '40%'}">
             <span>{{ backupConfig.startTime }}</span>
@@ -150,8 +151,8 @@
           </li>
           <li>
             <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}
-              <el-popover placement="left" trigger="hover"
-                  content="已备份文件总大小，非本次备份大小"
+              <el-popover placement="left" trigger="hover" 
+                  :content="type === 'windows' ? '备份源总大小' : '已备份文件总大小，非本次备份大小'"
                   >
                   <i class="el-icon-info" slot="reference"></i>
               </el-popover>
@@ -196,15 +197,57 @@ export default {
   },
   data(){
     return {
-      progressNum: 0,
+      // progressNum: 0,
       disk:''
     }
   },
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
-      this.formatProcess(operation);
+      // this.formatProcess(operation);
       return operation;
+    },
+    progressNum(){
+      const {process: data, size, state} = this.backupOperation;
+      if(state === 2){
+        // this.progressNum = 100;
+        return 100;
+      }
+      if(this.type === 'windows'){
+        if(!data){
+          return 0;
+        }
+        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
+        const result = data.match(reg);
+        if(!result){
+          return 0;
+        }
+        if(result[1]){
+          this.disk = result[1];
+        }
+        if(result[2]){
+          let num = Number(result[2].substring(0,result[2].length - 1));
+          // this.progressNum = num || num === 0 ? num : 0;
+          return num || num === 0 ? num : 0;
+        }
+      }else if(this.type === 'linux'){
+        if(data && size){
+          if(Number(size)){
+            // 取百分比
+            let num = (Number(data) / Number(size)) * 100;
+            if (state === 0 && num >= 100) {
+              num = 100;
+            }else if(num > 0 && num < 1){
+              num = 1;
+            }else{
+              // 此处不能作四舍五入
+              num = parseInt(num > 99 ? 99 : num);
+            }
+            // this.progressNum = num || num === 0 ? num : 0;
+            return num || num === 0 ? num : 0;
+          }
+        }
+      }
     },
     backupConfig() {
       return this.backupPlan.config;
@@ -239,6 +282,8 @@ export default {
         return 'success';
       }else if(this.backupOperation.state === 3){
         return 'exception';
+      }else if(this.backupOperation.state === 0 && this.progressNum !== 0){
+        return 'success';
       }else return '';
     },
     diskInfo(){
@@ -324,6 +369,8 @@ export default {
             let num = (Number(data) / Number(size)) * 100;
             if (state === 0 && num >= 100) {
               num = 100;
+            }else if(num > 0 && num < 1){
+              num = 1;
             }else{
               // 此处不能作四舍五入
               num = parseInt(num > 99 ? 99 : num);

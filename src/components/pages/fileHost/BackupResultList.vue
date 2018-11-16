@@ -46,14 +46,18 @@
                    label-width="100px"
                    size="small"
                    class="result-detail-form">
-            <el-form-item :class="$style.detailFormItem"
+            <!-- <el-form-item :class="$style.detailFormItem"
                           label="ID">
               <span>{{ scope.row.id }}</span>
-            </el-form-item>
+            </el-form-item> -->
             <!-- <el-form-item :class="$style.detailFormItem"
                           label="备份类型">
               <span>{{scope.row.backupType |backupTypeFilter}}</span>
             </el-form-item> -->
+            <el-form-item :class="$style.detailFormItem"
+                          label="备份计划名称">
+              <span>{{ scope.row.planName }}</span>
+            </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="存储目标路径">
               <span>{{ scope.row.path }}</span>
@@ -113,6 +117,11 @@
                        min-width="180px"
                        align="center"
                        header-align="center"></el-table-column>
+      <el-table-column label="备份计划名"
+                       prop="planName"
+                       min-width="110px"
+                       align="center"
+                       header-align="center"></el-table-column>
       <!-- <el-table-column  label="备份类型"
                        prop="backupType"
                        min-width="100px"
@@ -165,123 +174,18 @@
 <script>
 import dayjs from 'dayjs';
 import baseMixin from '@/components/mixins/baseMixins';
-import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
+import backupResultMixin from '@/components/mixins/backupResultMixin';
 import { fmtSizeFn } from '@/utils/common';
 
 export default {
   name: 'BackupResultList',
-  mixins: [baseMixin],
+  mixins: [baseMixin, backupResultMixin],
   props: {
-    data: {
-      type: Array,
-      required: true,
-    },
     type: {
       type: String
     }
   },
-  data() {
-    return {
-      singleRestoreModalVisible: false,
-      selectedId: -1,
-      showFilter: false,
-      filterValue: '',
-      filterForm: {
-        fileName: '',
-        startTime: '',
-        endTime: ''
-      },
-      pickerOptions: {
-        shortcuts: [{
-            text: '最近三天',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 3);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
-      }
-    };
-  },
-  filters: {
-    NotNullfilter(data) {
-      data.map((result) => {
-        for(let i in result) {
-          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
-        }
-      })
-      return data;
-    },
-    filterFn(data,filter){
-      let tData = data.filter( e => {
-        let flag = true;
-        for( let i in filter){
-          if(filter[i]){
-            if(i.includes('Time')){
-              if(dayjs(e[i]) < dayjs(filter[i][0]) || dayjs(e[i]) > dayjs(filter[i][1])){
-                flag = false;
-                break;
-              }
-            }else{
-              if(!e[i].includes(filter[i])){
-                flag = false;
-                break;
-              }
-            }
-          }
-        }
-        return flag;
-      })
-      return tData
-    },
-    backupTypeFilter(val){
-      return backupTypeMapping[val];
-    },
-    logTypeFilter(val){
-      return yesOrNoMapping[val];
-    }
-  },
-  methods: {
-    // 备份集状态码转文字
-    stateConverter(stateCode) {
-      return backupResultMapping[stateCode];
-    },
-    // 点击恢复按钮
-    restoreBtnClick({ id }) {
-      this.$emit('single-restore-btn-click', id);
-    },
-    endTimeSortMethod(a, b) {
-      return dayjs(a) - dayjs(b);
-    },
-    filterHandler(){
-      this.filterValue = Object.assign({},this.filterForm);
-    },
-    resetFn(){
-      this.$refs.filterForm.resetFields();
-      this.filterHandler();
-    }
-  },
   computed: {
-    buttonIcon(){
-      return this.showFilter ? 'el-icon-arrow-down' : 'el-icon-arrow-right';
-    },
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
     handleData() {
       const data = this.data.map((r, i, arr) => {

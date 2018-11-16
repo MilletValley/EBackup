@@ -91,12 +91,13 @@
       <template slot="restoreRecord">
         <restore-records :restore-plan="restorePlans"
                          :records="restoreRecords"
+                         :vm-type="vmType"
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
     <backup-plan-modal   :btn-loading="btnLoading"
                             :visible.sync="backupPlanModalVisible"
-                            @confirm="confirmCallback"
+                            @confirm="vmCallback"
                             :action="action"
                             :backup-plan="selectedBackupPlan">
     </backup-plan-modal>
@@ -129,21 +130,7 @@ import RestoreCard from '@/components/pages/vm/RestoreCard';
 import RestoreRecords from '@/components/pages/vm/RestoreRecords';
 
 import {
-  fetchOne,
-  modifyOne,
-  fetchBackupPlans,
-  fetchBackupResults,
-  createVirtualBackupPlan,
   updateVirtualBackupPlan,
-  deleteVirtualBackupPlan,
-  fetchBackupOperation,
-  createSingleRestorePlan,
-  fetchRestorePlans,
-  fetchRestoreRecords,
-  createRestorePlan,
-  deleteRestorePlan,
-  updateRestorePlan,
-  fetchRestoreOperation,
   createMultipleVirtualBackupPlan,
 } from '@/api/virtuals';
 
@@ -166,10 +153,19 @@ export default {
   },
   computed: {
     vmType() {
-      return this.details && this.details.type === 1 ? 'VMware' : 'HW';
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual' ? 'VMware' : 'HW';
+      // return this.details && this.details.type === 1 ? 'VMware' : 'HW';
     },
   },
   methods: {
+    vmCallback(data, type) {
+      if (type === 'update') {
+        this.updateBackupPlan(data.id, data);
+      } else {
+        this.addBackupPlan(data);
+      }
+    },
     addBackupPlan(plan) {
       this.btnLoading = true;
       // createVirtualBackupPlan({ id: this.id, plan })
@@ -177,19 +173,8 @@ export default {
       createMultipleVirtualBackupPlan(data)
         .then(res => {
           const { message } = res.data;
-          // 刷新情况下可能会出现两个添加后的计划
-          // if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
-          //   this.backupPlans.unshift(backupPlan)
-          // }
-          fetchBackupPlans(this.id)
-            .then(res => {
-              const { data: plans } = res.data;
-              this.backupPlans = plans;
-            })
-            .catch(error => {
-              this.$message.error(error);
-            });
-          this.backupPlanCreateModalVisible = false;
+          this.getBackupPlanList();
+          this.backupPlanModalVisible = false;
           this.$message.success(message);
         })
         .catch(error => {
@@ -204,15 +189,9 @@ export default {
       this.btnLoading = true;
       updateVirtualBackupPlan({ id, plan })
         .then(res => {
-          const { data: plan, message } = res.data;
-          // FIXME: 修改ID
-          plan.id = this.selectedBackupPlanId;
-          this.backupPlans.splice(
-            this.backupPlans.findIndex(p => p.id === plan.id),
-            1,
-            plan
-          );
-          this.backupPlanUpdateModalVisible = false;
+          const { message } = res.data;
+          this.getBackupPlanList();
+          this.backupPlanModalVisible = false;
           this.$message.success(message);
         })
         .catch(error => {

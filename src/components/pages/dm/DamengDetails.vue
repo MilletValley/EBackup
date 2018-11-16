@@ -153,36 +153,9 @@ export default {
   data(){
     return {
       type: 'dm',
-      // action: 'create',
-      // restoreAction: 'create',
-      // planFilterForm: {
-      //   hiddenCompletePlan: false,
-      //   planType: 'backup',
-      // },
     }
   },
   computed: {
-    // // 筛选后得备份计划
-    // filteredBackupPlans() {
-    //   if (this.planFilterForm.planType !== 'backup') {
-    //     return [];
-    //   }
-    //   const filterMethods = [];
-    //   if (this.planFilterForm.hiddenCompletePlan) {
-    //     filterMethods.push(plan => plan.state !== 2);
-    //   }
-    //   return applyFilterMethods(this.backupPlans, filterMethods).sort((a,b) => dayjs(b.createTime) - dayjs(a.createTime));
-    // },
-    // filteredRestorePlans() {
-    //   if (this.planFilterForm.planType !== 'restore') {
-    //     return [];
-    //   }
-    //   const filterMethods = [];
-    //   if (this.planFilterForm.hiddenCompletePlan) {
-    //     filterMethods.push(plan => plan.state !== 2);
-    //   }
-    //   return applyFilterMethods(this.restorePlans, filterMethods).sort((a,b) => dayjs(b.createTime) - dayjs(a.createTime));
-    // },
   },
 };
 </script>

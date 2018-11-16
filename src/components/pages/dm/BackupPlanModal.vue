@@ -75,8 +75,6 @@ export default {
   data() {
     return {
       type: 'dm',
-      // formData: Object.assign({}, baseFormData), // 备份数据
-      // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
       },
