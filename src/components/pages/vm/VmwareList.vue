@@ -66,21 +66,23 @@
           :total="total">
         </el-pagination>
       </div>
-      <backup-plan-create-modal type="vm"
-                     :visible.sync="backupPlanCreateModalVisible"
-                     :btn-loading="btnLoading"
-                     @confirm="addBackupPlan"></backup-plan-create-modal>
+      <backup-plan-modal  :btn-loading="btnLoading"
+                          :vm-type="vmType"
+                          :visible.sync="backupPlanCreateModalVisible"
+                          @confirm="addBackupPlan"
+                          :action="action">
+      </backup-plan-modal>
 
   </section>
 </template>
 <script>
-import { fetchAll ,createMultipleVirtualBackupPlan, rescan} from '../../api/virtuals';
-import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
-import { hostTypeMapping, databaseTypeMapping } from '../../utils/constant';
+import { fetchAll ,createMultipleVirtualBackupPlan, rescan} from '@/api/virtuals';
+import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
+import { hostTypeMapping, databaseTypeMapping } from '@/utils/constant';
 export default {
   name: 'VMwareList',
   components: {
-    BackupPlanCreateModal
+    BackupPlanModal
   },
   data() {
     return {
@@ -92,8 +94,9 @@ export default {
       currentSelectDb: [],
       buttonfalg: false,
       btnLoading: false,
+      action: 'create',
       backupPlanCreateModalVisible: false,
-      dialogVisible: false,
+      // dialogVisible: false,
     }
   },
   computed:{
@@ -125,6 +128,9 @@ export default {
         return e.databaseType === 4 && e.osName === 'Windows'
       });
     },
+    vmType()  {
+      return this.$route.name === 'VMwareList' ? 'VMware' : 'HW';
+    }
   },
   created() {
     this.fetchData();
@@ -156,7 +162,7 @@ export default {
             this.vmItems = [];
             return
           }
-          if(this.$route.name === 'VMwareList') {
+          if(this.type === 'VMware') {
             this.vmItems = data.filter(item => item.type===1);
           } else {
             this.vmItems = data.filter(item => item.type===2);
@@ -252,6 +258,6 @@ export default {
 };
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
+@import '@/style/common.scss';
 </style>
 <style>

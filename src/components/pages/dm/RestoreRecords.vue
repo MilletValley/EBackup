@@ -2,9 +2,13 @@
   <section>
     <div>
       <h4>正在执行的恢复操作
-        <i class="el-icon-refresh"
-           :class="$style.stateRefresh"
-           @click="$emit('restoreinfo:refresh')"></i>
+        <el-tooltip content="刷新"
+                    placement="top"
+                    :open-delay="300">
+          <i  class="el-icon-refresh"
+              :class="$style.stateRefresh"
+              @click="$emit('restoreinfo:refresh')"></i>
+        </el-tooltip>
       </h4>
       <div v-show="plans.length === 0"
            :class="$style.noRestoreTip">
@@ -20,8 +24,22 @@
                    :class="$style.ongoingRestoreCard">
             <div>
               <span>
-                <i :class="['el-icon-loading', $style.successColor]"></i> <timer :val="item.consume"></timer> </span>
-              <span :class="[$style.restoreStartTime, 'hidden-']">{{item.startTime}}</span>
+                <el-tooltip content="进行中"
+                            placement="top"
+                            :open-delay="300">
+                  <i :class="['el-icon-loading', $style.successColor]"></i> 
+                </el-tooltip>
+                <el-tooltip content="已持续时间"
+                            placement="top"
+                            :open-delay="300">
+                  <timer :val="item.consume"></timer> 
+                </el-tooltip>
+              </span>
+              <el-tooltip content="恢复开始时间"
+                            placement="top"
+                            :open-delay="300">
+                <span :class="[$style.restoreStartTime, 'hidden-']">{{item.startTime}}</span>
+              </el-tooltip>
             </div>
             <el-row v-if="true" :class="$style.margin14">
               <el-col :span="12">
