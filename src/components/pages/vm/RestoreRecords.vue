@@ -95,6 +95,12 @@
                          align="center"
                          min-width="200px">
         </el-table-column>
+        <el-table-column prop="diskName"
+                         label="恢复磁盘名"
+                         v-if="vmType === 'VMware'"
+                         align="center"
+                         min-width="200px">
+        </el-table-column>
         <el-table-column prop="state"
                          label="状态"
                          align="center"
@@ -131,6 +137,9 @@ export default {
       type: Array,
       required: true,
     },
+    vmType: {
+      type: String
+    }
   },
   computed: {
     // 正在进行中的恢复计划

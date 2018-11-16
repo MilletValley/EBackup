@@ -69,10 +69,8 @@ import {
   restoreTimeStrategyMapping as strategys,
   weekMapping,
 } from '../../utils/constant';
-// import { restorePlanModalMixin } from '../mixins/backupPlanModalMixin';
 export default {
   name: 'timeInterval',
-  // mixins: [restorePlanModalMixin],
   props: {
     type: {
       type: String,
@@ -158,9 +156,7 @@ export default {
   },
   methods: {
     validate() {
-      console.log(2222);
       return this.$refs.timeIntervalForm.validate().then(res => {
-        console.log(333);
         return this.validateData();
       });
     },
@@ -170,7 +166,6 @@ export default {
     // 精简计划数据，返回不同时间策略下所需要的数据
     validateData() {
       const { timeStrategy, startTime, singleTime } = this.formData;
-      console.log(444);
       return new Promise((resolve, reject) => {
         if (timeStrategy === 1) {
           if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
