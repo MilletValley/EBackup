@@ -5,8 +5,7 @@
              @close="modalClosed"
              :visible.sync="modalVisible">
     <span slot="title">
-      {{title}}
-      <!-- <span style="color: #999999"> (ID: {{restorePlan.id}})</span> -->
+       {{title}}
     </span>
     <el-form size="small"
              label-position="right"
@@ -14,62 +13,44 @@
              :model="formData"
              :rules="rules"
              ref="restorePlanCreateForm">
+      <el-row>
         <el-form-item label="计划名称"
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
-        <el-form-item label="恢复设备"
-                      prop="hostIp">
-          <span slot="label">恢复设备
-              <el-popover placement="top" trigger="hover"
-                  content="类型为易备环境的设备"
-                  >
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
-          </span>  
-          <el-select v-model="formData.hostIp"
-                      style="width: 100%;">
-            <el-option v-for="host in availableHostsForRestore"
-                        :key="host.id"
-                        :value="host.hostIp"
-                        :label="`${host.name}(${host.hostIp})`">
-              <span style="float: left">{{ host.name }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{ host.hostIp }}</span>
-            </el-option>
-          </el-select>
+      </el-row>
+      <el-row v-if="vmType === 'HW'">
+        <el-col :span="24">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="vmType === 'VMware'">
+        <el-col :span="12">
+          <el-form-item label="恢复主机IP"
+                        prop="hostIp">
+            <el-input v-model="formData.hostIp"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="新虚拟机名"
+                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
+                        prop="newName">
+            <el-input v-model="formData.newName"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="vmType === 'VMware'">
+        <el-form-item label="恢复磁盘名"
+                      prop="diskName"
+                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
+          <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
-				<el-row>
-					<el-col :span="12" >
-						<el-form-item label="数据库名"
-													prop="dbName">
-							<el-input v-model="formData.dbName"></el-input>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="端口号"
-													prop="dbPort">
-							<el-input v-model.number="formData.dbPort"></el-input>
-						</el-form-item>
-					</el-col>
-				</el-row>
-        
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="登录名"
-													prop="loginName">
-							<el-input v-model="formData.loginName"></el-input>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="登录密码"
-													prop="password">
-							<input-toggle v-model="formData.password"
-														:hidden.sync="hiddenPassword"></input-toggle>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			
-      	<time-interval :form-data="formData" :type="type" ref="timeIntervalComponent"></time-interval>
+      </el-row>
+      <time-interval :form-data="formData" :type="type" ref="timeIntervalComponent"></time-interval>
     </el-form>
     <span slot="footer">
       <el-button type="primary"
@@ -80,7 +61,7 @@
   </el-dialog>
 </template>
 <script>
-import isEqual from 'lodash/isEqual';
+// import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
@@ -89,10 +70,9 @@ import TimeInterval from '@/components/common/TimeInterval';
 const basiceFormData = {
   name: '',
   hostIp: '',
-  dbName: '',
-  dbPort: '',
-  loginName: '',
-  password: '',
+  newName: '',
+  // oldName: '',
+  diskName: '',
   startTime: '',
   singleTime: '',
   datePoints: [],
@@ -107,18 +87,19 @@ export default {
   components: {
     TimeInterval,
   },
+  props: {
+    vmType: {
+      type: String
+    }
+  },
   data() {
     return {
-      type: 'dm',
-      // formData: Object.assign({}, baseFormData), // 备份数据
-      // originFormData: Object.assign({}, baseFormData), // 原始数据
+      type: 'vm',
       rules: {
         name: validate.planName,
-        hostIp: validate.selectHost,
-        dbName: validate.dbName,
-        dbPort: validate.dbPort,
-        loginName: validate.dbLoginName,
-        password: validate.dbPassword,
+        hostIp: validate.hostIp,
+        newName: validate.newVmName,
+        diskName: validate.diskName,
       },
     };
   },
@@ -167,8 +148,8 @@ export default {
           this.fmtData({ ...this.restorePlan })
         );
       } else {
-        const {dbName, dbPort} = this.details;
-        this.originFormData = Object.assign({}, baseFormData, {dbName, dbPort});
+        const {vmName} = this.details;
+        this.originFormData = Object.assign({}, baseFormData, {oldName: vmName});
       }
       this.formData = Object.assign({}, this.originFormData);
       console.log(this.formData);

@@ -9,6 +9,7 @@
               :class="$style.stateRefresh"
               @click="$emit('restoreinfo:refresh')"></i>
         </el-tooltip>
+        
       </h4>
       <div v-show="plans.length === 0"
            :class="$style.noRestoreTip">
@@ -45,49 +46,22 @@
               <el-col :span="12">
                 <i-icon name="ip"
                         :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip content="目标设备IP"
+                <el-tooltip content="恢复主机IP"
                             placement="right"
                             :open-delay="300">
                   <span >{{ item.config.hostIp }}</span>
                 </el-tooltip>
               </el-col>
-              <el-col :span="12">
-                <el-progress  :percentage="fmtProgress(item)" :text-inside="true" :stroke-width="17">
-                </el-progress>
-              </el-col>
             </el-row>
             <el-row :class="$style.margin14">
               <el-col :span=18>
-                <el-tooltip :content="type==='linux'?`源NFS路径: ${item.config.nfsSourcePath}`:'恢复目标路径'"
-                            placement="right"
-                            :open-delay="300">
-                  <div :class="$style.wordsOverFlow">
-                    <i-icon :name="type==='linux'?'nfsPath':'instance'"
-                            :class="$style.ongoingRestoreIcon"></i-icon>
-                    <span style="display: inline">{{ type==='linux'?item.config.nfsSourcePath:item.config.detailInfo }}</span>
-                  </div>
-                </el-tooltip>
-              </el-col>
-              <el-col :span=6 style="text-align:right" >
-                <i-icon name="size"
-                        :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip content="已恢复大小"
-                            placement="right"
-                            :open-delay="300">
-                  <span>{{ item | sizeFormat(type) }}</span>
-                </el-tooltip>
-              </el-col>
-            </el-row>
-            <el-row :class="$style.margin14"
-                    v-if="type==='linux'">
-              <el-col :span=24>
-                <el-tooltip :content="`恢复方向: ${item.config.originDetailInfo}=>${item.config.detailInfo}`"
+                <el-tooltip content="新虚拟机名"
                             placement="right"
                             :open-delay="300">
                   <div :class="$style.wordsOverFlow">
                     <i-icon name="instance"
                             :class="$style.ongoingRestoreIcon"></i-icon>
-                    <span>{{ item.config.originDetailInfo }}=>{{item.config.detailInfo}}</span>
+                    <span>{{item.config.newName }}</span>
                   </div>
                 </el-tooltip>
               </el-col>
@@ -112,29 +86,14 @@
                          min-width="150px">
         </el-table-column>
         <el-table-column prop="hostIp"
-                         label="恢复设备IP"
+                         label="恢复主机IP"
                          align="center"
                          min-width="150px">
         </el-table-column>
-         <el-table-column prop="detailInfo"
-                         label="恢复目标路径"
+        <el-table-column prop="newName"
+                         label="新虚拟机名"
                          align="center"
-                         min-width="150px"></el-table-column>
-        <el-table-column v-if="type==='linux'"
-                         prop="pointSourcePath"
-                         label="恢复源路径"
-                         align="center"
-                         min-width="150px"></el-table-column>
-        <el-table-column v-if="type==='linux'"
-                         prop="nfsSourcePath"
-                         label="恢复源NFS路径"
-                         align="center"
-                         min-width="150px"></el-table-column>
-        <el-table-column prop="backupResult.size"
-                         :formatter="sizeFmt"
-                         label="大小"
-                         align="center"
-                         min-width="70px">
+                         min-width="200px">
         </el-table-column>
         <el-table-column prop="state"
                          label="状态"
@@ -161,7 +120,6 @@
 <script>
 import IIcon from '@/components/IIcon';
 import Timer from '@/components/Timer';
-import { fmtSizeFn } from '@/utils/common';
 export default {
   name: 'RestoreRecords',
   props: {
@@ -173,9 +131,6 @@ export default {
       type: Array,
       required: true,
     },
-    type: {
-      type: String
-    }
   },
   computed: {
     // 正在进行中的恢复计划
@@ -183,48 +138,7 @@ export default {
       return this.restorePlan.filter(plan => plan.state === 1);
     }
   },
-  filters:{
-    sizeFormat(data, type){
-      let fmtSize = null;
-      const { state } = data;
-      if(type === 'linux'){
-        const process = Number(data.progress);
-        const size = Number(data.size);
-        if(process > size){
-          fmtSize = fmtSizeFn(size);
-        }else{
-          fmtSize = fmtSizeFn(process);
-        }
-      }else if(type === 'windows'){
-        const process = Number(data.progress.replace(/[^0-9]/ig,""));
-        const size = Number(data.size);
-        const restoreSize = size * process / 100;
-        fmtSize = fmtSizeFn(restoreSize);
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    }
-  },
   methods: {
-    sizeFmt(row, column, cellValue, index){
-      let fmtSize = null;
-      let size = this.type==='linux' ? row.size : row.backupResult.size;
-      fmtSize = fmtSizeFn(size);
-      return fmtSize ? fmtSize : 0;
-    },
-    fmtProgress(data){
-      let process = 0;
-      if(this.type === 'linux'){
-        const progress = Number(data.progress);
-        const size = Number(data.size);
-        process = Math.round((progress / size) * 100);
-      }else if(this.type === 'windows'){
-        process = Number(data.progress.replace(/[^0-9]/ig,""));
-      }
-      if(process > 99){
-        process = 99;
-      }
-      return process ? process : 0;
-    },
   },
   components: {
     IIcon,
