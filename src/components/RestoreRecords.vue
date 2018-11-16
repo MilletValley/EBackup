@@ -252,7 +252,15 @@ export default {
     sizeFmt(row, column, cellValue, index){
       let fmtSize = null;
       let size = this.type==='linux' ? row.size : row.backupResult.size;
-      fmtSize = fmtSizeFn(size);
+      if(this.type === 'windows') {
+        if(size && Number(size) < 1024) {
+          fmtSize = `${size}B`
+        } else {
+          fmtSize = fmtSizeFn(Math.round(Number(size)/1024));
+        }
+      } else {
+        fmtSize = fmtSizeFn(size);
+      }
       return fmtSize ? fmtSize : 0;
     },
     fmtProgress(data){

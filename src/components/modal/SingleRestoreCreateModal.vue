@@ -177,7 +177,8 @@ export default {
     filterToTb(size) {
       if(!size)
         return '-'
-      else
+      else if(size<1024)
+        return `${size}B`
       return fmtSizeFn(Math.round(size/1024));
     }
   },
