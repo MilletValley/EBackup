@@ -217,7 +217,7 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
-          })
+          });
       }),
       throttleRefreshRestore: this.throttleMethod(() => {
         fetchRestoreOperation(this.selectedRestorePlanId)
@@ -237,7 +237,7 @@ export default {
           })
           .catch(error => {
             this.$message.error(error);
-          })
+          });
       }),
     };
   },
@@ -313,13 +313,13 @@ export default {
           //   this.backupPlans.unshift(backupPlan)
           // }
           fetchBackupPlans(this.id)
-          .then(res => {
-            const { data: plans } = res.data;
-            this.backupPlans = plans;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
+            .then(res => {
+              const { data: plans } = res.data;
+              this.backupPlans = plans;
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
           this.backupPlanCreateModalVisible = false;
           this.$message.success(message);
         })
@@ -377,15 +377,17 @@ export default {
         });
     },
     deleteBackupPlan(planId) {
-      deleteVirtualBackupPlan(planId).then(() => {
-        this.backupPlans.splice(
-          this.backupPlans.findIndex(plan => plan.id === planId),
-          1
-        );
-        this.$message.success('删除成功');
-      }).catch( error => {
-        this.$message.error( error)
-      });
+      deleteVirtualBackupPlan(planId)
+        .then(() => {
+          this.backupPlans.splice(
+            this.backupPlans.findIndex(plan => plan.id === planId),
+            1
+          );
+          this.$message.success('删除成功');
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     addRestorePlan(restorePlan) {
       this.btnLoading = true;
@@ -393,8 +395,11 @@ export default {
         .then(res => {
           const { data: restorePlan, message } = res.data;
           // 刷新情况下可能会出现两个添加后的计划
-          if (this.restorePlans.findIndex(plan => plan.id === restorePlan.id) === -1) {
-            this.restorePlans.unshift(restorePlan)
+          if (
+            this.restorePlans.findIndex(plan => plan.id === restorePlan.id) ===
+            -1
+          ) {
+            this.restorePlans.unshift(restorePlan);
           }
           this.restorePlanCreateModalVisible = false;
           this.$message.success(message);
@@ -476,7 +481,7 @@ export default {
 }
 </style>
 <style scoped>
-.margin-right5{
+.margin-right5 {
   margin-right: 5px;
 }
 </style>
