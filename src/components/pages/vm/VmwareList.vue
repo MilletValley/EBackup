@@ -162,7 +162,7 @@ export default {
             this.vmItems = [];
             return
           }
-          if(this.type === 'VMware') {
+          if(this.vmType === 'VMware') {
             this.vmItems = data.filter(item => item.type===1);
           } else {
             this.vmItems = data.filter(item => item.type===2);
