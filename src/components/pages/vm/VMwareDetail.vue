@@ -166,7 +166,9 @@ export default {
   },
   computed: {
     vmType() {
-      return this.details && this.details.type === 1 ? 'VMware' : 'HW';
+      const path = this.$route.path;
+      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual' ? 'VMware' : 'HW';
+      // return this.details && this.details.type === 1 ? 'VMware' : 'HW';
     },
   },
   methods: {

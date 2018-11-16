@@ -163,123 +163,12 @@
   </section>
 </template>
 <script>
-import dayjs from 'dayjs';
 import baseMixin from '@/components/mixins/baseMixins';
-import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
-import { fmtSizeFn } from '@/utils/common';
+import backupResultMixin from '@/components/mixins/backupResultMixin';
 
 export default {
   name: 'BackupResultList',
-  mixins: [baseMixin],
-  props: {
-    data: {
-      type: Array,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      singleRestoreModalVisible: false,
-      selectedId: -1,
-      showFilter: false,
-      filterValue: '',
-      filterForm: {
-        fileName: '',
-        startTime: '',
-        endTime: ''
-      },
-      pickerOptions: {
-        shortcuts: [{
-            text: '最近三天',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 3);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
-      }
-    };
-  },
-  filters: {
-    NotNullfilter(data) {
-      data.map((result) => {
-        for(let i in result) {
-          result[i]=(result[i]===null||result[i]==='null')?'':result[i];
-        }
-      })
-      return data;
-    },
-    filterFn(data,filter){
-      let tData = data.filter( e => {
-        let flag = true;
-        for( let i in filter){
-          if(filter[i]){
-            if(i.includes('Time')){
-              if(dayjs(e[i]) < dayjs(filter[i][0]) || dayjs(e[i]) > dayjs(filter[i][1])){
-                flag = false;
-                break;
-              }
-            }else{
-              if(!e[i].includes(filter[i])){
-                flag = false;
-                break;
-              }
-            }
-          }
-        }
-        return flag;
-      })
-      return tData
-    },
-    backupTypeFilter(val){
-      return backupTypeMapping[val];
-    },
-    logTypeFilter(val){
-      return yesOrNoMapping[val];
-    }
-  },
-  methods: {
-    // 备份集状态码转文字
-    stateConverter(stateCode) {
-      return backupResultMapping[stateCode];
-    },
-    // 点击恢复按钮
-    restoreBtnClick({ id }) {
-      this.$emit('single-restore-btn-click', id);
-    },
-    endTimeSortMethod(a, b) {
-      return dayjs(a) - dayjs(b);
-    },
-    filterHandler(){
-      this.filterValue = Object.assign({},this.filterForm);
-    },
-    resetFn(){
-      this.$refs.filterForm.resetFields();
-      this.filterHandler();
-    }
-  },
-  computed: {
-    buttonIcon(){
-      return this.showFilter ? 'el-icon-arrow-down' : 'el-icon-arrow-right';
-    },
-  },
+  mixins: [baseMixin, backupResultMixin],
 };
 </script>
 <style lang="scss" module>
