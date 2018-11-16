@@ -152,7 +152,6 @@ export default {
         this.originFormData = Object.assign({}, baseFormData, {oldName: vmName});
       }
       this.formData = Object.assign({}, this.originFormData);
-      console.log(this.formData);
     },
     modalClosed() {
       // this.formData = { ...baseFormData };

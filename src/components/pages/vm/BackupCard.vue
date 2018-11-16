@@ -27,6 +27,7 @@
         <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划创建时间"
+                        v-if="backupConfig.timeStrategy !== 0"
                         :class="$style.backupCardFormItem"
                         :style="{ width: '100%'}">
             <span>{{ backupConfig.startTime }}</span>
