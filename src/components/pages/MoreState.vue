@@ -13,8 +13,10 @@
                @tab-click="handleClick"
                :before-leave="beforeTabLeave">
         <el-tab-pane label="数据库备份"
+                     v-if="showBackup"
                      name="databaseBackup">
-          <el-table :data="databaseBackup|filterByPage(currentPage, pagesize)"
+          <el-table :data="processedTableData"
+                    @filter-change="filterChange"
                     ref="databaseBackup"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -22,7 +24,7 @@
                              label="序号"
                              fixed>
               <template slot-scope="scope">
-                  {{scope.$index+1+(currentPage-1)*pagesize}}
+                  {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
             <el-table-column label="名称"
@@ -30,7 +32,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -46,7 +48,7 @@
                              prop="ddvType"
                              :formatter="dbType"
                              :filters="dbTypeFilter"
-                             :filter-method="filterHandle"
+                             column-key="ddvType"
                              min-width="100"></el-table-column>
             <el-table-column label="备份结束时间"
                              align="center"
@@ -69,8 +71,9 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
+                             v-if="!checkType"
                              :filters="filterBackupStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="backupState"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
@@ -90,8 +93,11 @@
                              fixed="right"></el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="数据库恢复" name="databaseRestore">
-          <el-table :data="databaseRestore|filterByPage(currentPage, pagesize)"
+        <el-tab-pane label="数据库恢复"
+                     v-if="showRestore"
+                     name="databaseRestore">
+          <el-table :data="processedTableData"
+                    @filter-change="filterChange"
                     ref="databaseRestore"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -99,7 +105,7 @@
                              label="序号"
                              fixed>
               <template slot-scope="scope">
-                  {{scope.$index+1+(currentPage-1)*pagesize}}
+                  {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
             <el-table-column prop="ascription"
@@ -108,7 +114,7 @@
                              align="center"
                              min-width="180">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -124,7 +130,7 @@
                              prop="ddvType"
                              :formatter="dbType"
                              :filters="dbTypeFilter"
-                             :filter-method="filterHandle"
+                             column-key="ddvType"
                              min-width="120"></el-table-column>
             <el-table-column label="恢复结束时间"
                              align="center"
@@ -143,8 +149,9 @@
             </el-table-column>
             <el-table-column label="状态"
                              prop="restoreState"
+                             v-if="!checkType"
                              :filters="filterRestoreStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="restoreState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -159,8 +166,10 @@
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="一键接管"
-                     name="initconnNum">
-          <el-table :data="initconnNum|filterByPage(currentPage, pagesize)"
+                     name="initconnNum"
+                     v-if="showTakeOver">
+          <el-table :data="processedTableData"
+                    @filter-change="filterChange"
                     ref="initconnNum"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -168,7 +177,7 @@
                              label="序号"
                              fixed>
               <template slot-scope="scope">
-                  {{scope.$index+1+(currentPage-1)*pagesize}}
+                  {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
             <el-table-column label="实例名"
@@ -189,8 +198,9 @@
             <el-table-column label="主库状态"
                              align="center"
                              min-width="100"
+                             prop="primaryState"
                              :filters="dbStateFilter"
-                             :filter-method="filterHandle">
+                             column-key="primaryState">
               <template slot-scope="scope">
                 <el-tag :type="stateTagType(scope.row.primaryState)"
                         size="mini">
@@ -204,8 +214,9 @@
                              min-width="100"></el-table-column>
             <el-table-column label="备库状态"
                              align="center"
+                             prop="viceState"
                              :filters="dbStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="viceState"
                              min-width="100">
               <template slot-scope="scope">
                 <el-tag :type="stateTagType(scope.row.viceState)"
@@ -217,7 +228,7 @@
             <el-table-column label="连接状态"
                              prop="overState"
                              :filters="dbLinkStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="overState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -236,8 +247,11 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="文件备份" name="filehostBackup">
-          <el-table :data="filehostBackup|filterByPage(currentPage, pagesize)"
+        <el-tab-pane label="文件备份"
+                     name="filehostBackup"
+                     v-if="showBackup">
+          <el-table :data="processedTableData"
+                    @filter-change="filterChange"
                     ref="filehostBackup"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -245,7 +259,7 @@
                              label="序号"
                              fixed>
               <template slot-scope="scope">
-                  {{scope.$index+1+(currentPage-1)*pagesize}}
+                  {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
             <el-table-column label="名称"
@@ -253,7 +267,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'backup' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -286,8 +300,9 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
+                             v-if="!checkType"
                              :filters="filterBackupStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="backupState"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
@@ -307,16 +322,19 @@
                              fixed="right"></el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="文件恢复" name="filehostRestore">
-          <el-table :data="filehostRestore|filterByPage(currentPage, pagesize)"
+        <el-tab-pane label="文件恢复"
+                     name="filehostRestore"
+                     v-if="showRestore">
+          <el-table :data="processedTableData"
                     ref="filehostRestore"
+                    @filter-change="filterChange"
                     style="width: 100%">
             <el-table-column min-width="50"
                              align="center"
                              label="序号"
                              fixed>
               <template slot-scope="scope">
-                  {{scope.$index+1+(currentPage-1)*pagesize}}
+                  {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
             <el-table-column label="名称"
@@ -324,7 +342,7 @@
                              align="center"
                              min-width="180">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'restore' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -352,8 +370,9 @@
             </el-table-column>
             <el-table-column label="状态"
                              prop="restoreState"
+                             v-if="!checkType"
                              :filters="filterRestoreStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="restoreState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -367,17 +386,19 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="虚拟机备份" name="vmBackup">
-          <el-table :data="vmBackup|filterByPage(currentPage, pagesize)"
+        <el-tab-pane label="虚拟机备份"
+                     name="vmBackup"
+                     v-if="showBackup">
+          <el-table :data="processedTableData"
+                    @filter-change="filterChange"
                     ref="vmBackup"
                     style="width: 100%">
-            <el-table-column
-              min-width="50"
-              align="center"
-              label="序号"
-              fixed>
+            <el-table-column min-width="50"
+                             align="center"
+                             label="序号"
+                             fixed>
               <template slot-scope="scope">
-                  {{scope.$index+1+(currentPage-1)*pagesize}}
+                  {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
             <el-table-column label="虚拟机名"
@@ -385,7 +406,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
@@ -399,7 +420,7 @@
             <el-table-column prop="ddvType"
                              :formatter="vmType"
                              :filters="vmTypeFilter"
-                             :filter-method="filterHandle"
+                             column-key="ddvType"
                              label="虚拟机类型"
                              show-overflow-tooltip
                              align="center"
@@ -425,8 +446,9 @@
                              min-width="100"></el-table-column>
             <el-table-column prop="backupState"
                              label="状态"
+                             v-if="!checkType"
                              :filters="filterBackupStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="backupState"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
@@ -447,8 +469,10 @@
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="虚拟机恢复"
-                     name="vmRestore">
-          <el-table :data="vmRestore"
+                     name="vmRestore"
+                     v-if="showRestore">
+          <el-table :data="processedTableData"
+                    @filter-change="filterChange"
                     ref="vmRestore"
                     style="width: 100%">
             <el-table-column label="虚拟机名"
@@ -456,7 +480,7 @@
                              align="center"
                              min-width="180">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
@@ -470,7 +494,7 @@
             <el-table-column prop="ddvType"
                              :formatter="vmType"
                              :filters="vmTypeFilter"
-                             :filter-method="filterHandle"
+                             column-key="ddvType"
                              label="虚拟机类型"
                              show-overflow-tooltip
                              align="center"
@@ -492,8 +516,9 @@
             </el-table-column>
             <el-table-column label="状态"
                              prop="restoreState"
+                             v-if="!checkType"
                              :filters="filterRestoreStateFilter"
-                             :filter-method="filterHandle"
+                             column-key="restoreState"
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
@@ -508,17 +533,16 @@
           </el-table>
         </el-tab-pane>
       </el-tabs>
-      <div class="block" style="text-align: right; margin-top: 10px">
-          <el-pagination @size-change="handleSizeChange"
-                         @current-change="handleCurrentChange"
-                         :current-page.sync="currentPage"
-                         :page-sizes="[10, 15, 20]"
-                         :page-size="pagesize"
-                         background
-                         layout="total, sizes, prev, pager, next, jumper"
-                         :total="currentTableData.length">
-          </el-pagination>
-        </div>
+      <el-pagination style="text-align:right;margin-top:10px;"
+                     @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :current-page="currentPage"
+                     :page-sizes="[5, 10, 15, 20]"
+                     :page-size="pageSize"
+                     background
+                     layout="total, sizes, prev, pager, next, jumper"
+                     :total="total">
+    </el-pagination>
     </template>
   </section>
 </template>
@@ -526,42 +550,77 @@
 import { backupStrategyMapping } from '../../utils/constant';
 import DashboardTab from '../mixins/DashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
+import { paginationMixin, filterMixin } from '../mixins/commonMixin'
 export default {
   name: 'MoreState',
-  mixins: [baseMixin, DashboardTab],
+  mixins: [baseMixin, DashboardTab, paginationMixin, filterMixin],
   data() {
+    const activeTab = {
+      'backupSuccess': 'databaseBackup',
+      'backupFail': 'databaseBackup',
+      'restoreSuccess': 'databaseRestore',
+      'restoreFail': 'databaseRestore',
+      'initConnSuccess': 'initconnNum',
+      'initConnFail': 'initconnNum'
+    }
     return {
-      currentPage: 1,
-      pagesize: 10
+      checkType: '',
+      activeTab,
+      tableFilter: {}
     }
   },
   created() {
     this.fetchTabData();
-    this.activeName = this.$route.query.activeName;
+    const query = this.$route.query;
+    if(query.activeName) { // 首页设备详情入口
+      this.activeName = this.$route.query.activeName;
+    } else if(query.type) { // 首页饼图入口
+      this.checkType = query.type;
+      this.activeName = this.activeTab[this.checkType];
+    }
   },
   computed: {
-    currentTableData() {
+    tableData() {
       return this[this.activeName];
     },
-  },
-  filters: {
-    filterByPage(data, currentPage, pagesize) {
-      if (!data) {
-        return [];
-      }
-      return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
+    showBackup() {
+      return !this.checkType||this.checkType.includes('backup');
+    },
+    showRestore() {
+      return !this.checkType||this.checkType.includes('restore');
+    },
+    showTakeOver() {
+      return !this.checkType||this.checkType.includes('initConn');
     }
   },
   methods: {
+    filterChange(filters) {
+      const tkey = Object.keys(filters)[0];
+      this.tableFilter = {...this.tableFilter, [tkey]: filters[tkey]}
+      console.log(this.tableFilter);
+      this.filter = Object.assign({}, this.filter, this.tableFilter);
+    },
+    filterFn(item, i){
+      if(Array.isArray(this.filter[i]) && this.filter[i].length > 0){
+        return this.filter[i].includes(item[i]);
+      } else {
+        return item[i].includes(this.filter[i]);
+      }
+    },
     handleClick(tab,event) {
       this.currentPage = 1;
+      this.filter = {};
+      this.tableFilter = {};
     },
     handleSizeChange(size) {
-      this.pagesize = size;
+      this.pageSize = size;
     },
     handleCurrentChange(val) {
       this.currentPage = val;
-    }
+    },
+    beforeTabLeave(newName, oldName) {
+      this.$refs[oldName].clearFilter();
+    },
   }
 }
 </script>

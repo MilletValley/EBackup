@@ -22,7 +22,7 @@ const DashboardTab = {
       filehostRestore: [],
       vmBackup: [],
       vmRestore: [],
-      activeName: ''
+      activeName: 'databaseBackup'
     };
   },
   computed: {
@@ -77,7 +77,15 @@ const DashboardTab = {
         .then(res => {
           const { data } = res.data;
           const initconnData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
-          this.initconnNum = this.$route.name === 'dashboard' ? initconnData.slice(0, 5) : initconnData;
+          if (this.$route.name === 'dashboard') {
+            this.initconnNum = initconnData.slice(0, 5);
+          } else if (this.checkType === 'initConnSuccess') {
+            this.initconnNum = initconnData.filter(db => db.overState === 2);
+          } else if (this.checkType === 'initConnFail') {
+            this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(db.overState));
+          } else {
+            this.initconnNum = initconnData;
+          }
         })
         .catch(error => {
           this.$message.error(error);
@@ -90,7 +98,18 @@ const DashboardTab = {
         if (this.$route.name === 'dashboard') {
           return dataBySortAndType.slice(0, 5);
         }
-        return dataBySortAndType;
+        switch (this.checkType) { // 根据入口选择是否按状态显示
+          case 'backupSuccess':
+            return dataBySortAndType.filter(db => db.backupState === 0);
+          case 'backupFail':
+            return dataBySortAndType.filter(db => db.backupState === 1);
+          case 'restoreSuccess':
+            return dataBySortAndType.filter(db => db.restoreState === 0);
+          case 'restoreFail':
+            return dataBySortAndType.filter(db => db.restoreState === 1);
+          default:
+            return dataBySortAndType;
+        }
       }
       return [];
     },
@@ -123,9 +142,6 @@ const DashboardTab = {
     },
     vmType(row) {
       return vmTypeMapping[row.ddvType];
-    },
-    beforeTabLeave(newName, oldName) {
-      this.$refs[oldName].clearFilter();
     },
     databaseTypeConverter(state) { // 主备库状态
       return databaseStateMapping[state];

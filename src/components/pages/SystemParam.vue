@@ -106,13 +106,12 @@
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
-          <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
-          <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
-          <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
-          <el-radio v-model="formData.useType" :label="7">达梦数据库</el-radio>
-          <el-radio v-model="formData.useType" :label="3">文件</el-radio>
-          <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
-          
+          <el-select v-model="formData.useType" placeholder="请选择">
+            <el-option v-for="useType in useTypeSelect"
+                       :key="useType.label"
+                       :label="useType.label"
+                       :value="useType.value"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
                       v-if="formData.sysType === 1 && formData.useType === 2"
@@ -172,12 +171,12 @@
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
-          <el-radio v-model="formData.useType" :label="1">oracle</el-radio>
-          <el-radio v-model="formData.useType" :label="2">sqlserver</el-radio>
-          <el-radio v-model="formData.useType" :label="5">mysql</el-radio>
-          <el-radio v-model="formData.useType" :label="7">达梦数据库</el-radio>
-          <el-radio v-model="formData.useType" :label="3">文件</el-radio>
-          <el-radio v-model="formData.useType" :label="4">虚拟机</el-radio>
+          <el-select v-model="formData.useType" placeholder="请选择">
+            <el-option v-for="useType in useTypeSelect"
+                       :key="useType.label"
+                       :label="useType.label"
+                       :value="useType.value"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
                       v-if="formData.sysType === 1 && formData.useType === 2"
@@ -270,7 +269,15 @@ export default {
       }else if(this.formData.sysType === 1 && this.formData.useType===2 && this.formData.windowsType === 1){
         return true
       }else return false
-    }
+    },
+    useTypeSelect() {
+      return Object.keys(useTypeMapping).map(type => {
+        return {
+          label: useTypeMapping[type],
+          value: Number(type)
+        }
+      })
+    },
   },
   created() {
     this.fetchData();

@@ -62,7 +62,7 @@ const filterMixin = {
       let filterData = this.tableData;
       Object.keys(this.filter).forEach(i => {
         if (this.filter[i] && this.filter[i].length > 0) {
-          filterData = this.tableData.filter(item => this.filterFn(item, i));
+          filterData = filterData.filter(item => this.filterFn(item, i));
         }
       });
       return filterData;

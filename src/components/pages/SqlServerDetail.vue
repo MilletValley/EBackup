@@ -265,10 +265,6 @@ export default {
       }),
     };
   },
-  beforeRouteEnter(to, from, next) {
-    console.log(from);
-    next();
-  },
   computed: {
     availableHostsForRestore() {
       return this.$store.getters.hostsWithSqlServer.filter(

@@ -123,6 +123,14 @@ export default {
       bakupResultFilterForm: {},
     };
   },
+  // 根据入口激活当前tab页
+  created() {
+    if(this.$route.params.type === 'backup') {
+      this.activeTab = 'results';
+    } else if (this.$route.params.type === 'restore') {
+      this.activeTab = 'restore';
+    }
+  },
   computed: {
     // 筛选后得备份计划
     filteredBackupPlans() {
