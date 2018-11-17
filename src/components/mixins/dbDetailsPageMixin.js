@@ -1,5 +1,5 @@
 import throttle from 'lodash/throttle';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 import { applyFilterMethods } from '@/utils/common';
 import IIcon from '@/components/IIcon';
 import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
@@ -142,7 +142,7 @@ const detailPageMixin = {
       if (this.planFilterForm.hiddenCompletePlan) {
         filterMethods.push(plan => plan.state !== 2);
       }
-      return applyFilterMethods(this.backupPlans, filterMethods).sort((a, b) => dayjs(b.createTime) - dayjs(a.createTime));
+      return applyFilterMethods(this.backupPlans, filterMethods);
     },
     filteredRestorePlans() {
       if (this.planFilterForm.planType !== 'restore') {
@@ -152,7 +152,7 @@ const detailPageMixin = {
       if (this.planFilterForm.hiddenCompletePlan) {
         filterMethods.push(plan => plan.state !== 2);
       }
-      return applyFilterMethods(this.restorePlans, filterMethods).sort((a, b) => dayjs(b.createTime) - dayjs(a.createTime));
+      return applyFilterMethods(this.restorePlans, filterMethods);
     },
   },
   methods: {

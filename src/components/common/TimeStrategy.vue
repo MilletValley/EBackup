@@ -3,6 +3,7 @@
       <el-form :model="formData"
                label-width="110px"
                ref="timeForm"
+               :disabled="disable"
                :rules="rules"
                size="small">
         <el-form-item label="时间策略" class="is-required"
@@ -61,14 +62,17 @@
                       v-show="[3,4,5].indexOf(formData.timeStrategy) !== -1">
           <el-time-select v-model="formData.timePoints[index].value"
                           :picker-options="{start: '00:00', end: '23:45', step: '00:15'}"></el-time-select>
-          <el-button icon="el-icon-delete"
-                     type="danger"
-                     v-show="formData.timePoints.length !== 1"
-                     @click="formData.timePoints.splice(index, 1)"></el-button>
-          <el-button icon="el-icon-plus"
-                     type="primary"
-                     v-show="index + 1 === formData.timePoints.length"
-                     @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
+          <template v-if="!disable">
+            <el-button icon="el-icon-delete"
+                      type="danger"
+                      v-show="formData.timePoints.length !== 1"
+                      @click="formData.timePoints.splice(index, 1)"></el-button>
+            <el-button icon="el-icon-plus"
+                      type="primary"
+                      v-show="index + 1 === formData.timePoints.length"
+                      @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
+          </template>
+          
         </el-form-item>
         <el-form-item label="循环周期" class="is-required"
                       prop="minuteInterval"
@@ -139,6 +143,10 @@ export default {
       type: Object,
       required: true,
     },
+    disable: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     const singleTimeValidate = (rule, value, callback) => {

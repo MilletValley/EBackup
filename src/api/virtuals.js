@@ -179,6 +179,14 @@ const fetchVmBackupPlanList = () =>
   baseApi.request({
     method: 'get',
     url: '/virtual-backup-plans/list'
+  }).then(res => {
+    const { data: plans } = res.data;
+    plans.forEach(p => {
+      if (p.config.timePoints) {
+        p.config.timePoints = timePoints2Obj(p.config.timePoints);
+      }
+    });
+    return res;
   });
 
 const deletePlan = id =>
