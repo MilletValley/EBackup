@@ -91,9 +91,9 @@ import {
   operationStateMapping,
 } from '../../utils/constant';
 import baseMixin from '../mixins/baseMixins';
-import { paginationMixin, filterMixin, sortMixin } from '../mixins/commonMixin';
+import { paginationMixin, sortMixin } from '../mixins/commonMixin';
 export default {
-  mixins: [baseMixin, paginationMixin, filterMixin, sortMixin],
+  mixins: [baseMixin, paginationMixin, sortMixin],
   props: {
     id: {
       type: Number,

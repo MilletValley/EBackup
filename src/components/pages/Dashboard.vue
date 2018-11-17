@@ -34,15 +34,28 @@
         </el-col>
       </el-row>
 
-      <el-row>
-        <el-card class="box-card" style="width: 100%">
-          <div slot="header" class="clearfix">
-            <span class="card-title">备份恢复</span>
-          </div>
-          <div class="text item">
-            <div id="barChart" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
-          </div>
-        </el-card>
+      <el-row :gutter="10">
+        <el-col :span="12">
+          <el-card class="box-card" style="width: 100%">
+            <div slot="header" class="clearfix">
+              <span class="card-title">空间使用情况</span>
+            </div>
+            <div class="text item">
+              <div id="barChart" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card class="box-card" style="width: 100%">
+            <div slot="header" class="clearfix">
+              <span class="card-title">NFS已使用空间分配情况</span>
+            </div>
+            <div class="text item">
+              <div id="spaceRatio" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
+            </div>
+            <!-- <div class="text item">暂无</div> -->
+          </el-card>
+        </el-col>
       </el-row>
     </template>
     <el-row>
@@ -57,8 +70,7 @@
                  path: 'morestate',
                  query: { activeName: activeName }})">MORE</el-button>
       <el-tabs type="border-card"
-               v-model="activeName"
-               :before-leave="beforeTabLeave">
+               v-model="activeName">
         <el-tab-pane label="数据库备份"
                      name="databaseBackup">
           <el-table :data="databaseBackup"
@@ -69,7 +81,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -139,7 +151,7 @@
                              show-overflow-tooltip
                              min-width="180">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -212,6 +224,7 @@
             <el-table-column label="主库状态"
                              align="center"
                              min-width="100"
+                             prop="primaryState"
                              :filters="dbStateFilter"
                              :filter-method="filterHandle">
               <template slot-scope="scope">
@@ -228,6 +241,7 @@
             <el-table-column label="备库状态"
                              align="center"
                              :filters="dbStateFilter"
+                             prop="viceState"
                              :filter-method="filterHandle"
                              min-width="100">
               <template slot-scope="scope">
@@ -269,7 +283,7 @@
                              show-overflow-tooltip
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'backup' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -333,7 +347,7 @@
                              align="center"
                              min-width="180">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'restore' }}"
                              :class="$style.link">
                   {{ scope.row.ascription }}
                 </router-link>
@@ -386,7 +400,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
@@ -457,7 +471,7 @@
                              align="center"
                              min-width="180">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
@@ -513,7 +527,8 @@
   </section>
 </template>
 <script>
-import { fetchAll } from '../../api/home';
+import { fetchAll, fetchSpaceUse } from '../../api/home';
+import { fmtSizeFn } from '../../utils/common';
 import baseMixin from '../mixins/baseMixins';
 import DashboardTab from '../mixins/DashboardTabMixins';
 import echartsLiquidfill from 'echarts-liquidfill';
@@ -532,8 +547,26 @@ export default {
     this.activeName = 'databaseBackup'
   },
   data() {
+    const nfsInUsedTypeMapping= {
+      1: 'oracle',
+      2: 'sqlserver',
+      3: 'mysql',
+      4: 'db2',
+      5: '达梦',
+      6: '文件',
+      7: '虚拟机'
+    }
+    const color = ['#00ffff','#00cfff','#006ced','#ffe000','#ffa800','#ff5b00','#ff3000']
     return {
       total: {},
+      spaceDetail: {},
+      nfsInUsedTypeMapping,
+      color,
+      spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
+        name: [],
+        percentData: [],
+        explain: []
+      }
     };
   },
   computed: {
@@ -548,6 +581,37 @@ export default {
         }
       }
     },
+    nfsInUsedPercent() {
+      if(this.spaceDetail.nfsData.total===0) {
+        return 100;
+      }
+      return this.ceilNumber(this.spaceDetail.nfsData.inUsed, this.spaceDetail.nfsData.total);
+    },
+    shareInUsedPercent() {
+      if(this.spaceDetail.shareData.total===0) {
+        return 100;
+      }
+      return this.ceilNumber(this.spaceDetail.shareData.inUsed, this.spaceDetail.shareData.total);
+    },
+    nfsAssignedSpace() {
+      return this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails;
+    },
+    nfsPieSeriesData() {
+      return this.nfsAssignedSpace.map((item, index) => {
+        return {
+          value: item.nfsUseSize,
+          name: this.nfsInUsedTypeMapping[item.nfsUseType],
+          itemStyle: {
+            normal: {
+              borderWidth: 5,
+              shadowBlur: 20,
+              borderColor: this.color[index],
+              shadowColor: this.color[index]
+            }
+          }
+        }
+      })
+    }
   },
   methods: {
     fetchData() {
@@ -555,20 +619,54 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.total = data;
-          this.drawLine();
         })
         .catch(error => {
           error => Promise.reject(error);
         });
+      fetchSpaceUse()
+        .then(res => {
+          const { data } = res.data;
+          this.spaceDetail = data;
+          this.spaceData.name.push('存储1');
+          this.spaceData.percentData.push(this.nfsInUsedPercent);
+          this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
+          if(Object.keys(this.spaceDetail.shareData).length>0) {
+            this.spaceData.name.push('存储2');
+            this.spaceData.percentData.push(this.shareInUsedPercent);
+            this.spaceData.explain.push(this.addUnit(this.spaceDetail.shareData.inUsed)+'/'+this.addUnit(this.spaceDetail.shareData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.shareData.unUsed));
+          }
+        })
+        .catch(error => {
+          error => Promise.reject(error);
+        })
+        .then(() => {
+          this.drawLine();
+        })
     },
     calcPercent(success, fail) {
       return ((success/(success+fail))*100).toFixed(2);
+    },
+    jumpToMoreState(params, successPath, errorPath) {
+      if(params.name.includes('成功')) {
+        this.$router.push({path: 'morestate', query: { type: successPath } });
+      } else if(params.name.includes('失败')) {
+        this.$router.push({path: 'morestate', query: { type: errorPath } });
+      }
+    },
+    // 单位由M开始转化
+    addUnit(data) {
+      return fmtSizeFn(Number(data)*1024*1024);
+    },
+    // 保留两位小数
+    ceilNumber(divider, dividend) {
+      return ((divider/dividend).toFixed(2))*100;
     },
     drawLine() {
       let barChart = echarts.init(document.getElementById('barChart'));
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
       let initConn = echarts.init(document.getElementById('initConn'));
+      let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
       let backupOption = {
         title: {
           top: '55%',
@@ -586,11 +684,11 @@ export default {
             fontSize: 12
           }
         },
-        legend: {
-          orient: 'vertical',
-          right: 'left',
-          data: ['成功', '失败']
-        },
+        // legend: {
+        //   orient: 'vertical',
+        //   right: 'left',
+        //   data: ['成功', '失败']
+        // },
         color: ['#27ca27', '#aaa'],
         tooltip: {
           trigger: 'item',
@@ -727,11 +825,11 @@ export default {
             fontSize: 12
           }
         },
-        legend: {
-          orient: 'vertical',
-          right: 'left',
-          data: ['成功', '失败']
-        },
+        // legend: {
+        //   orient: 'vertical',
+        //   right: 'left',
+        //   data: ['成功', '失败']
+        // },
         color: ['#27ca27', '#aaa'],
         tooltip: {
           trigger: 'item',
@@ -868,11 +966,11 @@ export default {
             fontSize: 12
           }
         },
-        legend: {
-          orient: 'vertical',
-          right: 'left',
-          data: ['成功', '失败']
-        },
+        // legend: {
+        //   orient: 'vertical',
+        //   right: 'left',
+        //   data: ['成功', '失败']
+        // },
         color: ['#27ca27', '#aaa'],
         tooltip: {
           trigger: 'item',
@@ -975,63 +1073,131 @@ export default {
           }
         ]
       }
+      let spaceBarOption = {
+        xAxis: [{
+          show: false
+        }],
+        yAxis: [{
+            show: true,
+            data: this.spaceData.name,
+            inverse: true,
+            axisLine: {
+              show: false
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: false
+            }
+        }, {
+            show: false,
+            inverse: true,
+            data: this.spaceData.explain,
+            axisLine: {
+              show: false
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: false
+            }
+        }],
+        color: ['#61A8FF'],
+        series: [{
+            name: '条',
+            type: 'bar',
+            yAxisIndex: 0,
+            data: this.spaceData.percentData,
+            barWidth: 30,
+            itemStyle: {
+              normal: {
+                barBorderRadius: 30,
+              }
+            },
+            label: {
+                normal: {
+                    show: true,
+                    position: 'inside',
+                    formatter: '{c}%'
+                }
+            },
+        }, {
+            name: '框',
+            type: 'bar',
+            yAxisIndex: 1,
+            barGap: '-100%',
+            data: [100, 100],
+            barWidth: 30,
+            itemStyle: {
+                normal: {
+                    color: 'none',
+                    borderColor: '#aaa',
+                    borderWidth: 3,
+                    barBorderRadius: 15,
+                }
+            },
+            label: {
+              normal: {
+                show: true,
+                color: '#000',
+                position: [10, '-50%'],
+                formatter: '{b}'
+              }
+            }
+        }]
+      };
+      let spacePieOption = {
+        tooltip: {
+          show: false
+        },
+        legend: {
+          show: false
+        },
+        toolbox: {
+          show: false
+        },
+        series: [{
+          name: '',
+          type: 'pie',
+          clockWise: false,
+          radius: [80, 81],
+          hoverAnimation: false,
+          itemStyle: {
+            normal: {
+              label: {
+                show: true,
+                position: 'outside',
+                formatter: params => {
+                  return `${params.name}: ${this.addUnit(params.value)}(${params.percent?params.percent:0.01}%)`
+                }
+              }
+            }
+          },
+          data: this.nfsPieSeriesData
+        }]
+      };
       backupTotal.setOption(backupOption),
       restoreTotal.setOption(restoreOption),
       initConn.setOption(initConnOption),
+      spaceRatio.setOption(spacePieOption),
+      barChart.setOption(spaceBarOption);
       backupTotal.on('click', params => {
-        // const success = backupOption.series[1].data[0].name;
-        // const error = backupOption.series[1].data[1].name;
-        if(params.name.includes('成功')) {
-          alert('备份成功');
-        } else if(params.name.includes('失败')) {
-          alert('备份失败');
-        } else {
-        }
+        this.jumpToMoreState(params, 'backupSuccess', 'backupFail');
       }),
       restoreTotal.on('click', params => {
-        // console.log(params)
+        this.jumpToMoreState(params, 'restoreSuccess', 'restoreFail');
       }),
       initConn.on('click', params => {
-        // console.log(params)
+        this.jumpToMoreState(params, 'initConnSuccess', 'initConnFail');
       }),
-      barChart.setOption({
-        legend: {},
-        tooltip: {},
-        dataset: {
-          source: [
-            ['product', '备份成功', '备份失败', '恢复成功', '恢复失败'],
-            ['oracle', this.total.oracleBackupNumSuccess, this.total.oracleBackupNumFail, this.total.oracleRestoreNumSuccess, this.total.oracleRestoreNumFail],
-            ['sqlserver', this.total.sqlserverBackupNumSuccess, this.total.sqlserverBackupNumFail, this.total.sqlserverRestoreNumSuccess, this.total.sqlserverRestoreNumFail],
-            ['文件', this.total.fileBackupNumSuccess, this.total.fileBackupNumFail, this.total.fileRestoreNumSuccess, this.total.fileRestoreNumFail],
-            ['虚拟机', this.total.vmBackupNumSuccess, this.total.vmBackupNumFail, this.total.vmRestoreNumSuccess, this.total.vmRestoreNumFail],
-          ]
-        },
-        xAxis: {type: 'category'},
-        yAxis: {},
-        series: [
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-            {
-              type: 'bar',
-              label: this.labelNum,
-            },
-        ]
-      });
       window.addEventListener("resize", function () {
         barChart.resize();
         restoreTotal.resize();
         backupTotal.resize();
         initConn.resize();
+        spaceRatio.resize();
      });
      }
    },

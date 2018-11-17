@@ -83,6 +83,14 @@ export default {
       return this.type === 'windows' || this.type === 'linux';
     },
   },
+  // 根据入口激活当前tab页
+  created() {
+    if(this.$route.params.type === 'backup') {
+      this.activeTab = 'results';
+    } else if (this.$route.params.type === 'restore') {
+      this.activeTab = 'restore';
+    }
+  },
   methods: {
     switchPane({ name }) {
       this.$emit('switchpane', name);

@@ -187,7 +187,7 @@ const dbDetailRouterMapping = {
   2: 'sqlserverDetail',
   3: 'mysqlDetail',
   4: 'db2Detail',
-  // 5: 'dmDetail'
+  5: 'damengDetail'
 };
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {

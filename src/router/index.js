@@ -437,6 +437,7 @@ export const asyncRouters = [
         path: 'dameng/:id',
         props: true,
         component: DamengDetails,
+        name: 'damengDetail',
         meta: {
           roles: ['dameng dba'],
           breadcrumb: [
