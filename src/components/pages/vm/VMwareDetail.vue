@@ -42,9 +42,16 @@
                      class="item-info">
               <el-row class="margin-right5">
                 <el-row>
-                  <el-form-item label="操作系统：">
-                    <div>{{ details.host.osName }}</div>
-                  </el-form-item>
+                  <el-col :span="8">
+                    <el-form-item label="操作系统：">
+                      <div>{{ details.host.osName }}</div>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="类型：">
+                      <div>{{ details.type === 1 ? 'VMware' : '华为虚拟机' }}</div>
+                    </el-form-item>
+                   </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="8">
@@ -55,6 +62,18 @@
                   <el-col :span="8">
                     <el-form-item label="所属物理主机IP：">
                       <div>{{ details.vmHostName }}</div>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row v-if="details.server">
+                  <el-col :span="8">
+                    <el-form-item label="虚拟机主机IP：">
+                      <div>{{ details.server.serverIp }}</div>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item label="虚拟机主机类型：">
+                      <div>{{ details.server.serverType | serverTypeFilter }}</div>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -128,6 +147,7 @@ import BackupCard from '@/components/pages/vm/BackupCard';
 import BackupResultList from '@/components/pages/vm/BackupResultList';
 import RestoreCard from '@/components/pages/vm/RestoreCard';
 import RestoreRecords from '@/components/pages/vm/RestoreRecords';
+import { vmHostServerTypeMapping } from '@/utils/constant';
 
 import {
   updateVirtualBackupPlan,
@@ -157,6 +177,11 @@ export default {
       return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual' ? 'VMware' : 'HW';
       // return this.details && this.details.type === 1 ? 'VMware' : 'HW';
     },
+  },
+  filters: {
+    serverTypeFilter(data) {
+      return vmHostServerTypeMapping[data];
+    }
   },
   methods: {
     vmCallback(data, type) {
