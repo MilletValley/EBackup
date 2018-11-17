@@ -7,7 +7,7 @@ const keepTwoDecimalFull = num =>
 const fmtSizeFn = num => {
   let size = null;
   if (!num) {
-    return;
+    return num;
   }
   const process = num / 1024;
   if (process < 1) {

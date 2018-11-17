@@ -202,8 +202,8 @@ export default {
     // 搜索关键字高亮
     showData(val, property) {
       val = val + '';
-      if (val.includes(this.filterItem) && this.filterItem && this.selectTag === property) {
-        return val.replace(this.filterItem, '<font color="#409EFF">'+this.filterItem+'</font>');
+      if (val.includes(this.inputSearch) && this.inputSearch && this.selectTag === property) {
+        return val.replace(this.inputSearch, '<font color="#409EFF">'+this.inputSearch+'</font>');
       }
       return val;
     },
@@ -289,6 +289,13 @@ export default {
       create: 'createHost',
       fetchAll: 'fetchHost'
     }),
+  },
+  watch: {
+    inputSearch() {
+      if (this.inputSearch === '') {
+        this.filter = Object.assign({}, this.tableFilter);
+      }
+    }
   },
   components: {
     HostCreateModal,

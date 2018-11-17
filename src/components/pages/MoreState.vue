@@ -597,7 +597,6 @@ export default {
     filterChange(filters) {
       const tkey = Object.keys(filters)[0];
       this.tableFilter = {...this.tableFilter, [tkey]: filters[tkey]}
-      console.log(this.tableFilter);
       this.filter = Object.assign({}, this.filter, this.tableFilter);
     },
     filterFn(item, i){
