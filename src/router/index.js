@@ -41,7 +41,8 @@ import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
 import MoreState from '@/components/pages/MoreState';
 // import CollectManager from '@/components/pages/CollectManager';
 import DeviceDetails from '@/components/pages/DeviceDetails';
-import BackupPlanList from '@/components/pages/BackupPlanList';
+// import BackupPlanList from '@/components/pages/BackupPlanList';
+import BackupPlanList from '@/components/pages/vm/BackupPlanList';
 import ServerManager from '@/components/pages/ServerManager';
 
 Vue.use(Router);

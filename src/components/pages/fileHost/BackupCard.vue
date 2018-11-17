@@ -151,11 +151,11 @@
           </li>
           <li>
             <h5>{{type === 'windows' ? '总大小' : '已备份大小'}}
-              <el-popover placement="left" trigger="hover" 
-                  :content="type === 'windows' ? '备份源总大小' : '已备份文件总大小，非本次备份大小'"
-                  >
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
+              <el-tooltip class="item" effect="dark"
+                          :content="type === 'windows' ? '备份源总大小' : '已备份文件总大小，非本次备份大小'"
+                          placement="left">
+                <i class="el-icon-info"></i>
+              </el-tooltip>
             </h5>
             <div>{{backupSize || '-'}}</div>
           </li>

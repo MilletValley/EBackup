@@ -11,6 +11,7 @@
       <el-form :model="formData"
                label-width="110px"
                ref="createForm"
+               :disabled="disable"
                :rules="rules"
                size="small">
         <el-form-item label="备份计划名称"
@@ -25,7 +26,7 @@
           </el-radio-group>
         </el-form-item>
 				<!-- 时间策略 -->
-				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent"></time-strategy>
+				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent" :disable="disable"></time-strategy>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
@@ -64,6 +65,10 @@ export default {
   props: {
     vmType: {
       type: String
+    },
+    disable: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

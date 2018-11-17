@@ -156,9 +156,6 @@ export default {
         {text: 'Windows', value: 'Windows'},
         {text: 'Linux', value: 'Linux'}
       ],
-      hostTypeTerm: [],
-      databaseTypeTerm: [],
-      osNameTerm: [],
       tableData: [],
       tableFilter: {}
     };
