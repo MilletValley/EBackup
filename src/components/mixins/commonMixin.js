@@ -13,9 +13,10 @@ const paginationMixin = {
       const tData = this.currentTableData ? this.currentTableData : this.tableData;
       let data = [...tData];
       this.total = data.length;
-      // 判断当前页是否有数据，如果没有则显示上一页
-      if (data.length <= (this.currentPage - 1) * this.pageSize) {
-        this.currentPage = this.currentPage === 1 ? this.currentPage : this.currentPage - 1;
+      // 判断当前页是否有数据，如果没有则显示有数据的最后一页
+      const pagenum = Math.ceil(this.total / this.pageSize);
+      if (this.currentPage > pagenum) {
+        this.currentPage = this.currentPage === 1 ? this.currentPage : pagenum;
       }
       if (this.sortFn && this.defaultSort) {
         data = this.sortFn(data, this.defaultSort.prop, this.defaultSort.order);
@@ -62,7 +63,7 @@ const filterMixin = {
       let filterData = this.tableData;
       Object.keys(this.filter).forEach(i => {
         if (this.filter[i] && this.filter[i].length > 0) {
-          filterData = this.tableData.filter(item => this.filterFn(item, i));
+          filterData = filterData.filter(item => this.filterFn(item, i));
         }
       });
       return filterData;

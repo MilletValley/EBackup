@@ -171,7 +171,7 @@ export default {
         fetchBackupResults(this.id)
           .then(res => {
             const { data: result } = res.data;
-            this.results = result;
+            this.results = Array.isArray(result) ? result : [];
           })
           .catch(error => {
             this.$message.error(error);

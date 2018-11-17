@@ -20,7 +20,7 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-table :data="filterTableItem|filterByTag(filterItem, selectTag)|filterByPage(currentPage, pagesize)"
+    <el-table :data="processedTableData"
               @filter-change="filterChange"
               style="width: 100%">
       <el-table-column label="序号"
@@ -28,7 +28,7 @@
                        fixed
                        align="center">
         <template slot-scope="scope">
-            {{scope.$index+1+(currentPage-1)*pagesize}}
+            {{scope.$index+1+(currentPage-1)*pageSize}}
         </template>
       </el-table-column>
       <el-table-column prop="name"
@@ -59,21 +59,21 @@
                        label="设备类型"
                        :formatter="judgeHost"
                        :filters="hostTypeFilters"
-                       column-key="filterHostType"
+                       column-key="hostType"
                        min-width="120"
                        align="center"></el-table-column>
       <el-table-column prop="databaseType"
                        label="用途类型"
                        :formatter="judgeDatabase"
                        :filters="databaseTypeFilters"
-                       column-key="filterDatabaseType"
+                       column-key="databaseType"
                        min-width="120"
                        align="center"></el-table-column>
       <el-table-column prop="osName"
                        label="操作系统"
                        :formatter="judgeOsName"
                        :filters="osNameFilters"
-                       column-key="filterOsName"
+                       column-key="osName"
                        min-width="120"
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
@@ -106,10 +106,10 @@
                      @current-change="handleCurrentChange"
                      :current-page="currentPage"
                      :page-sizes="[5, 10, 15, 20]"
-                     :page-size="pagesize"
+                     :page-size="pageSize"
                      background
                      layout="total, sizes, prev, pager, next, jumper"
-                     :total="filterTableItem|filterByTag(filterItem, selectTag).length">
+                     :total="total">
       </el-pagination>
     </div>
     <host-create-modal type="host"
@@ -125,7 +125,7 @@
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
-import { webSocketMixin } from '../mixins/commonMixin';
+import { webSocketMixin, paginationMixin, filterMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 // import { fetchAll, deleteOne } from '../../api/host';
@@ -135,7 +135,7 @@ import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../
 export default {
   name: 'DeviceManager',
   // mixins: [listMixin, webSocketMixin],
-  mixins: [listMixin],
+  mixins: [listMixin, paginationMixin, filterMixin],
   data() {
     return {
       wsuri: '/test',
@@ -156,10 +156,8 @@ export default {
         {text: 'Windows', value: 'Windows'},
         {text: 'Linux', value: 'Linux'}
       ],
-      hostTypeTerm: [],
-      databaseTypeTerm: [],
-      osNameTerm: [],
-      filterTableItem: [],
+      tableData: [],
+      tableFilter: {}
     };
   },
   computed: {
@@ -173,7 +171,7 @@ export default {
   },
   watch: {
     hostsInVuex(data){
-      this.filterTableItem = this.hostsInVuex;
+      this.tableData = this.hostsInVuex;
     }
   },
   created() {
@@ -184,7 +182,7 @@ export default {
     // window.addEventListener("beforeunload",()=>{
     //     sessionStorage.setItem("store",JSON.stringify(this.$store.state))
     // })
-    this.filterTableItem = this.hostsInVuex
+    this.tableData = this.hostsInVuex;
     this.fetchHosts()
   },
   methods: {
@@ -221,23 +219,19 @@ export default {
       });
     },
     filterChange(filters) {
-      this.filterTableItem = this.hostsInVuex;
-      if(Object.keys(filters)[0] === 'filterHostType') {
-        this.hostTypeTerm = filters.filterHostType;
-      } else if (Object.keys(filters)[0] === 'filterDatabaseType') {
-        this.databaseTypeTerm = filters.filterDatabaseType;
-      } else if (Object.keys(filters)[0] === 'filterOsName') {
-        this.osNameTerm = filters.filterOsName;
+      this.tableFilter = Object.assign({},this.tableFilter, filters);
+      this.filter = Object.assign({}, this.filter, this.tableFilter);
+      this.currentPage = 1;
+    },
+    filterFn(item, i){
+      if(Array.isArray(this.filter[i]) && this.filter[i].length > 0){
+        return this.filter[i].includes(item[i]);
+      }else {
+        return item[i].toLowerCase().includes(this.filter[i].toLowerCase());
       }
-      if(this.hostTypeTerm.length !== 0) {
-        this.filterTableItem = this.filterTableItem.filter(item => this.hostTypeTerm.includes(item.hostType));
-      }
-      if(this.databaseTypeTerm.length !== 0) {
-        this.filterTableItem = this.filterTableItem.filter(item => this.databaseTypeTerm.includes(item.databaseType));
-      }
-      if(this.osNameTerm.length !== 0) {
-        this.filterTableItem = this.filterTableItem.filter(item => this.osNameTerm.includes(item.osName));
-      }
+    },
+    searchByName(){
+      this.filter = Object.assign({}, this.tableFilter, {[this.selectTag]: this.inputSearch});
       this.currentPage = 1;
     },
     createItem(host) {
