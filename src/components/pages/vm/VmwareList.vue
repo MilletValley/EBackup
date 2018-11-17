@@ -76,13 +76,17 @@
   </section>
 </template>
 <script>
-import { fetchAll ,createMultipleVirtualBackupPlan, rescan} from '@/api/virtuals';
+import {
+  fetchAll,
+  createMultipleVirtualBackupPlan,
+  rescan,
+} from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
 import { hostTypeMapping, databaseTypeMapping } from '@/utils/constant';
 export default {
   name: 'VMwareList',
   components: {
-    BackupPlanModal
+    BackupPlanModal,
   },
   data() {
     return {
@@ -97,75 +101,82 @@ export default {
       action: 'create',
       backupPlanCreateModalVisible: false,
       // dialogVisible: false,
-    }
+    };
   },
-  computed:{
-    processDbTableData(){
+  computed: {
+    processDbTableData() {
       let data = [];
-      if(this.buttonfalg){
+      if (this.buttonfalg) {
         data = this.currentSelectDb;
-      }else{
-        data = this.vmItems.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
+      } else {
+        data = this.vmItems.filter(v =>
+          v.vmName.toLowerCase().includes(this.filterItem.toLowerCase())
+        );
       }
-      data = data.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize);
-      this.$nextTick( () => {
-          data.forEach( e => {
-            if(this.currentSelectDb.includes(e)){
-              this.$refs.dbTable.toggleRowSelection(e,true);
-            }
-          })
+      data = data.slice(
+        (this.currentPage - 1) * this.pagesize,
+        this.currentPage * this.pagesize
+      );
+      this.$nextTick(() => {
+        data.forEach(e => {
+          if (this.currentSelectDb.includes(e)) {
+            this.$refs.dbTable.toggleRowSelection(e, true);
+          }
+        });
       });
       return data;
     },
-    total(){
-      if(this.buttonfalg){
+    total() {
+      if (this.buttonfalg) {
         return this.currentSelectDb.length;
       }
-      return this.vmItems.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase())).length;
+      return this.vmItems.filter(v =>
+        v.vmName.toLowerCase().includes(this.filterItem.toLowerCase())
+      ).length;
     },
     hostsInVuex() {
-      return this.$store.state.host.hosts.filter( e => {
-        return e.databaseType === 4 && e.osName === 'Windows'
+      return this.$store.state.host.hosts.filter(e => {
+        return e.databaseType === 4 && e.osName === 'Windows';
       });
     },
-    vmType()  {
+    vmType() {
       return this.$route.name === 'VMwareList' ? 'VMware' : 'HW';
-    }
+    },
   },
   created() {
     this.fetchData();
   },
   watch: {
     inputSearch() {
-      if(this.inputSearch==='') {
-        this.filterItem=''
-        this.currentPage=1;
+      if (this.inputSearch === '') {
+        this.filterItem = '';
+        this.currentPage = 1;
       }
     },
     $route: function() {
-      this.vmItems=[];
+      this.vmItems = [];
       this.buttonfalg = false;
-      this.currentSelectDb = []
-      this.currentPage=1;
+      this.currentSelectDb = [];
+      this.currentPage = 1;
       this.pagesize = 10;
       this.inputSearch = '';
       this.filterItem = '';
       this.fetchData();
-    }
+    },
   },
   methods: {
     fetchData() {
       fetchAll()
         .then(res => {
           const { data } = res.data;
-          if(!Array.isArray(data)){
+          if (!Array.isArray(data)) {
             this.vmItems = [];
-            return
+            return;
           }
-          if(this.type === 'VMware') {
-            this.vmItems = data.filter(item => item.type===1);
+          if (this.vmType === 'VMware') {
+            this.vmItems = data.filter(item => item.type === 1);
           } else {
-            this.vmItems = data.filter(item => item.type===2);
+            this.vmItems = data.filter(item => item.type === 2);
           }
         })
         .catch(error => {
@@ -176,85 +187,82 @@ export default {
       this.filterItem = this.inputSearch;
       this.currentPage = 1;
     },
-    handleSizeChange: function (size) {
+    handleSizeChange: function(size) {
       this.pagesize = size;
     },
-    handleCurrentChange: function(currentPage){
+    handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
     },
-    selectDbChangeFn(selectData, row){
-        if(selectData.includes(row)){
-            this.currentSelectDb.push(row);
-        }else{
-            //需要优化，匹配到即跳出循环
-            this.currentSelectDb = this.currentSelectDb.filter( e => {
-                if(e.id === row.id){
-                    return false;
-                }
-                return true;
-            });
-        }
+    selectDbChangeFn(selectData, row) {
+      if (selectData.includes(row)) {
+        this.currentSelectDb.push(row);
+      } else {
+        //需要优化，匹配到即跳出循环
+        this.currentSelectDb = this.currentSelectDb.filter(e => {
+          if (e.id === row.id) {
+            return false;
+          }
+          return true;
+        });
+      }
     },
-    selectAll(selection){
-        if(selection.length === 0){
-            this.currentSelectDb = this.currentSelectDb.filter( e => {
-                let flag = true;
-                this.processDbTableData.forEach( i => {
-                    if(i.id === e.id){
-                        flag = false;
-                    }
-                })
-                return flag;
-            })
-        }else{
-            let data = [];
-            this.processDbTableData.forEach( e => {
-                let flag = true;
-                if(this.currentSelectDb.includes(e)){
-                  flag = false;
-                }
-                flag && data.push(e);
-            });
-            this.currentSelectDb.push(...data)
-        }
+    selectAll(selection) {
+      if (selection.length === 0) {
+        this.currentSelectDb = this.currentSelectDb.filter(e => {
+          let flag = true;
+          this.processDbTableData.forEach(i => {
+            if (i.id === e.id) {
+              flag = false;
+            }
+          });
+          return flag;
+        });
+      } else {
+        let data = [];
+        this.processDbTableData.forEach(e => {
+          let flag = true;
+          if (this.currentSelectDb.includes(e)) {
+            flag = false;
+          }
+          flag && data.push(e);
+        });
+        this.currentSelectDb.push(...data);
+      }
     },
-    buttonClick(){
+    buttonClick() {
       this.buttonfalg = !this.buttonfalg;
       this.currentPage = 1;
     },
     addBackupPlan(data) {
-        let plan = Object.assign({}, data);
-        let vmIds = this.currentSelectDb.map( e => {
-            return e.id;
-        });
-        plan.vmList = vmIds;
-        this.btnLoading = true;
-        createMultipleVirtualBackupPlan(plan)
-            .then(res => {
-              const { message } = res.data;
-              this.backupPlanCreateModalVisible = false;
-              this.$confirm(
-                  '备份计划添加成功，是否跳转到备份计划页面',
-                  '提示',
-                  {
-                      confirmButtonText: '是',
-                      cancelButtonText: '否',
-                      type: 'success'
-                  }
-              ).then( () => {
-                  this.$router.push({name: 'backup'});
-              }).catch( action => {
-              });
-            })
-            .catch(error => {
-              this.$message.error(error);
-              return false;
-            })
+      let plan = Object.assign({}, data);
+      let vmIds = this.currentSelectDb.map(e => {
+        return e.id;
+      });
+      plan.vmList = vmIds;
+      this.btnLoading = true;
+      createMultipleVirtualBackupPlan(plan)
+        .then(res => {
+          const { message } = res.data;
+          this.backupPlanCreateModalVisible = false;
+          this.$confirm('备份计划添加成功，是否跳转到备份计划页面', '提示', {
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+            type: 'success',
+          })
             .then(() => {
-              this.btnLoading = false;
-            });
+              this.$router.push({ name: 'backup' });
+            })
+            .catch(action => {});
+        })
+        .catch(error => {
+          this.$message.error(error);
+          return false;
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
     },
-  }
+  },
 };
 </script>
 <style lang="scss" module>
