@@ -16,9 +16,12 @@
                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
-        <el-table-column prop="vm.vmPath" align="left" show-overflow-tooltip
-                        label="路径"
+        <el-table-column prop="vm.type" align="center" show-overflow-tooltip
+                        label="类型"
                         >
+            <template slot-scope="scope">
+              <span>{{scope.row.vm.type === 1 ? 'VMware' : '华为虚拟机'}}</span>
+            </template>
         </el-table-column>
         <el-table-column prop="vm.vmHostName"
             label="所属物理主机"
