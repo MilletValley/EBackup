@@ -150,9 +150,9 @@
   </section>
 </template>
 <script>
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 import baseMixin from '@/components/mixins/baseMixins';
-import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
+// import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
 import backupResultMixin from '@/components/mixins/backupResultMixin';
 
 export default {

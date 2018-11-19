@@ -5,7 +5,7 @@
         <el-form class="login-form" label-position="left">
           <div class="login-head"> <img src="../assets/logo.png" class="login-img"></div>
           <el-form-item label="用户名" props="loginName" class="login-name">
-            <el-input type="text" required v-model="loginName" auto-complete="off" @keyup.enter.native="doPassword">
+            <el-input type="text" required v-model="loginName" auto-complete="off" @keyup.enter.native="doPassword" autofocus>
             </el-input>
           </el-form-item>
           <el-form-item label="密码" class="login-pass">
