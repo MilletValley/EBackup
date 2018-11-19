@@ -50,10 +50,12 @@
             <div slot="header" class="clearfix">
               <span class="card-title">NFS已使用空间分配情况</span>
             </div>
-            <div class="text item">
+            <div class="text item" v-show="nfsAssignedSpace&&nfsAssignedSpace.length>0">
               <div id="spaceRatio" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
             </div>
-            <!-- <div class="text item">暂无</div> -->
+            <div :class="$style.nfsNotUsed" v-show="!(nfsAssignedSpace&&nfsAssignedSpace.length>0)">
+              <span>暂未使用</span>
+            </div>
           </el-card>
         </el-col>
       </el-row>
@@ -570,17 +572,6 @@ export default {
     };
   },
   computed: {
-    labelNum() {
-      return {
-        normal: {
-          show: true,
-          position: 'top',
-          textStyle: {
-            color: 'black'
-          }
-        }
-      }
-    },
     nfsInUsedPercent() {
       if(this.spaceDetail.nfsData.total===0) {
         return 100;
@@ -597,36 +588,33 @@ export default {
       return this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails;
     },
     nfsPieSeriesData() {
-      return this.nfsAssignedSpace.map((item, index) => {
-        return {
-          value: item.nfsUseSize,
-          name: this.nfsInUsedTypeMapping[item.nfsUseType],
-          itemStyle: {
-            normal: {
-              borderWidth: 5,
-              shadowBlur: 20,
-              borderColor: this.color[index],
-              shadowColor: this.color[index]
+      if(this.nfsAssignedSpace) {
+        return this.nfsAssignedSpace.map((item, index) => {
+          return {
+            value: item.nfsUseSize,
+            name: this.nfsInUsedTypeMapping[item.nfsUseType],
+            itemStyle: {
+              normal: {
+                borderWidth: 5,
+                shadowBlur: 20,
+                borderColor: this.color[index],
+                shadowColor: this.color[index]
+              }
             }
           }
-        }
-      })
+        })
+      }
+      return [];
     }
   },
   methods: {
     fetchData() {
-      fetchAll()
+      Promise.all([fetchAll(), fetchSpaceUse()])
         .then(res => {
-          const { data } = res.data;
-          this.total = data;
-        })
-        .catch(error => {
-          error => Promise.reject(error);
-        });
-      fetchSpaceUse()
-        .then(res => {
-          const { data } = res.data;
-          this.spaceDetail = data;
+          const { data: pieData } = res[0].data;
+          const { data: spaceData } = res[1].data;
+          this.total = pieData;
+          this.spaceDetail = spaceData;
           this.spaceData.name.push('存储1');
           this.spaceData.percentData.push(this.nfsInUsedPercent);
           this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
@@ -636,11 +624,11 @@ export default {
             this.spaceData.explain.push(this.addUnit(this.spaceDetail.shareData.inUsed)+'/'+this.addUnit(this.spaceDetail.shareData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.shareData.unUsed));
           }
         })
-        .catch(error => {
-          error => Promise.reject(error);
-        })
         .then(() => {
           this.drawLine();
+        })
+        .catch(error => {
+          this.$message.error(error);
         })
     },
     calcPercent(success, fail) {
@@ -662,11 +650,11 @@ export default {
       return ((divider/dividend).toFixed(2))*100;
     },
     drawLine() {
-      let barChart = echarts.init(document.getElementById('barChart'));
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
       let initConn = echarts.init(document.getElementById('initConn'));
       let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
+      let barChart = echarts.init(document.getElementById('barChart'));
       let backupOption = {
         title: {
           top: '55%',
@@ -1184,19 +1172,19 @@ export default {
       spaceRatio.setOption(spacePieOption),
       barChart.setOption(spaceBarOption);
       backupTotal.on('click', params => {
-        this.jumpToMoreState(params, 'backupSuccess', 'backupFail');
+        this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
       }),
       restoreTotal.on('click', params => {
-        this.jumpToMoreState(params, 'restoreSuccess', 'restoreFail');
+        this.jumpToMoreState(params, this.clickPieJumpTo.rs, this.clickPieJumpTo.rf);
       }),
       initConn.on('click', params => {
-        this.jumpToMoreState(params, 'initConnSuccess', 'initConnFail');
+        this.jumpToMoreState(params, this.clickPieJumpTo.ics, this.clickPieJumpTo.icf);
       }),
       window.addEventListener("resize", function () {
-        barChart.resize();
         restoreTotal.resize();
         backupTotal.resize();
         initConn.resize();
+        barChart.resize();
         spaceRatio.resize();
      });
      }
@@ -1207,6 +1195,16 @@ export default {
 @import '../../style/common.scss';
 $success-color: rgba(145, 199, 174, 1);
 $error-color: rgba(212, 130, 101, 1);
+.nfsNotUsed {
+  font-size: 4em;
+  color: #c0c4cc;
+  min-height: 144px;
+  margin: auto;
+  width: 280px;
+  span {
+    line-height: 3.3em;
+  }
+}
 </style>
 <style scoped>
 .title {

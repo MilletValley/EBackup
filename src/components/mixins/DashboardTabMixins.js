@@ -14,6 +14,14 @@ import { fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 
 const DashboardTab = {
   data() {
+    const clickPieJumpTo = {
+      bs: 'backupSuccess',
+      bf: 'backupFail',
+      rs: 'restoreSuccess',
+      rf: 'restoreFail',
+      ics: 'initConnSuccess',
+      icf: 'initConnFail'
+    };
     return {
       databaseBackup: [],
       databaseRestore: [],
@@ -22,7 +30,8 @@ const DashboardTab = {
       filehostRestore: [],
       vmBackup: [],
       vmRestore: [],
-      activeName: 'databaseBackup'
+      activeName: 'databaseBackup',
+      clickPieJumpTo
     };
   },
   computed: {
@@ -79,9 +88,9 @@ const DashboardTab = {
           const initconnData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
           if (this.$route.name === 'dashboard') {
             this.initconnNum = initconnData.slice(0, 5);
-          } else if (this.checkType === 'initConnSuccess') {
+          } else if (this.checkType === this.clickPieJumpTo.ics) {
             this.initconnNum = initconnData.filter(db => db.overState === 2);
-          } else if (this.checkType === 'initConnFail') {
+          } else if (this.checkType === this.clickPieJumpTo.icf) {
             this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(db.overState));
           } else {
             this.initconnNum = initconnData;
@@ -99,13 +108,13 @@ const DashboardTab = {
           return dataBySortAndType.slice(0, 5);
         }
         switch (this.checkType) { // 根据入口选择是否按状态显示
-          case 'backupSuccess':
+          case this.clickPieJumpTo.bs:
             return dataBySortAndType.filter(db => db.backupState === 0);
-          case 'backupFail':
+          case this.clickPieJumpTo.bf:
             return dataBySortAndType.filter(db => db.backupState === 1);
-          case 'restoreSuccess':
+          case this.clickPieJumpTo.rs:
             return dataBySortAndType.filter(db => db.restoreState === 0);
-          case 'restoreFail':
+          case this.clickPieJumpTo.rf:
             return dataBySortAndType.filter(db => db.restoreState === 1);
           default:
             return dataBySortAndType;
