@@ -210,5 +210,8 @@ export default {
   diskName: [
     { required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
     { validator: validateLength(64), triggle: 'blur' }
+  ],
+  maxLength100: [
+    { validator: validateLength(100), triggle: 'blur' }
   ]
 };
