@@ -7,14 +7,7 @@ import {
   restoreTimeStrategyMapping as strategys,
   weekMapping,
 } from '../../utils/constant';
-import {
-  validateLength20,
-  validateLength30,
-  validateLength70,
-  validateLength100,
-  validateLength50,
-  maxLengthFn
-} from '../../utils/common';
+import { validateLength, maxLengthFn } from '../../utils/common';
 // 配置信息 如果有业务添加或者变更 可以直接修改这个对象
 const strategyMapping = {
   default: {
@@ -135,11 +128,11 @@ const backupPlanModalMixin = {
       rules: {
         name: [
           { required: true, message: '请输入计划名称', trigger: 'blur' },
-          { validator: validateLength20, trigger: 'blur' }
+          { validator: validateLength(20), trigger: 'blur' }
         ],
         backupPath: [
           { required: true, message: '请输入备份路径', trigger: 'blur' },
-          { validator: validateLength100, trigger: 'blur' }
+          { validator: validateLength(100), trigger: 'blur' }
         ],
         singleTime: [
           {
@@ -462,7 +455,7 @@ const restorePlanModalMixin = {
       rules: {
         name: [
           { required: true, message: '请输入计划名称', trigger: 'blur' },
-          { validator: validateLength20, trigger: 'blur' }
+          { validator: validateLength(20), trigger: 'blur' }
         ],
         hostIp: [
           { required: true, message: '请输入主机IP', trigger: 'blur' },
@@ -480,7 +473,7 @@ const restorePlanModalMixin = {
             trigger: 'blur',
           },
           {
-            validator: this.isFileHost ? validateLength70 : validateLength30,
+            validator: this.isFileHost ? validateLength(70) : validateLength(30),
             trigger: 'blur'
           }
         ],
@@ -502,11 +495,11 @@ const restorePlanModalMixin = {
         }],
         loginName: [
           { required: true, message: '请输入登录名', trigger: 'blur' },
-          { validator: validateLength50, trigger: 'blur' }
+          { validator: validateLength(50), trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入登录密码', trigger: 'blur' },
-          { validator: validateLength50, trigger: 'blur' }
+          { validator: validateLength(50), trigger: 'blur' }
         ],
         singleTime: [
           {

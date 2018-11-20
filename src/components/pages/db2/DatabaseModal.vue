@@ -1,0 +1,135 @@
+<template>
+  <section>
+    <el-dialog :visible.sync="modalVisible"
+               :before-close="beforeModalClose"
+               @open="modalOpen"
+               @close="modalClosed">
+      <span slot="title">
+        {{ title }}
+      </span>
+      <el-form :model="formData"
+               :rules="rules"
+               label-width="110px"
+               ref="itemCreateForm"
+               size="small">
+        <el-form-item label="名称"
+                      prop="name">
+          <el-input v-model="formData.name"
+                    placeholder="请输入一个标识名称"></el-input>
+        </el-form-item>
+        <el-form-item label="所属设备"
+                      prop="hostId">
+          <span slot="label">所属设备
+              <el-popover placement="top"
+                          trigger="hover"
+                          content="类型为生产环境的设备">
+                  <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+          </span>
+          <el-select v-if="!disabled"
+                     v-model="formData.hostId"
+                     style="width: 100%;">
+            <el-option v-for="host in availableHosts"
+                       :key="host.id"
+                       :label="`${host.name}(${host.hostIp})`"
+                       :value="host.id"></el-option>
+          </el-select>
+          <el-input v-else
+                    disabled
+                    :value="formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="数据库名"
+                      prop="instanceName">
+          <el-input v-model="formData.instanceName"
+                    placeholder="`请输入要备份的数据库名"></el-input>
+        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="端口号"
+                          prop="dbPort">
+              <el-input v-model.number="formData.dbPort"
+                        placeholder="请输入端口号"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="数据库版本"
+                          prop="dbVersion">
+              <el-input v-model="formData.dbVersion"
+                        placeholder="可选"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="数据库登录名"
+                          prop="loginName">
+              <el-input v-model="formData.loginName"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="数据库密码"
+                          prop="password">
+              <input-toggle v-model="formData.password"
+                            :hidden.sync="hiddenPassword"></input-toggle>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="所属业务系统"
+                      prop="application">
+          <el-input v-model="formData.application"
+                    placeholder="可选"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button type="primary"
+                   @click="confirm"
+                   :loading="btnLoading">确定</el-button>
+        <el-button @click="cancelButtonClick()">取消</el-button>
+      </span>
+    </el-dialog>
+  </section>
+</template>
+<script>
+import isEqual from 'lodash/isEqual';
+import InputToggle from '@/components/InputToggle';
+import { databaseModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import validate from '@/utils/validate';
+export default {
+  name: 'DatabaseModal',
+  mixins: [databaseModalMixin],
+  data() {
+    const rules = {
+      name: validate.name,
+      dbPort: validate.dbPort,
+      hostId:validate.selectHost,
+      dbName: validate.dbName,
+      loginName: validate.dbLoginName,
+      password: validate.dbPassword
+    };
+    return {
+      type: 'db2',
+      rules: rules,
+      baseData: {
+        name: '',
+        hostId: '',
+        dbName: '',
+        dbPort: "",
+        loginName: '',
+        password: ''
+      }
+    }
+  },
+  computed: {
+    disabled() {
+      return this.action === 'update' ? true : false;
+    }
+  },
+  methods: {
+    
+  }
+}
+</script>
+<style>
+</style>
+

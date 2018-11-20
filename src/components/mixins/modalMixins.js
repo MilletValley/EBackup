@@ -1,11 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import {
-  validateLength20,
-  validateLength30,
-  validateLength40,
-  validateLength50,
-  validateLength80,
-} from '../../utils/common';
+import { validateLength } from '../../utils/common';
 
 const genModalMixin = type => {
   if (!['database', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(type)) {
@@ -121,7 +115,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validateLength30,
+          validator: validateLength(30),
           trigger: 'blur'
         }];
       const baseRules = {
@@ -131,7 +125,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         },
         {
@@ -146,7 +140,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength40,
+          validator: validateLength(40),
           trigger: 'blur'
         },
         {
@@ -166,7 +160,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         }],
       };
@@ -177,7 +171,7 @@ const genModalMixin = type => {
           trigger: 'blur'
         },
         {
-          validator: validateLength50,
+          validator: validateLength(50),
           trigger: 'blur',
         },
         {
@@ -214,11 +208,11 @@ const genModalMixin = type => {
       };
       const rules = { // 数据库、虚拟机
         name: [{
-          validator: validateLength50,
+          validator: validateLength(50),
           trigger: 'blur'
         }],
         dbVersion: [{
-          validator: validateLength80,
+          validator: validateLength(80),
           trigger: 'blur'
         }],
         dbPort: [{
@@ -249,7 +243,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength40,
+          validator: validateLength(40),
           trigger: 'blur',
         },
         {
@@ -260,7 +254,7 @@ const genModalMixin = type => {
         ],
         application: [
           {
-            validator: validateLength30,
+            validator: validateLength(30),
             trigger: 'blur'
           }
         ],
@@ -281,7 +275,7 @@ const genModalMixin = type => {
           trigger: 'blur'
         },
         {
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         },
         {
@@ -290,7 +284,7 @@ const genModalMixin = type => {
           trigger: ['blur'],
         }],
         application: [{
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         }],
         hostIp: baseRules.hostIp,

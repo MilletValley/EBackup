@@ -1,8 +1,8 @@
 // eslint-disable-next-line
 
 const maxLengthFn = (w, maxLength) => {
-  if (String(w)) {
-    const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
+  if (w) {
+    const t = String(w).replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
     return (w.length - t.length) * 2 + t.length > maxLength; // 判断长度
   }
   return false;

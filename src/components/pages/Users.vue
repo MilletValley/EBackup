@@ -228,14 +228,7 @@ import {
   deleteUsersInfo,
 } from '../../api/user';
 
-import {
-  validateLength10,
-  validateLength20,
-  validateLength30,
-  validateLength40,
-  validateLength50,
-  validateLength100
- } from '../../utils/common';
+import {  validateLength } from '../../utils/common';
 
 const rolesUser = [
   // {
@@ -315,17 +308,17 @@ export default {
       rules: {
         loginName: [
           { required: true, message: '请输入账户', trigger: 'blur' },
-          { validator: validateLength20, trigger: 'blur' },
+          { validator: validateLength(20), trigger: 'blur' },
           { pattern: /^[A-Za-z0-9]+$/, message: '账户只能为字母和数字' },
           { validator: validateName },
         ],
         userName: [
-          { validator: validateLength10, trigger: 'blur' },
+          { validator: validateLength(10), trigger: 'blur' },
           { min: 2, max: 25, message: '长度在 2 到 25 个字符' },
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { validator: validateLength50, trigger: 'blur' },
+          { validator: validateLength(50), trigger: 'blur' },
           { min: 6, message: '长度在不能小于6个字符' },
         ],
         checkpass: [
@@ -338,7 +331,7 @@ export default {
             trigger: 'blur'
           },
           {
-            validator: validateLength40,
+            validator: validateLength(40),
             trigger: 'blur'
           },
           {

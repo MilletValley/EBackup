@@ -17,6 +17,7 @@
                      name="databaseBackup">
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
+                    v-loading="infoLoading"
                     ref="databaseBackup"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -98,6 +99,7 @@
                      name="databaseRestore">
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
+                    v-loading="infoLoading"
                     ref="databaseRestore"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -170,6 +172,7 @@
                      v-if="showTakeOver">
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
+                    v-loading="infoLoading"
                     ref="initconnNum"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -252,6 +255,7 @@
                      v-if="showBackup">
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
+                    v-loading="infoLoading"
                     ref="filehostBackup"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -326,6 +330,7 @@
                      name="filehostRestore"
                      v-if="showRestore">
           <el-table :data="processedTableData"
+                    v-loading="infoLoading"
                     ref="filehostRestore"
                     @filter-change="filterChange"
                     style="width: 100%">
@@ -390,6 +395,7 @@
                      name="vmBackup"
                      v-if="showBackup">
           <el-table :data="processedTableData"
+                    v-loading="infoLoading"
                     @filter-change="filterChange"
                     ref="vmBackup"
                     style="width: 100%">
@@ -472,6 +478,7 @@
                      name="vmRestore"
                      v-if="showRestore">
           <el-table :data="processedTableData"
+                    v-loading="infoLoading"
                     @filter-change="filterChange"
                     ref="vmRestore"
                     style="width: 100%">
@@ -566,6 +573,7 @@ export default {
     return {
       checkType: '',
       activeTab,
+      infoLoading: true,
       tableFilter: {}
     }
   },
