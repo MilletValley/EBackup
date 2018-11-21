@@ -30,9 +30,9 @@
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button size="mini"
+                <!-- <el-button size="mini"
                             type="primary"
-                            @click="detailsEditModal = true">编辑</el-button>
+                            @click="detailsEditModal = true">编辑</el-button> -->
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
@@ -76,8 +76,7 @@
         </el-row>
       </div>
     </header>
-    <tab-panels @switchpane="switchPane"
-                :planFilterForm="planFilterForm">
+    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm">
       <template slot="backupCard">
         <backup-card :id="plan.id"
                      v-for="plan in filteredBackupPlans"
@@ -85,382 +84,81 @@
                      :backupPlan="plan"
                      @refresh="refreshSingleBackupPlan"
                      @deletePlan="deleteBackupPlan"
-                     @updatePlan="selectedBackupPlan(plan.id)"></backup-card>
+                     @updatePlan="selectBackupPlan(plan.id)"></backup-card>
       </template>
-      <!-- <template slot="restoreCard">
+      <template slot="restoreCard">
         <restore-card :id="plan.id"
-                      v-for></restore-card>
-      </template> -->
+                        v-for="plan in filteredRestorePlans"
+                        :key="plan.id"
+                        :restore-plan="plan"
+                        @refresh="refreshSingleRestorePlan"
+                        @deletePlan="deleteRestorePlan"
+                        @updatePlan="selectRestorePlan(plan.id)"></restore-card>
+      </template>
+      <template slot="backupResult">
+        <backup-result-list :data="results"
+                            @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
+      </template>
+      <template slot="restoreRecord">
+        <restore-records :restore-plan="restorePlans"
+                         :records="restoreRecords"
+                         @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
+      </template>
     </tab-panels>
-    <backup-plan-create-modal type="db2"
-                              :visible.sync="backupPlanCreateModalVisible"
-                              :btn-loading="btnLoading"
-                              @confirm="addBackupPlan"></backup-plan-create-modal>
-    <backup-plan-update-modal type="db2"
-                              :visible.sync="backupPlanUpdateModalVisible"
-                              :btn-loading="btnLoading"
-                              :backup-plan="selectedBackupPlan"
-                              @confirm="updateBackupPlan"
-                              @cancel="selectedBackupPlanId = -1"></backup-plan-update-modal>
-    <restore-plan-create-modal type="db2"
-                               :database="details"
-                               :visible.sync="restorePlanCreateModalVisible"
-                               :btn-loading="btnLoading"
-                               :selection-hosts="availableHostsForRestore"
-                               @confirm="addRestorePlan"></restore-plan-create-modal>
-    <restore-plan-update-modal type="db2"
-                               :database="details"
-                               :visible.sync="restorePlanUpdateModalVisible"
-                               :btn-loading="btnLoading"
-                               :restore-plan="selectedRestorePlan"
-                               @confirm="updateRestorePlan"
-                               @cancel="selectedRestorePlanId = -1"></restore-plan-update-modal>
-    <database-update-modal type="db2"
-                           :visible.sync="detailsEditModal"
-                           :item-info="details"
-                           :btn-loading="btnLoading"
-                           @confirm="updateDetails"></database-update-modal>
-    <single-restore-create-modal type="db2"
-                                 :id="selectedBackupResultId"
-                                 :visible.sync="singleRestoreCreateModalVisible"
-                                 :selection-hosts="availableHostsForRestore"
-                                 :btn-loading="btnLoading"
-                                 :database="details"
-                                 @confirm="addSingleRestorePlan"></single-restore-create-modal>
+    <backup-plan-modal  :btn-loading="btnLoading"
+                        :visible.sync="backupPlanModalVisible"
+                        @confirm="confirmCallback"
+                        :action="action"
+                        :backup-plan="selectedBackupPlan">
+    </backup-plan-modal>
+
+    <restore-plan-modal :btn-loading="btnLoading"
+                        :details="details"
+                        :visible.sync="restorePlanModalVisible"
+                        @confirm="restoreConfirmCallback"
+                        :action="restoreAction"
+                        :restore-plan="selectedRestorePlan">
+    </restore-plan-modal>
+    <single-restore-modal :btn-loading="btnLoading"
+                          :details="details"
+                          :result-id="selectedBackupResultId"
+                          :visible.sync="singleRestoreCreateModalVisible"
+                          @confirm="singleConfirmCallback">
+    </single-restore-modal>
   </section>
 </template>
 <script>
-import throttle from 'lodash/throttle';
-import { detailPageMixin } from '../mixins/detailPageMixins';
-import {
-  modifyOne,
-  fetchOne,
-  fetchBackupPlans,
-  createBackupPlan,
-  updateBackupPlan,
-  fetchBackupResults,
-  fetchRestorePlans,
-  fetchRestoreRecords,
-  fetchBackupOperation,
-  fetchRestoreOperation,
-  deleteRestorePlan,
-  deleteBackupPlan,
-  createSingleRestorePlan,
-  createRestorePlan,
-  updateRestorePlan,
-} from '../../api/db2';
+import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
+import BackupPlanModal from '@/components/pages/db2/BackupPlanModal';
+import RestorePlanModal from '@/components/pages/db2/RestorePlanModal';
+import SingleRestoreModal from '@/components/pages/db2/SingleRestoreModal';
+import BackupCard from '@/components/pages/db2/BackupCard';
+import BackupResultList from '@/components/pages/db2/BackupResultList';
+import RestoreCard from '@/components/pages/db2/RestoreCard';
+import RestoreRecords from '@/components/pages/db2/RestoreRecords';
 export default {
   name: 'DB2Detail',
   mixins: [detailPageMixin],
+  components: {
+    BackupPlanModal,
+    RestorePlanModal,
+    SingleRestoreModal,
+    BackupCard,
+    BackupResultList,
+    RestoreCard,
+    RestoreRecords
+  },
   data() {
     return {
-      updateResults: this.throttleMethod(() => {
-        fetchBackupResults(this.id)
-          .then(res => {
-            const { data: result } = res.data;
-            this.results = result;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      }),
-      updateRestorePlanAndRecords: this.throttleMethod(() => {
-        fetchRestorePlans(this.id)
-          .then(res => {
-            const { data: restorePlans } = res.data;
-            this.restorePlans = restorePlans;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-        fetchRestoreRecords(this.id)
-          .then(res => {
-            const { data: restoreRecords } = res.data;
-            this.restoreRecords = restoreRecords;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      }),
-      // selectedBackupPlanId: -1,
-      // TODO: 暂时使用一个data变量存储选择的计划id，也许有更优雅的实现方式
-      throttleRefreshBackup: this.throttleMethod(() => {
-        fetchBackupOperation(this.selectedBackupPlanId)
-          .then(response => {
-            const { data } = response.data;
-            const { state, startTime, consume, size } = data;
-            Object.assign(
-              this.backupPlans.find(
-                plan => plan.id === this.selectedBackupPlanId
-              ),
-              {
-                state,
-                startTime,
-                consume,
-                size,
-              }
-            );
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      }),
-      // selectedRestorePlanId: -1,
-      throttleRefreshRestore: this.throttleMethod(() => {
-        fetchRestoreOperation(this.selectedRestorePlanId)
-          .then(response => {
-            const { data } = response.data;
-            const { state, startTime, consume } = data;
-            Object.assign(
-              this.restorePlans.find(
-                plan => plan.id === this.selectedRestorePlanId
-              ),
-              {
-                state,
-                startTime,
-                consume,
-              }
-            );
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      }),
+      type: 'db2'
     };
   },
-  computed: {
-    // 用于恢复的设备
-    // 1.易备环境下的设备
-    // 2.DB2类型设备
-    // 3.没有“安装”数据库
-    availableHostsForRestore() {
-      const db2EbackupHosts = this.$store.getters.hostsWithDB2.filter(
-        h => h.hostType === 2
-      );
-      return db2EbackupHosts;
-    },
-  },
   methods: {
-    fetchData() {
-      fetchOne(this.id)
-        .then(res => {
-          const { data: db } = res.data;
-          this.details = db;
-        })
-        .catch(error => {
-          this.$message.error(error);
-          this.$router.push({ name: 'db2List' });
-        })
-        .then(() => {
-          this.infoLoading = false;
-        });
-
-      fetchBackupPlans(this.id)
-        .then(res => {
-          const { data: plans } = res.data;
-          this.backupPlans = plans;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
-      fetchBackupResults(this.id)
-        .then(res => {
-          const { data: result } = res.data;
-          this.results = result;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
-      fetchRestorePlans(this.id).then(res => {
-        const { data: plans } = res.data;
-        this.restorePlans = plans;
-      });
-      fetchRestoreRecords(this.id).then(res => {
-        const { data: records } = res.data;
-        this.restoreRecords = records;
-      });
-    },
-    RefreshTime() {
-      fetchBackupPlans(this.id)
-        .then(res => {
-          const { data: plans } = res.data;
-          this.backupPlans = plans;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
-      fetchRestorePlans(this.id).then(res => {
-        const { data: plans } = res.data;
-        this.restorePlans = plans;
-      });
-    },
-    // 添加备份计划
-    addBackupPlan(plan) {
-      this.btnLoading = true;
-      createBackupPlan({ id: this.id, plan })
-        .then(res => {
-          const { data: backupPlan, message } = res.data;
-          // 刷新情况下可能会出现两个添加后的计划
-          if (this.backupPlans.findIndex(plan => plan.id === backupPlan.id) === -1) {
-            this.backupPlans.unshift(backupPlan)
-          }
-          this.backupPlanCreateModalVisible = false;
-          this.$message.success(message);
-        })
-        .catch(error => {
-          this.$message.error(error);
-          return false;
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    updateBackupPlan(id, plan) {
-      this.btnLoading = true;
-      updateBackupPlan({ id, plan })
-        .then(res => {
-          const { data: plan, message } = res.data;
-          // FIXME: 修改ID
-          plan.id = this.selectedBackupPlanId;
-          this.backupPlans.splice(
-            this.backupPlans.findIndex(p => p.id === plan.id),
-            1,
-            plan
-          );
-          this.backupPlanUpdateModalVisible = false;
-          this.$message.success(message);
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    // 刷新单个备份计划
-    refreshSingleBackupPlan(planId) {
-      this.selectedBackupPlanId = planId;
-      this.throttleRefreshBackup();
-    },
-    // 刷新单个恢复计划
-    refreshSingleRestorePlan(planId) {
-      this.selectedRestorePlanId = planId;
-      this.throttleRefreshRestore();
-    },
-    deleteRestorePlan(planId) {
-      deleteRestorePlan(planId)
-        .then(() => {
-          this.restorePlans.splice(
-            this.restorePlans.findIndex(plan => plan.id === planId),
-            1
-          );
-          this.$message.success('删除成功');
-        })
-        .catch(error => {
-          this.$message.error(error);
-        });
-    },
-    deleteBackupPlan(planId) {
-      deleteBackupPlan(planId).then(() => {
-        this.backupPlans.splice(
-          this.backupPlans.findIndex(plan => plan.id === planId),
-          1
-        );
-        this.$message.success('删除成功');
-      });
-    },
-    addRestorePlan(restorePlan) {
-      this.btnLoading = true;
-      createRestorePlan(restorePlan)
-        .then(res => {
-          const { data: restorePlan, message } = res.data;
-          // 刷新情况下可能会出现两个添加后的计划
-          if (this.restorePlans.findIndex(plan => plan.id === restorePlan.id) === -1) {
-            this.restorePlans.unshift(restorePlan)
-          }
-          this.restorePlanCreateModalVisible = false;
-          this.$message.success(message);
-        })
-        .catch(error => {
-          this.$message.error(error);
-          return false;
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    addSingleRestorePlan(plan) {
-      this.btnLoading = true;
-      createSingleRestorePlan(plan)
-        .then(res => {
-          const { data: restorePlan, message } = res.data;
-          this.restorePlans.unshift(restorePlan);
-          this.singleRestoreCreateModalVisible = false;
-          this.$message.success(message);
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    updateDetails(data) {
-      this.btnLoading = true;
-      modifyOne(data)
-        .then(res => {
-          const { data: db2, message } = res.data;
-          // FIXME: mock数据保持id一致，生产环境必须删除下面一行
-          db2.id = this.details.id;
-          this.details = db2;
-          this.detailsEditModal = false;
-          this.$message.success(message);
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    // 更新恢复计划
-    updateRestorePlan(data) {
-      this.btnLoading = true;
-      updateRestorePlan(data)
-        .then(res => {
-          const { data: plan, message } = res.data;
-          // FIXME: 修改ID
-          plan.id = this.selectedRestorePlanId;
-          this.restorePlans.splice(
-            this.restorePlans.findIndex(p => p.id === plan.id),
-            1,
-            plan
-          );
-          this.restorePlanUpdateModalVisible = false;
-          this.$message.success(message);
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        });
-    },
-    databaseStateStyle(value) {
-      switch (value) {
-        case 0:
-          return 'info';
-        case 1:
-          return 'success';
-        case 2:
-          return 'danger';
-      }
-    },
   },
 }
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
+@import '@/style/common.scss';
 .roleIconHeader {
   padding: 5px;
   margin: -5px 5px;

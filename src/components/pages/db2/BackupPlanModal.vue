@@ -7,7 +7,7 @@
                @close="modalClosed">
       <span slot="title">
 				{{title}}
-				<span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span>
+				<!-- <span style="color: #999999" v-if="action === 'update' || action === 'query'"> (ID: {{backupPlan.id}})</span> -->
       </span>
       <el-form :model="formData"
                label-width="110px"
@@ -19,27 +19,16 @@
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
-        <el-form-item label="备份路径"
-                      prop="backupPath">
-          <el-input v-model="formData.backupPath"></el-input>
-        </el-form-item>
         <el-form-item label="备份策略" class="is-required"
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
-            <!-- <el-radio :label="0">全备</el-radio> -->
 						<el-radio :label="1">全备+增备</el-radio>
           </el-radio-group>
         </el-form-item>
+				
 				<!-- 时间策略 -->
 				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent"></time-strategy>
-        <el-form-item label="是否备份系统" class="is-required"
-                      prop="backupSys"
-                      v-if="type === 'windows'">
-          <el-switch v-model="formData.backupSystem"
-                     active-value="sys"
-                     inactive-value="nosys"></el-switch>
-        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary" v-if="action !== 'query'"
@@ -51,7 +40,7 @@
   </section>
 </template>
 <script>
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
 import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
@@ -59,8 +48,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import validate from '@/utils/validate';
 const basicFormData = {
   name: '',
-  backupPath: '',
-  backupSystem: 'nosys',
   startTime: '',
   singleTime: '',
   datePoints: [],
@@ -77,19 +64,11 @@ export default {
   components: {
     TimeStrategy,
   },
-  props: {
-    type: {
-      type: String
-    }
-  },
   data() {
     return {
-      // type: 'dm',
-      // formData: Object.assign({}, baseFormData), // 备份数据
-      // originFormData: Object.assign({}, baseFormData), // 原始数据
+      type: 'db2',
       rules: {
         name: validate.planName,
-        backupPath: validate.backupPath
       },
       backupConfig: {},
     };
@@ -97,7 +76,7 @@ export default {
   methods: {
     // 切换备份策略时 同时更新时间策略为第一个可用值
     backupStrategyChange(label) {
-      // this.formData.timeStrategy = 0;
+      this.formData.timeStrategy = label === 1 ? 0 : 1;
     },
     confirmBtnClick() {
       this.$refs.createForm.validate(valid => {
@@ -109,12 +88,6 @@ export default {
               if (this.action === 'update') {
                 data.id = this.backupPlan.id;
                 data.config.id = this.backupPlan.config.id;
-              }
-              const {backupPath, backupSystem} = this.formData
-              if (this.type === 'windows') {
-                data = Object.assign({}, data, {backupPath, backupSystem})
-              } else if (this.type === 'linux') {
-                data = Object.assign({}, data, {backupPath})
               }
               this.$emit('confirm', data, this.action);
             }
@@ -131,7 +104,7 @@ export default {
       if (backupData.config.timePoints.length === 0) {
         backupData.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
-      const { name, config, backupPath, backupSystem, ...other} = backupData;
+      const { name, config, ...other } = backupData;
       const { id, timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
         minuteInterval = 10;
@@ -142,8 +115,6 @@ export default {
       }
       return {
         name,
-        backupPath,
-        backupSystem,
         minuteInterval,
         hourInterval,
         timePoints: cloneDeep(timePoints),
@@ -153,7 +124,7 @@ export default {
     },
     modalOpened() {
       // timePoints会被改变，暂不知原因，待分析
-      const baseFormData = cloneDeep(basicFormData);
+      const baseFormData = cloneDeep(basicFormData)
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...this.backupPlan }));
       } else {

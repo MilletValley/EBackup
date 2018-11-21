@@ -18,13 +18,13 @@
                     placeholder="请输入一个标识名称"></el-input>
         </el-form-item>
         <el-form-item label="所属设备"
+                      :rules="disabled ? [] : validate.selectHost"
                       prop="hostId">
           <span slot="label">所属设备
-              <el-popover placement="top"
-                          trigger="hover"
-                          content="类型为生产环境的设备">
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
+              <el-tooltip placement="top" 
+                          content="生产环境设备" >
+                  <i class="el-icon-info"></i>
+              </el-tooltip >
           </span>
           <el-select v-if="!disabled"
                      v-model="formData.hostId"
@@ -42,7 +42,7 @@
         <el-form-item label="数据库名"
                       prop="instanceName">
           <el-input v-model="formData.instanceName"
-                    placeholder="`请输入要备份的数据库名"></el-input>
+                    placeholder="请输入要备份的数据库名"></el-input>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -102,21 +102,26 @@ export default {
     const rules = {
       name: validate.name,
       dbPort: validate.dbPort,
-      hostId:validate.selectHost,
-      dbName: validate.dbName,
+      // hostId:validate.selectHost,
+      instanceName: validate.dbName,
       loginName: validate.dbLoginName,
-      password: validate.dbPassword
+      password: validate.dbPassword,
+      dbVersion: validate.maxLength100,
+      application: validate.maxLength100
     };
     return {
       type: 'db2',
       rules: rules,
+      validate: validate,
       baseData: {
         name: '',
         hostId: '',
-        dbName: '',
+        instanceName: '',
         dbPort: "",
         loginName: '',
-        password: ''
+        password: '',
+        dbVersion: '',
+        application: ''
       }
     }
   },
@@ -131,19 +136,23 @@ export default {
         if (valid) {
           const {
             id,
-            dbName,
+            instanceName,
             name,
             loginName,
             password,
             hostId,
+            dbVersion,
+            application,
             dbPort
           } = this.formData;
           this.$emit('confirm', {
             id,
-            dbName,
+            instanceName,
             name,
             loginName,
             password,
+            dbVersion,
+            application,
             dbPort,
             host: this.availableHosts.find(host => host.id === hostId),
           }, this.action);
@@ -158,9 +167,11 @@ export default {
       } else {
         this.originFormData = {...this.baseData};
       }
+      // 暂时清空密码，等后台删除密码返回后可删除此行
+      this.originFormData.password = '';
       this.formData = {...this.originFormData};
     },
-    modaClosed() {
+    modalClosed() {
       this.$refs.itemForm.clearValidate();
       this.hiddenPassword = true;
     }

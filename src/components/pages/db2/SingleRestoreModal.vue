@@ -34,7 +34,7 @@
         </el-form-item>
 				<el-row>
 					<el-col :span="12" >
-						<el-form-item label="实例名"
+						<el-form-item label="数据库名"
 													prop="detailInfo">
 							<el-input v-model="formData.detailInfo"></el-input>
 						</el-form-item>
@@ -94,12 +94,12 @@ export default {
   },
   data() {
     return {
-      type: 'oracle',
+      type: 'db2',
       formData: Object.assign({}, baseFormData), // 备份数据
       originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         hostIp: validate.selectHost,
-        detailInfo: validate.instanceName,
+        detailInfo: validate.dbName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
         password: validate.dbPassword,

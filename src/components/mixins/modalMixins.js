@@ -339,7 +339,7 @@ const genModalMixin = type => {
         );
       },
       db2Hosts() {
-        return this.$store.getters.hostsWithDB2.filter(
+        return this.$store.getters.db2Hosts.filter(
           h => h.hostType === 1
         );
       },
