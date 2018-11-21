@@ -234,7 +234,7 @@ const vm = {
           } = this.formData;
           this.confirmData = {
             adminPassword,
-            dbPort,
+            dbPort: Number(dbPort),
             adminUser,
             // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId)
