@@ -1,0 +1,153 @@
+<template>
+  <section>
+    <el-row>
+      <el-form >
+        <el-col :span="6">
+          <el-form-item>
+            <el-input placeholder="请输入名称"
+                      v-model="inputSearch"
+                      @keyup.enter.native="searchByName">
+              <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
+            </el-input>          
+          </el-form-item>
+        </el-col>
+        <el-col :span="18" style="text-align:right">
+          <el-form-item>
+            <el-button type="primary"
+                      @click="createModalVisible = true">添加</el-button>
+          </el-form-item>
+        </el-col>
+      </el-form>
+    </el-row>
+    <el-table :data="processedTableData"
+              style="width: 100%">
+      <el-table-column label="序号"
+                       min-width="100"
+                       fixed
+                       align="center">
+        <template slot-scope="scope">
+            {{scope.$index+1+(currentPage-1)*pageSize}}
+        </template>
+      </el-table-column>
+      <el-table-column label="名称"
+                       min-width="200"
+                       align="center">
+        <template slot-scope="scope">
+          <router-link :to="`${scope.row.id}`"
+                        append
+                        :class="$style.link">{{scope.row.name}}</router-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="instanceName"
+                       label="数据库名"
+                       min-width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="host.hostIp"
+                       label="主机IP"
+                       min-width="200"
+                       align="center"></el-table-column>
+      <!-- <el-table-column prop="loginName"
+                       label="登录账号"
+                       min-width="150"
+                       align="center"></el-table-column> -->
+      <el-table-column prop="state"
+                       label="状态"
+                       width="100"
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="stateTagType(scope.row.state)"
+                  size="mini">
+            {{ databaseState(scope.row.state) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作"
+                       fixed="right"
+                       width="150"
+                       header-align="center"
+                       align="center">
+        <template slot-scope="scope">
+          <el-button type="primary"
+                     icon="el-icon-edit"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="modifyDb(scope)"></el-button>
+          <el-button type="danger"
+                     icon="el-icon-delete"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="deleteDb(scope)"></el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination class="margin-top10 text-right"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="pageSize"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+    </el-pagination>
+    <database-modal :visible.sync="createModalVisible"
+                    :btn-loading="btnLoading"
+                    :action="action"
+                    :data="currentSelectData"
+                    @confirm="confirmCall"></database-modal>
+  </section>
+</template>
+<script>
+import DatabaseModal from '@/components/pages/mysql/DatabaseModal';
+import tableMixin from '@/components/mixins/databaseTableMixin';
+
+export default {
+  name: 'MySqlList',
+  mixins: [tableMixin],
+  data(){
+    return {
+      databaseType: 'mysql',
+    }
+  },
+  watch: {
+    inputSearch() {
+      if (this.inputSearch === '') {
+        this.filter = {};
+        this.currentPage = 1;
+      }
+    }
+  },
+  methods: {
+    filterFn(item, i){
+      return item[i].toLowerCase().includes( this.filter[i].toLowerCase());
+    },
+    searchByName(){
+      const name = this.inputSearch;
+      this.filter = Object.assign({},{name});
+      this.currentPage = 1;
+    },
+    deleteDb(scope) {
+      this.delete(scope, '确认删除此数据库?');
+    }
+  },
+  components: {
+    DatabaseModal
+  },
+};
+</script>
+<style lang="scss" module>
+@import '@/style/common.scss';
+</style>
+<style scoped>
+.margin-top20{
+  margin-top: 20px;
+}
+.margin-top10{
+  margin-top: 10px;
+}
+.text-right{
+  text-align: right;
+}
+</style>

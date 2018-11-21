@@ -267,7 +267,7 @@ export default {
   },
   computed: {
     availableHostsForRestore() {
-      return this.$store.getters.hostsWithSqlServer.filter(
+      return this.$store.getters.sqlserverHosts.filter(
         h => h.hostType === 2
       );
     },

@@ -26,9 +26,9 @@
                   >
                   <i class="el-icon-info" slot="reference"></i>
               </el-popover>
-          </span>
-           <el-input disabled v-if="action !== 'create'"
-                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>  
+          </span>  
+          <el-input disabled v-if="action !== 'create'"
+                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
           <el-select v-model="formData.hostIp" v-else
                       style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore"
@@ -42,9 +42,9 @@
         </el-form-item>
 				<el-row>
 					<el-col :span="12" >
-						<el-form-item label="数据库名"
-													prop="dbName">
-							<el-input v-model="formData.dbName"></el-input>
+						<el-form-item label="实例名"
+													prop="detailInfo">
+							<el-input v-model="formData.detailInfo" :disabled="action !== 'create'"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
@@ -91,7 +91,7 @@ import TimeInterval from '@/components/common/TimeInterval';
 const basiceFormData = {
   name: '',
   hostIp: '',
-  dbName: '',
+  detailInfo: '',
   dbPort: '',
   loginName: '',
   password: '',
@@ -111,13 +111,13 @@ export default {
   },
   data() {
     return {
-      type: 'dm',
+      type: 'oracle',
       // formData: Object.assign({}, baseFormData), // 备份数据
       // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
         hostIp: validate.selectHost,
-        dbName: validate.dbName,
+        detailInfo: validate.instanceName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
         password: validate.dbPassword,
@@ -151,12 +151,18 @@ export default {
         plan.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
       const { name, config, ...other } = plan;
-      const { id, startTime, timePoints, timeStrategy, ...otherConfig } = config;
+      const { id, startTime, timePoints, timeStrategy, database, ...otherConfig } = config;
+      const { instanceName: detailInfo, loginName, host } = database;
+      const { name: hostName, hostIp } = host;
       return {
         name,
         startTime: timeStrategy === 1 ? '' : startTime,
         timePoints: cloneDeep(timePoints),
         timeStrategy,
+        detailInfo,
+        loginName,
+        hostName,
+        hostIp,
         ...otherConfig,
       };
     },
@@ -169,8 +175,8 @@ export default {
           this.fmtData({ ...this.restorePlan })
         );
       } else {
-        const {dbName, dbPort} = this.details;
-        this.originFormData = Object.assign({}, baseFormData, {dbName, dbPort});
+        const {instanceName, dbPort} = this.details;
+        this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort});
       }
       this.formData = Object.assign({}, this.originFormData);
       console.log(this.formData);

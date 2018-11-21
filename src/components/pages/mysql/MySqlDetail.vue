@@ -5,7 +5,8 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <img src="../../../assets/DM.fw.png" :class="$style.dmClass">
+            <i-icon name="mysql"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
@@ -37,34 +38,46 @@
             </el-row>
             <el-form v-loading="infoLoading"
                      label-position="left"
-                     label-width="130px"
+                     label-width="100px"
                      size="small"
                      class="item-info">
               <el-row style="margin-right: 5px;">
                 <el-col :span="8">
+                  <el-form-item label="MySql版本：">
+                    <span>{{ details.dbVersion }}</span>
+                  </el-form-item>
                   <el-form-item label="数据库名：">
-                    <span>{{ details.dbName }}</span>
+                    <span>{{ details.instanceName }}</span>
                   </el-form-item>
                   <el-form-item label="端口号：">
                     <span>{{ details.dbPort }}</span>
                   </el-form-item>
+                  <!-- <el-form-item label="数据库账号：">
+                    <span>{{ details.loginName }}</span>
+                  </el-form-item>
+                  <el-form-item label="数据库密码：">
+                    <span>●●●●●●●●</span>
+                  </el-form-item> -->
                   <el-form-item label="数据库状态：">
                     <el-tag :type="databaseStateStyle(details.state)"
                             size="mini">{{ details.state | databaseStateFilter }}</el-tag>
                   </el-form-item>
-                  <el-form-item label="数据库版本：">
-                    <span>{{ details.dbVersion }}</span>
-                  </el-form-item>
                 </el-col>
                 <el-col :span="8">
+                  <el-form-item label="主机名：">
+                    <span>{{ details.host.name }}</span>
+                  </el-form-item>
+                  <el-form-item label="操作系统：">
+                    <span>{{ details.host.osName }}</span>
+                  </el-form-item>
                   <el-form-item label="所属设备：">
                     <span>{{ details.host.name }}</span>
                   </el-form-item>
                   <el-form-item label="设备IP：">
                     <span>{{ details.host.hostIp }}</span>
                   </el-form-item>
-                  <el-form-item label="操作系统：">
-                    <span>{{ details.host.osName }}</span>
+                  <el-form-item label="所属系统：">
+                    <span>{{ details.application || '-' }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -103,43 +116,39 @@
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
-    <backup-plan-modal   :btn-loading="btnLoading"
-                            :visible.sync="backupPlanModalVisible"
-                            @confirm="confirmCallback"
-                            :action="action"
-                            :backup-plan="selectedBackupPlan">
+    <backup-plan-modal  :btn-loading="btnLoading"
+                        :visible.sync="backupPlanModalVisible"
+                        @confirm="confirmCallback"
+                        :action="action"
+                        :backup-plan="selectedBackupPlan">
     </backup-plan-modal>
 
-    <restore-plan-modal   :btn-loading="btnLoading"
-                          :details="details"
-                          :visible.sync="restorePlanModalVisible"
-                          @confirm="restoreConfirmCallback"
-                          :action="restoreAction"
-                          :restore-plan="selectedRestorePlan">
+    <restore-plan-modal :btn-loading="btnLoading"
+                        :details="details"
+                        :visible.sync="restorePlanModalVisible"
+                        @confirm="restoreConfirmCallback"
+                        :action="restoreAction"
+                        :restore-plan="selectedRestorePlan">
     </restore-plan-modal>
-    <single-restore-modal   :btn-loading="btnLoading"
-                            :details="details"
-                            :result-id="selectedBackupResultId"
-                            :visible.sync="singleRestoreCreateModalVisible"
-                            @confirm="singleConfirmCallback">
+    <single-restore-modal :btn-loading="btnLoading"
+                          :details="details"
+                          :result-id="selectedBackupResultId"
+                          :visible.sync="singleRestoreCreateModalVisible"
+                          @confirm="singleConfirmCallback">
     </single-restore-modal>
   </section>
 </template>
 <script>
-// import dayjs from 'dayjs';
-// import throttle from 'lodash/throttle';
-// import { applyFilterMethods } from '@/utils/common';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
-import BackupPlanModal from '@/components/pages/dm/BackupPlanModal';
-import RestorePlanModal from '@/components/pages/dm/RestorePlanModal';
-import SingleRestoreModal from '@/components/pages/dm/SingleRestoreModal';
-import BackupCard from '@/components/pages/dm/BackupCard';
-import BackupResultList from '@/components/pages/dm/BackupResultList';
-import RestoreCard from '@/components/pages/dm/RestoreCard';
-import RestoreRecords from '@/components/pages/dm/RestoreRecords';
-
+import BackupPlanModal from '@/components/pages/mysql/BackupPlanModal';
+import RestorePlanModal from '@/components/pages/mysql/RestorePlanModal';
+import SingleRestoreModal from '@/components/pages/mysql/SingleRestoreModal';
+import BackupCard from '@/components/pages/mysql/BackupCard';
+import BackupResultList from '@/components/pages/mysql/BackupResultList';
+import RestoreCard from '@/components/pages/mysql/RestoreCard';
+import RestoreRecords from '@/components/pages/mysql/RestoreRecords';
 export default {
-  name: 'DmDetail',
+  name: 'MySqlDetail',
   mixins: [detailPageMixin],
   components: {
     BackupPlanModal,
@@ -150,12 +159,14 @@ export default {
     RestoreCard,
     RestoreRecords
   },
-  data(){
+  data() {
     return {
-      type: 'dm',
-    }
+      type: 'mysql',
+    };
   },
   computed: {
+  },
+  methods: {
   },
 };
 </script>
@@ -190,11 +201,5 @@ export default {
   position: absolute;
   bottom: 0;
   right: 0;
-}
-.dmClass {
-  width: 40px;
-  height: 32px;
-  margin-top: 15px;
-  margin-right: 8px;
 }
 </style>

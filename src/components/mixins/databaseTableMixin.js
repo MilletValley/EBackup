@@ -1,6 +1,7 @@
 import { paginationMixin, filterMixin, sortMixin } from './commonMixin';
 import {
-  databaseStateMapping
+  databaseStateMapping,
+  databaseRoleMapping
 } from '../../utils/constant';
 import {
   fetchListData,
@@ -37,6 +38,20 @@ const tableMixin = {
     },
     databaseState(state) {
       return databaseStateMapping[state];
+    },
+    databaseRole(role) {
+      return databaseRoleMapping[role];
+    },
+    roleTagType(role) {
+      switch (role) {
+        case 1:
+          return '';
+        case 0:
+        case 2:
+          return 'info';
+        default:
+          return '';
+      }
     },
     stateTagType(state) {
       switch (state) {

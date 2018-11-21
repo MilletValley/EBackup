@@ -46,10 +46,10 @@
           <el-input disabled
                     :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
         </el-form-item>
-        <el-form-item label="数据库名"
-                      prop="dbName">
-          <el-input v-model="formData.dbName"
-                    placeholder="请输入要备份的数据库名"></el-input>
+        <el-form-item label="实例名"
+                      prop="instanceName">
+          <el-input v-model="formData.instanceName"
+                    placeholder="请输入要备份的实例名"></el-input>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -57,6 +57,13 @@
                           prop="dbPort">
               <el-input v-model.number="formData.dbPort"
                         placeholder="请输入端口号"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="数据库版本"
+                          prop="dbVersion">
+              <el-input v-model="formData.dbVersion"
+                        placeholder="可选"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -75,6 +82,11 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="所属业务系统"
+                      prop="application">
+          <el-input v-model="formData.application"
+                    placeholder="可选"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
@@ -86,7 +98,7 @@
   </section>
 </template>
 <script>
-import isEqual from 'lodash/isEqual';
+// import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { databaseModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
@@ -94,9 +106,11 @@ const rules = {
   name: validate.name,
   dbPort: validate.dbPort,
   hostId: validate.selectHost,
-  dbName: validate.dbName,
+  instanceName: validate.instanceName,
   loginName: validate.dbLoginName,
   password: validate.dbPassword,
+  dbVersion: validate.maxLength100,
+  application: validate.maxLength100
 };
 const vm = {
   name: 'DatabaseModal',
@@ -105,15 +119,17 @@ const vm = {
   },
   data() {
     return {
-      type: 'dm',
+      type: 'oracle',
       rules: rules,
       baseData: {
         name: '',
         hostId: '',
-        dbName: '',
-        dbPort: '',
+        instanceName: '',
+        dbPort: 1521,
         loginName: '',
-        password: ''
+        password: '',
+        dbVersion: '',
+        application: ''
       }
     };
   },
@@ -132,20 +148,24 @@ const vm = {
         if (valid) {
           const {
             id,
-            dbName,
+            instanceName,
             name,
             loginName,
             password,
             hostId,
-            dbPort
+            dbPort,
+            dbVersion,
+            application
           } = this.formData;
           this.$emit('confirm', {
             id,
-            dbName,
+            instanceName,
             name,
             loginName,
             password,
             dbPort,
+            dbVersion,
+            application,
             // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId),
           }, this.action);

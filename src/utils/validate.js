@@ -57,13 +57,27 @@ export default {
       trigger: 'blur'
     }
   ],
-  selelctHost: [
+  selectHost: [
     { required: true, message: '请选择设备', trigger: 'blur' }
   ],
   dbName: [
     {
       required: true,
       message: '请输入数据库名',
+      trigger: 'blur',
+    }, {
+      validator: validateLength(64),
+      trigger: 'blur'
+    }, {
+      pattern: '^[^\\s]*$',
+      message: '不能包含空格',
+      trigger: ['blur'],
+    }
+  ],
+  instanceName: [
+    {
+      required: true,
+      message: '请输入实例名',
       trigger: 'blur',
     }, {
       validator: validateLength(64),

@@ -660,10 +660,10 @@ export default {
     specialHosts() {
       if (this.databaseType === 'oracle') {
         // return hosts;
-        return this.$store.getters.hostsWithOracle;
+        return this.$store.getters.oracleHosts;
       } else if (this.databaseType === 'sqlserver') {
         // return hosts2;
-        return this.$store.getters.hostsWithSqlServer;
+        return this.$store.getters.sqlserverHosts;
       }
     },
     /**

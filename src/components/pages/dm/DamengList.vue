@@ -20,7 +20,7 @@
                         width="50px"
                         align="center">
           <template slot-scope="scope">
-              {{scope.$index+1}}
+              {{scope.$index+1+(currentPage-1)*pageSize}}
           </template>
         </el-table-column>
         <el-table-column
@@ -54,7 +54,7 @@
         </el-table-column>
         <el-table-column
           prop="state"
-          label="连接状态"
+          label="状态"
           align="center"
           width="80">
           <template slot-scope="scope">
@@ -119,9 +119,17 @@ export default {
       databaseType: 'dm',
     }
   },
+  watch: {
+    inputSearch() {
+      if (this.inputSearch === '') {
+        this.filter = {};
+        this.currentPage = 1;
+      }
+    }
+  },
   methods: {
     filterFn(item, i){
-      return item[i].includes( this.filter[i]);
+      return item[i].toLowerCase().includes( this.filter[i].toLowerCase());
     },
     searchByName(){
       const name = this.inputSearch;
