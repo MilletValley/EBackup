@@ -10,7 +10,7 @@
       <el-form :model="formData"
                :rules="rules"
                label-width="110px"
-               ref="itemCreateForm"
+               ref="itemForm"
                size="small">
         <el-form-item label="名称"
                       prop="name">
@@ -126,7 +126,44 @@ export default {
     }
   },
   methods: {
-    
+    confirm() {
+      this.$refs.itemForm.validate(valid => {
+        if (valid) {
+          const {
+            id,
+            dbName,
+            name,
+            loginName,
+            password,
+            hostId,
+            dbPort
+          } = this.formData;
+          this.$emit('confirm', {
+            id,
+            dbName,
+            name,
+            loginName,
+            password,
+            dbPort,
+            host: this.availableHosts.find(host => host.id === hostId),
+          }, this.action);
+        } else {
+          return false;
+        }
+      })
+    },
+    modalOpen() {
+      if(this.action === 'update') {
+        this.originFormData = Object.assign({}, this.baseData, this.data);
+      } else {
+        this.originFormData = {...this.baseData};
+      }
+      this.formData = {...this.originFormData};
+    },
+    modaClosed() {
+      this.$refs.itemForm.clearValidate();
+      this.hiddenPassword = true;
+    }
   }
 }
 </script>

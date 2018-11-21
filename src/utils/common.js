@@ -38,7 +38,7 @@ const maxLengthFn = (w, maxLength) => {
 
 const validateLength = length =>
   (rule, value, callback) => {
-    if (maxLengthFn(value, 10)) {
+    if (maxLengthFn(value, length)) {
       callback(new Error(`长度在${length}个字符以内，注：中文占2个字符`));
     } else {
       callback();

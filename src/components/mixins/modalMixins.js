@@ -113,11 +113,8 @@ const genModalMixin = type => {
           pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
           message: 'IP地址不正确',
           trigger: 'blur',
-        },
-        {
-          validator: validateLength(30),
-          trigger: 'blur'
-        }];
+        }
+      ];
       const baseRules = {
         loginName: [{
           required: true,
@@ -158,10 +155,6 @@ const genModalMixin = type => {
           pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
           message: 'IP地址不正确',
           trigger: 'blur',
-        },
-        {
-          validator: validateLength(20),
-          trigger: 'blur'
         }],
       };
       const hostRules = { // 设备管理输入校验
