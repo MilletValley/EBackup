@@ -77,6 +77,7 @@
                      name="databaseBackup">
           <el-table :data="databaseBackup"
                     ref="databaseBackup"
+                    v-loading="infoLoading"
                     style="width: 100%">
             <el-table-column label="名称"
                              show-overflow-tooltip
@@ -146,6 +147,7 @@
         <el-tab-pane label="数据库恢复"
                      name="databaseRestore">
           <el-table :data="databaseRestore"
+                    v-loading="infoLoading"
                     ref="databaseRestore"
                     style="width: 100%">
             <el-table-column label="名称"
@@ -206,6 +208,7 @@
         <el-tab-pane label="一键接管"
                      name="initconnNum">
           <el-table :data="initconnNum"
+                    v-loading="infoLoading"
                     ref="initconnNum"
                     style="width: 100%">
             <el-table-column label="实例名"
@@ -278,6 +281,7 @@
         <el-tab-pane label="文件备份"
                      name="filehostBackup">
           <el-table :data="filehostBackup"
+                    v-loading="infoLoading"
                     ref="filehostBackup"
                     style="width: 100%">
             <el-table-column label="名称"
@@ -342,6 +346,7 @@
         <el-tab-pane label="文件恢复"
                      name="filehostRestore">
           <el-table :data="filehostRestore"
+                    v-loading="infoLoading"
                     ref="filehostRestore"
                     style="width: 100%">
             <el-table-column label="名称"
@@ -395,6 +400,7 @@
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup">
           <el-table :data="vmBackup"
+                    v-loading="infoLoading"
                     ref="vmBackup"
                     style="width: 100%">
             <el-table-column label="虚拟机名"
@@ -466,6 +472,7 @@
         <el-tab-pane label="虚拟机恢复"
                      name="vmRestore">
           <el-table :data="vmRestore"
+                    v-loading="infoLoading"
                     ref="vmRestore"
                     style="width: 100%">
             <el-table-column label="虚拟机名"
@@ -543,27 +550,23 @@ require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
   mixins: [baseMixin, DashboardTab],
-  created() {
-    this.fetchData();
-    this.fetchTabData();
-    this.activeName = 'databaseBackup'
-  },
   data() {
     const nfsInUsedTypeMapping= {
       1: 'oracle',
       2: 'sqlserver',
-      3: 'mysql',
-      4: 'db2',
-      5: '达梦',
-      6: '文件',
-      7: '虚拟机'
+      3: '文件',
+      4: '虚拟机',
+      5: 'mysql',
+      6: 'db2',
+      7: '达梦'
     }
-    const color = ['#00ffff','#00cfff','#006ced','#ffe000','#ffa800','#ff5b00','#ff3000']
+    const color = ['', '#CC0033','#FF6600','#FFFF33','#009900','#00FF66','#003399','#660066']
     return {
       total: {},
       spaceDetail: {},
       nfsInUsedTypeMapping,
-      color,
+      color, // nfs环形图颜色
+      infoLoading: true, // table动画加载
       spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
         name: [],
         percentData: [],
@@ -576,36 +579,34 @@ export default {
       if(this.spaceDetail.nfsData.total===0) {
         return 100;
       }
-      return this.ceilNumber(this.spaceDetail.nfsData.inUsed, this.spaceDetail.nfsData.total);
+      return this.calcPercent(this.spaceDetail.nfsData.inUsed, this.spaceDetail.nfsData.total);
     },
     shareInUsedPercent() {
       if(this.spaceDetail.shareData.total===0) {
         return 100;
       }
-      return this.ceilNumber(this.spaceDetail.shareData.inUsed, this.spaceDetail.shareData.total);
+      return this.calcPercent(this.spaceDetail.shareData.inUsed, this.spaceDetail.shareData.total);
     },
     nfsAssignedSpace() {
       return this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails;
     },
-    nfsPieSeriesData() {
-      if(this.nfsAssignedSpace) {
-        return this.nfsAssignedSpace.map((item, index) => {
-          return {
-            value: item.nfsUseSize,
-            name: this.nfsInUsedTypeMapping[item.nfsUseType],
-            itemStyle: {
-              normal: {
-                borderWidth: 5,
-                shadowBlur: 20,
-                borderColor: this.color[index],
-                shadowColor: this.color[index]
-              }
-            }
-          }
-        })
-      }
-      return [];
+    nfsPieColor() {
+      const color = this.color.filter((c, index) => this.spaceDetail.nfsData.nfsUseDetails.map(detail => detail.nfsUseType).includes(index));
+      return color;
+    },
+    nfsPieData() {
+      return this.spaceDetail.nfsData.nfsUseDetails.map(detail => {
+        return {
+          value: detail.nfsUseSize,
+          name: this.nfsInUsedTypeMapping[detail.nfsUseType]
+        }
+      })
     }
+  },
+  mounted() {
+    this.fetchData();
+    this.fetchTabData();
+    this.activeName = 'databaseBackup'
   },
   methods: {
     fetchData() {
@@ -615,7 +616,7 @@ export default {
           const { data: spaceData } = res[1].data;
           this.total = pieData;
           this.spaceDetail = spaceData;
-          this.spaceData.name.push('存储1');
+          this.spaceData.name.push('NFS');
           this.spaceData.percentData.push(this.nfsInUsedPercent);
           this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
           if(Object.keys(this.spaceDetail.shareData).length>0) {
@@ -631,8 +632,8 @@ export default {
           this.$message.error(error);
         })
     },
-    calcPercent(success, fail) {
-      return ((success/(success+fail))*100).toFixed(2);
+    calcPercent(diviver, dividend) {
+      return ((diviver/dividend)*100).toFixed(2);
     },
     jumpToMoreState(params, successPath, errorPath) {
       if(params.name.includes('成功')) {
@@ -645,419 +646,169 @@ export default {
     addUnit(data) {
       return fmtSizeFn(Number(data)*1024*1024);
     },
-    // 保留两位小数
-    ceilNumber(divider, dividend) {
-      return ((divider/dividend).toFixed(2))*100;
-    },
     drawLine() {
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
       let initConn = echarts.init(document.getElementById('initConn'));
-      let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
       let barChart = echarts.init(document.getElementById('barChart'));
+      let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
       let backupOption = {
-        title: {
-          top: '55%',
-          left: 'center',
-          text: '',
-          textStyle: {
-            color: '#333',
-            fontStyle: 'normal',
-            fontWeight: 'normal',
-            fontSize: 14
-          },
-          subtext: '备份成功所占比例',
-          subtextStyle: {
-            color: '#666',
-            fontSize: 12
-          }
-        },
-        // legend: {
-        //   orient: 'vertical',
-        //   right: 'left',
-        //   data: ['成功', '失败']
-        // },
-        color: ['#27ca27', '#aaa'],
         tooltip: {
           trigger: 'item',
+          position: function(p){   //其中p为当前鼠标的位置
+            return [p[0] + 10, p[1] - 10];
+          },
           formatter: function(res) {
-            if (res.componentSubType == 'liquidFill') {
-              return res.seriesName + ': ' + (res.value * 10000 / 100).toFixed(2) + '%';
-            } else {
-              return '<span class="ii" style="background:' + res.color + ' "></span>' + res.name +': '+ res.data.value + ' (' + res.percent + '%)<br/> ' +
-                     '<p>oracle: '+res.data.explain.oracle+'</p>'+
-                     '<p>sqlserver: '+res.data.explain.sqlserver+'</p>'+
-                     '<p>文件: '+res.data.explain.filehost+'</p>'+
-                     '<p>虚拟机: '+res.data.explain.vm+'</p>'
-            }
+            const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>oracle: ${res.data.explain.oracle}</p>
+                    <p ${res.data.explain.sqlserver?'':'style="display: none"'}>sqlserver: ${res.data.explain.sqlserver}</p>
+                    <p ${res.data.explain.filehost?'':'style="display: none"'}>文件: ${res.data.explain.filehost}</p>
+                    <p ${res.data.explain.vm?'':'style="display: none"'}>VMware: ${res.data.explain.vm}</p>
+                    <p ${res.data.explain.hw?'':'style="display: none"'}>华为虚拟机: ${res.data.explain.hw}</p>
+                    <p ${res.data.explain.mysql?'':'style="display: none"'}>mysql: ${res.data.explain.mysql}</p>
+                    <p ${res.data.explain.dm?'':'style="display: none"'}>达梦: ${res.data.explain.dm}</p>
+                    <p ${res.data.explain.db2?'':'style="display: none"'}>db2: ${res.data.explain.db2}</p>`
+            return `<p>${arr}</p>`
           }
         },
         series: [
           {
-            type: 'liquidFill',
-            itemStyle: {
-              normal: {
-                opacity: 0.4,
-                shadowColor: 'blue'
-              }
-            },
-            radius: '60%',
-            name: '备份成功',
-            data: [{
-              value: (this.calcPercent(this.total.totalBackupNumSuccess, this.total.totalBackupNumFail))/100,
-              itemStyle: {
-                normal: {
-                  color: '#53d5ff',
-                  opacity: 0.6
-                }
-              }
-            }],
-            background: '#fff',
-            color: ['#53d5ff'],
-            center: ['50%', '50%'],
-            backgroundStyle: {
-                color: '#fff'
-            },
-            // label: {
-            //   normal: {
-            //     formatter: '',
-            //     textStyle: {
-            //         fontSize: 12
-            //     }
-            //   }
-            // },
-            outline: {
-              itemStyle: {
-                borderColor: '#86c5ff',
-                borderWidth: 0
-              },
-              borderDistance: 0
-            }
-          },
-          {
+            name: '数据备份',
             type: 'pie',
             radius: ['60%', '70%'],
-            hoverAnimation: false, ////设置饼图默认的展开样式
-            // label: {
-            //   show: true,
-            //   normal: {
-            //     show: false,
-            //     position: 'center'
-            //   },
-            // },
-            labelLine: {
-              normal: {
-                show: true
-              }
-            },
-            itemStyle: { // 此配置
-              normal: {
-                borderWidth: 2,
-                borderColor: '#ffffff',
-              },
-              emphasis: {
-                  borderWidth: 0,
-                  shadowBlur: 2,
-                  shadowOffsetX: 0,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            },
+            hoverAnimation: false,
+            color: ['#27ca27', '#ca2727'],
             data: [
-            {
-              value: this.total.totalBackupNumSuccess,
-              name: '成功',
-              label: {
-                normal: {
-                  formatter: '{b} : {c}'+'\n'+'{d}%'
+              {
+                value: this.total.totalBackupNumSuccess,
+                name: '成功',
+                dataType: 1,
+                label: {
+                  normal: {
+                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                  }
+                },
+                explain: {
+                  'oracle': this.total.oracleBackupNumSuccess,
+                  'sqlserver': this.total.sqlserverBackupNumSuccess,
+                  'filehost': this.total.fileBackupNumSuccess,
+                  'vm': this.total.vmBackupNumSuccess,
+                  'hw': this.total.hwvmBackupNumSuccess,
+                  'mysql': this.total.mysqlBackupNumSuccess,
+                  'dm': this.total.dmBackupNumSuccess,
+                  'db2': this.total.db2BackupNumSuccess
                 }
               },
-              explain: {
-                'oracle': this.total.oracleBackupNumSuccess,
-                'sqlserver': this.total.sqlserverBackupNumSuccess,
-                'filehost': this.total.fileBackupNumSuccess,
-                'vm': this.total.vmBackupNumSuccess
-              }
-            },
-            {
-              value: this.total.totalBackupNumFail,
-              name: '失败',
-              label: {
-                normal: {
-                  formatter: '{b} : {c}'+'\n'+'{d}%'
+              {
+                value: this.total.totalBackupNumFail,
+                name: '失败',
+                label: {
+                  normal: {
+                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                  }
+                },
+                explain: {
+                  'oracle': this.total.oracleBackupNumFail,
+                  'sqlserver': this.total.sqlserverBackupNumFail,
+                  'filehost': this.total.fileBackupNumFail,
+                  'vm': this.total.vmBackupNumFail,
+                  'hw': this.total.hwvmBackupNumFail,
+                  'mysql': this.total.mysqlBackupNumFail,
+                  'dm': this.total.dmBackupNumFail,
+                  'db2': this.total.db2BackupNumFail
                 }
-              },
-              explain: {
-                'oracle': this.total.oracleBackupNumFail,
-                'sqlserver': this.total.sqlserverBackupNumFail,
-                'filehost': this.total.fileBackupNumFail,
-                'vm': this.total.vmBackupNumFail
               }
-            }]
+            ]
           }
         ]
       }
       let restoreOption = {
-        title: {
-          top: '55%',
-          left: 'center',
-          text: '',
-          textStyle: {
-            color: '#333',
-            fontStyle: 'normal',
-            fontWeight: 'normal',
-            fontSize: 14
-          },
-          subtext: '恢复成功所占比例',
-          subtextStyle: {
-            color: '#666',
-            fontSize: 12
-          }
-        },
-        // legend: {
-        //   orient: 'vertical',
-        //   right: 'left',
-        //   data: ['成功', '失败']
-        // },
-        color: ['#27ca27', '#aaa'],
         tooltip: {
           trigger: 'item',
-          formatter: function(res) {
-            if (res.componentSubType == 'liquidFill') {
-              return res.seriesName + ': ' + (res.value * 10000 / 100).toFixed(2) + '%';
-            } else {
-              return '<span class="ii" style="background:' + res.color + ' "></span>' + res.name +': '+ res.data.value + ' (' + res.percent + '%)<br/> ' +
-                     '<p>oracle: '+res.data.explain.oracle+'</p>'+
-                     '<p>sqlserver: '+res.data.explain.sqlserver+'</p>'+
-                     '<p>文件: '+res.data.explain.filehost+'</p>'+
-                     '<p>虚拟机: '+res.data.explain.vm+'</p>'
-            }
-          }
+          position: function(p){   //其中p为当前鼠标的位置, 限制tooltip位置
+            return [p[0] + 10, p[1] - 10];
         },
-        series: [{
-          type: 'liquidFill',
-          itemStyle: {
-            normal: {
-              opacity: 0.4,
-              shadowColor: 'blue'
-            }
-          },
-          radius: '60%',
-          name: '恢复成功',
-          data: [{
-            value: (this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumFail))/100,
-            itemStyle: {
-              normal: {
-                color: '#53d5ff',
-                opacity: 0.6
-              }
-            }
-          }],
-          background: '#fff',
-          color: ['#53d5ff'],
-          center: ['50%', '50%'],
-          backgroundStyle: {
-              color: '#fff'
-          },
-          // label: {
-          //   normal: {
-          //     formatter: '',
-          //     textStyle: {
-          //         fontSize: 12
-          //     }
-          //   }
-          // },
-          outline: {
-            itemStyle: {
-              borderColor: '#86c5ff',
-              borderWidth: 0
-            },
-            borderDistance: 0
-          }
-          },
+          formatter: function(res) {const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>oracle: ${res.data.explain.oracle}</p>
+                        <p ${res.data.explain.sqlserver?'':'style="display: none"'}>sqlserver: ${res.data.explain.sqlserver}</p>
+                        <p ${res.data.explain.filehost?'':'style="display: none"'}>文件: ${res.data.explain.filehost}</p>
+                        <p ${res.data.explain.vm?'':'style="display: none"'}>VMware: ${res.data.explain.vm}</p>
+                        <p ${res.data.explain.hw?'':'style="display: none"'}>华为虚拟机: ${res.data.explain.hw}</p>
+                        <p ${res.data.explain.mysql?'':'style="display: none"'}>mysql: ${res.data.explain.mysql}</p>
+                        <p ${res.data.explain.dm?'':'style="display: none"'}>达梦: ${res.data.explain.dm}</p>
+                        <p ${res.data.explain.db2?'':'style="display: none"'}>db2: ${res.data.explain.db2}</p>`
+          return `<p>${arr}</p>`}
+        },
+        series: [
           {
+            name: '恢复演练',
             type: 'pie',
             radius: ['60%', '70%'],
-            hoverAnimation: false, ////设置饼图默认的展开样式
-            // label: {
-            //   show: true,
-            //   normal: {
-            //     show: false,
-            //     position: 'center'
-            //   },
-            // },
-            labelLine: {
-              normal: {
-                show: true
-              }
-            },
-            itemStyle: { // 此配置
-              normal: {
-                borderWidth: 2,
-                borderColor: '#ffffff',
-              },
-              emphasis: {
-                  borderWidth: 0,
-                  shadowBlur: 2,
-                  shadowOffsetX: 0,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            },
+            hoverAnimation: false,
+            color: ['#27ca27', '#ca2727'],
             data: [
-            {
-              value: this.total.totalRestoreNumSuccess,
-              name: '成功',
-              dataType: 1,
-              label: {
-                normal: {
-                  formatter: '{b} : {c}'+'\n'+'{d}%'
+              {
+                value: this.total.totalRestoreNumSuccess,
+                name: '成功',
+                dataType: 1,
+                label: {
+                  normal: {
+                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                  }
+                },
+                explain: {
+                  'oracle': this.total.oracleRestoreNumSuccess,
+                  'sqlserver': this.total.sqlserverRestoreNumSuccess,
+                  'filehost': this.total.fileRestoreNumSuccess,
+                  'vm': this.total.vmRestoreNumSuccess,
+                  'hw': this.total.hwvmRestoreNumSuccess,
+                  'mysql': this.total.mysqlRestoreNumSuccess,
+                  'dm': this.total.dmRestoreNumSuccess,
+                  'db2': this.total.db2RestoreNumSuccess
                 }
               },
-              explain: {
-                'oracle': this.total.oracleRestoreNumSuccess,
-                'sqlserver': this.total.sqlserverRestoreNumSuccess,
-                'filehost': this.total.fileRestoreNumSuccess,
-                'vm': this.total.vmRestoreNumSuccess
-              }
-            },
-            {
-              value: this.total.totalRestoreNumFail,
-              name: '失败',
-              label: {
-                normal: {
-                  formatter: '{b} : {c}'+'\n'+'{d}%'
+              {
+                value: this.total.totalRestoreNumFail,
+                name: '失败',
+                label: {
+                  normal: {
+                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                  }
+                },
+                explain: {
+                  'oracle': this.total.oracleRestoreNumFail,
+                  'sqlserver': this.total.sqlserverRestoreNumFail,
+                  'filehost': this.total.fileRestoreNumFail,
+                  'vm': this.total.vmRestoreNumFail,
+                  'hw': this.total.hwvmRestoreNumFail,
+                  'mysql': this.total.mysqlRestoreNumFail,
+                  'dm': this.total.dmRestoreNumFail,
+                  'db2': this.total.db2RestoreNumFail
                 }
-              },
-              explain: {
-                'oracle': this.total.oracleRestoreNumFail,
-                'sqlserver': this.total.sqlserverRestoreNumFail,
-                'filehost': this.total.fileRestoreNumFail,
-                'vm': this.total.vmRestoreNumFail
               }
-            }]
+            ]
           }
         ]
       }
       let initConnOption = {
-        title: {
-          top: '55%',
-          left: 'center',
-          text: '',
-          textStyle: {
-            color: '#333',
-            fontStyle: 'normal',
-            fontWeight: 'normal',
-            fontSize: 14
-          },
-          subtext: '接管成功所占比例',
-          subtextStyle: {
-            color: '#666',
-            fontSize: 12
-          }
-        },
-        // legend: {
-        //   orient: 'vertical',
-        //   right: 'left',
-        //   data: ['成功', '失败']
-        // },
-        color: ['#27ca27', '#aaa'],
         tooltip: {
           trigger: 'item',
-          formatter: function(res) {
-            if (res.componentSubType == 'liquidFill') {
-              return res.seriesName + ': ' + (res.value * 10000 / 100).toFixed(2) + '%';
-            } else {
-              return '<span class="ii" style="background:' + res.color + ' "></span>' + res.name +': '+ res.data.value + ' (' + res.percent + '%)<br/> '
-            }
-          }
+          formatter: "{a} <br/>{b}: {c} ({d}%)"
         },
-        series: [{
-          type: 'liquidFill',
-          itemStyle: {
-            normal: {
-              opacity: 0.4,
-              shadowColor: 'blue'
-            }
-          },
-          radius: '60%',
-          name: '接管成功',
-          data: [{
-            value: (this.calcPercent(this.total.initConnNumSuccess, this.total.initConnNumFail))/100,
-            itemStyle: {
-              normal: {
-                color: '#53d5ff',
-                opacity: 0.6
-              }
-            }
-          }],
-          background: '#fff',
-          color: ['#53d5ff'],
-          center: ['50%', '50%'],
-          backgroundStyle: {
-              color: '#fff'
-          },
-          // label: {
-          //   normal: {
-          //     formatter: '',
-          //     textStyle: {
-          //         fontSize: 12
-          //     }
-          //   }
-          // },
-          outline: {
-            itemStyle: {
-              borderColor: '#86c5ff',
-              borderWidth: 0
-            },
-            borderDistance: 0
-          }
-          },
+        series: [
           {
+            name: '一键接管',
             type: 'pie',
             radius: ['60%', '70%'],
-            hoverAnimation: false, ////设置饼图默认的展开样式
-            // label: {
-            //   show: true,
-            //   normal: {
-            //     show: false,
-            //     position: 'center'
-            //   },
-            // },
-            labelLine: {
+            hoverAnimation: false,
+            color: ['#27ca27', '#ca2727'],
+            label: {
               normal: {
-                show: true
-              }
-            },
-            itemStyle: { // 此配置
-              normal: {
-                borderWidth: 2,
-                borderColor: '#ffffff',
-              },
-              emphasis: {
-                  borderWidth: 0,
-                  shadowBlur: 2,
-                  shadowOffsetX: 0,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                formatter: '{b} : {c}'+'\n'+'{d}%'
               }
             },
             data: [
-            {
-              value: this.total.initConnNumSuccess,
-              name: '成功',
-              label: {
-                normal: {
-                  formatter: '{b} : {c}'+'\n'+'{d}%'
-                }
-              },
-            },
-            {
-              value: this.total.initConnNumFail,
-              name: '失败',
-              label: {
-                normal: {
-                  formatter: '{b} : {c}'+'\n'+'{d}%'
-                }
-              },
-            }]
+              { value: this.total.initConnNumSuccess, name: '成功' },
+              { value: this.total.initConnNumFail, name:'失败' }
+            ]
           }
         ]
       }
@@ -1092,7 +843,7 @@ export default {
               show: false
             }
         }],
-        color: ['#61A8FF'],
+        // color: ['#61A8FF'],
         series: [{
             name: '条',
             type: 'bar',
@@ -1102,6 +853,13 @@ export default {
             itemStyle: {
               normal: {
                 barBorderRadius: 30,
+                "color": new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                    "offset": 0,
+                    "color": "#409eff" // 0% 处的颜色
+                }, {
+                    "offset": 1,
+                    "color": "#45e3cf" // 100% 处的颜色
+                }], false)
               }
             },
             label: {
@@ -1137,34 +895,38 @@ export default {
         }]
       };
       let spacePieOption = {
-        tooltip: {
-          show: false
+        title : {
+            text: '总数',
+            subtext: this.addUnit(this.spaceDetail.nfsData.inUsed),
+            subtextStyle: {
+            fontSize : 20,
+            padding: 20,
+            color: '#409eff'
+          },
+          x: 'center',
+          y: '45%',
+          textStyle: {
+            fontWeight: 'normal',
+            fontSize: 16
+          }
         },
-        legend: {
-          show: false
-        },
-        toolbox: {
-          show: false
-        },
-        series: [{
-          name: '',
-          type: 'pie',
-          clockWise: false,
-          radius: [80, 81],
-          hoverAnimation: false,
-          itemStyle: {
-            normal: {
-              label: {
-                show: true,
-                position: 'outside',
-                formatter: params => {
-                  return `${params.name}: ${this.addUnit(params.value)}(${params.percent?params.percent:0.01}%)`
-                }
+        series : [
+          {
+            name: '',
+            type: 'pie',
+            radius : ['60%','70%'],
+            center: ['50%', '50%'],
+            color: this.nfsPieColor,
+            data: this.nfsPieData,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
               }
             }
-          },
-          data: this.nfsPieSeriesData
-        }]
+          }
+        ]
       };
       backupTotal.setOption(backupOption),
       restoreTotal.setOption(restoreOption),

@@ -51,10 +51,7 @@
 <script>
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
-import {
-  validateLength60,
-  validateLength100
- } from '../../utils/common';
+import { validateLength } from '../../utils/common';
 export default {
   name: 'EmailManagerCreateModal',
   data() {
@@ -69,7 +66,7 @@ export default {
     };
     const rules = {
       mailHost: [
-        { validator: validateLength60, triggle: 'blur' },
+        { validator: validateLength(60), triggle: 'blur' },
         { required: true, message: '请输入邮件服务器主机名', triggle: 'blur' }
       ],
       mailTransportProtocol: [
@@ -77,11 +74,11 @@ export default {
       ],
       emailLoginName: [
         { required: true, message: '请输入登录名', triggle: 'blur' },
-        { validator: validateLength100, triggle: 'blur' }
+        { validator: validateLength(100), triggle: 'blur' }
       ],
       emailPassword: [
         { required: true, message: '请输入登录密码', triggle: 'blur' },
-        { validator: validateLength100, triggle: 'blur' }
+        { validator: validateLength(100), triggle: 'blur' }
       ]
     };
     return {

@@ -1,11 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import {
-  validateLength20,
-  validateLength30,
-  validateLength40,
-  validateLength50,
-  validateLength80,
-} from '../../utils/common';
+import { validateLength } from '../../utils/common';
 
 const genModalMixin = type => {
   if (!['database', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(type)) {
@@ -119,11 +113,8 @@ const genModalMixin = type => {
           pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
           message: 'IP地址不正确',
           trigger: 'blur',
-        },
-        {
-          validateLength30,
-          trigger: 'blur'
-        }];
+        }
+      ];
       const baseRules = {
         loginName: [{
           required: true,
@@ -131,7 +122,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         },
         {
@@ -146,7 +137,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength40,
+          validator: validateLength(40),
           trigger: 'blur'
         },
         {
@@ -164,10 +155,6 @@ const genModalMixin = type => {
           pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
           message: 'IP地址不正确',
           trigger: 'blur',
-        },
-        {
-          validator: validateLength20,
-          trigger: 'blur'
         }],
       };
       const hostRules = { // 设备管理输入校验
@@ -177,7 +164,7 @@ const genModalMixin = type => {
           trigger: 'blur'
         },
         {
-          validator: validateLength50,
+          validator: validateLength(50),
           trigger: 'blur',
         },
         {
@@ -214,11 +201,11 @@ const genModalMixin = type => {
       };
       const rules = { // 数据库、虚拟机
         name: [{
-          validator: validateLength50,
+          validator: validateLength(50),
           trigger: 'blur'
         }],
         dbVersion: [{
-          validator: validateLength80,
+          validator: validateLength(80),
           trigger: 'blur'
         }],
         dbPort: [{
@@ -249,7 +236,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength40,
+          validator: validateLength(40),
           trigger: 'blur',
         },
         {
@@ -260,7 +247,7 @@ const genModalMixin = type => {
         ],
         application: [
           {
-            validator: validateLength30,
+            validator: validateLength(30),
             trigger: 'blur'
           }
         ],
@@ -281,7 +268,7 @@ const genModalMixin = type => {
           trigger: 'blur'
         },
         {
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         },
         {
@@ -290,7 +277,7 @@ const genModalMixin = type => {
           trigger: ['blur'],
         }],
         application: [{
-          validator: validateLength20,
+          validator: validateLength(20),
           trigger: 'blur'
         }],
         hostIp: baseRules.hostIp,

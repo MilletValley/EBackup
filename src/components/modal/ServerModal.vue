@@ -61,15 +61,7 @@
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal';
-import {
-  validateLength10,
-  validateLength20,
-  validateLength30,
-  validateLength40,
-  validateLength50,
-  validateLength60,
-  validateLength100,
-} from '../../utils/common';
+import { validateLength } from '../../utils/common';
 
 export default {
   name: '',
@@ -106,7 +98,7 @@ export default {
             trigger: 'blur',
           },
           {
-            validator: validateLength30,
+            validator: validateLength(30),
             trigger: 'blur',
           },
         ],
@@ -124,7 +116,7 @@ export default {
             trigger: 'blur',
           },
           {
-            validator: validateLength20,
+            validator: validateLength(20),
             trigger: 'blur',
           },
           {
@@ -141,7 +133,7 @@ export default {
             trigger: 'blur',
           },
           {
-            validator: validateLength30,
+            validator: validateLength(30),
             trigger: 'blur',
           },
           {
@@ -157,7 +149,7 @@ export default {
             trigger: 'blur',
           },
           {
-            validator: validateLength30,
+            validator: validateLength(30),
             trigger: 'blur',
           },
           {

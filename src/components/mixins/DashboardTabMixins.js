@@ -71,6 +71,9 @@ const DashboardTab = {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
       fetchRestore()
         .then(res => {
@@ -81,6 +84,9 @@ const DashboardTab = {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
       fetchInitconn()
         .then(res => {
@@ -98,6 +104,9 @@ const DashboardTab = {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
     },
     filterArray(data, type) {
