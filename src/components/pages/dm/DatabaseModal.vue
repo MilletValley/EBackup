@@ -17,16 +17,19 @@
           <el-input v-model="formData.name"
                     placeholder="请输入一个标识名称"></el-input>
         </el-form-item>
-        <el-form-item label="所属设备" v-if="!disabled"
+        <el-form-item label="所属设备"
+                      :rules="disabled ? [] : validate.selectHost"
                       prop="hostId">
           <span slot="label">所属设备
-              <el-popover placement="top" trigger="hover"
-                  content="类型为生产环境的设备"
-                  >
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
-          </span>            
-          <el-select v-model="formData.hostId" 
+              <el-tooltip placement="top" 
+                          content="生产环境设备" >
+                  <i class="el-icon-info"></i>
+              </el-tooltip >
+          </span>
+          <el-input disabled  v-if="disabled"
+                    :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>  
+
+          <el-select v-model="formData.hostId" v-else
                      style="width: 100%;">
             <el-option v-for="host in availableHosts"
                        :key="host.id"
@@ -34,18 +37,7 @@
                        :value="host.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="所属设备"  v-if="disabled"
-                      prop="hostId">
-          <span slot="label">所属设备
-              <el-popover placement="top" trigger="hover"
-                  content="类型为生产环境的设备"
-                  >
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
-          </span>            
-          <el-input disabled
-                    :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
-        </el-form-item>
+        
         <el-form-item label="数据库名"
                       prop="dbName">
           <el-input v-model="formData.dbName"
@@ -93,7 +85,7 @@ import validate from '@/utils/validate';
 const rules = {
   name: validate.name,
   dbPort: validate.dbPort,
-  hostId: validate.selectHost,
+  // hostId: validate.selectHost,
   dbName: validate.dbName,
   loginName: validate.dbLoginName,
   password: validate.dbPassword,
@@ -107,6 +99,7 @@ const vm = {
     return {
       type: 'dm',
       rules: rules,
+      validate: validate,
       baseData: {
         name: '',
         hostId: '',
@@ -160,7 +153,8 @@ const vm = {
       }else{
         this.originFormData = {...this.baseData}
       }
-      console.log(this.formData)
+      // 暂时清空密码，等后台删除密码返回后可删除此行
+      this.originFormData.password = '';
       this.formData = {...this.originFormData}
     },
     modalClosed() {
