@@ -20,9 +20,16 @@ const fetchInitconn = () =>
     method: 'get',
     url: '/home/onekeymanage',
   });
+
+const fetchSpaceUse = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/space'
+  });
 export {
   fetchAll,
   fetchBackup,
   fetchRestore,
-  fetchInitconn
+  fetchInitconn,
+  fetchSpaceUse
 };

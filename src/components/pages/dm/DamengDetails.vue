@@ -48,7 +48,7 @@
                   <el-form-item label="端口号：">
                     <span>{{ details.dbPort }}</span>
                   </el-form-item>
-                  <el-form-item label="数据库连接状态：">
+                  <el-form-item label="数据库状态：">
                     <el-tag :type="databaseStateStyle(details.state)"
                             size="mini">{{ details.state | databaseStateFilter }}</el-tag>
                   </el-form-item>
@@ -126,9 +126,9 @@
   </section>
 </template>
 <script>
-import dayjs from 'dayjs';
-import throttle from 'lodash/throttle';
-import { applyFilterMethods } from '@/utils/common';
+// import dayjs from 'dayjs';
+// import throttle from 'lodash/throttle';
+// import { applyFilterMethods } from '@/utils/common';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import BackupPlanModal from '@/components/pages/dm/BackupPlanModal';
 import RestorePlanModal from '@/components/pages/dm/RestorePlanModal';

@@ -277,7 +277,7 @@ export default {
     // 2.Oracle类型设备
     // 3.没有“安装”数据库
     availableHostsForRestore() {
-      const oracleEbackupHosts = this.$store.getters.hostsWithOracle.filter(
+      const oracleEbackupHosts = this.$store.getters.oracleHosts.filter(
         h => h.hostType === 2
       );
       return oracleEbackupHosts;

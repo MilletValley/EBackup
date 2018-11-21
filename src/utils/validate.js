@@ -1,8 +1,8 @@
 // eslint-disable-next-line
 
 const maxLengthFn = (w, maxLength) => {
-  if (String(w)) {
-    const t = w.replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
+  if (w) {
+    const t = String(w).replace(/[\u4e00-\u9fa5]/g, ''); // 替换中文
     return (w.length - t.length) * 2 + t.length > maxLength; // 判断长度
   }
   return false;
@@ -57,13 +57,27 @@ export default {
       trigger: 'blur'
     }
   ],
-  selelctHost: [
+  selectHost: [
     { required: true, message: '请选择设备', trigger: 'blur' }
   ],
   dbName: [
     {
       required: true,
       message: '请输入数据库名',
+      trigger: 'blur',
+    }, {
+      validator: validateLength(64),
+      trigger: 'blur'
+    }, {
+      pattern: '^[^\\s]*$',
+      message: '不能包含空格',
+      trigger: ['blur'],
+    }
+  ],
+  instanceName: [
+    {
+      required: true,
+      message: '请输入实例名',
       trigger: 'blur',
     }, {
       validator: validateLength(64),
@@ -210,5 +224,8 @@ export default {
   diskName: [
     { required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
     { validator: validateLength(64), triggle: 'blur' }
+  ],
+  maxLength100: [
+    { validator: validateLength(100), triggle: 'blur' }
   ]
 };

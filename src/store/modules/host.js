@@ -7,10 +7,10 @@ const state = {
 /* eslint no-shadow: 0 */
 const getters = {
   selectedHost: state => id => state.hosts.find(host => host.id === id) || {},
-  hostsWithOracle: state => state.hosts.filter(host => host.databaseType === 1),
-  hostsWithSqlServer: state =>
+  oracleHosts: state => state.hosts.filter(host => host.databaseType === 1),
+  sqlserverHosts: state =>
     state.hosts.filter(host => host.databaseType === 2),
-  hostsWithMySql: state => state.hosts.filter(host => host.databaseType === 5),
+  mysqlHosts: state => state.hosts.filter(host => host.databaseType === 5),
   hostsWithDB2: state => state.hosts.filter(host => host.databaseType === 6),
   dmHosts: state => state.hosts.filter(host => host.databaseType === 7)
 };

@@ -14,6 +14,14 @@ import { fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
 
 const DashboardTab = {
   data() {
+    const clickPieJumpTo = {
+      bs: 'backupSuccess',
+      bf: 'backupFail',
+      rs: 'restoreSuccess',
+      rf: 'restoreFail',
+      ics: 'initConnSuccess',
+      icf: 'initConnFail'
+    };
     return {
       databaseBackup: [],
       databaseRestore: [],
@@ -22,7 +30,8 @@ const DashboardTab = {
       filehostRestore: [],
       vmBackup: [],
       vmRestore: [],
-      activeName: ''
+      activeName: 'databaseBackup',
+      clickPieJumpTo
     };
   },
   computed: {
@@ -62,6 +71,9 @@ const DashboardTab = {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
       fetchRestore()
         .then(res => {
@@ -72,15 +84,29 @@ const DashboardTab = {
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
       fetchInitconn()
         .then(res => {
           const { data } = res.data;
           const initconnData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
-          this.initconnNum = this.$route.name === 'dashboard' ? initconnData.slice(0, 5) : initconnData;
+          if (this.$route.name === 'dashboard') {
+            this.initconnNum = initconnData.slice(0, 5);
+          } else if (this.checkType === this.clickPieJumpTo.ics) {
+            this.initconnNum = initconnData.filter(db => db.overState === 2);
+          } else if (this.checkType === this.clickPieJumpTo.icf) {
+            this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(db.overState));
+          } else {
+            this.initconnNum = initconnData;
+          }
         })
         .catch(error => {
           this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
         });
     },
     filterArray(data, type) {
@@ -90,7 +116,18 @@ const DashboardTab = {
         if (this.$route.name === 'dashboard') {
           return dataBySortAndType.slice(0, 5);
         }
-        return dataBySortAndType;
+        switch (this.checkType) { // 根据入口选择是否按状态显示
+          case this.clickPieJumpTo.bs:
+            return dataBySortAndType.filter(db => db.backupState === 0);
+          case this.clickPieJumpTo.bf:
+            return dataBySortAndType.filter(db => db.backupState === 1);
+          case this.clickPieJumpTo.rs:
+            return dataBySortAndType.filter(db => db.restoreState === 0);
+          case this.clickPieJumpTo.rf:
+            return dataBySortAndType.filter(db => db.restoreState === 1);
+          default:
+            return dataBySortAndType;
+        }
       }
       return [];
     },
@@ -123,9 +160,6 @@ const DashboardTab = {
     },
     vmType(row) {
       return vmTypeMapping[row.ddvType];
-    },
-    beforeTabLeave(newName, oldName) {
-      this.$refs[oldName].clearFilter();
     },
     databaseTypeConverter(state) { // 主备库状态
       return databaseStateMapping[state];

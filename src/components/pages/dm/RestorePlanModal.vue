@@ -26,8 +26,10 @@
                   >
                   <i class="el-icon-info" slot="reference"></i>
               </el-popover>
-          </span>  
-          <el-select v-model="formData.hostIp"
+          </span>
+           <el-input disabled v-if="action !== 'create'"
+                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>  
+          <el-select v-model="formData.hostIp" v-else
                       style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore"
                         :key="host.id"
