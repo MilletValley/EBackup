@@ -14,7 +14,7 @@
         <el-col :span="18" style="text-align:right">
           <el-form-item>
             <el-button type="primary"
-                      @click="createModalVisible = true">添加</el-button>
+                      @click="addFn">添加</el-button>
           </el-form-item>
         </el-col>
       </el-form>

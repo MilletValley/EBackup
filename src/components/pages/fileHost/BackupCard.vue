@@ -204,13 +204,11 @@ export default {
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
-      // this.formatProcess(operation);
       return operation;
     },
     progressNum(){
       const {process: data, size, state} = this.backupOperation;
       if(state === 2){
-        // this.progressNum = 100;
         return 100;
       }
       if(this.type === 'windows'){
@@ -227,7 +225,6 @@ export default {
         }
         if(result[2]){
           let num = Number(result[2].substring(0,result[2].length - 1));
-          // this.progressNum = num || num === 0 ? num : 0;
           return num || num === 0 ? num : 0;
         }
       }else if(this.type === 'linux'){
@@ -243,7 +240,6 @@ export default {
               // 此处不能作四舍五入
               num = parseInt(num > 99 ? 99 : num);
             }
-            // this.progressNum = num || num === 0 ? num : 0;
             return num || num === 0 ? num : 0;
           }
         }
@@ -340,46 +336,6 @@ export default {
         return this.$style.successColor + ' el-icon-success';
       }else return '';
     },
-    formatProcess(oper){
-      const {process: data, size, state} = oper;
-      if(state === 2){
-        this.progressNum = 100;
-        return;
-      }
-      if(this.type === 'windows'){
-        if(!data){
-          return;
-        }
-        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-        const result = data.match(reg);
-        if(!result){
-          return;
-        }
-        if(result[1]){
-          this.disk = result[1];
-        }
-        if(result[2]){
-          let num = Number(result[2].substring(0,result[2].length - 1));
-          this.progressNum = num || num === 0 ? num : 0;
-        }
-      }else if(this.type === 'linux'){
-        if(data && size){
-          if(Number(size)){
-            // 取百分比
-            let num = (Number(data) / Number(size)) * 100;
-            if (state === 0 && num >= 100) {
-              num = 100;
-            }else if(num > 0 && num < 1){
-              num = 1;
-            }else{
-              // 此处不能作四舍五入
-              num = parseInt(num > 99 ? 99 : num);
-            }
-            this.progressNum = num || num === 0 ? num : 0;
-          }
-        }
-      }
-    }
   }
 };
 </script>

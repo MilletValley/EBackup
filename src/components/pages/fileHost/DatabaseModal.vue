@@ -146,8 +146,9 @@ const vm = {
       }else{
         this.originFormData = {...this.baseData}
       }
+      // 暂时清空密码，等后台删除密码返回后可删除此行
+      this.originFormData.password = '';
       this.formData = {...this.originFormData}
-      console.log({...this.formData})
     },
     modalClosed() {
       this.$refs.createForm.clearValidate();
