@@ -35,7 +35,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="所属设备"  v-if="disabled"
-                      prop="host">
+                      prop="hostId">
           <span slot="label">所属设备
               <el-popover placement="top" trigger="hover"
                   content="类型为生产环境的设备"

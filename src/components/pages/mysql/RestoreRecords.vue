@@ -90,7 +90,7 @@
                          min-width="150px">
         </el-table-column>
         <el-table-column prop="detailInfo"
-                         label="实例名"
+                         label="数据库名"
                          align="center"
                          min-width="150px"></el-table-column>
         <!-- <el-table-column prop="dbPort"

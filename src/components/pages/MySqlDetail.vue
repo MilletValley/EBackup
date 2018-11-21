@@ -247,7 +247,7 @@ export default {
     // 2.MySql类型设备
     // 3.没有“安装”数据库
     availableHostsForRestore() {
-      const mysqlEbackupHosts = this.$store.getters.hostsWithMySql.filter(
+      const mysqlEbackupHosts = this.$store.getters.mysqlHosts.filter(
         h => h.hostType === 2
       );
       return mysqlEbackupHosts;

@@ -46,10 +46,10 @@
           <el-input disabled
                     :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
         </el-form-item>
-        <el-form-item label="实例名"
+        <el-form-item label="数据库名"
                       prop="instanceName">
           <el-input v-model="formData.instanceName"
-                    placeholder="请输入要备份的实例名"></el-input>
+                    placeholder="请输入要备份的数据库名"></el-input>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -106,7 +106,7 @@ const rules = {
   name: validate.name,
   dbPort: validate.dbPort,
   hostId: validate.selectHost,
-  instanceName: validate.instanceName,
+  instanceName: validate.dbName,
   loginName: validate.dbLoginName,
   password: validate.dbPassword,
   dbVersion: validate.maxLength100,
@@ -119,13 +119,13 @@ const vm = {
   },
   data() {
     return {
-      type: 'oracle',
+      type: 'mysql',
       rules: rules,
       baseData: {
         name: '',
         hostId: '',
         instanceName: '',
-        dbPort: 1521,
+        dbPort: 3306,
         loginName: '',
         password: '',
         dbVersion: '',
