@@ -5,14 +5,19 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <img src="../../../assets/DM.fw.png" :class="$style.dmClass">
+            <i-icon name="oracle"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1>{{details.name}}</h1>
+                <h1 :class="details.role === 1 ? $style.primaryLink : $style.viceLink">{{details.name}}
+                  <i-icon v-if="details.role !== 0"
+                          :name="roleIconName(this.details.role)"
+                          :class="$style.roleIconHeader"></i-icon>
+                </h1>
               </el-col>
               <el-col :span="12"
                       :offset="4"
@@ -37,38 +42,75 @@
             </el-row>
             <el-form v-loading="infoLoading"
                      label-position="left"
-                     label-width="130px"
+                     label-width="100px"
                      size="small"
                      class="item-info">
               <el-row style="margin-right: 5px;">
                 <el-col :span="8">
-                  <el-form-item label="数据库名：">
-                    <span>{{ details.dbName }}</span>
+                  <el-form-item label="Oracle版本：">
+                    <span>{{ details.dbVersion }}</span>
+                  </el-form-item>
+                  <el-form-item label="实例名：">
+                    <span>{{ details.instanceName }}</span>
                   </el-form-item>
                   <el-form-item label="端口号：">
                     <span>{{ details.dbPort }}</span>
+                  </el-form-item>
+                  <!-- <el-form-item label="数据库账号：">
+                    <span>{{ details.loginName }}</span>
+                  </el-form-item>
+                  <el-form-item label="数据库密码：">
+                    <span>●●●●●●●●</span> -->
                   </el-form-item>
                   <el-form-item label="数据库状态：">
                     <el-tag :type="databaseStateStyle(details.state)"
                             size="mini">{{ details.state | databaseStateFilter }}</el-tag>
                   </el-form-item>
-                  <el-form-item label="数据库版本：">
-                    <span>{{ details.dbVersion }}</span>
-                  </el-form-item>
                 </el-col>
                 <el-col :span="8">
+                  <el-form-item label="主机名：">
+                    <span>{{ details.host.name }}</span>
+                  </el-form-item>
+                  <el-form-item label="操作系统：">
+                    <span>{{ details.host.osName }}</span>
+                  </el-form-item>
                   <el-form-item label="所属设备：">
                     <span>{{ details.host.name }}</span>
                   </el-form-item>
                   <el-form-item label="设备IP：">
                     <span>{{ details.host.hostIp }}</span>
                   </el-form-item>
-                  <el-form-item label="操作系统：">
-                    <span>{{ details.host.osName }}</span>
+                  <el-form-item label="所属系统：">
+                    <span>{{ details.application }}</span>
                   </el-form-item>
                 </el-col>
+                <template v-if="!!link.id">
+                  <el-col :span="8"
+                          :class="$style.linkInfo">
+                    <h4 style="margin: 10px 0 7px;">连接信息</h4>
+                    <el-form-item>
+                      <i-icon :name="`switch-${link.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                      <span>{{ link.state | linkStateFilter }}</span>
+                    </el-form-item>
+                    <el-form-item>
+                      <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
+                              :class="$style.roleIconOppsition"></i-icon>
+                      <router-link :to="`/db/oracle/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
+                                   :class="link.oppsiteDatabase.role === 1 ? $style.primaryLink : $style.viceLink">
+                        {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
+                      </router-link>
+                    </el-form-item>
+
+                  </el-col>
+                  <router-link :to="`/db/oracle/takeover/${link.id}`"
+                               :class="$style.moreLink">查看更多</router-link>
+                </template>
+
               </el-row>
+
             </el-form>
+
           </el-col>
         </el-row>
 
@@ -103,43 +145,46 @@
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
-    <backup-plan-modal   :btn-loading="btnLoading"
-                            :visible.sync="backupPlanModalVisible"
-                            @confirm="confirmCallback"
-                            :action="action"
-                            :backup-plan="selectedBackupPlan">
+    <backup-plan-modal  :btn-loading="btnLoading"
+                        :visible.sync="backupPlanModalVisible"
+                        @confirm="confirmCallback"
+                        :action="action"
+                        :backup-plan="selectedBackupPlan">
     </backup-plan-modal>
 
-    <restore-plan-modal   :btn-loading="btnLoading"
-                          :details="details"
-                          :visible.sync="restorePlanModalVisible"
-                          @confirm="restoreConfirmCallback"
-                          :action="restoreAction"
-                          :restore-plan="selectedRestorePlan">
+    <restore-plan-modal :btn-loading="btnLoading"
+                        :details="details"
+                        :visible.sync="restorePlanModalVisible"
+                        @confirm="restoreConfirmCallback"
+                        :action="restoreAction"
+                        :restore-plan="selectedRestorePlan">
     </restore-plan-modal>
-    <single-restore-modal   :btn-loading="btnLoading"
-                            :details="details"
-                            :result-id="selectedBackupResultId"
-                            :visible.sync="singleRestoreCreateModalVisible"
-                            @confirm="singleConfirmCallback">
+    <single-restore-modal :btn-loading="btnLoading"
+                          :details="details"
+                          :result-id="selectedBackupResultId"
+                          :visible.sync="singleRestoreCreateModalVisible"
+                          @confirm="singleConfirmCallback">
     </single-restore-modal>
   </section>
 </template>
 <script>
-// import dayjs from 'dayjs';
-// import throttle from 'lodash/throttle';
-// import { applyFilterMethods } from '@/utils/common';
+import takeoverMixin from '@/components/mixins/takeoverMixins';
+import { windowsTypeMapping } from '@/utils/constant';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
-import BackupPlanModal from '@/components/pages/dm/BackupPlanModal';
-import RestorePlanModal from '@/components/pages/dm/RestorePlanModal';
-import SingleRestoreModal from '@/components/pages/dm/SingleRestoreModal';
-import BackupCard from '@/components/pages/dm/BackupCard';
-import BackupResultList from '@/components/pages/dm/BackupResultList';
-import RestoreCard from '@/components/pages/dm/RestoreCard';
-import RestoreRecords from '@/components/pages/dm/RestoreRecords';
+import BackupPlanModal from '@/components/pages/oracle/BackupPlanModal';
+import RestorePlanModal from '@/components/pages/oracle/RestorePlanModal';
+import SingleRestoreModal from '@/components/pages/oracle/SingleRestoreModal';
+import BackupCard from '@/components/pages/oracle/BackupCard';
+import BackupResultList from '@/components/pages/oracle/BackupResultList';
+import RestoreCard from '@/components/pages/oracle/RestoreCard';
+import RestoreRecords from '@/components/pages/oracle/RestoreRecords';
+
+import {
+  fetchLink,
+} from '@/api/oracle';
 
 export default {
-  name: 'DmDetail',
+  name: 'OracleDetail',
   mixins: [detailPageMixin],
   components: {
     BackupPlanModal,
@@ -150,12 +195,32 @@ export default {
     RestoreCard,
     RestoreRecords
   },
-  data(){
+  data() {
     return {
-      type: 'dm',
+      type: 'oracle',
+    };
+  },
+  watch: {
+    '$route' (to, from) {
+      this.fetchData();
     }
   },
-  computed: {
+  methods: {
+    fetchLink() {
+      fetchLink(this.id).then(res => {
+        const { data: link } = res.data;
+        const { id, state, errMsg, tempPort } = link;
+        this.link = { id, state, errMsg, tempPort };
+        if (this.details.role === 1) {
+          this.link.oppsiteDatabase = link.viceDatabase;
+        } else if (this.details.role === 2) {
+          this.link.oppsiteDatabase = link.primaryDatabase;
+        }
+      })
+      .catch(error => {
+        this.$message.error(error);
+      });
+    }
   },
 };
 </script>
@@ -190,11 +255,5 @@ export default {
   position: absolute;
   bottom: 0;
   right: 0;
-}
-.dmClass {
-  width: 40px;
-  height: 32px;
-  margin-top: 15px;
-  margin-right: 8px;
 }
 </style>

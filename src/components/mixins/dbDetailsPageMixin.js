@@ -124,10 +124,6 @@ const detailPageMixin = {
   destroyed() {
     this.clearTimer(this.timer);
   },
-  beforeRouteUpdate(to, from, next) {
-    this.fetchData();
-    next();
-  },
   computed: {
     role() {
       if (!this.details || !this.detilas.role) return databaseRoleMapping[0];
@@ -219,6 +215,9 @@ const detailPageMixin = {
         .then(res => {
           const { data: db } = res.data;
           this.details = db;
+          if (this.details.role && this.details.role !== 0 && this.fetchLink) {
+            this.fetchLink();
+          }
         })
         .catch(error => {
           this.$message.error(error);
