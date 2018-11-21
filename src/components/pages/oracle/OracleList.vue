@@ -16,7 +16,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="createModalVisible = true">添加</el-button>
+                    @click="addFn">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>

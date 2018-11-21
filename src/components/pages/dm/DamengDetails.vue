@@ -41,32 +41,37 @@
                      size="small"
                      class="item-info">
               <el-row style="margin-right: 5px;">
-                <el-col :span="8">
-                  <el-form-item label="数据库名：">
-                    <span>{{ details.dbName }}</span>
-                  </el-form-item>
-                  <el-form-item label="端口号：">
-                    <span>{{ details.dbPort }}</span>
-                  </el-form-item>
-                  <el-form-item label="数据库状态：">
-                    <el-tag :type="databaseStateStyle(details.state)"
-                            size="mini">{{ details.state | databaseStateFilter }}</el-tag>
-                  </el-form-item>
-                  <el-form-item label="数据库版本：">
-                    <span>{{ details.dbVersion }}</span>
-                  </el-form-item>
+                <el-col :span="16">
+                  <el-col :span="12">
+                    <el-form-item label="数据库名：">
+                      <span>{{ details.dbName }}</span>
+                    </el-form-item>
+                    <el-form-item label="端口号：">
+                      <span>{{ details.dbPort }}</span>
+                    </el-form-item>
+                    <el-form-item label="数据库状态：">
+                      <el-tag :type="databaseStateStyle(details.state)"
+                              size="mini">{{ details.state | databaseStateFilter }}</el-tag>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="所属设备：">
+                      <span>{{ details.host.name }}</span>
+                    </el-form-item>
+                    <el-form-item label="设备IP：">
+                      <span>{{ details.host.hostIp }}</span>
+                    </el-form-item>
+                    <el-form-item label="操作系统：">
+                      <span>{{ details.host.osName }}</span>
+                    </el-form-item>
+                  </el-col>
+                  <el-col>
+                    <el-form-item label="数据库版本：">
+                      <span>{{ details.dbVersion }}</span>
+                    </el-form-item>
+                  </el-col>
                 </el-col>
-                <el-col :span="8">
-                  <el-form-item label="所属设备：">
-                    <span>{{ details.host.name }}</span>
-                  </el-form-item>
-                  <el-form-item label="设备IP：">
-                    <span>{{ details.host.hostIp }}</span>
-                  </el-form-item>
-                  <el-form-item label="操作系统：">
-                    <span>{{ details.host.osName }}</span>
-                  </el-form-item>
-                </el-col>
+                
               </el-row>
             </el-form>
           </el-col>
