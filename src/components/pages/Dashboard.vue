@@ -643,7 +643,7 @@ export default {
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
-        return 0;
+        return 100;
       }
       return ((diviver/dividend)*100).toFixed(2);
     },
