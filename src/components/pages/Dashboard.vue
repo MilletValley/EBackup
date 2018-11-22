@@ -33,15 +33,17 @@
           </el-card>
         </el-col>
       </el-row>
-
       <el-row :gutter="10">
         <el-col :span="12">
           <el-card class="box-card" style="width: 100%">
             <div slot="header" class="clearfix">
               <span class="card-title">空间使用情况</span>
             </div>
-            <div class="text item">
+            <div class="text item" v-show="Object.keys(spaceDetail).length">
               <div id="barChart" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
+            </div>
+            <div :class="$style.nfsNotUsed" v-show="!Object.keys(spaceDetail).length">
+              <span>暂未使用</span>
             </div>
           </el-card>
         </el-col>
@@ -591,16 +593,21 @@ export default {
       return this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails;
     },
     nfsPieColor() {
-      const color = this.color.filter((c, index) => this.spaceDetail.nfsData.nfsUseDetails.map(detail => detail.nfsUseType).includes(index));
-      return color;
+      if(this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails) {
+        const color = this.color.filter((c, index) => this.spaceDetail.nfsData.nfsUseDetails.map(detail => detail.nfsUseType).includes(index));
+        return color;
+      }
+      return [];
     },
     nfsPieData() {
-      return this.spaceDetail.nfsData.nfsUseDetails.map(detail => {
-        return {
-          value: detail.nfsUseSize,
-          name: this.nfsInUsedTypeMapping[detail.nfsUseType]
-        }
-      })
+      if(this.spaceDetail&&this.spaceDetail.nfsData)
+        return this.spaceDetail.nfsData.nfsUseDetails.map(detail => {
+          return {
+            value: detail.nfsUseSize,
+            name: this.nfsInUsedTypeMapping[detail.nfsUseType]
+          }
+        })
+      return [];
     }
   },
   mounted() {
@@ -616,10 +623,12 @@ export default {
           const { data: spaceData } = res[1].data;
           this.total = pieData;
           this.spaceDetail = spaceData;
-          this.spaceData.name.push('存储1');
+          if(this.spaceDetail.nfsData) {
+            this.spaceData.name.push('存储1');
           this.spaceData.percentData.push(this.nfsInUsedPercent);
           this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
-          if(Object.keys(this.spaceDetail.shareData).length>0) {
+          }
+          if(this.spaceDetail.shareData) {
             this.spaceData.name.push('存储2');
             this.spaceData.percentData.push(this.shareInUsedPercent);
             this.spaceData.explain.push(this.addUnit(this.spaceDetail.shareData.inUsed)+'/'+this.addUnit(this.spaceDetail.shareData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.shareData.unUsed));
@@ -633,6 +642,9 @@ export default {
         })
     },
     calcPercent(diviver, dividend) {
+      if(Number(dividend) === 0) {
+        return 0;
+      }
       return ((diviver/dividend)*100).toFixed(2);
     },
     jumpToMoreState(params, successPath, errorPath) {
@@ -672,8 +684,138 @@ export default {
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
       let initConn = echarts.init(document.getElementById('initConn'));
-      let barChart = echarts.init(document.getElementById('barChart'));
-      let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
+      const that = this;
+      if(Object.keys(this.spaceDetail).length) {
+        let barChart = echarts.init(document.getElementById('barChart'));
+        let spaceBarOption = {
+          xAxis: [{
+            show: false
+          }],
+          yAxis: [{
+              show: true,
+              data: this.spaceData.name,
+              inverse: true,
+              axisLine: {
+                show: false
+              },
+              splitLine: {
+                show: false
+              },
+              axisTick: {
+                show: false
+              }
+          }, {
+              show: false,
+              inverse: true,
+              data: this.spaceData.explain,
+              axisLine: {
+                show: false
+              },
+              splitLine: {
+                show: false
+              },
+              axisTick: {
+                show: false
+              }
+          }],
+          // color: ['#61A8FF'],
+          series: [{
+              name: '条',
+              type: 'bar',
+              yAxisIndex: 0,
+              data: this.spaceData.percentData,
+              barWidth: 30,
+              itemStyle: {
+                normal: {
+                  barBorderRadius: 30,
+                  "color": new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                      "offset": 0,
+                      "color": "#368c71" // 0% 处的颜色
+                  }, {
+                      "offset": 1,
+                      "color": "#0fd8a2" // 100% 处的颜色
+                  }], false)
+                }
+              },
+              label: {
+                  normal: {
+                      show: true,
+                      position: 'inside',
+                      formatter: '{c}%'
+                  }
+              },
+          }, {
+              name: '框',
+              type: 'bar',
+              yAxisIndex: 1,
+              barGap: '-100%',
+              data: [100, 100],
+              barWidth: 30,
+              itemStyle: {
+                  normal: {
+                      color: 'none',
+                      borderColor: '#7F7F7F',
+                      borderWidth: 3,
+                      barBorderRadius: 15,
+                  }
+              },
+              label: {
+                normal: {
+                  show: true,
+                  color: '#000',
+                  position: [10, '-50%'],
+                  formatter: '{b}'
+                }
+              }
+          }]
+        };
+        barChart.setOption(spaceBarOption);
+      }
+      if(this.nfsAssignedSpace&&this.nfsAssignedSpace.length>0) {
+        let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
+        let spacePieOption = {
+          // title : {
+          //     text: '总数',
+          //     subtext: this.addUnit(this.spaceDetail.nfsData.inUsed),
+          //     subtextStyle: {
+          //     fontSize : 20,
+          //     padding: 20,
+          //     color: '#409eff'
+          //   },
+          //   x: 'center',
+          //   y: '45%',
+          //   textStyle: {
+          //     fontWeight: 'normal',
+          //     fontSize: 16
+          //   }
+          // },
+          series : [
+            {
+              name: '',
+              type: 'pie',
+              radius : '50%',
+              center: ['50%', '50%'],
+              color: this.nfsPieColor,
+              data: this.nfsPieData,
+              label: {
+                normal: {
+                  formatter: params => {
+                    return `${params.name}: ${this.addUnit(params.value)}(${params.percent?params.percent:0.01}%)`
+                  }
+                }
+              },
+              itemStyle: {
+                emphasis: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+              }
+            }
+          ]
+        };
+        spaceRatio.setOption(spacePieOption)
+      }
       let backupOption = {
         tooltip: {
           trigger: 'item',
@@ -685,16 +827,16 @@ export default {
             color: 'black'
           },
           position: this.tooltipPosition,
-          formatter: function(res) {
-            const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>${res.marker}oracle: <b>${res.data.explain.oracle}</b></p>
-                    <p ${res.data.explain.sqlserver?'':'style="display: none"'}>${res.marker}sqlserver: <b>${res.data.explain.sqlserver}</b></p>
-                    <p ${res.data.explain.filehost?'':'style="display: none"'}>${res.marker}文件: <b>${res.data.explain.filehost}</b></p>
-                    <p ${res.data.explain.vm?'':'style="display: none"'}>${res.marker}VMware: <b>${res.data.explain.vm}</b></p>
-                    <p ${res.data.explain.hw?'':'style="display: none"'}>${res.marker}华为虚拟机: <b>${res.data.explain.hw}</b></p>
-                    <p ${res.data.explain.mysql?'':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
-                    <p ${res.data.explain.dm?'':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
-                    <p ${res.data.explain.db2?'':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
-            return `<p>${arr}</p>`
+          formatter: res => {
+            const arr = `<p ${res.data.explain.oracle?'style="display: block"':'style="display: none"'}>${res.marker}oracle: <b>${res.data.explain.oracle}</b></p>
+                    <p ${res.data.explain.sqlserver?'style="display: block"':'style="display: none"'}>${res.marker}sqlserver: <b>${res.data.explain.sqlserver}</b></p>
+                    <p ${res.data.explain.filehost?'style="display: block"':'style="display: none"'}>${res.marker}文件: <b>${res.data.explain.filehost}</b></p>
+                    <p ${res.data.explain.vm?'style="display: block"':'style="display: none"'}>${res.marker}VMware: <b>${res.data.explain.vm}</b></p>
+                    <p ${res.data.explain.hw?'style="display: block"':'style="display: none"'}>${res.marker}华为虚拟机: <b>${res.data.explain.hw}</b></p>
+                    <p ${res.data.explain.mysql?'style="display: block"':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
+                    <p ${res.data.explain.dm?'style="display: block"':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
+                    <p ${res.data.explain.db2?'style="display: block"':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
+            return `<p>${res.data.explain.total?arr:'无'}</p>`
           }
         },
         title: {
@@ -733,7 +875,8 @@ export default {
                   'hw': this.total.hwvmBackupNumSuccess,
                   'mysql': this.total.mysqlBackupNumSuccess,
                   'dm': this.total.dmBackupNumSuccess,
-                  'db2': this.total.db2BackupNumSuccess
+                  'db2': this.total.db2BackupNumSuccess,
+                  'total': this.total.totalBackupNumSuccess
                 }
               },
               {
@@ -753,7 +896,8 @@ export default {
                   'hw': this.total.hwvmBackupNumFail,
                   'mysql': this.total.mysqlBackupNumFail,
                   'dm': this.total.dmBackupNumFail,
-                  'db2': this.total.db2BackupNumFail
+                  'db2': this.total.db2BackupNumFail,
+                  'total': this.total.totalBackupNumFail
                 }
               }
             ]
@@ -779,7 +923,8 @@ export default {
                         <p ${res.data.explain.mysql?'':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
                         <p ${res.data.explain.dm?'':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
                         <p ${res.data.explain.db2?'':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
-          return `<p>${arr}</p>`}
+            return `<p>${res.data.explain.total?arr:'无'}</p>`
+          }
         },
         title: {
           text: this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumSuccess+this.total.totalRestoreNumFail)+'%',
@@ -817,7 +962,8 @@ export default {
                   'hw': this.total.hwvmRestoreNumSuccess,
                   'mysql': this.total.mysqlRestoreNumSuccess,
                   'dm': this.total.dmRestoreNumSuccess,
-                  'db2': this.total.db2RestoreNumSuccess
+                  'db2': this.total.db2RestoreNumSuccess,
+                  'total': this.total.totalRestoreNumSuccess
                 }
               },
               {
@@ -837,7 +983,8 @@ export default {
                   'hw': this.total.hwvmRestoreNumFail,
                   'mysql': this.total.mysqlRestoreNumFail,
                   'dm': this.total.dmRestoreNumFail,
-                  'db2': this.total.db2RestoreNumFail
+                  'db2': this.total.db2RestoreNumFail,
+                  'total': this.total.totalRestoreNumFail
                 }
               }
             ]
@@ -888,134 +1035,9 @@ export default {
           }
         ]
       }
-      let spaceBarOption = {
-        xAxis: [{
-          show: false
-        }],
-        yAxis: [{
-            show: true,
-            data: this.spaceData.name,
-            inverse: true,
-            axisLine: {
-              show: false
-            },
-            splitLine: {
-              show: false
-            },
-            axisTick: {
-              show: false
-            }
-        }, {
-            show: false,
-            inverse: true,
-            data: this.spaceData.explain,
-            axisLine: {
-              show: false
-            },
-            splitLine: {
-              show: false
-            },
-            axisTick: {
-              show: false
-            }
-        }],
-        // color: ['#61A8FF'],
-        series: [{
-            name: '条',
-            type: 'bar',
-            yAxisIndex: 0,
-            data: this.spaceData.percentData,
-            barWidth: 30,
-            itemStyle: {
-              normal: {
-                barBorderRadius: 30,
-                "color": new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
-                    "offset": 0,
-                    "color": "#368c71" // 0% 处的颜色
-                }, {
-                    "offset": 1,
-                    "color": "#0fd8a2" // 100% 处的颜色
-                }], false)
-              }
-            },
-            label: {
-                normal: {
-                    show: true,
-                    position: 'inside',
-                    formatter: '{c}%'
-                }
-            },
-        }, {
-            name: '框',
-            type: 'bar',
-            yAxisIndex: 1,
-            barGap: '-100%',
-            data: [100, 100],
-            barWidth: 30,
-            itemStyle: {
-                normal: {
-                    color: 'none',
-                    borderColor: '#7F7F7F',
-                    borderWidth: 3,
-                    barBorderRadius: 15,
-                }
-            },
-            label: {
-              normal: {
-                show: true,
-                color: '#000',
-                position: [10, '-50%'],
-                formatter: '{b}'
-              }
-            }
-        }]
-      };
-      let spacePieOption = {
-        // title : {
-        //     text: '总数',
-        //     subtext: this.addUnit(this.spaceDetail.nfsData.inUsed),
-        //     subtextStyle: {
-        //     fontSize : 20,
-        //     padding: 20,
-        //     color: '#409eff'
-        //   },
-        //   x: 'center',
-        //   y: '45%',
-        //   textStyle: {
-        //     fontWeight: 'normal',
-        //     fontSize: 16
-        //   }
-        // },
-        series : [
-          {
-            name: '',
-            type: 'pie',
-            radius : '50%',
-            center: ['50%', '50%'],
-            color: this.nfsPieColor,
-            data: this.nfsPieData,
-            label: {
-              normal: {
-                formatter: params => {
-                  return `${params.name}: ${this.addUnit(params.value)}(${params.percent?params.percent:0.01}%)`
-                }
-              }
-            },
-            itemStyle: {
-              emphasis: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
-          }
-        ]
-      };
       backupTotal.setOption(backupOption),
       restoreTotal.setOption(restoreOption),
       initConn.setOption(initConnOption),
-      spaceRatio.setOption(spacePieOption),
-      barChart.setOption(spaceBarOption);
       backupTotal.on('click', params => {
         this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
       }),
@@ -1025,12 +1047,16 @@ export default {
       initConn.on('click', params => {
         this.jumpToMoreState(params, this.clickPieJumpTo.ics, this.clickPieJumpTo.icf);
       }),
-      window.addEventListener("resize", function () {
+      window.addEventListener("resize", () => {
         restoreTotal.resize();
         backupTotal.resize();
         initConn.resize();
-        barChart.resize();
-        spaceRatio.resize();
+        if(Object.keys(that.spaceDetail).length) {
+          barChart.resize();
+        }
+        if(that.nfsAssignedSpace&&that.nfsAssignedSpace.length>0) {
+          spaceRatio.resize();
+        }
      });
      }
    },
