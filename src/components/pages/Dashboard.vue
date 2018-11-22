@@ -1,34 +1,34 @@
 <template>
   <section>
     <template>
-      <el-row :gutter="10">
+      <el-row :gutter="20">
         <el-col :span="8">
-          <el-card class="box-card">
+          <el-card class="bie-card">
             <div slot="header" class="clearfix">
               <span class="card-title">数据备份</span>
             </div>
             <div class="text item">
-              <div id="backupTotal" :style="{width: '100%', height: '300%'}"></div>
+              <div id="backupTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
         <el-col :span="8">
-          <el-card class="box-card">
+          <el-card class="bie-card">
             <div slot="header" class="clearfix">
               <span class="card-title">恢复演练</span>
             </div>
             <div class="text item">
-              <div id="restoreTotal" :style="{width: '100%', height: '300%'}"></div>
+              <div id="restoreTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
         <el-col :span="8">
-          <el-card class="box-card">
+          <el-card class="bie-card">
             <div slot="header" class="clearfix">
               <span class="card-title">一键接管</span>
             </div>
             <div class="text item">
-              <div id="initConn" :style="{width: '100%', height: '300%'}"></div>
+              <div id="initConn" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
@@ -48,7 +48,7 @@
         <el-col :span="12">
           <el-card class="box-card" style="width: 100%">
             <div slot="header" class="clearfix">
-              <span class="card-title">NFS已使用空间分配情况</span>
+              <span class="card-title">存储1已使用空间分配情况</span>
             </div>
             <div class="text item" v-show="nfsAssignedSpace&&nfsAssignedSpace.length>0">
               <div id="spaceRatio" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
@@ -560,7 +560,7 @@ export default {
       6: 'db2',
       7: '达梦'
     }
-    const color = ['', '#CC0033','#FF6600','#fc3','#009900','#00FF66','#003399','#660066']
+    const color = ['', '#D9554B','#F96305','#dcc54d','#1ABB9C','#5faf37','#1a48a5','#660066']
     return {
       total: {},
       spaceDetail: {},
@@ -616,7 +616,7 @@ export default {
           const { data: spaceData } = res[1].data;
           this.total = pieData;
           this.spaceDetail = spaceData;
-          this.spaceData.name.push('NFS');
+          this.spaceData.name.push('存储1');
           this.spaceData.percentData.push(this.nfsInUsedPercent);
           this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
           if(Object.keys(this.spaceDetail.shareData).length>0) {
@@ -646,6 +646,28 @@ export default {
     addUnit(data) {
       return fmtSizeFn(Number(data)*1024*1024);
     },
+    tooltipPosition(point, params, dom, rect, size) {
+      var x = 0; // x坐标位置
+      var y = 0; // y坐标位置
+      var pointX = point[0];
+      var pointY = point[1];
+      // 提示框大小
+      var boxWidth = size.contentSize[0];
+      var boxHeight = size.contentSize[1];
+      // boxWidth > pointX 说明鼠标左边放不下提示框
+      if (boxWidth > pointX) {
+        x = 150;
+      } else { // 左边放的下
+        x = pointX - boxWidth-15;
+      }
+      // boxHeight > pointY 说明鼠标上边放不下提示框
+      if (boxHeight > pointY) {
+        y = 5;
+      } else { // 上边放得下
+        y = pointY - boxHeight;
+      }
+      return [x, y];
+    },
     drawLine() {
       let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
@@ -655,28 +677,43 @@ export default {
       let backupOption = {
         tooltip: {
           trigger: 'item',
-          position: function(p){   //其中p为当前鼠标的位置
-            return [p[0] + 10, p[1] - 10];
+          backgroundColor:'rgba(255,255,255,0.8)',
+          color:'black',
+          borderWidth:'1',
+          borderColor:'gray',
+          textStyle: {
+            color: 'black'
           },
+          position: this.tooltipPosition,
           formatter: function(res) {
-            const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>oracle: ${res.data.explain.oracle}</p>
-                    <p ${res.data.explain.sqlserver?'':'style="display: none"'}>sqlserver: ${res.data.explain.sqlserver}</p>
-                    <p ${res.data.explain.filehost?'':'style="display: none"'}>文件: ${res.data.explain.filehost}</p>
-                    <p ${res.data.explain.vm?'':'style="display: none"'}>VMware: ${res.data.explain.vm}</p>
-                    <p ${res.data.explain.hw?'':'style="display: none"'}>华为虚拟机: ${res.data.explain.hw}</p>
-                    <p ${res.data.explain.mysql?'':'style="display: none"'}>mysql: ${res.data.explain.mysql}</p>
-                    <p ${res.data.explain.dm?'':'style="display: none"'}>达梦: ${res.data.explain.dm}</p>
-                    <p ${res.data.explain.db2?'':'style="display: none"'}>db2: ${res.data.explain.db2}</p>`
+            const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>${res.marker}oracle: <b>${res.data.explain.oracle}</b></p>
+                    <p ${res.data.explain.sqlserver?'':'style="display: none"'}>${res.marker}sqlserver: <b>${res.data.explain.sqlserver}</b></p>
+                    <p ${res.data.explain.filehost?'':'style="display: none"'}>${res.marker}文件: <b>${res.data.explain.filehost}</b></p>
+                    <p ${res.data.explain.vm?'':'style="display: none"'}>${res.marker}VMware: <b>${res.data.explain.vm}</b></p>
+                    <p ${res.data.explain.hw?'':'style="display: none"'}>${res.marker}华为虚拟机: <b>${res.data.explain.hw}</b></p>
+                    <p ${res.data.explain.mysql?'':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
+                    <p ${res.data.explain.dm?'':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
+                    <p ${res.data.explain.db2?'':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
             return `<p>${arr}</p>`
+          }
+        },
+        title: {
+          text: this.calcPercent(this.total.totalBackupNumSuccess, this.total.totalBackupNumSuccess+this.total.totalBackupNumFail)+'%',
+          subtext: '成功率',
+          x: 'center',
+          y: '45%',
+          textStyle: {
+            color: '#1abb9c',
+            fontSize: 30
           }
         },
         series: [
           {
             name: '数据备份',
             type: 'pie',
-            radius: ['60%', '70%'],
+            radius: ['45%', '55%'],
             hoverAnimation: false,
-            color: ['#27ca27', '#ca2727'],
+            color: ['#1abb9c', '#7F7F7F'],
             data: [
               {
                 value: this.total.totalBackupNumSuccess,
@@ -684,7 +721,8 @@ export default {
                 dataType: 1,
                 label: {
                   normal: {
-                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                    formatter: '{b} : {c}',
+                    position: 'inner'
                   }
                 },
                 explain: {
@@ -703,7 +741,8 @@ export default {
                 name: '失败',
                 label: {
                   normal: {
-                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                    formatter: '{b} : {c}',
+                    position: 'inner'
                   }
                 },
                 explain: {
@@ -724,26 +763,41 @@ export default {
       let restoreOption = {
         tooltip: {
           trigger: 'item',
-          position: function(p){   //其中p为当前鼠标的位置, 限制tooltip位置
-            return [p[0] + 10, p[1] - 10];
-        },
-          formatter: function(res) {const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>oracle: ${res.data.explain.oracle}</p>
-                        <p ${res.data.explain.sqlserver?'':'style="display: none"'}>sqlserver: ${res.data.explain.sqlserver}</p>
-                        <p ${res.data.explain.filehost?'':'style="display: none"'}>文件: ${res.data.explain.filehost}</p>
-                        <p ${res.data.explain.vm?'':'style="display: none"'}>VMware: ${res.data.explain.vm}</p>
-                        <p ${res.data.explain.hw?'':'style="display: none"'}>华为虚拟机: ${res.data.explain.hw}</p>
-                        <p ${res.data.explain.mysql?'':'style="display: none"'}>mysql: ${res.data.explain.mysql}</p>
-                        <p ${res.data.explain.dm?'':'style="display: none"'}>达梦: ${res.data.explain.dm}</p>
-                        <p ${res.data.explain.db2?'':'style="display: none"'}>db2: ${res.data.explain.db2}</p>`
+          backgroundColor:'rgba(255,255,255,0.8)',
+          color:'black',
+          borderWidth:'1',
+          borderColor:'gray',
+          textStyle: {
+            color: 'black'
+          },
+          position: this.tooltipPosition,
+          formatter: function(res) {const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>${res.marker}oracle: <b>${res.data.explain.oracle}</b></p>
+                        <p ${res.data.explain.sqlserver?'':'style="display: none"'}>${res.marker}sqlserver: <b>${res.data.explain.sqlserver}</b></p>
+                        <p ${res.data.explain.filehost?'':'style="display: none"'}>${res.marker}文件: <b>${res.data.explain.filehost}</b></p>
+                        <p ${res.data.explain.vm?'':'style="display: none"'}>${res.marker}VMware: <b>${res.data.explain.vm}</b></p>
+                        <p ${res.data.explain.hw?'':'style="display: none"'}>${res.marker}华为虚拟机: <b>${res.data.explain.hw}</b></p>
+                        <p ${res.data.explain.mysql?'':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
+                        <p ${res.data.explain.dm?'':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
+                        <p ${res.data.explain.db2?'':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
           return `<p>${arr}</p>`}
+        },
+        title: {
+          text: this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumSuccess+this.total.totalRestoreNumFail)+'%',
+          subtext: '成功率',
+          x: 'center',
+          y: '45%',
+          textStyle: {
+            color: '#1abb9c',
+            fontSize: 30
+          }
         },
         series: [
           {
             name: '恢复演练',
             type: 'pie',
-            radius: ['60%', '70%'],
+            radius: ['45%', '55%'],
             hoverAnimation: false,
-            color: ['#27ca27', '#ca2727'],
+            color: ['#1abb9c', '#7F7F7F'],
             data: [
               {
                 value: this.total.totalRestoreNumSuccess,
@@ -751,7 +805,8 @@ export default {
                 dataType: 1,
                 label: {
                   normal: {
-                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                    formatter: '{b} : {c}',
+                    position: 'inner'
                   }
                 },
                 explain: {
@@ -770,7 +825,8 @@ export default {
                 name: '失败',
                 label: {
                   normal: {
-                    formatter: '{b} : {c}'+'\n'+'{d}%'
+                    formatter: '{b} : {c}',
+                    position: 'inner'
                   }
                 },
                 explain: {
@@ -791,18 +847,38 @@ export default {
       let initConnOption = {
         tooltip: {
           trigger: 'item',
-          formatter: "{a} <br/>{b}: {c} ({d}%)"
+          backgroundColor:'rgba(255,255,255,0.8)',
+          color:'black',
+          borderWidth:'1',
+          borderColor:'gray',
+          textStyle: {
+            color: 'black'
+          },
+          formatter: function(params) {
+                       return `${params.marker}${params.name}: ${params.value}(${params.percent}%)`
+                     }
+        },
+        title: {
+          text: this.calcPercent(this.total.initConnNumSuccess, this.total.initConnNumSuccess+this.total.initConnNumFail)+'%',
+          subtext: '成功率',
+          x: 'center',
+          y: '45%',
+          textStyle: {
+            color: '#1abb9c',
+            fontSize: 30
+          }
         },
         series: [
           {
             name: '一键接管',
             type: 'pie',
-            radius: ['60%', '70%'],
+            radius: ['45%', '55%'],
             hoverAnimation: false,
-            color: ['#27ca27', '#ca2727'],
+            color: ['#1abb9c', '#7F7F7F'],
             label: {
               normal: {
-                formatter: '{b} : {c}'+'\n'+'{d}%'
+                formatter: '{b} : {c}',
+                position: 'inner'
               }
             },
             data: [
@@ -855,10 +931,10 @@ export default {
                 barBorderRadius: 30,
                 "color": new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
                     "offset": 0,
-                    "color": "#409eff" // 0% 处的颜色
+                    "color": "#368c71" // 0% 处的颜色
                 }, {
                     "offset": 1,
-                    "color": "#45e3cf" // 100% 处的颜色
+                    "color": "#0fd8a2" // 100% 处的颜色
                 }], false)
               }
             },
@@ -879,7 +955,7 @@ export default {
             itemStyle: {
                 normal: {
                     color: 'none',
-                    borderColor: '#aaa',
+                    borderColor: '#7F7F7F',
                     borderWidth: 3,
                     barBorderRadius: 15,
                 }
@@ -895,32 +971,34 @@ export default {
         }]
       };
       let spacePieOption = {
-        title : {
-            text: '总数',
-            subtext: this.addUnit(this.spaceDetail.nfsData.inUsed),
-            subtextStyle: {
-            fontSize : 20,
-            padding: 20,
-            color: '#409eff'
-          },
-          x: 'center',
-          y: '45%',
-          textStyle: {
-            fontWeight: 'normal',
-            fontSize: 16
-          }
-        },
+        // title : {
+        //     text: '总数',
+        //     subtext: this.addUnit(this.spaceDetail.nfsData.inUsed),
+        //     subtextStyle: {
+        //     fontSize : 20,
+        //     padding: 20,
+        //     color: '#409eff'
+        //   },
+        //   x: 'center',
+        //   y: '45%',
+        //   textStyle: {
+        //     fontWeight: 'normal',
+        //     fontSize: 16
+        //   }
+        // },
         series : [
           {
             name: '',
             type: 'pie',
-            radius : ['60%','70%'],
+            radius : '50%',
             center: ['50%', '50%'],
             color: this.nfsPieColor,
             data: this.nfsPieData,
             label: {
               normal: {
-                formatter: '{b} : {c}'+'\n'+'{d}%'
+                formatter: params => {
+                  return `${params.name}: ${this.addUnit(params.value)}(${params.percent?params.percent:0.01}%)`
+                }
               }
             },
             itemStyle: {
@@ -996,6 +1074,11 @@ $error-color: rgba(212, 130, 101, 1);
 }
 .clearfix:after {
   clear: both
+}
+
+.bie-card {
+  width: 100%;
+  height: 350px;
 }
 
 .box-card {
