@@ -609,7 +609,7 @@ export default {
     },
     filterFn(item, i){
       if(Array.isArray(this.filter[i]) && this.filter[i].length > 0){
-        return this.filter[i].includes(item[i]);
+        return this.filter[i].includes(Number(item[i]));
       } else {
         return item[i].includes(this.filter[i]);
       }
