@@ -57,7 +57,7 @@
               </el-col>
             </el-row>
             <el-row :class="$style.margin14">
-              <el-col :span=18>
+              <el-col :span=16>
                 <el-tooltip :content="type==='linux'?`源NFS路径: ${item.config.nfsSourcePath}`:'恢复目标路径'"
                             placement="right"
                             :open-delay="300">
@@ -68,7 +68,7 @@
                   </div>
                 </el-tooltip>
               </el-col>
-              <el-col :span=6 style="text-align:right" >
+              <el-col :span=8 style="text-align:right" >
                 <i-icon name="size"
                         :class="$style.ongoingRestoreIcon"></i-icon>
                 <el-tooltip content="已恢复大小"
