@@ -240,7 +240,7 @@ export default {
     // 2.DB2类型设备
     // 3.没有“安装”数据库
     availableHostsForRestore() {
-      const db2EbackupHosts = this.$store.getters.hostsWithDB2.filter(
+      const db2EbackupHosts = this.$store.getters.db2Hosts.filter(
         h => h.hostType === 2
       );
       return db2EbackupHosts;
