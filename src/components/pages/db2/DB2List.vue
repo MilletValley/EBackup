@@ -21,7 +21,7 @@
                         fixed
                         align="center">
           <template slot-scope="scope">
-              {{scope.$index+1+(currentPage-1)*pagesize}}
+              {{scope.$index+1+(currentPage-1)*pageSize}}
           </template>
         </el-table-column>
         <el-table-column label="名称"
@@ -92,7 +92,7 @@
                      :total="total">
       </el-pagination>
     </el-row>
-    <database-modal :visible.sync="modalVisible"
+    <database-modal :visible.sync="createModalVisible"
                     :btn-loading="btnLoading"
                     :action="action"
                     :data="currentSelectData"
@@ -107,12 +107,20 @@ export default {
   mixins: [tableMixin],
   data() {
     return {
-      databaseType: 'dm'
+      databaseType: 'db2'
+    }
+  },
+  watch: {
+    inputSearch() {
+      if (this.inputSearch === '') {
+        this.filter = {};
+        this.currentPage = 1;
+      }
     }
   },
   methods: {
-    filterFn(item, i) {
-      return item[i].includes(this.filter[i]);
+    filterFn(item, i){
+      return item[i].toLowerCase().includes( this.filter[i].toLowerCase());
     },
     searchByName(){
       const name = this.inputSearch;
@@ -129,5 +137,16 @@ export default {
 }
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
+@import '@/style/common.scss';
+</style>
+<style scoped>
+.margin-top20{
+  margin-top: 20px;
+}
+.margin-top10{
+  margin-top: 10px;
+}
+.text-right{
+  text-align: right;
+}
 </style>

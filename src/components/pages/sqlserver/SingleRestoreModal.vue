@@ -16,11 +16,10 @@
         <el-form-item label="恢复设备"
                       prop="hostIp">
           <span slot="label">恢复设备
-              <el-popover placement="top" trigger="hover"
-                  content="类型为易备环境的设备"
-                  >
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
+              <el-tooltip placement="top" 
+                          content="易备环境设备" >
+                  <i class="el-icon-info"></i>
+              </el-tooltip >
           </span>  
           <el-select v-model="formData.hostIp"
                       style="width: 100%;">

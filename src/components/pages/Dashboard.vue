@@ -560,7 +560,7 @@ export default {
       6: 'db2',
       7: '达梦'
     }
-    const color = ['', '#CC0033','#FF6600','#FFFF33','#009900','#00FF66','#003399','#660066']
+    const color = ['', '#CC0033','#FF6600','#fc3','#009900','#00FF66','#003399','#660066']
     return {
       total: {},
       spaceDetail: {},
@@ -918,6 +918,11 @@ export default {
             center: ['50%', '50%'],
             color: this.nfsPieColor,
             data: this.nfsPieData,
+            label: {
+              normal: {
+                formatter: '{b} : {c}'+'\n'+'{d}%'
+              }
+            },
             itemStyle: {
               emphasis: {
                 shadowBlur: 10,

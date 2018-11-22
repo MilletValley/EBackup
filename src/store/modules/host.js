@@ -11,7 +11,7 @@ const getters = {
   sqlserverHosts: state =>
     state.hosts.filter(host => host.databaseType === 2),
   mysqlHosts: state => state.hosts.filter(host => host.databaseType === 5),
-  hostsWithDB2: state => state.hosts.filter(host => host.databaseType === 6),
+  db2Hosts: state => state.hosts.filter(host => host.databaseType === 6),
   dmHosts: state => state.hosts.filter(host => host.databaseType === 7)
 };
 const mutations = {

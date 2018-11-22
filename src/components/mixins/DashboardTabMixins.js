@@ -95,9 +95,9 @@ const DashboardTab = {
           if (this.$route.name === 'dashboard') {
             this.initconnNum = initconnData.slice(0, 5);
           } else if (this.checkType === this.clickPieJumpTo.ics) {
-            this.initconnNum = initconnData.filter(db => db.overState === 2);
+            this.initconnNum = initconnData.filter(db => Number(db.overState) === 2);
           } else if (this.checkType === this.clickPieJumpTo.icf) {
-            this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(db.overState));
+            this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(Number(db.overState)));
           } else {
             this.initconnNum = initconnData;
           }
@@ -165,7 +165,7 @@ const DashboardTab = {
       return databaseStateMapping[state];
     },
     linkTypeConverter(state) { // 连接状态
-      return linkStateMapping[state];
+      return linkStateMapping[Number(state)];
     },
     sizeFormatter(row, column, cellValue) {
       const size = fmtSizeFn(cellValue);

@@ -110,7 +110,7 @@ export default {
   },
   data() {
     return {
-      type: 'mysql',
+      type: 'db2',
       // formData: Object.assign({}, baseFormData), // 备份数据
       // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {

@@ -21,11 +21,10 @@
         <el-form-item label="恢复设备"
                       prop="hostIp">
           <span slot="label">恢复设备
-              <el-popover placement="top" trigger="hover"
-                  content="类型为易备环境的设备"
-                  >
-                  <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
+              <el-tooltip placement="top" 
+                          content="易备环境设备" >
+                  <i class="el-icon-info"></i>
+              </el-tooltip >
           </span>  
           <el-input disabled v-if="action !== 'create'"
                       :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
@@ -178,8 +177,9 @@ export default {
         const {instanceName, dbPort} = this.details;
         this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort});
       }
+      // 暂时清空密码，等后台删除密码返回后可删除此行
+      this.originFormData.password = '';
       this.formData = Object.assign({}, this.originFormData);
-      console.log(this.formData);
     },
     modalClosed() {
       // this.formData = { ...baseFormData };
