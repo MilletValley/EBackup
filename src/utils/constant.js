@@ -175,8 +175,8 @@ const yesOrNoMapping = {
 
 // 首页备份恢复表格的信息(不含虚拟机)
 const dbTypeMapping = {
-  1: 'oracle',
-  2: 'sqlserver',
+  1: 'sqlserver',
+  2: 'oracle',
   3: 'mysql',
   4: 'db2',
   5: '达梦'
