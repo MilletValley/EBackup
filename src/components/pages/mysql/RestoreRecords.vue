@@ -48,7 +48,7 @@
                 <el-tooltip content="目标设备IP"
                             placement="right"
                             :open-delay="300">
-                  <span >{{ item.config.database.host.hostIp }}</span>
+                  <span >{{ item.config.hostIp }}</span>
                 </el-tooltip>
               </el-col>
             </el-row>
@@ -60,7 +60,7 @@
                   <div :class="$style.wordsOverFlow">
                     <i-icon name="instance"
                             :class="$style.ongoingRestoreIcon"></i-icon>
-                    <span>{{item.config.database.instanceName }}</span>
+                    <span>{{item.config.detailInfo }}</span>
                   </div>
                 </el-tooltip>
               </el-col>
@@ -89,10 +89,16 @@
                          align="center"
                          min-width="150px">
         </el-table-column>
+        <!-- mysql数据库恢复后的数据库名始终与要恢复的数据库名相同，后台返回的为恢复配置的数据库名，即 登录恢复设备时必须要填的数据库名，2个名称不一定相同 -->
         <el-table-column prop="detailInfo"
                          label="数据库名"
                          align="center"
-                         min-width="150px"></el-table-column>
+                         min-width="150px">
+          <template slot-scope="scope">
+            <span>{{details.instanceName}}</span>
+          </template>
+        </el-table-column>
+          
         <!-- <el-table-column prop="dbPort"
                          label="端口"
                          align="center"
@@ -133,6 +139,9 @@ export default {
       type: Array,
       required: true,
     },
+    details: {
+      type: Object
+    }
   },
   computed: {
     // 正在进行中的恢复计划

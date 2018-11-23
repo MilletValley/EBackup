@@ -23,13 +23,13 @@
     <el-form inline label-width="100px"
               size="mini">
       <el-form-item label="恢复设备IP：">
-        <span>{{ restoreConfig.database.host.hostIp }}</span>
+        <span>{{ restoreConfig.hostIp }}</span>
       </el-form-item>
       <el-form-item label="数据库名：">
-        <span>{{ restoreConfig.database.instanceName }}</span>
+        <span>{{ restoreConfig.detailInfo }}</span>
       </el-form-item>
       <el-form-item label="端口：">
-        <span>{{ restoreConfig.database.dbPort }}</span>
+        <span>{{ restoreConfig.dbPort }}</span>
       </el-form-item>
     </el-form>
     <el-row type="flex">
