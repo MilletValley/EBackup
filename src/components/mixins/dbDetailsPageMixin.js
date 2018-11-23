@@ -218,6 +218,9 @@ const detailPageMixin = {
           if (this.details.role && this.details.role !== 0 && this.fetchLink) {
             this.fetchLink();
           }
+          if (this.vmType && this.vmType === 'VMware' && this.fetchServer) {
+            this.fetchServer();
+          }
         })
         .catch(error => {
           this.$message.error(error);

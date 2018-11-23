@@ -18,25 +18,36 @@
         <el-input v-model="formData.newName"></el-input>
       </el-form-item>
       <el-row v-if="vmType === 'VMware'">
-        <el-col :span="12">
-          <el-form-item label="恢复主机IP"
+         <el-form-item label="恢复主机"
                         prop="hostIp">
-            <el-input v-model="formData.hostIp"></el-input>
+            <!-- <el-input v-model="formData.hostIp"></el-input> -->
+            <el-select v-model="formData.hostIp"
+                        style="width: 100%;">
+              <el-option v-for="server in serverData"
+                          :key="server.id"
+                          :value="server.serverIp"
+                          :label="`${server.serverName}(${server.serverIp})`">
+                <span style="float: left">{{ server.serverName }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
+              </el-option>
+            </el-select>
           </el-form-item>
-        </el-col>
+      </el-row> 
+      <el-row v-if="vmType === 'VMware'">
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row v-if="vmType === 'VMware'">
-        <el-form-item label="恢复磁盘名"
+        <el-col :span="12">
+          <el-form-item label="恢复磁盘名"
                       prop="diskName">
           <el-input v-model="formData.diskName"></el-input>
         </el-form-item>
-      </el-row> 
+        </el-col>
+      </el-row>
+      
         
 				
     </el-form>
@@ -69,13 +80,16 @@ export default {
     vmType: {
       type: String,
     },
+    serverData: {
+      type: Array
+    }
   },
   data() {
     return {
       type: 'vm',
       rules: {
         newName: validate.newVmName,
-        hostIp: validate.hostIp,
+        hostIp: validate.selectServer,
         diskName: validate.diskName,
       },
     };

@@ -124,6 +124,7 @@
     <restore-plan-modal   :btn-loading="btnLoading"
                           :details="details"
                           :vm-type="vmType"
+                          :serverData="serverData"
                           :visible.sync="restorePlanModalVisible"
                           @confirm="restoreConfirmCallback"
                           :action="restoreAction"
@@ -132,6 +133,7 @@
     <single-restore-modal   :btn-loading="btnLoading"
                             :details="details"
                             :vm-type="vmType"
+                            :serverData="serverData"
                             :result-id="selectedBackupResultId"
                             :visible.sync="singleRestoreCreateModalVisible"
                             @confirm="singleConfirmCallback">
@@ -153,6 +155,7 @@ import {
   updateVirtualBackupPlan,
   createMultipleVirtualBackupPlan,
 } from '@/api/virtuals';
+import { fetchServerList } from '@/api/host';
 
 export default {
   name: 'VMwareDetail',
@@ -169,6 +172,7 @@ export default {
   data() {
     return {
       type: 'virtual',
+      serverData: []
     };
   },
   computed: {
@@ -190,6 +194,14 @@ export default {
       } else {
         this.addBackupPlan(data);
       }
+    },
+    fetchServer(){
+      fetchServerList().then(res => {
+        const { data} = res.data;
+        this.serverData = Array.isArray(data) ? data : [];
+      }).catch( error => {
+        this.$message.error(error);
+      })
     },
     addBackupPlan(plan) {
       this.btnLoading = true;
