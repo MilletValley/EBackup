@@ -212,11 +212,19 @@ export default {
         const { data: link } = res.data;
         const { id, state, errMsg, tempPort } = link;
         this.link = { id, state, errMsg, tempPort };
-        if (this.details.role === 1) {
-          this.link.oppsiteDatabase = link.viceDatabase;
-        } else if (this.details.role === 2) {
-          this.link.oppsiteDatabase = link.primaryDatabase;
+        const {host} = this.details;
+        if (host) {
+          if (host.hostType === 1) {
+            this.link.oppsiteDatabase = link.viceDatabase;
+          }else if (host.hostType === 2) {
+            this.link.oppsiteDatabase = link.primaryDatabase;
+          }
         }
+        // if (this.details.role === 1) {
+        //   this.link.oppsiteDatabase = link.viceDatabase;
+        // } else if (this.details.role === 2) {
+        //   this.link.oppsiteDatabase = link.primaryDatabase;
+        // }
       })
       .catch(error => {
         this.$message.error(error);
