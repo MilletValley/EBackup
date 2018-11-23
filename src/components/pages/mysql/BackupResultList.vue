@@ -54,20 +54,20 @@
               <span>{{ scope.row.id }}</span>
             </el-form-item> -->
             <el-form-item :class="$style.detailFormItem"
-                          label="存储目标路径">
-              <span>{{ scope.row.path }}</span>
-            </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
                           label="开始时间">
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
-                          label="文件名">
-              <span>{{ scope.row.fileName }}</span>
+                          label="存储目标路径">
+              <span>{{ scope.row.path }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="结束时间">
               <span>{{ scope.row.endTime }}</span>
+            </el-form-item>
+            <el-form-item :class="$style.detailFormItem"
+                          label="文件名">
+              <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="大小">

@@ -172,6 +172,12 @@ export default {
   watch: {
     hostsInVuex(data){
       this.tableData = this.hostsInVuex;
+    },
+    inputSearch() {
+      if (this.inputSearch === '') {
+        this.filter = Object.assign({}, this.tableFilter);
+        this.currentPage = 1;
+      }
     }
   },
   created() {
@@ -289,13 +295,6 @@ export default {
       create: 'createHost',
       fetchAll: 'fetchHost'
     }),
-  },
-  watch: {
-    inputSearch() {
-      if (this.inputSearch === '') {
-        this.filter = Object.assign({}, this.tableFilter);
-      }
-    }
   },
   components: {
     HostCreateModal,

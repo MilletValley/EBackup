@@ -112,6 +112,7 @@
       <template slot="restoreRecord">
         <restore-records :restore-plan="restorePlans"
                          :records="restoreRecords"
+                         :details="details"
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
