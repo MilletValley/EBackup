@@ -26,9 +26,10 @@
                   <i class="el-icon-info"></i>
               </el-tooltip >
           </span>  
-          <el-input disabled v-if="action !== 'create'"
-                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
-          <el-select v-model="formData.hostIp" v-else
+          <!-- <el-input disabled v-if="action !== 'create'"
+                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input> -->
+          <!-- <el-select v-model="formData.hostIp" v-else -->
+          <el-select v-model="formData.hostIp" :disabled="action !== 'create'"
                       style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore"
                         :key="host.id"
@@ -151,17 +152,17 @@ export default {
       }
       const { name, config, ...other } = plan;
       const { id, startTime, timePoints, timeStrategy, database, ...otherConfig } = config;
-      const { instanceName: detailInfo, loginName, host } = database;
-      const { name: hostName, hostIp } = host;
+      // const { instanceName: detailInfo, loginName, host } = database;
+      // const { name: hostName, hostIp } = host;
       return {
         name,
         startTime: timeStrategy === 1 ? '' : startTime,
         timePoints: cloneDeep(timePoints),
         timeStrategy,
-        detailInfo,
-        loginName,
-        hostName,
-        hostIp,
+        // detailInfo,
+        // loginName,
+        // hostName,
+        // hostIp,
         ...otherConfig,
       };
     },

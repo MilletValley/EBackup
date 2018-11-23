@@ -48,7 +48,7 @@
                 <el-tooltip content="目标设备IP"
                             placement="right"
                             :open-delay="300">
-                  <span >{{ item.config.database.host.hostIp }}</span>
+                  <span >{{ item.config.hostIp }}</span>
                 </el-tooltip>
               </el-col>
             </el-row>
@@ -60,7 +60,7 @@
                   <div :class="$style.wordsOverFlow">
                     <i-icon name="instance"
                             :class="$style.ongoingRestoreIcon"></i-icon>
-                    <span>{{item.config.database.instanceName }}</span>
+                    <span>{{item.config.detailInfo }}</span>
                   </div>
                 </el-tooltip>
               </el-col>

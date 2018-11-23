@@ -225,6 +225,10 @@ export default {
     { required: true, message: '请输入恢复磁盘名', trigger: 'blur' },
     { validator: validateLength(64), triggle: 'blur' }
   ],
+  // 虚拟机-恢复-选择主机ip
+  selectServer: [
+    { required: true, message: '请选择恢复主机', trigger: 'blur' }
+  ],
   maxLength100: [
     { validator: validateLength(100), triggle: 'blur' }
   ]
