@@ -686,7 +686,7 @@ export default {
       let initConn = echarts.init(document.getElementById('initConn'));
       const that = this;
       if(Object.keys(this.spaceDetail).length) {
-        let barChart = echarts.init(document.getElementById('barChart'));
+        var barChart = echarts.init(document.getElementById('barChart'));
         let spaceBarOption = {
           xAxis: [{
             show: false
@@ -772,23 +772,8 @@ export default {
         barChart.setOption(spaceBarOption);
       }
       if(this.nfsAssignedSpace&&this.nfsAssignedSpace.length>0) {
-        let spaceRatio = echarts.init(document.getElementById('spaceRatio'));
+        var spaceRatio = echarts.init(document.getElementById('spaceRatio'));
         let spacePieOption = {
-          // title : {
-          //     text: '总数',
-          //     subtext: this.addUnit(this.spaceDetail.nfsData.inUsed),
-          //     subtextStyle: {
-          //     fontSize : 20,
-          //     padding: 20,
-          //     color: '#409eff'
-          //   },
-          //   x: 'center',
-          //   y: '45%',
-          //   textStyle: {
-          //     fontWeight: 'normal',
-          //     fontSize: 16
-          //   }
-          // },
           series : [
             {
               name: '',

@@ -175,24 +175,24 @@ const yesOrNoMapping = {
 
 // 首页备份恢复表格的信息(不含虚拟机)
 const dbTypeMapping = {
-  1: 'oracle',
-  2: 'sqlserver',
+  1: 'sqlserver',
+  2: 'oracle',
   3: 'mysql',
   4: 'db2',
   5: '达梦'
 };
 // 首页数据库详情路由(不含虚拟机)
 const dbDetailRouterMapping = {
-  1: 'oracleDetail',
-  2: 'sqlserverDetail',
+  1: 'sqlserverDetail',
+  2: 'oracleDetail',
   3: 'mysqlDetail',
   4: 'db2Detail',
   5: 'damengDetail'
 };
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {
-  1: 'oracleLinkDetail',
-  2: 'sqlserverLinkDetail'
+  1: 'sqlserverLinkDetail',
+  2: 'oracleLinkDetail'
 };
 
 // 首页虚拟机详情路由
