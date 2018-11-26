@@ -14,6 +14,7 @@
       <el-menu background-color="#00264a"
                text-color="#fff"
                active-text-color="#fff"
+               :default-active="defaultActive"
                :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
           <router-link to="/dashboard"
@@ -33,7 +34,7 @@
           </template>
           <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
                         :key="submenu.path"
-                        :index="`${menu.path}/${submenu.path}`">
+                        :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
             <router-link :to="`${menu.path}/${submenu.path}`"
                          tag="li">{{ submenu.meta.title }}</router-link>
           </el-menu-item>
@@ -104,6 +105,9 @@ export default {
   computed: {
     isMenuCollapsed() {
       return this.clientWidth < 1300;
+    },
+    defaultActive(){
+      return this.$route.meta.activeName ? this.$route.meta.activeName : this.$route.path;
     },
     ...mapState({
       userName: state => {

@@ -77,7 +77,7 @@
                v-model="activeName">
         <el-tab-pane label="数据库备份"
                      name="databaseBackup">
-          <el-table :data="databaseBackup"
+          <el-table :data="databaseBackup|NotNullfilter"
                     ref="databaseBackup"
                     v-loading="infoLoading"
                     style="width: 100%">
@@ -108,7 +108,7 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+                <el-tag size="mini">{{ dateFmt(scope.row.endTime) }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="耗时"
@@ -179,7 +179,7 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+                <el-tag size="mini">{{ dateFmt(scope.row.endTime) }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="耗时"
@@ -282,7 +282,7 @@
         </el-tab-pane>
         <el-tab-pane label="文件备份"
                      name="filehostBackup">
-          <el-table :data="filehostBackup"
+          <el-table :data="filehostBackup|NotNullfilter"
                     v-loading="infoLoading"
                     ref="filehostBackup"
                     style="width: 100%">
@@ -401,7 +401,7 @@
         </el-tab-pane>
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup">
-          <el-table :data="vmBackup"
+          <el-table :data="vmBackup|NotNullfilter"
                     v-loading="infoLoading"
                     ref="vmBackup"
                     style="width: 100%">
@@ -645,7 +645,7 @@ export default {
       if(Number(dividend) === 0) {
         return 100;
       }
-      return ((diviver/dividend)*100).toFixed(2);
+      return Math.round((diviver/dividend)*100);
     },
     jumpToMoreState(params, successPath, errorPath) {
       if(params.name.includes('成功')) {
