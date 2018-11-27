@@ -183,8 +183,8 @@ export default {
     },
     serverData() {
       return this.serverDatas.filter( e => {
-        if(this.details && this.details.server){
-          return e.serverIp === this.details.server.serverIp;
+        if(this.details && this.details.host){
+          return e.hostId === this.details.host.id;
         }
         return false;
       })
