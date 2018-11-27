@@ -172,7 +172,7 @@ export default {
   data() {
     return {
       type: 'virtual',
-      serverData: []
+      serverDatas: []
     };
   },
   computed: {
@@ -181,6 +181,14 @@ export default {
       return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual' ? 'VMware' : 'HW';
       // return this.details && this.details.type === 1 ? 'VMware' : 'HW';
     },
+    serverData() {
+      return this.serverDatas.filter( e => {
+        if(this.details && this.details.server){
+          return e.serverIp === this.details.server.serverIp;
+        }
+        return false;
+      })
+    }
   },
   filters: {
     serverTypeFilter(data) {
@@ -198,7 +206,7 @@ export default {
     fetchServer(){
       fetchServerList().then(res => {
         const { data} = res.data;
-        this.serverData = Array.isArray(data) ? data : [];
+        this.serverDatas = Array.isArray(data) ? data : [];
       }).catch( error => {
         this.$message.error(error);
       })
