@@ -111,7 +111,8 @@ import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin'
 import validate from '@/utils/validate';
 import { recoveringStrategyMapping } from '@/utils/constant';
 import {
-  maxLengthFn
+  maxLengthFn,
+  fmtSizeFn
 } from '@/utils/common';
 import {
   fetchAll,
