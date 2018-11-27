@@ -118,6 +118,7 @@ import {
   fetchAll,
   fetchOriginPath,
 } from '@/api/fileHost';
+import IIcon from '@/components/IIcon';
 const baseFormData = {
   hostIp: '',
   // linux
@@ -143,6 +144,9 @@ export default {
       type: String,
       required: true
     }
+  },
+  components: {
+    IIcon
   },
   data() {
     const originPathValidate = (rule, value, callback) => {
