@@ -266,7 +266,7 @@
                   {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
-            <el-table-column label="名称"
+            <el-table-column label="主机IP"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
@@ -342,7 +342,7 @@
                   {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
-            <el-table-column label="名称"
+            <el-table-column label="恢复主机IP"
                              show-overflow-tooltip
                              align="center"
                              min-width="180">
@@ -353,11 +353,11 @@
                 </router-link>
               </template>
             </el-table-column>
-            <el-table-column prop="name"
-                             label="数据库名"
+            <!-- <el-table-column prop="name"
+                             label="主机名"
                              show-overflow-tooltip
                              align="center"
-                             min-width="180"></el-table-column>
+                             min-width="180"></el-table-column> -->
             <el-table-column label="恢复结束时间"
                              align="center"
                              min-width="180">
