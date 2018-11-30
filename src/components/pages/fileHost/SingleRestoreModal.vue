@@ -48,6 +48,7 @@
                       :expand-on-click-node="false"
                       @node-click="nodeClick"
                       ref="tree"
+                      v-loading="treeLoading"
                       :class="$style.treeStyle">
                 <div class="custom-tree-node"
                       slot-scope="{ node, data }">
@@ -118,6 +119,7 @@ import {
   fetchAll,
   fetchOriginPath,
 } from '@/api/fileHost';
+import IIcon from '@/components/IIcon';
 const baseFormData = {
   hostIp: '',
   // linux
@@ -144,12 +146,15 @@ export default {
       required: true
     }
   },
+  components: {
+    IIcon
+  },
   data() {
     const originPathValidate = (rule, value, callback) => {
       if (!this.formData.originDetailInfo ) {
         callback(new Error('请输入文件恢复源路径'));
-      } else if (maxLengthFn(value, 60)) {
-        callback(new Error('文件路径长度超过限制'));
+      } else if (maxLengthFn(value, 255)) {
+        callback(new Error('长度在255个字符以内，注：中文占2个字符'));
       } else if (!this.fileHostOriginPath.map(originPath => originPath.path).includes(value)) {
         callback(new Error('文件恢复源路径不存在'));
       } else {
@@ -175,22 +180,25 @@ export default {
         password: validate.password,
       },
       selectionHosts: [],
-      fileHostOriginPath: []
+      fileHostOriginPath: [],
+      treeLoading: false,
+      treeData: []
     };
   },
   computed: {
-    treeData() { // 数组转树状结构对象, 用于生成单次立即恢复模态框中的源路径树状图
-      let tree = this.fileHostOriginPath.filter(father => {
-        let branchArr = this.fileHostOriginPath.filter(child => {
-          return father.id === child.parentId && child.id !== child.parentId
-        })
-        if(branchArr.length>0) {
-          father.children = branchArr;
-        }
-        return father.id === father.parentId
-      })
-      return tree
-    }
+    // treeData() { // 数组转树状结构对象, 用于生成单次立即恢复模态框中的源路径树状
+    //   // let tree = [];
+    //   // let tree = this.fileHostOriginPath.filter(father => {
+    //   //   // let branchArr = this.fileHostOriginPath.filter(child => {
+    //   //   //   return father.id === child.parentId && child.id !== child.parentId
+    //   //   // })
+    //   //   // if(branchArr.length>0) {
+    //   //   //   father.children = branchArr;
+    //   //   // }
+    //   //   return father.id === father.parentId
+    //   // });
+    //   return tree
+    // }
   },
   watch: {
     '$store.state.nav.clientWidth'( val) {
@@ -214,6 +222,9 @@ export default {
       else
       return fmtSizeFn(Number(size));
     }
+  },
+  destroyed(){
+    this.worker = null;
   },
   methods: {
     confirmBtnClick() {
@@ -252,13 +263,41 @@ export default {
       });
     },
     getOriginPath() {
+      this.treeLoading = true;
+      this.treeData = [];
       fetchOriginPath(this.resultId)
         .then(res => {
           const { data: fileHostPath } = res.data;
           this.fileHostOriginPath = fileHostPath;
+          const dataFmt = data => {
+            const length = data.length;
+            let tree = [];
+            for(let i =length;i--;){
+              let aa = [];
+              for(let j =length;j--;j){
+                if(data[i].id === data[j].parentId && data[j].id !== data[j].parentId){
+                  aa.push(data[j]);
+                }
+              }
+              data[i].children = aa;
+              if(data[i].id === data[i].parentId){
+                tree.push(data[i]);
+              }
+            }
+            return tree;
+          }
+          this.worker = this.$worker.run(dataFmt, [fileHostPath])
+            .then(res => {
+              this.treeData = res;
+              this.treeLoading = false;
+            })
+            .catch(e => {
+              this.treeLoading = false
+            });
         })
         .catch(error => {
           this.$message.error(error);
+          this.treeLoading = false;
         });
     },
     getHosts() {

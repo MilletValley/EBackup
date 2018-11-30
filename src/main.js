@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import ElementUI, { Message } from 'element-ui';
+import VueWorker from 'vue-worker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -17,6 +18,7 @@ import global from './utils/global';
 
 Vue.use(ElementUI);
 Vue.use(global);
+Vue.use(VueWorker);
 Vue.config.productionTip = false;
 
 dayjs.locale('zh-cn');

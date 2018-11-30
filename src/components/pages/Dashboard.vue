@@ -40,7 +40,14 @@
               <span class="card-title">空间使用情况</span>
             </div>
             <div class="text item" v-show="Object.keys(spaceDetail).length">
-              <div id="barChart" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
+              <el-row>
+                <el-col :span="Object.keys(spaceDetail).length > 1 ? 12 : 24">
+                  <div id="barChart" :style="{width: '100%', height: '300%',margin:'0 auto'}"></div>
+                </el-col>
+                <el-col :span="12">
+                  <div id="barChart1" :style="{width: '100%', height: '300%',margin:'0 auto'}"></div>
+                </el-col>
+              </el-row>
             </div>
             <div :class="$style.nfsNotUsed" v-show="!Object.keys(spaceDetail).length">
               <span>暂未使用</span>
@@ -286,7 +293,7 @@
                     v-loading="infoLoading"
                     ref="filehostBackup"
                     style="width: 100%">
-            <el-table-column label="名称"
+            <el-table-column label="主机IP"
                              align="center"
                              show-overflow-tooltip
                              min-width="100">
@@ -351,7 +358,7 @@
                     v-loading="infoLoading"
                     ref="filehostRestore"
                     style="width: 100%">
-            <el-table-column label="名称"
+            <el-table-column label="恢复主机IP"
                              show-overflow-tooltip
                              align="center"
                              min-width="180">
@@ -362,11 +369,11 @@
                 </router-link>
               </template>
             </el-table-column>
-            <el-table-column prop="name"
+            <!-- <el-table-column prop="name"
                              label="数据库名"
                              show-overflow-tooltip
                              align="center"
-                             min-width="180"></el-table-column>
+                             min-width="180"></el-table-column> -->
             <el-table-column label="恢复结束时间"
                              align="center"
                              min-width="180">
@@ -600,15 +607,17 @@ export default {
       return [];
     },
     nfsPieData() {
-      if(this.spaceDetail&&this.spaceDetail.nfsData)
-        return this.spaceDetail.nfsData.nfsUseDetails.map(detail => {
-          return {
-            value: detail.nfsUseSize,
-            name: this.nfsInUsedTypeMapping[detail.nfsUseType]
-          }
-        })
-      return [];
-    }
+      let data = {};
+      if (this.spaceDetail && this.spaceDetail.nfsData)
+        this.spaceDetail.nfsData.nfsUseDetails.forEach(detail => {
+          // return {
+          //   value: detail.nfsUseSize,
+          //   name: this.nfsInUsedTypeMapping[detail.nfsUseType],
+          // };
+          data[detail.nfsUseType] = detail.nfsUseSize;
+        });
+      return data;
+    },
   },
   mounted() {
     this.fetchData();
@@ -687,119 +696,246 @@ export default {
       const that = this;
       if(Object.keys(this.spaceDetail).length) {
         var barChart = echarts.init(document.getElementById('barChart'));
+        var barChart1 = echarts.init(document.getElementById('barChart1'));
         let spaceBarOption = {
-          xAxis: [{
-            show: false
-          }],
-          yAxis: [{
-              show: true,
-              data: this.spaceData.name,
-              inverse: true,
-              axisLine: {
-                show: false
+          title: {
+            show: true,
+            text: '存储1',
+            textStyle: {
+              color: '#333',
+              fontSize: 14,
+            },
+            subtext: this.spaceData.explain[0],
+            subtextStyle: {
+              color: '#04C1F9',
+              fontSize: 12,
+            },
+            left: 'center',
+            bottom: '10px',
+          },
+          // backgroundColor: '#33619D',
+          series: [
+            {
+              color: ['#04C1F9'],
+              amplitude: 5,
+              waveLength: '80%',
+              type: 'liquidFill',
+              data: [this.spaceData.percentData[0]/100],
+              radius: '50%',
+              direction: 'left',
+              outline: {
+                show: false,
               },
-              splitLine: {
-                show: false
-              },
-              axisTick: {
-                show: false
-              }
-          }, {
-              show: false,
-              inverse: true,
-              data: this.spaceData.explain,
-              axisLine: {
-                show: false
-              },
-              splitLine: {
-                show: false
-              },
-              axisTick: {
-                show: false
-              }
-          }],
-          // color: ['#61A8FF'],
-          series: [{
-              name: '条',
-              type: 'bar',
-              yAxisIndex: 0,
-              data: this.spaceData.percentData,
-              barWidth: 30,
-              itemStyle: {
-                normal: {
-                  barBorderRadius: 30,
-                  "color": new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
-                      "offset": 0,
-                      "color": "#368c71" // 0% 处的颜色
-                  }, {
-                      "offset": 1,
-                      "color": "#0fd8a2" // 100% 处的颜色
-                  }], false)
-                }
+              backgroundStyle: {
+                //  borderColor: '#000',
+                //borderWidth: 1,
+                shadowColor: 'rgba(234, 136, 206, 0.8)',
+                // shadowBlur: 100,
+                color: '#C3E9F5',
               },
               label: {
-                  normal: {
-                      show: true,
-                      position: 'inside',
-                      formatter: '{c}%'
-                  }
+                normal: {
+                  position: ['50%', '45%'],
+                  areaStyle: {
+                    color: 'green',
+                  },
+                  // formatter: '{a}\n{b}\nValue: {c}',
+                  textStyle: {
+                    fontSize: 18,
+                  },
+                },
               },
-          }, {
-              name: '框',
+              shape:
+                'path://M0,19.589C0,19.59,12.542,0.133,86.237,0.092c73.639-0.039,86.236,19.497,86.236,19.497v224.215H0V19.589L0,19.589z',
+            },
+          ],
+        };
+        let spaceBarOption1 = {
+          title: {
+            show: true,
+            text: '存储2',
+            textStyle: {
+              color: '#333',
+              fontSize: 14,
+            },
+            subtext: this.spaceData.explain[0],
+            subtextStyle: {
+              color: 'green',
+              fontSize: 12,
+            },
+            left: 'center',
+            bottom: '10px',
+          },
+          // backgroundColor: '#33619D',
+          series: [
+            {
+              color: ['green'],
+              amplitude: 5,
+              waveLength: '80%',
+              type: 'liquidFill',
+              data: [this.spaceData.percentData[1]/100],
+              radius: '50%',
+              direction: 'left',
+              outline: {
+                show: false,
+              },
+              backgroundStyle: {
+                //  borderColor: '#000',
+                //borderWidth: 1,
+                shadowColor: 'rgba(234, 136, 206, 0.8)',
+                // shadowBlur: 100,
+                color: '#D1EBD0',
+              },
+              label: {
+                normal: {
+                  position: ['50%', '45%'],
+                  areaStyle: {
+                    color: 'green',
+                  },
+                  // formatter: '{a}\n{b}\nValue: {c}',
+                  textStyle: {
+                    fontSize: 18,
+                  },
+                },
+              },
+              shape:
+                'path://M0,19.589C0,19.59,12.542,0.133,86.237,0.092c73.639-0.039,86.236,19.497,86.236,19.497v224.215H0V19.589L0,19.589z',
+            },
+          ],
+        };
+        barChart.setOption(spaceBarOption);
+        barChart1.setOption(spaceBarOption1);
+      }
+      if (this.nfsAssignedSpace && this.nfsAssignedSpace.length > 0) {
+        var spaceRatio = echarts.init(document.getElementById('spaceRatio'));
+        const labelObject = {
+          oracle: {
+            value: 'Oracle',
+            color: 'rgb(216, 30, 6)'
+          },
+          sqlserver: {
+            value: 'SQL Server',
+            color: 'rgb(0, 65, 152)'
+          },
+          mysql: {
+            value: 'MySql',
+            color: 'rgb(0, 117, 143)'
+          },
+          db2: {
+            value: 'DB2',
+            color: 'rgb(128, 160, 50)'
+          },
+          dm: {
+            value: '达梦数据库',
+            color: '#072D5C'
+          },
+          filehost: {
+            value: '文件',
+            color: '#048B41'
+          },
+          vm: {
+            value: '虚拟机',
+            color: 'rgb(143, 190, 72)'
+          }
+        };
+        let spacePieOption = {
+          // backgroundColor: '#00265f',
+          // grid: {
+          //   left: '3%',
+          //   right: '4%',
+          //   bottom: '3%',
+          //   containLabel: true,
+          // },
+          xAxis: [
+            {
+              type: 'category',
+              data: ['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'filehost', 'vm'],
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: '#aaa',
+                  width: 1,
+                  type: 'solid',
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+              axisLabel: {
+                show: true,
+                interval: 0,
+                color: (value, index) => {
+                  return labelObject[value].color;
+                },
+                formatter: (value, index) => {
+                  return labelObject[value].value;
+                }
+              },
+            },
+          ],
+          yAxis: [
+            {
+              type: 'value',
+              axisLabel: {
+                show: true,
+                formatter: (value, index) => {
+                  return this.addUnit(value);
+                }
+              },
+              min: 0,
+              max: this.spaceDetail.nfsData.total,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: '#00c7ff',
+                  width: 1,
+                  type: 'solid',
+                },
+              },
+              axisTick: {
+                show: false,
+              },
+              splitLine: {
+                show: false,
+                lineStyle: {
+                  color: '#063374',
+                },
+              },
+            },
+          ],
+          series: [
+            {
               type: 'bar',
-              yAxisIndex: 1,
-              barGap: '-100%',
-              data: [100, 100],
-              barWidth: 30,
+              data: [{name: 'oracle', value: this.nfsPieData[1]},
+              {name: 'sqlserver', value: this.nfsPieData[2]},
+              {name: 'mysql', value: this.nfsPieData[5]},
+              {name: 'db2', value: this.nfsPieData[6]},
+              {name: 'dm', value: this.nfsPieData[7]},
+              {name: 'filehost', value: this.nfsPieData[3]},
+              {name: 'vm', value: this.nfsPieData[4]}],
+              barWidth: 25, //柱子宽度
+              // barGap: 1, //柱子之间间距
               itemStyle: {
-                  normal: {
-                      color: 'none',
-                      borderColor: '#7F7F7F',
-                      borderWidth: 3,
-                      barBorderRadius: 15,
-                  }
+                normal: {
+                  color: params => {
+                    return labelObject[params.name].color;
+                  },
+                  opacity: 1,
+                },
               },
               label: {
                 normal: {
                   show: true,
-                  color: '#000',
-                  position: [10, '-50%'],
-                  formatter: '{b}'
-                }
-              }
-          }]
-        };
-        barChart.setOption(spaceBarOption);
-      }
-      if(this.nfsAssignedSpace&&this.nfsAssignedSpace.length>0) {
-        var spaceRatio = echarts.init(document.getElementById('spaceRatio'));
-        let spacePieOption = {
-          series : [
-            {
-              name: '',
-              type: 'pie',
-              radius : '50%',
-              center: ['50%', '50%'],
-              color: this.nfsPieColor,
-              data: this.nfsPieData,
-              label: {
-                normal: {
+                  position: 'top',
                   formatter: params => {
-                    return `${params.name}: ${this.addUnit(params.value)}(${params.percent?params.percent:0.01}%)`
+                    return this.addUnit(params.value)
                   }
                 }
               },
-              itemStyle: {
-                emphasis: {
-                  shadowBlur: 10,
-                  shadowOffsetX: 0,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
-                }
-              }
-            }
-          ]
+            },
+          ],
         };
-        spaceRatio.setOption(spacePieOption)
+        spaceRatio.setOption(spacePieOption);
       }
       let backupOption = {
         tooltip: {
