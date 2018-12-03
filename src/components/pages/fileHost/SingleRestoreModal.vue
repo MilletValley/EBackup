@@ -41,6 +41,7 @@
             <div :class="$style.tree"
                  ref="outerTree"
                  id="outerTree">
+                 <!-- <z-tree></z-tree> -->
               <el-tree :data="treeData"
                       node-key="id"
                       highlight-current
@@ -120,6 +121,7 @@ import {
   fetchOriginPath,
 } from '@/api/fileHost';
 import IIcon from '@/components/IIcon';
+import zTree from '@/components/common/zTree';
 const baseFormData = {
   hostIp: '',
   // linux
@@ -147,7 +149,8 @@ export default {
     }
   },
   components: {
-    IIcon
+    IIcon,
+    zTree
   },
   data() {
     const originPathValidate = (rule, value, callback) => {
