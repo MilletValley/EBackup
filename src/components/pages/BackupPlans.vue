@@ -33,41 +33,41 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
+                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.type}}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
             </el-table-column>
-            <el-table-column prop="machine.name"
+            <el-table-column prop="objName"
                              label="数据库名称"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id)}}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
-                  {{ scope.row.machine.name }}
+                  {{ scope.row.objName }}
                 </router-link>
               </template>
             </el-table-column>
             <el-table-column label="数据库类型"
                              align="center"
-                             prop="machine.type"
+                             prop="objType"
                              :formatter="dbType"
                              :filters="dbTypeFilter"
-                             column-key="type"
+                             column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="备份策略"
                              align="center"
                              :formatter="backupStrategyFmt"
-                             prop="config.backupStrategy"
+                             prop="backupStrategy"
                              min-width="130">
             </el-table-column>
             <el-table-column label="时间策略"
                              align="center"
                              :formatter="timeStrategyFmt"
-                             prop="config.timeStrategy"
+                             prop="timeStrategy"
                              min-width="100">
             </el-table-column>
             <el-table-column prop="state"
@@ -85,14 +85,14 @@
                   style="color: #ca2727"></i>
               </template> -->
             </el-table-column>
-            <el-table-column prop="highlight"
+            <el-table-column prop="highLight"
                              label="消息"
                              :filters="highlightFilter"
-                             column-key="highlight"
+                             column-key="highLight"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
-                <i-icon v-if="scope.row.highlight === 1" name="gaojing"></i-icon>
+                <i-icon v-if="scope.row.highLight === 1" name="gaojing"></i-icon>
               </template>
             </el-table-column>
           </el-table>
@@ -118,40 +118,40 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
+                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.type}}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
             </el-table-column>
-            <el-table-column prop="machine.name"
+            <el-table-column prop="objName"
                              label="主机名"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id)}}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
-                  {{ scope.row.machine.name }}
+                  {{ scope.row.objName }}
                 </router-link>
               </template>
             </el-table-column>
             <el-table-column label="系统类型"
                              align="center"
-                             prop="machine.osName"
+                             prop="objType"
                              :filters="osNameFilter"
-                             column-key="osName"
+                             column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="备份策略"
                              align="center"
                              :formatter="backupStrategyFmt"
-                             prop="config.backupStrategy"
+                             prop="backupStrategy"
                              min-width="130">
             </el-table-column>
             <el-table-column label="时间策略"
                              align="center"
                              :formatter="timeStrategyFmt"
-                             prop="config.timeStrategy"
+                             prop="timeStrategy"
                              min-width="100">
             </el-table-column>
             <el-table-column prop="state"
@@ -169,14 +169,14 @@
                   style="color: #ca2727"></i>
               </template> -->
             </el-table-column>
-            <el-table-column prop="highlight"
+            <el-table-column prop="highLight"
                              label="消息"
                              :filters="highlightFilter"
-                             column-key="highlight"
+                             column-key="highLight"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
-                <i-icon v-if="scope.row.highlight === 1" name="gaojing"></i-icon>
+                <i-icon v-if="scope.row.highLight === 1" name="gaojing"></i-icon>
               </template>
             </el-table-column>
           </el-table>
@@ -202,41 +202,41 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
+                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.type}}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
             </el-table-column>
-            <el-table-column prop="machine.name"
+            <el-table-column prop="objName"
                              label="虚拟机名"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id)}}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
-                  {{ scope.row.machine.name }}
+                  {{ scope.row.objName }}
                 </router-link>
               </template>
             </el-table-column>
             <el-table-column label="虚拟机类型"
                              align="center"
-                             prop="machine.type"
+                             prop="objType"
                              :formatter="vmTypeFmt"
                              :filters="vmTypeFilter"
-                             column-key="type"
+                             column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="备份策略"
                              align="center"
                              :formatter="backupStrategyFmt"
-                             prop="config.backupStrategy"
+                             prop="backupStrategy"
                              min-width="130">
             </el-table-column>
             <el-table-column label="时间策略"
                              align="center"
                              :formatter="timeStrategyFmt"
-                             prop="config.timeStrategy"
+                             prop="timeStrategy"
                              min-width="100">
             </el-table-column>
             <el-table-column prop="state"
@@ -254,14 +254,14 @@
                   style="color: #ca2727"></i>
               </template> -->
             </el-table-column>
-            <el-table-column prop="highlight"
+            <el-table-column prop="highLight"
                              label="消息"
                              :filters="highlightFilter"
-                             column-key="highlight"
+                             column-key="highLight"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
-                <i-icon v-if="scope.row.highlight === 1" name="gaojing"></i-icon>
+                <i-icon v-if="scope.row.highLight === 1" name="gaojing"></i-icon>
               </template>
             </el-table-column>
           </el-table>
@@ -342,9 +342,9 @@ export default {
     fetchTabData() {
       fetchBackupPlan().then(res => {
         const { data } = res.data;
-        this.database = data.filter(e => e.machineType === 1);
-        this.filehost = data.filter(e => e.machineType === 2);
-        this.vm = data.filter(e => e.machineType === 3);
+        this.database = data.filter(e => e.type === 1);
+        this.filehost = data.filter(e => e.type === 2);
+        this.vm = data.filter(e => e.type === 3);
         this.infoLoading = false;
       });
     },
@@ -355,9 +355,9 @@ export default {
     },
     filterFn(item, i) {
       if (Array.isArray(this.filter[i]) && this.filter[i].length > 0) {
-        if (this.filter[i] === 'type') {
-           return this.filter[i].includes(Number(item.machine[i]));
-        }
+        // if (this.filter[i] === 'type') {
+        //    return this.filter[i].includes(Number(item.machine[i]));
+        // }
         return this.filter[i].includes(Number(item[i]));
       } else {
         return item[i].includes(this.filter[i]);
@@ -373,19 +373,19 @@ export default {
     },
     // da
     dbType(row) {
-      return dbTypeMapping[row.machine.type];
+      return dbTypeMapping[row.objType];
     },
     vmTypeFmt(row) {
-      return vmTypeMapping[row.machine.type];
+      return vmTypeMapping[row.objType];
     },
     dbDetailRouter(row) {
-      return dbDetailRouterMapping[row.machine.type];
+      return dbDetailRouterMapping[row.objType];
     },
     backupStrategyFmt(row){
-      return backupStrategyMapping[row.config.backupStrategy];
+      return backupStrategyMapping[row.backupStrategy];
     },
     timeStrategyFmt(row){
-      return timeStrategyMapping[row.config.timeStrategy];
+      return timeStrategyMapping[row.timeStrategy];
     },
     stateFmt(row){
       return operationStateMapping[row.state];
