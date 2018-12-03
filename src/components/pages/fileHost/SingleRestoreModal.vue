@@ -41,7 +41,8 @@
             <div :class="$style.tree"
                  ref="outerTree"
                  id="outerTree">
-              <el-tree :data="treeData"
+                 <z-tree></z-tree>
+              <!-- <el-tree :data="treeData"
                       node-key="id"
                       highlight-current
                       :check-strictly="true"
@@ -61,8 +62,9 @@
                   <span :class="$style.treeFileSize" v-if="data.documentType==='1'">{{ data.length | filterToTb }}</span>
                   <span :class="$style.treeFileTime">{{ data.lastUpTime | filterToTime }}</span>
                 </div>
-              </el-tree>
+              </el-tree> -->
             </div>
+            
             <el-input v-model="formData.originDetailInfo"
                       ref="originPathInput"
                       slot="reference"></el-input>
@@ -120,6 +122,7 @@ import {
   fetchOriginPath,
 } from '@/api/fileHost';
 import IIcon from '@/components/IIcon';
+import zTree from '@/components/common/zTree';
 const baseFormData = {
   hostIp: '',
   // linux
@@ -147,7 +150,8 @@ export default {
     }
   },
   components: {
-    IIcon
+    IIcon,
+    zTree
   },
   data() {
     const originPathValidate = (rule, value, callback) => {

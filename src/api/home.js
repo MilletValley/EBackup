@@ -44,6 +44,24 @@ const cancelHighlight = (id, type) =>
     method: 'put',
     url: `/backup-plan/cancel-highlight?id=${id}&type=${type}`
   });
+
+const fetchRestorePlan = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/restore-plans'
+  });
+
+const fetchRestorePlanDetail = (id, type) =>
+  baseApi.request({
+    method: 'get',
+    url: `/home/restore-plan/details?id=${id}&type=${type}`
+  });
+
+const cancelRestoreHighlight = (id, type) =>
+  baseApi.request({
+    method: 'put',
+    url: `/restore-plan/cancel-highlight?id=${id}&type=${type}`
+  });
 export {
   fetchAll,
   fetchBackup,
@@ -52,5 +70,8 @@ export {
   fetchSpaceUse,
   fetchBackupPlan,
   fetchBackupPlanDetail,
-  cancelHighlight
+  cancelHighlight,
+  fetchRestorePlan,
+  fetchRestorePlanDetail,
+  cancelRestoreHighlight
 };

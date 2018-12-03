@@ -205,6 +205,12 @@ const vmTypeMapping = {
   1: 'VMware',
   2: '华为虚拟机'
 };
+
+const fileHostBackupTypeMapping = {
+  1: '文件（夹）备份',
+  2: '系统备份',
+  3: '盘符备份'
+};
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -237,5 +243,6 @@ export {
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
   vmTypeMapping,
-  yesOrNoMapping
+  yesOrNoMapping,
+  fileHostBackupTypeMapping
 };

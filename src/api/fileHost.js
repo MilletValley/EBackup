@@ -119,6 +119,18 @@ const fetchRestoreRecords = id =>
     url: `/file-hosts/${id}/restore-records`,
   });
 
+const deleteResultByPlanId = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/file-host-backup-plan/${id}/file-host-backup-results`,
+  });
+
+const deleteResultById = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/file-host-backup-results/${id}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -135,4 +147,6 @@ export {
   createSingleRestorePlan,
   fetchRestorePlans,
   fetchRestoreRecords,
+  deleteResultByPlanId,
+  deleteResultById
 };

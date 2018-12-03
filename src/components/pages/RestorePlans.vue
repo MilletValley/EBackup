@@ -58,16 +58,10 @@
                              :filters="dbTypeFilter"
                              column-key="type"
                              min-width="100"></el-table-column>
-            <el-table-column label="备份策略"
-                             align="center"
-                             :formatter="backupStrategyFmt"
-                             prop="config.backupStrategy"
-                             min-width="130">
-            </el-table-column>
             <el-table-column label="时间策略"
                              align="center"
                              :formatter="timeStrategyFmt"
-                             prop="config.timeStrategy"
+                             prop="timeStrategy"
                              min-width="100">
             </el-table-column>
             <el-table-column prop="state"
@@ -142,16 +136,10 @@
                              :filters="osNameFilter"
                              column-key="osName"
                              min-width="100"></el-table-column>
-            <el-table-column label="备份策略"
-                             align="center"
-                             :formatter="backupStrategyFmt"
-                             prop="config.backupStrategy"
-                             min-width="130">
-            </el-table-column>
             <el-table-column label="时间策略"
                              align="center"
                              :formatter="timeStrategyFmt"
-                             prop="config.timeStrategy"
+                             prop="timeStrategy"
                              min-width="100">
             </el-table-column>
             <el-table-column prop="state"
@@ -227,16 +215,10 @@
                              :filters="vmTypeFilter"
                              column-key="type"
                              min-width="100"></el-table-column>
-            <el-table-column label="备份策略"
-                             align="center"
-                             :formatter="backupStrategyFmt"
-                             prop="config.backupStrategy"
-                             min-width="130">
-            </el-table-column>
             <el-table-column label="时间策略"
                              align="center"
                              :formatter="timeStrategyFmt"
-                             prop="config.timeStrategy"
+                             prop="timeStrategy"
                              min-width="100">
             </el-table-column>
             <el-table-column prop="state"
@@ -284,13 +266,13 @@
 <script>
 import IIcon from '../IIcon.vue';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
-import { fetchBackupPlan } from '@/api/home';
+import { fetchRestorePlan } from '@/api/home';
 import zTree from '@/components/common/zTree';
 import {
   dbTypeMapping,
   dbDetailRouterMapping,
   backupStrategyMapping,
-  timeStrategyMapping,
+  restoreTimeStrategyMapping,
   operationStateMapping,
   vmTypeMapping
 } from '../../utils/constant';
@@ -340,7 +322,7 @@ export default {
   },
   methods: {
     fetchTabData() {
-      fetchBackupPlan().then(res => {
+      fetchRestorePlan().then(res => {
         const { data } = res.data;
         this.database = data.filter(e => e.machineType === 1);
         this.filehost = data.filter(e => e.machineType === 2);
@@ -381,11 +363,8 @@ export default {
     dbDetailRouter(row) {
       return dbDetailRouterMapping[row.machine.type];
     },
-    backupStrategyFmt(row){
-      return backupStrategyMapping[row.config.backupStrategy];
-    },
     timeStrategyFmt(row){
-      return timeStrategyMapping[row.config.timeStrategy];
+      return restoreTimeStrategyMapping[row.timeStrategy];
     },
     stateFmt(row){
       return operationStateMapping[row.state];

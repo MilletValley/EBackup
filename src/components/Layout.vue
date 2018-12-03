@@ -58,6 +58,7 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
+              <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item command="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
@@ -134,6 +135,8 @@ export default {
       } else if (command === 'backupPlan') {
         // this.BackupPlans
         this.$router.push({ name: 'backupPlans' });
+      } else if (command === 'restorePlan') {
+        this.$router.push({ name: 'restorePlans' });
       }
     },
     _logout() {
