@@ -11,7 +11,7 @@
       </span>
       <el-form :model="formData"
                :rules="hostRules"
-               label-width="110px"
+               label-width="130px"
                ref="itemUpdateForm"
                size="small">
         <el-form-item label="设备名"
@@ -124,11 +124,29 @@
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
-        <el-form-item label="登录密码"
+        <!-- <el-form-item label="登录密码"
                       prop="password">
           <input-toggle v-model="formData.password"
                         :hidden.sync="hiddenPassword"></input-toggle>
-        </el-form-item>
+        </el-form-item> -->
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="登录密码"
+                          prop="password">
+              <input-toggle v-model="formData.password"
+                            :hidden.sync="hiddenPassword"></input-toggle>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="确认密码"
+                          class="is-required"
+                          :rules="{validator: validateCheckPassword, trigger: ['blur']}"
+                          prop="rPassword">
+              <input-toggle v-model="formData.rPassword"
+                            :hidden.sync="hiddenPassword1"></input-toggle>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
@@ -154,12 +172,29 @@ export default {
       default: {},
     },
   },
+  data(){
+    const validateCheckPassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请再次输入密码'));
+      } else {
+        if (value !== this.formData.password) {
+          callback(new Error('两次输入的密码不一致'));
+        }
+        callback();
+      }
+    };
+    return {
+      validateCheckPassword,
+      hiddenPassword1: true
+    }
+  },
   methods: {
     // 点击确认按钮触发
     confirm() {
       this.$refs.itemUpdateForm.validate(valid => {
         if (valid) {
           let data = {...this.formData};
+          delete data.rPassword;
           this.$emit('confirm', data);
         } else {
           return false;
@@ -167,12 +202,13 @@ export default {
       });
     },
     modalOpened() {
-      this.originFormData = { ...this.itemInfo };
-      this.formData = { ...this.itemInfo };
+      this.originFormData = { ...this.itemInfo, password: '' };
+      this.formData = { ...this.itemInfo, password: '' };
     },
     modalClosed() {
       this.$refs.itemUpdateForm.clearValidate();
       this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     },
   },
   components: {

@@ -13,6 +13,9 @@
         </h1>
       </el-col>
     </el-row>
+    <div :class="$style.nfsNotUsed" v-if="!(links&&links.length>0)">
+      <span>暂无数据</span>
+    </div>
     <el-card v-for="link in links"
              :key="link.id"
              style="margin-bottom: 20px;">
@@ -215,6 +218,16 @@ $primary-color: #409eff;
 $vice-color: #6d6d6d;
 .plan {
   font-size: 14px;
+}
+.nfsNotUsed {
+  font-size: 4em;
+  color: #c0c4cc;
+  min-height: 144px;
+  margin: auto;
+  width: 280px;
+  span {
+    line-height: 3.3em;
+  }
 }
 .databaseType {
   width: 2em;

@@ -8,9 +8,21 @@ const baseModalMixin = {
     }
   },
   data() {
+    const validateCheckPassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请再次输入密码'));
+      } else {
+        if (value !== this.formData.password) {
+          callback(new Error('两次输入的密码不一致'));
+        }
+        callback();
+      }
+    };
     return {
       formData: {},
-      originFormData: {}
+      originFormData: {},
+      hiddenPassword1: true,
+      validateCheckPassword
     };
   },
   computed: {
@@ -68,9 +80,21 @@ const databaseModalMixin = {
     }
   },
   data() {
+    // const validateCheckPassword = (rule, value, callback) => {
+    //   if (!value) {
+    //     callback(new Error('请再次输入密码'));
+    //   } else {
+    //     if (value !== this.formData.password) {
+    //       callback(new Error('两次输入的密码不一致'));
+    //     }
+    //     callback();
+    //   }
+    // };
     return {
       // 原始表单值
       hiddenPassword: true,
+      // hiddenPassword1: true,
+      // validateCheckPassword
     };
   },
   computed: {
@@ -269,6 +293,7 @@ const restorePlanModalMixin = {
         weekPoints,
         datePoints,
         recoveringStrategy,
+        rPassword,
         ...other
       } = formData;
       let config;
@@ -297,6 +322,13 @@ const restorePlanModalMixin = {
         config.timePoints = this.filteredTimePoints(timePoints);
       }
       return { name, config };
+    },
+    modalClosed() {
+      // this.formData = { ...baseFormData };
+      this.$refs.timeIntervalComponent.clearValidate();
+      this.$refs.restorePlanCreateForm.clearValidate();
+      this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     },
   },
   components: {

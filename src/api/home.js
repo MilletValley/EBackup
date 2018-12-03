@@ -26,10 +26,31 @@ const fetchSpaceUse = () =>
     method: 'get',
     url: '/home/space'
   });
+
+const fetchBackupPlan = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/backup-plans'
+  });
+
+const fetchBackupPlanDetail = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/home/backup-result/${id}`
+  });
+
+const cancelHighlight = (id, type) =>
+  baseApi.request({
+    method: 'put',
+    url: `/backup-plan/cancel-highlight?id=${id}&type=${type}`
+  });
 export {
   fetchAll,
   fetchBackup,
   fetchRestore,
   fetchInitconn,
-  fetchSpaceUse
+  fetchSpaceUse,
+  fetchBackupPlan,
+  fetchBackupPlanDetail,
+  cancelHighlight
 };

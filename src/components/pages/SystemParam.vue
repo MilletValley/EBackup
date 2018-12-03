@@ -97,7 +97,7 @@
       <el-form :model="formData"
                ref="formData"
                :rules="rules"
-               label-width="110px"
+               label-width="130px"
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
@@ -139,11 +139,25 @@
                         prop="loginName">
             <el-input v-model="formData.loginName"></el-input>
           </el-form-item>
-          <el-form-item label="登录密码"
-                        prop="password">
-            <input-toggle v-model="formData.password"
-                          :hidden.sync="hiddenPassword"></input-toggle>
-          </el-form-item>
+          
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="登录密码"
+                            prop="password">
+                <input-toggle v-model="formData.password"
+                              :hidden.sync="hiddenPassword"></input-toggle>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="确认密码"
+                            class="is-required"
+                            :rules="{validator: validateCheckPassword, trigger: ['blur']}"
+                            prop="rPassword">
+                <input-toggle v-model="formData.rPassword"
+                              :hidden.sync="hiddenPassword1"></input-toggle>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </template>
       </el-form>
       <span slot="footer">
@@ -230,11 +244,23 @@ import isEqual from 'lodash/isEqual';
 export default {
   name: 'SystemParam',
   data() {
+    const validateCheckPassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请再次输入密码'));
+      } else {
+        if (value !== this.formData.password) {
+          callback(new Error('两次输入的密码不一致'));
+        }
+        callback();
+      }
+    };
     return {
       systemParameters: [],
       createModalVisible: false,
       updateModalVisible: false,
       listId: '',
+      validateCheckPassword,
+      hiddenPassword1: true,
       btnLoading: false,
       formData: {},
       originFormData: {},
@@ -251,6 +277,7 @@ export default {
             message: '不能包含空格',
             trigger: ['blur'],
           },
+          { required: true, message: '请输入系统登录名', trigger: 'blur' },
         ],
         password: [
           {
@@ -258,6 +285,7 @@ export default {
             message: '不能包含空格',
             trigger: ['blur'],
           },
+          { required: true, message: '请输入系统登录密码', trigger: 'blur' },
         ],
       },
     }
@@ -327,8 +355,8 @@ export default {
       this.updateModalVisible = true;
     },
     updateModalOpened(index, row) {
-      this.formData = Object.assign({},this.systemParameters.find(list => list.id === this.listId));
-      this.originFormData = Object.assign({},this.systemParameters.find(list => list.id === this.listId));
+      this.formData = Object.assign({},this.systemParameters.find(list => list.id === this.listId), {password: ''});
+      this.originFormData = Object.assign({},this.systemParameters.find(list => list.id === this.listId), {password: ''});
     },
     handleCreate() {
       this.createModalVisible = true;
@@ -380,6 +408,7 @@ export default {
           if(!(data.sysType === 1 && data.useType === 2)){
             delete data.windowsType
           }
+          delete data.rPassword;
           modifyOne(data)
           .then(response => {
             const { data, message } = response.data;
@@ -442,6 +471,7 @@ export default {
     modalClose() {
       this.$refs.formData.clearValidate();
       this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     },
   },
   components: {

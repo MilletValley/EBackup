@@ -52,6 +52,8 @@ import DeviceDetails from '@/components/pages/DeviceDetails';
 // import BackupPlanList from '@/components/pages/BackupPlanList';
 import BackupPlanList from '@/components/pages/vm/BackupPlanList';
 import ServerManager from '@/components/pages/ServerManager';
+import BackupPlans from '@/components/pages/BackupPlans';
+import BackupDetail from '@/components/pages/BackupDetail';
 
 Vue.use(Router);
 
@@ -71,6 +73,7 @@ export const basicRouters = [
         name: 'dashboard',
         meta: {
           title: '主页',
+          activeName: 'dashboard',
           icon: 'dashboard',
         },
       },
@@ -112,6 +115,7 @@ export const asyncRouters = [
         component: TakeOver,
         meta: {
           title: '总览',
+          activeName: 'overview',
           roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
@@ -130,6 +134,7 @@ export const asyncRouters = [
         name: 'sqlserverTakeOverView',
         component: TakeOver,
         meta: {
+          activeName: 'overview',
           roles: ['sql server dba'],
           breadcrumb: [
             {
@@ -149,6 +154,7 @@ export const asyncRouters = [
         component: SwitchList,
         meta: {
           title: '灾备演练',
+          activeName: 'drill',
           roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
@@ -167,6 +173,7 @@ export const asyncRouters = [
         name: 'oracleSwitchDetail',
         component: SwitchDetail,
         meta: {
+          activeName: 'drill',
           roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
             {
@@ -201,6 +208,7 @@ export const asyncRouters = [
         component: FileHostList,
         meta: {
           title: '服务器列表',
+          activeName: 'fileHost',
           roles: ['file admin'],
           breadcrumb: [
             {
@@ -220,6 +228,7 @@ export const asyncRouters = [
         props: true,
         name: 'filehostDetail',
         meta: {
+          activeName: 'fileHost',
           roles: ['file admin'],
           breadcrumb: [
             {
@@ -352,6 +361,7 @@ export const asyncRouters = [
         component: OracleList,
         meta: {
           title: 'Oracle',
+          activeName: 'oracle',
           roles: ['oracle dba'],
           breadcrumb: [
             {
@@ -371,6 +381,7 @@ export const asyncRouters = [
         component: SqlServerList,
         meta: {
           title: 'SQL Server',
+          activeName: 'sqlserver',
           roles: ['sql server dba'],
           breadcrumb: [
             {
@@ -390,6 +401,7 @@ export const asyncRouters = [
         component: MySqlList,
         meta: {
           title: 'MySql',
+          activeName: 'mysql',
           roles: ['mysql dba'],
           breadcrumb: [
             {
@@ -409,6 +421,7 @@ export const asyncRouters = [
         component: DB2List,
         meta: {
           title: 'DB2',
+          activeName: 'db2',
           roles: ['db2 dba'],
           breadcrumb: [
             {
@@ -428,6 +441,7 @@ export const asyncRouters = [
         component: DamengList,
         meta: {
           title: '达梦',
+          activeName: 'dameng',
           roles: ['dameng dba'],
           breadcrumb: [
             {
@@ -447,6 +461,7 @@ export const asyncRouters = [
         component: DamengDetails,
         name: 'damengDetail',
         meta: {
+          activeName: 'dameng',
           roles: ['dameng dba'],
           breadcrumb: [
             {
@@ -470,6 +485,7 @@ export const asyncRouters = [
         component: OracleDetail,
         name: 'oracleDetail',
         meta: {
+          activeName: 'oracle',
           roles: ['oracle dba'],
           breadcrumb: [
             {
@@ -493,6 +509,7 @@ export const asyncRouters = [
         component: SqlServerDetail,
         name: 'sqlserverDetail',
         meta: {
+          activeName: 'sqlserver',
           role: 'sql server dba',
           breadcrumb: [
             {
@@ -516,6 +533,7 @@ export const asyncRouters = [
         component: MySqlDetail,
         name: 'mysqlDetail',
         meta: {
+          activeName: 'mysql',
           roles: ['mysql dba'],
           breadcrumb: [
             {
@@ -539,6 +557,7 @@ export const asyncRouters = [
         component: DB2Detail,
         name: 'db2Detail',
         meta: {
+          activeName: 'db2',
           roles: ['db2 dba'],
           breadcrumb: [
             {
@@ -573,6 +592,7 @@ export const asyncRouters = [
         component: VMwareList,
         meta: {
           title: 'VMware',
+          activeName: 'vmware',
           roles: ['vm admin'],
           breadcrumb: [
             {
@@ -592,6 +612,7 @@ export const asyncRouters = [
         component: VMwareList,
         meta: {
           title: '华为虚拟机',
+          activeName: 'HWware',
           roles: ['vm admin'],
           breadcrumb: [
             {
@@ -620,6 +641,7 @@ export const asyncRouters = [
         component: VMwareDetail,
         name: 'virtualDetail',
         meta: {
+          activeName: 'vmware',
           roles: ['vm admin'],
           breadcrumb: [
             {
@@ -643,6 +665,7 @@ export const asyncRouters = [
         component: VMwareDetail,
         name: 'hwVirtualDetail',
         meta: {
+          activeName: 'HWware',
           roles: ['vm admin'],
           breadcrumb: [
             {
@@ -803,6 +826,57 @@ export const asyncRouters = [
   //     },
   //   ]
   // },
+  {
+    path: '/',
+    component: Layout,
+    // redirect: '/dashboard',
+    children: [
+      {
+        path: 'backupPlans',
+        name: 'backupPlans',
+        component: BackupPlans,
+        meta: {
+          // title: '设备管理',
+          activeName: 'dashboard',
+          roles: [],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '备份计划',
+              path: '',
+            }
+          ],
+        },
+      },
+      {
+        path: 'backupDetail/:id',
+        name: 'backupDetail',
+        component: BackupDetail,
+        meta: {
+          // title: '设备管理',
+          roles: [],
+          activeName: 'dashboard',
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '备份计划',
+              path: '/backupPlans',
+            },
+            {
+              name: '备份计划详情',
+              path: '',
+            },
+          ],
+        },
+      },
+    ],
+  },
   {
     path: '/error',
     component: Layout,

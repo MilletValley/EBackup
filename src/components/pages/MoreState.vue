@@ -15,7 +15,7 @@
         <el-tab-pane label="数据库备份"
                      v-if="showBackup"
                      name="databaseBackup">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="databaseBackup"
@@ -55,7 +55,7 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+                <el-tag size="mini">{{ dateFmt(scope.row.endTime) }}</el-tag>
               </template>                             
             </el-table-column>
             <el-table-column label="耗时"
@@ -97,7 +97,7 @@
         <el-tab-pane label="数据库恢复"
                      v-if="showRestore"
                      name="databaseRestore">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="databaseRestore"
@@ -138,7 +138,7 @@
                              align="center"
                              min-width="180">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.endTime }}</el-tag>
+                <el-tag size="mini">{{ dateFmt(scope.row.endTime) }}</el-tag>
               </template>            
             </el-table-column>
             <el-table-column label="耗时"
@@ -170,7 +170,7 @@
         <el-tab-pane label="一键接管"
                      name="initconnNum"
                      v-if="showTakeOver">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="initconnNum"
@@ -253,7 +253,7 @@
         <el-tab-pane label="文件备份"
                      name="filehostBackup"
                      v-if="showBackup">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="filehostBackup"
@@ -266,7 +266,7 @@
                   {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
-            <el-table-column label="名称"
+            <el-table-column label="主机IP"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
@@ -329,7 +329,7 @@
         <el-tab-pane label="文件恢复"
                      name="filehostRestore"
                      v-if="showRestore">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     ref="filehostRestore"
                     @filter-change="filterChange"
@@ -342,7 +342,7 @@
                   {{scope.$index+1+(currentPage-1)*pageSize}}
               </template>
             </el-table-column>
-            <el-table-column label="名称"
+            <el-table-column label="恢复主机IP"
                              show-overflow-tooltip
                              align="center"
                              min-width="180">
@@ -353,11 +353,11 @@
                 </router-link>
               </template>
             </el-table-column>
-            <el-table-column prop="name"
-                             label="数据库名"
+            <!-- <el-table-column prop="name"
+                             label="主机名"
                              show-overflow-tooltip
                              align="center"
-                             min-width="180"></el-table-column>
+                             min-width="180"></el-table-column> -->
             <el-table-column label="恢复结束时间"
                              align="center"
                              min-width="180">
@@ -394,7 +394,7 @@
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup"
                      v-if="showBackup">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     @filter-change="filterChange"
                     ref="vmBackup"
@@ -477,7 +477,7 @@
         <el-tab-pane label="虚拟机恢复"
                      name="vmRestore"
                      v-if="showRestore">
-          <el-table :data="processedTableData"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     @filter-change="filterChange"
                     ref="vmRestore"
