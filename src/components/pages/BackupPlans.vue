@@ -33,7 +33,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', params: { id: String(scope.row.id),}}"
+                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
                              :class="$style.link">
                   {{ scope.row.machine.name }}
                 </router-link>
@@ -118,7 +118,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', params: { id: String(scope.row.id),}}"
+                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
                              :class="$style.link">
                   {{ scope.row.machine.name }}
                 </router-link>
@@ -202,7 +202,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', params: { id: String(scope.row.id),}}"
+                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
                              :class="$style.link">
                   {{ scope.row.machine.name }}
                 </router-link>

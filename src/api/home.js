@@ -33,10 +33,10 @@ const fetchBackupPlan = () =>
     url: '/home/backup-plans'
   });
 
-const fetchBackupPlanDetail = id =>
+const fetchBackupPlanDetail = (id, type) =>
   baseApi.request({
     method: 'get',
-    url: `/home/backup-result/${id}`
+    url: `/home/backup-plan/details?id=${id}&type=${type}`
   });
 
 const cancelHighlight = (id, type) =>

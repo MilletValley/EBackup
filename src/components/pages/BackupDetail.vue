@@ -369,12 +369,12 @@ export default {
     }
   },
   mounted(){
-    this.fetchData(this.$route.params.id);
+    this.fetchData(this.$route.query.id, this.$route.query.type);
   },
   methods: {
-    fetchData(id) {
+    fetchData(id, type) {
       this.infoLoading = true;
-      fetchBackupPlanDetail(id).then(res => {
+      fetchBackupPlanDetail(id, type).then(res => {
         const {data} = res.data;
         this.details = data;
       }).catch(error => {

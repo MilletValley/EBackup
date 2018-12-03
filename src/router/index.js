@@ -852,7 +852,7 @@ export const asyncRouters = [
         },
       },
       {
-        path: 'backupDetail/:id',
+        path: 'backupDetail',
         name: 'backupDetail',
         component: BackupDetail,
         meta: {
