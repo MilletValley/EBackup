@@ -758,7 +758,7 @@ export default {
               color: '#333',
               fontSize: 14,
             },
-            subtext: this.spaceData.explain[0],
+            subtext: this.spaceData.explain[1],
             subtextStyle: {
               color: 'green',
               fontSize: 12,
