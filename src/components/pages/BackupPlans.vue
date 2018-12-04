@@ -16,6 +16,7 @@
                      name="database">
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
+                    :row-class-name="tableRowClassName"
                     v-loading="infoLoading"
                     ref="database"
                     style="width: 100%">
@@ -103,6 +104,7 @@
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="filehost"
+                    :row-class-name="tableRowClassName"
                     style="width: 100%">
             <el-table-column min-width="50"
                              align="center"
@@ -188,6 +190,7 @@
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="vm"
+                    :row-class-name="tableRowClassName"
                     style="width: 100%">
             <el-table-column min-width="50"
                              align="center"
@@ -277,7 +280,7 @@
                      background
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total">
-    </el-pagination>
+      </el-pagination>
     </template>
     <!-- <z-tree></z-tree> -->
   </section>
@@ -349,6 +352,12 @@ export default {
         this.infoLoading = false;
       });
     },
+    tableRowClassName({row}){
+      if(row.highLight === 1) {
+        console.log(row)
+        return 'highLight'
+      }
+    },
     filterChange(filters) {
       const tkey = Object.keys(filters)[0];
       this.tableFilter = { ...this.tableFilter, [tkey]: filters[tkey] };
@@ -415,7 +424,7 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-<style scoped>
+<style >
 .title {
   font-weight: 400;
   color: #606266;
@@ -426,3 +435,9 @@ export default {
   margin-bottom: 10px;
 }
 </style>
+<style>
+.el-table .highLight {
+  background: oldlace;
+}
+</style>
+

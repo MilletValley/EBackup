@@ -10,6 +10,7 @@
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :row-class-name="tableRowClassName"
                     ref="database"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -90,6 +91,7 @@
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="filehost"
+                    :row-class-name="tableRowClassName"
                     style="width: 100%">
             <el-table-column min-width="50"
                              align="center"
@@ -169,6 +171,7 @@
                     @filter-change="filterChange"
                     v-loading="infoLoading"
                     ref="vm"
+                    :row-class-name="tableRowClassName"
                     style="width: 100%">
             <el-table-column min-width="50"
                              align="center"
@@ -324,6 +327,12 @@ export default {
         this.infoLoading = false;
       });
     },
+    tableRowClassName({row}){
+      if(row.highLight === 1) {
+        console.log(row)
+        return 'highLight'
+      }
+    },
     filterChange(filters) {
       const tkey = Object.keys(filters)[0];
       this.tableFilter = { ...this.tableFilter, [tkey]: filters[tkey] };
@@ -396,5 +405,10 @@ export default {
 }
 .el-row {
   margin-bottom: 10px;
+}
+</style>
+<style>
+.el-table .highLight {
+  background: oldlace;
 }
 </style>

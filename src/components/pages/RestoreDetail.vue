@@ -26,15 +26,81 @@
                     <el-form-item label="计划创建时间：">
                       <div>{{ details.startTime }}</div>
                     </el-form-item>
-                    <el-form-item label="备份策略：">
-                      <div>{{ backupStrategy }}</div>
-                    </el-form-item>
                     <el-form-item label="时间策略：">
                       <div>{{ timeStrategy | timeStrategyMapping }}</div>
                     </el-form-item>
+                    <el-form-item label="时间："
+                                  v-if="config.timeStrategy === 1"
+                                  style="width: 100%">
+                      <div>
+                        <el-tag :class="$style.infoTag"
+                                size="small">{{ config.singleTime }}</el-tag>
+                      </div>
+                    </el-form-item>
+                    <el-form-item label="星期："
+                                  v-if="config.timeStrategy === 2"
+                                  style="width: 100%">
+                      <div>
+                        <el-tag :class="$style.infoTag"
+                                v-for="point in config.weekPoints"
+                                :key="point"
+                                size="small">{{ weekPointMaping(point) }}</el-tag>
+                      </div>
+                    </el-form-item>
+                    <el-form-item label="日期："
+                                  v-if="config.timeStrategy === 3"
+                                  style="width: 100%">
+                      <div>
+                        <el-tag :class="$style.infoTag"
+                                v-for="point in config.datePoints"
+                                :key="point"
+                                size="small">{{point}}</el-tag>
+                      </div>
+                    </el-form-item>
+                    <el-form-item label="时间："
+                                  v-if="[2, 3].includes(config.timeStrategy)"
+                                  style="width: 100%">
+                      <div>
+                        <el-tag :class="$style.infoTag"
+                                v-for="point in config.timePoints"
+                                :key="point.key"
+                                size="small">{{point.value}}</el-tag>
+                      </div>
+                    </el-form-item>
+                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
+                      <el-form-item label="恢复设备IP：">
+                        <span>{{ config.hostIp }}</span>
+                      </el-form-item>
+                      <el-form-item label="数据库名：">
+                        <span>{{ config.dbName }}</span>
+                      </el-form-item>
+                      <el-form-item label="端口：">
+                        <span>{{ config.dbPort }}</span>
+                      </el-form-item>
+                    </div>
+                    <div>
+
+                    </div>
+                    <div v-if="['windows', 'linux'].includes(target)">
+                      <el-form-item label="存储目标路径：">
+                        <span>{{ details.detailInfo }}</span>
+                      </el-form-item>
+                      <el-form-item label="NFS源路径："
+                                    v-if="target === 'linux'">
+                        <span>{{ details.nfsSourcePath }}</span>
+                      </el-form-item>
+                      <el-form-item v-if="target === 'linux'"
+                                    label="恢复方向：">
+                        <span>{{ config.originDetailInfo}}</span>
+                      </el-form-item>
+                    </div>
                   </el-col>
                   <el-col :span="12">
-                    <el-form-item :label="machineType ? `${machineType}名：` : ''">
+                    <fieldset :class="$style.hostLinkInOs">
+                    <legend style="font-size: 12px">
+                      {{machineType ? `${machineType}详情` : ''}}
+                    </legend>
+                    <el-form-item :label="['windows', 'linux'].includes(target) ? '主机名：':'名称：'">
                       <span>
                         <router-link :to="linkObject"
                                     :class="$style.link">
@@ -42,62 +108,24 @@
                         </router-link>
                       </span>
                     </el-form-item>
-                    <el-form-item :label="machineType ? `${machineType}类型：` : ''">
+                    <el-form-item label="类型：">
                       <el-tag size="small">{{target|commonTypeFilter}}</el-tag>
                     </el-form-item>
+                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
+                      <el-form-item  :label="['sqlserver', 'mysql', 'dm'].includes(target) ? '数据库名：':'实例名：'" >
+                        <span>{{target === 'dm' ? machine.dbName : machine.instanceName}}</span>
+                      </el-form-item>
+                      <el-form-item label="端口号：">
+                        <el-tag size="small">{{machine.dbPort}}</el-tag>
+                      </el-form-item>
+                      <el-form-item label="所属设备IP：">
+                        <span>{{machine.host ? machine.host.hostIp : ''}}</span>
+                      </el-form-item>
+                    </div>
+                    
+                    </fieldset>
                   </el-col>
                 </el-row>
-                <el-form-item label="时间：" v-if="timeStrategy === 0">
-                  <div>{{ backupConfig.singleTime }}</div>
-                </el-form-item>
-                <el-form-item label="星期："  v-if="timeStrategy === 4">
-                  <div>
-                    <el-tag v-for="point in weekPoints"
-                            :key="point"
-                            size="small">{{point}}</el-tag>
-                  </div>
-                </el-form-item>
-                <el-form-item label="日期：" v-if="timeStrategy === 5">
-                  <div>
-                    <el-tag :class="$style.infoTag"
-                            v-for="point in backupConfig.datePoints"
-                            :key="point"
-                            size="small">{{point}}</el-tag>
-                  </div>
-                </el-form-item>
-                <el-form-item label="时间："
-                              v-if="[3,4,5].indexOf(timeStrategy) >= 0">
-                  <div>
-                    <el-tag :class="$style.infoTag"
-                            v-for="point in backupConfig.timePoints"
-                            :key="point"
-                            size="small">{{point}}</el-tag>
-                  </div>
-                </el-form-item>
-                <el-form-item label="间隔："
-                              v-if="timeStrategy === 1|| timeStrategy === 2">
-                  <div>
-                    <el-tag :class="$style.infoTag"
-                            size="small">{{backupConfig.timeInterval}}分钟</el-tag>
-                  </div>
-                </el-form-item>
-                <el-form-item label="源文件路径："
-                              v-if="['windows', 'linux'].includes(target)">
-                  <span>{{ details.backupPath }}</span>
-                </el-form-item>
-                <el-form-item label="存储目标路径："
-                              v-if="target === 'linux'">
-                  <span>{{ details.pointTargetPath }}</span>
-                </el-form-item>
-                <el-form-item label="NFS目标路径："
-                              v-if="target === 'linux'">
-                  <span>{{ details.nfsTargetPath }}</span>
-                </el-form-item>
-                <el-form-item v-if="target === 'windows'"
-                              label="是否备份系统：">
-                  <span>{{ details.backupSystem === 'sys' ? '是' : '否' }}</span>
-                </el-form-item>
-                
               </el-row>
             </el-form>
           </el-col>
@@ -106,104 +134,18 @@
       </div>
     </header>
     <el-tabs class="tabsClass">
-        <el-tab-pane label="备份记录">
-          <el-table :data="backupResult"
+        <el-tab-pane label="恢复记录">
+          <el-table :data="restoreResult"
                     style="width: 100%; margin-top: 15px"
                     @expand-change="expandChange"
                     :default-sort="{ prop: 'endTime', order: 'descending' }">
             <el-table-column type="expand">
               <template slot-scope="scope">
-                <el-form inline
+                <!-- <el-form inline
                         label-width="100px"
                         size="small"
                         class="result-detail-form">
-                  <el-form-item :class="$style.detailFormItem"
-                                label="备份类型">
-                    <span>{{scope.row.backupType |backupTypeFilter}}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="存储目标路径">
-                    <span>{{ scope.row.path }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="开始时间">
-                    <span>{{ scope.row.startTime }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                v-if="['windows', 'linux'].includes(target)"
-                                label="源文件路径">
-                    <span>{{ scope.row.fileResource }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)"
-                                label="文件名">
-                    <span>{{ scope.row.fileName }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="结束时间">
-                    <span>{{ scope.row.endTime }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="NFS目标路径"
-                                v-if="target==='linux'">
-                    <span>{{ scope.row.nfsTargetPath }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="文件标识符"
-                                v-if="target==='windows'">
-                    <span>{{ scope.row.identifier }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="大小">
-                    <span>{{ scope.row.size }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="状态">
-                    <span>
-                      <el-tag size="mini"
-                              :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
-                    </span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                label="持续时间">
-                    <span>{{ scope.row.consume | durationFilter }}</span>
-                  </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
-                                v-if="target === 'dm'"
-                                label="备份日志">
-                    <span>{{scope.row.logType |logTypeFilter}}</span>
-                  </el-form-item>
-                  <el-form-item label="错误信息"
-                                v-if="scope.row.state === 1">
-                    <span>{{ scope.row.errorMsg }}</span>
-                  </el-form-item>
-                </el-form>
-              </template>
-            </el-table-column>
-            <el-table-column label="文件标识符"
-                            prop="identifier"
-                            v-if="target==='windows'"
-                            min-width="180px"
-                            align="center"></el-table-column>
-            <el-table-column label="源文件路径"
-                            v-if="['windows', 'linux'].includes(target)"
-                            prop="fileResource"
-                            min-width="180px"
-                            align="center"
-                            header-align="center"></el-table-column>
-            <el-table-column  label="备份文件名"
-                              v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)"
-                              prop="fileName"
-                              min-width="180px"
-                              align="left"
-                              header-align="center"></el-table-column>
-            <el-table-column  label="备份类型"
-                            prop="backupType"
-                            min-width="100px"
-                            align="center"
-                            header-align="center">
-              <template slot-scope="scope">
-                <span>{{scope.row.backupType |backupTypeFilter}}</span>
+                </el-form> -->
               </template>
             </el-table-column>
             <el-table-column label="开始时间"
@@ -215,23 +157,87 @@
                             min-width="150px"
                             :sortable="true"
                             align="center"></el-table-column>
-            <el-table-column label="大小"
-                            prop="size"
-                            min-width="100px"
-                            align="center"></el-table-column>
-            <el-table-column label="状态"
-                            prop="state"
-                            min-width="70px"
-                            align="center">
-              <template slot-scope="scope">
-                <i v-if="scope.row.state === 0"
-                  class="el-icon-success"
-                  :class="$style.successColor"></i>
-                <i v-else
-                  class="el-icon-error"
-                  :class="$style.errorColor"></i>
-              </template>
+            <el-table-column prop="hostIp"
+                            label="恢复设备IP"
+                            v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)"
+                            align="center"
+                            min-width="150px">
             </el-table-column>
+            <el-table-column prop="dbName"
+                            label="数据库名"
+                            v-if="['dm'].includes(target)"
+                            align="center"
+                            min-width="150px">
+            </el-table-column>
+            <el-table-column prop="detailInfo"
+                            :label="target === 'oracle' ? '实例名':'数据库名'"
+                            v-if="['oracle', 'sqlserver', 'mysql', 'db2'].includes(target)"
+                            align="center"
+                            min-width="150px">
+            </el-table-column>
+            <el-table-column prop="dbPort"
+                            label="端口"
+                            v-if="['dm'].includes(target)"
+                            align="center"
+                            min-width="50px"></el-table-column>
+            <el-table-column prop="hostIp"
+                            label="恢复主机IP"
+                            v-if="['windows', 'linux', 'vmware', 'hw'].includes(target)"
+                            align="center"
+                            min-width="150px">
+            </el-table-column>
+            <el-table-column prop="newName"
+                            label="新虚拟机名"
+                            v-if="['vmware', 'hw'].includes(target)"
+                            align="center"
+                            min-width="200px">
+            </el-table-column>
+            <el-table-column prop="diskName"
+                            label="恢复磁盘名"
+                            v-if="target === 'vmware'"
+                            align="center"
+                            min-width="200px">
+            </el-table-column>
+            <el-table-column prop="detailInfo"
+                              label="恢复目标路径"
+                              v-if="['windows', 'linux'].includes(target)"
+                              align="center"
+                              min-width="150px"></el-table-column>
+              <el-table-column v-if="target==='linux'"
+                              prop="pointSourcePath"
+                              label="恢复源路径"
+                              align="center"
+                              min-width="150px"></el-table-column>
+              <el-table-column v-if="target==='linux'"
+                              prop="nfsSourcePath"
+                              label="恢复源NFS路径"
+                              align="center"
+                              min-width="150px"></el-table-column>
+              <el-table-column prop="backupResult.size"
+                              :formatter="sizeFmt"
+                              v-if="['windows', 'linux'].includes(target)"
+                              label="大小"
+                              align="center"
+                              min-width="70px">
+              </el-table-column>
+              <el-table-column prop="state"
+                              label="状态"
+                              align="center"
+                              min-width="70px">
+                <template slot-scope="scope">
+                  <el-tooltip :disabled="scope.row.state === 0"
+                              :content="scope.row.errorMsg"
+                              placement="right"
+                              effect="light">
+                    <i v-if="scope.row.state === 0"
+                      class="el-icon-success"
+                      :class="$style.successColor"></i>
+                    <i v-else
+                      class="el-icon-error"
+                      :class="$style.errorColor"></i>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
           </el-table>
 
         </el-tab-pane>
@@ -244,12 +250,10 @@ import IIcon from '@/components/IIcon.vue';
 import { fetchRestorePlanDetail, cancelRestoreHighlight } from '@/api/home';
 import baseMixin from '@/components/mixins/baseMixins';
 import {
-  backupStrategyMapping,
-  timeStrategyMapping,
+  restoreTimeStrategyMapping,
   weekMapping,
   operationStateMapping,
-  backupTypeMapping,
-  backupResultMapping,
+  restoreResultMapping,
   yesOrNoMapping
 } from '@/utils/constant';
 
@@ -305,18 +309,14 @@ export default {
     };
   },
   computed: {
-    backupResult() {
-      return this.details.backupResult ? this.details.backupResult : [];
+    restoreResult() {
+      return this.details.restoreResult ? this.details.restoreResult : [];
     },
-    backupConfig() {
+    config() {
       return this.details.config ? this.details.config : {};
     },
     machine() {
       return this.details.machine ? this.details.machine : {};
-    },
-    backupStrategy() {
-      const type = this.details.config ? this.details.config.backupStrategy : 0;
-      return backupStrategyMapping[type];
     },
     timeStrategy() {
       const type = this.details.config ? this.details.config.timeStrategy : 0;
@@ -324,7 +324,7 @@ export default {
       return type;
     },
     weekPoints() {
-      return this.backupConfig.weekPoints.map(p => weekMapping[p]);
+      return this.config.weekPoints.map(p => weekMapping[p]);
     },
     machineType() {
       const type = this.details.machineType;
@@ -356,13 +356,7 @@ export default {
   },
   filters: {
     timeStrategyMapping(val) {
-      return timeStrategyMapping[val];
-    },
-    backupTypeFilter(val) {
-      return backupTypeMapping[val];
-    },
-    logTypeFilter(val) {
-      return yesOrNoMapping[val];
+      return restoreTimeStrategyMapping[val];
     },
     commonTypeFilter(val) {
       return commonTypeMapping[val];
@@ -385,7 +379,7 @@ export default {
     },
     // 备份集状态码转文字
     stateConverter(stateCode) {
-      return backupResultMapping[stateCode];
+      return restoreResultMapping[stateCode];
     },
     expandChange(row, expandedRows){
       console.log(row, expandedRows, expandedRows.includes(row))
@@ -402,6 +396,7 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 @import '@/style/color.scss';
+$primary-color: #409eff;
 /* 标签之间的间隔在for循环下消失了 */
 .infoTag {
   margin: 0 2px;
@@ -414,6 +409,13 @@ export default {
   width: 30%;
   &:nth-child(2n) {
     width: 69%;
+  }
+}
+.hostLinkInOs {
+  border: 1px dotted $primary-color;
+  border-radius: 5px;
+  & legend {
+    color: $primary-color
   }
 }
 </style>
