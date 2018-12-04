@@ -5,7 +5,7 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <i-icon name="beifen"
+            <i-icon name="huifushuju"
                     class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">

@@ -1,12 +1,5 @@
 <template>
   <section>
-    <!-- <el-row>
-      <span class="title">备份计划</span>
-      <el-button type="primary"
-                 size="small"
-                 style="float:right"
-                 @click="$router.push({name: 'dashboard'})">返回</el-button>
-    </el-row> -->
     <template>
       <el-tabs type="border-card"
                v-model="activeName"
@@ -33,30 +26,30 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
+                <router-link :to="{ name: 'restoreDetail', query: { id: scope.row.id, type: scope.row.type}}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
             </el-table-column>
-            <el-table-column prop="machine.name"
+            <el-table-column prop="objName"
                              label="数据库名称"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id)}}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
-                  {{ scope.row.machine.name }}
+                  {{ scope.row.objName }}
                 </router-link>
               </template>
             </el-table-column>
             <el-table-column label="数据库类型"
                              align="center"
-                             prop="machine.type"
+                             prop="objType"
                              :formatter="dbType"
                              :filters="dbTypeFilter"
-                             column-key="type"
+                             column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="时间策略"
                              align="center"
@@ -79,14 +72,14 @@
                   style="color: #ca2727"></i>
               </template> -->
             </el-table-column>
-            <el-table-column prop="highlight"
+            <el-table-column prop="highLight"
                              label="消息"
                              :filters="highlightFilter"
-                             column-key="highlight"
+                             column-key="highLight"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
-                <i-icon v-if="scope.row.highlight === 1" name="gaojing"></i-icon>
+                <i-icon v-if="scope.row.highLight === 1" name="gaojing"></i-icon>
               </template>
             </el-table-column>
           </el-table>
@@ -112,29 +105,30 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
+                <router-link :to="{ name: 'restoreDetail', query: { id: scope.row.id, type: scope.row.type}}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
             </el-table-column>
-            <el-table-column prop="machine.name"
+            <el-table-column prop="objName"
                              label="主机名"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id)}}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
-                  {{ scope.row.machine.name }}
+                  {{ scope.row.objName }}
                 </router-link>
               </template>
             </el-table-column>
             <el-table-column label="系统类型"
                              align="center"
-                             prop="machine.osName"
+                             prop="objType"
                              :filters="osNameFilter"
-                             column-key="osName"
+                             :formatter="osNameFmt"
+                             column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="时间策略"
                              align="center"
@@ -157,14 +151,14 @@
                   style="color: #ca2727"></i>
               </template> -->
             </el-table-column>
-            <el-table-column prop="highlight"
+            <el-table-column prop="highLight"
                              label="消息"
                              :filters="highlightFilter"
-                             column-key="highlight"
+                             column-key="highLight"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
-                <i-icon v-if="scope.row.highlight === 1" name="gaojing"></i-icon>
+                <i-icon v-if="scope.row.highLight === 1" name="gaojing"></i-icon>
               </template>
             </el-table-column>
           </el-table>
@@ -190,30 +184,30 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: 'backupDetail', query: { id: scope.row.id, type: scope.row.machineType}}"
+                <router-link :to="{ name: 'restoreDetail', query: { id: scope.row.id, type: scope.row.type}}"
                              :class="$style.link">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
             </el-table-column>
-            <el-table-column prop="machine.name"
+            <el-table-column prop="objName"
                              label="虚拟机名"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id)}}"
+                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
-                  {{ scope.row.machine.name }}
+                  {{ scope.row.objName }}
                 </router-link>
               </template>
             </el-table-column>
             <el-table-column label="虚拟机类型"
                              align="center"
-                             prop="machine.type"
+                             prop="objType"
                              :formatter="vmTypeFmt"
                              :filters="vmTypeFilter"
-                             column-key="type"
+                             column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="时间策略"
                              align="center"
@@ -236,14 +230,14 @@
                   style="color: #ca2727"></i>
               </template> -->
             </el-table-column>
-            <el-table-column prop="highlight"
+            <el-table-column prop="highLight"
                              label="消息"
                              :filters="highlightFilter"
-                             column-key="highlight"
+                             column-key="highLight"
                              align="center"
                              min-width="60">
               <template slot-scope="scope">
-                <i-icon v-if="scope.row.highlight === 1" name="gaojing"></i-icon>
+                <i-icon v-if="scope.row.highLight === 1" name="gaojing"></i-icon>
               </template>
             </el-table-column>
           </el-table>
@@ -324,9 +318,9 @@ export default {
     fetchTabData() {
       fetchRestorePlan().then(res => {
         const { data } = res.data;
-        this.database = data.filter(e => e.machineType === 1);
-        this.filehost = data.filter(e => e.machineType === 2);
-        this.vm = data.filter(e => e.machineType === 3);
+        this.database = data.filter(e => e.type === 1);
+        this.filehost = data.filter(e => e.type === 2);
+        this.vm = data.filter(e => e.type === 3);
         this.infoLoading = false;
       });
     },
@@ -337,9 +331,9 @@ export default {
     },
     filterFn(item, i) {
       if (Array.isArray(this.filter[i]) && this.filter[i].length > 0) {
-        if (this.filter[i] === 'type') {
-           return this.filter[i].includes(Number(item.machine[i]));
-        }
+        // if (this.filter[i] === 'type') {
+        //    return this.filter[i].includes(Number(item.machine[i]));
+        // }
         return this.filter[i].includes(Number(item[i]));
       } else {
         return item[i].includes(this.filter[i]);
@@ -355,13 +349,21 @@ export default {
     },
     // da
     dbType(row) {
-      return dbTypeMapping[row.machine.type];
+      return dbTypeMapping[row.objType];
+    },
+    osNameFmt(row) {
+      if (row.objType === 1) {
+        return 'Windows';
+      } else if (row.objType === 2) {
+        return 'Linux';
+      }
+      return row.objType;
     },
     vmTypeFmt(row) {
-      return vmTypeMapping[row.machine.type];
+      return vmTypeMapping[row.objType];
     },
     dbDetailRouter(row) {
-      return dbDetailRouterMapping[row.machine.type];
+      return dbDetailRouterMapping[row.objType];
     },
     timeStrategyFmt(row){
       return restoreTimeStrategyMapping[row.timeStrategy];
@@ -383,7 +385,7 @@ export default {
 };
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
+@import '@/style/common.scss';
 </style>
 <style scoped>
 .title {

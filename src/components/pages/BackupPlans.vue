@@ -140,6 +140,7 @@
                              align="center"
                              prop="objType"
                              :filters="osNameFilter"
+                             :formatter="osNameFmt"
                              column-key="objType"
                              min-width="100"></el-table-column>
             <el-table-column label="备份策略"
@@ -374,6 +375,14 @@ export default {
     // da
     dbType(row) {
       return dbTypeMapping[row.objType];
+    },
+    osNameFmt(row) {
+      if (row.objType === 1) {
+        return 'Windows';
+      } else if (row.objType === 2) {
+        return 'Linux';
+      }
+      return row.objType;
     },
     vmTypeFmt(row) {
       return vmTypeMapping[row.objType];
