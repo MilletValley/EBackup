@@ -44,7 +44,7 @@
                         <el-tag :class="$style.infoTag"
                                 v-for="point in config.weekPoints"
                                 :key="point"
-                                size="small">{{ weekPointMaping(point) }}</el-tag>
+                                size="small">{{ point }}</el-tag>
                       </div>
                     </el-form-item>
                     <el-form-item label="日期："
@@ -389,6 +389,9 @@ export default {
         this.infoLoading = false;
       });
     },
+    // weekPointMaping(num) {
+    //   return weekMapping[num];
+    // },
     // 备份集状态码转文字
     stateConverter(stateCode) {
       return restoreResultMapping[stateCode];
