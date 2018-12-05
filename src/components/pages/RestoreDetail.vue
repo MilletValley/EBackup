@@ -63,8 +63,8 @@
                       <div>
                         <el-tag :class="$style.infoTag"
                                 v-for="point in config.timePoints"
-                                :key="point.key"
-                                size="small">{{point.value}}</el-tag>
+                                :key="point"
+                                size="small">{{point}}</el-tag>
                       </div>
                     </el-form-item>
                     <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
