@@ -88,11 +88,11 @@
                     <legend style="font-size: 12px">
                       {{machineType ? `${machineType}详情` : ''}}
                     </legend>
-                    <el-form-item :label="['windows', 'linux'].includes(target) ? '主机名：':'名称：'">
+                    <el-form-item :label="['windows', 'linux'].includes(target) ? '主机IP：':'名称：'">
                       <span>
                         <router-link :to="linkObject"
                                     :class="$style.link">
-                          {{machine.name }}
+                          {{['windows', 'linux'].includes(target) ? machine.hostIp : machine.name }}
                         </router-link>
                       </span>
                     </el-form-item>
@@ -106,11 +106,23 @@
                       <el-form-item label="端口号：">
                         <el-tag size="small">{{machine.dbPort}}</el-tag>
                       </el-form-item>
+                    </div>
+                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)">
                       <el-form-item label="所属设备IP：">
                         <span>{{machine.host ? machine.host.hostIp : ''}}</span>
                       </el-form-item>
+                      <el-form-item label="设备系统类型：">
+                        <span>{{machine.host ? machine.host.hostSystem : ''}}</span>
+                      </el-form-item>
                     </div>
-                    
+                    <div v-if="['vmware', 'hw'].includes(target)">
+                      <el-form-item label="虚拟机主机IP：">
+                        <span>{{machine.vmHost ? machine.vmHost.serverIp : ''}}</span>
+                      </el-form-item>
+                      <el-form-item label="虚拟机主机类型：">
+                        <span>{{machine.vmHost ? serverTypeFilter(machine.vmHost.serverType): ''}}</span>
+                      </el-form-item>
+                    </div>
                     </fieldset>
                   </el-col>
                 </el-row>
@@ -150,7 +162,7 @@
                   <el-form-item :class="$style.detailFormItem"
                                 v-if="['windows', 'linux'].includes(target)"
                                 label="源文件路径">
-                    <span>{{ scope.row.fileResource }}</span>
+                    <span>{{ scope.row.sourcePath }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)"
@@ -169,7 +181,7 @@
                   <el-form-item :class="$style.detailFormItem"
                                 label="文件标识符"
                                 v-if="target==='windows'">
-                    <span>{{ scope.row.identifier }}</span>
+                    <span>{{ scope.row.versionInfo }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 label="大小">
@@ -184,7 +196,8 @@
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 label="持续时间">
-                    <span>{{ scope.row.consume | durationFilter }}</span>
+                    <!-- <span>{{ scope.row.consume | durationFilter }}</span> -->
+                    <span>{{ scope.row.consume }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 v-if="target === 'dm'"
@@ -199,13 +212,13 @@
               </template>
             </el-table-column>
             <el-table-column label="文件标识符"
-                            prop="identifier"
+                            prop="versionInfo"
                             v-if="target==='windows'"
                             min-width="180px"
                             align="center"></el-table-column>
             <el-table-column label="源文件路径"
                             v-if="['windows', 'linux'].includes(target)"
-                            prop="fileResource"
+                            prop="sourcePath"
                             min-width="180px"
                             align="center"
                             header-align="center"></el-table-column>
@@ -268,7 +281,8 @@ import {
   operationStateMapping,
   backupTypeMapping,
   backupResultMapping,
-  yesOrNoMapping
+  yesOrNoMapping,
+  vmHostServerTypeMapping
 } from '@/utils/constant';
 
 const typeMapping = {
@@ -357,7 +371,7 @@ export default {
           target = dbTypeMapping[type];
           break;
         case 2:
-          target = this.details.machine && this.details.machine.osName ? this.details.machine.osName.toLowerCase() : 'windows';
+          target = this.details.machine && this.details.machine.hostSystem ? this.details.machine.hostSystem.toLowerCase() : 'windows';
           break;
         case 3:
           target = vmTypeMapping[type];
@@ -384,7 +398,7 @@ export default {
     },
     commonTypeFilter(val) {
       return commonTypeMapping[val];
-    }
+    },
   },
   mounted(){
     this.fetchData(this.$route.query.id, this.$route.query.type);
@@ -413,6 +427,9 @@ export default {
           console.log('ok')
         });
       }
+    },
+    serverTypeFilter(val) {
+      return vmHostServerTypeMapping[val];
     }
   },
 };

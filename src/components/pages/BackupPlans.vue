@@ -132,7 +132,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
                   {{ scope.row.objName }}
                 </router-link>
@@ -218,7 +218,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
                   {{ scope.row.objName }}
                 </router-link>
@@ -282,28 +282,26 @@
                      :total="total">
       </el-pagination>
     </template>
-    <!-- <z-tree></z-tree> -->
   </section>
 </template>
 <script>
 import IIcon from '../IIcon.vue';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
 import { fetchBackupPlan } from '@/api/home';
-import zTree from '@/components/common/zTree';
 import {
   dbTypeMapping,
   dbDetailRouterMapping,
   backupStrategyMapping,
   timeStrategyMapping,
   operationStateMapping,
-  vmTypeMapping
+  vmTypeMapping,
+  vmDetailRouterMapping
 } from '../../utils/constant';
 export default {
   name: 'backupPlans',
   mixins: [paginationMixin, filterMixin],
   components: {
-    IIcon,
-    zTree
+    IIcon
   },
   data() {
     return {
@@ -354,7 +352,6 @@ export default {
     },
     tableRowClassName({row}){
       if(row.highLight === 1) {
-        console.log(row)
         return 'highLight'
       }
     },
@@ -398,6 +395,9 @@ export default {
     },
     dbDetailRouter(row) {
       return dbDetailRouterMapping[row.objType];
+    },
+    vmDetailRouter(row) {
+      return vmDetailRouterMapping[row.objType];
     },
     backupStrategyFmt(row){
       return backupStrategyMapping[row.backupStrategy];

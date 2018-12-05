@@ -1,4 +1,5 @@
-import baseApi from './base';
+// import baseApi from './fileBase';
+import baseApi from './fileBase';
 // 将时间字符串数组转为对象数组
 const timePoints2Obj = timePointsStrArr =>
   timePointsStrArr.map(p => ({ value: p, key: p }));

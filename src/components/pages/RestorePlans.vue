@@ -119,7 +119,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
+                <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
                   {{ scope.row.objName }}
                 </router-link>
@@ -199,7 +199,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
+                <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
                              :class="$style.link">
                   {{ scope.row.objName }}
                 </router-link>
@@ -257,7 +257,6 @@
                      :total="total">
     </el-pagination>
     </template>
-    <!-- <z-tree></z-tree> -->
   </section>
 </template>
 <script>
@@ -271,7 +270,8 @@ import {
   backupStrategyMapping,
   restoreTimeStrategyMapping,
   operationStateMapping,
-  vmTypeMapping
+  vmTypeMapping,
+  vmDetailRouterMapping
 } from '../../utils/constant';
 export default {
   name: 'backupPlans',
@@ -329,7 +329,6 @@ export default {
     },
     tableRowClassName({row}){
       if(row.highLight === 1) {
-        console.log(row)
         return 'highLight'
       }
     },
@@ -373,6 +372,9 @@ export default {
     },
     dbDetailRouter(row) {
       return dbDetailRouterMapping[row.objType];
+    },
+    vmDetailRouter(row) {
+      return vmDetailRouterMapping[row.objType];
     },
     timeStrategyFmt(row){
       return restoreTimeStrategyMapping[row.timeStrategy];

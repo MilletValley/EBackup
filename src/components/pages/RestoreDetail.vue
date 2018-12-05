@@ -118,11 +118,23 @@
                       <el-form-item label="端口号：">
                         <el-tag size="small">{{machine.dbPort}}</el-tag>
                       </el-form-item>
+                    </div>
+                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)">
                       <el-form-item label="所属设备IP：">
                         <span>{{machine.host ? machine.host.hostIp : ''}}</span>
                       </el-form-item>
+                      <el-form-item label="设备系统类型：">
+                        <span>{{machine.host ? machine.host.hostSystem : ''}}</span>
+                      </el-form-item>
                     </div>
-                    
+                    <div v-if="['vmware', 'hw'].includes(target)">
+                      <el-form-item label="虚拟机主机IP：">
+                        <span>{{machine.vmHost ? machine.vmHost.serverIp : ''}}</span>
+                      </el-form-item>
+                      <el-form-item label="虚拟机主机类型：">
+                        <span>{{machine.vmHost ? serverTypeFilter(machine.vmHost.serverType): ''}}</span>
+                      </el-form-item>
+                    </div>
                     </fieldset>
                   </el-col>
                 </el-row>
