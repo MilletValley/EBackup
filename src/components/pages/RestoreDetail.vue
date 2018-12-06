@@ -266,7 +266,8 @@ import {
   weekMapping,
   operationStateMapping,
   restoreResultMapping,
-  yesOrNoMapping
+  yesOrNoMapping,
+  vmHostServerTypeMapping
 } from '@/utils/constant';
 
 const typeMapping = {
@@ -404,6 +405,9 @@ export default {
           console.log('ok')
         });
       }
+    },
+    serverTypeFilter(val) {
+      return vmHostServerTypeMapping[val];
     }
   },
 };
