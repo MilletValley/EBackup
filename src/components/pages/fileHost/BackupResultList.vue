@@ -27,7 +27,7 @@
           <span>{{scope.row.backupType |fileHostBackupTypeFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态"
+      <!-- <el-table-column label="状态"
                        prop="state"
                        min-width="70px"
                        align="center">
@@ -39,7 +39,7 @@
              class="el-icon-error"
              :class="$style.errorColor"></i>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="操作"
                        min-width="100px"
                        align="center">

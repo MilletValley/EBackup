@@ -1,5 +1,11 @@
 <template>
   <section>
+<el-dialog custom-class="min-width-dialog"
+               :visible.sync="modalVisible"
+              >
+      <span slot="title">
+        备份集列表
+      </span>
     <el-table :data="processedTableData|NotNullfilter" size="small"
               @sort-change="sortChangeFn"
               :default-sort="defaultSort">
@@ -7,8 +13,8 @@
         <template slot-scope="scope">
           <el-form inline
                    label-width="130px"
-                   size="small"
-                   class="result-detail-form">
+                   size="mini"
+                   class="path-result-detail-form">
             <el-form-item :class="$style.detailFormItem"
                           label="备份文件名">
               <span>{{ scope.row.fileName }}</span>
@@ -64,34 +70,33 @@
       </el-table-column>
       <el-table-column label="源文件路径"
                        prop="sourcePath"
-                       min-width="180px"
+                       show-overflow-tooltip
+                       min-width="80px"
                        align="center"
-                       header-align="center">
-        <template slot-scope="scope">
-          <span @click="queryDetail(scope.row)" class="link">{{scope.row.sourcePath}}</span>
-        </template>
-      </el-table-column>
+                       header-align="center"></el-table-column>
       <el-table-column label="备份文件名"
                        prop="fileName"
-                       min-width="180px"
+                       min-width="80px"
+                       show-overflow-tooltip
                        align="center"
                        header-align="center"></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
-                       min-width="150px"
+                       min-width="140px"
                        align="center"></el-table-column>
       <el-table-column label="结束时间"
                        prop="endTime"
-                       min-width="150px"
+                       min-width="140px"
                        :sortable="true"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
-                       min-width="100px"
+                       min-width="60px"
                        align="center"></el-table-column>
       <el-table-column label="状态"
+                      fixed="right"
                        prop="state"
-                       min-width="70px"
+                       min-width="45px"
                        align="center">
         <template slot-scope="scope">
           <i v-if="scope.row.state === 0"
@@ -103,17 +108,13 @@
         </template>
       </el-table-column>
       <el-table-column label="操作"
-                       min-width="80px"
+                      fixed="right"
+                       min-width="45px"
                        align="left">
         <template slot-scope="scope">
             <el-button type="text"
                         size="small"
-                        
                         @click="del(scope.row)">删除</el-button>
-          <el-button type="text"
-                     size="small"
-                     :disabled="scope.row.state === 1"
-                     @click="restoreBtnClick(scope.row)">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -127,7 +128,10 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
     </el-pagination>
-    <path-result-modal :visible.sync="modalVisible" :data="selectData"></path-result-modal>
+    <span slot="footer">
+        <el-button @click="cancelBtnClick" >取消</el-button>
+      </span>
+    </el-dialog>
   </section>
 </template>
 <script>
@@ -137,8 +141,8 @@ import baseMixin from '@/components/mixins/baseMixins';
 import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { fmtSizeFn } from '@/utils/common';
 import {deleteResultById} from '@/api/fileHost';
-import PathResultModal from '@/components/pages/fileHost/PathResultModal';
 import { backupResultMapping} from '@/utils/constant';
+
 export default {
   name: 'BackupResult',
   mixins: [baseMixin, paginationMixin, sortMixin],
@@ -146,76 +150,38 @@ export default {
     type: {
       type: String
     },
-    data: {
-      type: Array,
+    visible: {
+      type: Boolean,
       required: true,
-      default: () => []
     },
-  },
-  components: {
-    PathResultModal
+    data: {
+      type: Array
+    }
   },
   data() {
     return {
       pageSize: 5,
-      defaultSort: { prop: 'endTime', order: 'descending' },
-      modalVisible: false,
-      selectData: []
+      defaultSort: { prop: 'endTime', order: 'descending' }
     }
   },
   computed: {
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
     tableData() {
-      const data = this.data.map((r, i, arr) => {
-        return Object.assign({}, r);
-      });
-      const map = {};
-      data.forEach((result, index) => {
-        const {size} = result;
-        let fmtSize = 0;
-        fmtSize = fmtSizeFn(size);
-        result.size = fmtSize ? fmtSize : 0;
-        // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
-        if (!map[result.sourcePath]) {
-          map[result.sourcePath] = [];
-          map[result.sourcePath].push(result);
-        } else {
-          map[result.sourcePath].push(result);
-          // const lastIndex = map[result.fileName].index;
-          // if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
-          //   map[result.fileName] = {
-          //     index: index,
-          //     id:result.id
-          //   };
-          // }
+      console.log(this.total)
+      return this.data;
+    },
+    modalVisible: {
+      get() {
+        return this.visible;
+      },
+      set(value) {
+        if (!value) {
+          this.$emit('update:visible', value);
         }
-      });
-      console.log(map);
-      const testData = Object.keys(map).map(e => {
-        const data = map[e].sort((a, b) => {
-          return dayjs(b.endTime) - dayjs(a.endTime);
-        });
-        return Object.assign({}, map[e][0], {list: data});
-      })
-       console.log(testData);
-      // return data.map((result, index) => {
-      //   for(let i in result) {
-      //     result[i]=(result[i]===null||result[i]==='null')?'':result[i];
-      //   }
-      //   if (map[result.fileName].id === result.id) {
-      //     return Object.assign({}, result, { allowRestore: 1 });
-      //   } else {
-      //     return Object.assign({}, result, { allowRestore: 0 });
-      //   }
-      // });
-      return testData
+      },
     },
   },
   methods: {
-    // 点击恢复按钮
-    restoreBtnClick({ id }) {
-      this.$emit('single-restore-btn-click', id);
-    },
     // 备份集状态码转文字
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
@@ -237,38 +203,34 @@ export default {
         })
         .catch(() => { });
     },
-    queryDetail(row) {
-      this.selectData = row.list;
-      this.modalVisible = true;
+    cancelBtnClick() {
+      this.modalVisible = false;
     }
   }
 };
 </script>
 <style lang="scss" module>
 @import '@/style/color.scss';
-@import '@/style/common.scss';
 .detailFormItem {
   margin: {
     right: 0 !important;
     bottom: 0 !important;
   }
-  width: 30%;
+  width: 45%;
   &:nth-child(2n) {
-    width: 69%;
+    width: 54%;
   }
 }
 </style>
-<style scoped>
+<style>
 .margin-top10{
   margin-top: 10px;
 }
 .text-right{
   text-align: right;
 }
-.link {
-  color: #409eff;
-  text-decoration: none;
-  cursor: pointer;
+.path-result-detail-form .el-form-item__label,.path-result-detail-form .el-form-item__content{
+  font-size: 12px !important;
 }
 </style>
 
