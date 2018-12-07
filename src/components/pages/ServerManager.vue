@@ -69,10 +69,10 @@
             </el-table-column>
         </el-table>
         <mutil-table v-show="isSelect" :tableData="currentSelect" refTable="selectTable" :selectData.sync="currentSelect"></mutil-table>
-        <backup-plan-create-modal type="vm"
+        <backup-plan-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"
-                     @confirm="addBackupPlan"></backup-plan-create-modal>
+                     @confirm="addBackupPlan"></backup-plan-modal>
         <server-modal :btn-loading="btnLoading"
             @confirm="submitServerFn"
             :visible.sync="serverModalVisible">
@@ -87,13 +87,13 @@ import {
   rescan,
   getVMByserverId,
 } from '../../api/virtuals';
-import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
+import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
 import ServerModal from '@/components/modal/ServerModal';
 import MutilTable from '@/components/modal/MutilTable';
 import { vmHostServerTypeMapping } from '../../utils/constant';
 export default {
   components: {
-    BackupPlanCreateModal,
+    BackupPlanModal,
     ServerModal,
     MutilTable,
   },

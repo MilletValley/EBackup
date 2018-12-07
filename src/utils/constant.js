@@ -224,6 +224,7 @@ const vmTypeMapping = {
   1: 'VMware',
   2: '华为虚拟机'
 };
+
 export {
   operationStateMapping,
   backupStrategyMapping,

@@ -67,11 +67,29 @@
               <el-input v-model="formData.loginName"></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span="12" v-if="action === 'create'">
+            <el-form-item label="数据库密码"
+                          prop="password">
+              <input-toggle v-model="formData.password"
+                            :hidden.sync="hiddenPassword"></input-toggle>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="action === 'update'">
           <el-col :span="12">
             <el-form-item label="数据库密码"
                           prop="password">
               <input-toggle v-model="formData.password"
                             :hidden.sync="hiddenPassword"></input-toggle>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="确认密码"
+                          class="is-required"
+                          :rules="{validator: validateCheckPassword, trigger: ['blur']}"
+                          prop="rPassword">
+              <input-toggle v-model="formData.rPassword"
+                            :hidden.sync="hiddenPassword1"></input-toggle>
             </el-form-item>
           </el-col>
         </el-row>
@@ -174,6 +192,7 @@ export default {
     modalClosed() {
       this.$refs.itemForm.clearValidate();
       this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     }
   }
 }

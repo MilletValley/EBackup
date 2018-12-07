@@ -2,7 +2,6 @@ import throttle from 'lodash/throttle';
 // import dayjs from 'dayjs';
 import { applyFilterMethods } from '@/utils/common';
 import IIcon from '@/components/IIcon';
-import DatabaseUpdateModal from '@/components/DatabaseUpdateModal';
 import TabPanels from '@/components/common/TabPanels';
 import {
   databaseRoleMapping,
@@ -403,7 +402,6 @@ const detailPageMixin = {
   },
   components: {
     IIcon,
-    DatabaseUpdateModal,
     TabPanels,
   },
   filters: {

@@ -15,8 +15,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
+    "cax": "latest",
     "dayjs": "^1.6.7",
     "echarts": "^4.1.0",
+    "echarts-gl": "^1.1.1",
     "echarts-liquidfill": "^2.0.3",
     "element-ui": "^2.3.2",
     "jquery": "^3.3.1",

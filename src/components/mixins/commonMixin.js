@@ -10,7 +10,8 @@ const paginationMixin = {
   computed: {
     // 分页处理
     processedTableData() {
-      const tData = this.currentTableData ? this.currentTableData : this.tableData;
+      // const tData = this.currentTableData ? this.currentTableData : this.tableData;
+      const tData = this.curTableData || this.currentTableData || this.tableData;
       let data = [...tData];
       this.total = data.length;
       // 判断当前页是否有数据，如果没有则显示有数据的最后一页
@@ -35,6 +36,34 @@ const paginationMixin = {
 };
 
 const sortMixin = {
+  data() {
+    return {
+      defaultSort: {
+        prop: 'name',
+        order: 'descending'
+      }
+    };
+  },
+  computed: {
+    curTableData() {
+      let data = this.currentTableData || this.tableData;
+      data = data.sort((a, b) => {
+        let val1 = a[this.defaultSort.prop];
+        let val2 = b[this.defaultSort.prop];
+        if (!isNaN(Number(val1)) && !isNaN(Number(val2))) {
+          val1 = Number(val1);
+          val2 = Number(val2);
+        }
+        if (val1 < val2) {
+          return this.defaultSort.order === 'descending' ? 1 : -1;
+        } else if (val1 > val2) {
+          return this.defaultSort.order === 'descending' ? -1 : 1;
+        }
+        return 0;
+      });
+      return data;
+    },
+  },
   methods: {
     sortFn(data, column, order) {
       return data.slice().sort((a, b) => {
@@ -48,7 +77,13 @@ const sortMixin = {
         }
         return 0;
       });
-    }
+    },
+    sortChangeFn({ prop, order }) {
+      if (JSON.stringify(this.defaultSort) === JSON.stringify({ prop, order })) {
+        return;
+      }
+      this.defaultSort = { prop, order };
+    },
   }
 };
 

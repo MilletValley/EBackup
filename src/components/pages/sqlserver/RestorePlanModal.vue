@@ -62,7 +62,7 @@
 							<el-input v-model="formData.loginName"></el-input>
 						</el-form-item>
 					</el-col>
-					<el-col :span="12">
+					<el-col :span="12" v-if="action === 'create'">
 						<el-form-item label="登录密码"
 													prop="password">
 							<input-toggle v-model="formData.password"
@@ -70,6 +70,24 @@
 						</el-form-item>
 					</el-col>
 				</el-row>
+        <el-row v-if="action === 'update'">
+          <el-col :span="12">
+            <el-form-item label="数据库密码"
+                          prop="password">
+              <input-toggle v-model="formData.password"
+                            :hidden.sync="hiddenPassword"></input-toggle>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="确认密码"
+                          class="is-required"
+                          :rules="{validator: validateCheckPassword, trigger: ['blur']}"
+                          prop="rPassword">
+              <input-toggle v-model="formData.rPassword"
+                            :hidden.sync="hiddenPassword1"></input-toggle>
+            </el-form-item>
+          </el-col>
+        </el-row>
 			
       	<time-interval :form-data="formData" :type="type" ref="timeIntervalComponent"></time-interval>
     </el-form>
@@ -182,12 +200,12 @@ export default {
       this.originFormData.password = '';
       this.formData = Object.assign({}, this.originFormData);
     },
-    modalClosed() {
-      // this.formData = { ...baseFormData };
-      this.$refs.timeIntervalComponent.clearValidate();
-      this.$refs.restorePlanCreateForm.clearValidate();
-      this.hiddenPassword = true;
-    },
+    // modalClosed() {
+    //   // this.formData = { ...baseFormData };
+    //   this.$refs.timeIntervalComponent.clearValidate();
+    //   this.$refs.restorePlanCreateForm.clearValidate();
+    //   this.hiddenPassword = true;
+    // },
   },
 };
 </script>

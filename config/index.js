@@ -10,6 +10,13 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
+      '/api/v1': {
+        target: 'http://localhost:8002',
+        // target: 'http://145.170.23.128:8089', // 服务器
+        // target: 'http://145.170.24.163:8089',
+        // changeOrigin: true,
+        // pathRewrite: { '^/api/v1': '/api/v1' },
+      },
       '/api/v2': {
         target: 'http://localhost:8002',
         // target: 'http://145.170.23.128:8089', // 服务器
@@ -17,9 +24,6 @@ module.exports = {
         // changeOrigin: true,
         // pathRewrite: { '^/api/v1': '/api/v1' },
       },
-      '/api/v1': {
-        target: 'http://localhost:8002'
-      }
     },
 
     // Various Dev Server settings
