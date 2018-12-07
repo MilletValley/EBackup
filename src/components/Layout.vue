@@ -51,12 +51,14 @@
                               :to="{ path: nav.path}">{{ nav.name }}</el-breadcrumb-item>
         </el-breadcrumb>
         <div class="user-info">
-          <el-dropdown @command="handleCommand">
+          <el-dropdown @command="handleCommand" trigger="click">
             <span class="el-dropdown-link">
               {{ userName }}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
+              <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item command="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
@@ -130,6 +132,11 @@ export default {
         this._logout();
       } else if (command === 'profile') {
         this.$router.push({ name: 'profile' });
+      } else if (command === 'backupPlan') {
+        // this.BackupPlans
+        this.$router.push({ name: 'backupPlans' });
+      } else if (command === 'restorePlan') {
+        this.$router.push({ name: 'restorePlans' });
       }
     },
     _logout() {

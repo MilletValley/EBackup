@@ -41,11 +41,15 @@
             </div>
             <div class="text item" v-show="Object.keys(spaceDetail).length">
               <el-row>
-                <el-col :span="Object.keys(spaceDetail).length > 1 ? 12 : 24">
-                  <div id="barChart" :style="{width: '100%', height: '300%',margin:'0 auto'}"></div>
+                <el-col :span="Object.keys(spaceDetail).length > 1 ? 12 : 24" ref="col">
+                  <div  ref="space1">
+                    <cylinder :data="spaceChartData[0]"></cylinder>
+                  </div>
                 </el-col>
-                <el-col :span="12">
-                  <div id="barChart1" :style="{width: '100%', height: '300%',margin:'0 auto'}"></div>
+                <el-col :span="12" v-if="Object.keys(spaceDetail).length > 1">
+                  <div  ref="space2">
+                    <cylinder :data="spaceChartData[1]"></cylinder>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -550,6 +554,8 @@ import { fmtSizeFn } from '../../utils/common';
 import baseMixin from '../mixins/baseMixins';
 import DashboardTab from '../mixins/DashboardTabMixins';
 import echartsLiquidfill from 'echarts-liquidfill';
+import 'echarts-gl';
+import Cylinder from '@/components/common/Cylinder';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -559,6 +565,9 @@ require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
   mixins: [baseMixin, DashboardTab],
+  components: {
+    Cylinder
+  },
   data() {
     const nfsInUsedTypeMapping= {
       1: 'oracle',
@@ -580,7 +589,8 @@ export default {
         name: [],
         percentData: [],
         explain: []
-      }
+      },
+      spaceChartData: []
     };
   },
   computed: {
@@ -646,9 +656,9 @@ export default {
         .then(() => {
           this.drawLine();
         })
-        .catch(error => {
-          this.$message.error(error);
-        })
+        // .catch(error => {
+        //   this.$message.error(error);
+        // })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
@@ -695,116 +705,54 @@ export default {
       let initConn = echarts.init(document.getElementById('initConn'));
       const that = this;
       if(Object.keys(this.spaceDetail).length) {
-        var barChart = echarts.init(document.getElementById('barChart'));
-        var barChart1 = echarts.init(document.getElementById('barChart1'));
-        let spaceBarOption = {
+        this.spaceChartData = [{
+          id: 'canvas1',
+          value: this.spaceData.percentData[0]/100 > 1 ? 1 : this.spaceData.percentData[0]/100,
+          width: this.$refs.space1.innerWidth || this.$refs.space1.clientWidth,
+          height: 200,
+          color: ['#04C1F9','#C3E9F5'],
           title: {
-            show: true,
-            text: '存储1',
-            textStyle: {
-              color: '#333',
-              fontSize: 14,
+              show: true,
+              text: '存储1',
+              style: {
+                color: '#333',
+                fontSize: '14px',
+              }
             },
-            subtext: this.spaceData.explain[0],
-            subtextStyle: {
-              color: '#04C1F9',
-              fontSize: 12,
+            subTitle: {
+              show: true,
+              text: this.spaceData.explain[0],
+              style: {
+                color: '#04C1F9',
+                fontSize: '12px',
+              }
+            }
+        }];
+        if(Object.keys(this.spaceDetail).length > 1) {
+          this.spaceChartData.push({
+            id: 'canvas2',
+            value: this.spaceData.percentData[1]/100 > 1 ? 1 : this.spaceData.percentData[1]/100,
+            width: this.$refs.space2.innerWidth || this.$refs.space2.clientWidth,
+            height: 200,
+            color: ['green', '#D1EBD0'],
+            title: {
+              show: true,
+              text: '存储2',
+              style: {
+                color: '#333',
+                fontSize: '14px',
+              }
             },
-            left: 'center',
-            bottom: '10px',
-          },
-          // backgroundColor: '#33619D',
-          series: [
-            {
-              color: ['#04C1F9'],
-              amplitude: 5,
-              waveLength: '80%',
-              type: 'liquidFill',
-              data: [this.spaceData.percentData[0]/100],
-              radius: '50%',
-              direction: 'left',
-              outline: {
-                show: false,
-              },
-              backgroundStyle: {
-                //  borderColor: '#000',
-                //borderWidth: 1,
-                shadowColor: 'rgba(234, 136, 206, 0.8)',
-                // shadowBlur: 100,
-                color: '#C3E9F5',
-              },
-              label: {
-                normal: {
-                  position: ['50%', '45%'],
-                  areaStyle: {
-                    color: 'green',
-                  },
-                  // formatter: '{a}\n{b}\nValue: {c}',
-                  textStyle: {
-                    fontSize: 18,
-                  },
-                },
-              },
-              shape:
-                'path://M0,19.589C0,19.59,12.542,0.133,86.237,0.092c73.639-0.039,86.236,19.497,86.236,19.497v224.215H0V19.589L0,19.589z',
-            },
-          ],
-        };
-        let spaceBarOption1 = {
-          title: {
-            show: true,
-            text: '存储2',
-            textStyle: {
-              color: '#333',
-              fontSize: 14,
-            },
-            subtext: this.spaceData.explain[1],
-            subtextStyle: {
-              color: 'green',
-              fontSize: 12,
-            },
-            left: 'center',
-            bottom: '10px',
-          },
-          // backgroundColor: '#33619D',
-          series: [
-            {
-              color: ['green'],
-              amplitude: 5,
-              waveLength: '80%',
-              type: 'liquidFill',
-              data: [this.spaceData.percentData[1]/100],
-              radius: '50%',
-              direction: 'left',
-              outline: {
-                show: false,
-              },
-              backgroundStyle: {
-                //  borderColor: '#000',
-                //borderWidth: 1,
-                shadowColor: 'rgba(234, 136, 206, 0.8)',
-                // shadowBlur: 100,
-                color: '#D1EBD0',
-              },
-              label: {
-                normal: {
-                  position: ['50%', '45%'],
-                  areaStyle: {
-                    color: 'green',
-                  },
-                  // formatter: '{a}\n{b}\nValue: {c}',
-                  textStyle: {
-                    fontSize: 18,
-                  },
-                },
-              },
-              shape:
-                'path://M0,19.589C0,19.59,12.542,0.133,86.237,0.092c73.639-0.039,86.236,19.497,86.236,19.497v224.215H0V19.589L0,19.589z',
-            },
-          ],
-        };
-        barChart.setOption(spaceBarOption);
-        barChart1.setOption(spaceBarOption1);
+            subTitle: {
+              show: true,
+              text: this.spaceData.explain[1],
+              style: {
+                color: 'green',
+                fontSize: '12px',
+              }
+            }
+          })
+        }
       }
       if (this.nfsAssignedSpace && this.nfsAssignedSpace.length > 0) {
         var spaceRatio = echarts.init(document.getElementById('spaceRatio'));

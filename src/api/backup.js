@@ -1,10 +1,11 @@
 import baseApi from './base';
+import fileBaseApi from './fileBase';
 // 将时间字符串数组转为对象数组
 const timePoints2Obj = timePointsStrArr =>
   timePointsStrArr.map(p => ({ value: p, key: p }));
 
 const fetchBackupPlans = (type, id) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'get',
       url: `/${type}s/${id}/${type}-backup-plans`,
@@ -20,7 +21,7 @@ const fetchBackupPlans = (type, id) =>
     });
 
 const fetchBackupResults = (type, id) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'get',
     url: `/${type}s/${id}/results`,
   });
@@ -33,7 +34,7 @@ const createMySqlBackupPlan = ({ id, plan }) =>
     data: plan,
   });
 const createBackupPlan = (type, { id, plan }) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'post',
       url: `/${type}s/${id}/${type}-backup-plans`,
@@ -50,20 +51,20 @@ const createBackupPlan = (type, { id, plan }) =>
     });
 
 const deleteBackupPlan = (type, id) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'delete',
     url: `/${type}-backup-plans/${id}`,
   });
 
 const updateMySqlBackupPlan = (type, { id, plan }) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'patch',
     url: `/${type}-backup-plans/${id}`,
     data: plan,
   });
 
 const updateBackupPlan = (type, { id, plan }) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'patch',
       url: `/${type}-backup-plans/${id}`,
@@ -80,7 +81,7 @@ const updateBackupPlan = (type, { id, plan }) =>
     });
 
 const fetchBackupOperation = (type, id) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'get',
     url: `/${type}-backup-plans/${id}`,
   }).then(res => {
@@ -94,7 +95,7 @@ const fetchBackupOperation = (type, id) =>
   });
 
 const createSingleRestorePlan = (type, { id, data }) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'post',
       url: `/${type}-backup-results/${id}/${type}-restore-plans`,
@@ -110,7 +111,7 @@ const createSingleRestorePlan = (type, { id, data }) =>
       return res;
     });
 const fetchRestorePlans = (type, id) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'get',
       url: `/${type}s/${id}/${type}-restore-plans`,
@@ -126,13 +127,13 @@ const fetchRestorePlans = (type, id) =>
     });
 
 const fetchRestoreRecords = (type, id) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'get',
     url: `/${type}s/${id}/restore-records`,
   });
 
 const createRestorePlan = (type, { id, plan }) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'post',
       url: `/${type}s/${id}/${type}-restore-plans`,
@@ -149,13 +150,13 @@ const createRestorePlan = (type, { id, plan }) =>
     });
 
 const deleteRestorePlan = (type, planId) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'delete',
     url: `/${type}-restore-plans/${planId}`,
   });
 
 const updateRestorePlan = (type, data) =>
-  baseApi
+  (type === 'file-host' ? fileBaseApi : baseApi)
     .request({
       method: 'patch',
       url: `/${type}-restore-plans/${data.id}`,
@@ -172,7 +173,7 @@ const updateRestorePlan = (type, data) =>
     });
 
 const fetchRestoreOperation = (type, id) =>
-  baseApi.request({
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
     method: 'get',
     url: `/${type}-restore-plans/${id}`,
   }).then(res => {

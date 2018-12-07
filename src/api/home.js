@@ -26,10 +26,52 @@ const fetchSpaceUse = () =>
     method: 'get',
     url: '/home/space'
   });
+
+const fetchBackupPlan = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/backup-plans'
+  });
+
+const fetchBackupPlanDetail = (id, type) =>
+  baseApi.request({
+    method: 'get',
+    url: `/home/backup-plan/details?id=${id}&type=${type}`
+  });
+
+const cancelHighlight = (id, type) =>
+  baseApi.request({
+    method: 'put',
+    url: `/backup-plan/cancel-highlight?id=${id}&type=${type}`
+  });
+
+const fetchRestorePlan = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/restore-plans'
+  });
+
+const fetchRestorePlanDetail = (id, type) =>
+  baseApi.request({
+    method: 'get',
+    url: `/home/restore-plan/details?id=${id}&type=${type}`
+  });
+
+const cancelRestoreHighlight = (id, type) =>
+  baseApi.request({
+    method: 'put',
+    url: `/restore-plan/cancel-highlight?id=${id}&type=${type}`
+  });
 export {
   fetchAll,
   fetchBackup,
   fetchRestore,
   fetchInitconn,
-  fetchSpaceUse
+  fetchSpaceUse,
+  fetchBackupPlan,
+  fetchBackupPlanDetail,
+  cancelHighlight,
+  fetchRestorePlan,
+  fetchRestorePlanDetail,
+  cancelRestoreHighlight
 };

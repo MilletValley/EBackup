@@ -36,11 +36,29 @@
                       prop="emailLoginName">
           <el-input v-model="formData.emailLoginName"></el-input>
         </el-form-item>
-        <el-form-item label="登录密码"
+        <!-- <el-form-item label="登录密码"
                       prop="emailPassword">
           <input-toggle v-model="formData.emailPassword"
                         :hidden.sync="hiddenPassword"></input-toggle>
-        </el-form-item>
+        </el-form-item> -->
+        <el-row>
+            <el-col :span="12">
+              <el-form-item label="登录密码"
+                            prop="emailPassword">
+                <input-toggle v-model="formData.emailPassword"
+                              :hidden.sync="hiddenPassword"></input-toggle>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="确认密码"
+                            class="is-required"
+                            :rules="{validator: validateCheckPassword, trigger: ['blur']}"
+                            prop="rPassword">
+                <input-toggle v-model="formData.rPassword"
+                              :hidden.sync="hiddenPassword1"></input-toggle>
+              </el-form-item>
+            </el-col>
+          </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="confirm" :loading="btnLoading">确 定</el-button>
@@ -73,11 +91,23 @@ export default {
         { validator: validateLength(100), triggle: 'blur' }
       ]
     }
+    const validateCheckPassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请再次输入密码'));
+      } else {
+        if (value !== this.formData.emailPassword) {
+          callback(new Error('两次输入的密码不一致'));
+        }
+        callback();
+      }
+    };
     return {
       formData: {},
       originFormData: {},
       rules,
-      hiddenPassword: true
+      hiddenPassword: true,
+      validateCheckPassword,
+      hiddenPassword1: true,
     }
   },
   props: {
@@ -107,13 +137,16 @@ export default {
   },
   methods: {
     modalOpened() {
-      this.originFormData = { ...this.emailInfo };
-      this.formData = { ...this.emailInfo };
+      this.originFormData = { ...this.emailInfo, emailPassword: '' };
+      this.formData = { ...this.emailInfo, emailPassword: ''  };
+      console.log(this.formData)
     },
     confirm() {
       this.$refs.formData.validate(valid => {
         if (valid) {
-          this.$emit('confirm', this.formData);
+          let data = {...this.formData};
+          delete data.rPassword;
+          this.$emit('confirm', data);
         } else {
           return false;
         }
@@ -134,6 +167,7 @@ export default {
     modalClose() {
       this.$refs.formData.clearValidate();
       this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     },
   },
   components: {

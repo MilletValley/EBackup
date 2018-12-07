@@ -39,11 +39,29 @@
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
-        <el-form-item label="登录密码"
+        <el-form-item label="登录密码" v-if="action === 'create'"
                       prop="password">
           <input-toggle v-model="formData.password"
                         :hidden.sync="hiddenPassword"></input-toggle>
         </el-form-item>
+        <el-row v-if="action === 'update'">
+          <el-col :span="12">
+            <el-form-item label="登录密码"
+                          prop="password">
+              <input-toggle v-model="formData.password"
+                            :hidden.sync="hiddenPassword"></input-toggle>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="确认密码"
+                          class="is-required"
+                          :rules="{validator: validateCheckPassword, trigger: ['blur']}"
+                          prop="rPassword">
+              <input-toggle v-model="formData.rPassword"
+                            :hidden.sync="hiddenPassword1"></input-toggle>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <span slot="footer">
         <el-button type="primary"
@@ -85,10 +103,21 @@ const vm = {
     }
   },
   data() {
+    const validateCheckPassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请再次输入密码'));
+      } else {
+        if (value !== this.formData.password) {
+          callback(new Error('两次输入的密码不一致'));
+        }
+        callback();
+      }
+    };
     return {
       type: 'filehost',
       rules: rules,
       hiddenPassword: true,
+      hiddenPassword1: true,
       baseData: {
         hostName: '',
         hostIp: '',
@@ -97,6 +126,7 @@ const vm = {
         loginName: '',
         password: ''
       },
+      validateCheckPassword
     };
   },
   computed: {
@@ -153,6 +183,7 @@ const vm = {
     modalClosed() {
       this.$refs.createForm.clearValidate();
       this.hiddenPassword = true;
+      this.hiddenPassword1 = true;
     },
   },
   components: {

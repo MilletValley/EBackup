@@ -58,10 +58,10 @@
                 </el-table>
             </el-tab-pane>
         </el-tabs>
-        <backup-plan-create-modal type="vm"
+        <backup-plan-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"
-                     @confirm="addBackupPlan"></backup-plan-create-modal>
+                     @confirm="addBackupPlan"></backup-plan-modal>
         <server-modal :btn-loading="btnLoading"  type="device"
             @confirm="submitServerFn"
             :visible.sync="serverModalVisible">
@@ -74,12 +74,12 @@ import {fetchDetailsById, addServer} from '../../api/host'
 import {
   createMultipleVirtualBackupPlan
 } from '../../api/virtuals';
-import BackupPlanCreateModal from '@/components/modal/BackupPlanCreateModal';
+import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
 import ServerModal from '@/components/modal/ServerModal';
 import MutilTable from '@/components/modal/MutilTable';
 export default {
     components: {
-        BackupPlanCreateModal,
+        BackupPlanModal,
         ServerModal,
         MutilTable
     },

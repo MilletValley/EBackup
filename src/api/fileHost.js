@@ -1,4 +1,5 @@
-import baseApi from './base';
+// import baseApi from './fileBase';
+import baseApi from './fileBase';
 // 将时间字符串数组转为对象数组
 const timePoints2Obj = timePointsStrArr =>
   timePointsStrArr.map(p => ({ value: p, key: p }));
@@ -119,6 +120,18 @@ const fetchRestoreRecords = id =>
     url: `/file-hosts/${id}/restore-records`,
   });
 
+const deleteResultByPlanId = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/file-host-backup-plan/${id}/file-host-backup-results`,
+  });
+
+const deleteResultById = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/file-host-backup-results/${id}`,
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -135,4 +148,6 @@ export {
   createSingleRestorePlan,
   fetchRestorePlans,
   fetchRestoreRecords,
+  deleteResultByPlanId,
+  deleteResultById
 };
