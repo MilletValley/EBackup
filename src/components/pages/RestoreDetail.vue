@@ -204,8 +204,7 @@
                     <span>{{ scope.row.detailInfo }}</span>
                   </el-form-item> -->
                   <el-form-item :class="$style.detailFormItem"
-                                v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)"
-                                label="恢复设备IP">
+                                :label="hostIpLabel">
                     <span>{{ scope.row.hostIp }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
@@ -213,15 +212,14 @@
                     <span>{{ scope.row.endTime }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
-                                v-if="['sqlserver', 'mysql', 'dm'].includes(target)"
-                                label="数据库名">
-                    <span>{{ scope.row.dbName }}</span>
+                                :label="nameLabel">
+                    <span>{{ scope.row.name }}</span>
                   </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
+                  <!-- <el-form-item :class="$style.detailFormItem"
                                 v-if="['oracle', 'db2'].includes(target)"
                                 label="实例名">
                     <span>{{ scope.row.dbName }}</span>
-                  </el-form-item>
+                  </el-form-item> -->
                   <!-- <el-form-item :class="$style.detailFormItem"
                                 label="大小">
                     <span>{{ scope.row.size }}</span>
@@ -232,6 +230,10 @@
                       <el-tag size="mini"
                               :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
                     </span>
+                  </el-form-item>
+                  <el-form-item label="恢复路径"
+                                v-if="['windows', 'linux'].includes(target)">
+                    <span>{{ scope.row.restorePath }}</span>
                   </el-form-item>
                   <el-form-item label="错误信息"
                                 v-if="scope.row.state === 1">
@@ -250,68 +252,72 @@
                             :sortable="true"
                             align="center"></el-table-column>
             <el-table-column prop="hostIp"
-                            label="恢复设备IP"
-                            v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)"
+                            :label="hostIpLabel"
                             align="center"
                             min-width="150px">
             </el-table-column>
-            <el-table-column prop="dbName"
-                            label="数据库名"
-                            v-if="['dm'].includes(target)"
-                            align="center"
-                            min-width="150px">
+            <el-table-column  prop="name"
+                              :label="nameLabel"
+                              v-if="['dm'].includes(target)"
+                              align="center"
+                              min-width="150px">
             </el-table-column>
-            <el-table-column prop="detailInfo"
+            <!-- <el-table-column prop="detailInfo"
                             :label="target === 'oracle' ? '实例名':'数据库名'"
                             v-if="['oracle', 'sqlserver', 'mysql', 'db2'].includes(target)"
                             align="center"
                             min-width="150px">
-            </el-table-column>
-            <el-table-column prop="dbPort"
+            </el-table-column> -->
+            <!-- <el-table-column prop="dbPort"
                             label="端口"
                             v-if="['dm'].includes(target)"
                             align="center"
-                            min-width="50px"></el-table-column>
-            <el-table-column prop="hostIp"
+                            min-width="50px"></el-table-column> -->
+            <!-- <el-table-column prop="hostIp"
                             label="恢复主机IP"
                             v-if="['windows', 'linux', 'vmware', 'hw'].includes(target)"
                             align="center"
                             min-width="150px">
-            </el-table-column>
-            <el-table-column prop="newName"
+            </el-table-column> -->
+            <!-- <el-table-column prop="newName"
                             label="新虚拟机名"
                             v-if="['vmware', 'hw'].includes(target)"
                             align="center"
                             min-width="200px">
-            </el-table-column>
-            <el-table-column prop="diskName"
+            </el-table-column> -->
+            <!-- <el-table-column prop="diskName"
                             label="恢复磁盘名"
                             v-if="target === 'vmware'"
                             align="center"
                             min-width="200px">
-            </el-table-column>
-            <el-table-column prop="detailInfo"
+            </el-table-column> -->
+            <!-- <el-table-column prop="detailInfo"
                               label="恢复目标路径"
                               v-if="['windows', 'linux'].includes(target)"
                               align="center"
-                              min-width="150px"></el-table-column>
-              <el-table-column v-if="target==='linux'"
+                              min-width="150px"></el-table-column> -->
+              <!-- <el-table-column v-if="target==='linux'"
                               prop="pointSourcePath"
                               label="恢复源路径"
                               align="center"
-                              min-width="150px"></el-table-column>
-              <el-table-column v-if="target==='linux'"
+                              min-width="150px"></el-table-column> -->
+              <!-- <el-table-column v-if="target==='linux'"
                               prop="nfsSourcePath"
                               label="恢复源NFS路径"
                               align="center"
-                              min-width="150px"></el-table-column>
-              <el-table-column prop="backupResult.size"
+                              min-width="150px"></el-table-column> -->
+              <el-table-column  prop="restorePath"
+                                label="恢复路径"
+                                align="center"
+                                v-if="['windows', 'linux'].includes(target)"
+                                min-width="150px"></el-table-column>
+              <!-- <el-table-column prop="backupResult.size"
                               :formatter="sizeFmt"
                               v-if="['windows', 'linux'].includes(target)"
                               label="大小"
                               align="center"
                               min-width="70px">
-              </el-table-column>
+              </el-table-column> -->
               <el-table-column prop="state"
                               label="状态"
                               align="center"
@@ -358,6 +364,26 @@ export default {
     restoreResult() {
       return this.details.restoreResult ? this.details.restoreResult : [];
     },
+    nameLabel() {
+      if (['sqlserver', 'mysql','dm'].includes(this.target)) {
+        return '数据库名';
+      } else if (['oracle', 'db2'].includes(this.target)) {
+        return '实例名';
+      } else if (['vmware', 'hw'].includes(this.target)) {
+        return '新虚拟机名';
+      } else if (['windows', 'linux'].includes(this.target)) {
+        return '文件名';
+      }
+      return '';
+    },
+    hostIpLabel() {
+      if (['oracle', 'db2', 'sqlserver', 'mysql','dm'].includes(this.target)) {
+        return '恢复设备IP';
+      } else if (['vmware', 'hw', 'windows', 'linux'].includes(this.target)) {
+        return '恢复主机IP';
+      }
+      return '';
+    }
   },
   filters: {
     timeStrategyMapping(val) {
