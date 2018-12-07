@@ -1,23 +1,36 @@
 <template>
-    <div id="areaTree">
-      <div class="tree-box">
-        <div class="zTreeDemoBackground left">
-          <ul id="treeDemo" class="ztree"></ul>
+  <section>
+    <el-dialog :visible.sync="modalVisible"
+               custom-class="min-width-dialog"
+               @open="modalOpenFn"
+               @cancel="cancelButtonClick">
+      <span slot="title">
+        请选择恢复文件
+      </span>
+      <div id="areaTree">
+        <div class="tree-box">
+          <div class="zTreeDemoBackground left">
+            <ul id="treeDemo" class="ztree"></ul>
+          </div>
         </div>
       </div>
-    </div>
+      <span slot="footer">
+        <el-button type="primary"
+                   @click="confirmBtnClick">确定</el-button>
+        <el-button @click="cancelButtonClick">取消</el-button>
+      </span>
+    </el-dialog>
+  </section>
 </template>
-
 <script>
 import $ from 'jquery';
-import "../../../plugins/ztree/js/jquery.ztree.core.min.js";
-import "../../../plugins/ztree/js/jquery.ztree.excheck.min.js";
-import {
-  fetchAll,
-  fetchChildNodes,
-} from '@/api/file';
+import "../../../../plugins/ztree/js/jquery.ztree.core.min.js";
+import "../../../../plugins/ztree/js/jquery.ztree.excheck.min.js";
+import { fmtSizeFn } from '@/utils/common';
+import dayjs from 'dayjs';
+import { fetchChildNodes } from '@/api/file';
 export default {
-  name: 'zTree',
+  name: 'ResultSourcePath',
   props: {
     visible: {
       type: Boolean
@@ -34,6 +47,7 @@ export default {
   },
   data() {
     return {
+      nodes: [],
       setting: {
         check: {
             enable: true,
@@ -54,36 +68,48 @@ export default {
           onCheck: this.zTreeOnCheck
         },
       },
-      nodes: null
-    };
+    }
   },
   computed: {
-    driverNodes() {
-      return this.fatherNodes.map(node => {
-        return {
-          sourceFileName: node.fileDriver,
-          sourcePath: node.fileDriver,
-          sourceFileName: node.fileDriver,
-          isParent: true
+    modalVisible: {
+      get() {
+        return this.visible;
+      },
+      set(value) {
+        if (!value) {
+          this.$emit('update:visible', value);
         }
+      }
+    },
+    firstNodes() {
+      return this.fatherNodes.map(node => {
+        node.isParent = (Number(node.documentType) === 1);
+        return node;
       })
     }
   },
   methods: {
+    confirmBtnClick() {
+      this.$emit('selectNodes', this.nodes);
+      this.modalVisible = false
+    },
+    modalOpenFn(){
+      this.$nextTick(() => {
+      $.fn.zTree.init($('#treeDemo'), this.setting, this.firstNodes);
+      })
+    },
+    cancelButtonClick() {
+      this.$emit('selectNodes', []);
+      this.modalVisible = false;
+    },
+    selectNodes(nodes) {
+      this.nodes = nodes;
+    },
     zTreeOnClick(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
       const selectPath = treeNode.sourcePath;
       const _this= this;
-      if(treeNode.level === 0) {
-        const firstNodes = this.fatherNodes.find(node => node.fileDriver === selectPath).fileNodes;
-        _this.nodes = firstNodes.map(node => {
-          node.isParent = (Number(node.documentType) === 1);
-          return node;
-        })
-        if(!treeNode.children&&treeNode.isParent) {
-          treeObj.addNodes(treeNode, this.nodes);
-        }
-      } else if(treeNode.isParent){
+      if(treeNode.isParent){
         fetchChildNodes({ id: this.hostId, data: selectPath })
           .then(res => {
             const { data } = res.data;
@@ -104,33 +130,11 @@ export default {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
       this.$emit('selectNodes', treeObj.getCheckedNodes(true));
     },
-    // freshArea: function() {
-    //   this.zNodes = this.fileHostOriginPath;
-    //   $.fn.zTree.init($('#treeDemo'), this.setting, this.zNodes);
-    // },
-    // getOriginPath() {
-    //   // 测试数据
-    //   fetchChildNodes(123)
-    //     .then(res => {
-    //       const { data: fileHostPath } = res.data;
-    //       this.zNodes = fileHostPath;
-    //       $.fn.zTree.init($('#treeDemo'), this.setting, this.zNodes);
-    //     })
-    //     .catch(error => {
-    //       this.$message.error(error);
-    //     });
-    // },
-  },
-  mounted() {
-    $.fn.zTree.init($('#treeDemo'), this.setting, this.driverNodes);
-    // this.getOriginPath();
-    // $.fn.zTree.init($('#treeDemo'), this.setting, this.zNodes);
-  },
-};
+  }
+}
 </script>
-
 <style>
-@import '../../../plugins/ztree/css/zTreeStyle/zTreeStyle.css';
+@import '../../../../plugins/ztree/css/zTreeStyle/zTreeStyle.css';
 #areaTree {
   border: 1px solid #e5e5e5;
   margin-bottom: 2px;
@@ -139,3 +143,4 @@ export default {
   max-height: 300px;
 }
 </style>
+

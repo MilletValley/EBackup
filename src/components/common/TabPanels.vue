@@ -14,7 +14,6 @@
                       v-model="planFilterForm.planType"
                       label="backup">备份计划</el-radio>
             <el-radio border
-                      :disabled="isFileBackupResult"
                       v-model="planFilterForm.planType"
                       label="restore">恢复计划</el-radio>
           </el-form-item>
@@ -27,7 +26,7 @@
         <!-- 备份计划面板 -->
         <slot name="backupCard"></slot>
 
-        <template v-if="!isFileBackupResult">
+        <template>
           <!-- 恢复计划面板 -->
           <slot name="restoreCard"></slot>             
         </template>
@@ -77,11 +76,6 @@ export default {
         hiddenCompletePlan: false,
       },
     };
-  },
-  computed: {
-    isFileBackupResult() {
-      return this.type === 'windows' || this.type === 'linux';
-    },
   },
   // 根据入口激活当前tab页
   created() {
