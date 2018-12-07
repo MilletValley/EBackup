@@ -110,12 +110,6 @@ export default {
                 data.id = this.backupPlan.id;
                 data.config.id = this.backupPlan.config.id;
               }
-              const {backupPath, backupSystem} = this.formData
-              if (this.type === 'windows') {
-                data = Object.assign({}, data, {backupPath, backupSystem})
-              } else if (this.type === 'linux') {
-                data = Object.assign({}, data, {backupPath})
-              }
               this.$emit('confirm', data, this.action);
             }
           })

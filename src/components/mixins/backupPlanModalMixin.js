@@ -189,6 +189,12 @@ const backupPlanModalMixin = {
             ...other,
           };
           break;
+        case 6:
+          config = {
+            timeStrategy,
+            ...other
+          };
+          break;
         default:
       }
       if ([3, 4, 5].includes(timeStrategy)) {

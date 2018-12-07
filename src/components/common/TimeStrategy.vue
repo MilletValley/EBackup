@@ -8,8 +8,10 @@
                size="small">
         <el-form-item label="时间策略" class="is-required"
                       prop="timeStrategy">
-          <el-radio-group v-model="formData.timeStrategy">
+          <el-radio-group v-model="formData.timeStrategy"
+                          :class="$style.timeStrategyGroup">
             <el-radio :label="ts.code"
+                      :class="$style.timeStrategyRadio"
                       v-for="ts in availableTimeStrategies"
                       :key="ts.code">{{ ts.value }}</el-radio>
           </el-radio-group>
@@ -122,10 +124,12 @@ const strategyMapping = {
     2: [1],
   },
   windows: {
-    1: [0, 1, 2, 3, 4],
+    1: [0, 1, 2, 3, 4, 5, 6],
+    2: [0, 1, 2, 3, 4, 5, 6]
   },
   linux: {
-    1: [0, 1, 2, 3, 4],
+    1: [0, 1, 2, 3, 4, 5, 6],
+    2: [0, 1, 2, 3, 4, 5, 6]
   },
   db2: {
     1: [0, 2, 3, 4, 5]
@@ -160,7 +164,7 @@ export default {
       }
     };
     const startTimeValidate = (rule, value, callback) => {
-      if (this.formData.timeStrategy !== 0) {
+      if (![0, 6].includes(this.formData.timeStrategy)) {
         if (!value) {
           callback(new Error('请输入计划时间'));
         } else if (dayjs(value) < dayjs()) {
@@ -310,6 +314,8 @@ export default {
               reject('请至少输入一个时间点');
             }
             break;
+          case 6:
+            break;
           default:
         }
         resolve(true);
@@ -318,5 +324,11 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="scss" module>
+.timeStrategyGroup {
+  margin-left: -8px;
+}
+.timeStrategyRadio {
+  margin-left: 8px !important;
+}
 </style>
