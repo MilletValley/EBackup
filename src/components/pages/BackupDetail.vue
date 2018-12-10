@@ -1,6 +1,6 @@
 <template>
   <section v-loading="infoLoading">
-    <header class="detail-header">
+    <header class="plan-detail-header">
       <div class="content">
         <el-row type="flex"
                 justify="end">
@@ -19,19 +19,26 @@
             <el-form label-position="right"
                      label-width="130px"
                      size="small"
+                     :inline="true"
                      class="item-info">
               <el-row class="margin-right5">
                 <el-row>
-                  <el-col :span="12">
+                  <el-col :span="8">
                     <el-form-item label="备份策略：">
-                      <div>{{ backupStrategy }}</div>
+                      <span>{{ backupStrategy }}</span>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="时间策略：">
                       <div>{{ timeStrategy | timeStrategyMapping }}</div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="时间：">
                       <div>{{ timeStrategy !== 0 ? config.startTime : config.singleTime }}</div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="星期："  v-if="timeStrategy === 4">
                       <div>
                         <el-tag v-for="point in weekPoints"
@@ -39,6 +46,8 @@
                                 size="small">{{point}}</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="日期：" v-if="timeStrategy === 5">
                       <div>
                         <el-tag :class="$style.infoTag"
@@ -47,6 +56,8 @@
                                 size="small">{{point}}</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="时间点："
                                   v-if="[3,4,5].indexOf(timeStrategy) >= 0">
                       <div>
@@ -56,6 +67,8 @@
                                 size="small">{{point}}</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="间隔："
                                   v-if="timeStrategy === 1|| timeStrategy === 2">
                       <div>
@@ -63,65 +76,98 @@
                                 size="small">{{config.timeInterval}}分钟</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="源文件路径："
                                   v-if="['windows', 'linux'].includes(target)">
                       <span>{{ details.backupPath }}</span>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="存储目标路径："
                                   v-if="target === 'linux'">
                       <span>{{ details.pointTargetPath }}</span>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="NFS目标路径："
                                   v-if="target === 'linux'">
                       <span>{{ details.nfsTargetPath }}</span>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item v-if="target === 'windows'"
                                   label="是否备份系统：">
                       <span>{{ details.backupSystem === 'sys' ? '是' : '否' }}</span>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="12">
-                    <fieldset :class="$style.hostLinkInOs">
-                    <legend style="font-size: 12px">
-                      {{machineType ? `${machineType}详情` : ''}}
-                    </legend>
-                    <el-form-item :label="['windows', 'linux'].includes(target) ? '主机IP：':'名称：'">
+                </el-row>
+                <el-row class="machineRow">
+                  <el-col :span="8">
+                    <el-form-item label="主机名：" v-if="['windows', 'linux'].includes(target)">
                       <span>
                         <router-link :to="linkObject"
                                     :class="$style.link">
-                          {{['windows', 'linux'].includes(target) ? machine.hostIp : machine.name }}
+                          {{machine.hostName}}
                         </router-link>
                       </span>
                     </el-form-item>
+                    <el-form-item :label="['vmware', 'hw'].includes(target) ? '虚拟机名称：':'数据库别名：'" v-else>
+                      <span>
+                        <router-link :to="linkObject"
+                                    :class="$style.link">
+                          {{ machine.name }}
+                        </router-link>
+                      </span>
+                    </el-form-item>
+                    
+                  </el-col>
+                  <el-col :span="8" v-if="['windows', 'linux'].includes(target)">
+                    <el-form-item label="主机IP：">
+                      <el-tag size="small">{{machine.hostIp}}</el-tag>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="类型：">
                       <el-tag size="small">{{target|commonTypeFilter}}</el-tag>
                     </el-form-item>
-                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
+                  </el-col>
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
+                    <el-col :span="8">
                       <el-form-item  :label="['sqlserver', 'mysql', 'dm'].includes(target) ? '数据库名：':'实例名：'" >
                         <span>{{target === 'dm' ? machine.dbName : machine.instanceName}}</span>
                       </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                       <el-form-item label="端口号：">
                         <el-tag size="small">{{machine.dbPort}}</el-tag>
                       </el-form-item>
-                    </div>
-                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)">
+                    </el-col>
+                  </div>
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)">
+                    <el-col :span="8">
                       <el-form-item label="所属设备IP：">
                         <span>{{machine.host ? machine.host.hostIp : ''}}</span>
                       </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                       <el-form-item label="设备系统类型：">
                         <span>{{machine.host ? machine.host.hostSystem : ''}}</span>
                       </el-form-item>
-                    </div>
-                    <div v-if="['vmware', 'hw'].includes(target)">
+                    </el-col>
+                  </div>
+                  <div v-if="['vmware', 'hw'].includes(target)">
+                    <el-col :span="8">
                       <el-form-item label="虚拟机主机IP：">
                         <span>{{machine.vmHost ? machine.vmHost.serverIp : ''}}</span>
                       </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                       <el-form-item label="虚拟机主机类型：">
                         <span>{{machine.vmHost ? serverTypeFilter(machine.vmHost.serverType): ''}}</span>
                       </el-form-item>
-                    </div>
-                    </fieldset>
-                  </el-col>
+                    </el-col>
+                  </div>
                 </el-row>
               </el-row>
             </el-form>
@@ -330,11 +376,10 @@ export default {
       return backupResultMapping[stateCode];
     },
     expandChange(row, expandedRows){
-      console.log(row, expandedRows, expandedRows.includes(row))
       // 展开失败的扩展表
       if(expandedRows.includes(row) && row.state === 1) {
-        cancelHighlight(this.details.id, this.details.machineType).then(res => {
-          console.log('ok')
+        cancelHighlight(row.id, this.details.machineType).then(res => {
+          // console.log('ok')
         });
       }
     },
@@ -368,9 +413,9 @@ $primary-color: #409eff;
 }
 </style>
 <style>
-.el-col .el-form-item {
+/* .el-col .el-form-item {
   display: block;
-}
+} */
 </style>
 <style scoped>
 .margin-right5 {
@@ -378,6 +423,14 @@ $primary-color: #409eff;
 }
 .tabsClass{
   margin-top: -39px;
+}
+.machineRow{
+  margin-top: 10px;
+}
+.plan-detail-header{
+  background-color: #ffffff;
+  margin: -20px -20px 0 -20px;
+  padding: 10px 10px 50px 10px;
 }
 </style>
 

@@ -8,6 +8,7 @@
       </span>
     <el-table :data="processedTableData|NotNullfilter" size="small"
               @sort-change="sortChangeFn"
+              @expand-change="expandChange"
               :default-sort="defaultSort">
       <el-table-column type="expand">
         <template slot-scope="scope">
@@ -109,12 +110,17 @@
       </el-table-column>
       <el-table-column label="操作"
                       fixed="right"
-                       min-width="45px"
+                       min-width="80px"
                        align="left">
         <template slot-scope="scope">
             <el-button type="text"
                         size="small"
                         @click="del(scope.row)">删除</el-button>
+            <el-button type="text"
+                        style="margin-left:0"
+                        size="small"
+                        :disabled="scope.row.state === 1"
+                        @click="restoreBtnClick(scope.row)">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -140,7 +146,8 @@ import baseMixin from '@/components/mixins/baseMixins';
 // import backupResultMixin from '@/components/mixins/backupResultMixin';
 import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { fmtSizeFn } from '@/utils/common';
-import {deleteResultById} from '@/api/fileHost';
+import {deleteResultById} from '@/api/file';
+import { cancelHighlight } from '@/api/home';
 import { backupResultMapping} from '@/utils/constant';
 
 export default {
@@ -161,6 +168,7 @@ export default {
   data() {
     return {
       pageSize: 5,
+      machineType: 2,
       defaultSort: { prop: 'endTime', order: 'descending' }
     }
   },
@@ -184,6 +192,10 @@ export default {
     stateConverter(stateCode) {
       return backupResultMapping[stateCode];
     },
+    // 点击恢复按钮
+    restoreBtnClick({ id }) {
+      this.$emit('single-restore-btn-click', {id});
+    },
     del(row) {
       this.$confirm('请确认是否删除', '提示', {
         confirmButtonText: '确定',
@@ -203,7 +215,15 @@ export default {
     },
     cancelBtnClick() {
       this.modalVisible = false;
-    }
+    },
+    expandChange(row, expandedRows){
+      // 展开失败的扩展表
+      if(expandedRows.includes(row) && row.state === 1) {
+        cancelHighlight(row.id, this.machineType).then(res => {
+          // console.log('ok')
+        });
+      }
+    },
   }
 };
 </script>

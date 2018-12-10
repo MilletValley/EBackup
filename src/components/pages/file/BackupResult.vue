@@ -2,6 +2,7 @@
   <section>
     <el-table :data="processedTableData|NotNullfilter" size="small"
               @sort-change="sortChangeFn"
+              @expand-change="expandChange"
               :default-sort="defaultSort">
       <el-table-column type="expand">
         <template slot-scope="scope">
@@ -115,14 +116,14 @@
                        align="center">
         <template slot-scope="scope">
             <el-button type="text"
+                       class="textBtn"
+                        size="small"
+                        @click="del(scope.row)">删除</el-button>
+            <el-button type="text"
                         class="textBtn"
                         size="small"
                         :disabled="scope.row.state === 1"
                         @click="restoreBtnClick(scope.row)">恢复</el-button>
-            <el-button type="text"
-                       class="textBtn"
-                        size="small"
-                        @click="del(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -136,7 +137,9 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
     </el-pagination>
-    <path-result-modal :visible.sync="modalVisible" :data="selectData"></path-result-modal>
+    <path-result-modal  :visible.sync="modalVisible" :data="selectData" 
+                        :backupType="backupType"
+                        @single-restore-btn-click="restoreBtnClick"></path-result-modal>
   </section>
 </template>
 <script>
@@ -146,6 +149,7 @@ import baseMixin from '@/components/mixins/baseMixins';
 import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { fmtSizeFn } from '@/utils/common';
 import {deleteResultById} from '@/api/file';
+import { cancelHighlight } from '@/api/home';
 import PathResultModal from '@/components/pages/file/PathResultModal';
 import { backupResultMapping} from '@/utils/constant';
 export default {
@@ -172,7 +176,8 @@ export default {
       pageSize: 5,
       defaultSort: { prop: 'endTime', order: 'descending' },
       modalVisible: false,
-      selectData: []
+      selectData: [],
+      machineType: 2
     }
   },
   computed: {
@@ -250,7 +255,15 @@ export default {
     queryDetail(row) {
       this.selectData = row.list;
       this.modalVisible = true;
-    }
+    },
+    expandChange(row, expandedRows){
+      // 展开失败的扩展表
+      if(expandedRows.includes(row) && row.state === 1) {
+        cancelHighlight(row.id, this.machineType).then(res => {
+          // console.log('ok')
+        });
+      }
+    },
   }
 };
 </script>

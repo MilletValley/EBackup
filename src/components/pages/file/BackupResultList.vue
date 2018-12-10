@@ -46,10 +46,11 @@
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
-                     @click="restorePlanBtnClick(scope.row)">恢复</el-button>
-          <el-button type="text"
-                     size="small"
                      @click="del(scope.row)">删除</el-button>
+          <el-button type="text"
+                      style="margin-left:0"
+                     size="small"
+                     @click="restorePlanBtnClick(scope.row)">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
