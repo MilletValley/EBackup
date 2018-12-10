@@ -80,7 +80,7 @@ import {
   modifyOne,
   createOne,
   deleteOne
-} from '@/api/keepStrategy';
+} from '@/api/keepstrategy';
 import {
   useTypeMapping,
   keepStrategyMapping,
