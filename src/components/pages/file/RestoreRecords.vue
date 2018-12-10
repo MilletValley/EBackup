@@ -101,7 +101,7 @@
                        align="center"
                        min-width="150"></el-table-column>
       <el-table-column label="恢复设备IP"
-                       prop="hostIp"
+                       prop="host.hostIp"
                        align="center"
                        min-width="150"></el-table-column>
       <el-table-column label="恢复类型"
@@ -153,7 +153,7 @@ export default {
     tableData() {
       return this.records.map(record => {
         if(record.restoreType === 1) { //文件恢复，查找是否有恢复失败的文件
-          if(record.filePaths.includes(filePath => filePath.state === 1)) {
+          if(record.filePaths.find(filePath => filePath.state === 1)) {
             record.state = 1;
           } else {
             record.state = 0;

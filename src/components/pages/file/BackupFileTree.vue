@@ -32,7 +32,7 @@ import { fmtSizeFn } from '@/utils/common';
 import dayjs from 'dayjs';
 import { fetchChildNodes } from '@/api/file';
 export default {
-  name: 'FileTree',
+  name: 'BackupFileTree',
   props: {
     visible: {
       type: Boolean
@@ -67,6 +67,7 @@ export default {
         },
         callback: {
           onClick: this.zTreeOnClick,
+          onExpand: this.zTreeOnExpand,
           onCheck: this.zTreeOnCheck
         },
       },
@@ -124,17 +125,14 @@ export default {
       this.$emit('selectNodes', []);
       this.modalVisible = false;
     },
-    selectNodes(nodes) {
-      this.nodes = nodes;
-    },
-    zTreeOnClick(event, treeId, treeNode) {
+    fetchNextNodes(treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
       const selectPath = treeNode.sourcePath;
       const _this= this;
       if(treeNode.level === 0) {
         const firstNodes = this.fatherNodes.find(node => node.fileDriver === selectPath).fileNodes;
         _this.nodes = firstNodes.map(node => {
-          node.isParent = (Number(node.documentType) === 1);
+          node.isParent = (Number(node.documentType) === 2);
           return node;
         })
         if(!treeNode.children&&treeNode.isParent) {
@@ -145,7 +143,7 @@ export default {
           .then(res => {
             const { data } = res.data;
             _this.nodes = data.map(node => {
-              node.isParent = (Number(node.documentType) === 1);
+              node.isParent = (Number(node.documentType) === 2);
               return node;
             })
             if(!treeNode.children&&treeNode.isParent) {
@@ -157,9 +155,15 @@ export default {
           })
       }
     },
+    zTreeOnClick(event, treeId, treeNode) {
+      this.fetchNextNodes(treeNode);
+    },
+    zTreeOnExpand(event, treeId, treeNode) {
+      this.fetchNextNodes(treeNode);
+    },
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-      this.$emit('selectNodes', treeObj.getCheckedNodes(true));
+      this.nodes = treeObj.getCheckedNodes(true);
     },
   },
   components: {

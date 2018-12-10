@@ -55,13 +55,13 @@ const weekMapping = {
 
 const filehostBackupTypeMapping = {
   1: '文件备份',
-  2: '盘符备份',
+  2: '卷备份',
   3: '系统备份'
 };
 
 const filehostRestoreTypeMapping = {
   1: '文件恢复',
-  2: '盘符恢复'
+  2: '卷恢复'
 };
 
 const restoreTimeStrategyMapping = {

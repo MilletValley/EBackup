@@ -128,7 +128,7 @@
                           effect="light">
                 <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
               </el-tooltip>
-              <el-progress style="margin-right:20px" :percentage="backupOperation.percentage" :status="progressStatus" :text-inside="true" :stroke-width="17">
+              <el-progress style="margin-right:20px" :percentage="isNaN(backupOperation.percentage)?0:backupOperation.percentage" :status="progressStatus" :text-inside="true" :stroke-width="17">
               </el-progress>
             </div>
           </li>
@@ -183,7 +183,7 @@
             <el-col :span="12" :class="$style.backupFileState">
               <span v-if="backupFile.state === 0"><i :class="formatIcon(backupFile.state)"></i>未开始</span>
               <span v-else-if="backupFile.state === 1">
-                <el-progress :percentage="backupFile.percentage"></el-progress>
+                <el-progress :percentage="isNaN(backupFile.percentage)?0:backupFile.percentage"></el-progress>
               </span>
               <span v-else><i :class="formatIcon(backupFile.state)"></i>已结束</span>
             </el-col>
@@ -291,7 +291,7 @@ export default {
       return timeStrategyMapping[this.backupConfig.timeStrategy];
     },
     weekPoints() {
-      return weekMapping[this.backupConfig.weekPoints];
+      return this.backupConfig.weekPoints.map(p => weekMapping[p]);
     },
     operationState() {
       return operationStateMapping[this.backupOperation.state];
@@ -317,69 +317,6 @@ export default {
         return 'success';
       } else return 'text';
     },
-    // diskInfo(){
-    //   // let str = '';
-    //   // if(this.type === 'windows'){
-    //   //   if(this.backupOperation.state === 0){
-    //   //     str = '未开始';
-    //   //   }else if(this.backupOperation.state === 2){
-    //   //     str = '已完成';
-    //   //   }else if(this.backupOperation.state === 1){
-    //   //     str = `正在备份卷(${this.disk})`;
-    //   //   }
-    //   // }
-    //   return `正在备份卷$(}`;
-    // },
-    progressNum(){
-      const {process: data, size, state} = this.backupOperation;
-      if(state === 2){
-        return 100;
-      }
-      if(this.type === 'windows'){
-        if(!data){
-          return 0;
-        }
-        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-        const result = data.match(reg);
-        if(!result){
-          return 0;
-        }
-        if(result[1]){
-          this.disk = result[1];
-        }
-        if(result[2]){
-          let num = Number(result[2].substring(0,result[2].length - 1));
-          return num || num === 0 ? num : 0;
-        }
-      }else if(this.type === 'linux'){
-        if(data && size){
-          if(Number(size)){
-            // 取百分比
-            let num = (Number(data) / Number(size)) * 100;
-            if (state === 0 && num >= 100) {
-              num = 100;
-            }else if(num > 0 && num < 1){
-              num = 1;
-            }else{
-              // 此处不能作四舍五入
-              num = parseInt(num > 99 ? 99 : num);
-            }
-            return num || num === 0 ? num : 0;
-          }
-        }
-      }
-    },
-    backupSize(){
-      let {process, size, state} = this.backupOperation;
-      let fmtSize = 0;
-      if(this.type === 'linux'){
-        process = Number(process);
-        fmtSize = fmtSizeFn(process);
-      }else if(this.type === 'windows'){
-        fmtSize = fmtSizeFn(Number(size));
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    },
     showTxt() {
       return this.isShow?'收起':'查看更多'
     },
@@ -387,30 +324,10 @@ export default {
       return this.isShow?'el-icon-arrow-up':'el-icon-arrow-down';
     }
   },
-  filters:{
-    sizeFormat(data, type){
-      let fmtSize = null;
-      const { state } = data;
-      if(type === 'linux'){
-        const process = Number(data.progress);
-        const size = Number(data.size);
-        if(process > size){
-          fmtSize = fmtSizeFn(size);
-        }else{
-          fmtSize = fmtSizeFn(process);
-        }
-      }else if(type === 'windows'){
-        // const process = Number(data.progress.replace(/[^0-9]/ig,""));
-        const size = Number(data.size);
-        const restoreSize = size * process / 100;
-        fmtSize = fmtSizeFn(restoreSize);
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    }
-  },
   methods: {
     // 刷新单个备份计划
     refreshBtnClick() {
+      this.$emit('refresh', this.id);
     },
     planDeleteBtnClick() {
       this.$confirm('即将删除该备份计划，是否继续？', '提示', {
@@ -439,20 +356,6 @@ export default {
     },
     showMore() {
       this.isShow = !this.isShow;
-    },
-    fmtProgress(data){
-      let process = 0;
-      if(this.type === 'linux'){
-        const progress = Number(data.progress);
-        const size = Number(data.size);
-        process = Math.round((progress / size) * 100);
-      }else if(this.type === 'windows'){
-        // process = Number(data.progress.replace(/[^0-9]/ig,""));
-      }
-      if(process > 99){
-        process = 99;
-      }
-      return process ? process : 0;
     },
     fmtSize(size) {
       return fmtSizeFn(size);

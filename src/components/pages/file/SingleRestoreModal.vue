@@ -3,6 +3,7 @@
     <el-dialog custom-class="min-width-dialog"
                :before-close="beforeModalClose"
                @close="modalClosed"
+               @open="modalOpened"
                :visible.sync="modalVisible">
       <span slot="title">
         执行恢复操作
@@ -27,9 +28,9 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="restoreType === 1"
-                      label="恢复路径"
-                      prop="restorePath">
+        <el-form-item label="恢复源路径"
+                      prop="restorePath"
+                      v-if="restoreType === 1">
           <el-button type="primary"
                       size="small"
                      @click="selectSourceFiles">选择文件</el-button>
@@ -37,7 +38,7 @@
         <el-form-item label="存放路径"
                       prop="targetPath">
           <el-button type="primary"
-                     :disabled="!formData.targetHostId"
+                     :disabled="!hasFetchedTargetPath"
                      size="small"
                      @click="selectTargetFiles">选择路径</el-button>
         </el-form-item>
@@ -80,27 +81,23 @@
         <el-button @click="cancelButtonClick">取消</el-button>
       </span>
     </el-dialog>
-    <!-- <file-tree :visible.sync="fileResultTree"
-               :type="type"
-               :host-id="hostId"
-               :fatherNodes="sourcePath"
-               @selectNodes="selectNodes"></file-tree> -->
-    <result-source-path :visible.sync="fileResultTree"
-                        :host-id="hostId"
-                        :fatherNodes="sourcePath"
-                        @selectNodes="selectNodes"></result-source-path>
     <plan-source-path :visible.sync="filePlanTree"
                       :host-id="hostId"
                       :fatherNodes="sourcePath"
-                      @selectNodes="selectNodes"></plan-source-path>
+                      @selectNodes="selectSourceNodes"></plan-source-path>
+    <result-source-path :visible.sync="fileResultTree"
+                        :host-id="hostId"
+                        :fatherNodes="sourcePath"
+                        @selectNodes="selectSourceNodes"></result-source-path>
     <target-tree :visible.sync="fileTargetTree"
                  :host-id="hostId"
                  :fatherNodes="targetNodes"
-                 @selectNodes="selectNodes"></target-tree>
+                 @selectNodes="selectTargetNodes"></target-tree>
   </section>
 </template>
 <script>
 import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import cloneDeep from 'lodash/cloneDeep';
 import ResultSourcePath from '@/components/pages/file/ResultSourcePath';
 import PlanSourcePath from '@/components/pages/file/PlanSourcePath';
 import TargetTree from '@/components/pages/file/TargetTree';
@@ -110,7 +107,7 @@ import {
   fetchPathByPlanId,
   fetchPathByResultId
 } from '@/api/file';
-const baseFormData = {
+const basicFormData = {
   targetHostId: null,
   targetPath: null,
   restorePath: null,
@@ -160,9 +157,7 @@ export default {
       fileResultTree: false,
       fileTargetTree: false,
       targetNodes: null,
-      sourceNodes: null,
-      formData: Object.assign({}, baseFormData),
-      originFormData: Object.assign({}, baseFormData),
+      hasFetchedTargetPath: false,
     }
   },
   computed: {
@@ -190,28 +185,30 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
-      // fetchSourcePath[this.restoreType](this.id)
-      //   .then(res => {
-      //     const { data: path } = res.data;
-      //     this.sourceNodes = path;
-      //   })
-      //   .catch(error => {
-      //     this.$message.error(error);
-      //   })
     },
     modalClosed() {
-      this.formData = { ...baseFormData };
       this.$refs.singleRestorePlanForm.clearValidate();
       this.hiddenPassword = true;
+      this.hasFetchedTargetPath = false;
     },
-    selectNodes(nodes) {
+    modalOpened() {
+      const baseFormData = cloneDeep(basicFormData);
+      this.originFormData = Object.assign({}, baseFormData);
+      this.formData = Object.assign({}, this.originFormData);
+    },
+    selectSourceNodes(nodes) {
       this.formData.restorePath = nodes.map(node => node.sourcePath).concat();
     },
+    selectTargetNodes(nodes) {
+      this.formData.targetPath = nodes.map(node => node.sourcePath).concat()[0];
+    },
     selectHostChange(hostId) {
+      this.hasFetchedTargetPath = false;
       fetchPathByHostId(hostId)
         .then(res => {
           const { data: nodes } = res.data;
           this.targetNodes = nodes;
+          this.hasFetchedTargetPath = true;
         })
         .catch(error => {
           this.$message.error(error);
@@ -235,10 +232,15 @@ export default {
       this.tagInputValue = '';
     },
     confirmBtnClick() {
-
+      if(this.restoreType !== 1) {
+        const { excludeFiles,restorePath, ...other } = this.formData;
+        this.$emit('confirm', this.id, other);
+      } else {
+        this.$emit('confirm', this.id, this.formData);
+      }
     },
     selectSourceFiles() {
-      if(this.type === 'result') {
+      if(this.type === 'restoreResult') {
         this.fileResultTree = true;
       } else {
         this.filePlanTree = true;

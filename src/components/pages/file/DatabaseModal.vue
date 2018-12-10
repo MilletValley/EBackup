@@ -14,8 +14,10 @@
                ref="form"
                size="small">
         <el-form-item label="主机名"
-                      prop="hostName">
-          <el-input v-model="formData.hostName"></el-input>
+                      prop="hostName"
+                      v-if="action === 'update'">
+          <el-input v-model="formData.hostName"
+                    disabled></el-input>
         </el-form-item>
         <el-form-item label="别名"
                       prop="hostAlias">
@@ -169,7 +171,8 @@ export default {
     confirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.$emit('confirm', this.formData, this.action);
+          const { hostName, ...other } = this.formData;
+          this.$emit('confirm', other, this.action);
         } else {
           return false;
         }
