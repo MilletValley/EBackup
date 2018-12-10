@@ -115,6 +115,7 @@
                  :class="$style.successColor"></i>
               <i v-else
                  class="el-icon-error"
+                 @mouseenter="mouseenterFn(scope.row)"
                  :class="$style.errorColor"></i>
             </el-tooltip>
           </template>
@@ -126,6 +127,7 @@
 <script>
 import IIcon from '@/components/IIcon';
 import Timer from '@/components/Timer';
+import { cancelRestoreHighlight } from '@/api/home';
 export default {
   name: 'RestoreRecords',
   props: {
@@ -141,6 +143,11 @@ export default {
       type: String
     }
   },
+  data() {
+    return {
+      machineType: 3
+    }
+  },
   computed: {
     // 正在进行中的恢复计划
     plans() {
@@ -148,6 +155,11 @@ export default {
     }
   },
   methods: {
+    mouseenterFn(row) {
+      cancelRestoreHighlight(row.id, this.machineType).then(res => {
+        // console.log('ok')
+      });
+    }
   },
   components: {
     IIcon,

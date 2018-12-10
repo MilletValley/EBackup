@@ -1,6 +1,7 @@
 <template>
   <section>
     <el-table :data="tableData"
+              @expand-change="expandChange"
               :default-sort="{ prop: 'startTime', order: 'descending' }">
       <el-table-column type="expand">
         <template slot-scope="props">
@@ -89,6 +90,7 @@
                       :class="$style.successColor"></i>
                     <i v-else
                       class="el-icon-error"
+                      @mouseenter="mouseenterFn(scope.row)"
                       :class="$style.errorColor"></i>
                   </el-tooltip>
               </template>
@@ -132,6 +134,7 @@ import {
 } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import { fmtSizeFn } from '@/utils/common';
+import { cancelRestoreHighlight } from '@/api/home';
 export default {
   name: 'RestoreRecords',
   mixins: [baseMixin],
@@ -146,7 +149,7 @@ export default {
   },
   data() {
     return {
-
+      machineType: 2
     }
   },
   computed: {
@@ -177,7 +180,20 @@ export default {
     },
     fmtSize(row) {
       return this.fmtSizeFn(row.sourceSize);
-    }
+    },
+    mouseenterFn(row) {
+      cancelRestoreHighlight(row.id, this.machineType).then(res => {
+        // console.log('ok')
+      });
+    },
+    expandChange(row, expandedRows){
+      // 展开失败的扩展表
+      if(row.restoreType === 2 && expandedRows.includes(row) && row.state === 1) {
+        cancelRestoreHighlight(row.id, this.machineType).then(res => {
+          console.log('ok')
+        });
+      }
+    },
   },
   mounted() {
   }

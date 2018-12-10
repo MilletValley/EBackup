@@ -431,9 +431,6 @@ export default {
   padding-top: 0.5em;
   display: inline-block;
 }
-.el-row {
-  margin-bottom: 10px;
-}
 </style>
 <style>
 .el-table .highLight {

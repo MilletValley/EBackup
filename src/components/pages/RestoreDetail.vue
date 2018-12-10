@@ -1,6 +1,6 @@
 <template>
   <section v-loading="infoLoading">
-    <header class="detail-header">
+    <header class="plan-detail-header">
       <div class="content">
         <el-row type="flex"
                 justify="end">
@@ -22,13 +22,12 @@
                      class="item-info">
               <el-row class="margin-right5">
                 <el-row>
-                  <el-col :span="12">
-                    <!-- <el-form-item label="计划创建时间：">
-                      <div>{{ details.startTime }}</div>
-                    </el-form-item> -->
+                  <el-col :span="8">
                     <el-form-item label="时间策略：">
                       <div>{{ timeStrategy | timeStrategyMapping }}</div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="时间："
                                   style="width: 100%">
                       <div>
@@ -36,6 +35,8 @@
                                 <!-- size="small">{{ config.singleTime }}</el-tag> -->
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="星期："
                                   v-if="timeStrategy === 2"
                                   style="width: 100%">
@@ -46,6 +47,8 @@
                                 size="small">{{ point }}</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="日期："
                                   v-if="timeStrategy === 3"
                                   style="width: 100%">
@@ -56,6 +59,8 @@
                                 size="small">{{point}}</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="时间点："
                                   v-if="[2, 3].includes(timeStrategy)"
                                   style="width: 100%">
@@ -66,76 +71,109 @@
                                 size="small">{{point}}</el-tag>
                       </div>
                     </el-form-item>
+                  </el-col>
                     <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
-                      <el-form-item label="恢复设备IP：">
-                        <span>{{ config.hostIp }}</span>
-                      </el-form-item>
-                      <el-form-item label="数据库名：">
-                        <span>{{ config.dbName }}</span>
-                      </el-form-item>
-                      <el-form-item label="端口：">
-                        <span>{{ config.dbPort }}</span>
-                      </el-form-item>
-                    </div>
-                    <div>
-
+                      <el-col :span="8">
+                        <el-form-item label="恢复设备IP：">
+                          <span>{{ config.hostIp }}</span>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="8">
+                        <el-form-item label="数据库名：">
+                          <span>{{ config.dbName }}</span>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="8">
+                        <el-form-item label="端口：">
+                          <span>{{ config.dbPort }}</span>
+                        </el-form-item>
+                      </el-col>
                     </div>
                     <div v-if="['windows', 'linux'].includes(target)">
-                      <el-form-item label="存储目标路径：">
-                        <span>{{ details.detailInfo }}</span>
-                      </el-form-item>
-                      <el-form-item label="NFS源路径："
-                                    v-if="target === 'linux'">
-                        <span>{{ details.nfsSourcePath }}</span>
-                      </el-form-item>
-                      <el-form-item v-if="target === 'linux'"
-                                    label="恢复方向：">
-                        <span>{{ config.originDetailInfo}}</span>
-                      </el-form-item>
+                      <el-col :span="8">
+                        <el-form-item label="存储目标路径：">
+                          <span>{{ details.detailInfo }}</span>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="8">
+                        <el-form-item label="NFS源路径："
+                                      v-if="target === 'linux'">
+                          <span>{{ details.nfsSourcePath }}</span>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="8">
+                        <el-form-item v-if="target === 'linux'"
+                                      label="恢复方向：">
+                          <span>{{ config.originDetailInfo}}</span>
+                        </el-form-item>
+                      </el-col>
                     </div>
-                  </el-col>
-                  <el-col :span="12">
-                    <fieldset :class="$style.hostLinkInOs">
-                    <legend style="font-size: 12px">
-                      {{machineType ? `${machineType}详情` : ''}}
-                    </legend>
-                    <el-form-item :label="['windows', 'linux'].includes(target) ? '主机名：':'名称：'">
+                </el-row>
+                <el-row class="machineRow">
+                  <el-col :span="8">
+                    <el-form-item label="主机名：" v-if="['windows', 'linux'].includes(target)">
                       <span>
                         <router-link :to="linkObject"
                                     :class="$style.link">
-                          {{machine.name }}
+                          {{machine.hostName}}
                         </router-link>
                       </span>
                     </el-form-item>
+                    <el-form-item :label="['vmware', 'hw'].includes(target) ? '虚拟机名称：':'数据库别名：'" v-else>
+                      <span>
+                        <router-link :to="linkObject"
+                                    :class="$style.link">
+                          {{ machine.name }}
+                        </router-link>
+                      </span>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8" v-if="['windows', 'linux'].includes(target)">
+                    <el-form-item label="主机IP：">
+                      <el-tag size="small">{{machine.hostIp}}</el-tag>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
                     <el-form-item label="类型：">
                       <el-tag size="small">{{target|commonTypeFilter}}</el-tag>
                     </el-form-item>
-                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
+                  </el-col>
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)">
+                    <el-col :span="8">
                       <el-form-item  :label="['sqlserver', 'mysql', 'dm'].includes(target) ? '数据库名：':'实例名：'" >
                         <span>{{target === 'dm' ? machine.dbName : machine.instanceName}}</span>
                       </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                       <el-form-item label="端口号：">
-                        <el-tag size="small">{{machine.dbPort}}</el-tag>
+                        <span>{{machine.dbPort}}</span>
                       </el-form-item>
-                    </div>
-                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)">
+                    </el-col>
+                  </div>
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'vmware', 'hw'].includes(target)">
+                    <el-col :span="8">
                       <el-form-item label="所属设备IP：">
                         <span>{{machine.host ? machine.host.hostIp : ''}}</span>
                       </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                       <el-form-item label="设备系统类型：">
                         <span>{{machine.host ? machine.host.hostSystem : ''}}</span>
                       </el-form-item>
-                    </div>
-                    <div v-if="['vmware', 'hw'].includes(target)">
+                    </el-col>
+                  </div>
+                  <div v-if="['vmware', 'hw'].includes(target)">
+                    <el-col :span="8">
                       <el-form-item label="虚拟机主机IP：">
                         <span>{{machine.vmHost ? machine.vmHost.serverIp : ''}}</span>
                       </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
                       <el-form-item label="虚拟机主机类型：">
                         <span>{{machine.vmHost ? serverTypeFilter(machine.vmHost.serverType): ''}}</span>
                       </el-form-item>
-                    </div>
-                    </fieldset>
-                  </el-col>
+                    </el-col>
+                  </div>
                 </el-row>
               </el-row>
             </el-form>
@@ -152,11 +190,56 @@
                     :default-sort="{ prop: 'endTime', order: 'descending' }">
             <el-table-column type="expand">
               <template slot-scope="scope">
-                <!-- <el-form inline
+                <el-form inline
                         label-width="100px"
                         size="small"
                         class="result-detail-form">
-                </el-form> -->
+                  <el-form-item :class="$style.detailFormItem"
+                                label="开始时间">
+                    <span>{{ scope.row.startTime }}</span>
+                  </el-form-item>
+                  <!-- <el-form-item :class="$style.detailFormItem"
+                                v-if="['windows', 'linux'].includes(target)"
+                                label="恢复目标路径">
+                    <span>{{ scope.row.detailInfo }}</span>
+                  </el-form-item> -->
+                  <el-form-item :class="$style.detailFormItem"
+                                :label="hostIpLabel">
+                    <span>{{ scope.row.hostIp }}</span>
+                  </el-form-item>
+                  <el-form-item :class="$style.detailFormItem"
+                                label="结束时间">
+                    <span>{{ scope.row.endTime }}</span>
+                  </el-form-item>
+                  <el-form-item :class="$style.detailFormItem"
+                                :label="nameLabel">
+                    <span>{{ scope.row.name }}</span>
+                  </el-form-item>
+                  <!-- <el-form-item :class="$style.detailFormItem"
+                                v-if="['oracle', 'db2'].includes(target)"
+                                label="实例名">
+                    <span>{{ scope.row.dbName }}</span>
+                  </el-form-item> -->
+                  <!-- <el-form-item :class="$style.detailFormItem"
+                                label="大小">
+                    <span>{{ scope.row.size }}</span>
+                  </el-form-item> -->
+                  <el-form-item :class="$style.detailFormItem"
+                                label="状态">
+                    <span>
+                      <el-tag size="mini"
+                              :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
+                    </span>
+                  </el-form-item>
+                  <el-form-item label="恢复路径"
+                                v-if="['windows', 'linux'].includes(target)">
+                    <span>{{ scope.row.restorePath }}</span>
+                  </el-form-item>
+                  <el-form-item label="错误信息"
+                                v-if="scope.row.state === 1">
+                    <span>{{ scope.row.errorMsg }}</span>
+                  </el-form-item>
+                </el-form>
               </template>
             </el-table-column>
             <el-table-column label="开始时间"
@@ -169,84 +252,83 @@
                             :sortable="true"
                             align="center"></el-table-column>
             <el-table-column prop="hostIp"
-                            label="恢复设备IP"
-                            v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm'].includes(target)"
+                            :label="hostIpLabel"
                             align="center"
                             min-width="150px">
             </el-table-column>
-            <el-table-column prop="dbName"
-                            label="数据库名"
-                            v-if="['dm'].includes(target)"
-                            align="center"
-                            min-width="150px">
+            <el-table-column  prop="name"
+                              :label="nameLabel"
+                              v-if="['dm'].includes(target)"
+                              align="center"
+                              min-width="150px">
             </el-table-column>
-            <el-table-column prop="detailInfo"
+            <!-- <el-table-column prop="detailInfo"
                             :label="target === 'oracle' ? '实例名':'数据库名'"
                             v-if="['oracle', 'sqlserver', 'mysql', 'db2'].includes(target)"
                             align="center"
                             min-width="150px">
-            </el-table-column>
-            <el-table-column prop="dbPort"
+            </el-table-column> -->
+            <!-- <el-table-column prop="dbPort"
                             label="端口"
                             v-if="['dm'].includes(target)"
                             align="center"
-                            min-width="50px"></el-table-column>
-            <el-table-column prop="hostIp"
+                            min-width="50px"></el-table-column> -->
+            <!-- <el-table-column prop="hostIp"
                             label="恢复主机IP"
                             v-if="['windows', 'linux', 'vmware', 'hw'].includes(target)"
                             align="center"
                             min-width="150px">
-            </el-table-column>
-            <el-table-column prop="newName"
+            </el-table-column> -->
+            <!-- <el-table-column prop="newName"
                             label="新虚拟机名"
                             v-if="['vmware', 'hw'].includes(target)"
                             align="center"
                             min-width="200px">
-            </el-table-column>
-            <el-table-column prop="diskName"
+            </el-table-column> -->
+            <!-- <el-table-column prop="diskName"
                             label="恢复磁盘名"
                             v-if="target === 'vmware'"
                             align="center"
                             min-width="200px">
-            </el-table-column>
-            <el-table-column prop="detailInfo"
+            </el-table-column> -->
+            <!-- <el-table-column prop="detailInfo"
                               label="恢复目标路径"
                               v-if="['windows', 'linux'].includes(target)"
                               align="center"
-                              min-width="150px"></el-table-column>
-              <el-table-column v-if="target==='linux'"
+                              min-width="150px"></el-table-column> -->
+              <!-- <el-table-column v-if="target==='linux'"
                               prop="pointSourcePath"
                               label="恢复源路径"
                               align="center"
-                              min-width="150px"></el-table-column>
-              <el-table-column v-if="target==='linux'"
+                              min-width="150px"></el-table-column> -->
+              <!-- <el-table-column v-if="target==='linux'"
                               prop="nfsSourcePath"
                               label="恢复源NFS路径"
                               align="center"
-                              min-width="150px"></el-table-column>
-              <el-table-column prop="backupResult.size"
+                              min-width="150px"></el-table-column> -->
+              <el-table-column  prop="restorePath"
+                                label="恢复路径"
+                                align="center"
+                                v-if="['windows', 'linux'].includes(target)"
+                                min-width="150px"></el-table-column>
+              <!-- <el-table-column prop="backupResult.size"
                               :formatter="sizeFmt"
                               v-if="['windows', 'linux'].includes(target)"
                               label="大小"
                               align="center"
                               min-width="70px">
-              </el-table-column>
+              </el-table-column> -->
               <el-table-column prop="state"
                               label="状态"
                               align="center"
                               min-width="70px">
                 <template slot-scope="scope">
-                  <el-tooltip :disabled="scope.row.state === 0"
-                              :content="scope.row.errorMsg"
-                              placement="right"
-                              effect="light">
-                    <i v-if="scope.row.state === 0"
-                      class="el-icon-success"
-                      :class="$style.successColor"></i>
-                    <i v-else
-                      class="el-icon-error"
-                      :class="$style.errorColor"></i>
-                  </el-tooltip>
+                  <i v-if="scope.row.state === 0"
+                    class="el-icon-success"
+                    :class="$style.successColor"></i>
+                  <i v-else
+                    class="el-icon-error"
+                    :class="$style.errorColor"></i>
                 </template>
               </el-table-column>
           </el-table>
@@ -282,6 +364,26 @@ export default {
     restoreResult() {
       return this.details.restoreResult ? this.details.restoreResult : [];
     },
+    nameLabel() {
+      if (['sqlserver', 'mysql','dm'].includes(this.target)) {
+        return '数据库名';
+      } else if (['oracle', 'db2'].includes(this.target)) {
+        return '实例名';
+      } else if (['vmware', 'hw'].includes(this.target)) {
+        return '新虚拟机名';
+      } else if (['windows', 'linux'].includes(this.target)) {
+        return '文件名';
+      }
+      return '';
+    },
+    hostIpLabel() {
+      if (['oracle', 'db2', 'sqlserver', 'mysql','dm'].includes(this.target)) {
+        return '恢复设备IP';
+      } else if (['vmware', 'hw', 'windows', 'linux'].includes(this.target)) {
+        return '恢复主机IP';
+      }
+      return '';
+    }
   },
   filters: {
     timeStrategyMapping(val) {
@@ -305,11 +407,10 @@ export default {
       return restoreResultMapping[stateCode];
     },
     expandChange(row, expandedRows){
-      console.log(row, expandedRows, expandedRows.includes(row))
       // 展开失败的扩展表
       if(expandedRows.includes(row) && row.state === 1) {
-        cancelRestoreHighlight(this.details.id, this.details.machineType).then(res => {
-          console.log('ok')
+        cancelRestoreHighlight(row.id, this.details.machineType).then(res => {
+          // console.log('ok')
         });
       }
     },
@@ -342,17 +443,20 @@ $primary-color: #409eff;
   }
 }
 </style>
-<style>
-.el-col .el-form-item {
-  display: block;
-}
-</style>
 <style scoped>
 .margin-right5 {
   margin-right: 5px;
 }
 .tabsClass{
   margin-top: -39px;
+}
+.machineRow{
+  margin-top: 10px;
+}
+.plan-detail-header{
+  background-color: #ffffff;
+  margin: -20px -20px 0 -20px;
+  padding: 10px 10px 50px 10px;
 }
 </style>
 

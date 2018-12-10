@@ -1,5 +1,5 @@
 <template>
-  <el-container style="height: 100%; min-width: 1000px;">
+  <el-container style="height: 100%; min-width: 1000px;" @mousemove="mousemoveCallBack">
     <el-aside style="width:auto;background-color: #00264a">
       <div class="logo">
         <img src="../assets/layoutContraction.png"
@@ -86,12 +86,17 @@ export default {
   data() {
     return {
       clientWidth: 1920,
+      curTime: new Date().getTime(),
+      lastTime: new Date().getTime(),
+      timeOut: 30 * 60 * 1000,
+      intervalObj: null
     };
   },
   components: {
     IIcon,
   },
   mounted() {
+    this.setTimer();
     this.clientWidth = document.documentElement.clientWidth;
     const that = this;
     window.onresize = function windowResize() {
@@ -103,6 +108,9 @@ export default {
     this.fetchHost().catch(error => {
       this.$message.error(error);
     });
+  },
+  destroyed() {
+    clearInterval(this.intervalObj);
   },
   computed: {
     isMenuCollapsed() {
@@ -147,6 +155,18 @@ export default {
         this.$router.push('/login');
       });
     },
+    setTimer() {
+      this.intervalObj = setInterval(this.checkTime, 10000);
+    },
+    mousemoveCallBack() {
+      this.lastTime = new Date().getTime();
+    },
+    checkTime() {
+      this.curTime = new Date().getTime();
+      if (this.curTime - this.lastTime > this.timeOut) {
+        this._logout();
+      }
+    }
   },
 };
 </script>
