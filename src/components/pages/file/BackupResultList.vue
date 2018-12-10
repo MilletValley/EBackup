@@ -1,12 +1,12 @@
 <template>
   <section>
-    <el-table :data="data"
-              >
+    <el-table :data="backupResults">
       <el-table-column type="expand">
         <template slot-scope="scope">
           <backup-result  :data="scope.row.backupFiles"
+                          :backupType="scope.row.backupType"
                           :type="type"
-                          @single-restore-btn-click="restoreBtnClick"></backup-result>
+                          @single-restore-btn-click="restoreResultBtnClick"></backup-result>
         </template>
       </el-table-column>
       <el-table-column label="备份计划名称"
@@ -27,23 +27,26 @@
           <span>{{scope.row.backupType |fileHostBackupTypeFilter}}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column label="状态"
+      <el-table-column label="状态"
                        prop="state"
                        min-width="70px"
                        align="center">
         <template slot-scope="scope">
-          <i v-if="getState(scope.row) === 0"
+          <i v-if="scope.row.state === 0"
              class="el-icon-success"
              :class="$style.successColor"></i>
           <i v-else
              class="el-icon-error"
              :class="$style.errorColor"></i>
         </template>
-      </el-table-column> -->
+      </el-table-column>
       <el-table-column label="操作"
                        min-width="100px"
                        align="center">
         <template slot-scope="scope">
+          <el-button type="text"
+                     size="small"
+                     @click="restorePlanBtnClick(scope.row)">恢复</el-button>
           <el-button type="text"
                      size="small"
                      @click="del(scope.row)">删除</el-button>
@@ -54,8 +57,8 @@
 </template>
 <script>
 import { filehostBackupTypeMapping } from '@/utils/constant';
-import BackupResult from '@/components/pages/fileHost/BackupResult';
-import {deleteResultByPlanId} from '@/api/fileHost';
+import BackupResult from '@/components/pages/file/BackupResult';
+import {deleteResultByPlanId} from '@/api/file';
 export default {
   name: 'BackupResultList',
   components: {
@@ -72,6 +75,16 @@ export default {
     },
   },
   computed: {
+    backupResults() {
+      return this.data.map(result => {
+        if(result.backupFiles.find(item => item.state === 1)) {
+          result.state = 1;
+        } else {
+          result.state = 0;
+        }
+        return result;
+      })
+    }
   },
   filters: {
     fileHostBackupTypeFilter(val) {
@@ -94,8 +107,11 @@ export default {
       return state;
     },
     // 点击恢复按钮
-    restoreBtnClick({ id }) {
-      this.$emit('single-restore-btn-click', id);
+    restoreResultBtnClick(id, backupType, type) {
+      this.$emit('single-restore-btn-click', id, backupType, type);
+    },
+    restorePlanBtnClick({ id, backupType }) {
+      this.$emit('single-restore-btn-click', id, backupType, 'restorePlan');
     },
     del(row) {
       this.$confirm('请确认是否删除', '提示', {

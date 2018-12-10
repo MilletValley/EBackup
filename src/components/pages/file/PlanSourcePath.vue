@@ -10,7 +10,7 @@
       <div id="areaTree">
         <div class="tree-box">
           <div class="zTreeDemoBackground left">
-            <ul id="treeDemo" class="ztree"></ul>
+            <ul id="planTreeDemo" class="ztree"></ul>
           </div>
         </div>
       </div>
@@ -65,6 +65,7 @@ export default {
         },
         callback: {
           onClick: this.zTreeOnClick,
+          onExpand: this.zTreeOnExpand,
           onCheck: this.zTreeOnCheck
         },
       },
@@ -82,9 +83,13 @@ export default {
       }
     },
     firstNodes() {
-      return this.fatherNodes.map(node => {
-        node.isParent = (Number(node.documentType) === 1);
-        return node;
+      return this.fatherNodes.map(item => {
+        return {
+          sourceFileName: item,
+          sourcePath: item,
+          documentType: 2,
+          isParent: true
+        }
       })
     }
   },
@@ -95,18 +100,15 @@ export default {
     },
     modalOpenFn(){
       this.$nextTick(() => {
-      $.fn.zTree.init($('#treeDemo'), this.setting, this.firstNodes);
+        $.fn.zTree.init($('#planTreeDemo'), this.setting, this.firstNodes);
       })
     },
     cancelButtonClick() {
       this.$emit('selectNodes', []);
       this.modalVisible = false;
     },
-    selectNodes(nodes) {
-      this.nodes = nodes;
-    },
-    zTreeOnClick(event, treeId, treeNode) {
-      var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+    fetchNextNodes(treeNode) {
+      var treeObj = $.fn.zTree.getZTreeObj("planTreeDemo");
       const selectPath = treeNode.sourcePath;
       const _this= this;
       if(treeNode.isParent){
@@ -114,7 +116,7 @@ export default {
           .then(res => {
             const { data } = res.data;
             _this.nodes = data.map(node => {
-              node.isParent = (Number(node.documentType) === 1);
+              node.isParent = (Number(node.documentType) === 2);
               return node;
             })
             if(!treeNode.children&&treeNode.isParent) {
@@ -126,9 +128,15 @@ export default {
           })
       }
     },
+    zTreeOnClick(event, treeId, treeNode) {
+      this.fetchNextNodes(treeNode);
+    },
+    zTreeOnExpand(event, treeId, treeNode) {
+      this.fetchNextNodes(treeNode);
+    },
     zTreeOnCheck(event, treeId, treeNode) {
-      var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-      this.$emit('selectNodes', treeObj.getCheckedNodes(true));
+      var treeObj = $.fn.zTree.getZTreeObj("planTreeDemo");
+      this.nodes = treeObj.getCheckedNodes(true);
     },
   }
 }

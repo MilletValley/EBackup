@@ -33,8 +33,8 @@
                       v-if="formData.backupType === 1">
           <el-row :class="$style.wordsOverFlow">
             <el-button type="primary"
-                    size="small"
-                    @click="selectBackupFiles">选择文件</el-button>
+                       size="small"
+                       @click="selectBackupFiles">选择文件</el-button>
             <!-- <el-tag v-for="tag in nodes"
                   :key="tag.sourcePath"
                   closable
@@ -99,16 +99,16 @@
         <el-button @click="cancelButtonClick">取消</el-button>
       </span>
     </el-dialog>
-    <file-tree :visible.sync="fileTreeVisible"
-               :host-id="hostId"
-               :fatherNodes="filePath"
-               @selectNodes="selectNodes"></file-tree>
+    <backup-file-tree :visible.sync="fileTreeVisible"
+                      :host-id="hostId"
+                      :fatherNodes="filePath"
+                      @selectNodes="selectNodes"></backup-file-tree>
   </section>
 </template>
 <script>
 import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
-import FileTree from '@/components/pages/file/FileTree';
+import BackupFileTree from '@/components/pages/file/BackupFileTree';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import validate from '@/utils/validate';
@@ -135,6 +135,7 @@ const basicFormData = {
 }
 export default {
   name: 'BackupPlanModal',
+  mixins: [backupPlanModalMixin],
   props: {
     btnLoading: {
       type: Boolean
@@ -167,7 +168,6 @@ export default {
       type: Number
     }
   },
-  mixins: [backupPlanModalMixin],
   data() {
     return {
       formData: {},
@@ -230,24 +230,31 @@ export default {
       if (backupData.config.timePoints.length === 0) {
         backupData.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
-      const { name, config, backupPath, backupSystem, ...other} = backupData;
+      const { name, config, backupType, bwlimit, backupFiles, excludeFiles, ...other} = backupData;
       const { id, timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
-        minuteInterval = 10;
+          minuteInterval = 10,
+          sourcePaths = null;
       if (otherConfig.timeStrategy === 1) {
         minuteInterval = timeInterval;
       } else if (otherConfig.timeStrategy === 2) {
         hourInterval = Math.round(timeInterval / 60);
       }
+      if(backupType === 1) {
+        sourcePaths = backupFiles.map(file => file.sourcePath);
+      } else {
+        sourcePaths = backupFiles;
+      }
       return {
         name,
-        backupPath,
-        backupSystem,
+        backupType,
+        bwlimit,
+        backupFiles: sourcePaths,
+        excludeFiles,
         minuteInterval,
         hourInterval,
         timePoints: cloneDeep(timePoints),
         ...otherConfig,
-        // ...other
       };
     },
     handleClose(tag) {
@@ -273,6 +280,88 @@ export default {
     selectBackupFiles() {
       this.fileTreeVisible = true;
     },
+    pruneFormData(formData) {
+      const {
+        name,
+        backupType,
+        bwlimit,
+        excludeFiles,
+        backupFiles,
+        timeStrategy,
+        singleTime,
+        startTime,
+        datePoints,
+        weekPoints,
+        timePoints,
+        hourInterval,
+        minuteInterval,
+        ...other
+      } = formData;
+      let config;
+      switch (timeStrategy) {
+        case 0:
+          config = { timeStrategy, singleTime, ...other };
+          break;
+        case 1:
+          config = {
+            timeStrategy,
+            startTime,
+            timeInterval: minuteInterval,
+            ...other,
+          };
+          break;
+        case 2:
+          config = {
+            timeStrategy,
+            startTime,
+            timeInterval: hourInterval * 60,
+            ...other,
+          };
+          break;
+        case 3:
+          config = { timeStrategy, startTime, timePoints, ...other };
+          break;
+        case 4:
+          config = {
+            timeStrategy,
+            startTime,
+            weekPoints,
+            timePoints,
+            ...other,
+          };
+          break;
+        case 5:
+          config = {
+            timeStrategy,
+            startTime,
+            datePoints,
+            timePoints,
+            ...other,
+          };
+          break;
+        case 6:
+          config = {
+            timeStrategy,
+            ...other
+          };
+          break;
+        default:
+      }
+      if ([3, 4, 5].includes(timeStrategy)) {
+        config.timePoints = this.filteredTimePoints(timePoints);
+        // 全备+增备下按星期重排
+        if (timeStrategy === 4) {
+          config.weekPoints.sort((a, b) => a - b);
+        }
+      }
+      return {
+        name, backupType,
+        bwlimit,
+        excludeFiles,
+        backupFiles,
+        config
+      };
+    },
     confirmBtnClick() {
       this.$refs.form.validate(valid => {
         this.$refs.timeStrategyComponent
@@ -284,9 +373,6 @@ export default {
                 data.id = this.backupPlan.id;
                 data.config.id = this.backupPlan.config.id;
               }
-              // if([2, 3].includes(data.config.backupType)) {
-              //   data.config.backupFiles = this.backupDriver;
-              // }
               this.$emit('confirm', data, this.action);
             }
           })
@@ -298,7 +384,9 @@ export default {
       });
     },
     cancelButtonClick() {
-
+      this.hasModifiedBeforeClose(() => {
+        this.modalVisible = false;
+      });
     },
     modalOpened() {
       const baseFormData = cloneDeep(basicFormData);
@@ -316,7 +404,7 @@ export default {
   },
   components: {
     TimeStrategy,
-    FileTree
+    BackupFileTree
   }
 }
 </script>

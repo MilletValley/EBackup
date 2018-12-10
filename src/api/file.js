@@ -222,7 +222,12 @@ const fetchBackupOperation = id =>
   baseApi.request({
     method: 'get',
     url: `/file-host-backup-plans/${id}`,
-  });
+  })
+    .then(res => {
+      const { data } = res.data;
+      res.data.data = fmtBackupPlan(data);
+      return res;
+    });
 
 // 获取单个filehost下的所有备份集
 const fetchBackupResults = id =>
@@ -239,17 +244,17 @@ const fetchOneBackupResult = id =>
   });
 
 // 删除备份集(根据备份计划id)
-const deleteBackupResultByPlanId = id =>
+const deleteResultByPlanId = id =>
   baseApi.request({
     method: 'delete',
-    url: `/file-host-backup-plan/${id}/file-host-backup-results`
+    url: `/file-host-backup-plan/${id}/file-host-backup-results`,
   });
 
 // 删除备份集(根据备份集id)
-const deleteBackupResultByResultId = id =>
+const deleteResultById = id =>
   baseApi.request({
     method: 'delete',
-    url: `/file-host-backup-results/${id}`
+    url: `/file-host-backup-results/${id}`,
   });
 
 // 终止所有备份计划
@@ -257,6 +262,12 @@ const stopAllBackupPlan = id =>
   baseApi.request({
     method: 'patch',
     url: `/file-hosts/${id}/file-host-backup-plans`
+  });
+
+const stopAllPlans = id =>
+  baseApi.request({
+    method: 'patch',
+    url: `/file-hosts/${id}/plans`
   });
 
 // 终止所有恢复计划
@@ -291,7 +302,12 @@ const fetchRestoreOperation = id =>
   baseApi.request({
     method: 'get',
     url: `/file-host-restore-plans/${id}`,
-  });
+  })
+    .then(res => {
+      const { data } = res.data;
+      res.data.data = fmtRestorePlan(data);
+      return res;
+    });
 
 // 创建filehost下的恢复计划(立即执行)
 const createSingleRestorePlan = ({ id, plan }) =>
@@ -299,6 +315,13 @@ const createSingleRestorePlan = ({ id, plan }) =>
     method: 'post',
     url: `/file-host-backup-results/${id}/file-host-restore-plans`,
     data: plan
+  });
+
+// 删除filehost下的单个恢复计划
+const deleteSingleRestorePlan = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/file-host-restore-plans/${id}`,
   });
 
 // 获取单个filehost下的所有恢复记录
@@ -343,14 +366,16 @@ export {
   fetchBackupOperation,
   fetchBackupResults,
   fetchOneBackupResult,
-  deleteBackupResultByPlanId,
-  deleteBackupResultByResultId,
+  deleteResultByPlanId,
+  deleteResultById,
   stopAllBackupPlan,
   stopAllRestorePlan,
+  stopAllPlans,
   fetchChildNodes,
   fetchRestorePlans,
   fetchRestoreOperation,
   createSingleRestorePlan,
+  deleteSingleRestorePlan,
   fetchRestoreRecords,
   fetchPathByPlanId,
   fetchPathByResultId,

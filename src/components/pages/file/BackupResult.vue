@@ -15,7 +15,11 @@
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="备份文件存放路径">
-              <span>{{ scope.row.targetPath }}</span>
+              <el-tooltip :content="scope.row.targetPath"
+                          placement="top"
+                          effect="dark">
+                <span :class="$style.wordsOverFlow">{{ scope.row.targetPath }}</span>
+              </el-tooltip>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="开始时间">
@@ -23,7 +27,11 @@
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="备份文件源路径">
-              <span>{{ scope.row.sourcePath }}</span>
+              <el-tooltip :content="scope.row.sourcePath"
+                          placement="top"
+                          effect="dark">
+                <span :class="$style.wordsOverFlow">{{ scope.row.sourcePath }}</span>
+              </el-tooltip>
             </el-form-item>
             <el-form-item :class="$style.detailFormItem"
                           label="结束时间">
@@ -104,16 +112,17 @@
       </el-table-column>
       <el-table-column label="操作"
                        min-width="80px"
-                       align="left">
+                       align="center">
         <template slot-scope="scope">
             <el-button type="text"
+                        class="textBtn"
                         size="small"
-                        
+                        :disabled="scope.row.state === 1"
+                        @click="restoreBtnClick(scope.row)">恢复</el-button>
+            <el-button type="text"
+                       class="textBtn"
+                        size="small"
                         @click="del(scope.row)">删除</el-button>
-          <el-button type="text"
-                     size="small"
-                     :disabled="scope.row.state === 1"
-                     @click="restoreBtnClick(scope.row)">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -136,8 +145,8 @@ import baseMixin from '@/components/mixins/baseMixins';
 // import backupResultMixin from '@/components/mixins/backupResultMixin';
 import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { fmtSizeFn } from '@/utils/common';
-import {deleteResultById} from '@/api/fileHost';
-import PathResultModal from '@/components/pages/fileHost/PathResultModal';
+import {deleteResultById} from '@/api/file';
+import PathResultModal from '@/components/pages/file/PathResultModal';
 import { backupResultMapping} from '@/utils/constant';
 export default {
   name: 'BackupResult',
@@ -151,6 +160,9 @@ export default {
       required: true,
       default: () => []
     },
+    backupType: {
+      type: Number
+    }
   },
   components: {
     PathResultModal
@@ -212,7 +224,7 @@ export default {
   methods: {
     // 点击恢复按钮
     restoreBtnClick({ id }) {
-      this.$emit('single-restore-btn-click', id);
+      this.$emit('single-restore-btn-click', id, this.backupType, 'restoreResult');
     },
     // 备份集状态码转文字
     stateConverter(stateCode) {
@@ -250,10 +262,17 @@ export default {
     right: 0 !important;
     bottom: 0 !important;
   }
-  width: 30%;
+  width: 40%;
   &:nth-child(2n) {
-    width: 69%;
+    width: 59%;
   }
+}
+.wordsOverFlow {
+  white-space:nowrap;
+  overflow: hidden;
+  display: inline-block;
+  text-overflow: ellipsis;
+  max-width: 370px;
 }
 </style>
 <style scoped>
@@ -267,6 +286,9 @@ export default {
   color: #409eff;
   text-decoration: none;
   cursor: pointer;
+}
+.textBtn {
+  margin-left: 0;
 }
 </style>
 

@@ -140,7 +140,7 @@ import baseMixin from '@/components/mixins/baseMixins';
 // import backupResultMixin from '@/components/mixins/backupResultMixin';
 import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { fmtSizeFn } from '@/utils/common';
-import {deleteResultById} from '@/api/fileHost';
+import {deleteResultById} from '@/api/file';
 import { backupResultMapping} from '@/utils/constant';
 
 export default {
