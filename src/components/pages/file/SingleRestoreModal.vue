@@ -29,7 +29,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="恢复源路径"
-                      prop="restorePath">
+                      prop="restorePath"
+                      v-if="restoreType === 1">
           <el-button type="primary"
                       size="small"
                      @click="selectSourceFiles">选择文件</el-button>

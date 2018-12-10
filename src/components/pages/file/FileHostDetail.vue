@@ -344,7 +344,7 @@ export default {
     // 添加恢复计划(立即执行)
     initSingleRestoreModal(id, backupType, type) {
       this.restoreResults = Object.assign({}, this.restoreResults, {id, backupType, type});
-      if(type === 'restoreResult') { // 恢复计划
+      if(type === 'restoreResult' && backupType === 1) { // 恢复单个文件计划
         fetchPathByResultId(this.restoreResults.id)
           .then(res => {
             const { data: path } = res.data;
@@ -356,9 +356,12 @@ export default {
           .then(() => {
             this.singleRestoreCreateModalVisible = true;
           })
-      } else { // 恢复备份集
+      } else if(type === 'restorePlan' && backupType === 1) { // 恢复单个文件备份集
         const readyToRestorePlan = this.results.find(result => result.id === id);
         this.retoreSourcePath = readyToRestorePlan.backupFiles.map(file => file.sourcePath);
+        this.singleRestoreCreateModalVisible = true;
+      } else {
+        this.retoreSourcePath = [];
         this.singleRestoreCreateModalVisible = true;
       }
     },
