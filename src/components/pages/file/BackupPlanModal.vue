@@ -58,20 +58,20 @@
                     @blur="handleInputConfirm"></el-input>
           <el-button v-else @click="showInputTag">+ 排除文件</el-button>
         </el-form-item>
-        <el-form-item label="备份系统"
-                      v-if="formData.backupType === 2">
-          <el-radio-group v-model="formData.backupFiles">
-            <el-radio label="systems">{{ systems }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
         <el-form-item label="备份卷"
-                      v-if="formData.backupType === 3">
+                      v-if="formData.backupType === 2">
           <el-radio-group v-model="formData.backupFiles">
             <el-radio v-for="(volume, index) in volumes"
                       :key="index"
                       :label="volume">
               {{ volume }}
             </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备份系统"
+                      v-if="formData.backupType === 3">
+          <el-radio-group v-model="formData.backupFiles">
+            <el-radio label="systems">{{ systems }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="限速(bps)"
@@ -355,7 +355,8 @@ export default {
         }
       }
       return {
-        name, backupType,
+        name,
+        backupType,
         bwlimit,
         excludeFiles,
         backupFiles,

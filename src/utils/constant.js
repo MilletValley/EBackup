@@ -122,6 +122,18 @@ const useTypeMapping = {
   7: '达梦数据库'
 };
 
+// 保留策略类型
+const keepStrategyMapping = {
+  0: '不启用策略',
+  1: '副本保留策略',
+  2: '时间策略'
+};
+
+const keepDateMapping = {
+  1: '按周保留',
+  2: '按月保留'
+};
+
 const systemStateMapping = {
   0: '启用',
   1: '禁用',
@@ -244,6 +256,8 @@ export {
   windowsTypeMapping,
   pathTypeMapping,
   useTypeMapping,
+  keepStrategyMapping,
+  keepDateMapping,
   systemStateMapping,
   databaseTypeMapping,
   databaseRoleMapping,

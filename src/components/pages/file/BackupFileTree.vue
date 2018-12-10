@@ -139,7 +139,7 @@ export default {
           treeObj.addNodes(treeNode, this.nodes);
         }
       } else if(treeNode.isParent){
-        fetchChildNodes({ id: this.hostId, data: selectPath })
+        fetchChildNodes({ id: this.hostId, path: selectPath })
           .then(res => {
             const { data } = res.data;
             _this.nodes = data.map(node => {

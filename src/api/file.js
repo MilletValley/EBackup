@@ -282,7 +282,9 @@ const fetchChildNodes = ({ id, path }) =>
   baseApi.request({
     method: 'post',
     url: `file-hosts/${id}/file-nodes`,
-    data: path
+    data: {
+      path
+    }
   });
 
 // 获取单个filehost下的所有恢复计划
