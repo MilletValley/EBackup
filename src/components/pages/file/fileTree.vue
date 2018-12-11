@@ -1,23 +1,38 @@
 <template>
-    <div id="areaTree">
-      <div class="tree-box">
-        <div class="zTreeDemoBackground left">
-          <ul id="treeDemo" class="ztree"></ul>
+  <section>
+    <el-dialog :visible.sync="modalVisible"
+               custom-class="min-width-dialog"
+               @open="modalOpenFn"
+               @cancel="cancelButtonClick">
+      <span slot="title">
+        请选择备份文件
+      </span>
+      <div id="areaTree">
+        <div class="tree-box">
+          <div class="zTreeDemoBackground left">
+            <ul id="treeDemo" class="ztree"></ul>
+          </div>
         </div>
       </div>
-    </div>
+      <span slot="footer">
+        <el-button type="primary"
+                   @click="confirmBtnClick">确定</el-button>
+        <el-button @click="cancelButtonClick">取消</el-button>
+      </span>
+    </el-dialog>
+  </section>
 </template>
-
 <script>
 import $ from 'jquery';
-import "../../../plugins/ztree/js/jquery.ztree.core.min.js";
-import "../../../plugins/ztree/js/jquery.ztree.excheck.min.js";
-import {
-  fetchAll,
-  fetchChildNodes,
-} from '@/api/file';
+import "../../../../plugins/ztree/js/jquery.ztree.core.min.js";
+import "../../../../plugins/ztree/js/jquery.ztree.excheck.min.js";
+import IIcon from '@/components/IIcon';
+import zTree from '@/components/common/zTree';
+import { fmtSizeFn } from '@/utils/common';
+import dayjs from 'dayjs';
+import { fetchChildNodes } from '@/api/file';
 export default {
-  name: 'zTree',
+  name: 'FileTree',
   props: {
     visible: {
       type: Boolean
@@ -34,6 +49,7 @@ export default {
   },
   data() {
     return {
+      nodes: [],
       setting: {
         check: {
             enable: true,
@@ -54,10 +70,19 @@ export default {
           onCheck: this.zTreeOnCheck
         },
       },
-      nodes: null
-    };
+    }
   },
   computed: {
+    modalVisible: {
+      get() {
+        return this.visible;
+      },
+      set(value) {
+        if (!value) {
+          this.$emit('update:visible', value);
+        }
+      }
+    },
     driverNodes() {
       return this.fatherNodes.map(node => {
         return {
@@ -69,7 +94,39 @@ export default {
       })
     }
   },
+  filters: {
+    // 时间戳转日期
+    filterToTime(date) {
+      if(!date)
+        return '-'
+      return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
+             new Date(parseInt(date)).toTimeString().substr(0, 8)
+    },
+    // 单位：b->tb
+    filterToTb(size) {
+      if(!size)
+        return '-';
+      else
+      return fmtSizeFn(size);
+    }
+  },
   methods: {
+    confirmBtnClick() {
+      this.$emit('selectNodes', this.nodes);
+      this.modalVisible = false
+    },
+    modalOpenFn(){
+      this.$nextTick(() => {
+      $.fn.zTree.init($('#treeDemo'), this.setting, this.driverNodes);
+      })
+    },
+    cancelButtonClick() {
+      this.$emit('selectNodes', []);
+      this.modalVisible = false;
+    },
+    selectNodes(nodes) {
+      this.nodes = nodes;
+    },
     zTreeOnClick(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
       const selectPath = treeNode.sourcePath;
@@ -104,33 +161,15 @@ export default {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
       this.$emit('selectNodes', treeObj.getCheckedNodes(true));
     },
-    // freshArea: function() {
-    //   this.zNodes = this.fileHostOriginPath;
-    //   $.fn.zTree.init($('#treeDemo'), this.setting, this.zNodes);
-    // },
-    // getOriginPath() {
-    //   // 测试数据
-    //   fetchChildNodes(123)
-    //     .then(res => {
-    //       const { data: fileHostPath } = res.data;
-    //       this.zNodes = fileHostPath;
-    //       $.fn.zTree.init($('#treeDemo'), this.setting, this.zNodes);
-    //     })
-    //     .catch(error => {
-    //       this.$message.error(error);
-    //     });
-    // },
   },
-  mounted() {
-    $.fn.zTree.init($('#treeDemo'), this.setting, this.driverNodes);
-    // this.getOriginPath();
-    // $.fn.zTree.init($('#treeDemo'), this.setting, this.zNodes);
-  },
-};
+  components: {
+    IIcon,
+    zTree
+  }
+}
 </script>
-
 <style>
-@import '../../../plugins/ztree/css/zTreeStyle/zTreeStyle.css';
+@import '../../../../plugins/ztree/css/zTreeStyle/zTreeStyle.css';
 #areaTree {
   border: 1px solid #e5e5e5;
   margin-bottom: 2px;
@@ -139,3 +178,4 @@ export default {
   max-height: 300px;
 }
 </style>
+

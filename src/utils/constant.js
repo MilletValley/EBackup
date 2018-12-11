@@ -21,18 +21,26 @@ const backupStrategyMapping = {
   2: '全备+日志备份',
 };
 
+// 文件备份策略
+
+const filehostBackupStrategyMapping = {
+  1: '全备+增备',
+  2: '增量不删减'
+};
+
 const logStrategyMapping = {
   1: '备份日志',
   2: '不备份日志'
 };
 
 const timeStrategyMapping = {
-  0: '单次执行',
+  0: '单次',
   1: '按分钟循环',
   2: '按小时循环',
   3: '按天循环',
   4: '按周循环',
   5: '按月循环',
+  6: '立即'
 };
 
 const weekMapping = {
@@ -43,6 +51,17 @@ const weekMapping = {
   5: '周五',
   6: '周六',
   7: '周日',
+};
+
+const filehostBackupTypeMapping = {
+  1: '文件备份',
+  2: '盘符备份',
+  3: '系统备份'
+};
+
+const filehostRestoreTypeMapping = {
+  1: '文件恢复',
+  2: '盘符恢复'
 };
 
 const restoreTimeStrategyMapping = {
@@ -206,14 +225,12 @@ const vmTypeMapping = {
   2: '华为虚拟机'
 };
 
-const fileHostBackupTypeMapping = {
-  1: '文件（夹）备份',
-  2: '系统备份',
-  3: '盘符备份'
-};
 export {
   operationStateMapping,
   backupStrategyMapping,
+  filehostBackupStrategyMapping,
+  filehostBackupTypeMapping,
+  filehostRestoreTypeMapping,
   logStrategyMapping,
   timeStrategyMapping,
   weekMapping,
@@ -243,6 +260,5 @@ export {
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
   vmTypeMapping,
-  yesOrNoMapping,
-  fileHostBackupTypeMapping
+  yesOrNoMapping
 };

@@ -80,21 +80,9 @@ const databaseModalMixin = {
     }
   },
   data() {
-    // const validateCheckPassword = (rule, value, callback) => {
-    //   if (!value) {
-    //     callback(new Error('请再次输入密码'));
-    //   } else {
-    //     if (value !== this.formData.password) {
-    //       callback(new Error('两次输入的密码不一致'));
-    //     }
-    //     callback();
-    //   }
-    // };
     return {
       // 原始表单值
       hiddenPassword: true,
-      // hiddenPassword1: true,
-      // validateCheckPassword
     };
   },
   computed: {
@@ -211,6 +199,12 @@ const backupPlanModalMixin = {
             datePoints,
             timePoints,
             ...other,
+          };
+          break;
+        case 6:
+          config = {
+            timeStrategy,
+            ...other
           };
           break;
         default:

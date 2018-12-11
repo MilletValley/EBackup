@@ -553,7 +553,8 @@ import { fetchAll, fetchSpaceUse } from '../../api/home';
 import { fmtSizeFn } from '../../utils/common';
 import baseMixin from '../mixins/baseMixins';
 import DashboardTab from '../mixins/DashboardTabMixins';
-import echartsLiquidfill from 'echarts-liquidfill';
+// import echartsLiquidfill from 'echarts-liquidfill';
+// import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
@@ -655,9 +656,9 @@ export default {
         .then(() => {
           this.drawLine();
         })
-        .catch(error => {
-          this.$message.error(error);
-        })
+        // .catch(error => {
+        //   this.$message.error(error);
+        // })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {

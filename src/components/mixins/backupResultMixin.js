@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { backupResultMapping, backupTypeMapping, yesOrNoMapping } from '@/utils/constant';
+import { cancelHighlight } from '@/api/home';
 
 const backupResultMixin = {
   props: {
@@ -122,7 +123,15 @@ const backupResultMixin = {
     resetFn() {
       this.$refs.filterForm.resetFields();
       this.filterHandler();
-    }
+    },
+    expandChange(row, expandedRows) {
+      // 展开失败的扩展表
+      if (expandedRows.includes(row) && row.state === 1) {
+        cancelHighlight(row.id, this.machineType).then(() => {
+          // console.log('ok', res);
+        });
+      }
+    },
   },
   computed: {
     buttonIcon() {

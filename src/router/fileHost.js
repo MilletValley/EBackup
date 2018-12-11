@@ -1,6 +1,8 @@
 import Layout from '@/components/Layout';
-import FileHostList from '@/components/pages/fileHost/FileHostList';
-import FileHostDetail from '@/components/pages/fileHost/FileHostDetail';
+// import FileHostList from '@/components/pages/fileHost/FileHostList';
+// import FileHostDetail from '@/components/pages/fileHost/FileHostDetail';
+import FileHostList from '@/components/pages/file/FileHostList';
+import FileHostDetail from '@/components/pages/file/FileHostDetail';
 
 const router = [
   {

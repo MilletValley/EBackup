@@ -376,11 +376,10 @@ export default {
       return backupResultMapping[stateCode];
     },
     expandChange(row, expandedRows){
-      console.log(row, expandedRows, expandedRows.includes(row))
       // 展开失败的扩展表
       if(expandedRows.includes(row) && row.state === 1) {
-        cancelHighlight(this.details.id, this.details.machineType).then(res => {
-          console.log('ok')
+        cancelHighlight(row.id, this.details.machineType).then(res => {
+          // console.log('ok')
         });
       }
     },

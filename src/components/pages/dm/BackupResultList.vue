@@ -42,6 +42,7 @@
     </el-row>
     <el-table :data="data|NotNullfilter|filterFn(filterValue)"
               style="width: 100%; margin-top: 15px"
+              @expand-change="expandChange"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
         <template slot-scope="scope">
@@ -169,6 +170,11 @@ import backupResultMixin from '@/components/mixins/backupResultMixin';
 export default {
   name: 'BackupResultList',
   mixins: [baseMixin, backupResultMixin],
+  data() {
+    return {
+      machineType: 1
+    }
+  }
 };
 </script>
 <style lang="scss" module>
