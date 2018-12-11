@@ -244,11 +244,13 @@ export default {
         .then(() => {
           const id = row.id;
           deleteResultById(id).then(res => {
-            const {message} = res.data;
-            this.$message.success(message)
-          }).catch( error => {
+            const { message } = res.data;
+            this.$message.success(message);
+          }).catch(error => {
             this.$message.error(error);
-          });
+          }).then(() => {
+            this.$emit('refresh');
+          })
         })
         .catch(() => { });
     },

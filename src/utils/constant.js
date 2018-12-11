@@ -24,7 +24,7 @@ const backupStrategyMapping = {
 // 文件备份策略
 
 const filehostBackupStrategyMapping = {
-  1: '全备+增备',
+  1: '同步',
   2: '增量不删减'
 };
 

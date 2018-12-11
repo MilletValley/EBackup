@@ -247,7 +247,7 @@ const fetchOneBackupResult = id =>
 const deleteResultByPlanId = id =>
   baseApi.request({
     method: 'delete',
-    url: `/file-host-backup-plan/${id}/file-host-backup-results`,
+    url: `/file-host-backup-plans/${id}/file-host-backup-results`,
   });
 
 // 删除备份集(根据备份集id)

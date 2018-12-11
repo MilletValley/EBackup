@@ -16,7 +16,7 @@
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
-      <el-button v-if="backupOperation.state !== 2 && backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6"
+      <el-button v-if="canUpdatePlan"
                  style="float: right; padding: 3px 3px"
                  type="text"
                  @click="planUpdateBtnClick">编辑</el-button>
@@ -26,13 +26,12 @@
         <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划创建时间"
-                        v-if="backupConfig.timeStrategy !== 0"
                         :style="{ width: '40%'}">
-            <span>{{ backupConfig.startTime }}</span>
+            <span>{{ backupOperation.createTime }}</span>
           </el-form-item>
           <el-form-item label="备份类型"
                         style="40%">
-            <div>{{ backupType }} (限速: {{backupOperation.bwlimit}}bps)</div>
+            <div>{{ backupType }} (限速: {{backupOperation.bwlimit}}kbps)</div>
           </el-form-item>
           <el-form-item label="备份方向"
                         v-if="[2,3].includes(backupOperation.backupType)"
@@ -132,9 +131,9 @@
               </el-progress>
             </div>
           </li>
-          <li>
-            <h5>备份开始时间</h5>
-            <div>{{backupOperation.startTime || '备份未开始'}}</div>
+          <li v-if="backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6">
+            <h5>计划执行时间</h5>
+            <div>{{backupConfig.startTime || '计划未开始'}}</div>
           </li>
           <li v-if="[2, 3].includes(backupOperation.backupType)">
             <h5>已持续时间</h5>
@@ -298,6 +297,10 @@ export default {
     },
     backupType() {
       return filehostBackupTypeMapping[this.backupOperation.backupType];
+    },
+    canUpdatePlan() {
+      return (this.backupOperation.state !== 2 && [1,2,3,4,5].includes(this.backupConfig.timeStrategy)) ||
+             (this.backupConfig.timeStrategy === 6 && this.this.backupOperation.state === 0);
     },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {

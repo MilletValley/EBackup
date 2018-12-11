@@ -26,7 +26,7 @@
                           placeholder="选择计划创建时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="时间点" class="is-required"
+        <el-form-item label="执行时间" class="is-required"
                       v-show="formData.timeStrategy === 0"
                       prop="singleTime">
           <el-date-picker v-model="formData.singleTime"

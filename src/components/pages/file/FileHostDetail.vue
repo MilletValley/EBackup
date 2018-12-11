@@ -94,7 +94,8 @@
       <template slot="backupResult">
         <backup-result-list :data="results"
                             :type="systemType"
-                            @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
+                            @single-restore-btn-click="initSingleRestoreModal"
+                            @refresh="refreshResults"></backup-result-list>
       </template>
       <template slot="restoreRecord">
         <restore-records :records="restoreRecords"
@@ -132,6 +133,7 @@ import BackupPlanModal from '@/components/pages/file/BackupPlanModal';
 import SingleRestoreModal from '@/components/pages/file/SingleRestoreModal';
 import IIcon from '@/components/IIcon';
 import { applyFilterMethods } from '@/utils/common';
+import { sortMixin } from '@/components/mixins/commonMixin';
 import throttle from 'lodash/throttle';
 import {
   fetchOne,
@@ -161,6 +163,7 @@ const OperateBackupPlan = {
 export default {
   name: 'FileHostDetail',
   props: ['id'],
+  mixins: [sortMixin],
   data() {
     return {
       infoLoading: true,
@@ -252,7 +255,7 @@ export default {
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.backupPlans = Array.isArray(plans) ? plans : [];
+          this.backupPlans = Array.isArray(plans) ? this.sortFn(plans, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -411,6 +414,10 @@ export default {
       if (name === 'results') {
         this.updateResults();
       }
+    },
+    refreshResults() {
+      console.log('ok');
+      this.fetchBackupResults();
     },
     stopPlans() {
       this.$confirm(

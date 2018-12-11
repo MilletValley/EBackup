@@ -74,7 +74,7 @@
             <el-radio label="systems">{{ systems }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="限速(bps)"
+        <el-form-item label="限速(kbps)"
                       prop="bwlimit">
           <el-input v-model.number="formData.bwlimit"></el-input>
         </el-form-item>
