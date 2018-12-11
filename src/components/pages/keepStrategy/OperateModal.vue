@@ -30,17 +30,23 @@
                         :label="Number(strategy)">{{ keepStrategyMapping[strategy] }}</el-radio>
             </el-radio-group>
         </el-form-item>
-        <el-row v-if="formData.keepType === 1 && action === 'update'">
+        <el-row v-if="formData.keepType === 1">
           <el-col :span="12">
             <el-form-item label="容器数量"
                           prop="totalContainer">
               <el-input-number v-model="formData.totalContainer"
+                               v-if="action === 'update'"
                                :min="1"
                                :max="originFormData.totalContainer"
                                @change="totalContainerChange"></el-input-number>
+              <el-input-number v-model="formData.totalContainer"
+                               v-if="action === 'create'"
+                               :min="1"
+                               :max="10"></el-input-number>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="12"
+                  v-if="action === 'update'">
             <el-form-item label="当前容器"
                           prop="currentContainer">
               <el-input-number v-model="formData.currentContainer"
