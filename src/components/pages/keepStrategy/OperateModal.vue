@@ -30,12 +30,14 @@
                         :label="Number(strategy)">{{ keepStrategyMapping[strategy] }}</el-radio>
             </el-radio-group>
         </el-form-item>
-        <el-row v-if="formData.keepType === 2 && action === 'update'">
+        <el-row v-if="formData.keepType === 1 && action === 'update'">
           <el-col :span="12">
             <el-form-item label="容器数量"
                           prop="totalContainer">
-              <el-input v-model="formData.totalContainer"
-                        disabled></el-input>
+              <el-input-number v-model="formData.totalContainer"
+                               :min="1"
+                               :max="originFormData.totalContainer"
+                               @change="totalContainerChange"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -49,7 +51,7 @@
         </el-row>
         <el-form-item label="清除脚本路径"
                       prop="scriptsPath"
-                      v-if="formData.keepType === 1">
+                      v-if="formData.keepType === 2">
           <el-input v-model="formData.scriptsPath"></el-input>
         </el-form-item>
         <el-form-item label="时间策略"
@@ -58,14 +60,14 @@
           <el-radio-group v-model="formData.keepDate">
             <el-radio v-for="date in Object.keys(keepDateMapping)"
                       :key="date"
-                      :label="Number(date)">{{ keepDateMapping[date] }}</el-radio>
+                      :label="date">{{ keepDateMapping[date] }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="选择日期"
                       prop="scheduleDate"
                       v-if="[1,2].includes(formData.keepType)">
           <el-radio-group v-model="formData.scheduleDate"
-                             v-if="formData.keepDate === 1">
+                             v-if="Number(formData.keepDate) === 1">
             <el-radio-button v-for="w in Object.keys(weekMapping)"
                              :key="w"
                              :label="Number(w)">{{ weekMapping[w] }}</el-radio-button>
@@ -113,7 +115,7 @@ const basicData = {
   keepType: 0,
   totalContainer: 0,
   currentContainer: 0,
-  keepDate: 1,
+  keepDate: '1',
   scheduleDate: 1,
   scheduleTime: dayjs().format('HH:mm:ss'),
   scriptsPath: ''
@@ -240,7 +242,7 @@ export default {
     },
     modalOpen() {
       if(this.action === 'update'){
-        this.originFormData = Object.assign({},this.baseData, this.data);
+        this.originFormData = Object.assign({}, this.baseData, this.data);
       }else{
         this.originFormData = {...this.baseData};
       }
@@ -248,6 +250,11 @@ export default {
     },
     modalClosed() {
       this.$refs.form.clearValidate();
+    },
+    totalContainerChange() {
+      if(this.formData.totalContainer<this.formData.currentContainer) {
+        this.formData.currentContainer = this.formData.totalContainer;
+      }
     }
   }
 }
