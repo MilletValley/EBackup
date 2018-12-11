@@ -48,6 +48,7 @@ export default {
   data() {
     return {
       nodes: [],
+      checkedNodes: [],
       setting: {
         check: {
             enable: true,
@@ -91,8 +92,8 @@ export default {
   },
   methods: {
     confirmBtnClick() {
-      this.$emit('selectNodes', this.nodes);
-      this.modalVisible = false
+      this.$emit('selectNodes', this.checkedNodes);
+      this.modalVisible = false;
     },
     modalOpenFn(){
       this.$nextTick(() => {
@@ -100,7 +101,7 @@ export default {
       })
     },
     cancelButtonClick() {
-      this.$emit('selectNodes', []);
+      // this.$emit('selectNodes', []);
       this.modalVisible = false;
     },
     fetchNextNodes(treeNode) {
@@ -132,7 +133,7 @@ export default {
     },
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("resultTreeDemo");
-      this.nodes = treeObj.getCheckedNodes(true);
+      this.checkedNodes = treeObj.getCheckedNodes(true);
     },
   }
 }

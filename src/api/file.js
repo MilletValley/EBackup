@@ -24,7 +24,7 @@ const fmtBackupPlan = plan => {
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
-      } else if (p.percentage > 1) { // 进行中，且进度大于100%
+      } else if (p.percentage > 100) { // 进行中，且进度大于100%
         p.percentage = 99;
       }
     } else { // 卷备份、系统备份
@@ -81,7 +81,7 @@ const fmtRestorePlan = plan => {
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
-      } else if (p.percentage > 1) { // 进行中，且进度大于100%
+      } else if (p.percentage > 100) { // 进行中，且进度大于100%
         p.percentage = 99;
       }
     } else { // 系统恢复
