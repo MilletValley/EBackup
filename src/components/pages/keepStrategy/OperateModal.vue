@@ -35,14 +35,9 @@
             <el-form-item label="容器数量"
                           prop="totalContainer">
               <el-input-number v-model="formData.totalContainer"
-                               v-if="action === 'update'"
                                :min="1"
-                               :max="originFormData.totalContainer"
+                               :max="10"
                                @change="totalContainerChange"></el-input-number>
-              <el-input-number v-model="formData.totalContainer"
-                               v-if="action === 'create'"
-                               :min="1"
-                               :max="10"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="12"
@@ -258,7 +253,7 @@ export default {
       this.$refs.form.clearValidate();
     },
     totalContainerChange() {
-      if(this.formData.totalContainer<this.formData.currentContainer) {
+      if(this.formData.totalContainer<this.formData.currentContainer && this.action === 'update') {
         this.formData.currentContainer = this.formData.totalContainer;
       }
     }
