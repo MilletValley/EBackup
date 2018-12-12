@@ -90,7 +90,7 @@
                         :fatherNodes="sourcePath"
                         @selectNodes="selectSourceNodes"></result-source-path>
     <target-tree :visible.sync="fileTargetTree"
-                 :host-id="hostId"
+                 :host-id="formData.targetHostId"
                  :fatherNodes="targetNodes"
                  @selectNodes="selectTargetNodes"></target-tree>
   </section>

@@ -14,8 +14,8 @@
                        prop="name"
                        min-width="180px"
                        align="center"></el-table-column>
-      <el-table-column label="备份开始时间"
-                       prop="startTime"
+      <el-table-column label="计划创建时间"
+                       prop="createTime"
                        min-width="180px"
                        align="center"
                        header-align="center"></el-table-column>

@@ -300,7 +300,7 @@ export default {
     },
     canUpdatePlan() {
       return (this.backupOperation.state !== 2 && [1,2,3,4,5].includes(this.backupConfig.timeStrategy)) ||
-             (this.backupConfig.timeStrategy === 6 && this.this.backupOperation.state === 0);
+             (this.backupConfig.timeStrategy === 6 && this.backupOperation.state === 0);
     },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {

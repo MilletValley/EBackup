@@ -30,7 +30,8 @@
                        min-width="150"
                        label="调度时间">
         <template slot-scope="scope">
-          <el-tag size="mini">
+          <el-tag size="mini"
+                  v-if="[1, 2].includes(Number(scope.row.keepType))">
             {{ Number(scope.row.keepDate) === 1 ? convertWeek(scope.row) : scope.row.scheduleDate + '号' }} {{ scope.row.scheduleTime }}
           </el-tag>
         </template>
