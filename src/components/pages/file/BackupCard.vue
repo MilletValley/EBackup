@@ -31,7 +31,7 @@
           </el-form-item>
           <el-form-item label="备份类型"
                         style="40%">
-            <div>{{ backupType }} (限速: {{backupOperation.bwlimit}}kbps)</div>
+            <div>{{ backupType }} (限速: {{fmtSize(backupOperation.bwlimit*1024)}}bps)</div>
           </el-form-item>
           <el-form-item label="备份方向"
                         v-if="[2,3].includes(backupOperation.backupType)"
@@ -412,11 +412,11 @@ export default {
 }
 .more {
   font-size: 14px;
-  height: 110px;
-  overflow: auto;
-  col {
-    height: 110px;
-  }
+  // height: 110px;
+  // overflow: auto;
+  // col {
+  //   height: 110px;
+  // }
 }
 .showMore {
   text-align: center;

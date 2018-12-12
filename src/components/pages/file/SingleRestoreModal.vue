@@ -13,6 +13,10 @@
               label-width="110px"
               :model="formData"
               ref="singleRestorePlanForm">
+        <el-form-item label="计划名"
+                      prop="planName">
+          <el-input v-model="formData.planName"></el-input>
+        </el-form-item>
         <el-form-item label="恢复主机"
                       :rules="{ required: true, message: '请选择主机', trigger: 'blur' }"
                       prop="hostIp">
@@ -34,13 +38,47 @@
           <el-button type="primary"
                       size="small"
                      @click="selectSourceFiles">选择文件</el-button>
+          <span v-if="formData.restorePath&&!formData.restorePath.length"
+                style="color: #f56c6c; font-size: 12px">
+            <i class="el-icon-warning"></i>未选择恢复文件
+          </span>
+          <el-popover placement="right"
+                      width="400"
+                      trigger="hover"
+                      v-else>
+            <div style="max-height: 400px; overflow: auto;">
+              <p v-for="path in formData.restorePath"
+                :key="path"
+                style="margin-top: 0; margin-bottom: 5px">
+                <el-tag closable
+                        size="small"
+                        :class="$style.fileTags"
+                        @close="delSelectedFile(path)">
+                  <span>{{ path }}</span>
+                </el-tag>
+              </p>
+            </div>
+            <span style="color: #409EFF; font-size: 12px; cursor: pointer"
+                  slot="reference">
+              <i class="el-icon-question"></i>查看已选文件
+            </span>
+          </el-popover>          
         </el-form-item>
         <el-form-item label="存放路径"
                       prop="targetPath">
           <el-button type="primary"
                      :disabled="!hasFetchedTargetPath"
+                     style="float: left; margin-right: 4px"
                      size="small"
                      @click="selectTargetFiles">选择路径</el-button>
+          <span v-if="!formData.targetPath"
+                style="color: #f56c6c; font-size: 12px">
+            <i class="el-icon-warning"></i>未选择存放路径
+          </span>
+          <el-tag v-else
+                  :class="$style.targetPathTag">
+            <span>{{ formData.targetPath }}</span>
+          </el-tag>
         </el-form-item>
         <el-form-item label="恢复排除文件"
                       v-if="restoreType === 1">
@@ -109,8 +147,9 @@ import {
 } from '@/api/file';
 const basicFormData = {
   targetHostId: null,
-  targetPath: null,
-  restorePath: null,
+  planName: '',
+  targetPath: '',
+  restorePath: [],
   excludeFiles: [],
   loginName: '',
   password: ''
@@ -223,6 +262,9 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus();
       })
     },
+    delSelectedFile(path) {
+      this.formData.restorePath.splice(this.formData.restorePath.indexOf(path), 1);
+    },
     handleInputConfirm() {
       let tagInputValue = this.tagInputValue;
       if(tagInputValue) {
@@ -263,6 +305,33 @@ export default {
 }
 .buttonNewTag {
   width: 100px;
+}
+.targetPathTag {
+  display: inline-block;
+  float: left;
+  max-width: 500px;
+  span {
+    max-width: 480px;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+.fileTags {
+  display: inline-block;
+  max-width: 380px;
+  span {
+    max-width: 340px;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  i {
+    vertical-align: 0.4em !important;
+  }
+  // margin-top: 5px;
 }
 </style>
 

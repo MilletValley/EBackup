@@ -34,10 +34,13 @@
                        label="主机IP"
                        min-width="200"
                        align="center"></el-table-column>
-      <el-table-column prop="osName"
-                       label="操作系统"
-                       min-width="150"
-                       align="center"></el-table-column>
+      <el-table-column label="操作系统"
+                       min-width="180"
+                       align="center">
+        <template slot-scope="scope">
+          {{ scope.row.osName+`${scope.row.systemVersion?'-'+scope.row.systemVersion:''}` }}
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间"
                        min-width="180"
                        align="center">

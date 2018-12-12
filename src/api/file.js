@@ -24,7 +24,7 @@ const fmtBackupPlan = plan => {
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
-      } else if (p.percentage > 100) { // 进行中，且进度大于100%
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
         p.percentage = 99;
       }
     } else { // 卷备份、系统备份
@@ -81,7 +81,7 @@ const fmtRestorePlan = plan => {
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
-      } else if (p.percentage > 100) { // 进行中，且进度大于100%
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
         p.percentage = 99;
       }
     } else { // 系统恢复
@@ -106,7 +106,6 @@ const fmtRestorePlan = plan => {
   plan.size = plan.restorePath.map(file => file.sourceSize).reduce((pre, cur) => Number(pre) + Number(cur));
   plan.progress = plan.restorePath.map(file => file.progress).reduce((pre, cur) => Number(pre) + Number(cur));
   plan.percentage = plan.restorePath.map(file => file.percentage).reduce((pre, cur) => Number(pre) + Number(cur)) / plan.restorePath.length;
-  plan.name = plan.startTime;
   if (plan.percentage > 0 && plan.percentage < 1) {
     plan.percentage = 1;
   } else if (plan.percentage > 99 && plan.percentage < 100) {

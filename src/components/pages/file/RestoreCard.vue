@@ -5,7 +5,7 @@
       <el-tag size="mini"
               color="#fa4211"
               style="color: #ffffff">恢复</el-tag>
-      <span>{{restorePlan.name}}</span>
+      <span>{{restorePlan.planName}}</span>
       <i v-if="restorePlan.state !== 2"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
@@ -353,11 +353,11 @@ export default {
 }
 .more {
   font-size: 14px;
-  height: 110px;
-  overflow: auto;
-  col {
-    height: 110px;
-  }
+  // height: 110px;
+  // overflow: auto;
+  // col {
+  //   height: 110px;
+  // }
 }
 .showMore {
   text-align: center;

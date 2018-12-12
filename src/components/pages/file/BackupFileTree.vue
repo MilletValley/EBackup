@@ -69,7 +69,8 @@ export default {
         callback: {
           onClick: this.zTreeOnClick,
           onExpand: this.zTreeOnExpand,
-          onCheck: this.zTreeOnCheck
+          onCheck: this.zTreeOnCheck,
+          beforeCheck: this.zTreeBeforeCheck
         },
       },
     }
@@ -165,6 +166,13 @@ export default {
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
       this.checkedNodes = treeObj.getCheckedNodes();
+    },
+    zTreeBeforeCheck(treeId, treeNode) {
+      if(this.checkedNodes.length === 10 && !treeNode.checked) {
+        this.$message.warning('请选择10个以内的文件数量！')
+        return false;
+      }
+      return true;
     },
   },
   components: {

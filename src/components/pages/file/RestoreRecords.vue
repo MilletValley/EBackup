@@ -53,6 +53,7 @@
           </el-form>
           <el-table v-else
                     :data="props.row.filePaths"
+                    style="font-size: 12px;"
                     :default-sort="{ prop: 'startTime', order: 'ascending' }">
             <el-table-column prop="sourceFileName"
                              label="文件名"
@@ -98,6 +99,11 @@
           </el-table>
         </template>
       </el-table-column>
+      <el-table-column label="计划名"
+                       prop="planName"
+                       align="center"
+                       min-width="100"
+                       show-overflow-tooltip></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
                        align="center"

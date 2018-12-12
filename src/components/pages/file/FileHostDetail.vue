@@ -50,7 +50,7 @@
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="操作系统：">
-                    <span>{{ details.osName }}</span>
+                    <span>{{ details.osName+`${details.systemVersion?'-'+details.systemVersion:''}` }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
