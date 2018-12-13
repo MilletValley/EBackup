@@ -1,5 +1,6 @@
 <template>
-  <el-container style="height: 100%; min-width: 1000px;" @mousemove="mousemoveCallBack">
+<div @click="mousemoveCallBack">
+  <el-container style="height: 100%; min-width: 1000px;" >
     <el-aside style="width:auto;background-color: #00264a">
       <div class="logo">
         <img src="../assets/layoutContraction.png"
@@ -75,6 +76,8 @@
       </div>
     </el-container>
   </el-container>
+</div>
+  
 </template>
 
 <script>
