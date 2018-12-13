@@ -164,7 +164,7 @@
             <el-col :span="12">
               <i-icon name="size"
                       :class="$style.restoreFileInfoIcon"></i-icon>
-              <el-tooltip content="文件大小"
+              <el-tooltip content="源文件总大小"
                           placement="right"
                           :open-delay="300">
                 <span>{{ fmtSize(restoreFile.sourceSize) }}</span>

@@ -21,7 +21,8 @@
         </el-form-item>
         <el-form-item label="备份类型"
                       prop="backupType">
-          <el-radio-group v-model="formData.backupType">
+          <el-radio-group v-model="formData.backupType"
+                          @change="backupTypeChange">
             <el-radio v-for="type in backupTypeSelect"
                       :key="type.label"
                       :label="type.label">
@@ -92,38 +93,46 @@
             <el-radio :label="systems">{{ systems }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="限速(kbps)"
-                      prop="bwlimit">
-          <el-input v-model.number="formData.bwlimit"></el-input>
-        </el-form-item>
-        <!-- <el-row>
+        <el-row v-if="formData.backupType === 1">
           <el-col :span="12">
             <el-form-item label="限速"
                           prop="bwlimit">
-              <el-input v-model.number="formData.bwlimit"></el-input>
               <el-select v-model="formData.bwlimit"
                          clearable
                          placeholder="请选限速值">
-                <el-option v-for="item in selectBwlimit"
-                           :key="item"
+                <el-option v-for="(item, index) in [1, 2, 4, 10, 20, 50, 100, 200, 500, 800]"
+                           :key="index"
                            :label="item"
                            :value="item"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-
+            <el-form-item label="单位"
+                          prop="unit">
+              <el-select v-model="formData.unit"
+                         clearable
+                         placeholder="请选单位">
+                <el-option v-for="(item, index) in ['Kbps', 'Mbps', 'Gbps']"
+                           :key="index"
+                           :label="item"
+                           :value="index"></el-option>
+              </el-select>            
+            </el-form-item>
           </el-col>
-        </el-row> -->
+        </el-row>
         <el-form-item label="备份策略"
                       class="is-required"
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy">
 						<el-radio v-for="(backupStrategy, index) in backupStrategySelect"
                       :key="index"
-                      :label="backupStrategy.label">
+                      :label="backupStrategy.label"
+                      v-if="formData.backupType === 1">
               {{ backupStrategy.text }}
             </el-radio>
+            <el-radio v-if="formData.backupType !== 1"
+                      :label="backupStrategySelect[0].label">{{ backupStrategySelect[0].text }}</el-radio>
           </el-radio-group>
         </el-form-item>
 				<!-- 时间策略 -->
@@ -160,6 +169,7 @@ const basicFormData = {
   backupFiles: [],
   excludeFiles: [],
   bwlimit: null,
+  unit: null, // 限速单位
   startTime: '',
   singleTime: '',
   datePoints: [],
@@ -190,10 +200,16 @@ export default {
       type: Object
     },
     systems: {
-      type: String
+      type: String,
+      default: function() {
+        return '';
+      }
     },
     volumes: {
-      type: Array
+      type: Array,
+      default: function() {
+        return [];
+      }
     },
     filePath: {
       type: Array,
@@ -320,6 +336,7 @@ export default {
         name,
         backupType,
         bwlimit,
+        unit,
         excludeFiles,
         backupFiles,
         timeStrategy,
@@ -392,7 +409,7 @@ export default {
       return {
         name,
         backupType,
-        bwlimit,
+        bwlimit: bwlimit*Math.pow(1024, unit),
         excludeFiles,
         backupFiles,
         config
@@ -436,6 +453,9 @@ export default {
       } else {
         this.formData.backupFiles = [this.backupFilesSet.system];
       }
+    },
+    backupTypeChange() {
+      this.formData.backupStrategy = 1;
     },
     hasModifiedBeforeClose(fn) {
       this.assignBackupFiles();

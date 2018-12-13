@@ -213,7 +213,7 @@
             <el-col :span="12">
               <i-icon name="size"
                       :class="$style.backupFileInfoIcon"></i-icon>
-              <el-tooltip content="文件大小"
+              <el-tooltip content="源文件总大小"
                           placement="right"
                           :open-delay="300">
                 <span>{{ fmtSize(backupFile.sourceSize) }}</span>
@@ -299,8 +299,8 @@ export default {
       return filehostBackupTypeMapping[this.backupOperation.backupType];
     },
     canUpdatePlan() {
-      return (this.backupOperation.state !== 2 && [1,2,3,4,5].includes(this.backupConfig.timeStrategy)) ||
-             (this.backupConfig.timeStrategy === 6 && this.backupOperation.state === 0);
+      return [1,2,3,4,5].includes(this.backupConfig.timeStrategy) ||
+             (this.backupConfig.timeStrategy === 0 && this.backupOperation.state === 0);
     },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {

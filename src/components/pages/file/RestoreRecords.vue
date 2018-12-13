@@ -59,8 +59,8 @@
                              label="文件名"
                              align="center"
                              min-width="100px"></el-table-column>
-            <el-table-column prop="大小"
-                             label="sourceSize"
+            <el-table-column prop="sourceSize"
+                             label="大小"
                              align="center"
                              min-width="80px"
                              :formatter="fmtSize"></el-table-column>
