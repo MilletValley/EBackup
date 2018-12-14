@@ -66,16 +66,30 @@ export default {
     },
     type: {
       type: String
+    },
+    tab: {
+      type: String,
+      default: function() {
+        return 'plans';
+      }
     }
   },
   data() {
     return {
-      activeTab: 'plans', // 激活的tab页
+      // activeTab: 'plans', // 激活的tab页
       // 恢复计划筛选条件
       restorePlanFilterForm: {
         hiddenCompletePlan: false,
       },
     };
+  },
+  computed: {
+    activeTab: {
+      get() {
+        return this.tab;
+      },
+      set() {}
+    }
   },
   // 根据入口激活当前tab页
   created() {

@@ -71,7 +71,10 @@
         </el-row>
       </div>
     </header>
-    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm"  :type="systemType">
+    <tab-panels @switchpane="switchPane"
+                :planFilterForm="planFilterForm"
+                :type="systemType"
+                :tab="activeTab">
       <template slot="backupCard">
         <backup-card :id="plan.id"
                      v-for="plan in filteredBackupPlans"
@@ -176,6 +179,7 @@ export default {
       btnLoading: false,
       backupPlanModalVisible: false,
       action: 'create',
+      activeTab: 'plans',
       restoreResults: {},
       singleRestoreCreateModalVisible: false,
       details: {
@@ -265,7 +269,7 @@ export default {
       fetchRestorePlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.restorePlans = Array.isArray(plans) ? plans : [];
+          this.restorePlans = Array.isArray(plans) ? this.sortFn(plans, 'startTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -275,7 +279,7 @@ export default {
       fetchBackupResults(this.id)
         .then(res => {
           const { data: results } = res.data;
-          this.results = Array.isArray(results) ? results : [];
+          this.results = Array.isArray(results) ? this.sortFn(results, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -379,6 +383,8 @@ export default {
          .then(res => {
           const { message } = res.data;
           this.backupPlanModalVisible = false;
+          this.activeTab = 'plans';
+          this.planFilterForm.planType = 'backup';
           this.$message.success(message);
           this.fetchBackupPlanList();
         })
@@ -400,6 +406,8 @@ export default {
         .then(res => {
           const { message } = res.data;
           this.singleRestoreCreateModalVisible = false;
+          this.activeTab = 'plans';
+          this.planFilterForm.planType = 'restore';
           this.$message.success(message);
           this.fetchRestorePlanList();
         })
@@ -410,13 +418,13 @@ export default {
           this.btnLoading = false;
         })
     },
-    switchPane() {
+    switchPane(name) {
       if (name === 'results') {
         this.updateResults();
       }
+      this.activeTab = name;
     },
     refreshResults() {
-      console.log('ok');
       this.fetchBackupResults();
     },
     stopPlans() {

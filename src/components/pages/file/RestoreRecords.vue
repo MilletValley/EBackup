@@ -67,14 +67,17 @@
             <el-table-column prop="sourcePath"
                              label="源文件路径"
                              align="center"
+                             show-overflow-tooltip
                              min-width="150px"></el-table-column>
             <!-- 相同 -->
             <el-table-column prop="targetPath"
                              label="存放路径"
                              align="center"
+                             show-overflow-tooltip
                              min-width="150px"></el-table-column>
             <el-table-column prop="pointPath"
                              label="nfs挂载路径"
+                             show-overflow-tooltip
                              align="center"
                              min-width="150px"></el-table-column>
             <el-table-column label="恢复结果"

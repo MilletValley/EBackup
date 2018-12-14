@@ -121,10 +121,12 @@
     </el-dialog>
     <plan-source-path :visible.sync="filePlanTree"
                       :host-id="hostId"
+                      :nodes="formData.restorePath"
                       :fatherNodes="sourcePath"
                       @selectNodes="selectSourceNodes"></plan-source-path>
     <result-source-path :visible.sync="fileResultTree"
                         :host-id="hostId"
+                        :nodes="formData.restorePath"
                         :fatherNodes="sourcePath"
                         @selectNodes="selectSourceNodes"></result-source-path>
     <target-tree :visible.sync="fileTargetTree"
@@ -236,7 +238,7 @@ export default {
       this.formData = Object.assign({}, this.originFormData);
     },
     selectSourceNodes(nodes) {
-      this.formData.restorePath = nodes.map(node => node.sourcePath).concat();
+      this.formData.restorePath = nodes.concat();
     },
     selectTargetNodes(nodes) {
       this.formData.targetPath = nodes.map(node => node.sourcePath).concat()[0];

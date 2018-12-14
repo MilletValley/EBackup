@@ -98,8 +98,9 @@ const hostTypeMapping = {
 // 系统类别
 const sysTypeMapping = {
   // 0: '通用',
-  1: 'Windows',
-  2: 'Linux'
+  1: 'Windows Share',
+  2: 'Linux NFS',
+  3: 'Windows NFS'
 };
 
 // Windows系统版本

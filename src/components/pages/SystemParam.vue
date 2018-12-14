@@ -27,7 +27,7 @@
                        min-width="250"
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
-                       label="路径"
+                       label="挂载点"
                        min-width="250"
                        align="center"></el-table-column>
       <el-table-column label="状态"
@@ -56,32 +56,48 @@
                        align="center"
                        prop="state">
         <template slot-scope="scope">
-          <el-button type="primary"
-                     icon="el-icon-edit"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="handleUpdate(scope.$index, scope.row)"></el-button>
-          <el-button type="danger"
-                     icon="el-icon-delete"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="handleDelete(scope.$index, scope.row)"></el-button>
-          <el-button type="success"
-                     icon="el-icon-check"
-                     circle
-                     :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"
-                     v-if="scope.row.state===1"
-                     size="mini"></el-button>
-          <el-button type="info"
+          <el-tooltip content="修改"
+                      placement="top"
+                      effect="light">
+            <el-button type="primary"
+                      icon="el-icon-edit"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="handleUpdate(scope.$index, scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip content="删除"
+                      placement="top"
+                      effect="light">
+            <el-button type="danger"
+                      icon="el-icon-delete"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="handleDelete(scope.$index, scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip content="启用"
+                      placement="top"
+                      effect="light"
+                      v-if="scope.row.state===1">
+            <el-button type="success"
+                       icon="el-icon-check"
+                       circle
+                       :class="$style.miniCricleIconBtn"
+                       @click="changeState(scope.$index, scope.row)"
+                       size="mini"></el-button>
+          </el-tooltip>
+          <el-tooltip content="禁用"
+                      placement="top"
+                      effect="light"
+                      v-else>
+            <el-button type="info"
                      icon="el-icon-minus"
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     v-else
                      @click="changeState(scope.$index, scope.row)"></el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
@@ -99,10 +115,16 @@
                :rules="rules"
                label-width="130px"
                size="small">
-        <el-form-item label="系统类别"
+        <!-- <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
+        </el-form-item> -->
+        <el-form-item label="系统类别"
+                      prop="sysType">
+          <el-radio v-model="formData.sysType" :label="1">Windows Share</el-radio>
+          <el-radio v-model="formData.sysType" :label="2">Linux NFS</el-radio>
+          <el-radio v-model="formData.sysType" :label="3">Windows NFS</el-radio>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
@@ -114,17 +136,17 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
-                      v-if="formData.sysType === 1 && formData.useType === 2"
+                      v-if="[1, 3].includes(formData.sysType) && formData.useType === 2"
                       prop="windowsType">
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item label="地址"
+        <el-form-item :label="`${formData.sysType === 1?'共享路径':'NFS地址'}`"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
-        <el-form-item label="路径"
-                      v-if="formData.sysType === 2 && (formData.useType ===3 || formData.useType === 7)"
+        <el-form-item label="挂载点"
+                      v-if="[2, 3].includes(formData.sysType)"
                       prop="mountUrl">
           <el-input v-model="formData.mountUrl"></el-input>
         </el-form-item>
@@ -178,10 +200,16 @@
                :rules="rules"
                label-width="130px"
                size="small">
-        <el-form-item label="系统类别"
+        <!-- <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
+        </el-form-item> -->
+        <el-form-item label="系统类别"
+                      prop="sysType">
+          <el-radio v-model="formData.sysType" :label="1">Windows Share</el-radio>
+          <el-radio v-model="formData.sysType" :label="2">Linux NFS</el-radio>
+          <el-radio v-model="formData.sysType" :label="3">Windows NFS</el-radio>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
@@ -193,17 +221,17 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
-                      v-if="formData.sysType === 1 && formData.useType === 2"
+                      v-if="[1, 3].includes(formData.sysType) && formData.useType === 2"
                       prop="windowsType">
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item label="地址"
+        <el-form-item :label="`${formData.sysType === 1?'共享路径':'NFS地址'}`"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
-        <el-form-item label="路径"
-                      v-if="formData.sysType === 2 && (formData.useType===3 || formData.useType === 7)"
+        <el-form-item label="挂载点"
+                      v-if="[2, 3].includes(formData.sysType)"
                       :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
                       prop="mountUrl">
           <el-input v-model="formData.mountUrl"></el-input>
@@ -328,8 +356,8 @@ export default {
       if(sysTypeMapping[data.sysType]){
         str += sysTypeMapping[data.sysType];
       }
-      if(data.useType === 2 && data.sysType === 1 && windowsTypeMapping[data.windowsType]){
-        str += windowsTypeMapping[data.windowsType];
+      if(data.useType === 2 && [1,3].includes(data.sysType) && windowsTypeMapping[data.windowsType]){
+        str += '('+windowsTypeMapping[data.windowsType]+')';
       }
       return str;
     },

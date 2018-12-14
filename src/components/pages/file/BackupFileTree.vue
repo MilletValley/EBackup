@@ -45,11 +45,17 @@ export default {
     },
     hostId: {
       type: Number
+    },
+    nodes: {
+      type: Array,
+      default: function() {
+        return []
+      }
     }
   },
   data() {
     return {
-      nodes: [],
+      childNodes: [],
       checkedNodes: [],
       setting: {
         check: {
@@ -72,6 +78,9 @@ export default {
           onCheck: this.zTreeOnCheck,
           beforeCheck: this.zTreeBeforeCheck
         },
+        view: {
+          addDiyDom: this.addDiyDom
+        }
       },
     }
   },
@@ -97,34 +106,27 @@ export default {
       })
     }
   },
-  filters: {
-    // 时间戳转日期
-    filterToTime(date) {
+  methods: {
+    fmtSize(size) {
+      return fmtSizeFn(size);
+    },
+    fmtDate(date) {
       if(!date)
         return '-'
       return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
              new Date(parseInt(date)).toTimeString().substr(0, 8)
     },
-    // 单位：b->tb
-    filterToTb(size) {
-      if(!size)
-        return '-';
-      else
-      return fmtSizeFn(size);
-    }
-  },
-  methods: {
     confirmBtnClick() {
       this.$emit('selectNodes', this.checkedNodes);
       this.modalVisible = false;
     },
     modalOpenFn(){
       this.$nextTick(() => {
-      $.fn.zTree.init($('#treeDemo'), this.setting, this.driverNodes);
+        this.checkedNodes = Object.assign([], this.nodes);
+        $.fn.zTree.init($('#treeDemo'), this.setting, this.driverNodes);
       })
     },
     cancelButtonClick() {
-      // this.$emit('selectNodes', []);
       this.modalVisible = false;
     },
     fetchNextNodes(treeNode) {
@@ -133,23 +135,27 @@ export default {
       const _this= this;
       if(treeNode.level === 0) {
         const firstNodes = this.fatherNodes.find(node => node.fileDriver === selectPath).fileNodes;
-        _this.nodes = firstNodes.map(node => {
+        _this.childNodes = firstNodes.map(node => {
           node.isParent = (Number(node.documentType) === 2);
+          node.fileSize = this.fmtSize(node.size);
+          node.time = this.fmtDate(node.createTime);
           return node;
         })
         if(!treeNode.children&&treeNode.isParent) {
-          treeObj.addNodes(treeNode, this.nodes);
+          treeObj.addNodes(treeNode, this.childNodes);
         }
       } else if(treeNode.isParent){
         fetchChildNodes({ id: this.hostId, path: selectPath })
           .then(res => {
             const { data } = res.data;
-            _this.nodes = data.map(node => {
+            _this.childNodes = data.map(node => {
               node.isParent = (Number(node.documentType) === 2);
+              node.fileSize = this.fmtSize(node.size);
+              node.time = this.fmtDate(node.createTime);
               return node;
             })
             if(!treeNode.children&&treeNode.isParent) {
-              treeObj.addNodes(treeNode, this.nodes);
+              treeObj.addNodes(treeNode, this.childNodes);
             }
           })
           .catch(error => {
@@ -165,7 +171,7 @@ export default {
     },
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-      this.checkedNodes = treeObj.getCheckedNodes();
+      this.checkedNodes = treeObj.getCheckedNodes().map(node => node.sourcePath);
     },
     zTreeBeforeCheck(treeId, treeNode) {
       if(this.checkedNodes.length === 10 && !treeNode.checked) {
@@ -174,6 +180,17 @@ export default {
       }
       return true;
     },
+    addDiyDom(treeId, treeNode) {
+      let aObj = $("#" + treeNode.tId + "_a");
+      if(treeNode.time && treeNode.documentType === 1) {
+        let date = `<span class="treeFileTime">${treeNode.time}</span>`;
+        aObj.append(date);
+      }
+      if(treeNode.fileSize && treeNode.documentType === 1) {
+        let size = `<span class="treeFileSize">${treeNode.fileSize}</span>`;
+        aObj.append(size);
+      }
+    }
   },
   components: {
     IIcon,
@@ -189,6 +206,24 @@ export default {
   border-radius: 4px;
   overflow-y: auto;
   max-height: 300px;
+}
+#areaTree li {
+  position: relative;
+}
+.treeFileSize,
+.treeFileTime {
+  color: #909399;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 0.2em;
+}
+.treeFileSize {
+  position: absolute;
+  right: 170px;
+}
+.treeFileTime {
+  position: absolute;
+  right: 5px;
 }
 </style>
 

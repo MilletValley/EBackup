@@ -147,6 +147,7 @@
     </el-dialog>
     <backup-file-tree :visible.sync="fileTreeVisible"
                       :host-id="hostId"
+                      :nodes="backupFilesSet.backupFiles"
                       :fatherNodes="filePath"
                       @selectNodes="selectNodes"></backup-file-tree>
   </section>
@@ -326,7 +327,7 @@ export default {
       this.tagInputValue = '';
     },
     selectNodes(nodes) {
-      this.backupFilesSet.backupFiles = nodes.map(node => node.sourcePath).concat();
+      this.backupFilesSet.backupFiles = nodes.concat();
     },
     selectBackupFiles() {
       this.fileTreeVisible = true;
