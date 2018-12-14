@@ -122,7 +122,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength(20),
+          validator: validateLength(64),
           trigger: 'blur'
         },
         {
