@@ -12,14 +12,14 @@
               label-position="right"
               label-width="110px"
               :model="formData"
+              :rules="rules"
               ref="singleRestorePlanForm">
         <el-form-item label="计划名"
                       prop="planName">
           <el-input v-model="formData.planName"></el-input>
         </el-form-item>
         <el-form-item label="恢复主机"
-                      :rules="{ required: true, message: '请选择主机', trigger: 'blur' }"
-                      prop="hostIp">
+                      prop="targetHostId">
           <el-select  v-model="formData.targetHostId"
                       @change="selectHostChange"
                       style="width: 100%;">
@@ -141,6 +141,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import ResultSourcePath from '@/components/pages/file/ResultSourcePath';
 import PlanSourcePath from '@/components/pages/file/PlanSourcePath';
 import TargetTree from '@/components/pages/file/TargetTree';
+import validate from '@/utils/validate';
 import {
   fetchAll,
   fetchPathByHostId,
@@ -190,6 +191,20 @@ export default {
     }
   },
   data() {
+    const targetPathValidate = (rule, value, callback) => {
+      if(!this.formData.targetPath) {
+        this.$message.warning('请选择恢复存放路径!');
+      } else {
+        callback();
+      }
+    }
+    const restorePathValidate = (rule, value, callback) => {
+      if(!this.formData.restorePath.length) {
+        this.$message.warning('请选择恢复源路径!');
+      } else {
+        callback();
+      }
+    }
     return {
       selectionHosts: null,
       tagInputValue: null, // 恢复排除文件
@@ -199,6 +214,24 @@ export default {
       fileTargetTree: false,
       targetNodes: null,
       hasFetchedTargetPath: false,
+      rules: {
+        planName: validate.planName,
+        targetHostId: {
+          message: '请选择主机',
+          required: true,
+          trigger: 'blur'
+        },
+        loginName: validate.dbLoginName,
+        password: validate.dbPassword,
+        targetPath: {
+          validator: targetPathValidate,
+          trigger: ['blur']
+        },
+        restorePath: {
+          validator: restorePathValidate,
+          trigger: ['blur']
+        }
+      }
     }
   },
   computed: {
@@ -276,12 +309,16 @@ export default {
       this.tagInputValue = '';
     },
     confirmBtnClick() {
-      if(this.restoreType !== 1) {
-        const { excludeFiles,restorePath, ...other } = this.formData;
-        this.$emit('confirm', this.id, other);
-      } else {
-        this.$emit('confirm', this.id, this.formData);
-      }
+      this.$refs.singleRestorePlanForm.validate(valid => {
+        if(valid) {
+          if(this.restoreType !== 1) {
+            const { excludeFiles,restorePath, ...other } = this.formData;
+            this.$emit('confirm', this.id, other);
+          } else {
+            this.$emit('confirm', this.id, this.formData);
+          }
+        }
+      })
     },
     selectSourceFiles() {
       if(this.type === 'restoreResult') {

@@ -43,6 +43,13 @@ const fmtBackupPlan = plan => {
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
       }
+      if (p.state === 2) { // 已完成
+        p.percentage = 100;
+      } else if (p.state === 0) { // 未开始
+        p.percentage = 0;
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
+        p.percentage = 99;
+      }
       p.progress = Math.abs(p.sourceSize - p.backupSize) * p.percentage * 0.01 + Number(p.backupSize);
     }
   });
@@ -99,6 +106,13 @@ const fmtRestorePlan = plan => {
           const percentage = Number(result[2].substring(0, result[2].length - 1));
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
+      }
+      if (p.state === 2) { // 已完成
+        p.percentage = 100;
+      } else if (p.state === 0) { // 未开始
+        p.percentage = 0;
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
+        p.percentage = 99;
       }
       p.progress = p.sourceSize * p.percentage * 0.01;
     }

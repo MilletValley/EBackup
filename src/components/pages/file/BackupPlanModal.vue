@@ -31,10 +31,11 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备份文件"
+                      prop="backupFiles"
                       v-if="formData.backupType === 1">
           <el-button type="primary"
-                      size="small"
-                      @click="selectBackupFiles">选择文件</el-button>
+                     size="small"
+                     @click="selectBackupFiles">选择文件</el-button>
           <span v-if="!backupFilesSet.backupFiles.length"
                 style="color: #f56c6c; font-size: 12px">
             <i class="el-icon-warning"></i>未选择文件
@@ -164,6 +165,7 @@ import {
   filehostBackupTypeMapping
 } from '@/utils/constant';
 import { backupStrategyMapping } from '../../../utils/constant';
+import { fmtSizeFn } from '@/utils/common';
 const basicFormData = {
   name: '',
   backupType: 1,
@@ -223,6 +225,20 @@ export default {
     }
   },
   data() {
+    const backupFilesValidate = (rule, value, callback) => {
+      if(!this.backupFilesSet.backupFiles.length && this.formData.backupType === 1) {
+        this.$message.warning('请选择备份源文件!');
+      } else {
+        callback();
+      }
+    }
+    const unitValidate = (rule, value, callback) => {
+      if(this.formData.bwlimit && !value) {
+        callback('请选择限速单位');
+      } else {
+        callback();
+      }
+    }
     return {
       formData: {},
       originFormData: {},
@@ -232,7 +248,15 @@ export default {
       inputTagVisible: false,
       backupDriver: null,
       rules: {
-        name: validate.planName
+        name: validate.planName,
+        backupFiles: {
+          validator: backupFilesValidate,
+          trigger: ['blur']
+        },
+        unit: {
+          validator: unitValidate,
+          trigger: ['blur']
+        }
       }
     }
   },
@@ -478,6 +502,9 @@ export default {
       const baseFormData = cloneDeep(basicFormData);
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...cloneDeep(this.backupPlan) }));
+        const fmtResult = parseFloat(fmtSizeFn(this.originFormData.bwlimit*1024));
+        this.originFormData.unit = Math.log(this.originFormData.bwlimit/fmtResult)/Math.log(1024);
+        this.originFormData.bwlimit = fmtResult;
       } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
@@ -499,7 +526,7 @@ export default {
     modalClosed() {
       this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.form.clearValidate();
-    },
+    }
   },
   components: {
     TimeStrategy,

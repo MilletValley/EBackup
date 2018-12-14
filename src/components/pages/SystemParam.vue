@@ -122,9 +122,11 @@
         </el-form-item> -->
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="formData.sysType" :label="1">Windows Share</el-radio>
-          <el-radio v-model="formData.sysType" :label="2">Linux NFS</el-radio>
-          <el-radio v-model="formData.sysType" :label="3">Windows NFS</el-radio>
+          <el-radio-group v-model="formData.sysType">
+            <el-radio :label="1">Windows Share</el-radio>
+            <el-radio :label="2">Linux NFS</el-radio>
+            <el-radio :label="3">Windows NFS</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
@@ -141,9 +143,19 @@
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item :label="`${formData.sysType === 1?'共享路径':'NFS地址'}`"
+        <el-form-item v-if="formData.sysType === 1"
+                      label="共享路径"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
+        </el-form-item>
+        <el-form-item label="NFS地址"
+                      v-else>
+          <el-select v-model="formData.shareUrl" placeholder="请选择">
+            <el-option v-for="item in Array.from(new Array(26), (val, index) => (String.fromCharCode(index+65))+':')"
+                       :key="item"
+                       :label="item"
+                       :value="item"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="挂载点"
                       v-if="[2, 3].includes(formData.sysType)"
@@ -207,9 +219,11 @@
         </el-form-item> -->
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="formData.sysType" :label="1">Windows Share</el-radio>
-          <el-radio v-model="formData.sysType" :label="2">Linux NFS</el-radio>
-          <el-radio v-model="formData.sysType" :label="3">Windows NFS</el-radio>
+          <el-radio-group v-model="formData.sysType">
+            <el-radio :label="1">Windows Share</el-radio>
+            <el-radio :label="2">Linux NFS</el-radio>
+            <el-radio :label="3">Windows NFS</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
@@ -226,9 +240,19 @@
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item :label="`${formData.sysType === 1?'共享路径':'NFS地址'}`"
+                <el-form-item v-if="formData.sysType === 1"
+                      label="共享路径"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
+        </el-form-item>
+        <el-form-item label="NFS地址"
+                      v-else>
+          <el-select v-model="formData.shareUrl" placeholder="请选择">
+            <el-option v-for="item in Array.from(new Array(26), (val, index) => (String.fromCharCode(index+65))+':')"
+                       :key="item"
+                       :label="item"
+                       :value="item"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="挂载点"
                       v-if="[2, 3].includes(formData.sysType)"

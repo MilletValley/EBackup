@@ -126,7 +126,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileSourcePath"
                           :class="$style.restoreFileInfoIcon"></i-icon>
-                  <span>{{restoreFile.sourcePath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{restoreFile.sourcePath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -146,7 +150,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileTargetPath"
                       :class="$style.restoreFileInfoIcon"></i-icon>
-                  <span>{{restoreFile.targetPath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{restoreFile.targetPath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -368,6 +376,18 @@ export default {
   max-width: 100%;
   display: inline-block;
   text-overflow: ellipsis;
+}
+.childFileTag {
+  display: inline-block;
+  float: right;
+  max-width: 80%;
+  span {
+    max-width: 100%;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 .pathOverFlow {
   white-space:nowrap;

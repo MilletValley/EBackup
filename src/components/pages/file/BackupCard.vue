@@ -31,7 +31,7 @@
           </el-form-item>
           <el-form-item label="备份类型"
                         style="40%">
-            <div>{{ backupType }} (限速: {{fmtSize(backupOperation.bwlimit*1024)}}bps)</div>
+            <div>{{ backupType }}<span v-if="backupOperation.backupType === 1">(限速: {{fmtSize(backupOperation.bwlimit*1024)}}bps)</span></div>
           </el-form-item>
           <el-form-item label="备份方向"
                         v-if="[2,3].includes(backupOperation.backupType)"
@@ -175,7 +175,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileSourcePath"
                           :class="$style.backupFileInfoIcon"></i-icon>
-                  <span>{{backupFile.sourcePath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{backupFile.sourcePath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -195,7 +199,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileTargetPath"
                       :class="$style.backupFileInfoIcon"></i-icon>
-                  <span>{{backupFile.targetPath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          size="mini"
+                          type="warning">
+                    <span>{{backupFile.targetPath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -427,6 +435,18 @@ export default {
   max-width: 100%;
   display: inline-block;
   text-overflow: ellipsis;
+}
+.childFileTag {
+  display: inline-block;
+  float: right;
+  max-width: 80%;
+  span {
+    max-width: 100%;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 .pathOverFlow {
   white-space:nowrap;
