@@ -83,7 +83,7 @@ const fmtRestorePlan = plan => {
   }
   plan.restorePath.forEach(p => {
     if (plan.restoreType === 1) { // 文件恢复
-      p.percentage = Math.ceil(p.progress / p.sourceSize) * 100;
+      p.percentage = Math.ceil((p.progress / p.sourceSize) * 100);
       if (p.state === 2) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
