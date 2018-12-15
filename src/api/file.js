@@ -20,7 +20,7 @@ const fmtBackupPlan = plan => {
       } else {
         p.percentage = Math.ceil(Math.abs((p.progress - p.backupSize) / (p.sourceSize - p.backupSize)) * 100);
       }
-      if (p.state === 2) { // 已完成
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
@@ -43,7 +43,7 @@ const fmtBackupPlan = plan => {
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
       }
-      if (p.state === 2) { // 已完成
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
@@ -84,7 +84,7 @@ const fmtRestorePlan = plan => {
   plan.restorePath.forEach(p => {
     if (plan.restoreType === 1) { // 文件恢复
       p.percentage = Math.ceil((p.progress / p.sourceSize) * 100);
-      if (p.state === 2) { // 已完成
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
@@ -107,7 +107,7 @@ const fmtRestorePlan = plan => {
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
       }
-      if (p.state === 2) { // 已完成
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;

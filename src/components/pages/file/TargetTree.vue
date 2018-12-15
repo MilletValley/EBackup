@@ -134,6 +134,7 @@ export default {
           node.isParent = (Number(node.documentType) === 2);
           node.fileSize = this.fmtSize(node.size);
           node.time = this.fmtDate(node.createTime);
+          node.nocheck = !node.isParent;
           return node;
         })
         if(!treeNode.children&&treeNode.isParent) {
@@ -147,6 +148,7 @@ export default {
               node.isParent = (Number(node.documentType) === 2);
               node.fileSize = this.fmtSize(node.size);
               node.time = this.fmtDate(node.createTime);
+              node.nocheck = !node.isParent;
               return node;
             })
             if(!treeNode.children&&treeNode.isParent) {

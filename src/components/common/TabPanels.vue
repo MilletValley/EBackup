@@ -32,7 +32,7 @@
         </template>
 
       </el-tab-pane>
-      <el-tab-pane label="备份集"
+      <el-tab-pane :label="['windows', 'linux'].includes(type)?'备份记录':'备份集'"
                    name="results">
         <el-form inline
                  :model="restorePlanFilterForm"
