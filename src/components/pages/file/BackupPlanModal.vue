@@ -503,8 +503,8 @@ export default {
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...cloneDeep(this.backupPlan) }));
         const fmtResult = parseFloat(fmtSizeFn(this.originFormData.bwlimit*1024));
-        this.originFormData.unit = Math.log(this.originFormData.bwlimit/fmtResult)/Math.log(1024);
-        this.originFormData.bwlimit = fmtResult;
+        this.originFormData.unit = fmtResult ? Math.log(this.originFormData.bwlimit/fmtResult)/Math.log(1024) : '';
+        this.originFormData.bwlimit = fmtResult ? fmtResult : '';
       } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
