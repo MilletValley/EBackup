@@ -37,8 +37,9 @@
         </el-form>
       </el-row>
     </el-row>
-    <el-table :data="handleData|NotNullfilter|filterFn(filterValue)"
+    <el-table :data="processedTableData"
               style="width: 100%; margin-top: 15px"
+              @sort-change="sortChangeFn"
               :default-sort="{ prop: 'endTime', order: 'descending' }">
       <el-table-column type="expand">
         <template slot-scope="scope">
@@ -169,25 +170,41 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination style="text-align:right;margin-top:10px;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[2, 5, 10, 15, 20]"
+        :page-size="pageSize"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+    </el-pagination>
   </section>
 </template>
 <script>
 import dayjs from 'dayjs';
 import baseMixin from '@/components/mixins/baseMixins';
 import backupResultMixin from '@/components/mixins/backupResultMixin';
+import { paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { fmtSizeFn } from '@/utils/common';
 
 export default {
   name: 'BackupResultList',
-  mixins: [baseMixin, backupResultMixin],
+  mixins: [baseMixin, paginationMixin, filterMixin, sortMixin, backupResultMixin],
   props: {
     type: {
       type: String
     }
   },
+  data() {
+    return {
+      defaultSort: { prop: 'endTime', order: 'descending' }
+    }
+  },
   computed: {
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
-    handleData() {
+    tableData() {
       const data = this.data.map((r, i, arr) => {
         return Object.assign({}, r);
       });
@@ -225,6 +242,27 @@ export default {
       });
     },
   },
+  methods: {
+    filterFn(item, i) {
+      console.log(item, i, this.filter)
+      let flag = true;
+      if (i.includes('Time')) {
+        if (dayjs(item[i]) < dayjs(this.filter[i][0]) || dayjs(item[i]) > dayjs(this.filter[i][1])) {
+          flag = false;
+        }
+      } else if (!item[i].includes(this.filter[i])) {
+        console.log('das')
+        flag = false;
+      }
+      return flag;
+    },
+    sortChangeFn({ prop, order }) {
+      if (JSON.stringify(this.defaultSort) === JSON.stringify({ prop, order })) {
+        return;
+      }
+      this.defaultSort = { prop, order };
+    },
+  }
 };
 </script>
 <style lang="scss" module>

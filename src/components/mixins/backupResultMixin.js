@@ -118,6 +118,9 @@ const backupResultMixin = {
     },
     filterHandler() {
       this.filterValue = Object.assign({}, this.filterForm);
+      if (this.filter) {
+        this.filter = this.filterValue;
+      }
     },
     resetFn() {
       this.$refs.filterForm.resetFields();
