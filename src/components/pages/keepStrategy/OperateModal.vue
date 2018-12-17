@@ -27,7 +27,8 @@
             <el-radio-group v-model="formData.keepType">
               <el-radio v-for="strategy in Object.keys(keepStrategyMapping)"
                         :key="strategy"
-                        :label="Number(strategy)">{{ keepStrategyMapping[strategy] }}</el-radio>
+                        :label="Number(strategy)"
+                        v-if="[0, 1].includes(Number(strategy)) || (Number(strategy) === 2 && formData.hostType === 3)">{{ keepStrategyMapping[strategy] }}</el-radio>
             </el-radio-group>
         </el-form-item>
         <el-row v-if="formData.keepType === 1">
@@ -57,7 +58,7 @@
         </el-form-item>
         <el-form-item label="时间策略"
                       prop="keepDate"
-                      v-if="[1,2].includes(formData.keepType)">
+                      v-if="[1,2].includes(formData.keepType) && formData.hostType === 3">
           <el-radio-group v-model="formData.keepDate">
             <el-radio v-for="date in Object.keys(keepDateMapping)"
                       :key="date"
@@ -66,7 +67,7 @@
         </el-form-item>
         <el-form-item label="选择日期"
                       prop="scheduleDate"
-                      v-if="[1,2].includes(formData.keepType)">
+                      v-if="[1,2].includes(formData.keepType) && formData.hostType === 3">
           <el-radio-group v-model="formData.scheduleDate"
                              v-if="Number(formData.keepDate) === 1">
             <el-radio-button v-for="w in Object.keys(weekMapping)"
@@ -84,7 +85,7 @@
         </el-form-item>
         <el-form-item label="选择时间"
                       prop="scheduleTime"
-                      v-if="[1,2].includes(formData.keepType)">
+                      v-if="[1,2].includes(formData.keepType) && formData.hostType === 3">
             <el-time-picker v-model="formData.scheduleTime"
                             format="HH:mm:ss"
                             value-format="HH:mm:ss"

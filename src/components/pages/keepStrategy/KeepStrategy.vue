@@ -30,8 +30,9 @@
                        min-width="150"
                        label="调度时间">
         <template slot-scope="scope">
+          <span v-if="!scope.row.scheduleDate">-</span>
           <el-tag size="mini"
-                  v-if="[1, 2].includes(Number(scope.row.keepType))">
+                  v-else>
             {{ Number(scope.row.keepDate) === 1 ? convertWeek(scope.row) : scope.row.scheduleDate + '号' }} {{ scope.row.scheduleTime }}
           </el-tag>
         </template>
@@ -125,6 +126,8 @@ export default {
       return keepStrategyMapping[row.keepType];
     },
     convertKeepDate(row) {
+      if(!row.keepDate)
+        return '-'
       return keepDateMapping[row.keepDate];
     },
     convertWeek(row) {
