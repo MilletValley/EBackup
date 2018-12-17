@@ -30,8 +30,9 @@
                        min-width="150"
                        label="调度时间">
         <template slot-scope="scope">
+          <span v-if="!scope.row.scheduleDate">-</span>
           <el-tag size="mini"
-                  v-if="[1, 2].includes(Number(scope.row.keepType))">
+                  v-else>
             {{ Number(scope.row.keepDate) === 1 ? convertWeek(scope.row) : scope.row.scheduleDate + '号' }} {{ scope.row.scheduleTime }}
           </el-tag>
         </template>
@@ -72,6 +73,7 @@
                    :btn-loading="btnLoading"
                    :action="operate"
                    :data="selectData"
+                   :all-host-type="allHostType"
                    @confirm="confirmCall"></operate-modal>
   </section>
 </template>
@@ -107,6 +109,11 @@ export default {
   created() {
     this.fetchData();
   },
+  computed: {
+    allHostType() {
+      return this.strategys.map(strategy => strategy.hostType);
+    }
+  },
   methods: {
     fetchData() {
       fetchAll()
@@ -125,6 +132,8 @@ export default {
       return keepStrategyMapping[row.keepType];
     },
     convertKeepDate(row) {
+      if(!row.keepDate)
+        return '-'
       return keepDateMapping[row.keepDate];
     },
     convertWeek(row) {

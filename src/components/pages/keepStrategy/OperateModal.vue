@@ -13,12 +13,14 @@
                ref="form"
                size="small">
         <el-form-item label="设备类型"
-                      prop="hostType">
+                      prop="hostType"
+                      :rules="{message: '请选择设备类型', required: true, trigger: 'blur'}">
           <el-select v-model="formData.hostType"
                      placeholder="请选择">
             <el-option v-for="type in Object.keys(useTypeMapping)"
                        :key="type"
                        :label="useTypeMapping[type]"
+                       :disabled="disableSelectHost.includes(Number(type))"
                        :value="Number(type)"></el-option>
           </el-select>
         </el-form-item>
@@ -27,7 +29,8 @@
             <el-radio-group v-model="formData.keepType">
               <el-radio v-for="strategy in Object.keys(keepStrategyMapping)"
                         :key="strategy"
-                        :label="Number(strategy)">{{ keepStrategyMapping[strategy] }}</el-radio>
+                        :label="Number(strategy)"
+                        v-if="[0, 1].includes(Number(strategy)) || (Number(strategy) === 2 && formData.hostType === 3)">{{ keepStrategyMapping[strategy] }}</el-radio>
             </el-radio-group>
         </el-form-item>
         <el-row v-if="formData.keepType === 1">
@@ -57,7 +60,7 @@
         </el-form-item>
         <el-form-item label="时间策略"
                       prop="keepDate"
-                      v-if="[1,2].includes(formData.keepType)">
+                      v-if="[1,2].includes(formData.keepType) && formData.hostType === 3">
           <el-radio-group v-model="formData.keepDate">
             <el-radio v-for="date in Object.keys(keepDateMapping)"
                       :key="date"
@@ -66,7 +69,7 @@
         </el-form-item>
         <el-form-item label="选择日期"
                       prop="scheduleDate"
-                      v-if="[1,2].includes(formData.keepType)">
+                      v-if="[1,2].includes(formData.keepType) && formData.hostType === 3">
           <el-radio-group v-model="formData.scheduleDate"
                              v-if="Number(formData.keepDate) === 1">
             <el-radio-button v-for="w in Object.keys(weekMapping)"
@@ -84,7 +87,7 @@
         </el-form-item>
         <el-form-item label="选择时间"
                       prop="scheduleTime"
-                      v-if="[1,2].includes(formData.keepType)">
+                      v-if="[1,2].includes(formData.keepType) && formData.hostType === 3">
             <el-time-picker v-model="formData.scheduleTime"
                             format="HH:mm:ss"
                             value-format="HH:mm:ss"
@@ -110,9 +113,10 @@ import {
 } from '@/utils/constant';
 import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
+import difference from 'lodash/difference';
 const basicData = {
   id: -1,
-  hostType: 1,
+  hostType: null,
   keepType: 0,
   totalContainer: 0,
   currentContainer: 0,
@@ -135,6 +139,9 @@ export default {
     },
     data: {
       type: Object
+    },
+    allHostType: {
+      type: Array
     }
   },
   data() {
@@ -166,6 +173,13 @@ export default {
         if (!value) {
           this.$emit('update:visible', value);
         }
+      }
+    },
+    disableSelectHost() {
+      if(this.action === 'create') {
+        return this.allHostType;
+      } else if(this.action === 'update') {
+        return difference(this.allHostType, [this.data.hostType]);
       }
     }
   },

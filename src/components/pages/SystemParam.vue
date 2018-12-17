@@ -143,31 +143,30 @@
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item v-if="formData.sysType === 1"
-                      label="共享路径"
+        <el-form-item :label="`${formData.sysType === 1 ? '共享路径' : 'NFS地址'}`"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
-        <el-form-item label="NFS地址"
-                      v-else>
-          <el-select v-model="formData.shareUrl" placeholder="请选择">
+        <el-form-item label="挂载点"
+                      v-if="[2, 3].includes(formData.sysType)"
+                      :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
+                      prop="mountUrl">
+          <el-input v-model="formData.mountUrl"
+                    v-if="formData.sysType === 2"></el-input>
+          <el-select v-model="formData.mountUrl"
+                     v-if="formData.sysType === 3"
+                     placeholder="请选择">
             <el-option v-for="item in Array.from(new Array(26), (val, index) => (String.fromCharCode(index+65))+':')"
                        :key="item"
                        :label="item"
                        :value="item"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="挂载点"
-                      v-if="[2, 3].includes(formData.sysType)"
-                      prop="mountUrl">
-          <el-input v-model="formData.mountUrl"></el-input>
-        </el-form-item>
         <el-form-item label="状态"
                       prop="state">
           <el-radio v-model="formData.state" :label="0">启用</el-radio>
           <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <!-- <template v-if="formData.sysType === 1 && formData.useType === 3"> -->
         <template v-if="isShowLogin">
           <el-form-item label="系统登录名"
                         prop="loginName">
@@ -212,11 +211,6 @@
                :rules="rules"
                label-width="130px"
                size="small">
-        <!-- <el-form-item label="系统类别"
-                      prop="sysType">
-          <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
-          <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
-        </el-form-item> -->
         <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio-group v-model="formData.sysType">
@@ -240,32 +234,30 @@
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-                <el-form-item v-if="formData.sysType === 1"
-                      label="共享路径"
+        <el-form-item :label="`${formData.sysType === 1 ? '共享路径' : 'NFS地址'}`"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
-        <el-form-item label="NFS地址"
-                      v-else>
-          <el-select v-model="formData.shareUrl" placeholder="请选择">
+        <el-form-item label="挂载点"
+                      v-if="[2, 3].includes(formData.sysType)"
+                      :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
+                      prop="mountUrl">
+          <el-input v-model="formData.mountUrl"
+                    v-if="formData.sysType === 2"></el-input>
+          <el-select v-model="formData.mountUrl"
+                     v-if="formData.sysType === 3"
+                     placeholder="请选择">
             <el-option v-for="item in Array.from(new Array(26), (val, index) => (String.fromCharCode(index+65))+':')"
                        :key="item"
                        :label="item"
                        :value="item"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="挂载点"
-                      v-if="[2, 3].includes(formData.sysType)"
-                      :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
-                      prop="mountUrl">
-          <el-input v-model="formData.mountUrl"></el-input>
-        </el-form-item>
         <el-form-item label="状态"
                       prop="state">
           <el-radio v-model="formData.state" :label="0">启用</el-radio>
           <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <!-- <template v-if="(formData.sysType === 1 && formData.useType===3) || formData.windowsType === 1"> -->
         <template v-if="isShowLogin">
           <el-form-item label="系统登录名"
                         prop="loginName">
