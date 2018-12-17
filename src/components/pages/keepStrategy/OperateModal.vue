@@ -13,12 +13,14 @@
                ref="form"
                size="small">
         <el-form-item label="设备类型"
-                      prop="hostType">
+                      prop="hostType"
+                      :rules="{message: '请选择设备类型', required: true, trigger: 'blur'}">
           <el-select v-model="formData.hostType"
                      placeholder="请选择">
             <el-option v-for="type in Object.keys(useTypeMapping)"
                        :key="type"
                        :label="useTypeMapping[type]"
+                       :disabled="disableSelectHost.includes(Number(type))"
                        :value="Number(type)"></el-option>
           </el-select>
         </el-form-item>
@@ -111,9 +113,10 @@ import {
 } from '@/utils/constant';
 import dayjs from 'dayjs';
 import isEqual from 'lodash/isEqual';
+import difference from 'lodash/difference';
 const basicData = {
   id: -1,
-  hostType: 1,
+  hostType: null,
   keepType: 0,
   totalContainer: 0,
   currentContainer: 0,
@@ -136,6 +139,9 @@ export default {
     },
     data: {
       type: Object
+    },
+    allHostType: {
+      type: Array
     }
   },
   data() {
@@ -167,6 +173,13 @@ export default {
         if (!value) {
           this.$emit('update:visible', value);
         }
+      }
+    },
+    disableSelectHost() {
+      if(this.action === 'create') {
+        return this.allHostType;
+      } else if(this.action === 'update') {
+        return difference(this.allHostType, [this.data.hostType]);
       }
     }
   },

@@ -73,6 +73,7 @@
                    :btn-loading="btnLoading"
                    :action="operate"
                    :data="selectData"
+                   :all-host-type="allHostType"
                    @confirm="confirmCall"></operate-modal>
   </section>
 </template>
@@ -107,6 +108,11 @@ export default {
   },
   created() {
     this.fetchData();
+  },
+  computed: {
+    allHostType() {
+      return this.strategys.map(strategy => strategy.hostType);
+    }
   },
   methods: {
     fetchData() {
