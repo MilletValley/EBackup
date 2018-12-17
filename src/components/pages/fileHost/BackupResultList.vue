@@ -174,7 +174,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[2, 5, 10, 15, 20]"
+        :page-sizes="[5, 10, 15, 20]"
         :page-size="pageSize"
         background
         layout="total, sizes, prev, pager, next, jumper"

@@ -99,7 +99,7 @@
     </div>
     <div>
       <h4>已完成恢复记录</h4>
-      <el-table :data="records"
+      <el-table :data="processedTableData"
                 :default-sort="{ prop: 'startTime', order: 'descending' }">
         <el-table-column prop="startTime"
                          label="开始时间"
@@ -155,6 +155,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination style="text-align:right;margin-top:10px;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        :page-size="pageSize"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+    </el-pagination>
     </div>
   </section>
 </template>
@@ -162,8 +172,10 @@
 import IIcon from '@/components/IIcon';
 import Timer from '@/components/Timer';
 import { fmtSizeFn } from '@/utils/common';
+import { paginationMixin } from '@/components/mixins/commonMixin';
 export default {
   name: 'RestoreRecords',
+  mixins: [paginationMixin],
   props: {
     restorePlan: {
       type: Array,
@@ -181,6 +193,9 @@ export default {
     // 正在进行中的恢复计划
     plans() {
       return this.restorePlan.filter(plan => plan.state === 1);
+    },
+    tableData() {
+      return this.records;
     }
   },
   filters:{
