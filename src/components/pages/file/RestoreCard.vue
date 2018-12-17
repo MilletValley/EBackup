@@ -117,7 +117,11 @@
       <el-col :span="8"
               v-for="(restoreFile, index) in restorePlan.restorePath"
               :key="index">
-        <el-card shadow="always">
+        <el-card shadow="always"
+                 :class="$style.childFileCard">
+          <div slot="header" :class="$style.childFileHead">
+            <span>ID: {{ restorePlan.id }}</span>
+          </div>
           <el-row>
             <el-col :span="12">
               <el-tooltip :content="`文件备份源路径: ${restoreFile.sourcePath}`"
@@ -361,11 +365,10 @@ export default {
 }
 .more {
   font-size: 14px;
-  // height: 110px;
-  // overflow: auto;
-  // col {
-  //   height: 110px;
-  // }
+  .childFileCard > div:first-child {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 }
 .showMore {
   text-align: center;
