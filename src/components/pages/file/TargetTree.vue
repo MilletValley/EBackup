@@ -49,7 +49,8 @@ export default {
   },
   data() {
     return {
-      nodes: [],
+      childNodes: [],
+      checkedNodes: [],
       setting: {
         check: {
           enable: true,
@@ -72,6 +73,9 @@ export default {
           onExpand: this.zTreeExpand,
           onCheck: this.zTreeOnCheck
         },
+        view: {
+          addDiyDom: this.addDiyDom
+        }
       },
     }
   },
@@ -98,8 +102,17 @@ export default {
     }
   },
   methods: {
+    fmtSize(size) {
+      return fmtSizeFn(size);
+    },
+    fmtDate(date) {
+      if(!date)
+        return '-'
+      return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
+             new Date(parseInt(date)).toTimeString().substr(0, 8)
+    },
     confirmBtnClick() {
-      this.$emit('selectNodes', this.nodes);
+      this.$emit('selectNodes', this.checkedNodes);
       this.modalVisible = false;
     },
     modalOpenFn(){
@@ -108,7 +121,7 @@ export default {
       })
     },
     cancelButtonClick() {
-      this.$emit('selectNodes', []);
+      // this.$emit('selectNodes', []);
       this.modalVisible = false;
     },
     fetchNextNodes(treeNode){
@@ -117,23 +130,29 @@ export default {
       const _this= this;
       if(treeNode.level === 0) {
         const firstNodes = this.fatherNodes.find(node => node.fileDriver === selectPath).fileNodes;
-        _this.nodes = firstNodes.map(node => {
+        _this.childNodes = firstNodes.map(node => {
           node.isParent = (Number(node.documentType) === 2);
+          node.fileSize = this.fmtSize(node.size);
+          node.time = this.fmtDate(node.createTime);
+          node.nocheck = !node.isParent;
           return node;
         })
         if(!treeNode.children&&treeNode.isParent) {
-          treeObj.addNodes(treeNode, this.nodes);
+          treeObj.addNodes(treeNode, this.childNodes);
         }
       } else if(treeNode.isParent){
-        fetchChildNodes({ id: this.hostId, data: selectPath })
+        fetchChildNodes({ id: this.hostId, path: selectPath })
           .then(res => {
             const { data } = res.data;
-            _this.nodes = data.map(node => {
+            _this.childNodes = data.map(node => {
               node.isParent = (Number(node.documentType) === 2);
+              node.fileSize = this.fmtSize(node.size);
+              node.time = this.fmtDate(node.createTime);
+              node.nocheck = !node.isParent;
               return node;
             })
             if(!treeNode.children&&treeNode.isParent) {
-              treeObj.addNodes(treeNode, this.nodes);
+              treeObj.addNodes(treeNode, this.childNodes);
             }
           })
           .catch(error => {
@@ -149,8 +168,19 @@ export default {
     },
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("targetTreeDemo");
-      this.nodes = treeObj.getCheckedNodes(true);
+      this.checkedNodes = treeObj.getCheckedNodes(true);
     },
+    addDiyDom(treeId, treeNode) {
+      let aObj = $("#" + treeNode.tId + "_a");
+      if(treeNode.time && treeNode.documentType === 1) {
+        let date = `<span class="treeFileTime">${treeNode.time}</span>`;
+        aObj.append(date);
+      }
+      if(treeNode.fileSize && treeNode.documentType === 1) {
+        let size = `<span class="treeFileSize">${treeNode.fileSize}</span>`;
+        aObj.append(size);
+      }
+    }
   }
 }
 </script>
@@ -162,5 +192,23 @@ export default {
   border-radius: 4px;
   overflow-y: auto;
   max-height: 300px;
+}
+#areaTree li {
+  position: relative;
+}
+.treeFileSize,
+.treeFileTime {
+  color: #909399;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 0.2em;
+}
+.treeFileSize {
+  position: absolute;
+  right: 170px;
+}
+.treeFileTime {
+  position: absolute;
+  right: 5px;
 }
 </style>

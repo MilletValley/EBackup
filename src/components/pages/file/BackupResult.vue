@@ -116,14 +116,14 @@
                        align="center">
         <template slot-scope="scope">
             <el-button type="text"
+                        class="textBtn"
+                        size="small"
+                        :disabled="scope.row.state === 1 || backupType === 3 "
+                        @click="restoreBtnClick(scope.row)">恢复</el-button>          
+            <el-button type="text"
                        class="textBtn"
                         size="small"
                         @click="del(scope.row)">删除</el-button>
-            <el-button type="text"
-                        class="textBtn"
-                        size="small"
-                        :disabled="scope.row.state === 1"
-                        @click="restoreBtnClick(scope.row)">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -244,11 +244,13 @@ export default {
         .then(() => {
           const id = row.id;
           deleteResultById(id).then(res => {
-            const {message} = res.data;
-            this.$message.success(message)
-          }).catch( error => {
+            const { message } = res.data;
+            this.$message.success(message);
+          }).catch(error => {
             this.$message.error(error);
-          });
+          }).then(() => {
+            this.$emit('refresh');
+          })
         })
         .catch(() => { });
     },

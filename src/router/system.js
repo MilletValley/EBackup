@@ -5,6 +5,7 @@ import DeviceDetails from '@/components/pages/DeviceDetails';
 import SystemParam from '@/components/pages/SystemParam';
 import EmailManager from '@/components/pages/EmailManager';
 import StrategyManager from '@/components/pages/StrategyManager';
+import KeepStrategy from '@/components/pages/keepStrategy/KeepStrategy';
 import Users from '@/components/pages/Users';
 
 const router = [
@@ -81,6 +82,14 @@ const router = [
           title: '策略管理',
           roles: [],
         },
+      },
+      {
+        path: 'keepstrategy',
+        component: KeepStrategy,
+        meta: {
+          title: '保留策略',
+          roles: []
+        }
       },
       {
         path: 'users',

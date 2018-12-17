@@ -50,7 +50,7 @@
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="操作系统：">
-                    <span>{{ details.osName }}</span>
+                    <span>{{ details.osName+`${details.systemVersion?'-'+details.systemVersion:''}` }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -71,7 +71,10 @@
         </el-row>
       </div>
     </header>
-    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm"  :type="systemType">
+    <tab-panels @switchpane="switchPane"
+                :planFilterForm="planFilterForm"
+                :type="systemType"
+                :tab="activeTab">
       <template slot="backupCard">
         <backup-card :id="plan.id"
                      v-for="plan in filteredBackupPlans"
@@ -94,7 +97,8 @@
       <template slot="backupResult">
         <backup-result-list :data="results"
                             :type="systemType"
-                            @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
+                            @single-restore-btn-click="initSingleRestoreModal"
+                            @refresh="refreshResults"></backup-result-list>
       </template>
       <template slot="restoreRecord">
         <restore-records :records="restoreRecords"
@@ -132,6 +136,7 @@ import BackupPlanModal from '@/components/pages/file/BackupPlanModal';
 import SingleRestoreModal from '@/components/pages/file/SingleRestoreModal';
 import IIcon from '@/components/IIcon';
 import { applyFilterMethods } from '@/utils/common';
+import { sortMixin } from '@/components/mixins/commonMixin';
 import throttle from 'lodash/throttle';
 import {
   fetchOne,
@@ -161,6 +166,7 @@ const OperateBackupPlan = {
 export default {
   name: 'FileHostDetail',
   props: ['id'],
+  mixins: [sortMixin],
   data() {
     return {
       infoLoading: true,
@@ -173,6 +179,7 @@ export default {
       btnLoading: false,
       backupPlanModalVisible: false,
       action: 'create',
+      activeTab: 'plans',
       restoreResults: {},
       singleRestoreCreateModalVisible: false,
       details: {
@@ -252,7 +259,7 @@ export default {
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.backupPlans = Array.isArray(plans) ? plans : [];
+          this.backupPlans = Array.isArray(plans) ? this.sortFn(plans, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -262,7 +269,7 @@ export default {
       fetchRestorePlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.restorePlans = Array.isArray(plans) ? plans : [];
+          this.restorePlans = Array.isArray(plans) ? this.sortFn(plans, 'startTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -272,7 +279,7 @@ export default {
       fetchBackupResults(this.id)
         .then(res => {
           const { data: results } = res.data;
-          this.results = Array.isArray(results) ? results : [];
+          this.results = Array.isArray(results) ? this.sortFn(results, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -376,6 +383,8 @@ export default {
          .then(res => {
           const { message } = res.data;
           this.backupPlanModalVisible = false;
+          this.activeTab = 'plans';
+          this.planFilterForm.planType = 'backup';
           this.$message.success(message);
           this.fetchBackupPlanList();
         })
@@ -397,6 +406,8 @@ export default {
         .then(res => {
           const { message } = res.data;
           this.singleRestoreCreateModalVisible = false;
+          this.activeTab = 'plans';
+          this.planFilterForm.planType = 'restore';
           this.$message.success(message);
           this.fetchRestorePlanList();
         })
@@ -407,10 +418,14 @@ export default {
           this.btnLoading = false;
         })
     },
-    switchPane() {
+    switchPane(name) {
       if (name === 'results') {
         this.updateResults();
       }
+      this.activeTab = name;
+    },
+    refreshResults() {
+      this.fetchBackupResults();
     },
     stopPlans() {
       this.$confirm(

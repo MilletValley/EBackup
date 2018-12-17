@@ -41,13 +41,20 @@ export default {
         return [];
       }
     },
+    nodes: {
+      type: Array,
+      default: function() {
+        return [];
+      }
+    },
     hostId: {
       type: Number
     }
   },
   data() {
     return {
-      nodes: [],
+      childNodes: [],
+      checkedNodes: [],
       setting: {
         check: {
             enable: true,
@@ -66,8 +73,12 @@ export default {
         callback: {
           onClick: this.zTreeOnClick,
           onExpand: this.zTreeOnExpand,
-          onCheck: this.zTreeOnCheck
+          onCheck: this.zTreeOnCheck,
+          beforeCheck: this.zTreeBeforeCheck
         },
+        view: {
+          addDiyDom: this.addDiyDom
+        }
       },
     }
   },
@@ -94,17 +105,27 @@ export default {
     }
   },
   methods: {
+    fmtSize(size) {
+      return fmtSizeFn(size);
+    },
+    fmtDate(date) {
+      if(!date)
+        return '-'
+      return new Date(parseInt(date)).toLocaleDateString().replace(/\//g, '-') + ' ' +
+             new Date(parseInt(date)).toTimeString().substr(0, 8)
+    },
     confirmBtnClick() {
-      this.$emit('selectNodes', this.nodes);
-      this.modalVisible = false
+      this.$emit('selectNodes', this.checkedNodes);
+      this.modalVisible = false;
     },
     modalOpenFn(){
       this.$nextTick(() => {
+        this.checkedNodes = Object.assign([], this.nodes);
         $.fn.zTree.init($('#planTreeDemo'), this.setting, this.firstNodes);
       })
     },
     cancelButtonClick() {
-      this.$emit('selectNodes', []);
+      // this.$emit('selectNodes', []);
       this.modalVisible = false;
     },
     fetchNextNodes(treeNode) {
@@ -112,15 +133,17 @@ export default {
       const selectPath = treeNode.sourcePath;
       const _this= this;
       if(treeNode.isParent){
-        fetchChildNodes({ id: this.hostId, data: selectPath })
+        fetchChildNodes({ id: this.hostId, path: selectPath })
           .then(res => {
             const { data } = res.data;
-            _this.nodes = data.map(node => {
+            _this.childNodes = data.map(node => {
               node.isParent = (Number(node.documentType) === 2);
+              node.fileSize = this.fmtSize(node.size);
+              node.time = this.fmtDate(node.createTime);
               return node;
             })
             if(!treeNode.children&&treeNode.isParent) {
-              treeObj.addNodes(treeNode, this.nodes);
+              treeObj.addNodes(treeNode, this.childNodes);
             }
           })
           .catch(error => {
@@ -136,8 +159,26 @@ export default {
     },
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("planTreeDemo");
-      this.nodes = treeObj.getCheckedNodes(true);
+      this.checkedNodes = treeObj.getCheckedNodes(true).map(node => node.sourcePath);
     },
+    zTreeBeforeCheck(treeId, treeNode) {
+      if(this.checkedNodes.length === 10 && !treeNode.checked) {
+        this.$message.warning('请选择10个以内的文件数量！')
+        return false;
+      }
+      return true;
+    },
+    addDiyDom(treeId, treeNode) {
+      let aObj = $("#" + treeNode.tId + "_a");
+      if(treeNode.time && treeNode.documentType === 1) {
+        let date = `<span class="treeFileTime">${treeNode.time}</span>`;
+        aObj.append(date);
+      }
+      if(treeNode.fileSize && treeNode.documentType === 1) {
+        let size = `<span class="treeFileSize">${treeNode.fileSize}</span>`;
+        aObj.append(size);
+      }
+    }
   }
 }
 </script>
@@ -149,6 +190,24 @@ export default {
   border-radius: 4px;
   overflow-y: auto;
   max-height: 300px;
+}
+#areaTree li {
+  position: relative;
+}
+.treeFileSize,
+.treeFileTime {
+  color: #909399;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 0.2em;
+}
+.treeFileSize {
+  position: absolute;
+  right: 170px;
+}
+.treeFileTime {
+  position: absolute;
+  right: 5px;
 }
 </style>
 

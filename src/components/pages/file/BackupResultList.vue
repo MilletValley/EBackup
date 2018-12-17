@@ -6,15 +6,16 @@
           <backup-result  :data="scope.row.backupFiles"
                           :backupType="scope.row.backupType"
                           :type="type"
-                          @single-restore-btn-click="restoreResultBtnClick"></backup-result>
+                          @single-restore-btn-click="restoreResultBtnClick"
+                          @refresh="refreshResults"></backup-result>
         </template>
       </el-table-column>
       <el-table-column label="备份计划名称"
                        prop="name"
                        min-width="180px"
                        align="center"></el-table-column>
-      <el-table-column label="备份开始时间"
-                       prop="startTime"
+      <el-table-column label="计划创建时间"
+                       prop="createTime"
                        min-width="180px"
                        align="center"
                        header-align="center"></el-table-column>
@@ -47,10 +48,11 @@
           <el-button type="text"
                      size="small"
                      @click="del(scope.row)">删除</el-button>
-          <el-button type="text"
-                      style="margin-left:0"
+          <!-- <el-button type="text"
+                     style="margin-left:0"
                      size="small"
-                     @click="restorePlanBtnClick(scope.row)">恢复</el-button>
+                     :disabled="scope.row.backupType === 3"
+                     @click="restorePlanBtnClick(scope.row)">恢复</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -59,7 +61,7 @@
 <script>
 import { filehostBackupTypeMapping } from '@/utils/constant';
 import BackupResult from '@/components/pages/file/BackupResult';
-import {deleteResultByPlanId} from '@/api/file';
+import { deleteResultByPlanId } from '@/api/file';
 export default {
   name: 'BackupResultList',
   components: {
@@ -124,12 +126,18 @@ export default {
           const id = row.id;
           deleteResultByPlanId(id).then(res => {
             const {message} = res.data;
-            this.$message.success(message)
+            this.$message.success(message);
           }).catch( error => {
             this.$message.error(error);
-          });
+          }).then(() => {
+            this.refreshResults();
+          })
         })
         .catch(() => { });
+      // this.$emit('deleteResult', row.id);
+    },
+    refreshResults() {
+      this.$emit('refresh');
     }
   }
 };

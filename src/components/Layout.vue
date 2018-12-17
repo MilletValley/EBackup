@@ -1,7 +1,7 @@
 <template>
-<div @click="mousemoveCallBack">
+<div @click="mousemoveCallBack" style="height: 100%">
   <el-container style="height: 100%; min-width: 1000px;" >
-    <el-aside style="width:auto;background-color: #00264a">
+    <el-aside style="width:auto;background-color: #00264a;">
       <div class="logo">
         <img src="../assets/layoutContraction.png"
              alt="信服易备"
@@ -43,7 +43,7 @@
 
       </el-menu>
     </el-aside>
-    <el-container style="overflow: auto">
+    <el-container style="overflow: auto;">
       <el-header style="font-size: 12px">
         <el-breadcrumb separator="/"
                        class="bread-crumb">

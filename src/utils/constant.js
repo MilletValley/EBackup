@@ -24,7 +24,7 @@ const backupStrategyMapping = {
 // 文件备份策略
 
 const filehostBackupStrategyMapping = {
-  1: '全备+增备',
+  1: '同步',
   2: '增量不删减'
 };
 
@@ -98,8 +98,9 @@ const hostTypeMapping = {
 // 系统类别
 const sysTypeMapping = {
   // 0: '通用',
-  1: 'Windows',
-  2: 'Linux'
+  1: 'Windows Share',
+  2: 'Linux NFS',
+  3: 'Windows NFS'
 };
 
 // Windows系统版本
@@ -120,6 +121,18 @@ const useTypeMapping = {
   5: 'mysql',
   6: 'db2',
   7: '达梦数据库'
+};
+
+// 保留策略类型
+const keepStrategyMapping = {
+  0: '不启用策略',
+  1: '副本保留策略',
+  2: '时间策略'
+};
+
+const keepDateMapping = {
+  1: '按周保留',
+  2: '按月保留'
 };
 
 const systemStateMapping = {
@@ -244,6 +257,8 @@ export {
   windowsTypeMapping,
   pathTypeMapping,
   useTypeMapping,
+  keepStrategyMapping,
+  keepDateMapping,
   systemStateMapping,
   databaseTypeMapping,
   databaseRoleMapping,

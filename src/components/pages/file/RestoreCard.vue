@@ -5,7 +5,7 @@
       <el-tag size="mini"
               color="#fa4211"
               style="color: #ffffff">恢复</el-tag>
-      <span>{{restorePlan.name}}</span>
+      <span>{{restorePlan.planName}}</span>
       <i v-if="restorePlan.state !== 2"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
@@ -126,7 +126,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileSourcePath"
                           :class="$style.restoreFileInfoIcon"></i-icon>
-                  <span>{{restoreFile.sourcePath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{restoreFile.sourcePath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -146,7 +150,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileTargetPath"
                       :class="$style.restoreFileInfoIcon"></i-icon>
-                  <span>{{restoreFile.targetPath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{restoreFile.targetPath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -164,7 +172,7 @@
             <el-col :span="12">
               <i-icon name="size"
                       :class="$style.restoreFileInfoIcon"></i-icon>
-              <el-tooltip content="文件大小"
+              <el-tooltip content="源文件总大小"
                           placement="right"
                           :open-delay="300">
                 <span>{{ fmtSize(restoreFile.sourceSize) }}</span>
@@ -353,11 +361,11 @@ export default {
 }
 .more {
   font-size: 14px;
-  height: 110px;
-  overflow: auto;
-  col {
-    height: 110px;
-  }
+  // height: 110px;
+  // overflow: auto;
+  // col {
+  //   height: 110px;
+  // }
 }
 .showMore {
   text-align: center;
@@ -368,6 +376,18 @@ export default {
   max-width: 100%;
   display: inline-block;
   text-overflow: ellipsis;
+}
+.childFileTag {
+  display: inline-block;
+  float: right;
+  max-width: 80%;
+  span {
+    max-width: 100%;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 .pathOverFlow {
   white-space:nowrap;

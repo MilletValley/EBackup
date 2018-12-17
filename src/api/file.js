@@ -20,11 +20,11 @@ const fmtBackupPlan = plan => {
       } else {
         p.percentage = Math.ceil(Math.abs((p.progress - p.backupSize) / (p.sourceSize - p.backupSize)) * 100);
       }
-      if (p.state === 2) { // 已完成
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
-      } else if (p.percentage > 1) { // 进行中，且进度大于100%
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
         p.percentage = 99;
       }
     } else { // 卷备份、系统备份
@@ -42,6 +42,13 @@ const fmtBackupPlan = plan => {
           const percentage = Number(result[2].substring(0, result[2].length - 1));
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
+      }
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
+        p.percentage = 100;
+      } else if (p.state === 0) { // 未开始
+        p.percentage = 0;
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
+        p.percentage = 99;
       }
       p.progress = Math.abs(p.sourceSize - p.backupSize) * p.percentage * 0.01 + Number(p.backupSize);
     }
@@ -76,12 +83,12 @@ const fmtRestorePlan = plan => {
   }
   plan.restorePath.forEach(p => {
     if (plan.restoreType === 1) { // 文件恢复
-      p.percentage = Math.ceil(p.progress / p.sourceSize) * 100;
-      if (p.state === 2) { // 已完成
+      p.percentage = Math.ceil((p.progress / p.sourceSize) * 100);
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
       } else if (p.state === 0) { // 未开始
         p.percentage = 0;
-      } else if (p.percentage > 1) { // 进行中，且进度大于100%
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
         p.percentage = 99;
       }
     } else { // 系统恢复
@@ -100,13 +107,19 @@ const fmtRestorePlan = plan => {
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
       }
+      if (p.state === 2 && p.percentage >= 95) { // 已完成
+        p.percentage = 100;
+      } else if (p.state === 0) { // 未开始
+        p.percentage = 0;
+      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
+        p.percentage = 99;
+      }
       p.progress = p.sourceSize * p.percentage * 0.01;
     }
   });
   plan.size = plan.restorePath.map(file => file.sourceSize).reduce((pre, cur) => Number(pre) + Number(cur));
   plan.progress = plan.restorePath.map(file => file.progress).reduce((pre, cur) => Number(pre) + Number(cur));
   plan.percentage = plan.restorePath.map(file => file.percentage).reduce((pre, cur) => Number(pre) + Number(cur)) / plan.restorePath.length;
-  plan.name = plan.startTime;
   if (plan.percentage > 0 && plan.percentage < 1) {
     plan.percentage = 1;
   } else if (plan.percentage > 99 && plan.percentage < 100) {
@@ -247,7 +260,7 @@ const fetchOneBackupResult = id =>
 const deleteResultByPlanId = id =>
   baseApi.request({
     method: 'delete',
-    url: `/file-host-backup-plan/${id}/file-host-backup-results`,
+    url: `/file-host-backup-plans/${id}/file-host-backup-results`,
   });
 
 // 删除备份集(根据备份集id)
@@ -282,7 +295,9 @@ const fetchChildNodes = ({ id, path }) =>
   baseApi.request({
     method: 'post',
     url: `file-hosts/${id}/file-nodes`,
-    data: path
+    data: {
+      path
+    }
   });
 
 // 获取单个filehost下的所有恢复计划

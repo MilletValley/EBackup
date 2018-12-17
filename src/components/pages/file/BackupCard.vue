@@ -16,7 +16,7 @@
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
-      <el-button v-if="backupOperation.state !== 2 && backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6"
+      <el-button v-if="canUpdatePlan"
                  style="float: right; padding: 3px 3px"
                  type="text"
                  @click="planUpdateBtnClick">编辑</el-button>
@@ -26,13 +26,12 @@
         <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划创建时间"
-                        v-if="backupConfig.timeStrategy !== 0"
                         :style="{ width: '40%'}">
-            <span>{{ backupConfig.startTime }}</span>
+            <span>{{ backupOperation.createTime }}</span>
           </el-form-item>
           <el-form-item label="备份类型"
                         style="40%">
-            <div>{{ backupType }} (限速: {{backupOperation.bwlimit}}bps)</div>
+            <div>{{ backupType }}<span v-if="backupOperation.backupType === 1">(限速: {{fmtSize(backupOperation.bwlimit*1024)}}bps)</span></div>
           </el-form-item>
           <el-form-item label="备份方向"
                         v-if="[2,3].includes(backupOperation.backupType)"
@@ -132,9 +131,9 @@
               </el-progress>
             </div>
           </li>
-          <li>
-            <h5>备份开始时间</h5>
-            <div>{{backupOperation.startTime || '备份未开始'}}</div>
+          <li v-if="backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6">
+            <h5>计划执行时间</h5>
+            <div>{{backupConfig.startTime || '计划未开始'}}</div>
           </li>
           <li v-if="[2, 3].includes(backupOperation.backupType)">
             <h5>已持续时间</h5>
@@ -176,7 +175,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileSourcePath"
                           :class="$style.backupFileInfoIcon"></i-icon>
-                  <span>{{backupFile.sourcePath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{backupFile.sourcePath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -196,7 +199,11 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileTargetPath"
                       :class="$style.backupFileInfoIcon"></i-icon>
-                  <span>{{backupFile.targetPath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          size="mini"
+                          type="warning">
+                    <span>{{backupFile.targetPath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
@@ -214,7 +221,7 @@
             <el-col :span="12">
               <i-icon name="size"
                       :class="$style.backupFileInfoIcon"></i-icon>
-              <el-tooltip content="文件大小"
+              <el-tooltip content="源文件总大小"
                           placement="right"
                           :open-delay="300">
                 <span>{{ fmtSize(backupFile.sourceSize) }}</span>
@@ -298,6 +305,10 @@ export default {
     },
     backupType() {
       return filehostBackupTypeMapping[this.backupOperation.backupType];
+    },
+    canUpdatePlan() {
+      return [1,2,3,4,5].includes(this.backupConfig.timeStrategy) ||
+             (this.backupConfig.timeStrategy === 0 && this.backupOperation.state === 0);
     },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {
@@ -409,11 +420,11 @@ export default {
 }
 .more {
   font-size: 14px;
-  height: 110px;
-  overflow: auto;
-  col {
-    height: 110px;
-  }
+  // height: 110px;
+  // overflow: auto;
+  // col {
+  //   height: 110px;
+  // }
 }
 .showMore {
   text-align: center;
@@ -424,6 +435,18 @@ export default {
   max-width: 100%;
   display: inline-block;
   text-overflow: ellipsis;
+}
+.childFileTag {
+  display: inline-block;
+  float: right;
+  max-width: 80%;
+  span {
+    max-width: 100%;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 .pathOverFlow {
   white-space:nowrap;

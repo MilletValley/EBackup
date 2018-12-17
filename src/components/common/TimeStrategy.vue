@@ -16,17 +16,17 @@
                       :key="ts.code">{{ ts.value }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="计划创建时间" class="is-required"
+        <el-form-item :label="['linux', 'windows'].includes(type)?'计划执行时间': '计划创建时间'" class="is-required"
                       v-show="[1,2,3,4,5].includes(formData.timeStrategy)"
                       prop="startTime">
           <el-date-picker v-model="formData.startTime"
                           format="yyyy-MM-dd HH:mm:ss"
                           value-format="yyyy-MM-dd HH:mm:ss"
                           type="datetime"
-                          placeholder="选择计划创建时间">
+                          :placeholder="['linux', 'windows'].includes(type)?'选择计划执行时间': '选择计划创建时间'">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="时间点" class="is-required"
+        <el-form-item label="执行时间" class="is-required"
                       v-show="formData.timeStrategy === 0"
                       prop="singleTime">
           <el-date-picker v-model="formData.singleTime"
