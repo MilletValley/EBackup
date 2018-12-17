@@ -41,8 +41,7 @@
                         effect="dark">
               <span :class="$style.pathOverFlow">{{ backupOperation.sourcePath }}</span>
             </el-tooltip>
-            <i class="el-icon-d-arrow-right"
-               :class="$style.pathDirection"></i>
+            <i class="el-icon-d-arrow-right"></i>
             <el-tooltip :content="backupOperation.targetPath"
                         placement="top"
                         effect="dark">
@@ -132,7 +131,7 @@
             </div>
           </li>
           <li v-if="backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6">
-            <h5>计划执行时间</h5>
+            <h5>计划开始时间</h5>
             <div>{{backupConfig.startTime || '计划未开始'}}</div>
           </li>
           <li v-if="[2, 3].includes(backupOperation.backupType)">
@@ -454,12 +453,10 @@ export default {
 .pathOverFlow {
   white-space:nowrap;
   overflow: hidden;
+  vertical-align: top;
   max-width: 230px;
   display: inline-block;
   text-overflow: ellipsis;
-}
-.pathDirection {
-  vertical-align: 0.5em;
 }
 .backupFileState {
   font-size: 0.8em;

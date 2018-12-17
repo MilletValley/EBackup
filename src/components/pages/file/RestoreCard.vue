@@ -37,8 +37,7 @@
                         effect="dark">
               <span :class="$style.pathOverFlow">{{ restorePlan.sourcePath }}</span>
             </el-tooltip>
-            <i class="el-icon-d-arrow-right"
-               :class="$style.pathDirection"></i>
+            <i class="el-icon-d-arrow-right"></i>
             <el-tooltip :content="restorePlan.targetPath"
                         placement="top"
                         effect="dark">
@@ -395,12 +394,10 @@ export default {
 .pathOverFlow {
   white-space:nowrap;
   overflow: hidden;
+  vertical-align: top;
   max-width: 230px;
   display: inline-block;
   text-overflow: ellipsis;
-}
-.pathDirection {
-  vertical-align: 0.5em;
 }
 .restoreFileState {
   font-size: 0.8em;
