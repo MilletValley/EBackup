@@ -30,7 +30,7 @@
                        min-width="150"
                        label="调度时间">
         <template slot-scope="scope">
-          <span v-if="!scope.row.scheduleDate">-</span>
+          <span v-if="!scope.row.scheduleDate || scope.row.hostType !== 3"></span>
           <el-tag size="mini"
                   v-else>
             {{ Number(scope.row.keepDate) === 1 ? convertWeek(scope.row) : scope.row.scheduleDate + '号' }} {{ scope.row.scheduleTime }}
@@ -38,18 +38,30 @@
         </template>
       </el-table-column>
       <el-table-column label="容器数量"
-                       prop="totalContainer"
                        min-width="80"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <span v-if="!scope.row.totalContainer || scope.row.keepType === 0"></span>
+          <span v-else>{{ scope.row.totalContainer }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="当前容器"
-                       prop="currentContainer"
                        min-width="80"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <span v-if="!scope.row.currentContainer || scope.row.hostType !== 3"></span>
+          <span v-else>{{ scope.row.currentContainer }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="备份集清除脚本路径"
                        show-overflow-tooltip
                        min-width="180"
-                       prop="scriptsPath"
-                       align="center"></el-table-column>
+                       align="center">
+        <template slot-scope="scope">
+          <span v-if="!scope.row.scriptsPath || scope.row.hostType !== 3"></span>
+          <span v-else>{{ scope.row.scriptsPath }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作"
                        min-width="120"
                        align="center">
@@ -132,8 +144,8 @@ export default {
       return keepStrategyMapping[row.keepType];
     },
     convertKeepDate(row) {
-      if(!row.keepDate)
-        return '-'
+      if(!row.keepDate || row.hostType !== 3)
+        return '';
       return keepDateMapping[row.keepDate];
     },
     convertWeek(row) {
@@ -150,7 +162,7 @@ export default {
       this.modalVisible = true;
     },
     confirmCall(formData) {
-      this.btnLoading = true
+      this.btnLoading = true;
       OperateOne[this.operate](formData)
         .then(res => {
           const { message } = res.data;
