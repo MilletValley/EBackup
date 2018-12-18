@@ -49,7 +49,7 @@
                        min-width="80"
                        align="center">
         <template slot-scope="scope">
-          <span v-if="!scope.row.currentContainer || scope.row.hostType !== 3"></span>
+          <span v-if="!scope.row.currentContainer || scope.row.keepType === 0"></span>
           <span v-else>{{ scope.row.currentContainer }}</span>
         </template>
       </el-table-column>
