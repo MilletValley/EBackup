@@ -39,12 +39,11 @@
                           prop="totalContainer">
               <el-input-number v-model="formData.totalContainer"
                                :min="1"
-                               :max="10"
                                @change="totalContainerChange"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="12"
-                  v-if="action === 'update'">
+                  v-if="action === 'update' && formData.hostType === 3">
             <el-form-item label="当前容器"
                           prop="currentContainer">
               <el-input-number v-model="formData.currentContainer"
@@ -184,53 +183,30 @@ export default {
     }
   },
   methods: {
+    emptyData(data, propSet) {
+      propSet.forEach(item => data[item] = '');
+      return data;
+    },
     confirm() {
       this.$refs.form.validate(valid => {
         if(valid) {
-          let result = null;
+          const timeSet = ['keepDate', 'scheduleDate', 'scheduleTime'];
+          const containerSet = ['currentContainer', 'totalContainer'];
+          let emptyProps = null;
           if(this.formData.keepType === 0) {
-            const {
-              id,
-              hostType,
-              keepType,
-              ...other
-            } = this.formData;
-            result = {
-              id,
-              hostType,
-              keepType,
-              ...this.resetFn(other)
-            }
+            emptyProps = ['scriptsPath', ...timeSet, ...containerSet];
+          } else if(this.formData.hostType !== 3) {
+            emptyProps = ['currentContainer', 'scriptsPath', ...timeSet];
           } else if(this.formData.keepType === 1) {
-            const {
-              scriptsPath,
-              ...other
-            } = this.formData;
-            result = {
-              scriptsPath: '',
-              ...other
-             };
+            emptyProps = ['scriptsPath'];
           } else {
-            const {
-              totalContainer,
-              currentContainer,
-              ...other
-            } = this.formData;
-            result = {
-              totalContainer: '',
-              currentContainer: '',
-              ...other
-            }
+            emptyProps = [...containerSet];
           }
-          this.$emit('confirm', result);
+          this.$emit('confirm', Object.assign({}, this.emptyData(this.formData, emptyProps)));
         } else {
           return false;
         }
       });
-    },
-    resetFn(data) {
-      Object.keys(data).forEach(key => data[key] = '');
-      return data;
     },
     beforeModalClose(done) {
       this.hasModifiedBeforeClose(done);

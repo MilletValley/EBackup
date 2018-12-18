@@ -41,8 +41,7 @@
                         effect="dark">
               <span :class="$style.pathOverFlow">{{ backupOperation.sourcePath }}</span>
             </el-tooltip>
-            <i class="el-icon-d-arrow-right"
-               :class="$style.pathDirection"></i>
+            <i class="el-icon-d-arrow-right"></i>
             <el-tooltip :content="backupOperation.targetPath"
                         placement="top"
                         effect="dark">
@@ -132,7 +131,7 @@
             </div>
           </li>
           <li v-if="backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6">
-            <h5>计划执行时间</h5>
+            <h5>计划开始时间</h5>
             <div>{{backupConfig.startTime || '计划未开始'}}</div>
           </li>
           <li v-if="[2, 3].includes(backupOperation.backupType)">
@@ -166,7 +165,11 @@
       <el-col :span="8"
               v-for="(backupFile, index) in backupOperation.backupFiles"
               :key="index">
-        <el-card shadow="always">
+        <el-card shadow="always"
+                 :class="$style.childFileCard">
+          <div slot="header" :class="$style.childFileHead">
+            <span>ID: {{ backupFile.id }}</span>
+          </div>
           <el-row>
             <el-col :span="12">
               <el-tooltip :content="`文件备份源路径: ${backupFile.sourcePath}`"
@@ -420,11 +423,10 @@ export default {
 }
 .more {
   font-size: 14px;
-  // height: 110px;
-  // overflow: auto;
-  // col {
-  //   height: 110px;
-  // }
+  .childFileCard > div:first-child {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 }
 .showMore {
   text-align: center;
@@ -451,12 +453,10 @@ export default {
 .pathOverFlow {
   white-space:nowrap;
   overflow: hidden;
+  vertical-align: top;
   max-width: 230px;
   display: inline-block;
   text-overflow: ellipsis;
-}
-.pathDirection {
-  vertical-align: 0.5em;
 }
 .backupFileState {
   font-size: 0.8em;
