@@ -196,7 +196,7 @@ export default {
           if(this.formData.keepType === 0) {
             emptyProps = ['scriptsPath', ...timeSet, ...containerSet];
           } else if(this.formData.hostType !== 3) {
-            emptyProps = ['currentContainer', 'scriptsPath', ...timeSet];
+            emptyProps = ['scriptsPath', ...timeSet];
           } else if(this.formData.keepType === 1) {
             emptyProps = ['scriptsPath'];
           } else {
