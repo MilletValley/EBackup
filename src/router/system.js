@@ -1,4 +1,5 @@
 import Layout from '@/components/Layout';
+import ServerManager from '@/components/pages/ServerManager';
 import DeviceManager from '@/components/pages/DeviceManager';
 import DeviceDetails from '@/components/pages/DeviceDetails';
 import SystemParam from '@/components/pages/SystemParam';
@@ -17,6 +18,15 @@ const router = [
       roles: [],
     },
     children: [
+      {
+        path: 'collectManager',
+        name: 'collectManager',
+        component: ServerManager,
+        meta: {
+          title: '虚拟机主机管理',
+          roles: [],
+        },
+      },
       {
         path: 'devicemanager',
         name: 'deviceManager',
@@ -50,70 +60,44 @@ const router = [
         },
       },
       {
-        path: '',
-        component: {
-          render(c) {
-            return c('router-view');
-          }
-        },
+        path: 'systemparam',
+        component: SystemParam,
         meta: {
-          title: '配置管理',
-          roles: []
+          title: '参数管理',
+          roles: [],
         },
-        children: [
-          {
-            path: 'emailmanager',
-            component: EmailManager,
-            meta: {
-              title: '邮箱管理',
-              roles: [],
-            },
-          },
-          {
-            path: 'systemparam',
-            component: SystemParam,
-            meta: {
-              title: '存储地址',
-              roles: [],
-            },
-          },
-          {
-            path: 'keepstrategy',
-            component: KeepStrategy,
-            meta: {
-              title: '保留策略',
-              roles: []
-            }
-          },
-          {
-            path: 'strategymanager',
-            component: StrategyManager,
-            meta: {
-              title: '策略管理',
-              roles: [],
-            },
-          }
-        ]
       },
       {
-        path: '',
-        component: {
-          render(c) {
-            return c('router-view');
-          }
-        },
+        path: 'emailmanager',
+        component: EmailManager,
         meta: {
-          title: '权限管理',
-          roles: []
+          title: '邮箱管理',
+          roles: [],
         },
-        children: [{
-          path: 'users',
-          component: Users,
-          meta: {
-            title: '用户管理',
-            roles: [],
-          },
-        }]
+      },
+      {
+        path: 'strategymanager',
+        component: StrategyManager,
+        meta: {
+          title: '策略管理',
+          roles: [],
+        },
+      },
+      {
+        path: 'keepstrategy',
+        component: KeepStrategy,
+        meta: {
+          title: '保留策略',
+          roles: []
+        }
+      },
+      {
+        path: 'users',
+        component: Users,
+        meta: {
+          title: '用户管理',
+          roles: [],
+        },
       },
     ],
   }
