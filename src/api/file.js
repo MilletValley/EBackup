@@ -4,6 +4,9 @@ import baseApi from './fileBase';
 const timePoints2Obj = timePointsStrArr =>
   timePointsStrArr.map(p => ({ value: p, key: p }));
 
+const total = (totalArr, prop) =>
+  totalArr.map(child => child[prop]).reduce((pre, cur) => Number(pre) + Number(cur));
+
 const fmtBackupPlan = plan => {
   const childState = plan.backupFiles.map(file => file.state);
   if (Array.from(new Set(childState)).length === 1 && childState[0] === 0) {
@@ -36,7 +39,12 @@ const fmtBackupPlan = plan => {
         p.percentage = 0;
       } else {
         if (result[1]) {
-          p.diskInfo = `正在备份卷${result[1]}`;
+          if (p.state === 2) {
+            p.diskInfo = `卷${result[1]}已备份完成`;
+          }
+          if (p.state === 1) {
+            p.diskInfo = `正在备份卷${result[1]}`;
+          }
         }
         if (result[2]) {
           const percentage = Number(result[2].substring(0, result[2].length - 1));
@@ -53,9 +61,15 @@ const fmtBackupPlan = plan => {
       p.progress = Math.abs(p.sourceSize - p.backupSize) * p.percentage * 0.01 + Number(p.backupSize);
     }
   });
-  plan.size = plan.backupFiles.map(file => file.sourceSize).reduce((pre, cur) => Number(pre) + Number(cur));
-  plan.progress = plan.backupFiles.map(file => file.progress).reduce((pre, cur) => Number(pre) + Number(cur));
-  plan.percentage = plan.backupFiles.map(file => file.percentage).reduce((pre, cur) => Number(pre) + Number(cur)) / plan.backupFiles.length;
+  ({
+    size: plan.size,
+    progress: plan.progress,
+    percentage: plan.percentage
+  } = {
+    size: total(plan.backupFiles, 'sourceSize'),
+    progress: total(plan.backupFiles, 'progress'),
+    percentage: total(plan.backupFiles, 'percentage') / plan.backupFiles.length
+  });
   if (plan.percentage > 0 && plan.percentage < 1) {
     plan.percentage = 1;
   } else if (plan.percentage > 99 && plan.percentage < 100) {
@@ -64,10 +78,12 @@ const fmtBackupPlan = plan => {
     plan.percentage = Math.ceil(plan.percentage);
   }
   if (plan.backupType !== 1) {
-    plan.diskInfo = plan.backupFiles[0].diskInfo;
-    plan.sourcePath = plan.backupFiles[0].sourcePath;
-    plan.targetPath = plan.backupFiles[0].targetPath;
-    plan.consume = plan.backupFiles[0].consume;
+    ({
+      diskInfo: plan.diskInfo,
+      sourcePath: plan.sourcePath,
+      targetPath: plan.targetPath,
+      consume: plan.consume
+    } = plan.backupFiles[0]);
   }
   return plan;
 };
@@ -100,7 +116,12 @@ const fmtRestorePlan = plan => {
         p.percentage = 0;
       } else {
         if (result[1]) {
-          p.diskInfo = `正在恢复卷${result[1]}`;
+          if (p.state === 2) {
+            p.diskInfo = `卷${result[1]}已恢复完成`;
+          }
+          if (p.state === 1) {
+            p.diskInfo = `正在恢复卷${result[1]}`;
+          }
         }
         if (result[2]) {
           const percentage = Number(result[2].substring(0, result[2].length - 1));
@@ -117,9 +138,15 @@ const fmtRestorePlan = plan => {
       p.progress = p.sourceSize * p.percentage * 0.01;
     }
   });
-  plan.size = plan.restorePath.map(file => file.sourceSize).reduce((pre, cur) => Number(pre) + Number(cur));
-  plan.progress = plan.restorePath.map(file => file.progress).reduce((pre, cur) => Number(pre) + Number(cur));
-  plan.percentage = plan.restorePath.map(file => file.percentage).reduce((pre, cur) => Number(pre) + Number(cur)) / plan.restorePath.length;
+  ({
+    size: plan.size,
+    progress: plan.progress,
+    percentage: plan.percentage
+  } = {
+    size: total(plan.restorePath, 'sourceSize'),
+    progress: total(plan.restorePath, 'progress'),
+    percentage: total(plan.restorePath, 'percentage') / plan.restorePath.length
+  });
   if (plan.percentage > 0 && plan.percentage < 1) {
     plan.percentage = 1;
   } else if (plan.percentage > 99 && plan.percentage < 100) {
@@ -128,11 +155,13 @@ const fmtRestorePlan = plan => {
     plan.percentage = Math.ceil(plan.percentage);
   }
   if (plan.restoreType !== 1) {
-    plan.diskInfo = plan.restorePath[0].diskInfo;
-    plan.sourcePath = plan.restorePath[0].sourcePath;
-    plan.targetPath = plan.restorePath[0].targetPath;
-    plan.consume = plan.restorePath[0].consume;
-    plan.pointPath = plan.restorePath[0].pointPath;
+    ({
+      diskInfo: plan.diskInfo,
+      sourcePath: plan.sourcePath,
+      targetPath: plan.targetPath,
+      consume: plan.consume,
+      pointPath: plan.pointPath
+    } = plan.restorePath[0]);
   }
   return plan;
 };
