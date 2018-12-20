@@ -92,21 +92,21 @@
                     <div v-if="['windows', 'linux'].includes(target)">
                       <el-col :span="8">
                         <el-form-item label="存储目标路径：">
-                          <span>{{ details.detailInfo }}</span>
+                          <span>{{ config.targetPath }}</span>
                         </el-form-item>
                       </el-col>
-                      <el-col :span="8">
+                      <el-col :span="24">
                         <el-form-item label="NFS源路径："
                                       v-if="target === 'linux'">
-                          <span>{{ details.nfsSourcePath }}</span>
+                          <span>{{ config.sourcePath }}</span>
                         </el-form-item>
                       </el-col>
-                      <el-col :span="8">
+                      <!-- <el-col :span="8">
                         <el-form-item v-if="target === 'linux'"
                                       label="恢复方向：">
                           <span>{{ config.originDetailInfo}}</span>
                         </el-form-item>
-                      </el-col>
+                      </el-col> -->
                     </div>
                 </el-row>
                 <el-row class="machineRow">

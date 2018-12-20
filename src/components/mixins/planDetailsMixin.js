@@ -2,6 +2,7 @@ import {
   weekMapping,
   vmHostServerTypeMapping
 } from '@/utils/constant';
+import { fmtSizeFn } from '@/utils/common';
 
 const typeMapping = {
   1: '数据库',
@@ -47,6 +48,7 @@ const planDetailsMixin = {
     return {
       infoLoading: false,
       details: {},
+      fmtSizeFn
     };
   },
   computed: {

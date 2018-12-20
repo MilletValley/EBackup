@@ -174,6 +174,7 @@ export default {
       restorePlans: [],
       restoreRecords: [],
       results: [],
+      timer: null,
       retoreSourcePath: [],
       selectedBackupPlan: {},
       btnLoading: false,
@@ -233,6 +234,12 @@ export default {
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.setTimer(this.timer);
+  },
+  destroyed() {
+    this.clearTimer(this.timer);
   },
   methods: {
     fetchData() {
@@ -307,6 +314,19 @@ export default {
         this.backupPlanModalVisible = true;
         this.action = 'create';
       }
+    },
+    refreshTime() {
+      this.fetchBackupPlanList();
+      this.fetchRestorePlanList();
+    },
+    clearTimer() {
+      clearInterval(this.timer);
+    },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        this.refreshTime();
+      }, 20000);
     },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
