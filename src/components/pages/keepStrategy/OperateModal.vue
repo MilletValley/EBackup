@@ -196,7 +196,8 @@ export default {
           if(this.formData.keepType === 0) {
             emptyProps = ['scriptsPath', ...timeSet, ...containerSet];
           } else if(this.formData.hostType !== 3) {
-            emptyProps = ['currentContainer', 'scriptsPath', ...timeSet];
+            this.formData.currentContainer = this.originFormData.currentContainer; // 数据库禁止修改当前容器
+            emptyProps = ['scriptsPath', ...timeSet];
           } else if(this.formData.keepType === 1) {
             emptyProps = ['scriptsPath'];
           } else {

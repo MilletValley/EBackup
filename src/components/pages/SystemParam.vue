@@ -123,9 +123,9 @@
         <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio-group v-model="formData.sysType">
-            <el-radio :label="1">Windows Share</el-radio>
-            <el-radio :label="2">Linux NFS</el-radio>
-            <el-radio :label="3">Windows NFS</el-radio>
+            <el-radio :label="1">{{ formData.useType === 3 ? 'Windows Share' : 'Windows'}}</el-radio>
+            <el-radio :label="2">{{ formData.useType === 3 ? 'Linux NFS' : 'Linux' }}</el-radio>
+            <el-radio :label="3" v-if="formData.useType === 3">Windows NFS</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
@@ -214,9 +214,9 @@
         <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio-group v-model="formData.sysType">
-            <el-radio :label="1">Windows Share</el-radio>
-            <el-radio :label="2">Linux NFS</el-radio>
-            <el-radio :label="3">Windows NFS</el-radio>
+            <el-radio :label="1">{{ formData.useType === 3 ? 'Windows Share' : 'Windows'}}</el-radio>
+            <el-radio :label="2">{{ formData.useType === 3 ? 'Linux NFS' : 'Linux' }}</el-radio>
+            <el-radio :label="3" v-if="formData.useType === 3">Windows NFS</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
@@ -298,6 +298,13 @@ export default {
         callback();
       }
     };
+    const validateSysType = (rule, value, callback) => {
+      if (!value || (this.formData.useType !== 3 && value === 3)) {
+        this.$message.warning('请选择系统类别!');
+      } else {
+        callback();
+      }
+    }
     return {
       systemParameters: [],
       createModalVisible: false,
@@ -311,6 +318,9 @@ export default {
       hiddenPassword: true,
       validate: validate,
       rules: {
+        sysType: [{
+          validator: validateSysType, trigger: 'blur'
+        }],
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
         ],
@@ -370,10 +380,14 @@ export default {
     judgeSystem(data) {
       let str = '';
       if(sysTypeMapping[data.sysType]){
-        str += sysTypeMapping[data.sysType];
+        if(data.useType === 3) {
+          str += sysTypeMapping[data.sysType];
+        } else {
+          str += data.sysType === 1 ? 'Windows' : 'Linux';
+        }
       }
-      if(data.useType === 2 && [1,3].includes(data.sysType) && windowsTypeMapping[data.windowsType]){
-        str += '('+windowsTypeMapping[data.windowsType]+')';
+      if(data.useType === 2 && data.sysType === 1 && windowsTypeMapping[data.windowsType]){
+        str += windowsTypeMapping[data.windowsType];
       }
       return str;
     },

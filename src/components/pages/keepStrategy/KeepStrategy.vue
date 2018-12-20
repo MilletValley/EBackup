@@ -41,7 +41,7 @@
                        min-width="80"
                        align="center">
         <template slot-scope="scope">
-          <span v-if="!scope.row.totalContainer || scope.row.keepType === 0"></span>
+          <span v-if="!scope.row.totalContainer || scope.row.keepType !== 1"></span>
           <span v-else>{{ scope.row.totalContainer }}</span>
         </template>
       </el-table-column>
@@ -49,7 +49,7 @@
                        min-width="80"
                        align="center">
         <template slot-scope="scope">
-          <span v-if="!scope.row.currentContainer || scope.row.keepType === 0"></span>
+          <span v-if="!scope.row.currentContainer || scope.row.keepType !== 1"></span>
           <span v-else>{{ scope.row.currentContainer }}</span>
         </template>
       </el-table-column>
@@ -58,7 +58,7 @@
                        min-width="180"
                        align="center">
         <template slot-scope="scope">
-          <span v-if="!scope.row.scriptsPath || scope.row.hostType !== 3"></span>
+          <span v-if="!scope.row.scriptsPath || scope.row.hostType !== 3 || scope.row.keepType !== 2"></span>
           <span v-else>{{ scope.row.scriptsPath }}</span>
         </template>
       </el-table-column>
