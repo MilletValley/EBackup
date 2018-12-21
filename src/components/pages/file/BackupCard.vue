@@ -1,14 +1,14 @@
 <template>
   <el-card :class="$style.backupCard"
            v-if="backupOperation.id && backupConfig.id"
-           :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
+           :style="[2, 3].includes(backupOperation.state) ? 'color: #999999;' : ''">
     <div slot="header"
          class="clearfix">
       <el-tag size="mini"
               color="#8465ff"
               style="color: #ffffff">备份</el-tag>
       <span>{{backupOperation.name}}</span>
-      <i v-if="backupOperation.state !== 2"
+      <i v-if="![2,3].includes(backupOperation.state)"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh"
          :class="$style.stateRefresh"
@@ -191,7 +191,14 @@
               <span v-else-if="backupFile.state === 1">
                 <el-progress :percentage="isNaN(backupFile.percentage)?0:backupFile.percentage"></el-progress>
               </span>
-              <span v-else><i :class="formatIcon(backupFile.state)"></i>已结束</span>
+              <span v-else-if="backupFile.state === 2"><i :class="formatIcon(backupFile.state)"></i>已结束</span>
+              <span v-else>
+                <el-tooltip :content="`${backupFile.errorMsg}`"
+                            placement="top"
+                            :open-delay="300">
+                  <span><i :class="formatIcon(backupFile.state)"></i>失败</span>
+                </el-tooltip>
+              </span>
             </el-col>
           </el-row>
           <el-row>
@@ -211,7 +218,7 @@
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(backupFile.state)"
+                    v-if="[1,2,3].includes(backupFile.state)"
                     :class="$style.backupFileState">
               <el-tooltip content="开始时间"
                           placement="top"
@@ -231,7 +238,7 @@
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(backupFile.state)"
+                    v-if="[1,2,3].includes(backupFile.state)"
                     :class="$style.backupFileState">
               <el-tooltip content="已持续时间"
                           placement="top"
@@ -304,7 +311,11 @@ export default {
       return this.backupConfig.weekPoints.map(p => weekMapping[p]);
     },
     operationState() {
-      return operationStateMapping[this.backupOperation.state];
+      const content = operationStateMapping[this.backupOperation.state];
+      if(this.backupOperation.state === 3 && this.backupOperation.errorMsg) {
+        return `${content}: ${this.backupOperation.errorMsg}`;
+      }
+      return content;
     },
     backupType() {
       return filehostBackupTypeMapping[this.backupOperation.backupType];
@@ -363,7 +374,7 @@ export default {
       } else if (data === 1) {
         return this.$style.loadingColor + ' el-icon-loading';
       } else if(data === 3) {
-        return this.$style.errorColor + ' el-icon-warning';
+        return this.$style.errorColor + ' el-icon-error';
       } else if(data === 2){
         return this.$style.successColor + ' el-icon-success';
       }else return '';

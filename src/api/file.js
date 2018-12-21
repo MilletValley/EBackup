@@ -13,6 +13,8 @@ const fmtBackupPlan = plan => {
     plan.state = 0;
   } else if (Array.from(new Set(childState)).length === 1 && childState[0] === 2) {
     plan.state = 2;
+  } else if (childState.includes(3)) {
+    plan.state = 3;
   } else {
     plan.state = 1;
   }
@@ -44,6 +46,9 @@ const fmtBackupPlan = plan => {
           }
           if (p.state === 1) {
             p.diskInfo = `正在备份卷${result[1]}`;
+          }
+          if (p.state === 3) {
+            p.diskInfo = `备份卷${result[1]}失败`;
           }
         }
         if (result[2]) {
@@ -82,7 +87,8 @@ const fmtBackupPlan = plan => {
       diskInfo: plan.diskInfo,
       sourcePath: plan.sourcePath,
       targetPath: plan.targetPath,
-      consume: plan.consume
+      consume: plan.consume,
+      errorMsg: plan.errorMsg
     } = plan.backupFiles[0]);
   }
   return plan;
@@ -94,6 +100,8 @@ const fmtRestorePlan = plan => {
     plan.state = 0;
   } else if (Array.from(new Set(childState)).length === 1 && childState[0] === 2) {
     plan.state = 2;
+  } else if (childState.includes(3)) {
+    plan.state = 3;
   } else {
     plan.state = 1;
   }
@@ -121,6 +129,9 @@ const fmtRestorePlan = plan => {
           }
           if (p.state === 1) {
             p.diskInfo = `正在恢复卷${result[1]}`;
+          }
+          if (p.state === 3) {
+            p.diskInfo = `恢复卷${result[1]}失败`;
           }
         }
         if (result[2]) {
@@ -160,7 +171,8 @@ const fmtRestorePlan = plan => {
       sourcePath: plan.sourcePath,
       targetPath: plan.targetPath,
       consume: plan.consume,
-      pointPath: plan.pointPath
+      pointPath: plan.pointPath,
+      errorMsg: plan.errorMsg
     } = plan.restorePath[0]);
   }
   return plan;

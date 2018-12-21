@@ -2,6 +2,7 @@ import Layout from '@/components/Layout';
 import VMwareList from '@/components/pages/vm/VmwareList';
 import VMwareDetail from '@/components/pages/vm/VMwareDetail';
 import BackupPlanList from '@/components/pages/vm/BackupPlanList';
+import ServerManager from '@/components/pages/ServerManager';
 
 const vmRouter = [
   {
@@ -14,24 +15,80 @@ const vmRouter = [
     },
     children: [
       {
-        path: 'virtual',
-        name: 'VMwareList',
-        component: VMwareList,
-        meta: {
-          title: 'VMware',
-          activeName: 'vmware',
-          roles: ['vm admin'],
-          breadcrumb: [
-            {
-              name: '首页',
-              path: '/',
-            },
-            {
-              name: '虚拟机列表',
-              path: '',
-            },
-          ],
+        path: '',
+        component: {
+          render(c) {
+            return c('router-view');
+          }
         },
+        meta: {
+          title: 'veeam',
+          roles: ['vm admin']
+        },
+        children: [
+          {
+            path: 'collectManager',
+            name: 'collectManager',
+            component: ServerManager,
+            meta: {
+              title: '虚拟机主机管理',
+              roles: [],
+            },
+          },
+          {
+            path: 'virtual',
+            name: 'VMwareList',
+            component: VMwareList,
+            meta: {
+              title: '虚拟机',
+              activeName: 'vmware',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '',
+                },
+              ],
+            },
+          },
+          {
+            path: 'backup',
+            name: 'backup',
+            component: BackupPlanList,
+            meta: {
+              title: '批量操作',
+              roles: [],
+            },
+          },
+          {
+            path: 'virtual/:id',
+            props: true,
+            component: VMwareDetail,
+            name: 'virtualDetail',
+            meta: {
+              activeName: 'vmware',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '/vm/virtual',
+                },
+                {
+                  name: '虚拟机详情',
+                  path: '',
+                },
+              ],
+            },
+          },
+        ]
       },
       {
         path: 'hwVirtual',
@@ -48,39 +105,6 @@ const vmRouter = [
             },
             {
               name: '虚拟机列表',
-              path: '',
-            },
-          ],
-        },
-      },
-      {
-        path: 'backup',
-        name: 'backup',
-        component: BackupPlanList,
-        meta: {
-          title: '备份计划',
-          roles: [],
-        },
-      },
-      {
-        path: 'virtual/:id',
-        props: true,
-        component: VMwareDetail,
-        name: 'virtualDetail',
-        meta: {
-          activeName: 'vmware',
-          roles: ['vm admin'],
-          breadcrumb: [
-            {
-              name: '首页',
-              path: '/',
-            },
-            {
-              name: '虚拟机列表',
-              path: '/vm/virtual',
-            },
-            {
-              name: '虚拟机详情',
               path: '',
             },
           ],
