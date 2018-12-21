@@ -3,8 +3,8 @@ import DeviceManager from '@/components/pages/DeviceManager';
 import DeviceDetails from '@/components/pages/DeviceDetails';
 import SystemParam from '@/components/pages/SystemParam';
 import EmailManager from '@/components/pages/EmailManager';
-// import StrategyManager from '@/components/pages/StrategyManager';
 import KeepStrategy from '@/components/pages/keepStrategy/KeepStrategy';
+import PortList from '@/components/pages/port/PortList';
 import Users from '@/components/pages/Users';
 
 const router = [
@@ -85,14 +85,14 @@ const router = [
               roles: []
             }
           },
-          // {
-          //   path: 'strategymanager',
-          //   component: StrategyManager,
-          //   meta: {
-          //     title: '策略管理',
-          //     roles: [],
-          //   },
-          // }
+          {
+            path: 'portmanager',
+            component: PortList,
+            meta: {
+              title: '端口管理',
+              roles: [],
+            },
+          }
         ]
       },
       {

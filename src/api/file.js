@@ -20,7 +20,9 @@ const fmtBackupPlan = plan => {
   }
   plan.backupFiles.forEach(p => {
     if (plan.backupType === 1) { // 文件备份
-      if (isEqual(p.sourceSize, p.backupSize)) {
+      if (!p.sourceSize) {
+        p.percentage = 0;
+      } else if (isEqual(p.sourceSize, p.backupSize)) {
         p.percentage = 100;
       } else {
         p.percentage = Math.ceil(Math.abs((p.progress - p.backupSize) / (p.sourceSize - p.backupSize)) * 100);

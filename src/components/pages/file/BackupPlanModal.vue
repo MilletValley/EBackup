@@ -233,7 +233,7 @@ export default {
       }
     }
     const unitValidate = (rule, value, callback) => {
-      if(this.formData.bwlimit && !value) {
+      if(this.formData.bwlimit && value !== 0 && !value) {
         callback('请选择限速单位');
       } else {
         callback();
