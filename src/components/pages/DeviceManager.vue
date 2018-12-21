@@ -154,7 +154,8 @@ export default {
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
-        {text: 'Linux', value: 'Linux'}
+        {text: 'Linux', value: 'Linux'},
+        {text: 'AIX', value: 'AIX'}
       ],
       tableData: [],
       tableFilter: {}
