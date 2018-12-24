@@ -10,6 +10,7 @@
       </span>
       <el-form :model="formData"
                label-position="right"
+               label-width="120px"
                ref="form"
                size="small">
         <el-row>

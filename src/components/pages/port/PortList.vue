@@ -7,47 +7,47 @@
           <el-button type="primary"
                     @click="createPort()">添加</el-button>
         </el-form-item>
-        <el-table :data="ports"
-                  style="width: 100%">
-          <el-table-column type="index"
-                           width="100"
-                           align="center"></el-table-column>
-          <el-table-column prop="type"
-                           label="类型"
-                           min-width="200"
-                           :formatter="convertType"
-                           align="center"></el-table-column>
-          <el-table-column prop="port"
-                           label="端口号"
-                           min-width="200"
-                           align="center"></el-table-column>
-          <el-table-column label="操作"
-                           width="200"
-                           align="center">
-            <template slot-scope="scope">
-              <el-button type="primary"
-                         icon="el-icon-edit"
-                         circle
-                         size="mini"
-                         :class="$style.miniCricleIconBtn"
-                         @click="modifyPort(scope)"></el-button>
-              <el-button type="danger"
-                         icon="el-icon-delete"
-                         circle
-                         size="mini"
-                         :class="$style.miniCricleIconBtn"
-                         @click="deletePort(scope)"></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <operate-port-modal :visible.sync="modalVisible"
-                       :btn-loading="btnLoading"
-                       :action="operate"
-                       :data="selectData"
-                       :all-type="allType"
-                       @confirm="confirmCall"></operate-port-modal>
       </el-form>
     </el-row>
+    <el-table :data="ports"
+              style="width: 100%">
+      <el-table-column type="index"
+                        width="100"
+                        align="center"></el-table-column>
+      <el-table-column prop="type"
+                        label="类型"
+                        min-width="200"
+                        :formatter="convertType"
+                        align="center"></el-table-column>
+      <el-table-column prop="port"
+                        label="端口号"
+                        min-width="200"
+                        align="center"></el-table-column>
+      <el-table-column label="操作"
+                        width="200"
+                        align="center">
+        <template slot-scope="scope">
+          <el-button type="primary"
+                      icon="el-icon-edit"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="modifyPort(scope)"></el-button>
+          <el-button type="danger"
+                      icon="el-icon-delete"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="deletePort(scope)"></el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <operate-port-modal :visible.sync="modalVisible"
+                    :btn-loading="btnLoading"
+                    :action="operate"
+                    :data="selectData"
+                    :all-type="allType"
+                    @confirm="confirmCall"></operate-port-modal>
   </section>
 </template>
 <script>
