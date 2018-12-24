@@ -119,27 +119,23 @@ const fmtRestorePlan = plan => {
       }
     } else { // 系统恢复
       // eslint-disable-next-line
-      const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-      const result = p.progress.match(reg);
-      if (!result) {
+      const percentage = p.progress.replace(/[^0-9]/ig, '');
+      const volumeReg = p.progress.replace(/[^a-zA-Z]/g, '');
+      const volume = p.progress.substr(p.progress.indexOf(volumeReg), 3);
+      if (!volume || !percentage) {
         p.diskInfo = '';
         p.percentage = 0;
       } else {
-        if (result[1]) {
-          if (p.state === 2) {
-            p.diskInfo = `卷${result[1]}已恢复完成`;
-          }
-          if (p.state === 1) {
-            p.diskInfo = `正在恢复卷${result[1]}`;
-          }
-          if (p.state === 3) {
-            p.diskInfo = `恢复卷${result[1]}失败`;
-          }
+        if (p.state === 2) {
+          p.diskInfo = `卷${volume}已恢复完成`;
         }
-        if (result[2]) {
-          const percentage = Number(result[2].substring(0, result[2].length - 1));
-          p.percentage = isNaN(percentage) ? 0 : percentage;
+        if (p.state === 1) {
+          p.diskInfo = `正在恢复卷${volume}`;
         }
+        if (p.state === 3) {
+          p.diskInfo = `恢复卷${volume}失败`;
+        }
+        p.percentage = isNaN(percentage) ? 0 : percentage;
       }
       if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
