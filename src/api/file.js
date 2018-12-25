@@ -119,7 +119,7 @@ const fmtRestorePlan = plan => {
       }
     } else { // 系统恢复
       // eslint-disable-next-line
-      const percentage = p.progress.replace(/[^0-9]/ig, '');
+      const percentage = Number(p.progress.replace(/[^0-9]/ig, ''));
       const volumeReg = p.progress.replace(/[^a-zA-Z]/g, '');
       const volume = p.progress.substr(p.progress.indexOf(volumeReg), 3);
       if (!volume || !percentage) {
