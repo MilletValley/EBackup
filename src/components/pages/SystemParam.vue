@@ -24,11 +24,13 @@
                        align="center"></el-table-column>
       <el-table-column prop="shareUrl"
                        label="地址"
-                       min-width="250"
+                       min-width="180"
+                       show-overflow-tooltip
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
                        label="挂载点"
-                       min-width="250"
+                       min-width="180"
+                       show-overflow-tooltip
                        align="center"></el-table-column>
       <el-table-column label="状态"
                        min-width="100"

@@ -13,12 +13,16 @@ const fmtBackupPlan = plan => {
     plan.state = 0;
   } else if (Array.from(new Set(childState)).length === 1 && childState[0] === 2) {
     plan.state = 2;
+  } else if (childState.includes(3)) {
+    plan.state = 3;
   } else {
     plan.state = 1;
   }
   plan.backupFiles.forEach(p => {
     if (plan.backupType === 1) { // 文件备份
-      if (isEqual(p.sourceSize, p.backupSize)) {
+      if (!p.sourceSize) {
+        p.percentage = 0;
+      } else if (isEqual(p.sourceSize, p.backupSize)) {
         p.percentage = 100;
       } else {
         p.percentage = Math.ceil(Math.abs((p.progress - p.backupSize) / (p.sourceSize - p.backupSize)) * 100);
@@ -44,6 +48,9 @@ const fmtBackupPlan = plan => {
           }
           if (p.state === 1) {
             p.diskInfo = `正在备份卷${result[1]}`;
+          }
+          if (p.state === 3) {
+            p.diskInfo = `备份卷${result[1]}失败`;
           }
         }
         if (result[2]) {
@@ -82,7 +89,8 @@ const fmtBackupPlan = plan => {
       diskInfo: plan.diskInfo,
       sourcePath: plan.sourcePath,
       targetPath: plan.targetPath,
-      consume: plan.consume
+      consume: plan.consume,
+      errorMsg: plan.errorMsg
     } = plan.backupFiles[0]);
   }
   return plan;
@@ -94,6 +102,8 @@ const fmtRestorePlan = plan => {
     plan.state = 0;
   } else if (Array.from(new Set(childState)).length === 1 && childState[0] === 2) {
     plan.state = 2;
+  } else if (childState.includes(3)) {
+    plan.state = 3;
   } else {
     plan.state = 1;
   }
@@ -109,24 +119,23 @@ const fmtRestorePlan = plan => {
       }
     } else { // 系统恢复
       // eslint-disable-next-line
-      const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-      const result = p.progress.match(reg);
-      if (!result) {
+      const percentage = p.progress.replace(/[^0-9]/ig, '');
+      const volumeReg = p.progress.replace(/[^a-zA-Z]/g, '');
+      const volume = p.progress.substr(p.progress.indexOf(volumeReg), 3);
+      if (!volume || !percentage) {
         p.diskInfo = '';
         p.percentage = 0;
       } else {
-        if (result[1]) {
-          if (p.state === 2) {
-            p.diskInfo = `卷${result[1]}已恢复完成`;
-          }
-          if (p.state === 1) {
-            p.diskInfo = `正在恢复卷${result[1]}`;
-          }
+        if (p.state === 2) {
+          p.diskInfo = `卷${volume}已恢复完成`;
         }
-        if (result[2]) {
-          const percentage = Number(result[2].substring(0, result[2].length - 1));
-          p.percentage = isNaN(percentage) ? 0 : percentage;
+        if (p.state === 1) {
+          p.diskInfo = `正在恢复卷${volume}`;
         }
+        if (p.state === 3) {
+          p.diskInfo = `恢复卷${volume}失败`;
+        }
+        p.percentage = isNaN(percentage) ? 0 : percentage;
       }
       if (p.state === 2 && p.percentage >= 95) { // 已完成
         p.percentage = 100;
@@ -160,7 +169,8 @@ const fmtRestorePlan = plan => {
       sourcePath: plan.sourcePath,
       targetPath: plan.targetPath,
       consume: plan.consume,
-      pointPath: plan.pointPath
+      pointPath: plan.pointPath,
+      errorMsg: plan.errorMsg
     } = plan.restorePath[0]);
   }
   return plan;

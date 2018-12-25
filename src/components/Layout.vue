@@ -33,14 +33,27 @@
                    class="menu-icon"></IIcon>
             <span>{{ menu.meta.title }}</span>
           </template>
-          <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
-                        :key="submenu.path"
-                        :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
-            <router-link :to="`${menu.path}/${submenu.path}`"
-                         tag="li">{{ submenu.meta.title }}</router-link>
-          </el-menu-item>
+          <div v-for="(submenu, index) in menu.children.filter(child => child.meta && child.meta.title)"
+               :key="index">
+              <el-submenu v-if="submenu.children"
+                          :index="submenu.meta.activeName ? submenu.meta.activeName : String(index)">
+              <template slot="title">
+                <span>{{ submenu.meta.title }}</span>
+              </template>
+              <el-menu-item v-for="(menu2,index) in submenu.children.filter(child => child.meta && child.meta.title)"
+                            :key="index"
+                            :index="menu2.meta.activeName ? menu2.meta.activeName : `${menu.path}/${menu2.path}`">
+                <router-link :to="`${menu.path}/${menu2.path}`"
+                              tag="li">{{ menu2.meta.title }}</router-link>
+              </el-menu-item>
+            </el-submenu>
+            <el-menu-item v-else
+                          :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
+              <router-link :to="`${menu.path}/${submenu.path}`"
+                          tag="li">{{ submenu.meta.title }}</router-link>
+            </el-menu-item>
+          </div>
         </el-submenu>
-
       </el-menu>
     </el-aside>
     <el-container style="overflow: auto;">

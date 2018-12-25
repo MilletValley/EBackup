@@ -247,7 +247,7 @@ export default {
 .text-right{
   text-align: right;
 }
-.path-result-detail-form .el-form-item__label,.path-result-detail-form .el-form-item__content{
+.path-result-detail-form ,.path-result-detail-form .el-form-item__content{
   font-size: 12px !important;
 }
 </style>

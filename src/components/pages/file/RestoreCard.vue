@@ -1,12 +1,13 @@
 <template>
   <el-card :class="$style.restoreCard"
-           v-if="restorePlan.id && restorePlan.id">
+           v-if="restorePlan.id && restorePlan.id"
+           :style="[2, 3].includes(restorePlan.state) ? 'color: #999999;' : ''">
     <div slot="header">
       <el-tag size="mini"
               color="#fa4211"
               style="color: #ffffff">恢复</el-tag>
       <span>{{restorePlan.planName}}</span>
-      <i v-if="restorePlan.state !== 2"
+      <i v-if="![2,3].includes(restorePlan.state)"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
          :class="$style.stateRefresh"
@@ -70,7 +71,7 @@
             <h5>当前状态</h5>
             <div>
               <div>
-                <span v-if="restorePlan.restoreType === 2" :class="operationStateStyle">{{ restorePlan.diskInfo || '-' }}</span>
+                <span v-if="[2,3].includes(restorePlan.restoreType)" :class="operationStateStyle">{{ restorePlan.diskInfo || '-' }}</span>
               </div>
               <el-tooltip :content="operationState"
                           placement="top-end"
@@ -85,7 +86,7 @@
             <h5>恢复开始时间</h5>
             <div>{{restorePlan.startTime }}</div>
           </li>
-          <li v-if="restorePlan.restoreType === 2">
+          <li v-if="[2,3].includes(restorePlan.restoreType)">
             <h5>已持续时间</h5>
             <div v-if="restorePlan.consume">
               <timer v-if="restorePlan.state === 1" :val="Number(restorePlan.consume)"></timer>
@@ -142,7 +143,14 @@
               <span v-else-if="restoreFile.state === 1">
                 <el-progress :percentage="isNaN(restoreFile.percentage)?0:restoreFile.percentage"></el-progress>
               </span>
-              <span v-else><i :class="formatIcon(restoreFile.state)"></i>已结束</span>
+              <span v-else-if="restoreFile.state === 2"><i :class="formatIcon(restoreFile.state)"></i>已结束</span>
+              <span v-else>
+                <el-tooltip :content="`${restoreFile.errorMsg}`"
+                            placement="top"
+                            :open-delay="300">
+                  <span><i :class="formatIcon(restoreFile.state)"></i>失败</span>
+                </el-tooltip>
+              </span>
             </el-col>
           </el-row>
           <el-row>
@@ -162,7 +170,7 @@
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(restoreFile.state)"
+                    v-if="[1,2,3].includes(restoreFile.state)"
                     :class="$style.restoreFileState">
               <el-tooltip content="开始时间"
                           placement="top"
@@ -182,7 +190,7 @@
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(restoreFile.state)"
+                    v-if="[1,2,3].includes(restoreFile.state)"
                     :class="$style.restoreFileState">
               <el-tooltip content="已持续时间"
                           placement="top"
@@ -239,7 +247,11 @@ export default {
   },
   computed: {
     operationState() {
-      return operationStateMapping[this.restorePlan.state];
+      const content = operationStateMapping[this.restorePlan.state];
+      if(this.restorePlan.state === 3 && this.restorePlan.errorMsg) {
+        return `${content}: ${this.restorePlan.errorMsg}`;
+      }
+      return content;
     },
     restoreType() {
       return filehostRestoreTypeMapping[this.restorePlan.restoreType];
@@ -304,7 +316,7 @@ export default {
       } else if (data === 1) {
         return this.$style.loadingColor + ' el-icon-loading';
       } else if(data === 3) {
-        return this.$style.errorColor + ' el-icon-warning';
+        return this.$style.errorColor + ' el-icon-error';
       } else if(data === 2){
         return this.$style.successColor + ' el-icon-success';
       }else return '';

@@ -24,7 +24,7 @@
               @filter-change="filterChange"
               style="width: 100%">
       <el-table-column label="序号"
-                       min-width="100"
+                       min-width="60"
                        fixed
                        align="center">
         <template slot-scope="scope">
@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"
-                       min-width="150"
+                       min-width="120"
                        align="center">
         <template slot-scope="scope">
           <span v-html="showData(scope.row.hostIp, scope.column.property)"></span>
@@ -60,7 +60,7 @@
                        :formatter="judgeHost"
                        :filters="hostTypeFilters"
                        column-key="hostType"
-                       min-width="120"
+                       min-width="100"
                        align="center"></el-table-column>
       <el-table-column prop="databaseType"
                        label="用途类型"
@@ -78,7 +78,8 @@
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
-                       min-width="140"
+                       min-width="100"
+                       show-overflow-tooltip
                        align="center"></el-table-column>
       <el-table-column label="操作"
                        min-width="120"
@@ -154,7 +155,8 @@ export default {
       ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
-        {text: 'Linux', value: 'Linux'}
+        {text: 'Linux', value: 'Linux'},
+        {text: 'AIX', value: 'AIX'}
       ],
       tableData: [],
       tableFilter: {}

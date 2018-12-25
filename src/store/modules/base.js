@@ -137,6 +137,14 @@ const actions = {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
                 if (hasPermission(roleIds, childRouter)) {
+                  if (childRouter.children && childRouter.children.length > 0) {
+                    childRouter.children = childRouter.children.filter(threeRouter => {
+                      if (hasPermission(roleIds, threeRouter)) {
+                        return threeRouter;
+                      }
+                      return false;
+                    });
+                  }
                   return childRouter;
                 }
                 return false;
