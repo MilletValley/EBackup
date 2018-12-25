@@ -55,6 +55,7 @@
           <fieldset :class="$style.hostLinkInOs">
             <legend>
               <span v-if="hostLink.primaryHost.osName === 'Windows'">Windows</span>
+              <span v-else-if="hostLink.primaryHost.osName === 'AIX'">AIX</span>
               <span v-else-if="hostLink.primaryHost.osName === 'Linux'&&hostLink.primaryHost.isRacMark === 1">Linux</span>
               <span v-else>RAC</span>
             </legend>
