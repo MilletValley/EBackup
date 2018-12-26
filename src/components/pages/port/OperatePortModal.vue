@@ -19,10 +19,11 @@
                           prop="type"
                           :rules="{message: '请选择类型', required: true, trigger: 'blur'}">
               <el-select v-model="formData.type"
-                        placeholder="请选择">
-                <el-option v-for="v in Object.keys(useTypeMapping)"
+                         placeholder="请选择"
+                         disabled>
+                <el-option v-for="v in Object.keys(portHostTypeMapping)"
                           :key="v"
-                          :label="useTypeMapping[v]"
+                          :label="portHostTypeMapping[v]"
                           :disabled="disableSelectType.includes(Number(v))"
                           :value="Number(v)"></el-option>
               </el-select>
@@ -46,7 +47,7 @@
   </section>
 </template>
 <script>
-import { useTypeMapping } from '@/utils/constant';
+import { portHostTypeMapping } from '@/utils/constant';
 import isEqual from 'lodash/isEqual';
 import difference from 'lodash/difference';
 const basicData = {
@@ -78,7 +79,7 @@ export default {
       baseData: Object.assign({}, basicData),
       formData: {},
       originFormData: {},
-      useTypeMapping
+      portHostTypeMapping
     }
   },
   computed: {

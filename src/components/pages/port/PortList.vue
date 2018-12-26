@@ -1,6 +1,6 @@
 <template>
   <section>
-    <el-row>
+    <!-- <el-row>
       <el-form inline
                size="small">
         <el-form-item style="float: right;">
@@ -8,7 +8,7 @@
                     @click="createPort()">添加</el-button>
         </el-form-item>
       </el-form>
-    </el-row>
+    </el-row> -->
     <el-table :data="ports"
               style="width: 100%">
       <el-table-column type="index"
@@ -33,25 +33,25 @@
                       size="mini"
                       :class="$style.miniCricleIconBtn"
                       @click="modifyPort(scope)"></el-button>
-          <el-button type="danger"
+          <!-- <el-button type="danger"
                       icon="el-icon-delete"
                       circle
                       size="mini"
                       :class="$style.miniCricleIconBtn"
-                      @click="deletePort(scope)"></el-button>
+                      @click="deletePort(scope)"></el-button> -->
         </template>
       </el-table-column>
     </el-table>
     <operate-port-modal :visible.sync="modalVisible"
-                    :btn-loading="btnLoading"
-                    :action="operate"
-                    :data="selectData"
-                    :all-type="allType"
-                    @confirm="confirmCall"></operate-port-modal>
+                        :btn-loading="btnLoading"
+                        :action="operate"
+                        :data="selectData"
+                        :all-type="allType"
+                        @confirm="confirmCall"></operate-port-modal>
   </section>
 </template>
 <script>
-import { useTypeMapping } from '@/utils/constant';
+import { portHostTypeMapping } from '@/utils/constant';
 import { fetchAll, deleteOne, createOne, modifyOne } from '@/api/port';
 import OperatePortModal from '@/components/pages/port/OperatePortModal';
 const OperateOne = {
@@ -89,7 +89,7 @@ export default {
         })
     },
     convertType({ type }) {
-      return useTypeMapping[type];
+      return portHostTypeMapping[type];
     },
     createPort() {
       this.operate = 'create';
