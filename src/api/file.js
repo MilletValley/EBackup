@@ -7,33 +7,55 @@ const timePoints2Obj = timePointsStrArr =>
 const total = (totalArr, prop) =>
   totalArr.map(child => child[prop]).reduce((pre, cur) => Number(pre) + Number(cur));
 
-const fmtBackupPlan = plan => {
-  const childState = plan.backupFiles.map(file => file.state);
-  if (Array.from(new Set(childState)).length === 1 && childState[0] === 0) {
-    plan.state = 0;
-  } else if (Array.from(new Set(childState)).length === 1 && childState[0] === 2) {
-    plan.state = 2;
-  } else if (childState.includes(3)) {
-    plan.state = 3;
-  } else {
-    plan.state = 1;
+const fmtPercentage = (state, percentage) => { // 根据状态格式化百分比
+  if (state === 2 && percentage >= 95) { // 已完成
+    return 100;
+  } else if (state === 1 && percentage >= 100) { // 进行中，且进度大于100%
+    return 99;
+  } else if (state === 0 && percentage > 100) {
+    return 100;
   }
+  return percentage;
+};
+
+const caclPercentage = (sourceSize, backupSize, progress, state) => { // 计算百分比
+  let percentage = null;
+  if (!sourceSize) {
+    percentage = 0;
+  } else if (isEqual(sourceSize, backupSize)) {
+    percentage = 100;
+  } else {
+    percentage = Math.abs((progress - backupSize) / (sourceSize - backupSize)) * 100;
+  }
+  if (percentage > 0 && percentage < 1) {
+    percentage = 1;
+  } else if (percentage > 99 && percentage < 100) {
+    percentage = 99;
+  } else {
+    percentage = Math.ceil(percentage);
+  }
+  return fmtPercentage(state, percentage);
+};
+
+const caclPlanState = stateArr => { // 根据子计划状态计算大计划状态
+  let state = null;
+  if (Array.from(new Set(stateArr)).length === 1 && stateArr[0] === 0) {
+    state = 0;
+  } else if (Array.from(new Set(stateArr)).length === 1 && stateArr[0] === 2) {
+    state = 2;
+  } else if (stateArr.includes(3)) {
+    state = 3;
+  } else {
+    state = 1;
+  }
+  return state;
+};
+
+const fmtBackupPlan = plan => {
+  plan.state = caclPlanState(plan.backupFiles.map(file => file.state));
   plan.backupFiles.forEach(p => {
     if (plan.backupType === 1) { // 文件备份
-      if (!p.sourceSize) {
-        p.percentage = 0;
-      } else if (isEqual(p.sourceSize, p.backupSize)) {
-        p.percentage = 100;
-      } else {
-        p.percentage = Math.ceil(Math.abs((p.progress - p.backupSize) / (p.sourceSize - p.backupSize)) * 100);
-      }
-      if (p.state === 2 && p.percentage >= 95) { // 已完成
-        p.percentage = 100;
-      } else if (p.state === 0) { // 未开始
-        p.percentage = 0;
-      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
-        p.percentage = 99;
-      }
+      p.percentage = caclPercentage(p.sourceSize, p.backupSize, p.progress, p.state);
     } else { // 卷备份、系统备份
       // eslint-disable-next-line
       const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
@@ -58,32 +80,21 @@ const fmtBackupPlan = plan => {
           p.percentage = isNaN(percentage) ? 0 : percentage;
         }
       }
-      if (p.state === 2 && p.percentage >= 95) { // 已完成
-        p.percentage = 100;
-      } else if (p.state === 0) { // 未开始
-        p.percentage = 0;
-      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
-        p.percentage = 99;
-      }
+    }
+    if (plan.backupType !== 1) {
       p.progress = Math.abs(p.sourceSize - p.backupSize) * p.percentage * 0.01 + Number(p.backupSize);
     }
   });
   ({
     size: plan.size,
-    progress: plan.progress,
-    percentage: plan.percentage
+    backupSize: plan.backupSize,
+    progress: plan.progress
   } = {
     size: total(plan.backupFiles, 'sourceSize'),
-    progress: total(plan.backupFiles, 'progress'),
-    percentage: total(plan.backupFiles, 'percentage') / plan.backupFiles.length
+    backupSize: total(plan.backupFiles, 'backupSize'),
+    progress: total(plan.backupFiles, 'progress')
   });
-  if (plan.percentage > 0 && plan.percentage < 1) {
-    plan.percentage = 1;
-  } else if (plan.percentage > 99 && plan.percentage < 100) {
-    plan.percentage = 99;
-  } else {
-    plan.percentage = Math.ceil(plan.percentage);
-  }
+  plan.percentage = caclPercentage(plan.size, plan.backupSize, plan.progress, plan.state);
   if (plan.backupType !== 1) {
     ({
       diskInfo: plan.diskInfo,
@@ -97,26 +108,10 @@ const fmtBackupPlan = plan => {
 };
 
 const fmtRestorePlan = plan => {
-  const childState = plan.restorePath.map(file => file.state);
-  if (Array.from(new Set(childState)).length === 1 && childState[0] === 0) {
-    plan.state = 0;
-  } else if (Array.from(new Set(childState)).length === 1 && childState[0] === 2) {
-    plan.state = 2;
-  } else if (childState.includes(3)) {
-    plan.state = 3;
-  } else {
-    plan.state = 1;
-  }
+  plan.state = caclPlanState(plan.restorePath.map(file => file.state));
   plan.restorePath.forEach(p => {
     if (plan.restoreType === 1) { // 文件恢复
-      p.percentage = Math.ceil((p.progress / p.sourceSize) * 100);
-      if (p.state === 2 && p.percentage >= 95) { // 已完成
-        p.percentage = 100;
-      } else if (p.state === 0) { // 未开始
-        p.percentage = 0;
-      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
-        p.percentage = 99;
-      }
+      p.percentage = caclPercentage(p.sourceSize, 0, p.progress, p.state);
     } else { // 系统恢复
       // eslint-disable-next-line
       const percentage = Number(p.progress.replace(/[^0-9]/ig, ''));
@@ -137,32 +132,19 @@ const fmtRestorePlan = plan => {
         }
         p.percentage = isNaN(percentage) ? 0 : percentage;
       }
-      if (p.state === 2 && p.percentage >= 95) { // 已完成
-        p.percentage = 100;
-      } else if (p.state === 0) { // 未开始
-        p.percentage = 0;
-      } else if (p.percentage >= 100) { // 进行中，且进度大于100%
-        p.percentage = 99;
-      }
+    }
+    if (plan.restoreType !== 1) {
       p.progress = p.sourceSize * p.percentage * 0.01;
     }
   });
   ({
     size: plan.size,
-    progress: plan.progress,
-    percentage: plan.percentage
+    progress: plan.progress
   } = {
     size: total(plan.restorePath, 'sourceSize'),
-    progress: total(plan.restorePath, 'progress'),
-    percentage: total(plan.restorePath, 'percentage') / plan.restorePath.length
+    progress: total(plan.restorePath, 'progress')
   });
-  if (plan.percentage > 0 && plan.percentage < 1) {
-    plan.percentage = 1;
-  } else if (plan.percentage > 99 && plan.percentage < 100) {
-    plan.percentage = 99;
-  } else {
-    plan.percentage = Math.ceil(plan.percentage);
-  }
+  plan.percentage = caclPercentage(plan.size, 0, plan.progress, plan.state);
   if (plan.restoreType !== 1) {
     ({
       diskInfo: plan.diskInfo,
