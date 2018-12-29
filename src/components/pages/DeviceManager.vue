@@ -125,7 +125,7 @@
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
-import { webSocketMixin, paginationMixin, filterMixin } from '../mixins/commonMixin';
+import { webSocketMixin, paginationMixin, filterMixin, sockMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 // import { fetchAll, deleteOne } from '../../api/host';
@@ -135,7 +135,7 @@ import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../
 export default {
   name: 'DeviceManager',
   // mixins: [listMixin, webSocketMixin],
-  mixins: [listMixin, paginationMixin, filterMixin],
+  mixins: [listMixin, paginationMixin, filterMixin, sockMixin],
   data() {
     return {
       wsuri: '/test',
