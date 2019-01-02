@@ -130,6 +130,7 @@ import BackupPlanModal from '@/components/pages/file/BackupPlanModal';
 import SingleRestoreModal from '@/components/pages/file/SingleRestoreModal';
 import IIcon from '@/components/IIcon';
 import { applyFilterMethods } from '@/utils/common';
+import { sortMixin, sockMixin } from '@/components/mixins/commonMixin';
 import {
   fetchOne,
   fetchBackupPlans,
@@ -148,6 +149,7 @@ const OperateBackupPlan = {
 export default {
   name: 'FileHostDetail',
   props: ['id'],
+  mixins: [sortMixin, sockMixin],
   data() {
     return {
       infoLoading: true,
@@ -180,6 +182,11 @@ export default {
       this.fetchRestorePlanList();
       this.fetchBackupResults();
       this.fetchRestoreRecords();
+    },
+    connectCallback(client) {
+      this.stompClient.subscribe('/file/send-backup', msg => { // 订阅服务端提供的某个topic
+        console.log(msg);  // msg.body存放的是服务端发送给我们的信息
+      });
     },
     fetchDetail() {
       fetchOne(this.id)

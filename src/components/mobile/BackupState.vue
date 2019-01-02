@@ -18,7 +18,7 @@
           <div class="sortTotal" >
             <div @click="sortFilterClick('sort')" class="active">{{defaultSortLabel}}<i class="el-icon-caret-bottom"></i></div>
           </div>
-          <div @click="sortFilterClick('filter')">过滤</div>
+          <div @click="sortFilterClick('filter')" :class="{active: hasfilterItem}">过滤<IIcon name="guolv"></IIcon></div>
         </div>
       </section>
       <section class="filter-sort-content" v-if="['sort', 'filter'].includes(showContent)">
@@ -89,12 +89,14 @@ import SortList from '@/components/base/SortList';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { fmtSizeFn } from '@/utils/common';
+import IIcon from '@/components/IIcon.vue';
 export default {
   name: 'MoreState',
   mixins: [baseMixin, DashboardTab, sortMixin, filterMixin],
   components: {
     MultipleSelection,
-    SortList
+    SortList,
+    IIcon
   },
   data() {
     const activeTab = {

@@ -188,7 +188,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .logo {
   padding: 11px 10px;
   padding-top: 10px;

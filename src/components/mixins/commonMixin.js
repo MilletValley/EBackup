@@ -1,5 +1,5 @@
-import SockJS from  'sockjs-client';
-import  Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
 const paginationMixin = {
   data() {
@@ -113,12 +113,12 @@ const sockMixin = {
     return {
       stompClient: '',
       timer: ''
-    }
+    };
   },
   mounted() {
     this.initWebsocket();
   },
-  beforeDestroy: function () {
+  beforeDestroy() {
     // 页面离开时断开连接,清除定时器
     this.disconnect();
     clearInterval(this.timer);
@@ -126,47 +126,48 @@ const sockMixin = {
   methods: {
     initWebsocket() {
       this.connection();
-      let that = this;
+      const that = this;
       this.timer = setInterval(() => {
         try {
           that.stompClient.send('test');
         } catch (err) {
-          console.log('断线了：' + err);
+          console.warn('断线了');
+          console.error(err);
           that.connection();
         }
-      }, 5000);
+      }, 30000);
     },
     connection() {
       // 建立连接对象
-      let socket = new SockJS('/socket');
+      const socket = new SockJS('/socket');
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
       // 定义客户端的认证信息,按需求配置
-      let headers = {
-        Authorization:'',
+      const headers = {
+        Authorization: '',
         login: 'guest',
         passcode: 'guest'
-      }
+      };
       // 向服务器发起websocket连接
-      // this.stompClient.connect(headers,frame => {
-      this.stompClient.connect('guest', 'guest', frame => {
-        console.log(frame);
-        console.log('建立连接成功，开始监听‘/file/send-backup’', this.stompClient);
-        this.stompClient.send('testConnect');
-        this.stompClient.subscribe('/file/send-backup', msg => { // 订阅服务端提供的某个topic
-          console.log('广播成功');
-          console.log(msg);  // msg.body存放的是服务端发送给我们的信息
-        },headers);
+      this.stompClient.connect(headers, () => {
+        this.connectCallback(this.stompClient);
         // this.stompClient.send("/app/chat.addUser",
         //   headers,
         //   JSON.stringify({sender: '',chatType: 'JOIN'}),
         // )// 用户加入接口
-      }, err => {
-        // 连接发生错误时的处理函数
-        console.log('失败');
-        console.log(err);
-        // this.connection();
-      });
+      }, this.errorCallback);
+      this.stompClient.heartbeat.outgoing = 20000;
+      this.stompClient.heartbeat.incoming = 0;
+    },
+    errorCallback(err) {
+      console.error('失败');
+      console.error(err);
+    },
+    connectCallback(client) {
+      const headers = {};
+      client.subscribe('/test', msg => { // 订阅服务端提供的某个topic
+        console.warn(msg);// msg.body存放的是服务端发送给我们的信息
+      }, headers);
     },
     disconnect() {
       if (this.stompClient) {
