@@ -550,7 +550,7 @@
 </template>
 <script>
 import { fetchAll, fetchSpaceUse } from '../../api/home';
-import { fmtSizeFn } from '../../utils/common';
+import { fmtSizeFn, keepTwoDecimalFull } from '../../utils/common';
 import baseMixin from '../mixins/baseMixins';
 import DashboardTab from '../mixins/DashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
@@ -656,15 +656,18 @@ export default {
         .then(() => {
           this.drawLine();
         })
-        // .catch(error => {
-        //   this.$message.error(error);
-        // })
+        .catch(error => {
+          this.$message.error(error);
+        })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
         return 100;
       }
-      return Math.round((diviver/dividend)*100);
+      if(Number(diviver) < 0) {
+        return 0;
+      }
+      return keepTwoDecimalFull((diviver/dividend)*100);
     },
     jumpToMoreState(params, successPath, errorPath) {
       if(params.name.includes('成功')) {
@@ -675,6 +678,9 @@ export default {
     },
     // 单位由M开始转化
     addUnit(data) {
+      if (Number(data) < 0) {
+        return 0;
+      }
       return fmtSizeFn(Number(data)*1024*1024);
     },
     tooltipPosition(point, params, dom, rect, size) {

@@ -252,11 +252,11 @@
                 </el-form>
               </template>
             </el-table-column>
-            <el-table-column label="文件标识符"
+            <!-- <el-table-column label="文件标识符"
                             prop="versionInfo"
                             v-if="target==='windows'"
                             min-width="180px"
-                            align="center"></el-table-column>
+                            align="center"></el-table-column> -->
             <el-table-column label="源文件路径"
                             v-if="['windows', 'linux'].includes(target)"
                             prop="sourcePath"
