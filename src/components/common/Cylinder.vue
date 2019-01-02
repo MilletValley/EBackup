@@ -60,7 +60,7 @@ export default {
         let cy = new Cylinder(width, height - width / 2, this.data && this.data.value ? this.data.value : 0, this.color[0], this.color[1]);
         cy.x = 10;
         cy.y = (width + 20) / 4;
-        let text = new cax.Text(Math.round(cy.value * 100) + '%', {
+        let text = new cax.Text(Math.round(cy.value * 10000) / 100 + '%', {
           font: '20px Arial',
           color: '#020B14',
         });
