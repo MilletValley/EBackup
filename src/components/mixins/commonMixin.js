@@ -142,13 +142,16 @@ const sockMixin = {
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
       // 定义客户端的认证信息,按需求配置
-      let headers = {
-        Authorization:''
-      }
+      // let headers = {
+      //   Authorization:'',
+      //   login: 'marcopolo',
+      // }
       // 向服务器发起websocket连接
-      this.stompClient.connect(headers,() => {
+      // this.stompClient.connect(headers,frame => {
+      this.stompClient.connect('guest', 'guest', frame => {
+        console.log(frame);
         console.log('建立连接成功，开始监听‘/file/send-backup’', this.stompClient);
-        this.stompClient.subscribe('/file/send-backup', (msg) => { // 订阅服务端提供的某个topic
+        this.stompClient.subscribe('/file/send-backup', msg => { // 订阅服务端提供的某个topic
           console.log('广播成功');
           console.log(msg);  // msg.body存放的是服务端发送给我们的信息
         },headers);
