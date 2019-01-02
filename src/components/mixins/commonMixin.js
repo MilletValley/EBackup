@@ -151,6 +151,7 @@ const sockMixin = {
       this.stompClient.connect('guest', 'guest', frame => {
         console.log(frame);
         console.log('建立连接成功，开始监听‘/file/send-backup’', this.stompClient);
+        this.stompClient.send('testConnect');
         this.stompClient.subscribe('/file/send-backup', msg => { // 订阅服务端提供的某个topic
           console.log('广播成功');
           console.log(msg);  // msg.body存放的是服务端发送给我们的信息
