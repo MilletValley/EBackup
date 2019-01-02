@@ -142,10 +142,11 @@ const sockMixin = {
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
       // 定义客户端的认证信息,按需求配置
-      // let headers = {
-      //   Authorization:'',
-      //   login: 'marcopolo',
-      // }
+      let headers = {
+        Authorization:'',
+        login: 'guest',
+        passcode: 'guest'
+      }
       // 向服务器发起websocket连接
       // this.stompClient.connect(headers,frame => {
       this.stompClient.connect('guest', 'guest', frame => {
