@@ -12,7 +12,7 @@ const fmtPercentage = (state, percentage) => { // 根据状态格式化百分比
     return 100;
   } else if (state === 1 && percentage >= 100) { // 进行中，且进度大于100%
     return 99;
-  } else if (state === 0 && percentage > 100) {
+  } else if (percentage > 100) {
     return 100;
   }
   return percentage;
@@ -116,7 +116,7 @@ const fmtRestorePlan = plan => {
       // eslint-disable-next-line
       const percentage = Number(p.progress.replace(/[^0-9]/ig, ''));
       const volumeReg = p.progress.replace(/[^a-zA-Z]/g, '');
-      const volume = p.progress.substr(p.progress.indexOf(volumeReg), 3);
+      const volume = volumeReg ? p.progress.substr(p.progress.indexOf(volumeReg), 3) : '';
       if (!volume || !percentage) {
         p.diskInfo = '';
         p.percentage = 0;
@@ -131,6 +131,7 @@ const fmtRestorePlan = plan => {
           p.diskInfo = `恢复卷${volume}失败`;
         }
         p.percentage = isNaN(percentage) ? 0 : percentage;
+        p.percentage = p.percentage > 100 ? 100 : p.percentage;
       }
     }
     if (plan.restoreType !== 1) {

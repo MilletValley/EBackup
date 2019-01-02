@@ -48,32 +48,36 @@
                        align="center"
                        prop="state">
         <template slot-scope="scope">
-          <el-button type="primary"
+          <el-tooltip content="修改"
+                      placement="top"
+                      effect="light">
+            <el-button type="primary"
                      icon="el-icon-edit"
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
                      @click="selectOne(scope)"></el-button>
-          <el-button type="danger"
+          </el-tooltip>
+          <el-tooltip content="删除"
+                      placement="top"
+                      effect="light">
+            <el-button type="danger"
                      icon="el-icon-delete"
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
                      @click="deleteOne(scope)"></el-button>
-          <el-button type="success"
-                     icon="el-icon-check"
-                     circle
-                     :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"
-                     v-if="scope.row.emailStatus==1"
-                     size="mini"></el-button>
-          <el-button type="info"
-                     icon="el-icon-minus"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     v-else
-                     @click="changeState(scope.$index, scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip :content="`${scope.row.emailStatus==1?'启用':'禁用'}`"
+                      placement="top"
+                      effect="light">
+            <el-button :type="`${scope.row.emailStatus==1?'success':'info'}`"
+                       :icon="`${scope.row.emailStatus==1?'el-icon-check':'el-icon-minus'}`"
+                       circle
+                       :class="$style.miniCricleIconBtn"
+                       @click="changeState(scope.$index, scope.row)"
+                       size="mini"></el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
@@ -182,19 +186,32 @@ export default {
         .catch(error => {});
     },
     changeState(index, row) {
-      let newRow = Object.assign({},this.emails.find(list => list.emailId === row.emailId));
-      newRow.emailStatus = newRow.emailStatus==='0'?'1':'0';
-      modifyOne(newRow)
-        .then(response => {
-          this.$message.success('修改成功');
-          this.emails.splice(index, 1, response.data.data);
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
+      this.$confirm(`此操作将${row.emailStatus === 0? '启用' : '禁用'}${row.mailHost}，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
         .then(() => {
-          this.fetchData();
+          let newRow = Object.assign({},this.emails.find(list => list.emailId === row.emailId));
+          newRow.emailStatus = newRow.emailStatus==='0'?'1':'0';
+          modifyOne(newRow)
+            .then(response => {
+              this.$message.success('修改成功');
+              this.emails.splice(index, 1, response.data.data);
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.fetchData();
+            })
         })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作!'
+          })
+        });
     },
   },
   computed: {

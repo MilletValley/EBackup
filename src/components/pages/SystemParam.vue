@@ -78,27 +78,15 @@
                       :class="$style.miniCricleIconBtn"
                       @click="handleDelete(scope.$index, scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="启用"
+          <el-tooltip :content="`${scope.row.state===1?'启用':'禁用'}`"
                       placement="top"
-                      effect="light"
-                      v-if="scope.row.state===1">
-            <el-button type="success"
-                       icon="el-icon-check"
+                      effect="light">
+            <el-button :type="`${scope.row.state===1?'success':'info'}`"
+                       :icon="`${scope.row.state===1?'el-icon-check':'el-icon-minus'}`"
                        circle
                        :class="$style.miniCricleIconBtn"
                        @click="changeState(scope.$index, scope.row)"
                        size="mini"></el-button>
-          </el-tooltip>
-          <el-tooltip content="禁用"
-                      placement="top"
-                      effect="light"
-                      v-else>
-            <el-button type="info"
-                     icon="el-icon-minus"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -397,18 +385,31 @@ export default {
       return useTypeMapping[data.useType];
     },
     changeState(index, row) {
-      let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
-      newRow.state = newRow.state===0?1:0;
-      modifyOne(newRow)
-        .then(response => {
-          this.$message.success('修改成功');
-          this.systemParameters.splice(index, 1, response.data.data);
-          this.systemParameters.sort((a,b) =>
-            {return a.state-b.state});
+      this.$confirm(`此操作将${row.state === 0? '禁用' : '启用'}${row.shareUrl}，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
+          newRow.state = newRow.state===0?1:0;
+          modifyOne(newRow)
+            .then(response => {
+              this.$message.success('修改成功');
+              this.systemParameters.splice(index, 1, response.data.data);
+              this.systemParameters.sort((a,b) =>
+                {return a.state-b.state});
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
         })
-        .catch(error => {
-          this.$message.error(error);
-        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作!'
+          })
+        });
     },
     handleUpdate(index, row) {
       this.listId = row.id;

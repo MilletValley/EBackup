@@ -1120,9 +1120,6 @@ export default {
         restoreTotal.resize();
         backupTotal.resize();
         initConn.resize();
-        if(Object.keys(that.spaceDetail).length) {
-          barChart.resize();
-        }
         if(that.nfsAssignedSpace&&that.nfsAssignedSpace.length>0) {
           spaceRatio.resize();
         }

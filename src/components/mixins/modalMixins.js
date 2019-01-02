@@ -304,6 +304,9 @@ const genModalMixin = type => {
         }, {
           value: 2,
           label: '11G'
+        }, {
+          value: 3,
+          label: '12C'
         }],
         words: [],
       };
