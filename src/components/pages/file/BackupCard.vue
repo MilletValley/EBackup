@@ -296,6 +296,7 @@ export default {
   computed: {
     backupOperation() {
       const { config, ...operation } = this.backupPlan;
+      console.log(operation);
       return operation;
     },
     backupConfig() {
