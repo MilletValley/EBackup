@@ -153,7 +153,10 @@ import {
   fetchPathByPlanId,
   fetchBackupOperation,
   fetchRestoreOperation,
-  stopAllPlans
+  stopAllPlans,
+  fmtBackupPlan,
+  fmtRestorePlan,
+  timePoints2Obj
 } from '@/api/file';
 const OperateBackupPlan = {
   create: createBackupPlan,
@@ -251,12 +254,19 @@ export default {
     },
     connectCallback(client) {
       this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
-        const {data} = JSON.parse(msg.body);
+        let {data} = JSON.parse(msg.body);
+        data = data.map(p => {
+          if (p.config.timePoints) {
+            p.config.timePoints = timePoints2Obj(p.config.timePoints);
+          }
+          return fmtBackupPlan(p);
+        });
         this.backupPlans = Array.isArray(data) ? this.sortFn(data, 'createTime', 'descending') : [];
         console.log(data);
       });
       this.stompClient.subscribe(`/file/${this.id}/send-restore-plans`, msg => { // 订阅服务端提供的某个topic
-        const {data} = JSON.parse(msg.body);
+        let {data} = JSON.parse(msg.body);
+        data = data.map(p => fmtRestorePlan(p));
         this.restorePlans = Array.isArray(data) ? this.sortFn(data, 'startTime', 'descending') : [];
       });
     },
