@@ -129,10 +129,9 @@ const sockMixin = {
       const that = this;
       this.heartInterval = setInterval(() => {
         try {
-          console.warn('发送心跳');
           that.stompClient.send('test');
         } catch (err) {
-          console.warn('断线了');
+          console.warn('断线了, 正在重新连接');
           // console.error(err);
           that.connection();
         }
@@ -164,7 +163,7 @@ const sockMixin = {
       this.stompClient.heartbeat.incoming = 0;
     },
     errorCallback(err) {
-      console.error('失败');
+      console.error('连接失败');
       console.error(err);
       this.stompClient = null;
     },
