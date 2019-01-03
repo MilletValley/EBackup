@@ -256,6 +256,7 @@ export default {
       this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
         let {data} = JSON.parse(msg.body);
         data = data.map(p => {
+          console.log(p);
           if (p.config.timePoints) {
             p.config.timePoints = timePoints2Obj(p.config.timePoints);
           }
