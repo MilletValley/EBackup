@@ -416,5 +416,8 @@ export {
   fetchRestoreRecords,
   fetchPathByPlanId,
   fetchPathByResultId,
-  fetchPathByHostId
+  fetchPathByHostId,
+  fmtBackupPlan,
+  fmtRestorePlan,
+  timePoints2Obj
 };
