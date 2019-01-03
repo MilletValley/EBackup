@@ -251,10 +251,12 @@ export default {
     },
     connectCallback(client) {
       this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
-        console.log(msg);  // msg.body存放的是服务端发送给我们的信息
         const {data} = JSON.parse(msg.body);
         this.backupPlans = Array.isArray(data) ? this.sortFn(data, 'createTime', 'descending') : [];
-        console.log(data, this.backupPlans);
+      });
+      this.stompClient.subscribe(`/file/${this.id}/send-restore-plans`, msg => { // 订阅服务端提供的某个topic
+        const {data} = JSON.parse(msg.body);
+        this.restorePlans = Array.isArray(data) ? this.sortFn(data, 'startTime', 'descending') : [];
       });
     },
     fetchDetail() {
@@ -274,7 +276,7 @@ export default {
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          // this.backupPlans = Array.isArray(plans) ? this.sortFn(plans, 'createTime', 'descending') : [];
+          this.backupPlans = Array.isArray(plans) ? this.sortFn(plans, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -332,9 +334,9 @@ export default {
     },
     setTimer() {
       this.clearTimer();
-      this.timer = setInterval(() => {
-        this.refreshTime();
-      }, 20000);
+      // this.timer = setInterval(() => {
+      //   this.refreshTime();
+      // }, 20000);
     },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
@@ -414,7 +416,7 @@ export default {
           this.activeTab = 'plans';
           this.planFilterForm.planType = 'backup';
           this.$message.success(message);
-          this.fetchBackupPlanList();
+          // this.fetchBackupPlanList();
         })
         .catch(error => {
           this.$message.error(error);
