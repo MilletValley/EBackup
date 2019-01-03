@@ -250,10 +250,11 @@ export default {
       this.fetchRestoreRecords();
     },
     connectCallback(client) {
-      this.stompClient.subscribe('/file/send-backup', msg => { // 订阅服务端提供的某个topic
+      this.stompClient.subscribe(`/app/file/send-backup-plans/${this.id}`, msg => { // 订阅服务端提供的某个topic
         console.log(msg);  // msg.body存放的是服务端发送给我们的信息
         const {data} = JSON.parse(msg.body);
         this.backupPlans = Array.isArray(data) ? this.sortFn(data, 'createTime', 'descending') : [];
+        console.log(data, this.backupPlans);
       });
     },
     fetchDetail() {
