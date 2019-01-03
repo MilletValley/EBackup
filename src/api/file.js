@@ -52,6 +52,9 @@ const caclPlanState = stateArr => { // 根据子计划状态计算大计划状�
 };
 
 const fmtBackupPlan = plan => {
+  if (!plan.backupFiles) {
+    return plan;
+  }
   plan.state = caclPlanState(plan.backupFiles.map(file => file.state));
   plan.backupFiles.forEach(p => {
     if (plan.backupType === 1) { // 文件备份
@@ -108,6 +111,9 @@ const fmtBackupPlan = plan => {
 };
 
 const fmtRestorePlan = plan => {
+  if (plan.restorePath) {
+    return plan;
+  }
   plan.state = caclPlanState(plan.restorePath.map(file => file.state));
   plan.restorePath.forEach(p => {
     if (plan.restoreType === 1) { // 文件恢复

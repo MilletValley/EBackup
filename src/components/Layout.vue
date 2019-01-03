@@ -96,16 +96,19 @@
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
 import IIcon from './IIcon.vue';
+import { sockMixin } from '@/components/mixins/commonMixin';
 
 export default {
   name: 'Layout',
+  mixins: [sockMixin],
   data() {
     return {
       clientWidth: 1920,
       curTime: new Date().getTime(),
       lastTime: new Date().getTime(),
       timeOut: 30 * 60 * 1000,
-      intervalObj: null
+      intervalObj: null,
+      url: '/socket-host'
     };
   },
   components: {
@@ -182,7 +185,14 @@ export default {
       if (this.curTime - this.lastTime > this.timeOut) {
         this._logout();
       }
-    }
+    },
+    connectCallback(client) {
+      this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
+        console.log(msg);
+        let {data} = JSON.parse(msg.body);
+        console.log(data);
+      });
+    },
   },
 };
 </script>
