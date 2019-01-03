@@ -253,6 +253,7 @@ export default {
       this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
         const {data} = JSON.parse(msg.body);
         this.backupPlans = Array.isArray(data) ? this.sortFn(data, 'createTime', 'descending') : [];
+        console.log(data);
       });
       this.stompClient.subscribe(`/file/${this.id}/send-restore-plans`, msg => { // 订阅服务端提供的某个topic
         const {data} = JSON.parse(msg.body);

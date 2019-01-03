@@ -142,6 +142,9 @@ const sockMixin = {
       const socket = new SockJS('/socket');
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
+      this.stompClient.debug = () => {
+        console.warn('不打印日志信息');
+      };
       // 定义客户端的认证信息,按需求配置
       const headers = {
         Authorization: '',
