@@ -244,8 +244,8 @@ export default {
   methods: {
     fetchData() {
       this.fetchDetail();
-      this.fetchBackupPlanList();
-      this.fetchRestorePlanList();
+      // this.fetchBackupPlanList();
+      // this.fetchRestorePlanList();
       this.fetchBackupResults();
       this.fetchRestoreRecords();
     },
