@@ -112,7 +112,7 @@ const sockMixin = {
   data() {
     return {
       stompClient: '',
-      timer: ''
+      heartInterval: ''
     };
   },
   mounted() {
@@ -121,22 +121,22 @@ const sockMixin = {
   beforeDestroy() {
     // 页面离开时断开连接,清除定时器
     this.disconnect();
-    clearInterval(this.timer);
+    clearInterval(this.heartInterval);
   },
   methods: {
     initWebsocket() {
       this.connection();
       const that = this;
-      this.timer = setInterval(() => {
+      this.heartInterval = setInterval(() => {
         try {
           console.warn('发送心跳');
           that.stompClient.send('test');
         } catch (err) {
           console.warn('断线了');
-          console.error(err);
+          // console.error(err);
           that.connection();
         }
-      }, 20000);
+      }, 30000);
     },
     connection() {
       // 建立连接对象
@@ -166,7 +166,7 @@ const sockMixin = {
     errorCallback(err) {
       console.error('失败');
       console.error(err);
-      this.stompClient = null;
+      // this.stompClient = null;
     },
     connectCallback(client) {
       const headers = {};
