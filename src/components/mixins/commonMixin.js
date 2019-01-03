@@ -129,13 +129,14 @@ const sockMixin = {
       const that = this;
       this.timer = setInterval(() => {
         try {
+          console.warn('发送心跳');
           that.stompClient.send('test');
         } catch (err) {
           console.warn('断线了');
           console.error(err);
           that.connection();
         }
-      }, 30000);
+      }, 20000);
     },
     connection() {
       // 建立连接对象
@@ -165,6 +166,7 @@ const sockMixin = {
     errorCallback(err) {
       console.error('失败');
       console.error(err);
+      this.stompClient = null;
     },
     connectCallback(client) {
       const headers = {};
