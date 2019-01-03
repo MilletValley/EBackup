@@ -1,65 +1,94 @@
 <template>
     <section>
-      <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <span>个人信息</span>
-          <el-button style="float: right;"
-                     type="primary"
-                     size="small"
-                     @click="update()">修改</el-button>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">用户ID：</el-col>
-            <el-col :span="6">{{ userId }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">用户名：</el-col>
-            <el-col :span="6">{{ userName }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">登录名：</el-col>
-            <el-col :span="6">{{ loginName }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">邮箱：</el-col>
-            <el-col :span="6">{{ email }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">角色：</el-col>
-            <el-col :span="6">{{ roles===undefined?'':roles[0].name }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
-        <div class="text item">
-          <el-row :gutter="20">
-            <el-col :span="6"></el-col>
-            <el-col :span="6" class="el-col-left">状态：</el-col>
-            <el-col :span="6">{{ state==1?'启用':'禁用' }}</el-col>
-            <el-col :span="6"></el-col>
-          </el-row>
-        </div>
+      <el-card>
+        <el-tabs v-model="activeName" tab-position="left" :class="$style.tabInfo">
+          <el-tab-pane name="personalInfo">
+            <span slot="label"><i class="el-icon-date"></i>基本信息</span>
+            <el-row :gutter="20">
+              <el-col :span="12" :offset="4">
+                <el-form label-width="100px">
+                  <el-form-item label="用户ID" :class="$style.baseInfoItem">
+                    <span>{{ userInfo.id }}</span>
+                  </el-form-item>
+                  <el-form-item label="用户名" :class="$style.baseInfoItem">
+                    <span>{{ userInfo.userName }}</span>
+                  </el-form-item>
+                  <el-form-item label="登录名" :class="$style.baseInfoItem">
+                    <span>{{ userInfo.loginName }}</span>
+                  </el-form-item>
+                  <el-form-item label="邮箱" :class="$style.baseInfoItem">
+                    <span>{{ userInfo.email }}</span>
+                  </el-form-item>
+                  <el-form-item label="邮箱接收状态" :class="$style.baseInfoItem">
+                    <span>
+                      <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px" v-if="userInfo.receiveState === 1"></i>
+                      <i class="el-icon-remove" style="color: #909399;font-size: 18px" v-else></i>
+                    </span>
+                  </el-form-item>
+                  <el-form-item label="角色" :class="$style.baseInfoItem">
+                    <span v-for="(role, index) in userInfo.roles"
+                          :key="index">{{ role.name }}</span>
+                  </el-form-item>
+                  <el-form-item label="状态" :class="$style.baseInfoItem">
+                    <el-tag :type="userInfo.state === 1 ? '' : 'danger'"
+                          size="small">{{ userInfo.state==1?'启用':'禁用' }}</el-tag>
+                  </el-form-item>
+                </el-form>
+              </el-col>
+              <el-col :span="8">
+                <el-form inline size="small">
+                  <el-form-item style="float: right;">
+                    <el-button type="primary"
+                               @click="update">修改</el-button>
+                  </el-form-item>
+                </el-form>
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane name="updatePass">
+            <span slot="label"><i class="el-icon-edit-outline"></i>修改密码</span>
+            <el-row>
+              <el-col :span="12" :offset="4">
+                <el-form :model="updatePass"
+                         ref="updatePass"
+                         :rules="passRules"
+                         label-width="110px"
+                         size="small"
+                         width="400px">
+                  <el-form-item label="新密码"
+                                prop="newPassword">
+                    <el-input type="password"
+                              v-model="updatePass.newPassword"></el-input>
+                  </el-form-item>
+                  <el-form-item label="确认密码"
+                                prop="checkNewPass">
+                    <el-input type="password"
+                              v-model="updatePass.checkNewPass"></el-input>
+                  </el-form-item>
+                  <el-form-item label="原始密码"
+                                prop="oldPassword">
+                    <el-input type="password"
+                              v-model="updatePass.oldPassword"></el-input>
+                  </el-form-item>
+                </el-form>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12" :offset="12">
+                <el-button type="primary"
+                          @click="updatePassword"
+                          :loading="btnLoading"
+                          size="small">确定</el-button>
+                <el-button @click="reset"
+                           size="small">重置</el-button>
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+        </el-tabs>
       </el-card>
-      <el-dialog title="更改信息"
+      <el-dialog title="修改信息"
                 :visible.sync = "dialogVisible"
-                :before-close = "closeDialog"
+                :before-close = "beforeModalClose"
                 @close="modalClosed">
           <el-form ref="updateForm"
                    status-icon
@@ -67,35 +96,50 @@
                    :rules="rules"
                    label-width="110px"
                    size="small">
-            <el-form-item label="新用户名"
-                          prop="newUsername">
-              <el-input v-model="form.newUsername"></el-input>
+            <el-form-item label="用户名"
+                          prop="userName">
+              <el-input v-model="form.userName"></el-input>
+            </el-form-item>
+            <el-form-item label="登录名"
+                          prop="loginName">
+              <el-input v-model="form.loginName" disabled></el-input>
             </el-form-item>
             <el-row>
-              <el-col :span="12" class="form-col">
+              <el-col :span="12">
                 <el-form-item label="邮箱" prop="email">
                   <el-input v-model="form.email"></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="12" class="form-col">
-                <el-form-item prop="receive">
-                  <el-checkbox v-model="form.receive"
+              <el-col :span="12">
+                <el-form-item prop="receiveState">
+                  <el-checkbox v-model="form.receiveState"
                                :true-label="1"
                                :false-label="0">接收</el-checkbox>
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item label="新密码"
-                          prop="newPassword">
-              <el-input type="password"
-                        v-model="form.newPassword"></el-input>
-            </el-form-item>
-            <el-form-item label="确认密码"
-                          prop="checkPass">
-              <el-input type="password"
-                        v-model="form.checkPass"></el-input>
-            </el-form-item>
-            <el-form-item label="原始密码"
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="角色">
+                  <el-select v-model="form.roles" multiple collapse-tags placeholder="请选择" disabled>
+                    <el-option v-for="(item, index) in form.roles"
+                              :key="index"
+                              :label="item.name"
+                              :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="状态">
+                  <el-radio-group v-model="form.state" disabled>
+                    <el-radio :label="1">启用</el-radio>
+                    <el-radio :label="0">禁用</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-form-item label="密码"
                           prop="oldPassword">
               <el-input type="password"
                         v-model="form.oldPassword"></el-input>
@@ -105,73 +149,53 @@
             <el-button type="primary"
                        @click="submitForm"
                        :loading="btnLoading">确定</el-button>
-            <el-button @click="cancel">取消</el-button>
+            <el-button @click="cancelButtonClick">取消</el-button>
           </span>
         </el-dialog>
       </section>
 </template>
 <script>
-import { mapActions, mapGetters } from 'vuex';
-import { changeUserInfo } from '../../api/user';
+import { mapActions, mapState } from 'vuex';
 import isEqual from 'lodash/isEqual';
+
+const basePass = {
+  newPassword: '',
+  checkNewPass: '',
+  oldPassword: ''
+}
 
 export default {
   name: 'Profile',
   data() {
-    var checkName = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error('请输入新用户名'));
-      } else {
-        callback();
-      }
-    };
-    var checkOldpass = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error('请输入原始密码'));
-      } else {
-        callback();
-      }
-    };
-    var validatePass = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入新密码'));
-      } else {
-        if (this.form.checkPass !== '') {
-          this.$refs.updateForm.validateField('checkPass');
-        }
-        callback();
-      }
-    };
-    var validatePass2 = (rule, value, callback) => {
+    const validateNewPass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入新密码'));
-      } else if (value !== this.form.newPassword) {
+      } else if (value !== this.updatePass.newPassword) {
         callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
       }
     };
-    const baseFormData = {
-      newUsername: '',
-      newPassword: '',
-      oldPassword: '',
-      checkPass: '',
-      email: '',
-      receive: 1,
-    };
+    const validateEmail = (rule, value, callback) => {
+      if(!value && this.form.receiveState) {
+        callback(new Error('请输入邮箱地址!'));
+      } else {
+        callback();
+      }
+    }
     return {
+      activeName: 'personalInfo',
       dialogVisible: false,
       btnLoading: false,
-      form: Object.assign({}, baseFormData),
-      originFormData: Object.assign({}, baseFormData),
+      form: {},
+      originFormData: {},
+      updatePass: Object.assign({}, basePass),
       rules: {
-        newUsername: [
+        userName: [
           {
-            validator:checkName,
-            trigger: 'blur'
-          },{
             required: true,
             message: '请输入新用户名',
+            trigger: 'blur'
           }, {
               pattern: /^[0-9a-zA-Z\u4E00-\u9FA5]+$/,
               message: '只支持数字、大小写字母和中文字符'
@@ -183,20 +207,33 @@ export default {
         ],
         oldPassword: [
           {
-            validator:checkOldpass,
-            trigger: 'blur'
-          }, {
             required: true,
             message: '请输入原始密码',
+            trigger: 'blur'
+          },
+        ],
+        email: [{
+          validator: validateEmail,
+          trigger: 'blur'
+        }, {
+          type: 'email',
+          message: '请输入正确的邮箱地址',
+          trigger: ['blur', 'change']
+        }]
+      },
+      passRules: {
+        oldPassword: [
+          {
+            required: true,
+            message: '请输入原始密码',
+            trigger: 'blur'
           },
         ],
         newPassword: [
           {
-            validator: validatePass,
-            trigger: 'blur'
-          }, {
             required: true,
             message: '请输入新密码',
+            trigger: 'blur'
           }, {
             min: 6,
             max: 30,
@@ -206,21 +243,21 @@ export default {
             message: '只能输入字母、数字、下划线'
           }
         ],
-        checkPass: [
+        checkNewPass: [
           {
-            validator: validatePass2,
+            validator: validateNewPass,
             trigger: 'blur'
           }, {
             required: true,
             message: '请确认新密码',
           }
         ],
-      },
+      }
     };
   },
   methods: {
     update(){
-      if(this.$store.getters.state==0)
+      if(this.userInfo.state==0)
         this.$message({
           showClose: true,
           message: '无法修改',
@@ -229,29 +266,46 @@ export default {
         });
       else{
         this.dialogVisible = true;
+        this.form = Object.assign({}, this.userInfo);
+        this.originFormData = Object.assign({}, this.form);
       }
     },
-    closeDialog(done) {
-      if (!isEqual(this.form, this.originFormData)) {
-        this.$confirm('有未保存的修改，是否退出？')
-          .then(_ => {
-            done();
-          })
-          .catch(_ => {
-          });
-      } else {
+    beforeModalClose(done) {
+      this.hasModifiedBeforeClose(done);
+    },
+    cancelButtonClick() {
+      this.hasModifiedBeforeClose(() => {
         this.dialogVisible = false;
+      });
+    },
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.form, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => {});
       }
     },
     modalClosed() {
-      this.form = { ...this.originFormData };
       this.$refs.updateForm.resetFields();
     },
     submitForm() {
       this.$refs.updateForm.validate(valid => {
         if (valid) {
           this.btnLoading=true;
-          this.updateInfo(this.form)
+          this.updateInfo({
+            userName: this.form.userName,
+            email: this.form.email,
+            receiveState: this.form.receiveState,
+            oldPassword: this.form.oldPassword
+          })
             .then(res => {
               this.dialogVisible = false;
               this.$message.success(res.data.message);
@@ -267,32 +321,55 @@ export default {
         }
       });
     },
-    cancel() {
-      this.dialogVisible = false;
-      this.$refs['updateForm'].resetFields();
+    updatePassword() {
+      this.$refs.updatePass.validate(valid => {
+        if (valid) {
+          this.btnLoading=true;
+          const {
+            checkNewPass,
+            ...passwords
+          } = this.updatePass
+          this.updateInfo(passwords)
+            .then(res => {
+              this.$refs.updatePass.resetFields();
+              this.$message.success(res.data.message);
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+            .then(() => {
+              this.btnLoading=false;
+            });
+        } else {
+          return false;
+        }
+      });
+    },
+    reset() {
+      this.updatePass = Object.assign({}, this.basePass);
+      this.$refs.updatePass.resetFields();
     },
     ...mapActions({
       updateInfo: 'updateUserInfo',
     })
   },
   computed:{
-    ...mapGetters(['userId','loginName','roles','state','userName', 'email', 'receive']),
+    ...mapState({
+      userInfo: state => state.base.userInfo
+    })
   }
 };
 </script>
-<style scoped>
-.text {
-    font-size: 14px;
+<style lang="scss" module>
+.tabInfo>div:first-child{
+  padding: 10px 40px;
+}
+.baseInfoItem {
+    margin-bottom: 0 !important;
+}
+.baseInfoItem {
+  label {
+    margin-right: 20px;
   }
-.box-card {
-  width: 100%;
-}
-.item .el-col {
-  border-radius: 4px;
-  height: 30px;
-  line-height: 30px;
-}
-.text .el-col-left {
-  text-align: right;
 }
 </style>

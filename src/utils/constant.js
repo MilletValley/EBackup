@@ -130,6 +130,17 @@ const keepStrategyMapping = {
   2: '时间策略'
 };
 
+// 端口管理设备类别
+const portHostTypeMapping = {
+  1: 'sqlserver',
+  2: 'oracle',
+  3: '文件',
+  4: '虚拟机',
+  5: 'mysql',
+  6: 'db2',
+  7: '达梦数据库'
+};
+
 const keepDateMapping = {
   1: '按周保留',
   2: '按月保留'
@@ -253,6 +264,7 @@ export {
   recoveringStrategyMapping,
   databaseStateMapping,
   hostTypeMapping,
+  portHostTypeMapping,
   sysTypeMapping,
   windowsTypeMapping,
   pathTypeMapping,

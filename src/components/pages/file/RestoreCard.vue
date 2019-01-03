@@ -120,7 +120,13 @@
         <el-card shadow="always"
                  :class="$style.childFileCard">
           <div slot="header" :class="$style.childFileHead">
-            <span>ID: {{ restorePlan.id }}</span>
+            <span>ID: {{ restoreFile.id }}</span>
+            <el-tooltip :content="`${restoreFile.errorMsg}`"
+                        placement="top"
+                        :open-delay="300"
+                        :disabled="!(restoreFile.state === 3 && restoreFile.errorMsg)">
+              <span style="float: right"><i :class="formatIcon(restoreFile.state)"></i>{{ operationStateConvert(restoreFile.state) }}</span>
+            </el-tooltip>
           </div>
           <el-row>
             <el-col :span="12">
@@ -139,23 +145,17 @@
               </el-tooltip>
             </el-col>
             <el-col :span="12" :class="$style.restoreFileState">
-              <span v-if="restoreFile.state === 0"><i :class="formatIcon(restoreFile.state)"></i>未开始</span>
-              <span v-else-if="restoreFile.state === 1">
-                <el-progress :percentage="isNaN(restoreFile.percentage)?0:restoreFile.percentage"></el-progress>
-              </span>
-              <span v-else-if="restoreFile.state === 2"><i :class="formatIcon(restoreFile.state)"></i>已结束</span>
-              <span v-else>
-                <el-tooltip :content="`${restoreFile.errorMsg}`"
-                            placement="top"
-                            :open-delay="300">
-                  <span><i :class="formatIcon(restoreFile.state)"></i>失败</span>
-                </el-tooltip>
-              </span>
+              <el-tooltip content="已恢复大小"
+                          placement="top"
+                          :open-delay="300">
+                <el-progress :percentage="isNaN(restoreFile.percentage)?0:restoreFile.percentage" :class="$style.restoreFileProgress">
+                </el-progress>
+              </el-tooltip>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-tooltip :content="`备份集存放路径: ${restoreFile.targetPath}`"
+              <el-tooltip :content="`恢复集存放路径: ${restoreFile.targetPath}`"
                           placement="right"
                           :open-delay="300">
                 <div :class="$style.wordsOverFlow">
@@ -274,19 +274,6 @@ export default {
         return 'success';
       }else return 'text';
     },
-    diskInfo(){
-      let str = '';
-      if(this.type === 'windows'){
-        if(this.restorePlan.state === 0){
-          str = '未开始';
-        }else if(this.restorePlan.state === 2){
-          str = '已完成';
-        }else if(this.restorePlan.state === 1){
-          str = `正在恢复卷(${this.disk})`;
-        }
-      }
-      return str;
-    },
     showTxt() {
       return this.isShow?'收起':'查看更多'
     },
@@ -295,6 +282,9 @@ export default {
     }
   },
   methods: {
+    operationStateConvert(state) {
+      return operationStateMapping[state];
+    },
     // 刷新单个备份计划
     refreshBtnClick() {
       this.$emit('refresh', this.id);
@@ -350,6 +340,10 @@ export default {
     transform: rotate(180deg);
   }
 }
+.childFileHead {
+  color: #888888;
+  font-size: 12px;
+}
 .operationInfo {
   h5 {
     font-weight: 400;
@@ -374,8 +368,15 @@ export default {
   display: inline-block;
   vertical-align: -0.2em;
 }
+.restoreFileProgress > div {
+  font-size: 12px !important;
+  color: #888888;
+}
 .more {
   font-size: 14px;
+  .childFileCard {
+    margin-bottom: 5px;
+  }
   .childFileCard > div:first-child {
     padding-top: 12px;
     padding-bottom: 12px;

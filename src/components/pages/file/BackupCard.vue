@@ -147,6 +147,16 @@
             <div>{{fmtSize(backupOperation.size) || '-'}}</div>
           </li>
           <li>
+            <h5>上次备份大小
+              <el-tooltip class="item" effect="dark"
+                          content="上次备份文件总大小"
+                          placement="left">
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </h5>
+            <div>{{fmtSize(backupOperation.backupSize) || '-' }}</div>
+          </li>
+          <li>
             <h5>已备份大小
               <el-tooltip class="item" effect="dark"
                           content="已备份文件总大小，非本次备份大小"
@@ -169,6 +179,12 @@
                  :class="$style.childFileCard">
           <div slot="header" :class="$style.childFileHead">
             <span>ID: {{ backupFile.id }}</span>
+            <el-tooltip :content="`${backupFile.errorMsg}`"
+                        placement="top"
+                        :open-delay="300"
+                        :disabled="!(backupFile.state === 3 && backupFile.errorMsg)">
+              <span style="float: right"><i :class="formatIcon(backupFile.state)"></i>{{ operationStateConvert(backupFile.state) }}</span>
+            </el-tooltip>
           </div>
           <el-row>
             <el-col :span="12">
@@ -187,18 +203,12 @@
               </el-tooltip>
             </el-col>
             <el-col :span="12" :class="$style.backupFileState">
-              <span v-if="backupFile.state === 0"><i :class="formatIcon(backupFile.state)"></i>未开始</span>
-              <span v-else-if="backupFile.state === 1">
-                <el-progress :percentage="isNaN(backupFile.percentage)?0:backupFile.percentage"></el-progress>
-              </span>
-              <span v-else-if="backupFile.state === 2"><i :class="formatIcon(backupFile.state)"></i>已结束</span>
-              <span v-else>
-                <el-tooltip :content="`${backupFile.errorMsg}`"
-                            placement="top"
-                            :open-delay="300">
-                  <span><i :class="formatIcon(backupFile.state)"></i>失败</span>
-                </el-tooltip>
-              </span>
+              <el-tooltip content="已备份大小"
+                          placement="top"
+                          :open-delay="300">
+                <el-progress :percentage="isNaN(backupFile.percentage)?0:backupFile.percentage" :class="$style.backupFileProgress">
+                </el-progress>
+              </el-tooltip>
             </el-col>
           </el-row>
           <el-row>
@@ -351,6 +361,9 @@ export default {
     }
   },
   methods: {
+    operationStateConvert(state) {
+      return operationStateMapping[state];
+    },
     // 刷新单个备份计划
     refreshBtnClick() {
       this.$emit('refresh', this.id);
@@ -398,6 +411,10 @@ export default {
 .backupCard {
   margin-bottom: 15px;
 }
+.childFileHead {
+  color: #888888;
+  font-size: 12px;
+}
 /* 标签之间的间隔在for循环下消失了 */
 .infoTag {
   margin: 0 2px;
@@ -433,8 +450,15 @@ export default {
   display: inline-block;
   vertical-align: -0.2em;
 }
+.backupFileProgress > div {
+  font-size: 12px !important;
+  color: #888888;
+}
 .more {
   font-size: 14px;
+  .childFileCard {
+    margin-bottom: 5px;
+  }
   .childFileCard > div:first-child {
     padding-top: 12px;
     padding-bottom: 12px;
