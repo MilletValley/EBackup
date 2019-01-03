@@ -166,7 +166,7 @@ const sockMixin = {
     errorCallback(err) {
       console.error('失败');
       console.error(err);
-      // this.stompClient = null;
+      this.stompClient = null;
     },
     connectCallback(client) {
       const headers = {};
