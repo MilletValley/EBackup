@@ -135,13 +135,6 @@ export default {
     isMenuCollapsed() {
       return this.clientWidth < 1300;
     },
-    connectCallback(client) {
-      this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
-        console.log(msg);
-        let {data} = JSON.parse(msg.body);
-        console.log(data);
-      });
-    },
     defaultActive(){
       return this.$route.meta.activeName ? this.$route.meta.activeName : this.$route.path;
     },
@@ -192,7 +185,14 @@ export default {
       if (this.curTime - this.lastTime > this.timeOut) {
         this._logout();
       }
-    }
+    },
+    connectCallback(client) {
+      this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
+        console.log(msg);
+        let {data} = JSON.parse(msg.body);
+        console.log(data);
+      });
+    },
   },
 };
 </script>

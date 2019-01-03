@@ -111,6 +111,7 @@ const filterMixin = {
 const sockMixin = {
   data() {
     return {
+      url: '/socket',
       stompClient: '',
       heartInterval: ''
     };
@@ -139,7 +140,7 @@ const sockMixin = {
     },
     connection() {
       // 建立连接对象
-      const socket = new SockJS('/socket');
+      const socket = new SockJS(this.url);
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
       this.stompClient.debug = () => {
