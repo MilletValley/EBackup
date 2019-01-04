@@ -191,7 +191,7 @@ export default {
     //     sessionStorage.setItem("store",JSON.stringify(this.$store.state))
     // })
     this.tableData = this.hostsInVuex;
-    this.fetchHosts()
+    // this.fetchHosts();
   },
   methods: {
     judgeHost(data) {
