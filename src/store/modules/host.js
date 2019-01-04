@@ -41,6 +41,9 @@ const actions = {
       })
       .catch(error => Promise.reject(error));
   },
+  setHost({ commit }, host) {
+    commit(types.GET_HOST, host);
+  },
   createHost({ commit }, data) {
     return createOne(data)
       .then(res => {

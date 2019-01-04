@@ -15,6 +15,7 @@
       <el-menu background-color="#00264a"
                text-color="#fff"
                active-text-color="#fff"
+               :unique-opened="true"
                :default-active="defaultActive"
                :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
@@ -152,7 +153,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['logout', 'fetchHost']),
+    ...mapActions(['logout', 'fetchHost', 'setHost']),
     ...mapMutations(['setClientWidth']),
     handleCommand(command) {
       if (command === 'logout') {
@@ -190,6 +191,8 @@ export default {
       this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
         console.log(msg);
         let {data} = JSON.parse(msg.body);
+        data = Array.isArray(data) ? data : [];
+        this.setHost(data);
         console.log(data);
       });
     },
