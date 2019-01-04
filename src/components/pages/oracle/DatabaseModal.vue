@@ -28,7 +28,6 @@
           </span> 
           <el-input disabled v-if="disabled"
                     :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
-
           <el-select v-model="formData.hostId"  v-else
                      style="width: 100%;">
             <el-option v-for="host in availableHosts"
@@ -91,6 +90,27 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="运行用户"
+                      prop="runUser"
+                      v-if="selected12C">
+          <el-select v-model="formData.runUser"
+                      placeholder="请输入运行用户名"
+                      filterable
+                      allow-create
+                      clearable
+                      default-first-option
+                      style="width: 100%">
+            <el-option v-for="(item, index) in ['NT AUTHORITY\LocalService', 'NT AUTHORITY\NetworkService']"
+                        :key="index"
+                        :label="item"
+                        :value="item"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户口令"
+                      prop="userPassword"
+                      v-if="selected12C">
+          <el-input v-model="formData.userPassword"></el-input>
+        </el-form-item>
         <el-form-item label="所属业务系统"
                       prop="application">
           <el-input v-model="formData.application"
@@ -138,7 +158,9 @@ const vm = {
         loginName: '',
         password: '',
         dbVersion: '',
-        application: ''
+        application: '',
+        runUser: '',
+        userPassword: ''
       }
     };
   },
@@ -149,6 +171,10 @@ const vm = {
       }
       return false;
     },
+    selected12C() {
+      const selectedHost = this.availableHosts.find(host => host.id === this.formData.hostId);
+      return selectedHost && selectedHost.oracleVersion === 3&&selectedHost.osName==='Windows';
+    }
   },
   methods: {
     // 点击确认按钮触发
@@ -164,7 +190,9 @@ const vm = {
             hostId,
             dbPort,
             dbVersion,
-            application
+            application,
+            runUser,
+            userPassword
           } = this.formData;
           this.$emit('confirm', {
             id,
@@ -177,6 +205,8 @@ const vm = {
             application,
             // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId),
+            userPassword: this.selected12C ? userPassword : '',
+            runUser: this.selected12C ? runUser : ''
           }, this.action);
         } else {
           return false;

@@ -41,10 +41,10 @@
                           prop="oracleVersion">
               <el-select v-model="formData.oracleVersion"
                         placeholder="请选择">
-                <el-option v-for="item in options"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
+                <el-option v-for="(item, index) in Object.keys(oracleVersionMapping)"
+                          :key="index"
+                          :label="oracleVersionMapping[Number(item)]"
+                          :value="item">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -154,10 +154,16 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { createOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
+import { oracleVersionMapping } from '@/utils/constant';
 
 export default {
   name: 'HostCreateModal',
   mixins: [genModalMixin('host')],
+  data() {
+    return {
+      oracleVersionMapping
+    }
+  },
   methods: {
     // 点击确认按钮触发
     confirm() {

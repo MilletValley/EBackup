@@ -108,6 +108,14 @@ const windowsTypeMapping = {
   1: '2003',
   2: '2008及以上'
 };
+
+// oracle版本
+const oracleVersionMapping = {
+  1: '11G',
+  2: '12G',
+  3: '12C'
+};
+
 const pathTypeMapping = {
   1: '共享文件夹路径',
   2: 'NFS路径'
@@ -267,6 +275,7 @@ export {
   portHostTypeMapping,
   sysTypeMapping,
   windowsTypeMapping,
+  oracleVersionMapping,
   pathTypeMapping,
   useTypeMapping,
   keepStrategyMapping,

@@ -131,7 +131,12 @@ import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 // import { fetchAll, deleteOne } from '../../api/host';
 import { mapActions } from 'vuex';
-import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../utils/constant';
+import {
+  hostTypeMapping,
+  databaseTypeMapping,
+  windowsTypeMapping,
+  oracleVersionMapping
+} from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
@@ -141,18 +146,6 @@ export default {
     return {
       wsuri: '/test',
       selectedId: '',
-      hostTypeFilters: [
-        {text: '生产环境', value: 1},
-        {text: '易备环境', value: 2}
-      ],
-      databaseTypeFilters: [
-        {text: 'oracle', value: 1},
-        {text: 'sqlserver', value: 2},
-        {text: '虚拟机', value: 4},
-        {text: 'mysql', value: 5},
-        {text: 'db2', value: 6},
-        {text: '达梦', value: 7},
-      ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
         {text: 'Linux', value: 'Linux'},
@@ -170,6 +163,18 @@ export default {
     selectedHost() {
       return this.$store.getters.selectedHost(this.selectedId);
     },
+    hostTypeFilters() {
+      return Object.keys(hostTypeMapping).map(type => ({
+        text: hostTypeMapping[Number(type)],
+        value: Number(type)
+      }))
+    },
+    databaseTypeFilters() {
+      return Object.keys(databaseTypeMapping).map(db => ({
+        text: databaseTypeMapping[Number(db)],
+        value: Number(db)
+      }))
+    }
   },
   watch: {
     hostsInVuex(data){
@@ -205,13 +210,19 @@ export default {
       return str;
     },
     judgeDatabase(data) {
-      return databaseTypeMapping[data.databaseType];
+      let db = databaseTypeMapping[data.databaseType];
+      if(data.databaseType === 1) {
+        return db + ' ' + oracleVersionMapping[data.oracleVersion];
+      }
+      return db;
     },
     // 搜索关键字高亮
     showData(val, property) {
       val = val + '';
-      if (val.includes(this.inputSearch) && this.inputSearch && this.selectTag === property) {
-        return val.replace(this.inputSearch, '<font color="#409EFF">'+this.inputSearch+'</font>');
+      const firstIndex = val.toLowerCase().indexOf(this.inputSearch.toLowerCase());
+      if (firstIndex>-1 && this.inputSearch && this.selectTag === property) {
+        const highLightWords = val.substr(firstIndex, this.inputSearch.length);
+        return val.replace(highLightWords, '<font color="#409EFF">'+highLightWords+'</font>');
       }
       return val;
     },
