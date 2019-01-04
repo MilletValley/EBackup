@@ -46,7 +46,7 @@
                 <el-option v-for="(item, index) in Object.keys(oracleVersionMapping)"
                           :key="index"
                           :label="oracleVersionMapping[Number(item)]"
-                          :value="item"></el-option>
+                          :value="Number(item)"></el-option>
               </el-select>
             </el-form-item>
           </el-col>

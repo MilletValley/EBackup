@@ -211,7 +211,7 @@ export default {
     },
     judgeDatabase(data) {
       let db = databaseTypeMapping[data.databaseType];
-      if(data.databaseType === 1) {
+      if(data.databaseType=== 1) {
         return db + ' ' + oracleVersionMapping[data.oracleVersion];
       }
       return db;

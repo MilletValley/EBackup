@@ -90,7 +90,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="运行用户"
+        <!-- <el-form-item label="运行用户"
                       prop="runUser"
                       v-if="selected12C">
           <el-select v-model="formData.runUser"
@@ -105,11 +105,12 @@
                         :label="item"
                         :value="item"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="用户口令"
                       prop="userPassword"
                       v-if="selected12C">
-          <el-input v-model="formData.userPassword"></el-input>
+          <el-input v-model="formData.userPassword"
+                    placeholder="请输入oracle服务用户的口令"></el-input>
         </el-form-item>
         <el-form-item label="所属业务系统"
                       prop="application">
@@ -159,7 +160,7 @@ const vm = {
         password: '',
         dbVersion: '',
         application: '',
-        runUser: '',
+        // runUser: '',
         userPassword: ''
       }
     };
@@ -191,7 +192,7 @@ const vm = {
             dbPort,
             dbVersion,
             application,
-            runUser,
+            // runUser,
             userPassword
           } = this.formData;
           this.$emit('confirm', {
@@ -206,7 +207,7 @@ const vm = {
             // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId),
             userPassword: this.selected12C ? userPassword : '',
-            runUser: this.selected12C ? runUser : ''
+            // runUser: this.selected12C ? runUser : ''
           }, this.action);
         } else {
           return false;
