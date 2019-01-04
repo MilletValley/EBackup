@@ -43,11 +43,10 @@
                           prop="oracleVersion">
               <el-select v-model="formData.oracleVersion"
                         placeholder="请选择">
-                <el-option v-for="item in options"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value">
-                </el-option>
+                <el-option v-for="(item, index) in Object.keys(oracleVersionMapping)"
+                          :key="index"
+                          :label="oracleVersionMapping[Number(item)]"
+                          :value="Number(item)"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -174,6 +173,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { modifyOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
+import { oracleVersionMapping } from '@/utils/constant';
 
 export default {
   name: 'HostUpdateModal',
@@ -197,7 +197,8 @@ export default {
     };
     return {
       validateCheckPassword,
-      hiddenPassword1: true
+      hiddenPassword1: true,
+      oracleVersionMapping
     }
   },
   methods: {
