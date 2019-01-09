@@ -248,12 +248,12 @@ export default {
     fetchData() {
       this.fetchDetail();
       // this.fetchBackupPlanList();
-      // this.fetchRestorePlanList();
+      this.fetchRestorePlanList();
       this.fetchBackupResults();
       this.fetchRestoreRecords();
     },
     connectCallback(client) {
-      this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
+      let subscription = this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
         let {data} = JSON.parse(msg.body);
         data = data.map(p => {
           if (p.config.timePoints) {
@@ -262,13 +262,15 @@ export default {
           return fmtBackupPlan(p);
         });
         this.backupPlans = Array.isArray(data) ? this.sortFn(data, 'createTime', 'descending') : [];
-        console.log(data);
+        // console.log(data);
+        // 取消订阅
+        // subscription.unsubscribe();
       });
-      this.stompClient.subscribe(`/file/${this.id}/send-restore-plans`, msg => { // 订阅服务端提供的某个topic
-        let {data} = JSON.parse(msg.body);
-        data = data.map(p => fmtRestorePlan(p));
-        this.restorePlans = Array.isArray(data) ? this.sortFn(data, 'startTime', 'descending') : [];
-      });
+      // this.stompClient.subscribe(`/file/${this.id}/send-restore-plans`, msg => { // 订阅服务端提供的某个topic
+      //   let {data} = JSON.parse(msg.body);
+      //   data = data.map(p => fmtRestorePlan(p));
+      //   this.restorePlans = Array.isArray(data) ? this.sortFn(data, 'startTime', 'descending') : [];
+      // });
     },
     fetchDetail() {
       fetchOne(this.id)
@@ -337,7 +339,7 @@ export default {
       }
     },
     refreshTime() {
-      this.fetchBackupPlanList();
+      // this.fetchBackupPlanList();
       this.fetchRestorePlanList();
     },
     clearTimer() {
@@ -345,9 +347,9 @@ export default {
     },
     setTimer() {
       this.clearTimer();
-      // this.timer = setInterval(() => {
-      //   this.refreshTime();
-      // }, 20000);
+      this.timer = setInterval(() => {
+        this.refreshTime();
+      }, 20000);
     },
     // 刷新单个备份计划
     refreshSingleBackupPlan(planId) {
