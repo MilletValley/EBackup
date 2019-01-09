@@ -187,13 +187,11 @@ export default {
         this._logout();
       }
     },
-    connectCallback(client) {
+    connectCallback(client) { //connect连接成功的回调函数
       this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
-        console.log(msg);
-        let {data} = JSON.parse(msg.body);
+        let {data} = JSON.parse(msg.body);// msg.body为服务端返回的报文
         data = Array.isArray(data) ? data : [];
         this.setHost(data);
-        console.log(data);
       });
     },
   },

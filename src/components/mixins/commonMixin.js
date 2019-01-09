@@ -111,7 +111,7 @@ const filterMixin = {
 const sockMixin = {
   data() {
     return {
-      url: '/socket',
+      url: '/socket', // 握手时使用的url
       stompClient: '',
       heartInterval: ''
     };
