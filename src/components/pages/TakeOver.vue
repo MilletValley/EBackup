@@ -297,6 +297,16 @@
                                 @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
                       </el-tooltip>
                     </span>
+                    <span v-if="availableRestoreSimpleSwitch(hostLink).length>0">
+                      <el-tooltip content="单切恢复"
+                                  effect="light"
+                                  placement="right"
+                                  :open-delay="200">
+                        <i-icon name="restoreSimpleSwitch"
+                                :class="$style.restoreSimpleSwitchDb"
+                                @click.native="restoreSimpleSwitchDatabases(hostLink, true)"></i-icon>
+                      </el-tooltip>
+                    </span>
                   </div>
                   <div>
                     <el-row>
@@ -347,7 +357,8 @@
             </el-row>
             <!-- 数据库连接的排列 -->
             <el-row v-for="dbLink in sortByCreateTime(hostLink.databaseLinks)"
-                    :key="dbLink.id">
+                    :key="dbLink.id"
+                    style="position: relative">
               <el-col :span="10">
                 <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
                   <el-row type="flex"
@@ -447,26 +458,39 @@
                       {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
                     </span>
                   </div>
+                  <div v-if="dbLink.restoreSimpleSwitchOnGoing"
+                       style="margin-top: 6px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                      单切恢复中...
+                    </span>
+                  </div>
                   <div v-else>
-                    <div v-if="hostLink.primaryHost.databaseType===1&&hostLink.primaryHost.oracleVersion===2">
+                    <div v-if="hostLink.primaryHost.databaseType===1&&([2,3].includes(hostLink.primaryHost.oracleVersion))">
                       <el-button type="text"
                               @click="failOver(dbLink)"
                               :class="$style.failOver">{{dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
-                    <div v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
+                    <div>
+                      <el-dropdown v-if="hostLink.primaryHost.databaseType === 1">
+                        <span :class="$style.dropdownLink">
+                          切换操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
+                        </span>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
+                          <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
+                                            :disabled="dbLink.primaryDatabase.role === 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
+                          <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
+                                            :disabled="!(hostLink.primaryHost.oracleVersion === 3 &&
+                                                        dbLink.viceDatabase.role === 1 &&
+                                                        dbLink.primaryDatabase.state === 2)">单切恢复</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
                       <el-button type="text"
-                                @click="switchDatabase(dbLink.id)">双切</el-button>
+                                 v-else
+                                 @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
                       <el-button type="text"
-                                :disabled="dbLink.primaryDatabase.role === 2"
-                                @click="simpleSwitchDatabase(dbLink.id)">单切</el-button>
-                      <el-button type="text"
-                                @click="jumpToLinkDetail(dbLink.id)">详情</el-button>
-                    </div>
-                    <div v-else>
-                      <el-button type="text"
-                                @click="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-button>
-                      <el-button type="text"
-                                @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
+                                 @click="jumpToLinkDetail(dbLink.id)">查看详情</el-button>
                     </div>
                   </div>
                 </div>
@@ -509,6 +533,12 @@
                   </el-row>
                 </div>
               </el-col>
+              <el-alert v-if="dbLink.msg"
+                        :title="dbLink.msg"
+                        :type="dbLink.state === 0 ? 'success' : 'error'"
+                        show-icon
+                        center
+                        style="position: absolute; top: 30px; left: 0"></el-alert>
             </el-row>
           </fieldset>
         </div>
@@ -550,7 +580,8 @@ import {
   createLinks as createLinksOracle,
   createSwitches as switchOracle,
   createSimpleSwitches as simpleSwitchOracle,
-  failOver as failOverOracle
+  failOver as failOverOracle,
+  restoreSimpleSwitch as restoreSimpleSwitchOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -971,6 +1002,12 @@ export default {
     availableSimpleSwitchIp(primaryHost) {
       return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
     },
+    // 可以批量单切的实例: 12C环境，生产库异常，易备库环境为主
+    availableRestoreSimpleSwitch(hostLink) {
+      if(hostLink.primaryHost.databaseType ===1 && hostLink.primaryHost.oracleVersion === 3)
+        return hostLink.databaseLinks.filter(link => link.viceDatabase.role === 1 && link.primaryDatabase.state === 2)
+      return [];
+    },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
         this.$router.push({
@@ -1038,6 +1075,40 @@ export default {
             }).
             then(() => {
               this.$delete(dbLink, 'failOverOnGoing');
+            });
+        })
+        .catch(error => {});
+    },
+    restoreSimpleSwitchDatabases(link, isMultiple = false) {
+      this.$confirm('此操作将执行单切恢复，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const alreadyToSwitchDbLinks = isMultiple ? this.availableRestoreSimpleSwitch(link) : [link];
+          alreadyToSwitchDbLinks.forEach(dbLink => {
+            this.$set(dbLink, 'restoreSimpleSwitchOnGoing', true);
+          })
+          const restoreSimpleSwitchIds = alreadyToSwitchDbLinks.map(dbLink => dbLink.id);
+          restoreSimpleSwitchOracle(restoreSimpleSwitchIds)
+            .then(res => {
+              const { data: restoreSimpleSwitchOperation } = res.data;
+              this.databaseLinks.forEach(dbLink => {
+                const hasResDbLink = restoreSimpleSwitchOperation.find(resData => resData.linkId === dbLink.id);
+                if(hasResDbLink) {
+                  this.$set(dbLink, 'state', hasResDbLink.state);
+                  this.$set(dbLink, 'msg', hasResDbLink.msg);
+                }
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            }).
+            then(() => {
+              alreadyToSwitchDbLinks.forEach(dbLink => {
+                this.$delete(dbLink, 'restoreSimpleSwitchOnGoing');
+              })
             });
         })
         .catch(error => {});
@@ -1199,6 +1270,22 @@ $vice-color: #6d6d6d;
   &:hover {
     transform: rotate(180deg);
   }
+}
+.restoreSimpleSwitchDb {
+  position: absolute;
+  margin-top: -0.3em;
+  right: 10px;
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  } 
+}
+.dropdownLink {
+  cursor: pointer;
+  color: #409EFF;
 }
 .simpleSwitchGoing {
   position: absolute;
