@@ -3,4 +3,5 @@
 /dist/
 /*.js
 /src/utils/icon-svg.js
+/src/store/modules/host.js
 /test/
