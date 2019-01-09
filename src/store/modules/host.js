@@ -48,7 +48,7 @@ const actions = {
     return createOne(data)
       .then(res => {
         const { data: host } = res.data;
-        commit(types.ADD_HOST, host);
+        // commit(types.ADD_HOST, host);
         return res;
       })
       .catch(error => Promise.reject(error));
@@ -56,7 +56,7 @@ const actions = {
   deleteHost({ commit }, id) {
     return deleteOne(id)
       .then(() => {
-        commit(types.DEL_HOST, id);
+        // commit(types.DEL_HOST, id);
       })
       .catch(error => Promise.reject(error));
   },
@@ -66,7 +66,7 @@ const actions = {
         const { data: host } = res.data;
         // FIXME: mock数据保持id一致，生产环境必须删除下面一行
         host.id = data.id;
-        commit(types.UPDATE_HOST, host);
+        // commit(types.UPDATE_HOST, host);
         return res;
       })
       .catch(error => Promise.reject(error));
