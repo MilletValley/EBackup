@@ -481,9 +481,9 @@
                           <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
                                             :disabled="dbLink.primaryDatabase.role === 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
-                                            :disabled="!(hostLink.primaryHost.oracleVersion === 3 &&
+                                            :disabled="!([2,3].includes(hostLink.primaryHost.oracleVersion) &&
                                                         dbLink.viceDatabase.role === 1 &&
-                                                        dbLink.primaryDatabase.state === 2)">单切恢复</el-dropdown-item>
+                                                        dbLink.primaryDatabase.state !== 1)">单切恢复</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -1002,10 +1002,10 @@ export default {
     availableSimpleSwitchIp(primaryHost) {
       return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
     },
-    // 可以批量单切的实例: 12C环境，生产库异常，易备库环境为主
+    // 可以批量单切的实例: 11g,12C环境，生产库非正常，易备库环境为主
     availableRestoreSimpleSwitch(hostLink) {
-      if(hostLink.primaryHost.databaseType ===1 && hostLink.primaryHost.oracleVersion === 3)
-        return hostLink.databaseLinks.filter(link => link.viceDatabase.role === 1 && link.primaryDatabase.state === 2)
+      if(hostLink.primaryHost.databaseType ===1 && [2,3].includes(hostLink.primaryHost.oracleVersion))
+        return hostLink.databaseLinks.filter(link => link.viceDatabase.role === 1 && link.primaryDatabase.state !== 1)
       return [];
     },
     jumpToLinkDetail(linkId) {
