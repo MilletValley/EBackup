@@ -180,6 +180,30 @@
                           </el-tag>
                         </el-form-item>
                       </el-form>
+                      <el-form v-else-if="hostLink.latestSwitch.type === 4"
+                               size="mini"
+                               label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="单切恢复内容">
+                          <span>{{ hostLink.latestSwitch.content }}</span>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换方式">
+                          <span>{{ hostLink.latestSwitch.manual | switchManualFilter }}</span>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="hostLink.latestSwitch.state === 2 ? 'success' : 'danger' "
+                                  size="mini">
+                            {{ hostLink.latestSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      v-if="hostLink.latestSwitch.state !== 1"
+                                      label="完成时间">
+                          <span>{{ hostLink.latestSwitch.switchTime }}</span>
+                        </el-form-item>
+                      </el-form>
                       <i-icon name="link"
                               :class="$style.hostSwitchIcon"
                               slot="reference"></i-icon>
@@ -458,7 +482,7 @@
                       {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
                     </span>
                   </div>
-                  <div v-if="dbLink.restoreSimpleSwitchOnGoing"
+                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
@@ -1093,23 +1117,16 @@ export default {
           const restoreSimpleSwitchIds = alreadyToSwitchDbLinks.map(dbLink => dbLink.id);
           restoreSimpleSwitchOracle(restoreSimpleSwitchIds)
             .then(res => {
-              const { data: restoreSimpleSwitchOperation } = res.data;
-              this.databaseLinks.forEach(dbLink => {
-                const hasResDbLink = restoreSimpleSwitchOperation.find(resData => resData.linkId === dbLink.id);
-                if(hasResDbLink) {
-                  this.$set(dbLink, 'state', hasResDbLink.state);
-                  this.$set(dbLink, 'msg', hasResDbLink.msg);
+              const { data } = res.data;
+              this.databaseLinks.forEach(link => {
+                if (restoreSimpleSwitchIds.includes(link.id)) {
+                  link.latestSwitch = data.find(s => s.linkId === link.id);
                 }
               });
             })
             .catch(error => {
               this.$message.error(error);
-            }).
-            then(() => {
-              alreadyToSwitchDbLinks.forEach(dbLink => {
-                this.$delete(dbLink, 'restoreSimpleSwitchOnGoing');
-              })
-            });
+            })
         })
         .catch(error => {});
     },

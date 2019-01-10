@@ -200,6 +200,7 @@ const switchTypeMapping = {
   1: '切换实例',
   2: '切换IP',
   3: '解除连接',
+  4: '单切恢复'
 };
 
 const serviceIpMarkMapping = {
