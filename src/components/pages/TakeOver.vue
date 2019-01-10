@@ -140,7 +140,31 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                      <p v-if="!hostLink.latestSwitch || hostLink.latestSwitch.type === 1">暂无操作</p>
+                      <p v-if="(!hostLink.latestSwitch || hostLink.latestSwitch.type === 1)&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
+                      <el-form v-else-if="(!hostLink.latestSwitch || hostLink.latestSwitch.type === 1) ||
+                                          hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
+                                size="mini"
+                                label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                          {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
+                                  size="mini">
+                            {{ hostLink.simpleSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换信息">
+                          {{ hostLink.simpleSwitch.message }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="完成时间">
+                          {{ hostLink.simpleSwitch.switchTime }}
+                        </el-form-item>
+                      </el-form>
                       <el-form v-else-if="hostLink.latestSwitch.type === 2"
                               size="mini"
                               label-width="70px">
@@ -179,6 +203,11 @@
                             {{ hostLink.latestSwitch.state | switchStateFilter }}
                           </el-tag>
                         </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      v-if="hostLink.latestSwitch.state !== 1"
+                                      label="完成时间">
+                          <span>{{ hostLink.latestSwitch.switchTime }}</span>
+                        </el-form-item>
                       </el-form>
                       <i-icon name="link"
                               :class="$style.hostSwitchIcon"
@@ -194,6 +223,11 @@
                       style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
+                  </div>
+                  <div v-else-if="simpleSwitchGoing(hostLink)"
+                       style="margin-top: 12px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP进行中...</span>
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
@@ -212,7 +246,6 @@
                                 :class="$style.removeHostLink">解除连接</el-button>
                     </div>
                   </template>
-
                 </div>
               </el-col>
               <el-col :span="10">
@@ -229,55 +262,23 @@
                       <i class="el-icon-loading"
                         :class="$style.simpleSwitchGoing"></i>
                     </el-tooltip>
-                    <el-popover placement="right"
-                                trigger="hover"
-                                width="300"
-                                v-else-if="availableSimpleSwitchIp(hostLink.primaryHost)"
+                    <el-tooltip v-else-if="availableSimpleSwitchIp(hostLink.primaryHost)"
+                                effect="light"
+                                placement="right"
                                 :open-delay="200">
-                      <el-form size="mini"
-                              label-size="70px">
-                        <el-form-item :class="$style.switchFormItem"
-                                      v-if="osIsWindows(hostLink.viceHost.osName)"
-                                      label="易备IP">
-                          {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      v-else
-                                      label="服务IP">
-                          {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
-                          {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
-                        </el-form-item>
-                      </el-form>
-                      <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                      <p v-if="!hasSimpleSwitch(hostLink.simpleSwitch)">暂无操作</p>
-                      <el-form v-else
-                                size="mini"
-                                label-width="70px">
-                        <el-form-item :class="$style.switchFormItem"
-                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
-                          {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      label="状态">
-                          <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
-                                  size="mini">
-                            {{ hostLink.simpleSwitch.state | switchStateFilter }}
-                          </el-tag>
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      label="切换信息">
-                          {{ hostLink.simpleSwitch.message }}
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      label="完成时间">
-                          {{ hostLink.simpleSwitch.switchTime }}
-                        </el-form-item>
-                      </el-form>
+                      <div slot="content">
+                        <span v-if="osIsWindows(hostLink.viceHost.osName)">
+                          易备IP: {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
+                        </span>
+                        <span v-else>
+                          服务IP: {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
+                                  {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
+                        </span>
+                      </div>
                       <i-icon :class="$style.simpleSwitch"
-                              slot="reference"
                               name="simpleSwitch"
                               @click.native="simpleSwitchIp(hostLink)"></i-icon>  
-                    </el-popover>
+                    </el-tooltip>
                     <span v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
                       <el-tooltip v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                   content="无可单切的实例"
@@ -451,14 +452,14 @@
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
-                  <div v-if="dbLink.failOverOnGoing"
+                  <div v-else-if="dbLink.failOverOnGoing"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
                       {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
                     </span>
                   </div>
-                  <div v-if="dbLink.restoreSimpleSwitchOnGoing"
+                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
@@ -481,9 +482,10 @@
                           <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
                                             :disabled="dbLink.primaryDatabase.role === 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
-                                            :disabled="!(hostLink.primaryHost.oracleVersion === 3 &&
+                                            :disabled="!([2,3].includes(hostLink.primaryHost.oracleVersion) &&
                                                         dbLink.viceDatabase.role === 1 &&
-                                                        dbLink.primaryDatabase.state === 2)">单切恢复</el-dropdown-item>
+                                                        dbLink.primaryDatabase.state !== 1 &&
+                                                        dbLink.failOverState === 0)">单切恢复</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -533,12 +535,6 @@
                   </el-row>
                 </div>
               </el-col>
-              <el-alert v-if="dbLink.msg"
-                        :title="dbLink.msg"
-                        :type="dbLink.state === 0 ? 'success' : 'error'"
-                        show-icon
-                        center
-                        style="position: absolute; top: 30px; left: 0"></el-alert>
             </el-row>
           </fieldset>
         </div>
@@ -1002,10 +998,10 @@ export default {
     availableSimpleSwitchIp(primaryHost) {
       return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
     },
-    // 可以批量单切的实例: 12C环境，生产库异常，易备库环境为主
-    availableRestoreSimpleSwitch(hostLink) {
-      if(hostLink.primaryHost.databaseType ===1 && hostLink.primaryHost.oracleVersion === 3)
-        return hostLink.databaseLinks.filter(link => link.viceDatabase.role === 1 && link.primaryDatabase.state === 2)
+    // 可以批量单切的实例: 11g,12C环境，生产库非正常，易备库环境为主，故障转移处于关闭状态
+    availableRestoreSimpleSwitch(hostLink, dbLink) {
+      if(hostLink.primaryHost.databaseType ===1 && [2,3].includes(hostLink.primaryHost.oracleVersion))
+        return hostLink.databaseLinks.filter(link => link.viceDatabase.role === 1 && link.primaryDatabase.state !== 1 && link.failOverState === 0)
       return [];
     },
     jumpToLinkDetail(linkId) {
@@ -1093,23 +1089,16 @@ export default {
           const restoreSimpleSwitchIds = alreadyToSwitchDbLinks.map(dbLink => dbLink.id);
           restoreSimpleSwitchOracle(restoreSimpleSwitchIds)
             .then(res => {
-              const { data: restoreSimpleSwitchOperation } = res.data;
-              this.databaseLinks.forEach(dbLink => {
-                const hasResDbLink = restoreSimpleSwitchOperation.find(resData => resData.linkId === dbLink.id);
-                if(hasResDbLink) {
-                  this.$set(dbLink, 'state', hasResDbLink.state);
-                  this.$set(dbLink, 'msg', hasResDbLink.msg);
+              const { data } = res.data;
+              this.databaseLinks.forEach(link => {
+                if (restoreSimpleSwitchIds.includes(link.id)) {
+                  link.latestSwitch = data.find(s => s.linkId === link.id);
                 }
               });
             })
             .catch(error => {
               this.$message.error(error);
-            }).
-            then(() => {
-              alreadyToSwitchDbLinks.forEach(dbLink => {
-                this.$delete(dbLink, 'restoreSimpleSwitchOnGoing');
-              })
-            });
+            })
         })
         .catch(error => {});
     },
