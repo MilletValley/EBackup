@@ -224,6 +224,11 @@
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
                   </div>
+                  <div v-else-if="simpleSwitchGoing(hostLink)"
+                       style="margin-top: 12px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP进行中...</span>
+                  </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
                       <el-button type="text"
@@ -241,7 +246,6 @@
                                 :class="$style.removeHostLink">解除连接</el-button>
                     </div>
                   </template>
-
                 </div>
               </el-col>
               <el-col :span="10">
@@ -448,14 +452,14 @@
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
-                  <div v-if="dbLink.failOverOnGoing"
+                  <div v-else-if="dbLink.failOverOnGoing"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
                       {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
                     </span>
                   </div>
-                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4"
+                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
