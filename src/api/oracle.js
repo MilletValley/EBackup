@@ -236,7 +236,14 @@ const fetchLinkByLinkId = linkId =>
 const failOver = ({ linkId, data }) =>
   baseApi.request({
     method: 'patch',
-    url: `oracle-links/${linkId}/fail-over`,
+    url: `/oracle-links/${linkId}/fail-over`,
+    data
+  });
+
+const restoreSimpleSwitch = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-restore-simple-switches',
     data
   });
 
@@ -269,5 +276,6 @@ export {
   fetchSwitches,
   fetchLink,
   fetchLinkByLinkId,
-  failOver
+  failOver,
+  restoreSimpleSwitch
 };

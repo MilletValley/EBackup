@@ -111,8 +111,8 @@ const windowsTypeMapping = {
 
 // oracle版本
 const oracleVersionMapping = {
-  1: '11G',
-  2: '12G',
+  1: '10G',
+  2: '11G',
   3: '12C'
 };
 
