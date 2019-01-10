@@ -12,9 +12,6 @@ const SET_ROUTERS = 'SETROUTERS';
 const SET_BREADCRUMB = 'SETBREADCRUMB';
 
 const GET_HOST = 'GETHOST';
-const ADD_HOST = 'ADDHOST';
-const DEL_HOST = 'DELHOST';
-const UPDATE_HOST = 'UPDATEHOST';
 
 export default {
   SET_TOKEN,
@@ -27,8 +24,5 @@ export default {
   SET_ROUTERS,
   SET_BREADCRUMB,
   UPDATE_USERINFO,
-  GET_HOST,
-  ADD_HOST,
-  DEL_HOST,
-  UPDATE_HOST,
+  GET_HOST
 };

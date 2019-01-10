@@ -98,7 +98,7 @@
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     @click="deleteDb(scope)"></el-button>
+                     @click="deleteItem(scope)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -129,7 +129,7 @@ import { listMixin } from '../mixins/databaseListMixin';
 import { webSocketMixin, paginationMixin, filterMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
-// import { fetchAll, deleteOne } from '../../api/host';
+import { createOne, deleteOne, modifyOne } from '../../api/host';
 import { mapActions } from 'vuex';
 import {
   hostTypeMapping,
@@ -140,7 +140,6 @@ import {
 
 export default {
   name: 'DeviceManager',
-  // mixins: [listMixin, webSocketMixin],
   mixins: [listMixin, paginationMixin, filterMixin],
   data() {
     return {
@@ -188,15 +187,7 @@ export default {
     }
   },
   created() {
-    // if (sessionStorage.getItem("store") ) {
-    //     this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
-    // }
-    // //在页面刷新时将vuex里的信息保存到sessionStorage里
-    // window.addEventListener("beforeunload",()=>{
-    //     sessionStorage.setItem("store",JSON.stringify(this.$store.state))
-    // })
     this.tableData = this.hostsInVuex;
-    // this.fetchHosts();
   },
   methods: {
     judgeHost(data) {
@@ -227,16 +218,6 @@ export default {
       return val;
     },
     fetchData() {},
-    fetchHosts(){
-      // 判断是刷新还是页面正常跳转
-      if(this.$route.meta.isRefresh){
-        return
-      }
-      this.fetchAll().catch( error => {
-        // this.$message.error( error);
-        this.errorMessage( error);
-      });
-    },
     filterChange(filters) {
       this.tableFilter = Object.assign({},this.tableFilter, filters);
       this.filter = Object.assign({}, this.filter, this.tableFilter);
@@ -255,45 +236,45 @@ export default {
     },
     createItem(host) {
       this.btnLoading = true;
-      this.create(host)
+      createOne(host)
         .then(res => {
           this.createModalVisible = false;
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          // this.$message.error(error);
           this.errorMessage(error);
         })
         .then(() => {
           this.btnLoading = false;
         });
     },
-    deleteDb({ row: host, $index }) {
+    deleteItem({ row: host, $index }) {
       this.$confirm('确认删除此设备?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => this.delete(host.id))
         .then(() => {
-          this.$message.success({
-            message: '删除成功!',
-          });
+          deleteOne(host.id)
+            .then(() => {
+              this.$message.success({ message: '删除成功!' });
+            })
+            .catch(error =>{
+              this.errorMessage(error);
+            })
         })
         .catch(error => {
-          // if (error !== 'cancel') this.$message.error(error);
-          if (error !== 'cancel') this.errorMessage(error);
+          this.$message.info('已取消删除操作!')
         });
     },
     updateItem(host) {
       this.btnLoading = true;
-      this.update(host)
+      modifyOne(host)
         .then(res => {
           this.updateModalVisible = false;
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          // this.$message.error(error);
           this.errorMessage(error);
         })
         .then(() => {
@@ -302,27 +283,10 @@ export default {
     },
     wsCall(e) {
     },
-    ...mapActions({
-      update: 'updateHost',
-      delete: 'deleteHost',
-      create: 'createHost',
-      fetchAll: 'fetchHost'
-    }),
   },
   components: {
     HostCreateModal,
     HostUpdateModal,
-  },
-  beforeRouteEnter (to, from, next) {
-      // 在渲染该组件的对应路由被 confirm 前调用
-      // 不！能！获取组件实例 `this`
-      // 因为当守卫执行前，组件实例还没被创建
-      if(from.path === '/'){
-        to.meta.isRefresh = true;
-      }else{
-        to.meta.isRefresh = false;
-      }
-      next();
   },
 };
 </script>

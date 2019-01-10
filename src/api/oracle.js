@@ -244,7 +244,7 @@ const restoreSimpleSwitch = data =>
   baseApi.request({
     method: 'post',
     url: '/oracle-restore-simple-switches',
-    data
+    data: { linkIds: data }
   });
 
 export {
