@@ -24,7 +24,7 @@
               @filter-change="filterChange"
               style="width: 100%">
       <el-table-column label="序号"
-                       min-width="100"
+                       min-width="60"
                        fixed
                        align="center">
         <template slot-scope="scope">
@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column prop="hostIp"
                        label="设备IP"
-                       min-width="150"
+                       min-width="120"
                        align="center">
         <template slot-scope="scope">
           <span v-html="showData(scope.row.hostIp, scope.column.property)"></span>
@@ -60,7 +60,7 @@
                        :formatter="judgeHost"
                        :filters="hostTypeFilters"
                        column-key="hostType"
-                       min-width="120"
+                       min-width="100"
                        align="center"></el-table-column>
       <el-table-column prop="databaseType"
                        label="用途类型"
@@ -78,7 +78,8 @@
                        align="center"></el-table-column>
       <el-table-column prop="loginName"
                        label="登录账号"
-                       min-width="140"
+                       min-width="100"
+                       show-overflow-tooltip
                        align="center"></el-table-column>
       <el-table-column label="操作"
                        min-width="120"
@@ -97,7 +98,7 @@
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     @click="deleteDb(scope)"></el-button>
+                     @click="deleteItem(scope)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -125,36 +126,29 @@
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
-import { webSocketMixin, paginationMixin, filterMixin, sockMixin } from '../mixins/commonMixin';
+import { webSocketMixin, paginationMixin, filterMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
-// import { fetchAll, deleteOne } from '../../api/host';
+import { createOne, deleteOne, modifyOne } from '../../api/host';
 import { mapActions } from 'vuex';
-import { hostTypeMapping, databaseTypeMapping, windowsTypeMapping } from '../../utils/constant';
+import {
+  hostTypeMapping,
+  databaseTypeMapping,
+  windowsTypeMapping,
+  oracleVersionMapping
+} from '../../utils/constant';
 
 export default {
   name: 'DeviceManager',
-  // mixins: [listMixin, webSocketMixin],
-  mixins: [listMixin, paginationMixin, filterMixin, sockMixin],
+  mixins: [listMixin, paginationMixin, filterMixin],
   data() {
     return {
       wsuri: '/test',
       selectedId: '',
-      hostTypeFilters: [
-        {text: '生产环境', value: 1},
-        {text: '易备环境', value: 2}
-      ],
-      databaseTypeFilters: [
-        {text: 'oracle', value: 1},
-        {text: 'sqlserver', value: 2},
-        {text: '虚拟机', value: 4},
-        {text: 'mysql', value: 5},
-        {text: 'db2', value: 6},
-        {text: '达梦', value: 7},
-      ],
       osNameFilters: [
         {text: 'Windows', value: 'Windows'},
-        {text: 'Linux', value: 'Linux'}
+        {text: 'Linux', value: 'Linux'},
+        {text: 'AIX', value: 'AIX'}
       ],
       tableData: [],
       tableFilter: {}
@@ -168,6 +162,18 @@ export default {
     selectedHost() {
       return this.$store.getters.selectedHost(this.selectedId);
     },
+    hostTypeFilters() {
+      return Object.keys(hostTypeMapping).map(type => ({
+        text: hostTypeMapping[Number(type)],
+        value: Number(type)
+      }))
+    },
+    databaseTypeFilters() {
+      return Object.keys(databaseTypeMapping).map(db => ({
+        text: databaseTypeMapping[Number(db)],
+        value: Number(db)
+      }))
+    }
   },
   watch: {
     hostsInVuex(data){
@@ -181,15 +187,7 @@ export default {
     }
   },
   created() {
-    // if (sessionStorage.getItem("store") ) {
-    //     this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
-    // }
-    // //在页面刷新时将vuex里的信息保存到sessionStorage里
-    // window.addEventListener("beforeunload",()=>{
-    //     sessionStorage.setItem("store",JSON.stringify(this.$store.state))
-    // })
     this.tableData = this.hostsInVuex;
-    this.fetchHosts()
   },
   methods: {
     judgeHost(data) {
@@ -203,27 +201,23 @@ export default {
       return str;
     },
     judgeDatabase(data) {
-      return databaseTypeMapping[data.databaseType];
+      let db = databaseTypeMapping[data.databaseType];
+      if(data.databaseType=== 1) {
+        return db + ' ' + oracleVersionMapping[data.oracleVersion];
+      }
+      return db;
     },
     // 搜索关键字高亮
     showData(val, property) {
       val = val + '';
-      if (val.includes(this.inputSearch) && this.inputSearch && this.selectTag === property) {
-        return val.replace(this.inputSearch, '<font color="#409EFF">'+this.inputSearch+'</font>');
+      const firstIndex = val.toLowerCase().indexOf(this.inputSearch.toLowerCase());
+      if (firstIndex>-1 && this.inputSearch && this.selectTag === property) {
+        const highLightWords = val.substr(firstIndex, this.inputSearch.length);
+        return val.replace(highLightWords, '<font color="#409EFF">'+highLightWords+'</font>');
       }
       return val;
     },
     fetchData() {},
-    fetchHosts(){
-      // 判断是刷新还是页面正常跳转
-      if(this.$route.meta.isRefresh){
-        return
-      }
-      this.fetchAll().catch( error => {
-        // this.$message.error( error);
-        this.errorMessage( error);
-      });
-    },
     filterChange(filters) {
       this.tableFilter = Object.assign({},this.tableFilter, filters);
       this.filter = Object.assign({}, this.filter, this.tableFilter);
@@ -242,45 +236,45 @@ export default {
     },
     createItem(host) {
       this.btnLoading = true;
-      this.create(host)
+      createOne(host)
         .then(res => {
           this.createModalVisible = false;
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          // this.$message.error(error);
           this.errorMessage(error);
         })
         .then(() => {
           this.btnLoading = false;
         });
     },
-    deleteDb({ row: host, $index }) {
+    deleteItem({ row: host, $index }) {
       this.$confirm('确认删除此设备?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => this.delete(host.id))
         .then(() => {
-          this.$message.success({
-            message: '删除成功!',
-          });
+          deleteOne(host.id)
+            .then(() => {
+              this.$message.success({ message: '删除成功!' });
+            })
+            .catch(error =>{
+              this.errorMessage(error);
+            })
         })
         .catch(error => {
-          // if (error !== 'cancel') this.$message.error(error);
-          if (error !== 'cancel') this.errorMessage(error);
+          this.$message.info('已取消删除操作!')
         });
     },
     updateItem(host) {
       this.btnLoading = true;
-      this.update(host)
+      modifyOne(host)
         .then(res => {
           this.updateModalVisible = false;
           this.$message.success(res.data.message);
         })
         .catch(error => {
-          // this.$message.error(error);
           this.errorMessage(error);
         })
         .then(() => {
@@ -289,27 +283,10 @@ export default {
     },
     wsCall(e) {
     },
-    ...mapActions({
-      update: 'updateHost',
-      delete: 'deleteHost',
-      create: 'createHost',
-      fetchAll: 'fetchHost'
-    }),
   },
   components: {
     HostCreateModal,
     HostUpdateModal,
-  },
-  beforeRouteEnter (to, from, next) {
-      // 在渲染该组件的对应路由被 confirm 前调用
-      // 不！能！获取组件实例 `this`
-      // 因为当守卫执行前，组件实例还没被创建
-      if(from.path === '/'){
-        to.meta.isRefresh = true;
-      }else{
-        to.meta.isRefresh = false;
-      }
-      next();
   },
 };
 </script>

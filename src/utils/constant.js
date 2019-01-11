@@ -24,7 +24,7 @@ const backupStrategyMapping = {
 // 文件备份策略
 
 const filehostBackupStrategyMapping = {
-  1: '全备+增备',
+  1: '同步',
   2: '增量不删减'
 };
 
@@ -55,13 +55,13 @@ const weekMapping = {
 
 const filehostBackupTypeMapping = {
   1: '文件备份',
-  2: '盘符备份',
+  2: '卷备份',
   3: '系统备份'
 };
 
 const filehostRestoreTypeMapping = {
   1: '文件恢复',
-  2: '盘符恢复'
+  2: '卷恢复'
 };
 
 const restoreTimeStrategyMapping = {
@@ -98,8 +98,9 @@ const hostTypeMapping = {
 // 系统类别
 const sysTypeMapping = {
   // 0: '通用',
-  1: 'Windows',
-  2: 'Linux'
+  1: 'Windows Share',
+  2: 'Linux NFS',
+  3: 'Windows NFS'
 };
 
 // Windows系统版本
@@ -107,6 +108,14 @@ const windowsTypeMapping = {
   1: '2003',
   2: '2008及以上'
 };
+
+// oracle版本
+const oracleVersionMapping = {
+  1: '10G',
+  2: '11G',
+  3: '12C'
+};
+
 const pathTypeMapping = {
   1: '共享文件夹路径',
   2: 'NFS路径'
@@ -120,6 +129,29 @@ const useTypeMapping = {
   5: 'mysql',
   6: 'db2',
   7: '达梦数据库'
+};
+
+// 保留策略类型
+const keepStrategyMapping = {
+  0: '不启用策略',
+  1: '副本保留策略',
+  2: '时间策略'
+};
+
+// 端口管理设备类别
+const portHostTypeMapping = {
+  1: 'sqlserver',
+  2: 'oracle',
+  3: '文件',
+  4: '虚拟机',
+  5: 'mysql',
+  6: 'db2',
+  7: '达梦数据库'
+};
+
+const keepDateMapping = {
+  1: '按周保留',
+  2: '按月保留'
 };
 
 const systemStateMapping = {
@@ -168,6 +200,7 @@ const switchTypeMapping = {
   1: '切换实例',
   2: '切换IP',
   3: '解除连接',
+  4: '单切恢复'
 };
 
 const serviceIpMarkMapping = {
@@ -240,10 +273,14 @@ export {
   recoveringStrategyMapping,
   databaseStateMapping,
   hostTypeMapping,
+  portHostTypeMapping,
   sysTypeMapping,
   windowsTypeMapping,
+  oracleVersionMapping,
   pathTypeMapping,
   useTypeMapping,
+  keepStrategyMapping,
+  keepDateMapping,
   systemStateMapping,
   databaseTypeMapping,
   databaseRoleMapping,

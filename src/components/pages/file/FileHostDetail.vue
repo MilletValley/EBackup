@@ -28,10 +28,13 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <!-- 文件系统备份计划 可以多次添加 -->
-                    <el-dropdown-item command="singleBackup">立即备份</el-dropdown-item>
-                    <el-dropdown-item command="dispatchBackup">调度备份</el-dropdown-item>
+                    <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
+                    <el-dropdown-item command="restorePlan" disabled>恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
+                <el-button size="mini"
+                           type="primary"
+                           @click="stopPlans">终止计划</el-button>
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
@@ -47,7 +50,7 @@
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="操作系统：">
-                    <span>{{ details.osName }}</span>
+                    <span>{{ details.osName+`${details.systemVersion?'-'+details.systemVersion:''}` }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -68,7 +71,10 @@
         </el-row>
       </div>
     </header>
-    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm"  :type="systemType">
+    <tab-panels @switchpane="switchPane"
+                :planFilterForm="planFilterForm"
+                :type="systemType"
+                :tab="activeTab">
       <template slot="backupCard">
         <backup-card :id="plan.id"
                      v-for="plan in filteredBackupPlans"
@@ -85,14 +91,14 @@
                      :key="plan.id"
                      :restore-plan="plan"
                      :type="systemType"
-                     @refresh="refreshSingleBackupPlan"
-                     @deletePlan="deleteBackupPlan"
-                     @updatePlan="selectBackupPlan(plan.id)"></restore-card>
+                     @refresh="refreshSingleRestorePlan"
+                     @deletePlan="deleteRestorePlan"></restore-card>
       </template>
       <template slot="backupResult">
         <backup-result-list :data="results"
                             :type="systemType"
-                            @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
+                            @single-restore-btn-click="initSingleRestoreModal"
+                            @refresh="refreshResults"></backup-result-list>
       </template>
       <template slot="restoreRecord">
         <restore-records :records="restoreRecords"
@@ -111,9 +117,9 @@
                        :action="action"
                        :backup-plan="selectedBackupPlan"></backup-plan-modal>
     <single-restore-modal :btn-loading="btnLoading"
-                          :restoreType="1"
-                          :type="'result'"
-                          :id="123"
+                          :restoreType="restoreResults.backupType"
+                          :type="restoreResults.type"
+                          :id="restoreResults.id"
                           :host-id="hostId"
                           :source-path="retoreSourcePath"
                           :visible.sync="singleRestoreCreateModalVisible"
@@ -131,6 +137,7 @@ import SingleRestoreModal from '@/components/pages/file/SingleRestoreModal';
 import IIcon from '@/components/IIcon';
 import { applyFilterMethods } from '@/utils/common';
 import { sortMixin, sockMixin } from '@/components/mixins/commonMixin';
+import throttle from 'lodash/throttle';
 import {
   fetchOne,
   fetchBackupPlans,
@@ -140,12 +147,25 @@ import {
   updateBackupPlan,
   createBackupPlan,
   deleteBackupPlan,
-  fetchPathByResultId
+  createSingleRestorePlan,
+  deleteSingleRestorePlan,
+  fetchPathByResultId,
+  fetchPathByPlanId,
+  fetchBackupOperation,
+  fetchRestoreOperation,
+  stopAllPlans,
+  fmtBackupPlan,
+  fmtRestorePlan,
+  timePoints2Obj
 } from '@/api/file';
 const OperateBackupPlan = {
   create: createBackupPlan,
   update: updateBackupPlan
 }
+// const RestorePath = {
+//   restorePlan: fetchPathByPlanId,
+//   restoreResult: fetchPathByResultId
+// }
 export default {
   name: 'FileHostDetail',
   props: ['id'],
@@ -157,11 +177,14 @@ export default {
       restorePlans: [],
       restoreRecords: [],
       results: [],
+      timer: null,
       retoreSourcePath: [],
       selectedBackupPlan: {},
       btnLoading: false,
       backupPlanModalVisible: false,
       action: 'create',
+      activeTab: 'plans',
+      restoreResults: {},
       singleRestoreCreateModalVisible: false,
       details: {
         host: {}
@@ -170,23 +193,84 @@ export default {
         hiddenCompletePlan: false,
         planType: 'backup',
       },
+      updateResults: this.throttleMethod(() => {
+        this.fetchBackupResults();
+      }),
+      updateRestorePlanAndRecords: this.throttleMethod(() => {
+        this.fetchRestorePlans();
+        this.fetchRestoreRecords();
+      }),
+      // selectedBackupPlanId: -1,
+      // TODO: 暂时使用一个data变量存储选择的计划id，也许有更优雅的实现方式
+      throttleRefreshBackup: this.throttleMethod(id => {
+        fetchBackupOperation(id)
+          .then(response => {
+            const { data } = response.data;
+            Object.assign(
+              this.backupPlans.find(
+                plan => plan.id === id
+              ),
+              data
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      // selectedRestorePlanId: -1,
+      throttleRefreshRestore: this.throttleMethod(id => {
+        fetchRestoreOperation(id)
+          .then(response => {
+            const { data } = response.data;
+            Object.assign(
+              this.restorePlans.find(
+                plan => plan.id === id
+              ),
+              data
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
     }
   },
   created() {
     this.fetchData();
   },
+  mounted() {
+    this.setTimer(this.timer);
+  },
+  destroyed() {
+    this.clearTimer(this.timer);
+  },
   methods: {
     fetchData() {
       this.fetchDetail();
-      this.fetchBackupPlanList();
+      // this.fetchBackupPlanList();
       this.fetchRestorePlanList();
       this.fetchBackupResults();
       this.fetchRestoreRecords();
     },
     connectCallback(client) {
-      this.stompClient.subscribe('/file/send-backup', msg => { // 订阅服务端提供的某个topic
-        console.log(msg);  // msg.body存放的是服务端发送给我们的信息
+      let subscription = this.stompClient.subscribe(`/file/${this.id}/send-backup-plans`, msg => { // 订阅服务端提供的某个topic
+        let {data} = JSON.parse(msg.body);
+        data = data.map(p => {
+          if (p.config.timePoints) {
+            p.config.timePoints = timePoints2Obj(p.config.timePoints);
+          }
+          return fmtBackupPlan(p);
+        });
+        this.backupPlans = Array.isArray(data) ? this.sortFn(data, 'createTime', 'descending') : [];
+        // console.log(data);
+        // 取消订阅
+        // subscription.unsubscribe();
       });
+      // this.stompClient.subscribe(`/file/${this.id}/send-restore-plans`, msg => { // 订阅服务端提供的某个topic
+      //   let {data} = JSON.parse(msg.body);
+      //   data = data.map(p => fmtRestorePlan(p));
+      //   this.restorePlans = Array.isArray(data) ? this.sortFn(data, 'startTime', 'descending') : [];
+      // });
     },
     fetchDetail() {
       fetchOne(this.id)
@@ -205,7 +289,7 @@ export default {
       fetchBackupPlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.backupPlans = Array.isArray(plans) ? plans : [];
+          this.backupPlans = Array.isArray(plans) ? this.sortFn(plans, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -215,7 +299,7 @@ export default {
       fetchRestorePlans(this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.restorePlans = Array.isArray(plans) ? plans : [];
+          this.restorePlans = Array.isArray(plans) ? this.sortFn(plans, 'startTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -225,7 +309,7 @@ export default {
       fetchBackupResults(this.id)
         .then(res => {
           const { data: results } = res.data;
-          this.results = Array.isArray(results) ? results : [];
+          this.results = Array.isArray(results) ? this.sortFn(results, 'createTime', 'descending') : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -249,11 +333,69 @@ export default {
       });
     },
     addPlanBtnClick(command) {
-      if(command === 'singleBackup') {
+      if(command === 'backupPlan') {
         this.backupPlanModalVisible = true;
         this.action = 'create';
-      } else if (command === 'dispatchBackup') {
-        fetchPathByResultId(12)
+      }
+    },
+    refreshTime() {
+      // this.fetchBackupPlanList();
+      this.fetchRestorePlanList();
+    },
+    clearTimer() {
+      clearInterval(this.timer);
+    },
+    setTimer() {
+      this.clearTimer();
+      this.timer = setInterval(() => {
+        this.refreshTime();
+      }, 20000);
+    },
+    // 刷新单个备份计划
+    refreshSingleBackupPlan(planId) {
+      this.throttleRefreshBackup(planId);
+    },
+    // 刷新单个恢复计划
+    refreshSingleRestorePlan(planId) {
+      this.throttleRefreshRestore(planId);
+    },
+    // 删除备份计划
+    deleteBackupPlan(planId) {
+      deleteBackupPlan(planId).then(() => {
+        this.backupPlans.splice(
+          this.backupPlans.findIndex(plan => plan.id === planId),
+          1
+        );
+        this.$message.success('删除成功');
+      }).catch(error => {
+        this.$message.error(error);
+      });
+    },
+    // 删除恢复计划
+    deleteRestorePlan(planId) {
+      deleteSingleRestorePlan(planId)
+        .then(() => {
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(plan => plan.id === planId),
+            1
+          );
+          this.$message.success('删除成功');
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    // 更新备份计划
+    selectBackupPlan(backupPlanId) {
+      this.selectedBackupPlan = this.backupPlans.find(plan => plan.id === backupPlanId);
+      this.backupPlanModalVisible = true;
+      this.action = 'update';
+    },
+    // 添加恢复计划(立即执行)
+    initSingleRestoreModal(id, backupType, type) {
+      this.restoreResults = Object.assign({}, this.restoreResults, {id, backupType, type});
+      if(type === 'restoreResult' && backupType === 1) { // 恢复单个文件计划
+        fetchPathByResultId(this.restoreResults.id)
           .then(res => {
             const { data: path } = res.data;
             this.retoreSourcePath = path;
@@ -264,33 +406,14 @@ export default {
           .then(() => {
             this.singleRestoreCreateModalVisible = true;
           })
+      } else if(type === 'restorePlan' && backupType === 1) { // 恢复单个文件备份集
+        const readyToRestorePlan = this.results.find(result => result.id === id);
+        this.retoreSourcePath = readyToRestorePlan.backupFiles.map(file => file.sourcePath);
+        this.singleRestoreCreateModalVisible = true;
+      } else {
+        this.retoreSourcePath = [];
+        this.singleRestoreCreateModalVisible = true;
       }
-    },
-    // 刷新单个备份计划
-    refreshSingleBackupPlan() {
-
-    },
-    // 删除备份计划
-    deleteBackupPlan(planId) {
-      deleteBackupPlan(this.type, planId).then(() => {
-        this.backupPlans.splice(
-          this.backupPlans.findIndex(plan => plan.id === planId),
-          1
-        );
-        this.$message.success('删除成功');
-      }).catch(error => {
-        this.$message.error(error);
-      });
-    },
-    // 更新备份计划
-    selectBackupPlan(backupPlanId) {
-      this.selectedBackupPlan = this.backupPlans.find(plan => plan.id === backupPlanId);
-      this.backupPlanModalVisible = true;
-      this.action = 'update';
-    },
-    // 添加恢复计划(立即执行)
-    initSingleRestoreModal() {
-
     },
     // 刷新恢复记录
     updateRestorePlanRecords() {
@@ -303,8 +426,10 @@ export default {
          .then(res => {
           const { message } = res.data;
           this.backupPlanModalVisible = false;
+          this.activeTab = 'plans';
+          this.planFilterForm.planType = 'backup';
           this.$message.success(message);
-          this.fetchBackupPlanList();
+          // this.fetchBackupPlanList();
         })
         .catch(error => {
           this.$message.error(error);
@@ -317,11 +442,56 @@ export default {
     selectedBackupResultId() {
 
     },
-    singleConfirmCallback() {
-
+    // 确认恢复单个备份集或计划
+    singleConfirmCallback(id,plan) {
+      this.btnLoading = true;
+      createSingleRestorePlan({id, plan})
+        .then(res => {
+          const { message } = res.data;
+          this.singleRestoreCreateModalVisible = false;
+          this.activeTab = 'plans';
+          this.planFilterForm.planType = 'restore';
+          this.$message.success(message);
+          this.fetchRestorePlanList();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        })
     },
-    switchPane() {
-
+    switchPane(name) {
+      if (name === 'results') {
+        this.updateResults();
+      }
+      this.activeTab = name;
+    },
+    refreshResults() {
+      this.fetchBackupResults();
+    },
+    stopPlans() {
+      this.$confirm(
+        `此操作将终止${this.details.hostName}下的所有计划, 是否继续？`,
+        '提示',
+        {
+          type: 'warning',
+        }
+      )
+        .then(() => {
+          stopAllPlans(this.id)
+            .then(res => {
+              const { message } = res.data;
+              this.$message.success(message);
+              this.fetchData();
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+        })
+        .catch(() => {
+          this.$message.info('已取消操作!');
+        });
     }
   },
   computed: {

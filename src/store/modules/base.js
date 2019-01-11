@@ -14,24 +14,6 @@ const getters = {
   userId(state) {
     return state.userInfo.id;
   },
-  loginName(state) {
-    return state.userInfo.loginName;
-  },
-  roles(state) {
-    return state.userInfo.roles;
-  },
-  state(state) {
-    return state.userInfo.state;
-  },
-  userName(state) {
-    return state.userInfo.userName;
-  },
-  email(state) {
-    return state.userInfo.email;
-  },
-  receive(state) {
-    return state.userInfo.receive;
-  },
 };
 /* eslint no-shadow: 0 */
 const mutations = {
@@ -137,6 +119,14 @@ const actions = {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(childRouter => {
                 if (hasPermission(roleIds, childRouter)) {
+                  if (childRouter.children && childRouter.children.length > 0) {
+                    childRouter.children = childRouter.children.filter(threeRouter => {
+                      if (hasPermission(roleIds, threeRouter)) {
+                        return threeRouter;
+                      }
+                      return false;
+                    });
+                  }
                   return childRouter;
                 }
                 return false;

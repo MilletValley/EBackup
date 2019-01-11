@@ -1,14 +1,14 @@
 <template>
   <el-card :class="$style.backupCard"
            v-if="backupOperation.id && backupConfig.id"
-           :style="backupOperation.state === 2 ? 'color: #999999;' : ''">
+           :style="[2, 3].includes(backupOperation.state) ? 'color: #999999;' : ''">
     <div slot="header"
          class="clearfix">
       <el-tag size="mini"
               color="#8465ff"
               style="color: #ffffff">备份</el-tag>
       <span>{{backupOperation.name}}</span>
-      <i v-if="backupOperation.state !== 2"
+      <i v-if="![2,3].includes(backupOperation.state)"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh"
          :class="$style.stateRefresh"
@@ -16,7 +16,7 @@
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
-      <el-button v-if="backupOperation.state !== 2 && backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6"
+      <el-button v-if="canUpdatePlan"
                  style="float: right; padding: 3px 3px"
                  type="text"
                  @click="planUpdateBtnClick">编辑</el-button>
@@ -26,13 +26,12 @@
         <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划创建时间"
-                        v-if="backupConfig.timeStrategy !== 0"
                         :style="{ width: '40%'}">
-            <span>{{ backupConfig.startTime }}</span>
+            <span>{{ backupOperation.createTime }}</span>
           </el-form-item>
           <el-form-item label="备份类型"
                         style="40%">
-            <div>{{ backupType }} (限速: {{backupOperation.bwlimit}}bps)</div>
+            <div>{{ backupType }}<span v-if="backupOperation.backupType === 1">(限速: {{fmtSize(backupOperation.bwlimit*1024)}}bps)</span></div>
           </el-form-item>
           <el-form-item label="备份方向"
                         v-if="[2,3].includes(backupOperation.backupType)"
@@ -42,8 +41,7 @@
                         effect="dark">
               <span :class="$style.pathOverFlow">{{ backupOperation.sourcePath }}</span>
             </el-tooltip>
-            <i class="el-icon-d-arrow-right"
-               :class="$style.pathDirection"></i>
+            <i class="el-icon-d-arrow-right"></i>
             <el-tooltip :content="backupOperation.targetPath"
                         placement="top"
                         effect="dark">
@@ -128,13 +126,13 @@
                           effect="light">
                 <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
               </el-tooltip>
-              <el-progress style="margin-right:20px" :percentage="backupOperation.percentage" :status="progressStatus" :text-inside="true" :stroke-width="17">
+              <el-progress style="margin-right:20px" :percentage="isNaN(backupOperation.percentage)?0:backupOperation.percentage" :status="progressStatus" :text-inside="true" :stroke-width="17">
               </el-progress>
             </div>
           </li>
-          <li>
-            <h5>备份开始时间</h5>
-            <div>{{backupOperation.startTime || '备份未开始'}}</div>
+          <li v-if="backupConfig.timeStrategy !== 0 && backupConfig.timeStrategy !== 6">
+            <h5>计划开始时间</h5>
+            <div>{{backupConfig.startTime || '计划未开始'}}</div>
           </li>
           <li v-if="[2, 3].includes(backupOperation.backupType)">
             <h5>已持续时间</h5>
@@ -147,6 +145,16 @@
           <li>
             <h5>文件总大小</h5>
             <div>{{fmtSize(backupOperation.size) || '-'}}</div>
+          </li>
+          <li>
+            <h5>上次备份大小
+              <el-tooltip class="item" effect="dark"
+                          content="上次备份文件总大小"
+                          placement="left">
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </h5>
+            <div>{{fmtSize(backupOperation.backupSize) || '-' }}</div>
           </li>
           <li>
             <h5>已备份大小
@@ -167,7 +175,17 @@
       <el-col :span="8"
               v-for="(backupFile, index) in backupOperation.backupFiles"
               :key="index">
-        <el-card shadow="always">
+        <el-card shadow="always"
+                 :class="$style.childFileCard">
+          <div slot="header" :class="$style.childFileHead">
+            <span>ID: {{ backupFile.id }}</span>
+            <el-tooltip :content="`${backupFile.errorMsg}`"
+                        placement="top"
+                        :open-delay="300"
+                        :disabled="!(backupFile.state === 3 && backupFile.errorMsg)">
+              <span style="float: right"><i :class="formatIcon(backupFile.state)"></i>{{ operationStateConvert(backupFile.state) }}</span>
+            </el-tooltip>
+          </div>
           <el-row>
             <el-col :span="12">
               <el-tooltip :content="`文件备份源路径: ${backupFile.sourcePath}`"
@@ -176,16 +194,21 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileSourcePath"
                           :class="$style.backupFileInfoIcon"></i-icon>
-                  <span>{{backupFile.sourcePath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{backupFile.sourcePath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
             <el-col :span="12" :class="$style.backupFileState">
-              <span v-if="backupFile.state === 0"><i :class="formatIcon(backupFile.state)"></i>未开始</span>
-              <span v-else-if="backupFile.state === 1">
-                <el-progress :percentage="backupFile.percentage"></el-progress>
-              </span>
-              <span v-else><i :class="formatIcon(backupFile.state)"></i>已结束</span>
+              <el-tooltip content="已备份大小"
+                          placement="top"
+                          :open-delay="300">
+                <el-progress :percentage="isNaN(backupFile.percentage)?0:backupFile.percentage" :class="$style.backupFileProgress">
+                </el-progress>
+              </el-tooltip>
             </el-col>
           </el-row>
           <el-row>
@@ -196,12 +219,16 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileTargetPath"
                       :class="$style.backupFileInfoIcon"></i-icon>
-                  <span>{{backupFile.targetPath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          size="mini"
+                          type="warning">
+                    <span>{{backupFile.targetPath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(backupFile.state)"
+                    v-if="[1,2,3].includes(backupFile.state)"
                     :class="$style.backupFileState">
               <el-tooltip content="开始时间"
                           placement="top"
@@ -214,14 +241,14 @@
             <el-col :span="12">
               <i-icon name="size"
                       :class="$style.backupFileInfoIcon"></i-icon>
-              <el-tooltip content="文件大小"
+              <el-tooltip content="源文件总大小"
                           placement="right"
                           :open-delay="300">
                 <span>{{ fmtSize(backupFile.sourceSize) }}</span>
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(backupFile.state)"
+                    v-if="[1,2,3].includes(backupFile.state)"
                     :class="$style.backupFileState">
               <el-tooltip content="已持续时间"
                           placement="top"
@@ -291,13 +318,21 @@ export default {
       return timeStrategyMapping[this.backupConfig.timeStrategy];
     },
     weekPoints() {
-      return weekMapping[this.backupConfig.weekPoints];
+      return this.backupConfig.weekPoints.map(p => weekMapping[p]);
     },
     operationState() {
-      return operationStateMapping[this.backupOperation.state];
+      const content = operationStateMapping[this.backupOperation.state];
+      if(this.backupOperation.state === 3 && this.backupOperation.errorMsg) {
+        return `${content}: ${this.backupOperation.errorMsg}`;
+      }
+      return content;
     },
     backupType() {
       return filehostBackupTypeMapping[this.backupOperation.backupType];
+    },
+    canUpdatePlan() {
+      return [1,2,3,4,5].includes(this.backupConfig.timeStrategy) ||
+             (this.backupConfig.timeStrategy === 0 && this.backupOperation.state === 0);
     },
     operationStateStyle() {
       if (this.backupOperation.state === 0) {
@@ -317,69 +352,6 @@ export default {
         return 'success';
       } else return 'text';
     },
-    // diskInfo(){
-    //   // let str = '';
-    //   // if(this.type === 'windows'){
-    //   //   if(this.backupOperation.state === 0){
-    //   //     str = '未开始';
-    //   //   }else if(this.backupOperation.state === 2){
-    //   //     str = '已完成';
-    //   //   }else if(this.backupOperation.state === 1){
-    //   //     str = `正在备份卷(${this.disk})`;
-    //   //   }
-    //   // }
-    //   return `正在备份卷$(}`;
-    // },
-    progressNum(){
-      const {process: data, size, state} = this.backupOperation;
-      if(state === 2){
-        return 100;
-      }
-      if(this.type === 'windows'){
-        if(!data){
-          return 0;
-        }
-        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-        const result = data.match(reg);
-        if(!result){
-          return 0;
-        }
-        if(result[1]){
-          this.disk = result[1];
-        }
-        if(result[2]){
-          let num = Number(result[2].substring(0,result[2].length - 1));
-          return num || num === 0 ? num : 0;
-        }
-      }else if(this.type === 'linux'){
-        if(data && size){
-          if(Number(size)){
-            // 取百分比
-            let num = (Number(data) / Number(size)) * 100;
-            if (state === 0 && num >= 100) {
-              num = 100;
-            }else if(num > 0 && num < 1){
-              num = 1;
-            }else{
-              // 此处不能作四舍五入
-              num = parseInt(num > 99 ? 99 : num);
-            }
-            return num || num === 0 ? num : 0;
-          }
-        }
-      }
-    },
-    backupSize(){
-      let {process, size, state} = this.backupOperation;
-      let fmtSize = 0;
-      if(this.type === 'linux'){
-        process = Number(process);
-        fmtSize = fmtSizeFn(process);
-      }else if(this.type === 'windows'){
-        fmtSize = fmtSizeFn(Number(size));
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    },
     showTxt() {
       return this.isShow?'收起':'查看更多'
     },
@@ -387,30 +359,13 @@ export default {
       return this.isShow?'el-icon-arrow-up':'el-icon-arrow-down';
     }
   },
-  filters:{
-    sizeFormat(data, type){
-      let fmtSize = null;
-      const { state } = data;
-      if(type === 'linux'){
-        const process = Number(data.progress);
-        const size = Number(data.size);
-        if(process > size){
-          fmtSize = fmtSizeFn(size);
-        }else{
-          fmtSize = fmtSizeFn(process);
-        }
-      }else if(type === 'windows'){
-        // const process = Number(data.progress.replace(/[^0-9]/ig,""));
-        const size = Number(data.size);
-        const restoreSize = size * process / 100;
-        fmtSize = fmtSizeFn(restoreSize);
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    }
-  },
   methods: {
+    operationStateConvert(state) {
+      return operationStateMapping[state];
+    },
     // 刷新单个备份计划
     refreshBtnClick() {
+      this.$emit('refresh', this.id);
     },
     planDeleteBtnClick() {
       this.$confirm('即将删除该备份计划，是否继续？', '提示', {
@@ -432,27 +387,13 @@ export default {
       } else if (data === 1) {
         return this.$style.loadingColor + ' el-icon-loading';
       } else if(data === 3) {
-        return this.$style.errorColor + ' el-icon-warning';
+        return this.$style.errorColor + ' el-icon-error';
       } else if(data === 2){
         return this.$style.successColor + ' el-icon-success';
       }else return '';
     },
     showMore() {
       this.isShow = !this.isShow;
-    },
-    fmtProgress(data){
-      let process = 0;
-      if(this.type === 'linux'){
-        const progress = Number(data.progress);
-        const size = Number(data.size);
-        process = Math.round((progress / size) * 100);
-      }else if(this.type === 'windows'){
-        // process = Number(data.progress.replace(/[^0-9]/ig,""));
-      }
-      if(process > 99){
-        process = 99;
-      }
-      return process ? process : 0;
     },
     fmtSize(size) {
       return fmtSizeFn(size);
@@ -468,6 +409,10 @@ export default {
 @import '@/style/color.scss';
 .backupCard {
   margin-bottom: 15px;
+}
+.childFileHead {
+  color: #888888;
+  font-size: 12px;
 }
 /* 标签之间的间隔在for循环下消失了 */
 .infoTag {
@@ -504,12 +449,18 @@ export default {
   display: inline-block;
   vertical-align: -0.2em;
 }
+.backupFileProgress > div {
+  font-size: 12px !important;
+  color: #888888;
+}
 .more {
   font-size: 14px;
-  height: 110px;
-  overflow: auto;
-  col {
-    height: 110px;
+  .childFileCard {
+    margin-bottom: 5px;
+  }
+  .childFileCard > div:first-child {
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }
 .showMore {
@@ -522,15 +473,25 @@ export default {
   display: inline-block;
   text-overflow: ellipsis;
 }
+.childFileTag {
+  display: inline-block;
+  float: right;
+  max-width: 80%;
+  span {
+    max-width: 100%;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 .pathOverFlow {
   white-space:nowrap;
   overflow: hidden;
+  vertical-align: top;
   max-width: 230px;
   display: inline-block;
   text-overflow: ellipsis;
-}
-.pathDirection {
-  vertical-align: 0.5em;
 }
 .backupFileState {
   font-size: 0.8em;

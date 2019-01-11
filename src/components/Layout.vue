@@ -1,6 +1,7 @@
 <template>
-  <el-container style="height: 100%; min-width: 1000px;" @mousemove="mousemoveCallBack">
-    <el-aside style="width:auto;background-color: #00264a">
+<div @click="mousemoveCallBack" style="height: 100%">
+  <el-container style="height: 100%; min-width: 1000px;" >
+    <el-aside style="width:auto;background-color: #00264a;">
       <div class="logo">
         <img src="../assets/layoutContraction.png"
              alt="信服易备"
@@ -14,6 +15,7 @@
       <el-menu background-color="#00264a"
                text-color="#fff"
                active-text-color="#fff"
+               :unique-opened="true"
                :default-active="defaultActive"
                :collapse="isMenuCollapsed">
         <el-menu-item index="/dashboard">
@@ -32,17 +34,30 @@
                    class="menu-icon"></IIcon>
             <span>{{ menu.meta.title }}</span>
           </template>
-          <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
-                        :key="submenu.path"
-                        :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
-            <router-link :to="`${menu.path}/${submenu.path}`"
-                         tag="li">{{ submenu.meta.title }}</router-link>
-          </el-menu-item>
+          <div v-for="(submenu, index) in menu.children.filter(child => child.meta && child.meta.title)"
+               :key="index">
+              <el-submenu v-if="submenu.children"
+                          :index="submenu.meta.activeName ? submenu.meta.activeName : String(index)">
+              <template slot="title">
+                <span>{{ submenu.meta.title }}</span>
+              </template>
+              <el-menu-item v-for="(menu2,index) in submenu.children.filter(child => child.meta && child.meta.title)"
+                            :key="index"
+                            :index="menu2.meta.activeName ? menu2.meta.activeName : `${menu.path}/${menu2.path}`">
+                <router-link :to="`${menu.path}/${menu2.path}`"
+                              tag="li">{{ menu2.meta.title }}</router-link>
+              </el-menu-item>
+            </el-submenu>
+            <el-menu-item v-else
+                          :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
+              <router-link :to="`${menu.path}/${submenu.path}`"
+                          tag="li">{{ submenu.meta.title }}</router-link>
+            </el-menu-item>
+          </div>
         </el-submenu>
-
       </el-menu>
     </el-aside>
-    <el-container style="overflow: auto">
+    <el-container style="overflow: auto;">
       <el-header style="font-size: 12px">
         <el-breadcrumb separator="/"
                        class="bread-crumb">
@@ -75,21 +90,26 @@
       </div>
     </el-container>
   </el-container>
+</div>
+  
 </template>
 
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
 import IIcon from './IIcon.vue';
+import { sockMixin } from '@/components/mixins/commonMixin';
 
 export default {
   name: 'Layout',
+  mixins: [sockMixin],
   data() {
     return {
       clientWidth: 1920,
       curTime: new Date().getTime(),
       lastTime: new Date().getTime(),
       timeOut: 30 * 60 * 1000,
-      intervalObj: null
+      intervalObj: null,
+      url: '/socket-host'
     };
   },
   components: {
@@ -133,7 +153,7 @@ export default {
     }),
   },
   methods: {
-    ...mapActions(['logout', 'fetchHost']),
+    ...mapActions(['logout', 'fetchHost', 'setHost']),
     ...mapMutations(['setClientWidth']),
     handleCommand(command) {
       if (command === 'logout') {
@@ -166,12 +186,19 @@ export default {
       if (this.curTime - this.lastTime > this.timeOut) {
         this._logout();
       }
-    }
+    },
+    connectCallback(client) { //connect连接成功的回调函数
+      this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
+        let {data} = JSON.parse(msg.body);// msg.body为服务端返回的报文
+        data = Array.isArray(data) ? data : [];
+        this.setHost(data);
+      });
+    },
   },
 };
 </script>
 
-<style scoped>
+<style>
 .logo {
   padding: 11px 10px;
   padding-top: 20px;

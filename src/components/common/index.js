@@ -26,7 +26,7 @@ class Cylinder extends Group {
     });
     topEllipse.y = shortSize * -1;
     const middleEllipse = new Ellipse(width, width / 2.5, {
-      fillStyle: color,
+      fillStyle: percent ? color : bottleColor,
       // strokeStyle: bottleColor,
       lineWidth: 20
     });
@@ -39,7 +39,7 @@ class Cylinder extends Group {
     middleEllipseMask.alpha = 0.618;
     middleEllipseMask.y = th - shortSize;
     const bottomEllipse = new Ellipse(width, width / 2.5, {
-      fillStyle: color,
+      fillStyle: percent ? color : bottleColor,
       strokeStyle: bottleColor,
       lineWidth: 20
     });

@@ -56,6 +56,7 @@ const validateLength30 = (rule, value, callback) => {
 export {
   applyFilterMethods,
   fmtSizeFn,
+  keepTwoDecimalFull,
   maxLengthFn,
   validateLength,
   validateLength30

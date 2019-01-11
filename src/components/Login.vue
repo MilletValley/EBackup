@@ -16,7 +16,7 @@
             <el-switch v-model="rememberMe" :active-value="1" :inactive-value="0"></el-switch>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" class="login-button" @click="login2" :loading="isLoading">登&emsp;&emsp;录</el-button>
+            <el-button type="primary" class="login-button" @click="doLogin" :loading="isLoading">登&emsp;&emsp;录</el-button>
           </el-form-item>
         </el-form>
       </div>

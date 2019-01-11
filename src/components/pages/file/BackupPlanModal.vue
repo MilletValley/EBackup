@@ -21,7 +21,8 @@
         </el-form-item>
         <el-form-item label="备份类型"
                       prop="backupType">
-          <el-radio-group v-model="formData.backupType">
+          <el-radio-group v-model="formData.backupType"
+                          @change="backupTypeChange">
             <el-radio v-for="type in backupTypeSelect"
                       :key="type.label"
                       :label="type.label">
@@ -30,17 +31,36 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备份文件"
+                      prop="backupFiles"
                       v-if="formData.backupType === 1">
-          <el-row :class="$style.wordsOverFlow">
-            <el-button type="primary"
-                    size="small"
-                    @click="selectBackupFiles">选择文件</el-button>
-            <!-- <el-tag v-for="tag in nodes"
-                  :key="tag.sourcePath"
-                  closable
-                  type="success">
-                  {{tag.sourcePath}}</el-tag> -->
-          </el-row>
+          <el-button type="primary"
+                     size="small"
+                     @click="selectBackupFiles">选择文件</el-button>
+          <span v-if="!backupFilesSet.backupFiles.length"
+                style="color: #f56c6c; font-size: 12px">
+            <i class="el-icon-warning"></i>未选择文件
+          </span>
+          <el-popover placement="right"
+                      width="400"
+                      trigger="hover"
+                      v-else>
+            <div style="max-height: 400px; overflow: auto;">
+              <p v-for="path in backupFilesSet.backupFiles"
+                :key="path"
+                style="margin-top: 0; margin-bottom: 5px">
+                <el-tag closable
+                        size="small"
+                        :class="$style.fileTags"
+                        @close="delSelectedFile(path)">
+                  <span>{{ path }}</span>
+                </el-tag>
+              </p>
+            </div>
+            <span style="color: #409EFF; font-size: 12px; cursor: pointer"
+                  slot="reference">
+              <i class="el-icon-question"></i>查看已选文件
+            </span>
+          </el-popover>
         </el-form-item>
         <el-form-item label="备份排除文件"
                       v-if="formData.backupType === 1">
@@ -58,15 +78,9 @@
                     @blur="handleInputConfirm"></el-input>
           <el-button v-else @click="showInputTag">+ 排除文件</el-button>
         </el-form-item>
-        <el-form-item label="备份系统"
-                      v-if="formData.backupType === 2">
-          <el-radio-group v-model="formData.backupFiles">
-            <el-radio label="systems">{{ systems }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
         <el-form-item label="备份卷"
-                      v-if="formData.backupType === 3">
-          <el-radio-group v-model="formData.backupFiles">
+                      v-if="formData.backupType === 2">
+          <el-radio-group v-model="backupFilesSet.volume">
             <el-radio v-for="(volume, index) in volumes"
                       :key="index"
                       :label="volume">
@@ -74,19 +88,52 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="限速(bps)"
-                      prop="bwlimit">
-          <el-input v-model.number="formData.bwlimit"></el-input>
+        <el-form-item label="备份系统"
+                      v-if="formData.backupType === 3">
+          <el-radio-group v-model="backupFilesSet.system">
+            <el-radio :label="systems">{{ systems }}</el-radio>
+          </el-radio-group>
         </el-form-item>
+        <el-row v-if="formData.backupType === 1">
+          <el-col :span="12">
+            <el-form-item label="限速"
+                          prop="bwlimit">
+              <el-select v-model="formData.bwlimit"
+                         clearable
+                         placeholder="请选限速值">
+                <el-option v-for="(item, index) in [1, 2, 4, 10, 20, 50, 100, 200, 500, 800]"
+                           :key="index"
+                           :label="item"
+                           :value="item"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="单位"
+                          prop="unit">
+              <el-select v-model="formData.unit"
+                         clearable
+                         placeholder="请选单位">
+                <el-option v-for="(item, index) in ['Kbps', 'Mbps', 'Gbps']"
+                           :key="index"
+                           :label="item"
+                           :value="index"></el-option>
+              </el-select>            
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="备份策略"
                       class="is-required"
                       prop="backupStrategy">
 					<el-radio-group v-model="formData.backupStrategy">
 						<el-radio v-for="(backupStrategy, index) in backupStrategySelect"
                       :key="index"
-                      :label="backupStrategy.label">
+                      :label="backupStrategy.label"
+                      v-if="formData.backupType === 1">
               {{ backupStrategy.text }}
             </el-radio>
+            <el-radio v-if="formData.backupType !== 1"
+                      :label="backupStrategySelect[0].label">{{ backupStrategySelect[0].text }}</el-radio>
           </el-radio-group>
         </el-form-item>
 				<!-- 时间策略 -->
@@ -99,16 +146,17 @@
         <el-button @click="cancelButtonClick">取消</el-button>
       </span>
     </el-dialog>
-    <file-tree :visible.sync="fileTreeVisible"
-               :host-id="hostId"
-               :fatherNodes="filePath"
-               @selectNodes="selectNodes"></file-tree>
+    <backup-file-tree :visible.sync="fileTreeVisible"
+                      :host-id="hostId"
+                      :nodes="backupFilesSet.backupFiles"
+                      :fatherNodes="filePath"
+                      @selectNodes="selectNodes"></backup-file-tree>
   </section>
 </template>
 <script>
 import { backupPlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import TimeStrategy from '@/components/common/TimeStrategy';
-import FileTree from '@/components/pages/file/FileTree';
+import BackupFileTree from '@/components/pages/file/BackupFileTree';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import validate from '@/utils/validate';
@@ -117,12 +165,14 @@ import {
   filehostBackupTypeMapping
 } from '@/utils/constant';
 import { backupStrategyMapping } from '../../../utils/constant';
+import { fmtSizeFn } from '@/utils/common';
 const basicFormData = {
   name: '',
   backupType: 1,
-  backupFiles: null,
+  backupFiles: [],
   excludeFiles: [],
   bwlimit: null,
+  unit: null, // 限速单位
   startTime: '',
   singleTime: '',
   datePoints: [],
@@ -135,6 +185,7 @@ const basicFormData = {
 }
 export default {
   name: 'BackupPlanModal',
+  mixins: [backupPlanModalMixin],
   props: {
     btnLoading: {
       type: Boolean
@@ -152,10 +203,16 @@ export default {
       type: Object
     },
     systems: {
-      type: String
+      type: String,
+      default: function() {
+        return '';
+      }
     },
     volumes: {
-      type: Array
+      type: Array,
+      default: function() {
+        return [];
+      }
     },
     filePath: {
       type: Array,
@@ -167,17 +224,39 @@ export default {
       type: Number
     }
   },
-  mixins: [backupPlanModalMixin],
   data() {
+    const backupFilesValidate = (rule, value, callback) => {
+      if(!this.backupFilesSet.backupFiles.length && this.formData.backupType === 1) {
+        this.$message.warning('请选择备份源文件!');
+      } else {
+        callback();
+      }
+    }
+    const unitValidate = (rule, value, callback) => {
+      if(this.formData.bwlimit && value !== 0 && !value) {
+        callback('请选择限速单位');
+      } else {
+        callback();
+      }
+    }
     return {
       formData: {},
       originFormData: {},
+      backupFilesSet: {},
       fileTreeVisible: false,
       tagInputValue: null, // 备份排除文件
       inputTagVisible: false,
       backupDriver: null,
       rules: {
-        name: validate.planName
+        name: validate.planName,
+        backupFiles: {
+          validator: backupFilesValidate,
+          trigger: ['blur']
+        },
+        unit: {
+          validator: unitValidate,
+          trigger: ['blur']
+        }
       }
     }
   },
@@ -230,10 +309,10 @@ export default {
       if (backupData.config.timePoints.length === 0) {
         backupData.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
-      const { name, config, backupPath, backupSystem, ...other} = backupData;
+      const { name, config, backupType, bwlimit, backupFiles, excludeFiles, ...other} = backupData;
       const { id, timeInterval, timePoints, ...otherConfig } = config;
       let hourInterval = 1,
-        minuteInterval = 10;
+          minuteInterval = 10;
       if (otherConfig.timeStrategy === 1) {
         minuteInterval = timeInterval;
       } else if (otherConfig.timeStrategy === 2) {
@@ -241,17 +320,21 @@ export default {
       }
       return {
         name,
-        backupPath,
-        backupSystem,
+        backupType,
+        bwlimit,
+        backupFiles: backupFiles.map(file => file.sourcePath),
+        excludeFiles,
         minuteInterval,
         hourInterval,
         timePoints: cloneDeep(timePoints),
         ...otherConfig,
-        // ...other
       };
     },
     handleClose(tag) {
       this.formData.excludeFiles.splice(this.formData.excludeFiles.indexOf(tag), 1);
+    },
+    delSelectedFile(path) {
+      this.backupFilesSet.backupFiles.splice(this.backupFilesSet.backupFiles.indexOf(path), 1);
     },
     showInputTag() {
       this.inputTagVisible = true;
@@ -268,10 +351,94 @@ export default {
       this.tagInputValue = '';
     },
     selectNodes(nodes) {
-      this.formData.backupFiles = nodes.map(node => node.sourcePath).concat();
+      this.backupFilesSet.backupFiles = nodes.concat();
     },
     selectBackupFiles() {
       this.fileTreeVisible = true;
+    },
+    pruneFormData(formData) {
+      const {
+        name,
+        backupType,
+        bwlimit,
+        unit,
+        excludeFiles,
+        backupFiles,
+        timeStrategy,
+        singleTime,
+        startTime,
+        datePoints,
+        weekPoints,
+        timePoints,
+        hourInterval,
+        minuteInterval,
+        ...other
+      } = formData;
+      let config;
+      switch (timeStrategy) {
+        case 0:
+          config = { timeStrategy, singleTime, ...other };
+          break;
+        case 1:
+          config = {
+            timeStrategy,
+            startTime,
+            timeInterval: minuteInterval,
+            ...other,
+          };
+          break;
+        case 2:
+          config = {
+            timeStrategy,
+            startTime,
+            timeInterval: hourInterval * 60,
+            ...other,
+          };
+          break;
+        case 3:
+          config = { timeStrategy, startTime, timePoints, ...other };
+          break;
+        case 4:
+          config = {
+            timeStrategy,
+            startTime,
+            weekPoints,
+            timePoints,
+            ...other,
+          };
+          break;
+        case 5:
+          config = {
+            timeStrategy,
+            startTime,
+            datePoints,
+            timePoints,
+            ...other,
+          };
+          break;
+        case 6:
+          config = {
+            timeStrategy,
+            ...other
+          };
+          break;
+        default:
+      }
+      if ([3, 4, 5].includes(timeStrategy)) {
+        config.timePoints = this.filteredTimePoints(timePoints);
+        // 全备+增备下按星期重排
+        if (timeStrategy === 4) {
+          config.weekPoints.sort((a, b) => a - b);
+        }
+      }
+      return {
+        name,
+        backupType,
+        bwlimit: bwlimit*Math.pow(1024, unit),
+        excludeFiles,
+        backupFiles,
+        config
+      };
     },
     confirmBtnClick() {
       this.$refs.form.validate(valid => {
@@ -279,14 +446,12 @@ export default {
           .validate()
           .then(res => {
             if (valid && res) {
+              this.assignBackupFiles();
               let data = this.pruneFormData(this.formData);
               if (this.action === 'update') {
                 data.id = this.backupPlan.id;
                 data.config.id = this.backupPlan.config.id;
               }
-              // if([2, 3].includes(data.config.backupType)) {
-              //   data.config.backupFiles = this.backupDriver;
-              // }
               this.$emit('confirm', data, this.action);
             }
           })
@@ -298,25 +463,74 @@ export default {
       });
     },
     cancelButtonClick() {
-
+      this.hasModifiedBeforeClose(() => {
+        this.modalVisible = false;
+      });
+    },
+    beforeModalClose(done) {
+      this.hasModifiedBeforeClose(done);
+    },
+    assignBackupFiles() {
+      if(this.formData.backupType === 1) {
+        this.formData.backupFiles = this.backupFilesSet.backupFiles.slice();
+      } else if(this.formData.backupType === 2) {
+        this.formData.backupFiles = [this.backupFilesSet.volume];
+      } else {
+        this.formData.backupFiles = [this.backupFilesSet.system];
+      }
+    },
+    backupTypeChange() {
+      this.formData.backupStrategy = 1;
+    },
+    hasModifiedBeforeClose(fn) {
+      this.assignBackupFiles();
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => { });
+      }
     },
     modalOpened() {
       const baseFormData = cloneDeep(basicFormData);
       if (this.action === 'update' || this.action === 'query') {
-        this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...this.backupPlan }));
+        this.originFormData = Object.assign({}, baseFormData, this.fmtData({ ...cloneDeep(this.backupPlan) }));
+        const fmtResult = parseFloat(fmtSizeFn(this.originFormData.bwlimit*1024));
+        this.originFormData.unit = fmtResult ? Math.log(this.originFormData.bwlimit/fmtResult)/Math.log(1024) : '';
+        this.originFormData.bwlimit = fmtResult ? fmtResult : '';
       } else {
         this.originFormData = Object.assign({}, baseFormData);
       }
-      this.formData = Object.assign({}, this.originFormData);
+      const baseBackupFilesSet = {
+        backupFiles: [],
+        volume: this.volumes[0],
+        system: this.systems
+      }
+      if(this.originFormData.backupType === 1) {
+        baseBackupFilesSet.backupFiles = this.originFormData.backupFiles;
+      } else if(this.originFormData.backupType === 2) {
+        baseBackupFilesSet.volume = this.originFormData.backupFiles[0];
+      } else {
+        baseBackupFilesSet.system = this.originFormData.backupFiles[0];
+      }
+      this.formData = Object.assign({}, cloneDeep(this.originFormData));
+      this.backupFilesSet = Object.assign({}, baseBackupFilesSet);
     },
     modalClosed() {
       this.$refs.timeStrategyComponent.clearValidate();
       this.$refs.form.clearValidate();
-    },
+    }
   },
   components: {
     TimeStrategy,
-    FileTree
+    BackupFileTree
   }
 }
 </script>
@@ -329,6 +543,21 @@ export default {
   // overflow: hidden;
   // text-overflow: ellipsis;
 }
+.fileTags {
+  display: inline-block;
+  max-width: 380px;
+  span {
+    max-width: 340px;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  i {
+    vertical-align: 0.4em !important;
+  }
+  // margin-top: 5px;
+}
 .buttonNewTag {
   width: 100px;
 }
@@ -340,5 +569,3 @@ export default {
   text-overflow: ellipsis;
 }
 </style>
-
-

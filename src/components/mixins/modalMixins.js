@@ -122,7 +122,7 @@ const genModalMixin = type => {
           trigger: 'blur',
         },
         {
-          validator: validateLength(20),
+          validator: validateLength(64),
           trigger: 'blur'
         },
         {
@@ -298,13 +298,6 @@ const genModalMixin = type => {
         collapseName: '', // 折叠面板名称 目前就一个
         confirmBtnLoading: false, // 确认按钮加载动画
         isLoading: false,
-        options: [{
-          value: 1,
-          label: '10G'
-        }, {
-          value: 2,
-          label: '11G'
-        }],
         words: [],
       };
     },

@@ -76,8 +76,9 @@
       </el-form>
     </el-row>
     <el-card :class="$style.disasterRecoverCard"
-            v-for="plan in switchPlans"
-            :key="plan.id">
+             :style="plan.state === 2 ? 'color: #999999;' : ''"
+             v-for="plan in switchPlans"
+             :key="plan.id">
       <div slot="header"
           class="clearfix">
         <el-tag size="mini"
@@ -125,7 +126,10 @@
             </li>
             <li>
               <h5>已持续时间</h5>
-              <div v-if="plan.consumeTime">{{plan.consumeTime | durationFilter}}</div>
+              <div v-if="plan.consumeTime">
+                <timer v-if="plan.state === 1" :val="Number(plan.consumeTime)"></timer>
+                <span v-else>{{plan.consumeTime | durationFilter}}</span>
+              </div>
               <div v-else>-</div>
             </li>
           </ul>
@@ -151,6 +155,7 @@ import baseMixin from '../mixins/baseMixins';
 import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 import { fetchLinks as fetchLinksSqlserver } from '../../api/sqlserver'
 import { fetchLinks as fetchLinksOracle } from '../../api/oracle'
+import Timer from '@/components/Timer';
 export default {
   name: 'SwitchList',
   mixins: [baseMixin, batchSwitchMinxin],
@@ -247,7 +252,8 @@ export default {
   },
   components: {
     IIcon,
-    BatchSwitchModal
+    BatchSwitchModal,
+    Timer
   }
 }
 </script>
@@ -256,7 +262,7 @@ export default {
 @import '../../style/common.scss';
 .disasterRecoverCard {
   margin-bottom: 15px;
-  color: #999999;
+  // color: #999999;
 }
 .planInfo {
   h5 {

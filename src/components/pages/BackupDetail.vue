@@ -80,10 +80,10 @@
                   <el-col :span="8">
                     <el-form-item label="源文件路径："
                                   v-if="['windows', 'linux'].includes(target)">
-                      <span>{{ details.backupPath }}</span>
+                      <span>{{ config.sourcePath }}</span>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="8">
+                  <!-- <el-col :span="8">
                     <el-form-item label="存储目标路径："
                                   v-if="target === 'linux'">
                       <span>{{ details.pointTargetPath }}</span>
@@ -94,13 +94,13 @@
                                   v-if="target === 'linux'">
                       <span>{{ details.nfsTargetPath }}</span>
                     </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
+                  </el-col> -->
+                  <!-- <el-col :span="8">
                     <el-form-item v-if="target === 'windows'"
                                   label="是否备份系统：">
                       <span>{{ details.backupSystem === 'sys' ? '是' : '否' }}</span>
                     </el-form-item>
-                  </el-col>
+                  </el-col> -->
                 </el-row>
                 <el-row class="machineRow">
                   <el-col :span="8">
@@ -190,7 +190,7 @@
                         class="result-detail-form">
                   <el-form-item :class="$style.detailFormItem"
                                 label="备份类型">
-                    <span>{{scope.row.backupType |backupTypeFilter}}</span>
+                    <span>{{backupTypeFilterMethod(scope.row.backupType)}}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 label="存储目标路径">
@@ -214,11 +214,11 @@
                                 label="结束时间">
                     <span>{{ scope.row.endTime }}</span>
                   </el-form-item>
-                  <el-form-item :class="$style.detailFormItem"
+                  <!-- <el-form-item :class="$style.detailFormItem"
                                 label="NFS目标路径"
                                 v-if="target==='linux'">
                     <span>{{ scope.row.nfsTargetPath }}</span>
-                  </el-form-item>
+                  </el-form-item> -->
                   <el-form-item :class="$style.detailFormItem"
                                 label="文件标识符"
                                 v-if="target==='windows'">
@@ -226,7 +226,7 @@
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 label="大小">
-                    <span>{{ scope.row.size }}</span>
+                    <span>{{ ['windows', 'linux'].includes(target) ? fmtSizeFn(scope.row.size) : scope.row.size }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
                                 label="状态">
@@ -252,11 +252,11 @@
                 </el-form>
               </template>
             </el-table-column>
-            <el-table-column label="文件标识符"
+            <!-- <el-table-column label="文件标识符"
                             prop="versionInfo"
                             v-if="target==='windows'"
                             min-width="180px"
-                            align="center"></el-table-column>
+                            align="center"></el-table-column> -->
             <el-table-column label="源文件路径"
                             v-if="['windows', 'linux'].includes(target)"
                             prop="sourcePath"
@@ -275,7 +275,7 @@
                             align="center"
                             header-align="center">
               <template slot-scope="scope">
-                <span>{{scope.row.backupType |backupTypeFilter}}</span>
+                <span>{{backupTypeFilterMethod(scope.row.backupType)}}</span>
               </template>
             </el-table-column>
             <el-table-column label="开始时间"
@@ -290,7 +290,11 @@
             <el-table-column label="大小"
                             prop="size"
                             min-width="100px"
-                            align="center"></el-table-column>
+                            align="center">
+              <template slot-scope="scope">
+                <span>{{ ['windows', 'linux'].includes(target) ? fmtSizeFn(scope.row.size) : scope.row.size }}</span>
+              </template>
+            </el-table-column>
             <el-table-column label="状态"
                             prop="state"
                             min-width="70px"
@@ -322,6 +326,7 @@ import {
   backupTypeMapping,
   backupResultMapping,
   yesOrNoMapping,
+  filehostBackupTypeMapping
 } from '@/utils/constant';
 
 export default {
@@ -352,9 +357,11 @@ export default {
     timeStrategyMapping(val) {
       return timeStrategyMapping[val];
     },
-    backupTypeFilter(val) {
-      return backupTypeMapping[val];
-    },
+    // backupTypeFilter(val) {
+    //   // filehostBackupTypeMapping[val];
+    //   console.log(this.target, this.backupStrategy)
+    //   return backupTypeMapping[val];
+    // },
     logTypeFilter(val) {
       return yesOrNoMapping[val];
     },
@@ -370,6 +377,12 @@ export default {
       }).then(() => {
         this.infoLoading = false;
       });
+    },
+    backupTypeFilterMethod(val) {
+      if (['windows', 'linux'].includes(this.target)) {
+        return filehostBackupTypeMapping[val];
+      }
+      return backupTypeMapping[val];
     },
     // 备份集状态码转文字
     stateConverter(stateCode) {

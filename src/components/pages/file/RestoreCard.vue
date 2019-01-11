@@ -1,11 +1,17 @@
 <template>
   <el-card :class="$style.restoreCard"
-           v-if="restorePlan.id && restorePlan.id">
+           v-if="restorePlan.id && restorePlan.id"
+           :style="[2, 3].includes(restorePlan.state) ? 'color: #999999;' : ''">
     <div slot="header">
       <el-tag size="mini"
               color="#fa4211"
               style="color: #ffffff">恢复</el-tag>
-      <span>{{restorePlan.name}}</span>
+      <span>{{restorePlan.planName}}</span>
+      <i v-if="![2,3].includes(restorePlan.state)"
+         style="float: right; margin: 3px 0 3px 10px;"
+         class="el-icon-refresh state-refresh"
+         :class="$style.stateRefresh"
+         @click="refreshBtnClick"></i>
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
@@ -32,8 +38,7 @@
                         effect="dark">
               <span :class="$style.pathOverFlow">{{ restorePlan.sourcePath }}</span>
             </el-tooltip>
-            <i class="el-icon-d-arrow-right"
-               :class="$style.pathDirection"></i>
+            <i class="el-icon-d-arrow-right"></i>
             <el-tooltip :content="restorePlan.targetPath"
                         placement="top"
                         effect="dark">
@@ -43,7 +48,11 @@
           <el-form-item label="挂载点路径"
                         v-if="restorePlan.restoreType === 2"
                         style="100%">
-            <span>{{ restorePlan.pointPath }}</span>
+            <el-tooltip :content="restorePlan.pointPath"
+                        placement="top"
+                        effect="dark">
+              <span :class="$style.pathOverFlow">{{ restorePlan.pointPath }}</span>
+            </el-tooltip>
           </el-form-item>
           <el-form-item label="恢复排除文件"
                         v-if="restorePlan.restoreType === 1 && restorePlan.excludeFiles.length>0"
@@ -62,14 +71,14 @@
             <h5>当前状态</h5>
             <div>
               <div>
-                <span v-if="restorePlan.restoreType === 2" :class="operationStateStyle">{{ restorePlan.diskInfo || '-' }}</span>
+                <span v-if="[2,3].includes(restorePlan.restoreType)" :class="operationStateStyle">{{ restorePlan.diskInfo || '-' }}</span>
               </div>
               <el-tooltip :content="operationState"
                           placement="top-end"
                           effect="light">
                 <i :class="formatIcon(restorePlan.state)" style="float:right"></i>
               </el-tooltip>
-              <el-progress style="margin-right:20px" :percentage="restorePlan.percentage" :status="progressStatus" :text-inside="true" :stroke-width="17">
+              <el-progress style="margin-right:20px" :percentage="isNaN(restorePlan.percentage)?0:restorePlan.percentage" :status="progressStatus" :text-inside="true" :stroke-width="17">
               </el-progress>
             </div>
           </li>
@@ -77,22 +86,27 @@
             <h5>恢复开始时间</h5>
             <div>{{restorePlan.startTime }}</div>
           </li>
-          <li v-if="restorePlan.restoreType === 2">
+          <li v-if="[2,3].includes(restorePlan.restoreType)">
             <h5>已持续时间</h5>
             <div v-if="restorePlan.consume">
-              <timer :val="Number(restorePlan.consume)"></timer>
+              <timer v-if="restorePlan.state === 1" :val="Number(restorePlan.consume)"></timer>
+              <span v-else>{{restorePlan.consume | durationFilter}}</span>
             </div>
             <div v-else>-</div>
           </li>
           <li>
-            <h5>{{type === 'windows' ? '总大小' : '已恢复大小'}}
+            <h5>文件总大小</h5>
+            <div>{{fmtSize(restorePlan.size) || '-'}}</div>
+          </li>
+          <li>
+            <h5>已恢复大小
               <el-tooltip class="item" effect="dark"
-                          :content="type === 'windows' ? '恢复源总大小' : '已恢复文件总大小，非本次恢复大小'"
+                          content="已恢复文件总大小，非本次恢复大小"
                           placement="left">
                 <i class="el-icon-info"></i>
               </el-tooltip>
             </h5>
-            <div>{{restoreSize || '-'}}</div>
+            <div>{{fmtSize(restorePlan.progress) || '-'}}</div>
           </li>
         </ul>
       </el-col>
@@ -101,9 +115,19 @@
             :class="$style.more"
             :gutter="10">
       <el-col :span="8"
-              v-for="(restoreFile, index) in restorePlan.restoreFiles"
+              v-for="(restoreFile, index) in restorePlan.restorePath"
               :key="index">
-        <el-card shadow="always">
+        <el-card shadow="always"
+                 :class="$style.childFileCard">
+          <div slot="header" :class="$style.childFileHead">
+            <span>ID: {{ restoreFile.id }}</span>
+            <el-tooltip :content="`${restoreFile.errorMsg}`"
+                        placement="top"
+                        :open-delay="300"
+                        :disabled="!(restoreFile.state === 3 && restoreFile.errorMsg)">
+              <span style="float: right"><i :class="formatIcon(restoreFile.state)"></i>{{ operationStateConvert(restoreFile.state) }}</span>
+            </el-tooltip>
+          </div>
           <el-row>
             <el-col :span="12">
               <el-tooltip :content="`文件备份源路径: ${restoreFile.sourcePath}`"
@@ -112,32 +136,41 @@
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileSourcePath"
                           :class="$style.restoreFileInfoIcon"></i-icon>
-                  <span>{{restoreFile.sourcePath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{restoreFile.sourcePath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
             <el-col :span="12" :class="$style.restoreFileState">
-              <span v-if="restoreFile.operateResult === 0"><i :class="formatIcon(restoreFile.operateResult)"></i>未开始</span>
-              <span v-else-if="restoreFile.operateResult === 1">
-                <el-progress :percentage="fmtProgress(restoreFile)"></el-progress>
-              </span>
-              <span v-else><i :class="formatIcon(restoreFile.operateResult)"></i>已结束</span>
+              <el-tooltip content="已恢复大小"
+                          placement="top"
+                          :open-delay="300">
+                <el-progress :percentage="isNaN(restoreFile.percentage)?0:restoreFile.percentage" :class="$style.restoreFileProgress">
+                </el-progress>
+              </el-tooltip>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-tooltip :content="`备份集存放路径: ${restoreFile.targetPath}`"
+              <el-tooltip :content="`恢复集存放路径: ${restoreFile.targetPath}`"
                           placement="right"
                           :open-delay="300">
                 <div :class="$style.wordsOverFlow">
                   <i-icon name="fileTargetPath"
                       :class="$style.restoreFileInfoIcon"></i-icon>
-                  <span>{{restoreFile.targetPath}}</span>
+                  <el-tag :class="$style.childFileTag"
+                          type="warning"
+                          size="mini">
+                    <span>{{restoreFile.targetPath}}</span>
+                  </el-tag>
                 </div>
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(restoreFile.operateResult)"
+                    v-if="[1,2,3].includes(restoreFile.state)"
                     :class="$style.restoreFileState">
               <el-tooltip content="开始时间"
                           placement="top"
@@ -150,20 +183,20 @@
             <el-col :span="12">
               <i-icon name="size"
                       :class="$style.restoreFileInfoIcon"></i-icon>
-              <el-tooltip content="文件大小"
+              <el-tooltip content="源文件总大小"
                           placement="right"
                           :open-delay="300">
-                <span>{{restoreFile | sizeFormat(type) }}</span>
+                <span>{{ fmtSize(restoreFile.sourceSize) }}</span>
               </el-tooltip>
             </el-col>
             <el-col :span="12"
-                    v-if="[1,2].includes(restoreFile.operateResult)"
+                    v-if="[1,2,3].includes(restoreFile.state)"
                     :class="$style.restoreFileState">
               <el-tooltip content="已持续时间"
                           placement="top"
                           :open-delay="300">
-                <timer :val="Number(restoreFile.consumeTime)" v-if="restoreFile.operateResult === 1"></timer>
-                <span v-else>{{ restoreFile.consumeTime | durationFilter }}</span>
+                <timer :val="Number(restoreFile.consume)" v-if="restoreFile.state === 1"></timer>
+                <span v-else>{{ restoreFile.consume | durationFilter }}</span>
               </el-tooltip>
             </el-col>
           </el-row>
@@ -212,24 +245,13 @@ export default {
       isShow: false
     }
   },
-  created() {
-    console.log(this.id);
-  },
-  mounted() {
-    // console.log(this.restorePlan);
-    // console.log(this.restorePlan);
-  },
   computed: {
-    // restorePlan() {
-    //   const { config, ...operation } = this.restorePlan;
-    //   return operation;
-    // },
-    // restorePlan() {
-    //   console.log(this.restorePlan);
-    //   return this.restorePlan.config;
-    // },
     operationState() {
-      return operationStateMapping[this.restorePlan.state];
+      const content = operationStateMapping[this.restorePlan.state];
+      if(this.restorePlan.state === 3 && this.restorePlan.errorMsg) {
+        return `${content}: ${this.restorePlan.errorMsg}`;
+      }
+      return content;
     },
     restoreType() {
       return filehostRestoreTypeMapping[this.restorePlan.restoreType];
@@ -252,69 +274,6 @@ export default {
         return 'success';
       }else return 'text';
     },
-    diskInfo(){
-      let str = '';
-      if(this.type === 'windows'){
-        if(this.restorePlan.state === 0){
-          str = '未开始';
-        }else if(this.restorePlan.state === 2){
-          str = '已完成';
-        }else if(this.restorePlan.state === 1){
-          str = `正在恢复卷(${this.disk})`;
-        }
-      }
-      return str;
-    },
-    progressNum(){
-      const {process: data, size, state} = this.restorePlan;
-      if(state === 2){
-        return 100;
-      }
-      if(this.type === 'windows'){
-        if(!data){
-          return 0;
-        }
-        const reg = /.*\(([^\(\)]*)\).*\(([^\(\)]*)\).*/;
-        const result = data.match(reg);
-        if(!result){
-          return 0;
-        }
-        if(result[1]){
-          this.disk = result[1];
-        }
-        if(result[2]){
-          let num = Number(result[2].substring(0,result[2].length - 1));
-          return num || num === 0 ? num : 0;
-        }
-      }else if(this.type === 'linux'){
-        if(data && size){
-          if(Number(size)){
-            // 取百分比
-            let num = (Number(data) / Number(size)) * 100;
-            if (state === 0 && num >= 100) {
-              num = 100;
-            }else if(num > 0 && num < 1){
-              num = 1;
-            }else{
-              // 此处不能作四舍五入
-              num = parseInt(num > 99 ? 99 : num);
-            }
-            return num || num === 0 ? num : 0;
-          }
-        }
-      }
-    },
-    restoreSize(){
-      let {process, size, state} = this.restorePlan;
-      let fmtSize = 0;
-      if(this.type === 'linux'){
-        process = Number(process);
-        fmtSize = fmtSizeFn(process);
-      }else if(this.type === 'windows'){
-        fmtSize = fmtSizeFn(Number(size));
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    },
     showTxt() {
       return this.isShow?'收起':'查看更多'
     },
@@ -322,36 +281,24 @@ export default {
       return this.isShow?'el-icon-arrow-up':'el-icon-arrow-down';
     }
   },
-  filters:{
-    sizeFormat(data, type){
-      let fmtSize = null;
-      const { state } = data;
-      if(type === 'linux'){
-        const process = Number(data.progress);
-        const size = Number(data.size);
-        if(process > size){
-          fmtSize = fmtSizeFn(size);
-        }else{
-          fmtSize = fmtSizeFn(process);
-        }
-      }else if(type === 'windows'){
-        const process = Number(data.progress.replace(/[^0-9]/ig,""));
-        const size = Number(data.size);
-        const restoreSize = size * process / 100;
-        fmtSize = fmtSizeFn(restoreSize);
-      }
-      return !fmtSize ? (state !== 0 ? 0 : '-') : fmtSize;
-    }
-  },
   methods: {
+    operationStateConvert(state) {
+      return operationStateMapping[state];
+    },
     // 刷新单个备份计划
     refreshBtnClick() {
+      this.$emit('refresh', this.id);
     },
     planDeleteBtnClick() {
-
-    },
-    planUpdateBtnClick() {
-
+      this.$confirm('即将删除该恢复计划，是否继续？', '提示', {
+        type: 'warning',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      })
+        .then(() => {
+          this.$emit('deletePlan', this.restorePlan.id);
+        })
+        .catch(() => {});
     },
     formatIcon(data){
       if (data === 0) {
@@ -359,7 +306,7 @@ export default {
       } else if (data === 1) {
         return this.$style.loadingColor + ' el-icon-loading';
       } else if(data === 3) {
-        return this.$style.errorColor + ' el-icon-warning';
+        return this.$style.errorColor + ' el-icon-error';
       } else if(data === 2){
         return this.$style.successColor + ' el-icon-success';
       }else return '';
@@ -367,19 +314,8 @@ export default {
     showMore() {
       this.isShow = !this.isShow;
     },
-    fmtProgress(data){
-      let process = 0;
-      if(this.type === 'linux'){
-        const progress = Number(data.progress);
-        const size = Number(data.size);
-        process = Math.round((progress / size) * 100);
-      }else if(this.type === 'windows'){
-        process = Number(data.progress.replace(/[^0-9]/ig,""));
-      }
-      if(process > 99){
-        process = 99;
-      }
-      return process ? process : 0;
+    fmtSize(size) {
+      return fmtSizeFn(size);
     }
   },
   components: {
@@ -404,6 +340,10 @@ export default {
     transform: rotate(180deg);
   }
 }
+.childFileHead {
+  color: #888888;
+  font-size: 12px;
+}
 .operationInfo {
   h5 {
     font-weight: 400;
@@ -420,7 +360,7 @@ export default {
     margin: 0;
   }
   li {
-    margin: 20px 0;
+    margin: 10px 0;
   }
 }
 .restoreFileInfoIcon {
@@ -428,12 +368,18 @@ export default {
   display: inline-block;
   vertical-align: -0.2em;
 }
+.restoreFileProgress > div {
+  font-size: 12px !important;
+  color: #888888;
+}
 .more {
   font-size: 14px;
-  height: 110px;
-  overflow: auto;
-  col {
-    height: 110px;
+  .childFileCard {
+    margin-bottom: 5px;
+  }
+  .childFileCard > div:first-child {
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }
 .showMore {
@@ -446,15 +392,25 @@ export default {
   display: inline-block;
   text-overflow: ellipsis;
 }
+.childFileTag {
+  display: inline-block;
+  float: right;
+  max-width: 80%;
+  span {
+    max-width: 100%;
+    display: inline-block;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 .pathOverFlow {
   white-space:nowrap;
   overflow: hidden;
+  vertical-align: top;
   max-width: 230px;
   display: inline-block;
   text-overflow: ellipsis;
-}
-.pathDirection {
-  vertical-align: 0.5em;
 }
 .restoreFileState {
   font-size: 0.8em;

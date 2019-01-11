@@ -1,20 +1,21 @@
 <template>
   <section>
-    <el-table :data="data"
-              >
+    <el-table :data="backupResults">
       <el-table-column type="expand">
         <template slot-scope="scope">
           <backup-result  :data="scope.row.backupFiles"
+                          :backupType="scope.row.backupType"
                           :type="type"
-                          @single-restore-btn-click="restoreBtnClick"></backup-result>
+                          @single-restore-btn-click="restoreResultBtnClick"
+                          @refresh="refreshResults"></backup-result>
         </template>
       </el-table-column>
       <el-table-column label="备份计划名称"
                        prop="name"
                        min-width="180px"
                        align="center"></el-table-column>
-      <el-table-column label="备份开始时间"
-                       prop="startTime"
+      <el-table-column label="计划创建时间"
+                       prop="createTime"
                        min-width="180px"
                        align="center"
                        header-align="center"></el-table-column>
@@ -27,19 +28,19 @@
           <span>{{scope.row.backupType |fileHostBackupTypeFilter}}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column label="状态"
+      <el-table-column label="状态"
                        prop="state"
                        min-width="70px"
                        align="center">
         <template slot-scope="scope">
-          <i v-if="getState(scope.row) === 0"
+          <i v-if="scope.row.state === 0"
              class="el-icon-success"
              :class="$style.successColor"></i>
           <i v-else
              class="el-icon-error"
              :class="$style.errorColor"></i>
         </template>
-      </el-table-column> -->
+      </el-table-column>
       <el-table-column label="操作"
                        min-width="100px"
                        align="center">
@@ -47,6 +48,11 @@
           <el-button type="text"
                      size="small"
                      @click="del(scope.row)">删除</el-button>
+          <!-- <el-button type="text"
+                     style="margin-left:0"
+                     size="small"
+                     :disabled="scope.row.backupType === 3"
+                     @click="restorePlanBtnClick(scope.row)">恢复</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -54,8 +60,8 @@
 </template>
 <script>
 import { filehostBackupTypeMapping } from '@/utils/constant';
-import BackupResult from '@/components/pages/fileHost/BackupResult';
-import {deleteResultByPlanId} from '@/api/fileHost';
+import BackupResult from '@/components/pages/file/BackupResult';
+import { deleteResultByPlanId } from '@/api/file';
 export default {
   name: 'BackupResultList',
   components: {
@@ -72,6 +78,16 @@ export default {
     },
   },
   computed: {
+    backupResults() {
+      return this.data.map(result => {
+        if(result.backupFiles.find(item => item.state === 1)) {
+          result.state = 1;
+        } else {
+          result.state = 0;
+        }
+        return result;
+      })
+    }
   },
   filters: {
     fileHostBackupTypeFilter(val) {
@@ -94,9 +110,11 @@ export default {
       return state;
     },
     // 点击恢复按钮
-    restoreBtnClick({ id }) {
-      console.log(111)
-      this.$emit('single-restore-btn-click', id);
+    restoreResultBtnClick(id, backupType, type) {
+      this.$emit('single-restore-btn-click', id, backupType, type);
+    },
+    restorePlanBtnClick({ id, backupType }) {
+      this.$emit('single-restore-btn-click', id, backupType, 'restorePlan');
     },
     del(row) {
       this.$confirm('请确认是否删除', '提示', {
@@ -108,12 +126,18 @@ export default {
           const id = row.id;
           deleteResultByPlanId(id).then(res => {
             const {message} = res.data;
-            this.$message.success(message)
+            this.$message.success(message);
           }).catch( error => {
             this.$message.error(error);
-          });
+          }).then(() => {
+            this.refreshResults();
+          })
         })
         .catch(() => { });
+      // this.$emit('deleteResult', row.id);
+    },
+    refreshResults() {
+      this.$emit('refresh');
     }
   }
 };

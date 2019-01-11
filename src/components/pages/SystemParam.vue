@@ -24,11 +24,13 @@
                        align="center"></el-table-column>
       <el-table-column prop="shareUrl"
                        label="地址"
-                       min-width="250"
+                       min-width="180"
+                       show-overflow-tooltip
                        align="center"></el-table-column>
       <el-table-column prop="mountUrl"
-                       label="路径"
-                       min-width="250"
+                       label="挂载点"
+                       min-width="180"
+                       show-overflow-tooltip
                        align="center"></el-table-column>
       <el-table-column label="状态"
                        min-width="100"
@@ -56,32 +58,36 @@
                        align="center"
                        prop="state">
         <template slot-scope="scope">
-          <el-button type="primary"
-                     icon="el-icon-edit"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="handleUpdate(scope.$index, scope.row)"></el-button>
-          <el-button type="danger"
-                     icon="el-icon-delete"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="handleDelete(scope.$index, scope.row)"></el-button>
-          <el-button type="success"
-                     icon="el-icon-check"
-                     circle
-                     :class="$style.miniCricleIconBtn"
-                     @click="changeState(scope.$index, scope.row)"
-                     v-if="scope.row.state===1"
-                     size="mini"></el-button>
-          <el-button type="info"
-                     icon="el-icon-minus"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     v-else
-                     @click="changeState(scope.$index, scope.row)"></el-button>
+          <el-tooltip content="修改"
+                      placement="top"
+                      effect="light">
+            <el-button type="primary"
+                      icon="el-icon-edit"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="handleUpdate(scope.$index, scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip content="删除"
+                      placement="top"
+                      effect="light">
+            <el-button type="danger"
+                      icon="el-icon-delete"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="handleDelete(scope.$index, scope.row)"></el-button>
+          </el-tooltip>
+          <el-tooltip :content="`${scope.row.state===1?'启用':'禁用'}`"
+                      placement="top"
+                      effect="light">
+            <el-button :type="`${scope.row.state===1?'success':'info'}`"
+                       :icon="`${scope.row.state===1?'el-icon-check':'el-icon-minus'}`"
+                       circle
+                       :class="$style.miniCricleIconBtn"
+                       @click="changeState(scope.$index, scope.row)"
+                       size="mini"></el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
@@ -99,10 +105,18 @@
                :rules="rules"
                label-width="130px"
                size="small">
-        <el-form-item label="系统类别"
+        <!-- <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
           <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
+        </el-form-item> -->
+        <el-form-item label="系统类别"
+                      prop="sysType">
+          <el-radio-group v-model="formData.sysType">
+            <el-radio :label="1">{{ formData.useType === 3 ? 'Windows Share' : 'Windows'}}</el-radio>
+            <el-radio :label="2">{{ formData.useType === 3 ? 'Linux NFS' : 'Linux' }}</el-radio>
+            <el-radio :label="3" v-if="formData.useType === 3">Windows NFS</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
@@ -114,26 +128,35 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
-                      v-if="formData.sysType === 1 && formData.useType === 2"
+                      v-if="[1, 3].includes(formData.sysType) && formData.useType === 2"
                       prop="windowsType">
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item label="地址"
+        <el-form-item :label="`${formData.sysType === 1 ? '共享路径' : 'NFS地址'}`"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
-        <el-form-item label="路径"
-                      v-if="formData.sysType === 2 && (formData.useType ===3 || formData.useType === 7)"
+        <el-form-item label="挂载点"
+                      v-if="[2, 3].includes(formData.sysType)"
+                      :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
                       prop="mountUrl">
-          <el-input v-model="formData.mountUrl"></el-input>
+          <el-input v-model="formData.mountUrl"
+                    v-if="formData.sysType === 2"></el-input>
+          <el-select v-model="formData.mountUrl"
+                     v-if="formData.sysType === 3"
+                     placeholder="请选择">
+            <el-option v-for="item in Array.from(new Array(26), (val, index) => (String.fromCharCode(index+65))+':')"
+                       :key="item"
+                       :label="item"
+                       :value="item"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="状态"
                       prop="state">
           <el-radio v-model="formData.state" :label="0">启用</el-radio>
           <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <!-- <template v-if="formData.sysType === 1 && formData.useType === 3"> -->
         <template v-if="isShowLogin">
           <el-form-item label="系统登录名"
                         prop="loginName">
@@ -180,8 +203,11 @@
                size="small">
         <el-form-item label="系统类别"
                       prop="sysType">
-          <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
-          <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
+          <el-radio-group v-model="formData.sysType">
+            <el-radio :label="1">{{ formData.useType === 3 ? 'Windows Share' : 'Windows'}}</el-radio>
+            <el-radio :label="2">{{ formData.useType === 3 ? 'Linux NFS' : 'Linux' }}</el-radio>
+            <el-radio :label="3" v-if="formData.useType === 3">Windows NFS</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
@@ -193,27 +219,35 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
-                      v-if="formData.sysType === 1 && formData.useType === 2"
+                      v-if="[1, 3].includes(formData.sysType) && formData.useType === 2"
                       prop="windowsType">
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
         </el-form-item>
-        <el-form-item label="地址"
+        <el-form-item :label="`${formData.sysType === 1 ? '共享路径' : 'NFS地址'}`"
                       prop="shareUrl">
           <el-input v-model="formData.shareUrl"></el-input>
         </el-form-item>
-        <el-form-item label="路径"
-                      v-if="formData.sysType === 2 && (formData.useType===3 || formData.useType === 7)"
+        <el-form-item label="挂载点"
+                      v-if="[2, 3].includes(formData.sysType)"
                       :rules="formData.useType === 7 ? [...validate.maxLength100, { required: true, message: '请输入路径', trigger: 'blur' }]: validate.maxLength100"
                       prop="mountUrl">
-          <el-input v-model="formData.mountUrl"></el-input>
+          <el-input v-model="formData.mountUrl"
+                    v-if="formData.sysType === 2"></el-input>
+          <el-select v-model="formData.mountUrl"
+                     v-if="formData.sysType === 3"
+                     placeholder="请选择">
+            <el-option v-for="item in Array.from(new Array(26), (val, index) => (String.fromCharCode(index+65))+':')"
+                       :key="item"
+                       :label="item"
+                       :value="item"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="状态"
                       prop="state">
           <el-radio v-model="formData.state" :label="0">启用</el-radio>
           <el-radio v-model="formData.state" :label="1">禁用</el-radio>
         </el-form-item>
-        <!-- <template v-if="(formData.sysType === 1 && formData.useType===3) || formData.windowsType === 1"> -->
         <template v-if="isShowLogin">
           <el-form-item label="系统登录名"
                         prop="loginName">
@@ -254,6 +288,13 @@ export default {
         callback();
       }
     };
+    const validateSysType = (rule, value, callback) => {
+      if (!value || (this.formData.useType !== 3 && value === 3)) {
+        this.$message.warning('请选择系统类别!');
+      } else {
+        callback();
+      }
+    }
     return {
       systemParameters: [],
       createModalVisible: false,
@@ -267,6 +308,9 @@ export default {
       hiddenPassword: true,
       validate: validate,
       rules: {
+        sysType: [{
+          validator: validateSysType, trigger: 'blur'
+        }],
         shareUrl: [
           { required: true, message: '请输入地址', trigger: 'blur' },
         ],
@@ -326,7 +370,11 @@ export default {
     judgeSystem(data) {
       let str = '';
       if(sysTypeMapping[data.sysType]){
-        str += sysTypeMapping[data.sysType];
+        if(data.useType === 3) {
+          str += sysTypeMapping[data.sysType];
+        } else {
+          str += data.sysType === 1 ? 'Windows' : 'Linux';
+        }
       }
       if(data.useType === 2 && data.sysType === 1 && windowsTypeMapping[data.windowsType]){
         str += windowsTypeMapping[data.windowsType];
@@ -337,18 +385,31 @@ export default {
       return useTypeMapping[data.useType];
     },
     changeState(index, row) {
-      let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
-      newRow.state = newRow.state===0?1:0;
-      modifyOne(newRow)
-        .then(response => {
-          this.$message.success('修改成功');
-          this.systemParameters.splice(index, 1, response.data.data);
-          this.systemParameters.sort((a,b) =>
-            {return a.state-b.state});
+      this.$confirm(`此操作将${row.state === 0? '禁用' : '启用'}${row.shareUrl}，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          let newRow = Object.assign({},this.systemParameters.find(list => list.id === row.id));
+          newRow.state = newRow.state===0?1:0;
+          modifyOne(newRow)
+            .then(response => {
+              this.$message.success('修改成功');
+              this.systemParameters.splice(index, 1, response.data.data);
+              this.systemParameters.sort((a,b) =>
+                {return a.state-b.state});
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
         })
-        .catch(error => {
-          this.$message.error(error);
-        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作!'
+          })
+        });
     },
     handleUpdate(index, row) {
       this.listId = row.id;

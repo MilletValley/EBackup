@@ -29,20 +29,51 @@
           <el-radio v-model="formData.hostType"
                     :label="2">易备环境</el-radio>
         </el-form-item>
-        <el-form-item label="操作系统"
-                      prop="osName">
-          <el-select v-model="formData.osName"
-                     placeholder="请选择">
-            <el-option v-for="item in ['Windows', 'Linux']"
-                       :key="item.value"
-                       :value="item"></el-option>
-          </el-select>
+        <el-form-item label="用途类型"
+                      prop="databaseType">
+          <el-radio-group v-model="formData.databaseType">
+            <el-radio v-for="db in databaseUseType"
+                      :key="db.value"
+                      :label="db.value">{{ db.text }}</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="临时IP"
-                      v-if="formData.osName==='Windows'"
-                      prop="serviceIp">
-          <el-input v-model="formData.serviceIp"></el-input>
+        <el-row>
+          <el-col :span="12" v-if="this.formData.databaseType===1">
+            <el-form-item label="oracle版本"
+                          prop="oracleVersion">
+              <el-select v-model="formData.oracleVersion"
+                        placeholder="请选择">
+                <el-option v-for="(item, index) in Object.keys(oracleVersionMapping)"
+                          :key="index"
+                          :label="oracleVersionMapping[Number(item)]"
+                          :value="Number(item)"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="操作系统"
+                          prop="osName">
+              <el-select v-model="formData.osName"
+                        placeholder="请选择">
+                 <el-option v-for="(item, index) in ['Windows', 'Linux', 'AIX']"
+                          :key="index"
+                          v-if="[0, 1].includes(index) || (formData.databaseType === 1 && formData.oracleVersion === 2)"
+                          :value="item"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="formData.osName === 'Windows' && formData.databaseType === 2">
+            <el-form-item label="Windows系统版本"
+                      prop="windowsType">
+          <el-select v-model="formData.windowsType" placeholder="请选择">
+                <el-option v-for="item in [{label: 1, value: '2003'}, {label: 2, value: '2008及以上'}]"
+                           :key="item.label"
+                           :label="item.value"
+                           :value="item.label"></el-option>
+              </el-select>
         </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="是否Rac环境"
                       v-if="formData.osName==='Linux'"
                       prop="isRacMark">
@@ -66,34 +97,14 @@
           </el-col>
         </el-row>
         <el-form-item label="服务IP"
-                      v-if="formData.osName==='Linux'"
+                      v-if="formData.osName === 'Linux'"
                       prop="serviceIp">
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
-        <el-form-item label="用途类型"
-                      prop="databaseType">
-          <el-radio v-for="db in databaseUseType"
-                    :key="db.value"
-                    v-model="formData.databaseType"
-                    :label="db.value">{{ db.text }}</el-radio>
-        </el-form-item>
-        <el-form-item label="Windows系统版本"
-                      v-if="formData.osName === 'Windows' && formData.databaseType === 2"
-                      prop="windowsType">
-          <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
-          <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
-        </el-form-item>
-        <el-form-item label="oracle版本"
-                      prop="oracleVersion"
-                      v-if="this.formData.databaseType===1">
-          <el-select v-model="formData.oracleVersion"
-                     placeholder="请选择">
-            <el-option v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-            </el-option>
-          </el-select>
+        <el-form-item label="临时IP"
+                      v-if="formData.osName==='Windows'"
+                      prop="serviceIp">
+          <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
         <!--windows下 10G Oracle版本显示 -->
         <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType===1&&this.formData.osName==='Windows'">
@@ -162,6 +173,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { modifyOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
+import { oracleVersionMapping } from '@/utils/constant';
 
 export default {
   name: 'HostUpdateModal',
@@ -185,7 +197,8 @@ export default {
     };
     return {
       validateCheckPassword,
-      hiddenPassword1: true
+      hiddenPassword1: true,
+      oracleVersionMapping
     }
   },
   methods: {
@@ -210,6 +223,18 @@ export default {
       this.hiddenPassword = true;
       this.hiddenPassword1 = true;
     },
+  },
+  watch: {
+    'formData.databaseType': function(newVal, oldVal) {
+      if(oldVal === 1) {
+        this.formData.oracleVersion = '';
+      }
+    },
+    'formData.oracleVersion': function(newVal, oldVal) {
+      if(oldVal === 2 && this.formData.osName === 'AIX') {
+        this.formData.osName = '';
+      }
+    }
   },
   components: {
     InputToggle,

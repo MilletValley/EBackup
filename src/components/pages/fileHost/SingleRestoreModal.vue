@@ -64,7 +64,6 @@
                 </div>
               </el-tree>
             </div>
-            
             <el-input v-model="formData.originDetailInfo"
                       ref="originPathInput"
                       slot="reference"></el-input>

@@ -111,8 +111,9 @@ const filterMixin = {
 const sockMixin = {
   data() {
     return {
+      url: '/socket', // 握手时使用的url
       stompClient: '',
-      timer: ''
+      heartInterval: ''
     };
   },
   mounted() {
@@ -121,27 +122,30 @@ const sockMixin = {
   beforeDestroy() {
     // 页面离开时断开连接,清除定时器
     this.disconnect();
-    clearInterval(this.timer);
+    clearInterval(this.heartInterval);
   },
   methods: {
     initWebsocket() {
       this.connection();
       const that = this;
-      this.timer = setInterval(() => {
+      this.heartInterval = setInterval(() => {
         try {
           that.stompClient.send('test');
         } catch (err) {
-          console.warn('断线了');
-          console.error(err);
+          console.warn('断线了, 正在重新连接');
+          // console.error(err);
           that.connection();
         }
       }, 30000);
     },
     connection() {
       // 建立连接对象
-      const socket = new SockJS('/socket');
+      const socket = new SockJS(this.url);
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
+      // this.stompClient.debug = () => {
+      //   // console.warn('不打印日志信息');
+      // };
       // 定义客户端的认证信息,按需求配置
       const headers = {
         Authorization: '',
@@ -157,11 +161,12 @@ const sockMixin = {
         // )// 用户加入接口
       }, this.errorCallback);
       this.stompClient.heartbeat.outgoing = 20000;
-      this.stompClient.heartbeat.incoming = 0;
+      this.stompClient.heartbeat.incoming = 20000;
     },
     errorCallback(err) {
-      console.error('失败');
+      console.error('连接失败');
       console.error(err);
+      // this.stompClient = null;
     },
     connectCallback(client) {
       const headers = {};

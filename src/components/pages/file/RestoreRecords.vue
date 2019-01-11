@@ -53,27 +53,31 @@
           </el-form>
           <el-table v-else
                     :data="props.row.filePaths"
+                    style="font-size: 12px;"
                     :default-sort="{ prop: 'startTime', order: 'ascending' }">
             <el-table-column prop="sourceFileName"
                              label="文件名"
                              align="center"
                              min-width="100px"></el-table-column>
-            <el-table-column prop="大小"
-                             label="sourceSize"
+            <el-table-column prop="sourceSize"
+                             label="大小"
                              align="center"
                              min-width="80px"
                              :formatter="fmtSize"></el-table-column>
             <el-table-column prop="sourcePath"
                              label="源文件路径"
                              align="center"
+                             show-overflow-tooltip
                              min-width="150px"></el-table-column>
             <!-- 相同 -->
             <el-table-column prop="targetPath"
                              label="存放路径"
                              align="center"
+                             show-overflow-tooltip
                              min-width="150px"></el-table-column>
             <el-table-column prop="pointPath"
                              label="nfs挂载路径"
+                             show-overflow-tooltip
                              align="center"
                              min-width="150px"></el-table-column>
             <el-table-column label="恢复结果"
@@ -98,12 +102,17 @@
           </el-table>
         </template>
       </el-table-column>
+      <el-table-column label="计划名"
+                       prop="planName"
+                       align="center"
+                       min-width="100"
+                       show-overflow-tooltip></el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
                        align="center"
                        min-width="150"></el-table-column>
       <el-table-column label="恢复设备IP"
-                       prop="hostIp"
+                       prop="host.hostIp"
                        align="center"
                        min-width="150"></el-table-column>
       <el-table-column label="恢复类型"
@@ -156,7 +165,7 @@ export default {
     tableData() {
       return this.records.map(record => {
         if(record.restoreType === 1) { //文件恢复，查找是否有恢复失败的文件
-          if(record.filePaths.includes(filePath => filePath.state === 1)) {
+          if(record.filePaths.find(filePath => filePath.state === 1)) {
             record.state = 1;
           } else {
             record.state = 0;
