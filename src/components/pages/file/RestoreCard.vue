@@ -6,7 +6,7 @@
       <el-tag size="mini"
               color="#fa4211"
               style="color: #ffffff">恢复</el-tag>
-      <span>{{restorePlan.planName}}</span>
+      <span>{{restorePlan.planName || restorePlan.startTime}}</span>
       <i v-if="![2,3].includes(restorePlan.state)"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
