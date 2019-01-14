@@ -111,7 +111,7 @@ const fmtBackupPlan = plan => {
 };
 
 const fmtRestorePlan = plan => {
-  if (plan.restorePath) {
+  if (!plan.restorePath) {
     return plan;
   }
   plan.state = caclPlanState(plan.restorePath.map(file => file.state));
