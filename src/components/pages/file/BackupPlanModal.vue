@@ -568,3 +568,4 @@ export default {
   display: inline-block;
   text-overflow: ellipsis;
 }
+</style>
