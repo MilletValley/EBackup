@@ -1,4 +1,4 @@
-// websocket模拟器
+// cd到ws.js文件目录，使用node ws.js 开启模拟器
 // #!/usr/bin/env node
 var WebSocketServer = require('websocket').server;
 var http = require('http');

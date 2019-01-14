@@ -143,9 +143,9 @@ const sockMixin = {
       const socket = new SockJS(this.url);
       // 获取STOMP子协议的客户端对象
       this.stompClient = Stomp.over(socket);
-      // this.stompClient.debug = () => {
-      //   // console.warn('不打印日志信息');
-      // };
+      this.stompClient.debug = () => {
+        // console.warn('不打印日志信息');
+      };
       // 定义客户端的认证信息,按需求配置
       const headers = {
         Authorization: '',
@@ -161,12 +161,12 @@ const sockMixin = {
         // )// 用户加入接口
       }, this.errorCallback);
       this.stompClient.heartbeat.outgoing = 20000;
-      this.stompClient.heartbeat.incoming = 20000;
+      this.stompClient.heartbeat.incoming = 0;
     },
     errorCallback(err) {
       console.error('连接失败');
       console.error(err);
-      // this.stompClient = null;
+      this.stompClient = null;
     },
     connectCallback(client) {
       const headers = {};
@@ -228,7 +228,6 @@ const webSocketMixin = {
       if (!this.wsuri) {
         return;
       }
-      // this.websock = new WebSocket(process.env.WS_API + this.wsuri);
       this.websock = new WebSocket(process.env.WS_API + this.wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onopen = this.websocketonopen;

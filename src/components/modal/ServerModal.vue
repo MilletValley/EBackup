@@ -133,7 +133,7 @@ export default {
             trigger: 'blur',
           },
           {
-            validator: validateLength(100),
+            validator: validateLength(30),
             trigger: 'blur',
           },
           {
@@ -149,7 +149,7 @@ export default {
             trigger: 'blur',
           },
           {
-            validator: validateLength(100),
+            validator: validateLength(30),
             trigger: 'blur',
           },
           {
