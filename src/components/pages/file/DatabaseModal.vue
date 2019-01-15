@@ -50,7 +50,7 @@
                       prop="application">
           <el-input v-model="formData.application"></el-input>
         </el-form-item>
-        <el-form-item label="系统登录名"
+        <el-form-item label="服务器登录名"
                       prop="loginName">
           <el-input v-model="formData.loginName"></el-input>
         </el-form-item>
