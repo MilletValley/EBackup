@@ -362,10 +362,10 @@ export default {
     // 删除备份计划
     deleteBackupPlan(planId) {
       deleteBackupPlan(planId).then(() => {
-        this.backupPlans.splice(
-          this.backupPlans.findIndex(plan => plan.id === planId),
-          1
-        );
+        // this.backupPlans.splice(
+        //   this.backupPlans.findIndex(plan => plan.id === planId),
+        //   1
+        // );
         this.$message.success('删除成功');
       }).catch(error => {
         this.$message.error(error);

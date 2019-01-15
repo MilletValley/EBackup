@@ -9,7 +9,7 @@
     </span>
     <el-form size="small"
              label-position="right"
-             label-width="100px"
+             label-width="120px"
              :model="formData"
              :rules="rules"
              ref="singleRestorePlanForm">
@@ -49,7 +49,7 @@
         
 				<el-row>
 					<el-col :span="12">
-						<el-form-item label="登录名"
+						<el-form-item label="数据库登录名"
 													prop="loginName">
 							<el-input v-model="formData.loginName"></el-input>
 						</el-form-item>
