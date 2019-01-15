@@ -375,10 +375,10 @@ export default {
     deleteRestorePlan(planId) {
       deleteSingleRestorePlan(planId)
         .then(() => {
-          // this.restorePlans.splice(
-          //   this.restorePlans.findIndex(plan => plan.id === planId),
-          //   1
-          // );
+          this.restorePlans.splice(
+            this.restorePlans.findIndex(plan => plan.id === planId),
+            1
+          );
           this.$message.success('删除成功');
         })
         .catch(error => {
