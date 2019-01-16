@@ -16,6 +16,7 @@ branches:
   - develop
   - disaster-recover
   - version2.3
+  - v2.4.3
 install: yarn
 script: npm run build
 before_deploy:
@@ -44,3 +45,8 @@ deploy:
     on:
       branch:
         - version2.3
+  - provider: script
+    script: bash ./build/docker_push.sh v2.4.3
+    on:
+      branch:
+        - v2.4.3

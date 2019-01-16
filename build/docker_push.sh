@@ -12,4 +12,7 @@ then
 elif [ $branch = "version2.3" ]
 then
   docker push qiansy/ebackup:version2.3
+elif [ $branch = "v2.4.3" ]
+then
+  docker push qiansy/ebackup:v2.4.3
 fi
