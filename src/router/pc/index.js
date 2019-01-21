@@ -61,7 +61,7 @@ export const basicRouters = [
   ...homeRouter,
 ];
 
-export default new Router({
+export const router = new Router({
   routes: basicRouters,
 });
 

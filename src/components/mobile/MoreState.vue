@@ -76,7 +76,6 @@
         </li>
       </ul>
     </section>
-    
   </section>
 </template>
 <script>
@@ -333,6 +332,8 @@ export default {
       });
       this.filter = Object.assign({}, this.filter, this.tableFilter);
       this.showContent = '';
+    },
+    linkTo() {
     }
   }
 }

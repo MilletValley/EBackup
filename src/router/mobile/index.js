@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Login from '@/components/Login';
+import Login from '@/components/mobile/Login';
 import Layout from '@/components/mobile/Layout';
 import Dashboard from '@/components/mobile/Dashboard';
 import Profile from '@/components/pages/Profile';
@@ -79,7 +79,7 @@ export const basicRouters = [
   ...homeRouter,
 ];
 
-export default new Router({
+export const router = new Router({
   routes: basicRouters,
 });
 

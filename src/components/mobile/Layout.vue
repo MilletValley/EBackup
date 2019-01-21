@@ -1,87 +1,106 @@
 <template>
   <el-container style="height: 100%;" @mousemove="mousemoveCallBack">
-    <el-container style="overflow: auto">
-      <el-header style="font-size: 12px; height: 48px; background-color: #00264a;">
-        <el-col :span="4">
-          <span @click="expandMenu">
-            <IIcon :name="menuIconName" class="menu-icon"></IIcon>
-          </span>
-        </el-col>
-        <el-col :span="16">
-          <div class="logo">
-            <img src="../../assets/layoutExpansion.png"
-                alt="信服易备"
-                height="25px">
-          </div>
-        </el-col>
-        <el-col :span="4">
-          <div class="user-info">
-            <el-dropdown @command="handleCommand" trigger="click">
-              <span class="el-dropdown-link">
-                {{ userName }}
-                <i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
-                <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
-                <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-                <el-dropdown-item command="logout">退出</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </div>
-        </el-col>
-        
-        
-
-      </el-header>
-      <el-aside v-show="showMenu" style="margin-top: 48px;position: fixed;z-index: 1000;width:auto;background-color: #00264a">
-        <!-- <div class="logo">
-          <img src="../../assets/layoutContraction.png"
-              alt="信服易备"
-              v-show="isMenuCollapsed"
-              height="35px">
-          <img src="../../assets/layoutExpansion.png"
-              alt="信服易备"
-              v-show="!isMenuCollapsed"
-              height="35px">
-        </div> -->
-        <el-menu background-color="#00264a"
-                text-color="#fff"
-                active-text-color="#fff"
-                :default-active="defaultActive"
-                :collapse="isMenuCollapsed">
-          <el-menu-item index="/dashboard">
-            <router-link to="/dashboard"
-                        tag="div"
-                        style="display: inline-block; width: 120px;">
-              <IIcon name="dashboard" class="menu-icon"></IIcon>
-              <span>主页</span>
-            </router-link>
-          </el-menu-item>
-          <el-submenu v-for="menu in menus"
-                      :key="menu.path"
-                      :index="menu.path">
-            <template slot="title">
-              <IIcon :name="menu.meta.icon"
-                    class="menu-icon"></IIcon>
-              <span>{{ menu.meta.title }}</span>
-            </template>
-            <el-menu-item v-for="submenu in menu.children.filter(child => child.meta && child.meta.title)"
-                          :key="submenu.path"
-                          :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
-              <router-link :to="`${menu.path}/${submenu.path}`"
-                          tag="li">{{ submenu.meta.title }}</router-link>
+    <el-container style="overflow: auto; padding-top: 48px;" class="container">
+      <div style="height: 48px;">
+        <div class="header">
+          <el-row>
+            <el-col :span="4" style="text-align: center">
+              <IIcon name="caidanlan" style="vertical-align: -0.2em" @click.native="showMenu = !showMenu"></IIcon>
+            </el-col>
+            <el-col :span="16">
+              <div class="logo">
+                <img src="../../assets/layoutExpansion.png"
+                    alt="信服易备"
+                    height="25px">
+              </div>
+            </el-col>
+            <el-col :span="4">
+              <div class="user-info">
+                <el-dropdown @command="handleCommand" trigger="click">
+                  <span class="el-dropdown-link">
+                    {{ userName }}
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
+                    <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
+                    <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+                    <el-dropdown-item command="logout">退出</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <drawer width="300px;"
+              :show.sync="showMenu"
+              show-mode="push"
+              class="vux-drawer">
+        <div slot="drawer">
+          <el-menu background-color="#00264a"
+                  text-color="#fff"
+                  active-text-color="#fff"
+                  :unique-opened="true"
+                  :default-active="defaultActive"
+                  :collapse="isMenuCollapsed">
+            <el-menu-item index="/dashboard">
+              <router-link to="/dashboard"
+                          tag="div"
+                          style="display: inline-block; width: 220px;">
+                <IIcon name="dashboard" class="menu-icon"></IIcon>
+                <span>主页</span>
+              </router-link>
             </el-menu-item>
-          </el-submenu>
-
-        </el-menu>
-      </el-aside>
-      <!-- IE不支持main标签 -->
-      <!-- <el-main>
-        <router-view/>
-      </el-main> -->
-      <div class="el-main">
-        <router-view/>
+            <el-submenu v-for="menu in menus"
+                        :key="menu.path"
+                        :index="menu.path">
+              <template slot="title">
+                <IIcon :name="menu.meta.icon"
+                      class="menu-icon"></IIcon>
+                <span>{{ menu.meta.title }}</span>
+              </template>
+              <div v-for="(submenu, index) in menu.children.filter(child => child.meta && child.meta.title)"
+                  :key="index">
+                  <el-submenu v-if="submenu.children"
+                              :index="submenu.meta.activeName ? submenu.meta.activeName : String(index)">
+                  <template slot="title">
+                    <span>{{ submenu.meta.title }}</span>
+                  </template>
+                  <el-menu-item v-for="(menu2,index) in submenu.children.filter(child => child.meta && child.meta.title)"
+                                :key="index"
+                                :index="menu2.meta.activeName ? menu2.meta.activeName : `${menu.path}/${menu2.path}`">
+                    <router-link :to="`${menu.path}/${menu2.path}`"
+                                  tag="li">{{ menu2.meta.title }}</router-link>
+                  </el-menu-item>
+                </el-submenu>
+                <el-menu-item v-else
+                              :index="submenu.meta.activeName ? submenu.meta.activeName : `${menu.path}/${submenu.path}`">
+                  <router-link :to="`${menu.path}/${submenu.path}`"
+                              tag="li">{{ submenu.meta.title }}</router-link>
+                </el-menu-item>
+              </div>
+            </el-submenu>
+          </el-menu>
+        </div>
+        <div class="main">
+          <router-view/>
+        </div>
+      </drawer>
+      <div class="dashbord-footer">
+        <el-row>
+          <el-col :span="12" style="text-align: center; color: #fff">
+            <el-row><i-icon name="dashboard"></i-icon></el-row>
+            <el-row>
+              <router-link to="/dashboard"
+                           style="text-decoration: none;">主页</router-link>
+            </el-row>
+          </el-col>
+          <el-col :span="12" style="text-align: center; color: #fff">
+            <el-row><i-icon name="setting"></i-icon></el-row>
+            <el-row>配置管理</el-row>
+          </el-col>
+        </el-row>
       </div>
     </el-container>
   </el-container>
@@ -90,6 +109,7 @@
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
 import IIcon from '../IIcon.vue';
+import { Drawer } from 'vux'
 
 export default {
   name: 'Layout',
@@ -100,12 +120,21 @@ export default {
       lastTime: new Date().getTime(),
       timeOut: 30 * 60 * 1000,
       intervalObj: null,
-      menuIconName: 'caidanlan',
       showMenu: false
     };
   },
   components: {
     IIcon,
+    Drawer
+  },
+  watch: {
+    showMenu(val) {
+      const contain = document.getElementsByClassName('container')[0];
+      contain.style.overflow = val ? 'hidden' : 'auto';
+    },
+    '$route': function() {
+      this.showMenu = !this.showMenu;
+    }
   },
   mounted() {
     this.setTimer();
@@ -160,10 +189,6 @@ export default {
         this.$router.push({ name: 'restorePlans' });
       }
     },
-    expandMenu() {
-      this.showMenu = !this.showMenu;
-      this.menuIconName = this.showMenu ? 'guanbi' : 'caidanlan';
-    },
     _logout() {
       this.logout(this.$store.state.base.token).then(message => {
         this.$message.success({
@@ -197,21 +222,49 @@ export default {
   margin: 0 auto;
   display: block;
 }
-.el-header {
+.header {
   background-color: #ffffff;
   color: #333;
-  line-height: 60px;
+  background-color: #00264a;
+  line-height: 48px;
   box-shadow: 1px 1px #eeeeee;
-  position: relative;
+  width: 100%;
+  height: 48px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  font-size: 12px;
 }
-.el-main {
+.dashbord-footer {
+  background-color: #00264A;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 42px;
+  padding: 5px 0 0;
+  font-size: 12px;
+}
+.vux-drawer>>>.vux-drawer-content {
+  background-color: #00264a;
+  position: fixed;
+  top: 48px;
+  left: 0;
+  overflow: scroll;
+}
+.vux-drawer >>> .vux-drawer-body {
+  background-color: #F0F2F5;
+}
+.main {
   background-color: #f0f2f5;
   box-sizing: border-box;
   padding: 0px;
+  padding-bottom: 48px;
 }
-.el-main::-webkit-scrollbar{
+.main::-webkit-scrollbar{
   display: none;
   width: 0px;
+  position: relative;  
 }
 .el-aside {
   color: #333;
@@ -220,14 +273,14 @@ export default {
   border: none;
 }
 .el-menu:not(.el-menu--collapse) {
-  width: 150px;
+  width: 180px;
 }
 .bread-crumb {
   display: inline-block;
   line-height: 0.6;
 }
 .user-info {
-  float: right;
+  margin: 0 auto;
 }
 .el-dropdown-link {
   cursor: pointer;
@@ -242,5 +295,8 @@ export default {
 }
 .menu-icon {
   margin-right: 5px;
+}
+a:visited {
+  color: #fff;
 }
 </style>

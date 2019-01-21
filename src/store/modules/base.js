@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import types from '../type';
 import { login, validateToken, logout, changeUserInfo } from '../../api/user';
 import { userToken } from '../../utils/storage';
-import { basicRouters, asyncRouters } from '../../router';
+import { basicRouters, asyncRouters } from '../../router/index';
 
 const state = {
   token: '',
