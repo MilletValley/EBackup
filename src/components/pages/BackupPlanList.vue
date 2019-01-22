@@ -161,7 +161,7 @@ export default {
             return timeStrategyMapping[cellValue];
         },
         addPlan(){
-            this.$router.push({name: 'collectManager'});
+            this.$router.push({name: 'virtualCollectManager'});
         },
         deletePlan(scope){
             this.$confirm(

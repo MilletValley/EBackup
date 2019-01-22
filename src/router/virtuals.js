@@ -27,8 +27,8 @@ const vmRouter = [
         },
         children: [
           {
-            path: 'collectManager',
-            name: 'collectManager',
+            path: 'virtuals/collectManager',
+            name: 'virtualCollectManager',
             component: ServerManager,
             meta: {
               title: '虚拟机主机管理',
@@ -40,7 +40,7 @@ const vmRouter = [
             name: 'VMwareList',
             component: VMwareList,
             meta: {
-              title: '虚拟机',
+              title: 'veem虚拟机列表',
               activeName: 'vmware',
               roles: ['vm admin'],
               breadcrumb: [
@@ -56,8 +56,8 @@ const vmRouter = [
             },
           },
           {
-            path: 'backup',
-            name: 'backup',
+            path: 'virtuals/backup',
+            name: 'virtualBackup',
             component: BackupPlanList,
             meta: {
               title: '批量操作',
@@ -91,49 +91,81 @@ const vmRouter = [
         ]
       },
       {
-        path: 'hwVirtual',
-        name: 'HWwareList',
-        component: VMwareList,
+        path: '',
+        component: {
+          render(c) {
+            return c('router-view');
+          }
+        },
         meta: {
           title: '华为虚拟机',
-          activeName: 'HWware',
-          roles: ['vm admin'],
-          breadcrumb: [
-            {
-              name: '首页',
-              path: '/',
-            },
-            {
-              name: '虚拟机列表',
-              path: '',
-            },
-          ],
+          roles: ['vm admin']
         },
-      },
-      {
-        path: 'hwVirtual/:id',
-        props: true,
-        component: VMwareDetail,
-        name: 'hwVirtualDetail',
-        meta: {
-          activeName: 'HWware',
-          roles: ['vm admin'],
-          breadcrumb: [
-            {
-              name: '首页',
-              path: '/',
+        children: [
+          {
+            path: 'hwVirtuals/collectManager',
+            name: 'hwVirtualCollectManager',
+            component: ServerManager,
+            meta: {
+              title: '虚拟机主机管理',
+              roles: []
+            }
+          },
+          {
+            path: 'hwVirtual',
+            name: 'HWwareList',
+            component: VMwareList,
+            meta: {
+              title: '华为虚拟机',
+              activeName: 'HWware',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '',
+                },
+              ],
             },
-            {
-              name: '虚拟机列表',
-              path: '/vm/hwVirtual',
+          },
+          {
+            path: 'hwVirtuals/backup',
+            name: 'hwVirtualBackup',
+            component: BackupPlanList,
+            meta: {
+              title: '批量操作',
+              roles: [],
             },
-            {
-              name: '虚拟机详情',
-              path: '',
+          },
+          {
+            path: 'hwVirtual/:id',
+            props: true,
+            component: VMwareDetail,
+            name: 'hwVirtualDetail',
+            meta: {
+              activeName: 'HWware',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '/vm/hwVirtual',
+                },
+                {
+                  name: '虚拟机详情',
+                  path: '',
+                },
+              ],
             },
-          ],
-        },
-      },
+          },
+        ]
+      }
     ],
   }
 ];
