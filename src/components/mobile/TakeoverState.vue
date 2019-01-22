@@ -36,8 +36,48 @@
     </el-row>
     <section style="padding-left:10px;padding-right:10px;">
       <ul>
-        <li v-for="(scope, key) in curTableData" :key="key">
-          <div class="cardDiv"  @click="linkTo(scope)">
+        <li v-for="(scope, key) in curTableData" :key="key"
+            style="margin-top: 5px">
+          <card>
+            <div slot="header" style="padding: 0 20px;">
+              <h4 class="name-section">
+                <div class="">{{scope.instanceName}}</div>
+                <div style="margin-left: 10px">
+                  <el-tag :type="linkTagType(scope.overState)"
+                          size="mini">
+                    {{ linkTypeConverter(scope.overState) }}
+                  </el-tag>
+                </div>
+                <el-button @click="linkTo(scope)"
+                            type="text"
+                            style="position: absolute; right: 0; top: -10px">查看详情</el-button>
+              </h4>
+            </div>
+            <div slot="content" class="cardDiv">
+              <section>
+                <div class="left-tag">主机IP：{{scope.primaryHostIp}}</div>
+                <div>主库状态：
+                  <el-tag :type="stateTagType(scope.primaryState)"
+                          size="mini">
+                    {{ databaseTypeConverter(scope.primaryState) }}
+                  </el-tag>
+                </div>
+              </section>
+              <section>
+                <div class="left-tag">备库IP：{{scope.viceHostIp}}</div>
+                <div>备库状态：
+                  <el-tag :type="stateTagType(scope.viceState)"
+                          size="mini">
+                    {{ databaseTypeConverter(scope.viceState) }}
+                  </el-tag>
+                </div>
+              </section>
+              <section>
+                <div class="left-tag">初始化完成时间：<el-tag size="mini">{{ scope.initFinishTime }}</el-tag></div>
+              </section>
+            </div>
+          </card>
+          <!-- <div class="cardDiv"  @click="linkTo(scope)">
             <h4 class="name-section">
               <div class="">{{scope.instanceName}}</div>
               <div style="margin-left: 10px">
@@ -68,7 +108,7 @@
             <section>
               <div class="left-tag">初始化完成时间：<el-tag size="mini">{{ scope.initFinishTime }}</el-tag></div>
             </section>
-          </div>
+          </div> -->
         </li>
       </ul>
     </section>
@@ -85,12 +125,14 @@ import SortList from '@/components/base/SortList';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { fmtSizeFn } from '@/utils/common';
+import { Card } from 'vux';
 export default {
   name: 'MoreState',
   mixins: [baseMixin, DashboardTab, sortMixin, filterMixin],
   components: {
     MultipleSelection,
-    SortList
+    SortList,
+    Card
   },
   data() {
     const activeTab = {
@@ -265,14 +307,15 @@ export default {
       });
       this.filter = Object.assign({}, this.filter, this.tableFilter);
       this.showContent = '';
-    }
+    },
+    linkTo() {}
   }
 }
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-<style>
+<style scoped>
 ul{
   list-style: none;
   font-size: 13px;
@@ -304,20 +347,30 @@ ul{
 .head-row{
   position: fixed;
   width: 100%;
-  top: 50px;
+  top: 0;
   background-color: #fff;
+  z-index: 99;
+}
+.cardDiv {
+  padding: 5px 10px 10px;
 }
 .cardDiv section{
   font-size: 12px;
   display: flex;
-  padding-left:30px;
+  padding: 0 10px 5px;
 }
 .left-tag{
   flex-grow: 1;
 }
 .name-section{
   display: flex;
-  margin-bottom: 10px;
+  position: relative;
+  font-weight: 400;
+  padding-bottom: 10px;
+  margin-bottom: 0;
+  margin-top: 10px;
+  color: #999;
+  border-bottom: 1px solid #F0F2F5;
 }
 .listDiv {
   display: flex;

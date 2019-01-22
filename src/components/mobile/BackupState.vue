@@ -1,11 +1,6 @@
 <template>
   <section class="context">
     <el-row class="head-row">
-      <!-- <span class="title">设备详情</span>
-      <el-button type="primary"
-                 size="small"
-                 style="float:right"
-                 @click="$router.push({name: 'dashboard'})">返回</el-button> -->
       <section class="listDiv">
         <ul>
           <li :class="{'active-li': activeName === 'databaseBackup'}" @click="switchTab('databaseBackup')">数据库备份</li>
@@ -15,7 +10,7 @@
       </section>
       <section class="filter-sort">
         <div class="sortDiv">
-          <div class="sortTotal" >
+          <div class="sortTotal">
             <div @click="sortFilterClick('sort')" class="active">{{defaultSortLabel}}<i class="el-icon-caret-bottom"></i></div>
           </div>
           <div @click="sortFilterClick('filter')" :class="{active: hasfilterItem}">过滤<IIcon name="guolv"></IIcon></div>
@@ -38,8 +33,50 @@
     </el-row>
     <section style="padding-left:10px;padding-right:10px;">
       <ul>
-        <li v-for="(scope, key) in curTableData" :key="key">
-          <div class="cardDiv"  @click="linkTo(scope)">
+        <li v-for="(scope, key) in curTableData" :key="key"
+            style="margin-top: 5px">
+          <card>
+            <div slot="header" style="padding: 0 20px;">
+              <h4 class="name-section">
+                <div>{{activeName === 'databaseBackup' ? scope.ascription : scope.name}}</div>
+                <div style="margin-left: 10px">
+                  <i v-if="scope.backupState === 0"
+                    class="el-icon-success"
+                    style="color: #27ca27"></i>
+                  <i v-else
+                    class="el-icon-error"
+                    style="color: #ca2727"></i>
+                </div>
+                <el-button @click="linkTo(scope)"
+                           type="text"
+                           style="position: absolute; right: 0; top: -10px">查看详情</el-button>
+              </h4>
+            </div>
+            <div slot="content" class="cardDiv">
+              <section v-if="activeName === 'databaseBackup'">
+                <div class="left-tag">数据库名：{{scope.name}}</div>
+                <div>数据库类型：{{dbType(scope)}}</div>
+              </section>
+              <section v-if="activeName === 'filehostBackup'">
+                <div class="left-tag">主机IP：{{scope.ascription}}</div>
+              </section>
+              <section v-if="activeName === 'vmBackup'">
+                <div class="left-tag">所属物理主机：{{scope.ascription}}</div>
+                <div>虚拟机类型：{{vmType(scope)}}</div>
+              </section>
+              <section>
+                <div class="left-tag">耗时：{{ scope.timeConsuming | durationFilter }}</div>
+                <div>备份集大小: {{activeName === 'filehostBackup' ? fmtSizeFn(scope.backupSize) : scope.backupSize}}</div>
+              </section>
+              <section>
+                <div class="left-tag">备份结束时间：<el-tag size="mini">{{ dateFmt(scope.endTime) }}</el-tag></div>
+              </section>
+              <section>
+                <div class="left-tag">备份存储路径：{{scope.backupPath}}</div>
+              </section>
+            </div>
+          </card>
+          <!-- <div class="cardDiv"  @click="linkTo(scope)">
             <h4 class="name-section">
               <div class="">{{activeName === 'databaseBackup' ? scope.ascription : scope.name}}</div>
               <div style="margin-left: 10px">
@@ -72,7 +109,7 @@
             <section>
               <div class="left-tag">备份存储路径：{{scope.backupPath}}</div>
             </section>
-          </div>
+          </div> -->
         </li>
       </ul>
     </section>
@@ -90,13 +127,15 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { fmtSizeFn } from '@/utils/common';
 import IIcon from '@/components/IIcon.vue';
+import { Card } from 'vux';
 export default {
   name: 'MoreState',
   mixins: [baseMixin, DashboardTab, sortMixin, filterMixin],
   components: {
     MultipleSelection,
     SortList,
-    IIcon
+    IIcon,
+    Card
   },
   data() {
     const activeTab = {
@@ -296,14 +335,15 @@ export default {
       });
       this.filter = Object.assign({}, this.filter, this.tableFilter);
       this.showContent = '';
-    }
+    },
+    linkTo() {}
   }
 }
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-<style>
+<style scoped>
 ul{
   list-style: none;
   font-size: 13px;
@@ -335,20 +375,30 @@ ul{
 .head-row{
   position: fixed;
   width: 100%;
-  top: 50px;
+  top: 0;
   background-color: #fff;
+  z-index: 99;
+}
+.cardDiv {
+  padding: 5px 10px 10px;
 }
 .cardDiv section{
   font-size: 12px;
   display: flex;
-  padding-left:30px;
+  padding: 0 10px 5px;
 }
 .left-tag{
   flex-grow: 1;
 }
 .name-section{
   display: flex;
-  margin-bottom: 10px;
+  position: relative;
+  font-weight: 400;
+  padding-bottom: 10px;
+  margin-bottom: 0;
+  margin-top: 10px;
+  color: #999;
+  border-bottom: 1px solid #F0F2F5;
 }
 .listDiv {
   display: flex;

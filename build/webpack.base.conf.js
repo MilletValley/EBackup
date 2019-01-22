@@ -4,9 +4,15 @@ const utils = require('./utils');
 const config = require('../config');
 const vueLoaderConfig = require('./vue-loader.conf');
 const webpack = require('webpack');
+const vuxLoader = require('vux-loader');
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
+}
+
+const lessTheme = {
+  name:'less-theme',
+  path:'src/style/theme.less'
 }
 
 const createLintingRule = () => ({
@@ -23,7 +29,7 @@ const createLintingRule = () => ({
   },
 });
 
-module.exports = {
+const webpackConfig = {
   context: path.resolve(__dirname, '../'),
   entry: {
     app: './src/main.js',
@@ -107,3 +113,7 @@ module.exports = {
 　　})
   ]
 };
+
+module.exports = vuxLoader.merge(webpackConfig,{
+  plugins:['vux-ui', lessTheme]
+});

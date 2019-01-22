@@ -1,22 +1,32 @@
 <template>
   <section >
-    <template style="height: 100%">
-      <el-row :gutter="20" class="pieChart-row">
-        <el-col :span="8">
-          <div id="backupTotal" :style="{marginTop: '0px', width: '100%', height: '100%'}" @click="goMore('backupState')"></div>
-        </el-col>
-        <el-col :span="8">
-          <div id="restoreTotal" :style="{marginTop: '0px', width: '100%', height: '100%'}" @click="goMore('restoreState')"></div>
-        </el-col >
-        <el-col :span="8">
-          <div id="initConn" :style="{marginTop: '0px', width: '100%', height: '100%'}" @click="goMore('takeoverState')"></div>
-        </el-col>
+    <template style="height: 100;">
+      <el-row style="background-color: #fff; border-radius: 10px; margin-top: 10px">
+        <el-row style="margin-top: 12px; padding: 0 10px;">
+          <el-col>
+            <button-tab v-model="activePie">
+              <button-tab-item :value="0" @on-item-click="drawBackup()">数据备份</button-tab-item>
+              <button-tab-item :value="1" @on-item-click="drawRestore()">恢复演练</button-tab-item>
+              <button-tab-item :value="2" @on-item-click="drawTakeOver()">一键接管</button-tab-item>
+            </button-tab>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20" class="pieChart-row">
+          <el-col>
+            <div id="backupTotal" :class="$style.pieStyle" @click="goMore('backupState')" v-if="activePie === 0"></div>
+            <div id="restoreTotal" :class="$style.pieStyle" @click="goMore('restoreState')" v-else-if="activePie === 1"></div>
+            <div id="initConn" :class="$style.pieStyle" @click="goMore('takeoverState')" v-else-if="activePie === 2"></div>
+          </el-col>
+        </el-row>
       </el-row>
-      <el-row :gutter="10" >
-        <el-col>
-          <div class="text item" v-show="Object.keys(spaceDetail).length">
-            <el-row class="cylinder-row">
-              <el-col :span="Object.keys(spaceDetail).length > 1 ? 12 : 24" ref="col">
+      <el-row :gutter="10" style="margin-top: 10px;">
+        <card style="border-radius: 20px;">
+          <div slot="header" class="head">
+            <div class="card-head">空间使用情况</div>
+          </div>
+          <div slot="content">
+            <div class="text item" v-if="Object.keys(spaceDetail).length>0">
+              <el-row class="cylinder-row">
                 <el-col :span="12">
                   <div ref="space1" class="cylinder-content">
                     <cylinder :data="spaceChartData[0]"></cylinder>
@@ -26,42 +36,61 @@
                   <div class="list-title">存储1</div>
                   <div class="list-row">
                     <div>总空间：</div>
-                    <div>100G</div>
+                    <div>{{ addUnit(spaceDetail.nfsData.total) }}</div>
                   </div>
                   <div class="list-row">
                     <div>已使用：</div>
-                    <div>70G</div>
+                    <div>{{ addUnit(spaceDetail.nfsData.inUsed) }}</div>
                   </div>
                   <div class="list-row">
                     <div style="text-align: right">剩余空间：</div>
-                    <div>30G</div>
+                    <div>{{ addUnit(spaceDetail.nfsData.unUsed) }}</div>
                   </div>
                 </el-col>
-              </el-col>
-              <el-col :span="12" v-if="Object.keys(spaceDetail).length > 1">
-                <div  ref="space2" class="cylinder-content">
-                  <cylinder :data="spaceChartData[1]"></cylinder>
-                </div>
-              </el-col>
-            </el-row>
-          </div>
-          <div :class="$style.nfsNotUsed" v-show="!Object.keys(spaceDetail).length">
-            <span>暂未使用</span>
-          </div>
-        </el-col>
-        <el-col>
-          <!-- <el-card class="box-card" style="width: 100%"> -->
-            <!-- <div slot="header" class="clearfix">
-              <span class="card-title">存储1已使用空间分配情况</span>
-            </div> -->
-            <div class="barChart-content" v-show="nfsAssignedSpace&&nfsAssignedSpace.length>0">
-              <div id="spaceRatio" :style="{width: '100%', height: '100%', margin: '0 auto'}"></div>
+              </el-row>
+              <el-row v-if="Object.keys(spaceDetail).length > 1">
+                <el-col :span="12">
+                  <div  ref="space2" class="cylinder-content">
+                    <cylinder :data="spaceChartData[1]"></cylinder>
+                  </div>
+                </el-col>
+                <el-col :span="12" style="padding-top:15px">
+                  <div class="list-title">存储2</div>
+                  <div class="list-row">
+                    <div>总空间：</div>
+                    <div>{{ addUnit(spaceDetail.shareData.total) }}</div>
+                  </div>
+                  <div class="list-row">
+                    <div>已使用：</div>
+                    <div>{{ addUnit(spaceDetail.shareData.inUsed) }}</div>
+                  </div>
+                  <div class="list-row">
+                    <div style="text-align: right">剩余空间：</div>
+                    <div>{{ addUnit(spaceDetail.shareData.unUsed) }}</div>
+                  </div>
+                </el-col>
+              </el-row>
             </div>
-            <div :class="$style.nfsNotUsed" v-show="!(nfsAssignedSpace&&nfsAssignedSpace.length>0)">
+            <div :class="$style.nfsNotUsed" v-else>
               <span>暂未使用</span>
             </div>
-          <!-- </el-card> -->
-        </el-col>
+          </div>
+        </card>
+      </el-row>
+      <el-row :gutter="10" style="margin-top: 10px;">
+        <card style="border-radius: 20px;">
+          <div slot="header" class="head">
+            <div class="card-head">存储1已使用空间分配情况</div>
+          </div>
+            <div slot="content">
+              <div class="barChart-content" v-if="nfsAssignedSpace&&nfsAssignedSpace.length>0">
+              <div id="spaceRatio" :style="{width: '100%', height: '100%', margin: '0 auto'}"></div>
+            </div>
+            <div :class="$style.nfsNotUsed" v-else>
+              <span>暂未使用</span>
+            </div>
+          </div>
+        </card>
       </el-row>
     </template>
   </section>
@@ -70,8 +99,12 @@
 import { fetchAll, fetchSpaceUse } from '../../api/home';
 import { fmtSizeFn } from '../../utils/common';
 import baseMixin from '../mixins/baseMixins';
-import DashboardTab from '../mixins/DashboardTabMixins';
 import Cylinder from '@/components/common/CylinderNotTitle';
+import {
+  ButtonTab,
+  ButtonTabItem,
+  Card
+} from 'vux';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -80,27 +113,18 @@ require('echarts/lib/component/title');
 require("echarts/lib/component/legend");
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, DashboardTab],
+  mixins: [baseMixin],
   components: {
-    Cylinder
+    Cylinder,
+    ButtonTab,
+    ButtonTabItem,
+    Card
   },
   data() {
-    const nfsInUsedTypeMapping= {
-      1: 'oracle',
-      2: 'sqlserver',
-      3: '文件',
-      4: '虚拟机',
-      5: 'mysql',
-      6: 'db2',
-      7: '达梦'
-    }
-    const color = ['', '#D9554B','#F96305','#dcc54d','#1ABB9C','#5faf37','#1a48a5','#660066']
     return {
       total: {},
       spaceDetail: {},
-      nfsInUsedTypeMapping,
-      color, // nfs环形图颜色
-      infoLoading: true, // table动画加载
+      activePie: 0,
       spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
         name: [],
         percentData: [],
@@ -125,21 +149,10 @@ export default {
     nfsAssignedSpace() {
       return this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails;
     },
-    nfsPieColor() {
-      if(this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails) {
-        const color = this.color.filter((c, index) => this.spaceDetail.nfsData.nfsUseDetails.map(detail => detail.nfsUseType).includes(index));
-        return color;
-      }
-      return [];
-    },
     nfsPieData() {
       let data = {};
       if (this.spaceDetail && this.spaceDetail.nfsData)
         this.spaceDetail.nfsData.nfsUseDetails.forEach(detail => {
-          // return {
-          //   value: detail.nfsUseSize,
-          //   name: this.nfsInUsedTypeMapping[detail.nfsUseType],
-          // };
           data[detail.nfsUseType] = detail.nfsUseSize;
         });
       return data;
@@ -147,8 +160,6 @@ export default {
   },
   mounted() {
     this.fetchData();
-    this.fetchTabData();
-    this.activeName = 'databaseBackup'
   },
   methods: {
     fetchData() {
@@ -160,8 +171,8 @@ export default {
           this.spaceDetail = spaceData;
           if(this.spaceDetail.nfsData) {
             this.spaceData.name.push('存储1');
-          this.spaceData.percentData.push(this.nfsInUsedPercent);
-          this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
+            this.spaceData.percentData.push(this.nfsInUsedPercent);
+            this.spaceData.explain.push(this.addUnit(this.spaceDetail.nfsData.inUsed)+'/'+this.addUnit(this.spaceDetail.nfsData.total)+'\t\t'+'剩余空间：'+this.addUnit(this.spaceDetail.nfsData.unUsed));
           }
           if(this.spaceDetail.shareData) {
             this.spaceData.name.push('存储2');
@@ -170,6 +181,7 @@ export default {
           }
         })
         .then(() => {
+          this.drawBackup();
           this.drawLine();
         })
         .catch(error => {
@@ -182,43 +194,142 @@ export default {
       }
       return Math.round((diviver/dividend)*100);
     },
-    jumpToMoreState(params, successPath, errorPath) {
-      if(params.name.includes('成功')) {
-        this.$router.push({path: 'morestate', query: { type: successPath } });
-      } else if(params.name.includes('失败')) {
-        this.$router.push({path: 'morestate', query: { type: errorPath } });
-      }
-    },
     // 单位由M开始转化
     addUnit(data) {
       return fmtSizeFn(Number(data)*1024*1024);
     },
-    tooltipPosition(point, params, dom, rect, size) {
-      var x = 0; // x坐标位置
-      var y = 0; // y坐标位置
-      var pointX = point[0];
-      var pointY = point[1];
-      // 提示框大小
-      var boxWidth = size.contentSize[0];
-      var boxHeight = size.contentSize[1];
-      // boxWidth > pointX 说明鼠标左边放不下提示框
-      if (boxWidth > pointX) {
-        x = 150;
-      } else { // 左边放的下
-        x = pointX - boxWidth-15;
-      }
-      // boxHeight > pointY 说明鼠标上边放不下提示框
-      if (boxHeight > pointY) {
-        y = 5;
-      } else { // 上边放得下
-        y = pointY - boxHeight;
-      }
-      return [x, y];
+    drawBackup() { // 数据备份
+      let backupTotal = echarts.init(document.getElementById('backupTotal'));
+      let backupOption = {
+        title: {
+          text: this.calcPercent(this.total.totalBackupNumSuccess, this.total.totalBackupNumSuccess+this.total.totalBackupNumFail)+'%',
+          subtext: '数据备份',
+          x: 'center',
+          y: '40%',
+          itemGap: 0,
+          textStyle: {
+            color: '#1abb9c',
+            fontSize: 14,
+          },
+          subtextStyle: {
+            fontSize: 10,
+          }
+        },
+        series: [
+          {
+            name: '数据备份',
+            type: 'pie',
+            radius: ['75%', '95%'],
+            hoverAnimation: false,
+            color: ['#1abb9c', '#7F7F7F'],
+            label: {
+              show: false
+            },
+            labelLine: {
+              show: false
+            },
+            data: [
+              {
+                value: this.total.totalBackupNumSuccess,
+                name: '成功',
+                dataType: 1,
+              },
+              {
+                value: this.total.totalBackupNumFail,
+                name: '失败',
+              }
+            ]
+          }
+        ]
+      };
+      backupTotal.setOption(backupOption);
+    },
+    drawRestore() { // 恢复演练
+      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
+      let restoreOption = {
+        title: {
+          text: this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumSuccess+this.total.totalRestoreNumFail)+'%',
+          subtext: '恢复演练',
+          x: 'center',
+          y: '40%',
+          itemGap: 0,
+          textStyle: {
+            color: '#1abb9c',
+            fontSize: 14
+          },
+          subtextStyle: {
+            fontSize: 10
+          }
+        },
+        series: [
+          {
+            name: '恢复演练',
+            type: 'pie',
+            radius: ['75%', '95%'],
+            hoverAnimation: false,
+            color: ['#1abb9c', '#7F7F7F'],
+            label: {
+              show: false
+            },
+            labelLine: {
+              show: false
+            },
+            data: [
+              {
+                value: this.total.totalRestoreNumSuccess,
+                name: '成功',
+                dataType: 1,
+              },
+              {
+                value: this.total.totalRestoreNumFail,
+                name: '失败',
+              }
+            ]
+          }
+        ]
+      };
+      restoreTotal.setOption(restoreOption);
+    },
+    drawTakeOver() { // 一键接管
+      let initConn = echarts.init(document.getElementById('initConn'));
+      let initConnOption = {
+        title: {
+          text: this.calcPercent(this.total.initConnNumSuccess, this.total.initConnNumSuccess+this.total.initConnNumFail)+'%',
+          subtext: '一键接管',
+          itemGap: 0,
+          x: 'center',
+          y: '40%',
+          textStyle: {
+            color: '#1abb9c',
+            fontSize: 14
+          },
+          subtextStyle: {
+            fontSize: 10
+          }
+        },
+        series: [
+          {
+            name: '一键接管',
+            type: 'pie',
+            radius: ['75%', '95%'],
+            hoverAnimation: false,
+            color: ['#1abb9c', '#7F7F7F'],
+            label: {
+              show: false
+            },
+            labelLine: {
+              show:false
+            },
+            data: [
+              { value: this.total.initConnNumSuccess, name: '成功' },
+              { value: this.total.initConnNumFail, name:'失败' }
+            ]
+          }
+        ]
+      };
+      initConn.setOption(initConnOption);
     },
     drawLine() {
-      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
-      let backupTotal = echarts.init(document.getElementById('backupTotal'));
-      let initConn = echarts.init(document.getElementById('initConn'));
       const that = this;
       if(Object.keys(this.spaceDetail).length) {
         this.spaceChartData = [{
@@ -303,7 +414,6 @@ export default {
           }
         };
         let spacePieOption = {
-          // backgroundColor: '#00265f',
           grid: {
             left: 0,
             right: 10,
@@ -313,6 +423,7 @@ export default {
           },
           title: {
             text: '存储1已使用空间分配情况',
+            show: false,
             left: 'center',
             textStyle: {
               fontSize: 14
@@ -410,147 +521,10 @@ export default {
         };
         spaceRatio.setOption(spacePieOption);
       }
-      let backupOption = {
-        title: {
-          text: this.calcPercent(this.total.totalBackupNumSuccess, this.total.totalBackupNumSuccess+this.total.totalBackupNumFail)+'%',
-          subtext: '数据备份',
-          x: 'center',
-          y: '40%',
-          itemGap: 0,
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 14,
-          },
-          subtextStyle: {
-            fontSize: 10,
-          }
-        },
-        series: [
-          {
-            name: '数据备份',
-            type: 'pie',
-            radius: ['75%', '95%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            label: {
-              show: false
-            },
-            labelLine: {
-              show: false
-            },
-            data: [
-              {
-                value: this.total.totalBackupNumSuccess,
-                name: '成功',
-                dataType: 1,
-              },
-              {
-                value: this.total.totalBackupNumFail,
-                name: '失败',
-              }
-            ]
-          }
-        ]
-      }
-      let restoreOption = {
-        title: {
-          text: this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumSuccess+this.total.totalRestoreNumFail)+'%',
-          subtext: '恢复演练',
-          x: 'center',
-          y: '40%',
-          itemGap: 0,
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 14
-          },
-          subtextStyle: {
-            fontSize: 10
-          }
-        },
-        series: [
-          {
-            name: '恢复演练',
-            type: 'pie',
-            radius: ['75%', '95%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            label: {
-              show: false
-            },
-            labelLine: {
-              show: false
-            },
-            data: [
-              {
-                value: this.total.totalRestoreNumSuccess,
-                name: '成功',
-                dataType: 1,
-              },
-              {
-                value: this.total.totalRestoreNumFail,
-                name: '失败',
-              }
-            ]
-          }
-        ]
-      }
-      let initConnOption = {
-        title: {
-          text: this.calcPercent(this.total.initConnNumSuccess, this.total.initConnNumSuccess+this.total.initConnNumFail)+'%',
-          subtext: '一键接管',
-          itemGap: 0,
-          x: 'center',
-          y: '40%',
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 14
-          },
-          subtextStyle: {
-            fontSize: 10
-          }
-        },
-        series: [
-          {
-            name: '一键接管',
-            type: 'pie',
-            radius: ['75%', '95%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            label: {
-              show: false
-            },
-            labelLine: {
-              show:false
-            },
-            data: [
-              { value: this.total.initConnNumSuccess, name: '成功' },
-              { value: this.total.initConnNumFail, name:'失败' }
-            ]
-          }
-        ]
-      }
-      backupTotal.setOption(backupOption),
-      backupTotal.on('legendselectchanged', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
-      });
-      restoreTotal.setOption(restoreOption),
-      initConn.setOption(initConnOption),
-      // backupTotal.on('click', params => {
-      //   this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
-      // }),
-      // restoreTotal.on('legendselectchanged', params => {
-      //   this.jumpToMoreState(params, this.clickPieJumpTo.rs, this.clickPieJumpTo.rf);
-      // }),
-      // initConn.on('legendselectchanged', params => {
-      //   this.jumpToMoreState(params, this.clickPieJumpTo.ics, this.clickPieJumpTo.icf);
-      // }),
       window.addEventListener("resize", () => {
-        restoreTotal.resize();
-        backupTotal.resize();
-        initConn.resize();
-        if(Object.keys(that.spaceDetail).length) {
-          barChart.resize();
-        }
+        this.activePie === 0 && restoreTotal.resize();
+        this.activePie === 1 && backupTotal.resize();
+        this.activePie === 2 && initConn.resize();
         if(that.nfsAssignedSpace&&that.nfsAssignedSpace.length>0) {
           spaceRatio.resize();
         }
@@ -578,6 +552,11 @@ $error-color: rgba(212, 130, 101, 1);
   span {
     line-height: 3.3em;
   }
+}
+.pieStyle {
+  margin-top: 0px;
+  width: 100%;
+  height: 100%;
 }
 </style>
 <style scoped>
@@ -617,6 +596,14 @@ $error-color: rgba(212, 130, 101, 1);
   display: block;
   text-align: center;
   font-weight: 700;
+}
+.head {
+  padding: 0 20px 0;
+}
+.card-head {
+  text-align: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
 }
 /* .el-row {
   margin-bottom: 10px;
@@ -679,7 +666,7 @@ $error-color: rgba(212, 130, 101, 1);
 .pieChart-row{
   width: 100%;
   height: 45.2vw;
-  padding-top: 20px;
+  padding: 10px 0;
   margin-left: 0px !important;
 }
 .pieChart-row .el-col{
@@ -711,5 +698,8 @@ $error-color: rgba(212, 130, 101, 1);
 .list-row{
   display: flex;
   font-size: 12px;
+}
+a {
+  text-decoration: none !important;
 }
 </style>
