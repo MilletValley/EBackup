@@ -24,7 +24,7 @@
     <div class="home-copyright">
       <p>Copyright @2018 whstone Corportation All Rights Reserved</p>
       <p>Powered By esay standby<br/></p>
-      <p>Version 2.4.0<br/></p>
+      <p>Version 2.4.3<br/></p>
       <p>武汉四通信服易备数据中心应用连续性管理系统<br/></p>
     </div>
 </div>
