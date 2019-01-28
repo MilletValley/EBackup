@@ -55,7 +55,7 @@
           <fieldset :class="$style.hostLinkInOs">
             <legend>
               <span v-if="hostLink.primaryHost.osName === 'Windows'">Windows</span>
-              <span v-else-if="hostLink.primaryHost.osName === 'AIX'">AIX</span>
+              <span v-else-if="hostLink.primaryHost.osName === 'AIX'&&hostLink.primaryHost.isRacMark === 1">AIX</span>
               <span v-else-if="hostLink.primaryHost.osName === 'Linux'&&hostLink.primaryHost.isRacMark === 1">Linux</span>
               <span v-else>RAC</span>
             </legend>
@@ -443,9 +443,17 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
+                    <div v-if="dbLink.state === 1"
+                         style="position: relative"
+                         slot="reference">
+                      <div :class="$style.transportation"></div>
+                      <i-icon name="transportation"
+                              :class="$style.switchIcon"></i-icon>
+                    </div>
                     <i-icon :name="`switch-${dbLink.state}`"
                             :class="$style.switchIcon"
-                            slot="reference"></i-icon>
+                            slot="reference"
+                            v-else></i-icon>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
                       style="margin-top: 6px;">
@@ -1377,6 +1385,40 @@ $vice-color: #6d6d6d;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
+  }
+}
+.transportation {
+  height: 40px;
+  width: 100px;
+  background: #fff;
+  animation:mymove 2s infinite;
+  -webkit-animation:mymove 2s infinite;
+  display: inline-block;
+  position: absolute;
+  left: 50px;
+  top: 0;
+  z-index: 99;
+}
+@keyframes mymove
+{
+  from {
+    left: 50px;
+    width: 100px;
+  }
+  to {
+    left: 120px;
+    width: 0;
+  }
+}
+@-webkit-keyframes mymove
+{
+  from {
+    left: 50px;
+    width: 100px;
+  }
+  to {
+    left: 120px;
+    width: 0;
   }
 }
 .dbLinkInfoItem {

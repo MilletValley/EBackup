@@ -98,7 +98,7 @@
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="登录名"
+            <el-form-item label="服务器登录名"
                           prop="loginName">
               <el-input v-model="formData.loginName"></el-input>
             </el-form-item>
@@ -221,8 +221,16 @@ export default {
           required: true,
           trigger: 'blur'
         },
-        loginName: validate.dbLoginName,
-        password: validate.dbPassword,
+        loginName: {
+          message: '请输入服务器登录名',
+          required: true,
+          trigger: 'blur'
+        },
+        password: {
+          message: '请输入服务器登录密码',
+          required: true,
+          trigger: 'blur'
+        },
         targetPath: {
           validator: targetPathValidate,
           trigger: ['blur']
