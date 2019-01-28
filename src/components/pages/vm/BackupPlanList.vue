@@ -15,7 +15,7 @@
                 style="width: 100%;">
                 <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
-                        <vm-backup-table :id="props.row.id" :tableData="props.row.backupResult"></vm-backup-table>
+                        <vm-backup-table :id="props.row.id" :data="props.row.backupResult"></vm-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -172,7 +172,12 @@ export default {
       return timeStrategyMapping[cellValue];
     },
     addPlan() {
-      this.$router.push({ name: 'collectManager' });
+      if(this.$route.name === 'virtualBackup') {
+        this.$router.push({ name: 'virtualCollectManager' });
+      }
+      if(this.$route.name === 'hwVirtualBackup') {
+        this.$router.push({ name: 'hwVirtualCollectManager' })
+      }
     },
     deletePlan(scope) {
       this.$confirm('请确认是否删除？', '提示', {
