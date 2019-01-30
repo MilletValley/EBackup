@@ -61,7 +61,7 @@ const vmRouter = [
             name: 'virtualBackup',
             component: BackupPlanList,
             meta: {
-              title: '批量操作',
+              title: '备份计划',
               activeName: 'vmwareBackup',
               roles: [],
             },
@@ -140,7 +140,7 @@ const vmRouter = [
             name: 'hwVirtualBackup',
             component: BackupPlanList,
             meta: {
-              title: '批量操作',
+              title: '备份计划',
               activeName: 'hwBackup',
               roles: [],
             },
