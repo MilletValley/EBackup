@@ -38,6 +38,12 @@ const fetchLinks = () =>
     url: '/application-links',
   });
 
+const deleteLinks = linkId =>
+  baseApi.request({
+    method: 'delete',
+    url: `/application-links/${linkId}`,
+  });
+
 const createLinks = data =>
   baseApi.request({
     method: 'post',
@@ -65,6 +71,7 @@ export {
   modifyOne,
   fetchLinks,
   createLinks,
+  deleteLinks,
   fetchLinkByLinkId,
   fetchSwitches
 };

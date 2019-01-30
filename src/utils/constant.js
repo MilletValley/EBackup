@@ -145,7 +145,8 @@ const portHostTypeMapping = {
   4: '虚拟机',
   5: 'mysql',
   6: 'db2',
-  7: '达梦数据库'
+  7: '达梦数据库',
+  8: '应用服务器'
 };
 
 const keepDateMapping = {

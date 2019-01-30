@@ -326,11 +326,10 @@ import IIcon from '@/components/IIcon';
 import SwitchModal from '@/components/pages/application/SwitchModal';
 import AppLinkCreateModal from '@/components/pages/application/AppLinkCreateModal';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
-import { fetchLinks, fetchAll, createLinks } from '@/api/application';
+import { fetchLinks, fetchAll, createLinks, deleteLinks } from '@/api/application';
 import {
   createSwitches,
-  simpleSwitch,
-  deleteLinks
+  simpleSwitch
 } from '@/api/host';
 import dayjs from 'dayjs';
 export default {

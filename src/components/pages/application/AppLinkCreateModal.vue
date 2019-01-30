@@ -3,6 +3,7 @@
     <el-dialog title="接管初始化"
                custom-class="min-width-dialog"
                :visible.sync="modalVisible"
+               :before-close="beforeModalClose"
                @close="modalClosed"
                @open="modalOpened">
       <el-form size="small"
@@ -32,12 +33,12 @@
                        :value="host.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="选择生产库"
-                      prop="primaryDatabaseIds">
-          <el-select v-model="formData.primaryDatabaseIds"
+        <el-form-item label="应用服务器"
+                      prop="primaryAppIds">
+          <el-select v-model="formData.primaryAppIds"
                      style="width: 100%;"
                      multiple
-                     placeholder="请选择生产库">
+                     placeholder="请选择生产设备下的应用服务器">
             <el-option v-for="app in databaseOnProductionHost"
                        :key="app.id"
                        :label="app.name"
@@ -62,10 +63,11 @@
 <script>
 import { baseModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import { sortMixin } from '@/components/mixins/commonMixin';
+import { validatePassword } from '@/api/user';
 const baseData = {
   primaryHostId: '',
   viceHostId: '',
-  primaryDatabaseIds: '',
+  primaryAppIds: [],
   password: ''
 }
 const rules = {
@@ -78,7 +80,7 @@ const rules = {
   password: [
     { required: true, message: '请输入用户密码', trigger: 'blur' }
   ],
-  primaryDatabaseIds: [
+  primaryAppIds: [
     { required: true, message: '请选择生产库', trigger: 'blur' }
   ]
 }
@@ -109,6 +111,11 @@ export default {
       rules
     }
   },
+  watch: {
+    'formData.primaryHostId': function(newVal) {
+      this.formData.primaryAppIds = [];
+    }
+  },
   computed: {
     modalVisible: {
       get() {
@@ -126,7 +133,7 @@ export default {
     },
     databaseOnProductionHost() {
       const data = this.selectedProductionHost.databases || [];
-      return this.sortFn(data, 'createTime');
+      return data ? this.sortFn(data, 'createTime') : [];
     },
   },
   methods: {
@@ -141,7 +148,23 @@ export default {
     confirmBtnClick() {
       this.$refs.selectHostForm.validate(valid => {
         if(valid) {
-          this.$emit('confirm', this.formData);
+          validatePassword(this.formData.password)
+            .then(() => {
+              const {
+                primaryHostId,
+                viceHostId,
+                primaryAppIds,
+                password
+              } = this.formData;
+              this.$emit('confirm', {
+                primaryHostId,
+                viceHostId,
+                primaryAppIds
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
         }
       })
     }
