@@ -12,7 +12,8 @@ const getters = {
     state.hosts.filter(host => host.databaseType === 2),
   mysqlHosts: state => state.hosts.filter(host => host.databaseType === 5),
   db2Hosts: state => state.hosts.filter(host => host.databaseType === 6),
-  dmHosts: state => state.hosts.filter(host => host.databaseType === 7)
+  dmHosts: state => state.hosts.filter(host => host.databaseType === 7),
+  applicationHosts: state => state.hosts.filter(host => host.databaseType === 8)
 };
 const mutations = {
   [types.GET_HOST](state, host) {

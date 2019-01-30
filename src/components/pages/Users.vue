@@ -254,6 +254,10 @@ const rolesUser = [
   {
     id: 'vm admin',
     name: '虚拟机管理员',
+  },
+  {
+    id: 'application admin',
+    name: '应用服务管理员'
   }
 ];
 
