@@ -101,23 +101,13 @@
           <li>
             <h5>当前状态</h5>
             <div>
-              <el-tooltip :disabled="backupOperation.state !== 1"
-                          :content="backupOperation.process"
-                          placement="left"
+              <el-tooltip :content="operationState"
+                          placement="top-end"
                           effect="light">
-                <div style="display: inline-block">
-                  <i v-if="backupOperation.state === 0"
-                     class="el-icon-time"
-                     :class="operationStateStyle"></i>
-                  <i v-else-if="backupOperation.state === 1"
-                     class="el-icon-loading"
-                     :class="operationStateStyle"></i>
-                  <i v-else-if="backupOperation.state === 3"
-                     class="el-icon-warning"
-                     :class="operationStateStyle"></i>
-                  <span :class="operationStateStyle">{{operationState || '-'}}</span>
-                </div>
+                <i :class="formatIcon(backupOperation.state)" style="float:right"></i>
               </el-tooltip>
+              <el-progress style="margin-right:20px" :percentage="formatProcess(backupOperation)" :status="formatState(backupOperation.state)" :text-inside="true" :stroke-width="17">
+              </el-progress>
             </div>
           </li>
           <li>
@@ -237,6 +227,25 @@ export default {
       } else if(data === 2){
         return this.$style.successColor + ' el-icon-success';
       }else return '';
+    },
+    formatProcess(data) {
+      if (data.state === 1) {
+        return data.processSpeed;
+      } else if (data.state === 0) {
+        return 0;
+      } else if (data.state === 2) {
+        return 100;
+      } else if (data.state === 3) {
+        return data.processSpeed;
+      }
+    },
+    formatState(state) {
+      if (state === 2) {
+        return 'success';
+      } else if (state === 3) {
+        return 'exception';
+      }
+      return 'text';
     },
   }
 };
