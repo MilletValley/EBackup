@@ -140,8 +140,8 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                      <p v-if="(!hostLink.latestSwitch || hostLink.latestSwitch.type === 1)&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
-                      <el-form v-else-if="(!hostLink.latestSwitch || hostLink.latestSwitch.type === 1) ||
+                      <p v-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
+                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type)) ||
                                           hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
                                 size="mini"
                                 label-width="70px">
@@ -227,7 +227,7 @@
                   <div v-else-if="simpleSwitchGoing(hostLink)"
                        style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP进行中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP中...</span>
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
@@ -235,7 +235,8 @@
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
                                 @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
                       <el-button type="text"
-                                @click="switchHostIp(hostLink)">切IP</el-button>
+                                @click="switchHostIp(hostLink)"
+                                :disabled="hostLink.primaryHost.osName === 'AIX'">切IP</el-button>
                       <el-button type="text"
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                 @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
@@ -254,60 +255,20 @@
                     <i-icon name="host-ebackup"
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
-                    <el-tooltip v-if="simpleSwitchGoing(hostLink)"
-                                content="易备设备切换IP中"
-                                effect="light"
-                                placement="right"
-                                :open-delay="200">
-                      <i class="el-icon-loading"
-                        :class="$style.simpleSwitchGoing"></i>
-                    </el-tooltip>
-                    <el-tooltip v-else-if="availableSimpleSwitchIp(hostLink.primaryHost)"
-                                effect="light"
-                                placement="right"
-                                :open-delay="200">
-                      <div slot="content">
-                        <span v-if="osIsWindows(hostLink.viceHost.osName)">
-                          易备IP: {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>{{ simpleSwitchTargetIp(hostLink) }}
-                        </span>
-                        <span v-else>
-                          服务IP: {{ simpleSwitchOriginIp(hostLink) }}<i class="el-icon-d-arrow-right"></i>
-                                  {{ hostLink.serviceIP === 1 ? '易备设备' : '生产设备' }}
-                        </span>
-                      </div>
-                      <i-icon :class="$style.simpleSwitch"
-                              name="simpleSwitch"
-                              @click.native="simpleSwitchIp(hostLink)"></i-icon>  
-                    </el-tooltip>
-                    <span v-if="availableSimpleSwitchDb(hostLink.primaryHost)">
-                      <el-tooltip v-if="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                                  content="无可单切的实例"
-                                  effect="light"
-                                  placement="right"
-                                  :open-delay="200">
-                        <i-icon name="notSimpleSwitchDb"
-                                :class="$style.simpleSwitchDb"></i-icon>
-                      </el-tooltip>
-                      <el-tooltip v-else
-                                  content="易备实例单切"
-                                  effect="light"
-                                  placement="right"
-                                  :open-delay="200">
-                        <i-icon name="simpleSwitchDb"
-                                :class="$style.simpleSwitchDb"
-                                @click.native="simpleSwitchMultiDatabases(hostLink)"></i-icon>
-                      </el-tooltip>
-                    </span>
-                    <span v-if="availableRestoreSimpleSwitch(hostLink).length>0">
-                      <el-tooltip content="单切恢复"
-                                  effect="light"
-                                  placement="right"
-                                  :open-delay="200">
-                        <i-icon name="restoreSimpleSwitch"
-                                :class="$style.restoreSimpleSwitchDb"
-                                @click.native="restoreSimpleSwitchDatabases(hostLink, true)"></i-icon>
-                      </el-tooltip>
-                    </span>
+                    <el-dropdown style="position: absolute; right: 0px; top: -9px;"
+                                 v-if="hostLink.primaryHost.databaseType === 1">
+                      <el-button size="mini">
+                        更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+                      </el-button>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item :disabled="!availableSimpleSwitchIp(hostLink.primaryHost)"
+                                          @click.native="simpleSwitchIp(hostLink)">单切IP</el-dropdown-item>
+                        <el-dropdown-item :disabled="!availableSimpleSwitchDb(hostLink.primaryHost) || !hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                                          @click.native="simpleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
+                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSimpleSwitch(hostLink.primaryHost, link))"
+                                          @click.native="restoreSimpleSwitchDatabases(hostLink, true)">单切恢复</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
                   </div>
                   <div>
                     <el-row>
@@ -443,9 +404,16 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
+                    <div slot="reference" style="position: relative; height: 3em"
+                         v-if="dbLink.state === 1">
+                      <div :class="$style.mask"></div>
+                      <i-icon name="transportation"
+                              :class="$style.transportationIcon"></i-icon>
+                    </div>
                     <i-icon :name="`switch-${dbLink.state}`"
-                            :class="$style.switchIcon"
-                            slot="reference"></i-icon>
+                              slot="reference"
+                              :class="$style.switchIcon"
+                              v-else></i-icon>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
                       style="margin-top: 6px;">
@@ -467,7 +435,7 @@
                     </span>
                   </div>
                   <div v-else>
-                    <div v-if="hostLink.primaryHost.databaseType===1&&([2,3].includes(hostLink.primaryHost.oracleVersion))">
+                    <div v-if="availableFailOver(hostLink.primaryHost)">
                       <el-button type="text"
                               @click="failOver(dbLink)"
                               :class="$style.failOver">{{dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}</el-button>
@@ -480,12 +448,9 @@
                         <el-dropdown-menu slot="dropdown">
                           <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
-                                            :disabled="dbLink.primaryDatabase.role === 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
+                                            :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
-                                            :disabled="!([2,3].includes(hostLink.primaryHost.oracleVersion) &&
-                                                        dbLink.viceDatabase.role === 1 &&
-                                                        dbLink.primaryDatabase.state !== 1 &&
-                                                        dbLink.failOverState === 0)">单切恢复</el-dropdown-item>
+                                            :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -968,41 +933,74 @@ export default {
     simpleSwitchGoing(hostLink) {
       return this.hasSimpleSwitch(hostLink.simpleSwitch) && hostLink.simpleSwitch.state === 1
     },
-    // 单切返回的提示信息类型
-    messageType(state) {
-      switch(state) {
-        case 1:
-          return 'info'
-        case 2:
-          return 'success'
-        case 3:
-          return 'error'
-        default:
-          return ''
-      }
-    },
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
     },
-    // 可以单切实例的环境：windows、rac的10g、11g，linux的11g
+    /**
+        可以单切实例的环境：
+        1、windows的10g、11g、12c
+        2、linux的11g、12c、11g rac、10g rac
+        3、AIX的11g、11g rac
+        生产库-主，易备库-备
+    */
     availableSimpleSwitchDb(primaryHost) {
-      if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0)) {
-        return primaryHost.databaseType === 1
-      } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1 ) {
-        return primaryHost.databaseType === 1 && primaryHost.oracleVersion === 2;
+      if(primaryHost.databaseType === 1) {
+        if(primaryHost.osName === 'Windows') {
+          return [1, 2, 3].includes(primaryHost.oracleVersion);
+        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1) {
+          return [2, 3].includes(primaryHost.oracleVersion);
+        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0) {
+          return [1, 2].includes(primaryHost.oracleVersion);
+        } else if (primaryHost.osName === 'AIX') {
+          return primaryHost.oracleVersion === 2;
+        }
       }
       return false;
     },
-    // 可以单切IP的环境：windows、linux的非rac环境下
+    /**
+     * 可以单切IP的环境：
+     * 1、windows的10g、11g、12c
+     * 2、linux的11g、12c
+     **/
     availableSimpleSwitchIp(primaryHost) {
-      return primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1);
+      if(primaryHost.databaseType === 1) {
+        if(primaryHost.osName === 'Windows') {
+          return [1, 2, 3].includes(primaryHost.oracleVersion);
+        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1) {
+          return [2, 3].includes(primaryHost.oracleVersion);
+        }
+      }
+      return false;
     },
-    // 可以批量单切的实例: 11g,12C环境，生产库非正常，易备库环境为主，故障转移处于关闭状态
-    availableRestoreSimpleSwitch(hostLink, dbLink) {
-      if(hostLink.primaryHost.databaseType ===1 && [2,3].includes(hostLink.primaryHost.oracleVersion))
-        return hostLink.databaseLinks.filter(link => link.viceDatabase.role === 1 && link.primaryDatabase.state !== 1 && link.failOverState === 0)
-      return [];
+    /**
+     * 可以使用故障转移的环境：
+     * 1、windows的11g、12c
+     * 2、linux的11g、12c、rac 11g
+     * 3、AIX的11g
+     */
+    availableFailOver(primaryHost) {
+      if(primaryHost.databaseType === 1) {
+        if(primaryHost.osName === 'Windows') {
+          return [2, 3].includes(primaryHost.oracleVersion);
+        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1) {
+          return [2, 3].includes(primaryHost.oracleVersion);
+        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0) {
+          return primaryHost.oracleVersion === 2;
+        } else if (primaryHost.osName === 'AIX' && primaryHost.isRacMark === 1) {
+          return primaryHost.oracleVersion === 2;
+        }
+      }
+      return false;
+    },
+    // 可以批量单切恢复的实例: windows、linux下的11g,12C环境，生产库非正常，易备库环境为主，故障转移处于关闭状态
+    availableRestoreSimpleSwitch(primaryHost, dbLink) {
+      if(primaryHost.databaseType === 1) {
+        if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1)) {
+          return [2,3].includes(primaryHost.oracleVersion) && dbLink.viceDatabase.role === 1 && dbLink.primaryDatabase.state !== 1 && dbLink.failOverState === 0;
+        }
+      }
+      return false;
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
@@ -1082,10 +1080,7 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          const alreadyToSwitchDbLinks = isMultiple ? this.availableRestoreSimpleSwitch(link) : [link];
-          alreadyToSwitchDbLinks.forEach(dbLink => {
-            this.$set(dbLink, 'restoreSimpleSwitchOnGoing', true);
-          })
+          const alreadyToSwitchDbLinks = isMultiple ? link.databaseLinks.filter(item => this.availableRestoreSimpleSwitch(link.primaryHost,item)) : [link];
           const restoreSimpleSwitchIds = alreadyToSwitchDbLinks.map(dbLink => dbLink.id);
           restoreSimpleSwitchOracle(restoreSimpleSwitchIds)
             .then(res => {
@@ -1370,13 +1365,31 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
-.switchIcon {
+.switchIcon,
+.transportationIcon {
   width: 3em;
   height: 3em;
-  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
+  }
+}
+.mask {
+  animation: move 2s infinite;
+  position: absolute;
+  height: 3em;
+  width: 100px;
+  left: 20px;
+  background: #fff;
+}
+@keyframes move {
+  from {
+    left: 20px;
+    width: 100px;
+  }
+  to {
+    left: 150px;
+    width: 0;
   }
 }
 .dbLinkInfoItem {

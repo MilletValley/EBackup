@@ -101,7 +101,7 @@ export default {
     id: {
       type: Number,
     },
-    tableData: {
+    data: {
       type: Array,
       default: () => [],
     },
@@ -111,12 +111,18 @@ export default {
       loading: false,
       timer: null,
       inputSearch: '',
+      tableData: [],
       defaultSort: { prop: 'startTime', order: 'descending' },
     };
   },
   mounted() {
     // this.fetchAll();
     // this.setTimer(this.timer);
+    if(this.$route.name === 'virtualBackup') {
+      this.tableData = this.data.filter(item => item.vm.type === 1);
+    } else {
+      this.tableData = this.data.filter(item => item.vm.type === 2);
+    }
   },
   destroyed() {
     // this.clearTimer(this.timer);

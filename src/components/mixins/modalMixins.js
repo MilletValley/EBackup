@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import { validateLength } from '../../utils/common';
+import { databaseTypeMapping } from '../../utils/constant';
 
 const genModalMixin = type => {
   if (!['database', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(type)) {
@@ -100,14 +101,6 @@ const genModalMixin = type => {
         filehost: '服务器',
         host: '设备'
       };
-      const databaseUseType = [
-        { value: 1, text: 'oracle' },
-        { value: 2, text: 'sqlserver' },
-        { value: 4, text: '虚拟机' },
-        { value: 5, text: 'mysql' },
-        { value: 6, text: 'db2' },
-        { value: 7, text: '达梦数据库' }
-      ];
       const ipFormat = [
         {
           pattern: '^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$',
@@ -289,7 +282,6 @@ const genModalMixin = type => {
         formData: Object.assign({}, baseData[this.type]),
         // trigger增加change更方便 但是再次打开modal会显示出验证结果
         // 猜测是因为初始化时，触发了change事件
-        databaseUseType,
         rules,
         baseRules,
         hostRules, // 设备校验规则
@@ -346,6 +338,11 @@ const genModalMixin = type => {
         }
         return this.mysqlHosts;
       },
+      databaseUseType() {
+        return Object.keys(databaseTypeMapping).map(index =>
+          ({ value: Number(index), text: databaseTypeMapping[index] })
+        );
+      }
     },
     mounted() {
       for (let i = 67; i < 91; i++) { // C-Z盘 盘符

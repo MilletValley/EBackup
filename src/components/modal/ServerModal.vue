@@ -3,7 +3,8 @@
     <el-dialog custom-class="min-width-dialog"
                :visible.sync="modalVisible"
                :before-close="beforeModalClose"
-               @close="modalClosed">
+               @close="modalClosed"
+               @open="modalOpened">
       <span slot="title">
         添加主机
       </span>
@@ -37,11 +38,11 @@
         </el-form-item>
         <el-form-item label="主机类型："
                     prop="serverType">
-          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)"
+          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)&&isVirtual"
                     :label="1">vCenter</el-radio>
-          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)"
+          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)&&isVirtual"
                     :label="2">物理主机</el-radio>
-          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType !== 3)"
+          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType !== 3)&&!isVirtual"
                     :label="3">FusionSphere</el-radio>
         </el-form-item>
       </el-form>
@@ -90,6 +91,7 @@ export default {
       formData: Object.assign({}, data),
       hiddenPassword: true,
       deviceModalVisible: false,
+      isVirtual: true,
       rules: {
         serverName: [
           {
@@ -177,7 +179,7 @@ export default {
     },
     showDevice() {
       return this.type === 'device';
-    },
+    }
   },
   methods: {
     // 点击确认按钮触发
@@ -187,6 +189,13 @@ export default {
           this.$emit('confirm', this.formData);
         }
       });
+    },
+    modalOpened() {
+      this.isVirtual = this.$route.name === 'virtualCollectManager'
+      if(!this.isVirtual) {
+        this.formData.serverType = 3;
+        this.originFormData.serverType = 3;
+      }
     },
     modalClosed() {
       this.formData = { ...this.originFormData };

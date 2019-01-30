@@ -138,7 +138,14 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
-        });
+        })
+        .then(() => {
+          if(this.$route.name === 'virtualCollectManager') {
+            this.serverTableData = this.serverTableData.filter(item => [1, 2].includes(item.serverType));
+          } else {
+            this.serverTableData = this.serverTableData.filter(item => item.serverType === 3);
+          }
+        })
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);

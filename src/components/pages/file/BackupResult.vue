@@ -183,47 +183,48 @@ export default {
   computed: {
     // 文件服务器备份集中 只有最新对备份集才能用于恢复
     tableData() {
-      const data = this.data.map((r, i, arr) => {
-        return Object.assign({}, r);
-      });
-      const map = {};
-      data.forEach((result, index) => {
-        const {size} = result;
-        let fmtSize = 0;
-        fmtSize = fmtSizeFn(size);
-        result.size = fmtSize ? fmtSize : 0;
-        // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
-        if (!map[result.sourcePath]) {
-          map[result.sourcePath] = [];
-          map[result.sourcePath].push(result);
-        } else {
-          map[result.sourcePath].push(result);
-          // const lastIndex = map[result.fileName].index;
-          // if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
-          //   map[result.fileName] = {
-          //     index: index,
-          //     id:result.id
-          //   };
-          // }
-        }
-      });
-      const testData = Object.keys(map).map(e => {
-        const data = map[e].sort((a, b) => {
-          return dayjs(b.endTime) - dayjs(a.endTime);
-        });
-        return Object.assign({}, map[e][0], {list: data});
-      })
-      // return data.map((result, index) => {
-      //   for(let i in result) {
-      //     result[i]=(result[i]===null||result[i]==='null')?'':result[i];
-      //   }
-      //   if (map[result.fileName].id === result.id) {
-      //     return Object.assign({}, result, { allowRestore: 1 });
+      return this.data;
+      // const data = this.data.map((r, i, arr) => {
+      //   return Object.assign({}, r);
+      // });
+      // const map = {};
+      // data.forEach((result, index) => {
+      //   const {size} = result;
+      //   let fmtSize = 0;
+      //   fmtSize = fmtSizeFn(size);
+      //   result.size = fmtSize ? fmtSize : 0;
+      //   // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
+      //   if (!map[result.sourcePath]) {
+      //     map[result.sourcePath] = [];
+      //     map[result.sourcePath].push(result);
       //   } else {
-      //     return Object.assign({}, result, { allowRestore: 0 });
+      //     map[result.sourcePath].push(result);
+      //     // const lastIndex = map[result.fileName].index;
+      //     // if (dayjs(data[lastIndex].endTime) < dayjs(result.endTime)) {
+      //     //   map[result.fileName] = {
+      //     //     index: index,
+      //     //     id:result.id
+      //     //   };
+      //     // }
       //   }
       // });
-      return testData
+      // const testData = Object.keys(map).map(e => {
+      //   const data = map[e].sort((a, b) => {
+      //     return dayjs(b.endTime) - dayjs(a.endTime);
+      //   });
+      //   return Object.assign({}, map[e][0], {list: data});
+      // })
+      // // return data.map((result, index) => {
+      // //   for(let i in result) {
+      // //     result[i]=(result[i]===null||result[i]==='null')?'':result[i];
+      // //   }
+      // //   if (map[result.fileName].id === result.id) {
+      // //     return Object.assign({}, result, { allowRestore: 1 });
+      // //   } else {
+      // //     return Object.assign({}, result, { allowRestore: 0 });
+      // //   }
+      // // });
+      // return testData
     },
   },
   methods: {
