@@ -250,7 +250,11 @@ export default {
             type: 'success',
           })
             .then(() => {
-              this.$router.push({ name: 'backup' });
+              if (this.vmType === 'VMware') {
+                this.$router.push({ name: 'virtualBackup' });
+              } else {
+                this.$router.push({ name: 'hwVirtualBackup' });
+              }
             })
             .catch(action => {});
         })
