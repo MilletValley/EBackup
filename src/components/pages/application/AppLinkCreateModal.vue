@@ -47,8 +47,10 @@
         </el-form-item>
         <el-form-item label="用户密码"
                       prop="password">
-          <el-input v-model="formData.password"
-                    placeholder="请输入用户密码"></el-input>
+          <!-- <el-input v-model="formData.password"
+                    placeholder="请输入用户密码"></el-input> -->
+          <input-toggle v-model="formData.password"
+                        :hidden.sync="hiddenPassword"></input-toggle>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -64,6 +66,7 @@
 import { baseModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import { sortMixin } from '@/components/mixins/commonMixin';
 import { validatePassword } from '@/api/user';
+import InputToggle from '@/components/InputToggle';
 const baseData = {
   primaryHostId: '',
   viceHostId: '',
@@ -104,10 +107,14 @@ export default {
       type: Boolean,
     },
   },
+  components: {
+    InputToggle
+  },
   data() {
     return {
       formData: {},
       originFormData: {},
+      hiddenPassword: true,
       rules
     }
   },
@@ -143,6 +150,7 @@ export default {
     },
     modalClosed() {
       this.$refs.selectHostForm.clearValidate();
+      this.hiddenPassword = true;
       this.modalVisible = false;
     },
     confirmBtnClick() {
