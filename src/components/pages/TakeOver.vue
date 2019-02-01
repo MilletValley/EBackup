@@ -404,9 +404,16 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
+                    <div slot="reference" style="position: relative; height: 3em"
+                         v-if="dbLink.state === 1">
+                      <div :class="$style.mask"></div>
+                      <i-icon name="transportation"
+                              :class="$style.transportationIcon"></i-icon>
+                    </div>
                     <i-icon :name="`switch-${dbLink.state}`"
-                            :class="$style.switchIcon"
-                            slot="reference"></i-icon>
+                              slot="reference"
+                              :class="$style.switchIcon"
+                              v-else></i-icon>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
                       style="margin-top: 6px;">
@@ -926,19 +933,6 @@ export default {
     simpleSwitchGoing(hostLink) {
       return this.hasSimpleSwitch(hostLink.simpleSwitch) && hostLink.simpleSwitch.state === 1
     },
-    // 单切返回的提示信息类型
-    messageType(state) {
-      switch(state) {
-        case 1:
-          return 'info'
-        case 2:
-          return 'success'
-        case 3:
-          return 'error'
-        default:
-          return ''
-      }
-    },
     switchModalClosed() {
       this.databaseLinkIdsReadyToSwitch = [];
       this.hostLinkIdReadyToSwitch = -1;
@@ -1371,13 +1365,31 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
-.switchIcon {
+.switchIcon,
+.transportationIcon {
   width: 3em;
   height: 3em;
-  // cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
     transform: scale(1.2);
+  }
+}
+.mask {
+  animation: move 2s infinite;
+  position: absolute;
+  height: 3em;
+  width: 100px;
+  left: 20px;
+  background: #fff;
+}
+@keyframes move {
+  from {
+    left: 20px;
+    width: 100px;
+  }
+  to {
+    left: 150px;
+    width: 0;
   }
 }
 .dbLinkInfoItem {

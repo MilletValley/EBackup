@@ -151,7 +151,21 @@ export default {
       fetchVmBackupPlanList()
         .then(res => {
           const { data } = res.data;
-          this.tableData = data;
+          const allData = Array.isArray(data) ? data : [];
+          if(this.$route.name === 'virtualBackup') {
+            this.tableData = allData.map(e => {
+              e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 1) : [];
+              return e;
+            });
+          } else {
+            this.tableData = allData.filter(e => {
+              e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 2) : [];
+              if (e.backupResult.length > 0) {
+                return true;
+              }
+              return false;
+            });
+          }
         })
         .catch(error => {
           this.$message.error(error);

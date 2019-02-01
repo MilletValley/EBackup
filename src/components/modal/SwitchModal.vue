@@ -251,29 +251,6 @@
             </div>
             <!-- 解除连接结束 -->
           </div>
-          <!-- <template v-if="hostLinkReadyToSwitch">
-            <el-form :model="formData"
-                     size="small"
-                     label-position="left"
-                     style="margin-top: 15px;">
-              <el-row :gutter="20">
-                <el-col :span="12">
-                  <el-form-item label="默认网关"
-                                required
-                                label-width="5.5em">
-                    <el-input v-model="formData.defaultGateway"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="掩码"
-                                label-width="3em">
-                    <el-input v-model="formData.mask"
-                              placeholder="默认掩码: 255.255.255.0"></el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
-          </template> -->
           <el-input type="password"
                     v-model="password"
                     placeholder="请输入用户密码以执行此操作"></el-input>

@@ -2,6 +2,7 @@ import Layout from '@/components/Layout';
 import TakeOver from '@/components/pages/TakeOver';
 import SwitchList from '@/components/pages/SwitchList';
 import SwitchDetail from '@/components/pages/SwitchDetail';
+import AppTakeOver from '@/components/pages/application/TakeOver';
 
 const takeoverRouter = [
   {
@@ -10,7 +11,7 @@ const takeoverRouter = [
     meta: {
       title: '一键接管',
       icon: 'takeover',
-      roles: ['oracle dba', 'sql server dba'],
+      roles: ['oracle dba', 'sql server dba', 'application admin'],
     },
     children: [
       {
@@ -47,6 +48,26 @@ const takeoverRouter = [
             },
             {
               name: 'SQLServer接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'app/takeover',
+        name: 'appTakeOverView',
+        component: AppTakeOver,
+        meta: {
+          activeName: 'appOverview',
+          roles: ['application admin'],
+          title: '应用服务器',
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '应用服务器接管',
               path: '',
             },
           ],
