@@ -50,6 +50,19 @@ const takeoverMixin = {
           return '';
       }
     },
+    // 单切返回的提示信息类型
+    messageType(state) {
+      switch (state) {
+        case 1:
+          return 'info';
+        case 2:
+          return 'success';
+        case 3:
+          return 'error';
+        default:
+          return '';
+      }
+    },
     // 是否进行过单切
     hasSimpleSwitch(simpleSwitch) {
       return Object.keys(simpleSwitch).length > 0;

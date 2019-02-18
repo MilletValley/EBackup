@@ -27,10 +27,19 @@
           <el-radio v-model="formData.hostType"
                     :label="2">易备环境</el-radio>
         </el-form-item>
+        <el-form-item label="使用类别"
+                      prop="useType">
+          <el-radio-group v-model="useType">
+            <el-radio label="db">数据库</el-radio>
+            <el-radio label="vm">虚拟机</el-radio>
+            <el-radio label="application">应用服务</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">
           <el-radio-group v-model="formData.databaseType">
             <el-radio v-for="db in databaseUseType"
+                      v-if="(useType === 'db'&&[1,2,5,6,7].includes(db.value))||(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
                       :key="db.value"
                       :label="db.value">{{ db.text }}</el-radio>
           </el-radio-group>
@@ -181,6 +190,40 @@ export default {
       this.$refs.createForm.clearValidate();
       this.hiddenPassword = true;
     },
+  },
+  computed: {
+    useType: {
+      get() {
+        switch(this.formData.databaseType) {
+          case 1:
+          case 2:
+          case 5:
+          case 6:
+          case 7:
+            return 'db';
+          case 4:
+            return 'vm';
+          case 8:
+            return 'application';
+          default:
+            return ''
+        }
+      },
+      set(newVal) {
+         switch(newVal) {
+          case 'db':
+            this.formData.databaseType = 1;
+            break;
+          case 'vm':
+            this.formData.databaseType = 4;
+            break;
+          case 'application':
+            this.formData.databaseType = 8;
+            break;
+          default:
+        }
+      }
+    }
   },
   watch: {
     'formData.databaseType': function(newVal, oldVal) {
