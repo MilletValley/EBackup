@@ -32,6 +32,7 @@ const vmRouter = [
             component: ServerManager,
             meta: {
               title: '虚拟机主机管理',
+              activeName: 'vmwareHost',
               roles: [],
             },
           },
@@ -40,7 +41,7 @@ const vmRouter = [
             name: 'VMwareList',
             component: VMwareList,
             meta: {
-              title: 'veem虚拟机列表',
+              title: 'veeam虚拟机列表',
               activeName: 'vmware',
               roles: ['vm admin'],
               breadcrumb: [
@@ -60,7 +61,8 @@ const vmRouter = [
             name: 'virtualBackup',
             component: BackupPlanList,
             meta: {
-              title: '批量操作',
+              title: '备份计划',
+              activeName: 'vmwareBackup',
               roles: [],
             },
           },
@@ -99,6 +101,7 @@ const vmRouter = [
         },
         meta: {
           title: '华为虚拟机',
+          activeName: 'hwVirtuals',
           roles: ['vm admin']
         },
         children: [
@@ -108,6 +111,7 @@ const vmRouter = [
             component: ServerManager,
             meta: {
               title: '虚拟机主机管理',
+              activeName: 'hwHost',
               roles: []
             }
           },
@@ -117,7 +121,7 @@ const vmRouter = [
             component: VMwareList,
             meta: {
               title: '华为虚拟机',
-              activeName: 'HWware',
+              activeName: 'hw',
               roles: ['vm admin'],
               breadcrumb: [
                 {
@@ -136,7 +140,8 @@ const vmRouter = [
             name: 'hwVirtualBackup',
             component: BackupPlanList,
             meta: {
-              title: '批量操作',
+              title: '备份计划',
+              activeName: 'hwBackup',
               roles: [],
             },
           },
@@ -146,7 +151,7 @@ const vmRouter = [
             component: VMwareDetail,
             name: 'hwVirtualDetail',
             meta: {
-              activeName: 'HWware',
+              activeName: 'hw',
               roles: ['vm admin'],
               breadcrumb: [
                 {

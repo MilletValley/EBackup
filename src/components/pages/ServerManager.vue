@@ -164,7 +164,11 @@ export default {
             type: 'success',
           })
             .then(() => {
-              this.$router.push({ name: 'backup' });
+              if(this.$route.name === 'virtualCollectManager') {
+                this.$router.push({ name: 'virtualBackup' });
+              } else {
+                this.$router.push({ name: 'hwVirtualBackup' });
+              }
             })
             .catch(action => {});
         })

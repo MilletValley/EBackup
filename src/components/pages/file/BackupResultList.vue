@@ -3,7 +3,7 @@
     <el-table :data="backupResults">
       <el-table-column type="expand">
         <template slot-scope="scope">
-          <backup-result  :data="scope.row.backupFiles"
+          <backup-result  :data="scope.row.fmtData"
                           :backupType="scope.row.backupType"
                           :type="type"
                           @single-restore-btn-click="restoreResultBtnClick"
@@ -59,9 +59,11 @@
   </section>
 </template>
 <script>
+import dayjs from 'dayjs';
 import { filehostBackupTypeMapping } from '@/utils/constant';
 import BackupResult from '@/components/pages/file/BackupResult';
 import { deleteResultByPlanId } from '@/api/file';
+import { fmtSizeFn } from '@/utils/common';
 export default {
   name: 'BackupResultList',
   components: {
@@ -79,14 +81,7 @@ export default {
   },
   computed: {
     backupResults() {
-      return this.data.map(result => {
-        if(result.backupFiles.find(item => item.state === 1)) {
-          result.state = 1;
-        } else {
-          result.state = 0;
-        }
-        return result;
-      })
+      return this.fmtData(this.data);
     }
   },
   filters: {
@@ -108,6 +103,40 @@ export default {
         state === 1;
       }
       return state;
+    },
+    fmtData(data) {
+      return data.map(res => {
+        let filesData = res.backupFiles.map((r, i, arr) => {
+          return Object.assign({}, r);
+        });
+        const map = {};
+        filesData.forEach((result, index) => {
+          const {size} = result;
+          let fmtSize = 0;
+          fmtSize = fmtSizeFn(size);
+          result.size = fmtSize ? fmtSize : 0;
+          // 当索引为0时，!0等于true，此处不建议用索引，可以绑定id进行唯一标识
+          if (!map[result.sourcePath]) {
+            map[result.sourcePath] = [];
+            map[result.sourcePath].push(result);
+          } else {
+            map[result.sourcePath].push(result);
+          }
+        });
+        const fmtData = Object.keys(map).map(e => {
+          const fData = map[e].sort((a, b) => {
+            return dayjs(b.endTime) - dayjs(a.endTime);
+          });
+          return Object.assign({}, map[e][0], {list: fData});
+        });
+        res.fmtData = fmtData;
+        if(fmtData.find(item => item.state === 1)) {
+          res.state = 1;
+        } else {
+          res.state = 0;
+        }
+        return res;
+      });
     },
     // 点击恢复按钮
     restoreResultBtnClick(id, backupType, type) {

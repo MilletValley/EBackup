@@ -19,6 +19,7 @@ import fileHostRouter from './fileHost';
 import databaseRouter from './database';
 import vmRouter from './virtuals';
 import systemRouter from './system';
+import applicationServiceRouter from './applicationservice';
 
 Vue.use(Router);
 
@@ -65,7 +66,13 @@ export default new Router({
   routes: basicRouters,
 });
 
-export const asyncRouters = [...takeoverRouter, ...fileHostRouter, ...databaseRouter, ...vmRouter, ...systemRouter,
+export const asyncRouters = [
+  ...takeoverRouter,
+  ...fileHostRouter,
+  ...databaseRouter,
+  ...vmRouter,
+  ...applicationServiceRouter,
+  ...systemRouter,
   // {
   //   path: '/file',
   //   component: Layout,

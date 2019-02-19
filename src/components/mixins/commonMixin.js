@@ -163,10 +163,9 @@ const sockMixin = {
       this.stompClient.heartbeat.outgoing = 20000;
       this.stompClient.heartbeat.incoming = 0;
     },
-    errorCallback(err) {
+    errorCallback() {
       console.error('连接失败');
-      console.error(err);
-      this.stompClient = null;
+      // this.stompClient = null;
     },
     connectCallback(client) {
       const headers = {};

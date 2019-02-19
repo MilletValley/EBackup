@@ -130,7 +130,6 @@ const useTypeMapping = {
   6: 'db2',
   7: '达梦数据库'
 };
-
 // 保留策略类型
 const keepStrategyMapping = {
   0: '不启用策略',
@@ -146,7 +145,8 @@ const portHostTypeMapping = {
   4: '虚拟机',
   5: 'mysql',
   6: 'db2',
-  7: '达梦数据库'
+  7: '达梦数据库',
+  8: '应用服务器'
 };
 
 const keepDateMapping = {
@@ -159,14 +159,15 @@ const systemStateMapping = {
   1: '禁用',
 };
 
-// 设备包含的数据库类型
+// 设备包含的用途类型
 const databaseTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
   4: '虚拟机',
   5: 'mysql',
   6: 'db2',
-  7: '达梦数据库'
+  7: '达梦数据库',
+  8: '应用服务器'
 };
 
 // 数据库连接状态
