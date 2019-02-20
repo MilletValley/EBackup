@@ -13,7 +13,11 @@
         <el-table v-show="!isSelect" :data="serverTableData" ref="serverTable">
              <el-table-column type="expand">
                     <template slot-scope="props">
-                        <mutil-table :tableData="props.row.vmList" :ref="props.row.id" :refTable="props.row.serverName" :selectData.sync="currentSelect"></mutil-table>
+                        <mutil-table :tableData="props.row.vmList"
+                                     :ref="props.row.id"
+                                     :refTable="props.row.serverName"
+                                     :selectData.sync="currentSelect"
+                                     @refresh="refreshOneServer(props.row)"></mutil-table>
                     </template>
             </el-table-column>
             <el-table-column label="主机名" prop="serverName" align="left"
@@ -31,7 +35,7 @@
                             label="创建时间"
                             min-width="200">
             </el-table-column>
-            <el-table-column prop="serverType" 
+            <el-table-column prop="serverType"
                 label="主机类型"
                 :formatter="serverTypeFormat"
                 min-width="150"
@@ -258,6 +262,22 @@ export default {
           return;
         });
     },
+    // 刷新单个主机下的虚拟机列表
+    refreshOneServer(row) {
+      getVMByserverId(row.id).then(res => {
+        const ids = row.vmList.map(i => i.id);
+        this.currentSelect = this.currentSelect.filter(e => {
+          if (ids.includes(e.id)) {
+            return false;
+          }
+          return true;
+        });
+        const { data } = res.data;
+        row.vmList = data;
+      }).catch(error => {
+        this.$message.error(error);
+      });
+    },
     rescanVm(data){
       return rescan(data)
         .then(resp => {
@@ -285,19 +305,7 @@ export default {
       setTimeout(() => {
         rescan(scope.row)
           .then(res => {
-            getVMByserverId(scope.row.id).then(res => {
-              const ids = scope.row.vmList.map(i => i.id);
-              this.currentSelect = this.currentSelect.filter(e => {
-                if (ids.includes(e.id)) {
-                  return false;
-                }
-                return true;
-              });
-              const { data } = res.data;
-              scope.row.vmList = data;
-            }).catch(error => {
-              this.$message.error(error);
-            });
+            this.refreshOneServer(scope.row);
           })
           .catch(error => {
             this.$message.error(error);

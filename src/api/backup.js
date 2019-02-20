@@ -186,6 +186,13 @@ const fetchRestoreOperation = (type, id) =>
     return res;
   });
 
+// 删除单个数据库/虚拟机下的单个备份集
+const deleteBackupResult = (type, id) =>
+  (type === 'file-host' ? fileBaseApi : baseApi).request({
+    method: 'delete',
+    url: `/${type}-backup-results/${id}`
+  });
+
 export {
   fetchBackupPlans,
   fetchBackupResults,
@@ -201,5 +208,6 @@ export {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation
+  fetchRestoreOperation,
+  deleteBackupResult
 };

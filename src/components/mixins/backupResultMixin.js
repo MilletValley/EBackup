@@ -114,6 +114,9 @@ const backupResultMixin = {
     restoreBtnClick({ id }) {
       this.$emit('single-restore-btn-click', id);
     },
+    deleteResult({ id }) {
+      this.$emit('delete-result', id);
+    },
     endTimeSortMethod(a, b) {
       return dayjs(a) - dayjs(b);
     },

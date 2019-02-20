@@ -146,6 +146,9 @@
                      size="small"
                      :disabled="scope.row.state === 1"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
+          <el-button type="text"
+                     size="small"
+                     @click="deleteResult(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
