@@ -15,7 +15,7 @@
                 style="width: 100%;">
                 <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
-                        <vm-backup-table :id="props.row.id" :data="props.row.backupResult"></vm-backup-table>
+                        <vm-backup-table :id="props.row.id" :data="props.row.backupResult" :type="vmType" @refresh="fetchAll"></vm-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -136,6 +136,7 @@ export default {
       intervalObj: null,
       expandRowKeys: [],
       action: 'query',
+      vmType: ''
     };
   },
   mounted() {
@@ -151,6 +152,7 @@ export default {
         .then(res => {
           const { data } = res.data;
           const allData = Array.isArray(data) ? data : [];
+          this.vmType = this.$route.name;
           if(this.$route.name === 'virtualBackup') {
             this.tableData = allData.map(e => {
               e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 1) : [];
