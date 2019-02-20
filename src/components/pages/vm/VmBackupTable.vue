@@ -2,9 +2,12 @@
 <div>
     <el-row style="margin-bottom:5px;">
         <el-col :span="6">
-            <el-input  placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+            <el-input  placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select" size="small">
                 <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
             </el-input>
+        </el-col>
+        <el-col :span="18" style="text-align: left;">
+          <el-button  @click="addVM" size="small" style="margin-left: 20px;">添加</el-button>
         </el-col>
     </el-row>
     
@@ -80,13 +83,26 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
     </el-pagination>
+    <el-dialog
+      title="添加虚拟机"
+      :visible.sync="dialogVisible"
+      custom-class="min-width-dialog"
+      @opened="dialogOpenedCB">
+      <server-table :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirCB">确 定</el-button>
+      </span>
+    </el-dialog>
 </div>
 </template>
 <script>
 import {
   deleteVirtualBackupPlan,
   getVmsBackupResult,
+  updateBackupPlanForVm
 } from '@/api/virtuals';
+import { fetchServerList } from '@/api/host';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -95,8 +111,12 @@ import {
 } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import { paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
+import ServerTable from '@/components/pages/vm/ServerTable';
 export default {
   mixins: [baseMixin, paginationMixin, filterMixin, sortMixin],
+  components: {
+    ServerTable
+  },
   props: {
     id: {
       type: Number,
@@ -105,6 +125,9 @@ export default {
       type: Array,
       default: () => [],
     },
+    type: {
+      type: String
+    }
   },
   data() {
     return {
@@ -113,6 +136,11 @@ export default {
       inputSearch: '',
       tableData: [],
       defaultSort: { prop: 'startTime', order: 'descending' },
+      dialogVisible: false,
+      serverTableData: [],
+      currentSelect: [],
+      curSelectData: [],
+      isSelect: false
     };
   },
   mounted() {
@@ -174,26 +202,41 @@ export default {
     deletePlan(scope) {
       const h = this.$createElement;
       let delBackupResults = 1;
+      const that = this;
       this.$msgbox({
-        title: '请确认是否删除？',
+        title: '提示',
         showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
+        type: 'info',
         message:
           h('div', null, [
+            h('p', null, '请确认是否删除'),
             h('el-checkbox', {
               key: (new Date()).valueOf(),
               on: {
                 change: function($event) {
                   delBackupResults = event.target.checked ? 0 : 1;
+                  that.$refs.warnText.style.opacity = event.target.checked ? 1 : 0;
+                  console.log(that.$refs.warnText.style.opacity);
                 }
               }
             }),
             h('span', {
               style: {
-                fontSize: '10px', color: '#999', marginLeft: '5px'
+                fontSize: '12px', color: '#ccc', marginLeft: '-15px'
               },
-            }, '同时删除备份计划下的所有备份集')
+            }, '同时删除备份计划下的所有备份集'),
+            h('p',
+              {
+                ref: 'warnText',
+                style: {
+                  fontSize: '12px',
+                  color: '#f78989',
+                  opacity: 0
+                },
+              },
+              '该操作将导致备份集被永久删除！')
           ])
       })
         .then(() => {
@@ -219,6 +262,48 @@ export default {
       this.filter = Object.assign({}, { vmName });
       this.currentPage = 1;
     },
+    addVM() {
+      this.currentSelect = [];
+      this.curSelectData = [];
+      this.serverTableData = [];
+      this.dialogVisible = true;
+    },
+    dialogOpenedCB() {
+      fetchServerList().then(res => {
+        const { data } = res.data;
+        if (!Array.isArray(data)) {
+          this.serverTableData = [];
+          // this.currentSelect = [];
+          return;
+        }
+        this.serverTableData = data.filter(item => {
+          if (this.type === 'virtualBackup') {
+            return [1, 2].includes(item.serverType);
+          }
+          return item.serverType === 3;
+        });
+        this.currentSelect = this.tableData.map(e => e.vm);
+        this.curSelectData = this.tableData.map(e => e.vm);
+      })
+      .catch(error => {
+        this.$message.error(error);
+      });
+    },
+    comfirCB() {
+      let idList = [];
+      this.currentSelect.forEach(e => {
+        if (!this.curSelectData.some(i => i.id === e.id)) {
+          idList.push(e.id);
+        }
+      });
+      updateBackupPlanForVm(this.id, idList).then(res => {
+        this.$message.success('添加成功！');
+        this.dialogVisible = false;
+        this.$emit('refresh');
+      }).catch(err => {
+        this.$message.error(err);
+      })
+    }
   },
 };
 </script>

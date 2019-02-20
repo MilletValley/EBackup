@@ -230,6 +230,18 @@ const deleteVirtualBackupResult = id =>
     url: `/virtual-backup-results/${id}`
   });
 
+/**
+ * 修改大备份计划中虚拟机的数量，只支持添加
+ * @param {*} planId 大备份计划id
+ * @param {*} idList 虚拟机id列表
+ */
+const updateBackupPlanForVm = (planId, idList) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtuals/virtual-backup-plans/multiple/${planId}`,
+    data: idList
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -256,4 +268,5 @@ export {
   stopAllBackupPlan,
   deleteVirtualInServerHost,
   deleteVirtualBackupResult,
+  updateBackupPlanForVm
 };

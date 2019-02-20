@@ -2,7 +2,7 @@ import Layout from '@/components/Layout';
 import VMwareList from '@/components/pages/vm/VmwareList';
 import VMwareDetail from '@/components/pages/vm/VMwareDetail';
 import BackupPlanList from '@/components/pages/vm/BackupPlanList';
-import ServerManager from '@/components/pages/ServerManager';
+import ServerManager from '@/components/pages/vm/ServerManager';
 
 const vmRouter = [
   {
