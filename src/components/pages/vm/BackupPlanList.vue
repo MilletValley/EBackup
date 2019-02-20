@@ -102,7 +102,6 @@
         
         <select-device-modal @confirm="selectedhandler"  :selected="{ }"
             :visible.sync="deviceModalVisible"></select-device-modal>
-        
     </div>
 </template>
 
@@ -125,7 +124,7 @@ export default {
   components: {
     VmBackupTable,
     BackupPlanModal,
-    SelectDeviceModal,
+    SelectDeviceModal
   },
   data() {
     return {
@@ -194,13 +193,32 @@ export default {
       }
     },
     deletePlan(scope) {
-      this.$confirm('请确认是否删除？', '提示', {
+      const h = this.$createElement;
+      let delBackupResults = 1;
+      this.$msgbox({
+        title: '请确认是否删除？',
+        showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        message:
+          h('div', null, [
+            h('el-checkbox', {
+              key: (new Date()).valueOf(),
+              on: {
+                change: function($event) {
+                  delBackupResults = event.target.checked ? 0 : 1;
+                }
+              }
+            }),
+            h('span', {
+              style: {
+                fontSize: '10px', color: '#999', marginLeft: '5px'
+              },
+            }, '同时删除备份计划下的所有备份集')
+          ])
       })
         .then(() => {
-          deletePlan(scope.row.id)
+          deletePlan(scope.row.id, delBackupResults)
             .then(res => {
               this.$message.success(res.data.message);
               this.fetchAll();

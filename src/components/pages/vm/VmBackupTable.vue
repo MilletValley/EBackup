@@ -172,16 +172,34 @@ export default {
     //     clearInterval(this.timer);
     // },
     deletePlan(scope) {
-      this.$confirm('请确认是否删除？', '提示', {
+      const h = this.$createElement;
+      let delBackupResults = 1;
+      this.$msgbox({
+        title: '请确认是否删除？',
+        showCancelButton: true,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        message:
+          h('div', null, [
+            h('el-checkbox', {
+              key: (new Date()).valueOf(),
+              on: {
+                change: function($event) {
+                  delBackupResults = event.target.checked ? 0 : 1;
+                }
+              }
+            }),
+            h('span', {
+              style: {
+                fontSize: '10px', color: '#999', marginLeft: '5px'
+              },
+            }, '同时删除备份计划下的所有备份集')
+          ])
       })
         .then(() => {
-          deleteVirtualBackupPlan(scope.row.id)
+          deleteVirtualBackupPlan(scope.row.id, delBackupResults)
             .then(res => {
               this.$message.success('删除成功');
-              // this.fetchAll();
               this.tableData.splice(
                 this.tableData.findIndex(item => item.id === scope.row.id),
                 1

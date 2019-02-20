@@ -105,7 +105,8 @@
       </template>
       <template slot="backupResult">
         <backup-result-list :data="results"
-                            @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
+                            @single-restore-btn-click="initSingleRestoreModal"
+                            @delete-result="deleteOneResult"></backup-result-list>
       </template>
       <template slot="restoreRecord">
         <restore-records :restore-plan="restorePlans"
@@ -154,6 +155,7 @@ import { vmHostServerTypeMapping } from '@/utils/constant';
 import {
   updateVirtualBackupPlan,
   createMultipleVirtualBackupPlan,
+  deleteVirtualBackupPlan
 } from '@/api/virtuals';
 import { fetchServerList } from '@/api/host';
 
@@ -229,6 +231,17 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
+    },
+    deleteBackupPlan(planId, delBackupResults) {
+      deleteVirtualBackupPlan(planId, delBackupResults).then(() => {
+        this.backupPlans.splice(
+          this.backupPlans.findIndex(plan => plan.id === planId),
+          1
+        );
+        this.$message.success('删除成功');
+      }).catch(error => {
+        this.$message.error(error);
+      });
     },
     updateBackupPlan(id, plan) {
       this.btnLoading = true;

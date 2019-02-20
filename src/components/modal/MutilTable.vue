@@ -43,6 +43,18 @@
             label="所属物理主机"
             min-width="150"
             align="left"></el-table-column>
+        <el-table-column label="操作"
+                         min-width="100"
+                         align="left">
+            <template slot-scope="scope">
+                <el-button type="danger"
+                           icon="el-icon-delete"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           @click="deleteOne(scope)"></el-button>
+            </template>
+        </el-table-column>
     </el-table>
     <el-pagination style="text-align:right;margin-top:10px;"
         @size-change="handleSizeChange"
@@ -60,7 +72,8 @@
 </template>
 <script>
 import {
-    getVMByserverId
+    getVMByserverId,
+    deleteVirtualInServerHost
 } from '../../api/virtuals';
 export default {
     props: {
@@ -236,6 +249,28 @@ export default {
                 });
                 this.currentSelect.push(...data)
             }
+        },
+        deleteOne({ row }) {
+            this.$confirm(`此操作将删除虚拟机${row.vmName}, 是否继续?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteVirtualInServerHost(row.id)
+                    .then(res => {
+                        const { message } = res.data;
+                        this.$message.success(message);
+                        this.$emit('refresh', row.id);
+                    })
+                    .catch(error => {
+                        this.$message.error(error);
+                    })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            });
         },
         handleSizeChange: function (size) {
             this.pagesize = size;

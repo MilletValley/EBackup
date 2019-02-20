@@ -71,10 +71,11 @@ const createMultipleVirtualBackupPlan = plan =>
   //   return res;
   // });
 // 删除单个虚拟机下的一个备份计划
-const deleteVirtualBackupPlan = id =>
+const deleteVirtualBackupPlan = (id, delBackupResults) =>
   baseApi.request({
     method: 'delete',
     url: `/virtual-backup-plans/${id}`,
+    data: { delBackupResults }
   });
 // 修改单个虚拟机下的一个备份计划
 const updateVirtualBackupPlan = ({ id, plan }) =>
@@ -189,10 +190,11 @@ const fetchVmBackupPlanList = () =>
     return res;
   });
 
-const deletePlan = id =>
+const deletePlan = (id, delBackupResults) =>
   baseApi.request({
     method: 'delete',
-    url: `/virtual-backup-plans/list/${id}`
+    url: `/virtual-backup-plans/list/${id}`,
+    data: { delBackupResults }
   });
 
 // 根据备份计划获取虚拟机备份进度
@@ -212,6 +214,20 @@ const stopAllBackupPlan = id =>
   baseApi.request({
     method: 'put',
     url: `/virtual-backup-plans/stop-all/${id}`
+  });
+
+// 删除单个虚拟机主机下的单个虚拟机（虚拟机主机管理）
+const deleteVirtualInServerHost = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/hosts/server/vmList/${id}`
+  });
+
+// 删除单个虚拟机备份下的单个备份集
+const deleteVirtualBackupResult = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/virtual-backup-results/${id}`
   });
 
 export {
@@ -237,5 +253,7 @@ export {
   getVmsBackupResult,
   getVMByserverId,
   deletePlan,
-  stopAllBackupPlan
+  stopAllBackupPlan,
+  deleteVirtualInServerHost,
+  deleteVirtualBackupResult,
 };
