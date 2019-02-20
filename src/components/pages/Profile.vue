@@ -239,8 +239,8 @@ export default {
             max: 30,
             message: '长度在 6 到 30 个字符'
           }, {
-            pattern: /^(\w){6,20}$/,
-            message: '只能输入字母、数字、下划线'
+            pattern: '^[^\\s]*$',
+            message: '不能包含空格'
           }
         ],
         checkNewPass: [
@@ -260,7 +260,7 @@ export default {
       if(this.userInfo.state==0)
         this.$message({
           showClose: true,
-          message: '无法修改',
+          message: '禁用状态无法修改',
           center: true,
           type: 'error'
         });
