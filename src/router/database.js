@@ -19,7 +19,7 @@ const router = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba', 'mysql dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba'],
     },
     children: [
       {
@@ -201,13 +201,13 @@ const router = [
         },
       },
       {
-        path: 'dameng',
+        path: 'dm',
         name: 'DamengList',
         component: DamengList,
         meta: {
           title: '达梦',
-          activeName: 'dameng',
-          roles: ['dameng dba'],
+          activeName: 'dm',
+          roles: ['dm dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -221,13 +221,13 @@ const router = [
         },
       },
       {
-        path: 'dameng/:id',
+        path: 'dm/:id',
         props: true,
         component: DamengDetails,
         name: 'damengDetail',
         meta: {
           activeName: 'dameng',
-          roles: ['dameng dba'],
+          roles: ['dm dba'],
           breadcrumb: [
             {
               name: '首页',
