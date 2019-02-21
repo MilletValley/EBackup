@@ -87,7 +87,7 @@
       title="添加虚拟机"
       :visible.sync="dialogVisible"
       custom-class="min-width-dialog"
-      @opened="dialogOpenedCB">
+      @open="dialogOpenedCB">
       <server-table v-loading="loading" :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
