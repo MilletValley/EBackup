@@ -189,21 +189,24 @@ export default {
         cancelButtonText: '取消',
         type: 'info',
         message:
-          h('div', null, [
+          h('div', {
+            key: (new Date()).valueOf()
+          }, [
             h('p', null, '请确认是否删除'),
             h('el-checkbox', {
-              key: (new Date()).valueOf(),
               on: {
-                change: function($event) {
-                  delBackupResults = event.target.checked ? 0 : 1;
-                  that.$refs.warnText.style.opacity = event.target.checked ? 1 : 0;
-                  console.log(that.$refs.warnText.style.opacity);
+                change: function(event) {
+                  delBackupResults = event ? 0 : 1;
+                  that.$refs.warnText.style.opacity = event ? 1 : 0;
                 }
+              },
+              style: {
+                marginRight: '5px'
               }
             }),
             h('span', {
               style: {
-                fontSize: '12px', color: '#ccc', marginLeft: '-15px'
+                fontSize: '12px', color: '#ccc'
               },
             }, '同时删除备份计划下的所有备份集'),
             h('p',

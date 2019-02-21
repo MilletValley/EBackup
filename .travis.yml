@@ -14,8 +14,6 @@ branches:
   only:
   - master
   - develop
-  - disaster-recover
-  - version2.3
   - v2.4.3
 install: yarn
 script: npm run build
@@ -35,16 +33,6 @@ deploy:
     on:
       branch:
         - master
-  - provider: script
-    script: bash ./build/docker_push.sh disaster-recover
-    on:
-      branch:
-        - disaster-recover
-  - provider: script
-    script: bash ./build/docker_push.sh version2.3
-    on:
-      branch:
-        - version2.3
   - provider: script
     script: bash ./build/docker_push.sh v2.4.3
     on:

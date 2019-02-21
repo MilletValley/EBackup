@@ -179,28 +179,6 @@ const detailPageMixin = {
       this.selectedBackupResultId = id;
       this.singleRestoreCreateModalVisible = true;
     },
-    // 删除单个备份集
-    deleteOneResult(id) {
-      this.$confirm('此操作将永久删除该备份集, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteBackupResult(this.type, id)
-          .then(res => {
-            const { message } = res.data;
-            this.$message.success(message);
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });
-      });
-    },
     // 修改恢复计划
     selectRestorePlan(restorePlanId) {
       this.selectedRestorePlan = this.restorePlans.find(plan => plan.id === restorePlanId);
@@ -372,6 +350,29 @@ const detailPageMixin = {
         this.$message.success('删除成功');
       }).catch(error => {
         this.$message.error(error);
+      });
+    },
+    // 删除单个备份集
+    deleteOneResult(id) {
+      this.$confirm('此操作将永久删除该备份集, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteBackupResult(this.type, id)
+          .then(res => {
+            const { message } = res.data;
+            this.$message.success(message);
+            this.getBackupResults();
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
       });
     },
     singleConfirmCallback(plan) {

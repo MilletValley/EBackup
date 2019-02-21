@@ -252,6 +252,14 @@ const rolesUser = [
     name: 'MySql管理员'
   },
   {
+    id: 'db2 dba',
+    name: 'DB2管理员'
+  },
+  {
+    id: 'dm dba',
+    name: '达梦管理员'
+  },
+  {
     id: 'vm admin',
     name: '虚拟机管理员',
   },
