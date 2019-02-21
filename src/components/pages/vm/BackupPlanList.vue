@@ -15,7 +15,7 @@
                 style="width: 100%;">
                 <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
-                        <vm-backup-table :id="props.row.id" :data="props.row.backupResult" :type="vmType" @refresh="fetchAll"></vm-backup-table>
+                        <vm-backup-table :backupPlan="props.row" :data="props.row.backupResult" :type="vmType" @refresh="fetchAll"></vm-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column

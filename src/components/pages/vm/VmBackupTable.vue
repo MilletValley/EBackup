@@ -7,11 +7,11 @@
             </el-input>
         </el-col>
         <el-col :span="18" style="text-align: left;">
-          <el-button  @click="addVM" size="small" style="margin-left: 20px;">添加</el-button>
+          <el-button  @click="addVM" size="small" style="margin-left: 20px;" :disabled="btnDisable">添加</el-button>
         </el-col>
     </el-row>
     
-    <el-table :data="processedTableData" v-loading="loading" style="text-align:left;">
+    <el-table :data="processedTableData" style="text-align:left;">
         <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
@@ -88,7 +88,7 @@
       :visible.sync="dialogVisible"
       custom-class="min-width-dialog"
       @opened="dialogOpenedCB">
-      <server-table :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
+      <server-table v-loading="loading" :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="comfirCB">确 定</el-button>
@@ -97,6 +97,7 @@
 </div>
 </template>
 <script>
+import dayjs from 'dayjs';
 import {
   deleteVirtualBackupPlan,
   getVmsBackupResult,
@@ -118,8 +119,8 @@ export default {
     ServerTable
   },
   props: {
-    id: {
-      type: Number,
+    backupPlan: {
+      type: Object,
     },
     data: {
       type: Array,
@@ -140,35 +141,24 @@ export default {
       serverTableData: [],
       currentSelect: [],
       curSelectData: [],
-      isSelect: false
+      isSelect: false,
+      btnDisable: false
     };
   },
   mounted() {
-    // this.fetchAll();
-    // this.setTimer(this.timer);
     if(this.$route.name === 'virtualBackup') {
       this.tableData = this.data.filter(item => item.vm.type === 1);
     } else {
       this.tableData = this.data.filter(item => item.vm.type === 2);
     }
+    if (this.backupPlan.config.timeStrategy === 0) {
+      const time = this.backupPlan.config.singleTime;
+      this.btnDisable = dayjs(new Date()) > dayjs(time) ? true : false;
+    }
   },
   destroyed() {
-    // this.clearTimer(this.timer);
   },
   methods: {
-    fetchAll() {
-      this.loading = true;
-      getVmsBackupResult(this.id)
-        .then(res => {
-          this.tableData = res.data.data;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.loading = false;
-        });
-    },
     formatProcess(data) {
       if (data.state === 1) {
         return data.processSpeed;
@@ -188,17 +178,6 @@ export default {
       }
       return 'text';
     },
-    // setTimer() {
-    //     this.clearTimer();
-    //     this.timer = setInterval(() => {
-    //         getVmsBackupResult(this.id).then( res => {
-    //             // this.tableData = res.data.data;
-    //         })
-    //     }, 10000);
-    // },
-    // clearTimer() {
-    //     clearInterval(this.timer);
-    // },
     deletePlan(scope) {
       const h = this.$createElement;
       let delBackupResults = 1;
@@ -269,11 +248,11 @@ export default {
       this.dialogVisible = true;
     },
     dialogOpenedCB() {
+      this.loading = true;
       fetchServerList().then(res => {
         const { data } = res.data;
         if (!Array.isArray(data)) {
           this.serverTableData = [];
-          // this.currentSelect = [];
           return;
         }
         this.serverTableData = data.filter(item => {
@@ -287,6 +266,8 @@ export default {
       })
       .catch(error => {
         this.$message.error(error);
+      }).then(() => {
+        this.loading = false;
       });
     },
     comfirCB() {
@@ -296,7 +277,7 @@ export default {
           idList.push(e.id);
         }
       });
-      updateBackupPlanForVm(this.id, idList).then(res => {
+      updateBackupPlanForVm(this.backupPlan.id, idList).then(res => {
         this.$message.success('添加成功！');
         this.dialogVisible = false;
         this.$emit('refresh');

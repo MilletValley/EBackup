@@ -19,6 +19,8 @@
     </div>
     <el-table :data="processDbTableData" ref="dbTable"
               @select="selectDbChangeFn"    @select-all="selectAll"
+              @sort-change="sortChangeFn"
+              :default-sort="defaultSort"
               style="width: 100%">
       <el-table-column
           type="selection"
@@ -35,6 +37,8 @@
       <el-table-column label="名称"
                        header-align="center"
                        align="center"
+                       prop="vmName"
+                       sortable="custom"
                        min-width="200">
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
@@ -100,7 +104,7 @@ export default {
       btnLoading: false,
       action: 'create',
       backupPlanCreateModalVisible: false,
-      // dialogVisible: false,
+      defaultSort: { prop: 'vmName', order: 'descending' },
     };
   },
   computed: {
@@ -113,6 +117,20 @@ export default {
           v.vmName.toLowerCase().includes(this.filterItem.toLowerCase())
         );
       }
+      data = data.sort((a, b) => {
+        let val1 = a[this.defaultSort.prop];
+        let val2 = b[this.defaultSort.prop];
+        if (!isNaN(Number(val1)) && !isNaN(Number(val2))) {
+          val1 = Number(val1);
+          val2 = Number(val2);
+        }
+        if (val1 < val2) {
+          return this.defaultSort.order === 'descending' ? 1 : -1;
+        } else if (val1 > val2) {
+          return this.defaultSort.order === 'descending' ? -1 : 1;
+        }
+        return 0;
+      });
       data = data.slice(
         (this.currentPage - 1) * this.pagesize,
         this.currentPage * this.pagesize
@@ -265,6 +283,12 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
+    },
+    sortChangeFn({ prop, order }) {
+      if (JSON.stringify(this.defaultSort) === JSON.stringify({ prop, order })) {
+        return;
+      }
+      this.defaultSort = { prop, order };
     },
   },
 };
