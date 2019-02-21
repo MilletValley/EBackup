@@ -230,7 +230,7 @@ export default {
               style: {
                 fontSize: '12px', color: '#ccc'
               },
-            }, '同时删除备份计划下的所有备份集'),
+            }, '同时删除备份计划下的所有备份记录'),
             h('p',
               {
                 ref: 'warnText',
@@ -240,7 +240,7 @@ export default {
                   opacity: 0
                 },
               },
-              '该操作将导致备份集被永久删除！')
+              '该操作将导致备份记录被永久删除！')
           ])
       })
         .then(() => {

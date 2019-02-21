@@ -146,19 +146,27 @@ export default {
     };
   },
   mounted() {
-    if(this.$route.name === 'virtualBackup') {
-      this.tableData = this.data.filter(item => item.vm.type === 1);
-    } else {
-      this.tableData = this.data.filter(item => item.vm.type === 2);
-    }
-    if (this.backupPlan.config.timeStrategy === 0) {
-      const time = this.backupPlan.config.singleTime;
-      this.btnDisable = dayjs(new Date()) > dayjs(time) ? true : false;
+    this.fmtData();
+  },
+  watch: {
+    data(val) {
+      this.fmtData();
     }
   },
   destroyed() {
   },
   methods: {
+    fmtData() {
+      if(this.$route.name === 'virtualBackup') {
+        this.tableData = this.data.filter(item => item.vm.type === 1);
+      } else {
+        this.tableData = this.data.filter(item => item.vm.type === 2);
+      }
+      if (this.backupPlan.config.timeStrategy === 0) {
+        const time = this.backupPlan.config.singleTime;
+        this.btnDisable = dayjs(new Date()) > dayjs(time) ? true : false;
+      }
+    },
     formatProcess(data) {
       if (data.state === 1) {
         return data.processSpeed;
@@ -208,7 +216,7 @@ export default {
               style: {
                 fontSize: '12px', color: '#ccc'
               },
-            }, '同时删除备份计划下的所有备份集'),
+            }, '同时删除备份计划下的所有备份记录'),
             h('p',
               {
                 ref: 'warnText',
@@ -218,7 +226,7 @@ export default {
                   opacity: 0
                 },
               },
-              '该操作将导致备份集被永久删除！')
+              '该操作将导致备份记录被永久删除！')
           ])
       })
         .then(() => {
