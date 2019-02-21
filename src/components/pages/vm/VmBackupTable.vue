@@ -43,7 +43,7 @@
                         min-width="150"
                         label="状态">
             <template slot-scope="scope">
-                <el-progress :text-inside="true" :stroke-width="12" :percentage="formatProcess(scope.row)" :status="formatState(scope.row.state)">
+                <el-progress :text-inside="true" :stroke-width="18" :percentage="formatProcess(scope.row)" :status="formatState(scope.row.state)">
                 </el-progress>
             </template>
         </el-table-column>
