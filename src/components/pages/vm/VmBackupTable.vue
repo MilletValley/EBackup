@@ -91,7 +91,7 @@
       <server-table v-loading="loading" :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="comfirCB">确 定</el-button>
+        <el-button type="primary" @click="comfirCB" :disabled="selectIds.length === 0">确 定</el-button>
       </span>
     </el-dialog>
 </div>
@@ -144,6 +144,17 @@ export default {
       isSelect: false,
       btnDisable: false
     };
+  },
+  computed: {
+    selectIds() {
+      let idList = [];
+      this.currentSelect.forEach(e => {
+        if (!this.curSelectData.some(i => i.id === e.id)) {
+          idList.push(e.id);
+        }
+      });
+      return idList;
+    }
   },
   mounted() {
     this.fmtData();
@@ -282,13 +293,7 @@ export default {
       });
     },
     comfirCB() {
-      let idList = [];
-      this.currentSelect.forEach(e => {
-        if (!this.curSelectData.some(i => i.id === e.id)) {
-          idList.push(e.id);
-        }
-      });
-      updateBackupPlanForVm(this.backupPlan.id, idList).then(res => {
+      updateBackupPlanForVm(this.backupPlan.id, {vmList: this.selectIds}).then(res => {
         this.$message.success('添加成功！');
         this.dialogVisible = false;
         this.$emit('refresh');
