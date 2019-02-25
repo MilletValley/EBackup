@@ -4,6 +4,10 @@
               :type="hiddenPassword ? 'password' : 'text'"
               @input="inputChange"
               :disabled="disabled"
+              @paste.native.capture.prevent
+              @contextmenu.native.capture.prevent
+              @copy.native.capture.prevent
+              @cut.native.capture.prevent
               :hidden.sync="hiddenPassword">
       <i-icon :class="$style.icon"
               slot="suffix"
