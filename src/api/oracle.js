@@ -247,6 +247,14 @@ const restoreSimpleSwitch = data =>
     data: { linkIds: data }
   });
 
+// 回切初始化
+const cutBackSwitch = linkIds =>
+  baseApi.request({
+    method: 'post',
+    url: '/oracle-cut-back-switches',
+    data: { linkIds }
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -277,5 +285,6 @@ export {
   fetchLink,
   fetchLinkByLinkId,
   failOver,
-  restoreSimpleSwitch
+  restoreSimpleSwitch,
+  cutBackSwitch
 };

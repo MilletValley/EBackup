@@ -14,6 +14,7 @@ const takeoverMixin = {
     databaseLinkStateStyle(value) {
       switch (value) {
         case 1:
+        case 6:
           return 'warning';
         case 2:
           return 'success';

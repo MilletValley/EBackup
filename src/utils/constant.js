@@ -78,9 +78,9 @@ const recoveringStrategyMapping = {
 // 由于设计不清 将 0:未知 修改为 3:未知 @0619
 // 0626 添加监听异常状态
 const databaseStateMapping = {
-  3: '未知',
   1: '正常',
   2: '异常',
+  3: '未知',
   4: '监听异常',
 };
 const databaseRoleMapping = {
@@ -177,6 +177,7 @@ const linkStateMapping = {
   3: '异常不可接管',
   4: '异常可接管',
   5: '待修复',
+  6: '修复中'
 };
 
 // 是否切换IP
@@ -201,7 +202,8 @@ const switchTypeMapping = {
   1: '切换实例',
   2: '切换IP',
   3: '解除连接',
-  4: '单切恢复'
+  4: '单切恢复',
+  5: '回切初始化'
 };
 
 const serviceIpMarkMapping = {

@@ -141,6 +141,7 @@
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
                       <p v-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
+                      <!-- 单切IP -->
                       <el-form v-else-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type)) ||
                                           hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
                                 size="mini"
@@ -165,6 +166,7 @@
                           {{ hostLink.simpleSwitch.switchTime }}
                         </el-form-item>
                       </el-form>
+                      <!-- 切换IP -->
                       <el-form v-else-if="hostLink.latestSwitch.type === 2"
                               size="mini"
                               label-width="70px">
@@ -189,6 +191,7 @@
                           <span>{{ hostLink.latestSwitch.switchTime }}</span>
                         </el-form-item>
                       </el-form>
+                      <!-- 解除连接 -->
                       <el-form v-else-if="hostLink.latestSwitch.type === 3"
                               size="mini"
                               label-width="70px">
@@ -379,7 +382,7 @@
                       </el-form-item>
                     </el-form>
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                    <p v-if="!dbLink.latestSwitch">暂无操作</p>
+                    <p v-if="!dbLink.latestSwitch || ![1, 4].includes(dbLink.latestSwitch.type)">暂无操作</p>
                     <el-form v-else
                             size="mini"
                             label-width="70px">
@@ -404,16 +407,22 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
-                    <div slot="reference" style="position: relative; height: 3em"
+                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
                          v-if="dbLink.state === 1">
-                      <div :class="$style.mask"></div>
-                      <i-icon name="transportation"
+                      <div :class="$style.rightMask"></div>
+                      <i-icon name="transportationRight"
+                              :class="$style.transportationIcon"></i-icon>
+                    </div>
+                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                         v-else-if="dbLink.state === 6">
+                      <div :class="$style.leftMask"></div>
+                      <i-icon name="transportationLeft"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
                     <i-icon :name="`switch-${dbLink.state}`"
-                              slot="reference"
-                              :class="$style.switchIcon"
-                              v-else></i-icon>
+                            slot="reference"
+                            :class="$style.switchIcon"
+                            v-else></i-icon>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
                       style="margin-top: 6px;">
@@ -451,6 +460,9 @@
                                             :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
                                             :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
+                          <el-dropdown-item @click.native="cutBackSwitch(dbLink)"
+                                            >回切初始化</el-dropdown-item>
+                                            <!-- :disabled="!(availableCutBackSimple(dbLink))" -->
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -542,7 +554,8 @@ import {
   createSwitches as switchOracle,
   createSimpleSwitches as simpleSwitchOracle,
   failOver as failOverOracle,
-  restoreSimpleSwitch as restoreSimpleSwitchOracle
+  restoreSimpleSwitch as restoreSimpleSwitchOracle,
+  cutBackSwitch as cutBackSwitchOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -1002,6 +1015,13 @@ export default {
       }
       return false;
     },
+    /** ● 连接：异常不可接管
+        ● 易备库主，正常
+        ● 生产库备，非正常
+    **/
+    availableCutBackSimple({ state, viceDatabase, primaryDatabase }) {
+      return state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) && (primaryDatabase.role === 2 && primaryDatabase.state !== 1);
+    },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
         this.$router.push({
@@ -1090,6 +1110,25 @@ export default {
                   link.latestSwitch = data.find(s => s.linkId === link.id);
                 }
               });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+        })
+        .catch(error => {});
+    },
+    // 回切初始化
+    cutBackSwitch(link) {
+      this.$confirm('此操作将执行回切初始化，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          cutBackSwitchOracle([link.id])
+            .then(res => {
+              const { message } = res.data;
+              this.fetchData();
             })
             .catch(error => {
               this.$message.error(error);
@@ -1374,21 +1413,23 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
-.mask {
+.rightMask,
+.leftMask {
   animation: move 2s infinite;
   position: absolute;
   height: 3em;
   width: 100px;
-  left: 20px;
+  right: -20px;
   background: #fff;
+}
+.leftMask {
+  left: -20px;
 }
 @keyframes move {
   from {
-    left: 20px;
     width: 100px;
   }
   to {
-    left: 150px;
     width: 0;
   }
 }
