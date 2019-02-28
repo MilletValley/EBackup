@@ -126,7 +126,7 @@
 </template>
 <script>
 import { listMixin } from '../mixins/databaseListMixin';
-import { webSocketMixin, paginationMixin, filterMixin } from '../mixins/commonMixin';
+import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '../mixins/commonMixin';
 import HostCreateModal from '../modal/HostCreateModal';
 import HostUpdateModal from '../modal/HostUpdateModal';
 import { createOne, deleteOne, modifyOne } from '../../api/host';
@@ -140,7 +140,7 @@ import {
 
 export default {
   name: 'DeviceManager',
-  mixins: [listMixin, paginationMixin, filterMixin],
+  mixins: [listMixin, paginationMixin, filterMixin, sortMixin],
   data() {
     return {
       wsuri: '/test',
@@ -151,7 +151,8 @@ export default {
         {text: 'AIX', value: 'AIX'}
       ],
       tableData: [],
-      tableFilter: {}
+      tableFilter: {},
+      defaultSort: { prop: 'createdTime', order: 'descending' },
     };
   },
   computed: {
@@ -177,7 +178,7 @@ export default {
   },
   watch: {
     hostsInVuex(data){
-      this.tableData = this.hostsInVuex;
+      this.tableData = Object.assign([], this.hostsInVuex);
     },
     inputSearch() {
       if (this.inputSearch === '') {
@@ -187,7 +188,7 @@ export default {
     }
   },
   created() {
-    this.tableData = this.hostsInVuex;
+    this.tableData = Object.assign([], this.hostsInVuex);
   },
   methods: {
     judgeHost(data) {

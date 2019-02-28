@@ -18,7 +18,7 @@
               <el-col :span="12"
                       :offset="4"
                       class="action">
-                <el-dropdown size="mini"
+                <!-- <el-dropdown size="mini"
                              trigger="click"
                              placement="bottom"
                              @command="addPlanBtnClick">
@@ -27,11 +27,12 @@
                     <i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
-                    <!-- 文件系统备份计划 可以多次添加 -->
+                    文件系统备份计划 可以多次添加
                     <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restorePlan" disabled>恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
-                </el-dropdown>
+                </el-dropdown> -->
+                <el-button size="mini" @click="addPlanBtnClick">添加备份计划</el-button>
                 <el-button size="mini"
                            type="primary"
                            @click="stopPlans">终止计划</el-button>
@@ -333,10 +334,10 @@ export default {
       });
     },
     addPlanBtnClick(command) {
-      if(command === 'backupPlan') {
+      // if(command === 'backupPlan') {
         this.backupPlanModalVisible = true;
         this.action = 'create';
-      }
+      // }
     },
     refreshTime() {
       // this.fetchBackupPlanList();

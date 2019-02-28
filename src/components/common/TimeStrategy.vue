@@ -330,5 +330,9 @@ export default {
 }
 .timeStrategyRadio {
   padding-bottom: 10px;
+  margin-left: 8px !important;
+}
+.timeStrategyRadio:first-child {
+  margin-left: 0 !important;
 }
 </style>
