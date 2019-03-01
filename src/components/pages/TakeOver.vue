@@ -140,9 +140,9 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                      <p v-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
+                      <p v-if="(!hostLink.latestSwitch || [1, 4, 5].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
                       <!-- 单切IP -->
-                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type)) ||
+                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4, 5].includes(hostLink.latestSwitch.type)) ||
                                           hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
                                 size="mini"
                                 label-width="70px">
@@ -382,7 +382,7 @@
                       </el-form-item>
                     </el-form>
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                    <p v-if="!dbLink.latestSwitch || ![1, 4].includes(dbLink.latestSwitch.type)">暂无操作</p>
+                    <p v-if="!dbLink.latestSwitch || ![1, 4, 5].includes(dbLink.latestSwitch.type)">暂无操作</p>
                     <el-form v-else
                             size="mini"
                             label-width="70px">
@@ -443,6 +443,13 @@
                       单切恢复中...
                     </span>
                   </div>
+                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 5"
+                       style="margin-top: 6px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                      回切初始化中...
+                    </span>
+                  </div>
                   <div v-else>
                     <div v-if="availableFailOver(hostLink.primaryHost)">
                       <el-button type="text"
@@ -461,8 +468,7 @@
                           <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
                                             :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
                           <el-dropdown-item @click.native="cutBackSwitch(dbLink)"
-                                            >回切初始化</el-dropdown-item>
-                                            <!-- :disabled="!(availableCutBackSimple(dbLink))" -->
+                                            :disabled="!(availableCutBackSimple(dbLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
