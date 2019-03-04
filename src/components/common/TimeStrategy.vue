@@ -93,7 +93,6 @@
                            :max="24"
                            :step="1"
                            contrls-position="right"></el-input-number>
-          <span>小时</span>
         </el-form-item>
       </el-form>
       
