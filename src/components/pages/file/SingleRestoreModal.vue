@@ -37,7 +37,7 @@
                       v-if="restoreType === 1">
           <el-button type="primary"
                       size="small"
-                     @click="selectSourceFiles">选择文件</el-button>
+                     @click="selectSourceFiles">+选择文件</el-button>
           <span v-if="formData.restorePath&&!formData.restorePath.length"
                 style="color: #f56c6c; font-size: 12px">
             <i class="el-icon-warning"></i>未选择恢复文件

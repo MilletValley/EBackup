@@ -35,7 +35,7 @@
                       v-if="formData.backupType === 1">
           <el-button type="primary"
                      size="small"
-                     @click="selectBackupFiles">选择文件</el-button>
+                     @click="selectBackupFiles">+选择文件</el-button>
           <span v-if="!backupFilesSet.backupFiles.length"
                 style="color: #f56c6c; font-size: 12px">
             <i class="el-icon-warning"></i>未选择文件
