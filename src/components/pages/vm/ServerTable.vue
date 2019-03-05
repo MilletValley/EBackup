@@ -10,17 +10,41 @@
           </el-col>
       </el-row>
       <el-table v-show="!isSelect" :data="serverTableData" ref="serverTable" :size="customSize">
-            <el-table-column type="expand">
-                  <template slot-scope="props">
-                      <mutil-table :tableData="props.row.vmList" 
-                                  :ref="props.row.id" 
-                                  :refTable="props.row.serverName" 
-                                  :selectData.sync="selectData" 
-                                  :curSelectData="curSelectData" 
-                                  :size="customSize"
-                                  :showDelete="showDelete"
-                                  @refresh="refreshOneServer(props.row)"></mutil-table>
-                  </template>
+          <el-table-column type="expand">
+              <template slot-scope="props">
+                <template v-if="props.row.serverType === 1">
+                  <el-card v-for="hostList in props.row.hostList"
+                           :key="hostList.id"
+                           style="margin-top: 5px; margin-bottom: 5px">
+                    <div slot="header">
+                      <el-row>
+                        <el-col :span="6" style="text-align: center">主机名：{{ hostList.serverName }}</el-col>
+                        <el-col :span="6" style="text-align: center">所属设备：{{ hostList.hostName }}</el-col>
+                        <el-col :span="6" style="text-align: center">主机IP：{{ hostList.serverIp }}</el-col>
+                        <el-col :span="6" style="text-align: center">主机类型：{{ vmHostServerTypeMapping[hostList.serverType] }}</el-col>
+                      </el-row>
+                    </div>
+                    <mutil-table :tableData="hostList.vmList"
+                                :ref="hostList.id"
+                                :refTable="hostList.serverName" 
+                                :selectData.sync="selectData"
+                                :curSelectData="curSelectData"
+                                :size="customSize"
+                                :showDelete="showDelete"
+                                @refresh="refreshOneServer(hostList)"></mutil-table>
+                  </el-card>
+                </template>
+                <template v-else>
+                  <mutil-table :tableData="props.row.vmList"
+                               :ref="props.row.id"
+                               :refTable="props.row.serverName" 
+                               :selectData.sync="selectData" 
+                               :curSelectData="curSelectData"
+                               :size="customSize"
+                               :showDelete="showDelete"
+                               @refresh="refreshOneServer(props.row)"></mutil-table>
+                </template>
+              </template>
           </el-table-column>
           <el-table-column label="主机名" prop="serverName" align="left"
                       min-width="100">
@@ -114,6 +138,7 @@ export default {
   },
   data() {
     return {
+      vmHostServerTypeMapping
     };
   },
   computed: {

@@ -7,12 +7,12 @@
           </template>
         </server-table>
         <backup-plan-modal type="vm"
-                     :visible.sync="backupPlanCreateModalVisible"
-                     :btn-loading="btnLoading"
-                     @confirm="addBackupPlan"></backup-plan-modal>
+                           :visible.sync="backupPlanCreateModalVisible"
+                           :btn-loading="btnLoading"
+                           @confirm="addBackupPlan"></backup-plan-modal>
         <server-modal :btn-loading="btnLoading"
-            @confirm="submitServerFn"
-            :visible.sync="serverModalVisible">
+                      @confirm="submitServerFn"
+                      :visible.sync="serverModalVisible">
         </server-modal>
     </div>
     

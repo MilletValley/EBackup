@@ -117,7 +117,7 @@
           <li>
             <h5>已持续时间</h5>
             <div v-if="backupOperation.consume">
-              <timer v-if="backupOperation.state === 1" :val="backupOperation.consume"></timer>
+              <timer v-if="backupOperation.state === 1 && !loadingConvertWating" :val="backupOperation.consume"></timer>
               <span v-else>{{backupOperation.consume | durationFilter}}</span>
             </div>
             <div v-else>-</div>
@@ -183,14 +183,14 @@ export default {
       return this.backupPlan.config.weekPoints.map(p => weekMapping[p]);
     },
     operationState() {
-      return operationStateMapping[this.backupPlan.state];
+      return this.loadingConvertWating ? operationStateMapping[0] : operationStateMapping[this.backupPlan.state];
     },
     // 单次／多次
     backupStrategyType() {
       return this.backupConfig.timeStrategy === 0 ? '单次' : '循环';
     },
     operationStateStyle() {
-      if (this.backupOperation.state === 0) {
+      if (this.backupOperation.state === 0 || this.loadingConvertWating) {
         return this.$style.waitingColor;
       } else if (this.backupOperation.state === 1) {
         return this.$style.loadingColor;
@@ -198,6 +198,10 @@ export default {
         return this.$style.errorColor;
       } else return '';
     },
+    // 根据反馈，进度为0，状态为进行中的转换为未开始
+    loadingConvertWating() {
+      return this.backupOperation.state === 1 && this.backupOperation.processSpeed === 0;
+    }
   },
   methods: {
     planDeleteBtnClick() {
@@ -255,7 +259,7 @@ export default {
       this.$emit('refresh', this.id);
     },
     formatIcon(data){
-      if (data === 0) {
+      if (data === 0 || this.loadingConvertWating) {
         return this.$style.waitingColor + ' el-icon-time';
       } else if (data === 1) {
         return this.$style.loadingColor + ' el-icon-loading';

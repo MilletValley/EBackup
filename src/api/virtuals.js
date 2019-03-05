@@ -242,6 +242,13 @@ const updateBackupPlanForVm = (planId, idList) =>
     data: idList
   });
 
+// 虚拟机添加恢复计划：根据已选的主机id获取可选恢复磁盘名列表
+const fetchDisksByHostId = hostId =>
+  baseApi.request({
+    method: 'get',
+    url: `/hosts/${hostId}/disks`
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -268,5 +275,6 @@ export {
   stopAllBackupPlan,
   deleteVirtualInServerHost,
   deleteVirtualBackupResult,
-  updateBackupPlanForVm
+  updateBackupPlanForVm,
+  fetchDisksByHostId
 };

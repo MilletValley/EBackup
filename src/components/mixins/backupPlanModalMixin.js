@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
+import { fetchDisksByHostId } from '@/api/virtuals';
 
 const baseModalMixin = {
   props: {
@@ -323,6 +324,21 @@ const restorePlanModalMixin = {
       this.$refs.restorePlanCreateForm.clearValidate();
       this.hiddenPassword = true;
       this.hiddenPassword1 = true;
+    },
+    // 根据已选主机id获取可选恢复磁盘名(虚拟机恢复)
+    changeHostIp(hostIp) {
+      const hostId = this.serverData.find(host => host.serverIp === hostIp).hostId;
+      this.hasHostIp = false;
+      fetchDisksByHostId(hostId)
+        .then(res => {
+          const { data } = res.data;
+          this.disks = data;
+          this.formData.diskName = '';
+          this.hasHostIp = true;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
   },
   components: {
