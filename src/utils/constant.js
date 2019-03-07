@@ -203,7 +203,9 @@ const switchTypeMapping = {
   2: '切换IP',
   3: '解除连接',
   4: '单切恢复',
-  5: '回切初始化'
+  5: '回切初始化',
+  6: '单切实例',
+  7: '单切IP'
 };
 
 const serviceIpMarkMapping = {

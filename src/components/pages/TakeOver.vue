@@ -140,36 +140,11 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                      <p v-if="(!hostLink.latestSwitch || [1, 4, 5].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
-                      <!-- 单切IP -->
-                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4, 5].includes(hostLink.latestSwitch.type)) ||
-                                          hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
-                                size="mini"
-                                label-width="70px">
-                        <el-form-item :class="$style.switchFormItem"
-                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
-                          {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      label="状态">
-                          <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
-                                  size="mini">
-                            {{ hostLink.simpleSwitch.state | switchStateFilter }}
-                          </el-tag>
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      label="切换信息">
-                          {{ hostLink.simpleSwitch.message }}
-                        </el-form-item>
-                        <el-form-item :class="$style.switchFormItem"
-                                      label="完成时间">
-                          {{ hostLink.simpleSwitch.switchTime }}
-                        </el-form-item>
-                      </el-form>
-                      <!-- 切换IP -->
-                      <el-form v-else-if="hostLink.latestSwitch.type === 2"
-                              size="mini"
-                              label-width="70px">
+                      <p v-if="(!hostLink.latestSwitch || [1, 4, 5, 6].includes(hostLink.latestSwitch.type))">暂无操作</p>
+                      <!-- 切换IP, 单切IP -->
+                      <el-form v-else-if="[2, 7].includes(hostLink.latestSwitch.type)"
+                               size="mini"
+                               label-width="70px">
                         <el-form-item :class="$style.switchFormItem"
                                       label="切换内容">
                           <span>{{ hostLink.latestSwitch.content }}</span>
@@ -217,20 +192,10 @@
                               slot="reference"></i-icon>
                     </el-popover>
                   </div>
-                  <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
-                      style="margin-top: 12px;">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
-                  </div>
-                  <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
-                      style="margin-top: 12px;">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
-                  </div>
-                  <div v-else-if="simpleSwitchGoing(hostLink)"
+                  <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && [2, 3, 7].includes(hostLink.latestSwitch.type)"
                        style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">{{ hostLink.latestSwitch.type | switchTypeFilter }}中...</span>
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
@@ -238,16 +203,16 @@
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
                                 @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
                       <el-button type="text"
-                                @click="switchHostIp(hostLink)"
-                                :disabled="hostLink.primaryHost.osName === 'AIX'">切IP</el-button>
+                                 @click="switchHostIp(hostLink)"
+                                 :disabled="hostLink.primaryHost.osName === 'AIX'">切IP</el-button>
                       <el-button type="text"
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                 @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
                     </div>
                     <div v-show="!enterFromMenu">
                       <el-button type="text"
-                                @click="removeHostLink(hostLink)"
-                                :class="$style.removeHostLink">解除连接</el-button>
+                                 @click="removeHostLink(hostLink)"
+                                 :class="$style.removeHostLink">解除连接</el-button>
                     </div>
                   </template>
                 </div>
@@ -384,7 +349,7 @@
                       </el-form-item>
                     </el-form>
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                    <p v-if="!dbLink.latestSwitch || ![1, 4, 5].includes(dbLink.latestSwitch.type)">暂无操作</p>
+                    <p v-if="!dbLink.latestSwitch || ![1, 4, 5, 6].includes(dbLink.latestSwitch.type)">暂无操作</p>
                     <el-form v-else
                             size="mini"
                             label-width="70px">
@@ -426,30 +391,19 @@
                             :class="$style.switchIcon"
                             v-else></i-icon>
                   </el-popover>
-                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
-                      style="margin-top: 6px;">
+                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && [1, 4, 5, 6].includes(dbLink.latestSwitch.type)"
+                       style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                      <template v-if="dbLink.latestSwitch.type === 1">切换{{instanceName.substring(0, instanceName.length-1)}}中...</template>
+                      <template v-else>{{ dbLink.latestSwitch.type | switchTypeFilter}}中...</template>
+                    </span>
                   </div>
                   <div v-else-if="dbLink.failOverOnGoing"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
                       {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
-                    </span>
-                  </div>
-                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4"
-                       style="margin-top: 6px;">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      单切恢复中...
-                    </span>
-                  </div>
-                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 5"
-                       style="margin-top: 6px;">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      回切初始化中...
                     </span>
                   </div>
                   <div v-else>
@@ -489,7 +443,7 @@
                     <el-col :span="8">
                       <h4>
                         <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                                    :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
+                                     :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
                           {{dbLink.viceDatabase.name}}
                         </router-link>
                       </h4>

@@ -130,7 +130,7 @@
                    :key="index"
                    :name="msg.name"
                    :label="msg.label"
-                   v-if="!(databaseType === 'sqlserver' && [4, 5].includes(Number(msg.name)))">
+                   v-if="!(databaseType === 'sqlserver' && [4, 5, 6, 7].includes(Number(msg.name)))">
         <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
       </el-tab-pane>
     </el-tabs>

@@ -143,6 +143,9 @@ const takeoverMixin = {
     serviceIpMarkFilter(value) {
       return serviceIpMarkMapping[value];
     },
+    switchTypeFilter(value) {
+      return switchTypeMapping[value];
+    }
   },
 };
 
