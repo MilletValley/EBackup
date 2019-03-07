@@ -76,22 +76,42 @@ const fetchDetailsById = id =>
 const addServer = server =>
   baseApi.request({
     method: 'post',
-    url: '/hosts/server',
+    url: '/virtuals/hosts/server',
     data: server
   });
 
 const fetchServerList = () =>
-  baseApi.request({
-    method: 'get',
-    url: '/hosts/server/list'
-  });
+  baseApi
+    .request({
+      method: 'get',
+      url: '/virtuals/hosts/server/list'
+    })
+    .then(res => {
+      const { data: serverList } = res.data;
+      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce((initArray, item) => initArray.concat(item.serverListIds), []);
+      // eslint-disable-next-line
+      let [hostsInVcenter, results] = [[], []];
+      serverList.forEach(item => {
+        if (item.serverType === 2 && hostIdsInVcenter.includes(item.id)) {
+          hostsInVcenter.push(item);
+        } else {
+          results.push(item);
+        }
+      });
+      res.data.data = results.map(server => {
+        if (server.serverType === 1) {
+          server.hostList = hostsInVcenter.filter(host => server.serverListIds.includes(host.id));
+        }
+        return server;
+      });
+      return res;
+    });
 
 const deleteServer = id =>
   baseApi.request({
     method: 'delete',
-    url: `/hosts/server/${id}`
+    url: `/virtuals/hosts/server/${id}`
   });
-
 
 export {
   fetchAll,

@@ -207,7 +207,7 @@ const getVmsBackupResult = id =>
 const getVMByserverId = id =>
   baseApi.request({
     method: 'get',
-    url: `/hosts/server/vmList/${id}`
+    url: `/virtuals/hosts/server/vmList/${id}`
   });
 
 const stopAllBackupPlan = id =>
@@ -220,7 +220,7 @@ const stopAllBackupPlan = id =>
 const deleteVirtualInServerHost = id =>
   baseApi.request({
     method: 'delete',
-    url: `/hosts/server/vmList/${id}`
+    url: `/virtuals/hosts/server/vmList/${id}`
   });
 
 // 删除单个虚拟机备份下的单个备份集
@@ -246,7 +246,7 @@ const updateBackupPlanForVm = (planId, idList) =>
 const fetchDisksByHostId = hostId =>
   baseApi.request({
     method: 'get',
-    url: `/hosts/${hostId}/disks`
+    url: `/virtuals/hosts/${hostId}/disks`
   });
 
 export {
