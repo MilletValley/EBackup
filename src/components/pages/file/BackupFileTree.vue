@@ -122,7 +122,7 @@ export default {
     },
     modalOpenFn(){
       this.$nextTick(() => {
-        this.checkedNodes = Object.assign([], this.nodes);
+        this.checkedNodes = [...this.nodes];
         $.fn.zTree.init($('#treeDemo'), this.setting, this.driverNodes);
       })
     },
@@ -171,11 +171,14 @@ export default {
     },
     zTreeOnCheck(event, treeId, treeNode) {
       var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-      this.checkedNodes = treeObj.getCheckedNodes().map(node => node.sourcePath);
+      this.checkedNodes = Array.from(new Set(treeObj.getCheckedNodes(true).map(node => node.sourcePath).concat(this.nodes)));
     },
     zTreeBeforeCheck(treeId, treeNode) {
       if(this.checkedNodes.length === 10 && !treeNode.checked) {
-        this.$message.warning('请选择10个以内的文件数量！')
+        this.$message.warning('请选择10个以内的文件数量！');
+        return false;
+      } else if (this.checkedNodes.includes(treeNode.sourcePath) && !treeNode.checked) {
+        this.$message.warning('该文件已选择！');
         return false;
       }
       return true;
@@ -226,4 +229,3 @@ export default {
   right: 5px;
 }
 </style>
-
