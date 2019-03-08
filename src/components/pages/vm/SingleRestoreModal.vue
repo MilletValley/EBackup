@@ -19,10 +19,10 @@
       </el-form-item>
       <el-row v-if="vmType === 'VMware'">
          <el-form-item label="恢复主机"
-                        prop="hostIp">
-            <!-- <el-input v-model="formData.hostIp"></el-input> -->
+                       prop="hostIp">
             <el-select v-model="formData.hostIp"
-                        style="width: 100%;">
+                       @change="changeHostIp"
+                       style="width: 100%;">
               <el-option v-for="server in serverData"
                           :key="server.id"
                           :value="server.serverIp"
@@ -42,14 +42,18 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="恢复磁盘名"
-                      prop="diskName">
-          <el-input v-model="formData.diskName"></el-input>
-        </el-form-item>
+                        prop="diskName">
+            <el-select v-model="formData.diskName"
+                       :disabled="!hasHostIp"
+                       placeholder="请选择恢复磁盘">
+              <el-option v-for="(disk, index) in disks"
+                         :key="index"
+                         :label="disk"
+                         :value="disk"></el-option>
+            </el-select>
+          </el-form-item>
         </el-col>
       </el-row>
-      
-        
-				
     </el-form>
     <span slot="footer">
       <el-button type="primary"
@@ -92,6 +96,8 @@ export default {
         hostIp: validate.selectServer,
         diskName: validate.diskName,
       },
+      hasHostIp: false, // 用于虚拟机恢复，根据已选的hostId获取可选的恢复磁盘
+      disks: []
     };
   },
   methods: {
@@ -116,6 +122,8 @@ export default {
       // this.formData = { ...baseFormData };
       this.$refs.singleRestorePlanForm.clearValidate();
       this.hiddenPassword = true;
+      this.disks = [];
+      this.hasHostIp = false;
     },
     modalOpened() {
       const { vmName } = this.details;

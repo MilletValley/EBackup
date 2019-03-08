@@ -6,7 +6,7 @@ then
 elif [ $branch = "master" ]
 then
   docker push qiansy/ebackup:latest
-elif [ $branch = "v2.4.3" ]
+elif [ $branch = "v2.4.4" ]
 then
-  docker push qiansy/ebackup:v2.4.3
+  docker push qiansy/ebackup:v2.4.4
 fi
