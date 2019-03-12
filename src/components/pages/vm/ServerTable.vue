@@ -13,32 +13,36 @@
           <el-table-column type="expand">
               <template slot-scope="props">
                 <template v-if="props.row.serverType === 1">
-                  <el-card v-for="host in props.row.hostList"
-                           :key="host.id"
-                           style="margin-top: 5px; margin-bottom: 5px">
-                    <div slot="header">
-                      <el-row>
-                        <el-col :span="6" style="text-align: center">主机名：{{ host.serverName }}</el-col>
-                        <el-col :span="6" style="text-align: center">所属设备：{{ host.hostName }}</el-col>
-                        <el-col :span="6" style="text-align: center">主机IP：{{ host.serverIp }}</el-col>
-                        <el-col :span="6" style="text-align: center">主机类型：{{ vmHostServerTypeMapping[host.serverType] }}</el-col>
-                      </el-row>
-                    </div>
-                    <mutil-table :tableData="host.vmList"
-                                 :ref="host.id"
-                                 :refTable="host.serverName" 
-                                 :selectData.sync="selectData"
-                                 :curSelectData="curSelectData"
-                                 :size="customSize"
-                                 :showDelete="showDelete"
-                                 @refresh="refreshOneServer(host)"></mutil-table>
-                  </el-card>
+                  <el-tabs tab-position="left"
+                           class="serverHost">
+                    <el-tab-pane v-for="host in props.row.hostList"
+                                 :key="host.id"
+                                 :label="host.serverName">
+                      <el-card style="margin-top: 5px; margin-bottom: 5px">
+                        <div slot="header">
+                          <el-row>
+                            <el-col :span="8" style="text-align: center">所属设备：{{ host.hostName }}</el-col>
+                            <el-col :span="8" style="text-align: center">主机IP：{{ host.serverIp }}</el-col>
+                            <el-col :span="8" style="text-align: center">主机类型：{{ host.serverType | vmHostServerTypeFilter }}</el-col>
+                          </el-row>
+                        </div>
+                        <mutil-table :tableData="host.vmList"
+                                     :ref="host.id"
+                                     :refTable="host.serverName"
+                                     :selectData.sync="selectData"
+                                     :curSelectData="curSelectData"
+                                     :size="customSize"
+                                     :showDelete="showDelete"
+                                     @refresh="refreshOneServer(host)"></mutil-table>
+                      </el-card>
+                    </el-tab-pane>
+                  </el-tabs>
                 </template>
                 <template v-else>
                   <mutil-table :tableData="props.row.vmList"
                                :ref="props.row.id"
-                               :refTable="props.row.serverName" 
-                               :selectData.sync="selectData" 
+                               :refTable="props.row.serverName"
+                               :selectData.sync="selectData"
                                :curSelectData="curSelectData"
                                :size="customSize"
                                :showDelete="showDelete"
@@ -138,8 +142,12 @@ export default {
   },
   data() {
     return {
-      vmHostServerTypeMapping
     };
+  },
+  filters: {
+    vmHostServerTypeFilter(value) {
+      return vmHostServerTypeMapping[value];
+    }
   },
   computed: {
     customSize() {
@@ -223,7 +231,39 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 </style>
-<style>
+<style scoped>
+.serverHost {
+  position: relative;
+}
+.serverHost >>> .el-tabs__content {
+  margin-left: 150px;
+}
+.serverHost >>> .el-tabs__header {
+  padding-right: 10px;
+  padding-bottom: 15px;
+  width: 150px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 5px;
+}
+.serverHost>>>.el-tabs__nav::-webkit-scrollbar {
+  width: 8px;
+}
+.serverHost>>>.el-tabs__nav::-webkit-scrollbar-track {
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius:2em;
+  border: 1px solid #ddd;
+}
+.serverHost>>>.el-tabs__nav::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius:2em;
+}
+.serverHost>>>.el-tabs__nav {
+  height: 100%;
+  overflow-y: auto;
+}
 </style>
-
-
