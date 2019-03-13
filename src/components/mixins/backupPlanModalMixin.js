@@ -327,9 +327,9 @@ const restorePlanModalMixin = {
     },
     // 根据已选主机id获取可选恢复磁盘名(虚拟机恢复)
     changeHostIp(hostIp) {
-      const hostId = this.serverData.find(host => host.serverIp === hostIp).hostId;
+      const id = this.serverData.find(host => host.serverIp === hostIp).id;
       this.hasHostIp = false;
-      fetchDisksByHostId(hostId)
+      fetchDisksByHostId(id)
         .then(res => {
           const { data } = res.data;
           this.disks = data;

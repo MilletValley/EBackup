@@ -24,9 +24,9 @@
                        @change="changeHostIp"
                        style="width: 100%;">
               <el-option v-for="server in serverData"
-                          :key="server.id"
-                          :value="server.serverIp"
-                          :label="`${server.serverName}(${server.serverIp})`">
+                         :key="server.id"
+                         :value="server.serverIp"
+                         :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
               </el-option>
@@ -96,7 +96,7 @@ export default {
         hostIp: validate.selectServer,
         diskName: validate.diskName,
       },
-      hasHostIp: false, // 用于虚拟机恢复，根据已选的hostId获取可选的恢复磁盘
+      hasHostIp: false, // 用于虚拟机恢复，根据已选的服务id获取可选的恢复磁盘
       disks: []
     };
   },
