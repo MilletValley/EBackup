@@ -158,12 +158,13 @@ export default {
         // this.currentSelect = [];
         return [];
       }
-     return this.tableData.map(e => {
+     const serverList = this.tableData.map(e => {
         e.disabled = false;
         e.icon = 'el-icon-refresh';
         e.delBtnIcon = 'el-icon-delete';
         return e;
       });
+      return this.formatServerData(serverList);
       // this.currentSelect = [];
     },
     selectData: {
@@ -224,6 +225,21 @@ export default {
     },
     deleteServer(data) {
       this.$emit('delete', data);
+    },
+    formatServerData(serverList) { // 主机=>vcenter=>物理主机
+      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce((initArray, item) => initArray.concat(item.serverListIds), []);
+      const results = serverList.reduce(([pass, fail], item) => {
+        if (item.serverType === 2 && hostIdsInVcenter.includes(item.id)) {
+          return [[...pass, item], fail];
+        }
+        return [pass, [...fail, item]];
+      }, [[], []]);
+      return results[1].map(server => {
+        if (server.serverType === 1) {
+          server.hostList = results[0].filter(host => server.serverListIds.includes(host.id));
+        }
+        return server;
+      });
     }
   },
 };

@@ -23,8 +23,8 @@
             <el-select v-model="formData.hostIp"
                        @change="changeHostIp"
                        style="width: 100%;">
-              <el-option v-for="server in serverData"
-                         :key="server.id"
+              <el-option v-for="(server, index) in serverData"
+                         :key="index"
                          :value="server.serverIp"
                          :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
@@ -41,17 +41,27 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="恢复磁盘名"
-                        prop="diskName">
-            <el-select v-model="formData.diskName"
-                       :disabled="!hasHostIp"
-                       placeholder="请选择恢复磁盘">
-              <el-option v-for="(disk, index) in disks"
-                         :key="index"
-                         :label="disk"
-                         :value="disk"></el-option>
-            </el-select>
-          </el-form-item>
+          <el-col :span="21">
+            <el-form-item label="恢复磁盘名"
+                          prop="diskName">
+              <el-select v-model="formData.diskName"
+                        :disabled="!hasHostIp"
+                        placeholder="请选择恢复磁盘">
+                <el-option v-for="(disk, index) in disks"
+                          :key="index"
+                          :label="disk"
+                          :value="disk"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3" style="text-align: center" v-if="showLoading">
+            <el-row>
+              <i class="el-icon-loading"></i>
+            </el-row>
+            <el-row style="font-size: 12px">
+              加载中
+            </el-row>
+          </el-col>
         </el-col>
       </el-row>
     </el-form>
@@ -97,7 +107,8 @@ export default {
         diskName: validate.diskName,
       },
       hasHostIp: false, // 用于虚拟机恢复，根据已选的服务id获取可选的恢复磁盘
-      disks: []
+      disks: [],
+      showLoading: false
     };
   },
   methods: {
@@ -124,6 +135,7 @@ export default {
       this.hiddenPassword = true;
       this.disks = [];
       this.hasHostIp = false;
+      this.showLoading = false;
     },
     modalOpened() {
       const { vmName } = this.details;
