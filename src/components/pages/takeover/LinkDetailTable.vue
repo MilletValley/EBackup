@@ -32,7 +32,7 @@
   </section>
 </template>
 <script>
-import takeoverMixin from '../mixins/takeoverMixins';
+import takeoverMixin from '@/components/mixins/takeoverMixins';
 export default {
   name: 'LinkDetailTable',
   mixins: [takeoverMixin],
@@ -61,7 +61,7 @@ export default {
 }
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
-@import '../../style/color.scss';
+@import '@/style/common.scss';
+@import '@/style/color.scss';
 </style>
 

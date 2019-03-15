@@ -88,7 +88,7 @@
                                 size="mini"
                                 label-width="70px">
                         <el-form-item :class="$style.switchFormItem"
-                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                                      :label="osType(hostLink.viceHost) === 'Windows'?'易备IP':'服务IP'">
                           {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
                         </el-form-item>
                         <el-form-item :class="$style.switchFormItem"
@@ -262,10 +262,10 @@
                         <span>{{ appLink.errorMsg }}</span>
                       </el-form-item>
                     </el-form>
-                    <div slot="reference" style="position: relative; height: 3em"
+                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
                          v-if="appLink.state === 1">
                       <div :class="$style.mask"></div>
-                      <i-icon name="transportation"
+                      <i-icon name="transportationRight"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
                     <i-icon :name="`switch-${appLink.state}`"
@@ -314,7 +314,7 @@
                            @confirm="createLink"></app-link-create-modal>
     <switch-modal :visible.sync="switchModalVisible"
                   :host-link-ready-to-switch="hostLinkReadyToSwitch"
-                  :ready-to-simple-switch="readyToSimpleSwitch"
+                  :ready-to-single-switch="readyToSingleSwitch"
                   :ready-to-remove-host-link="readyToRemoveHostLink"
                   :btn-loading="btnLoading"
                   @cancel="cancelSwitch"
@@ -329,7 +329,7 @@ import takeoverMixin from '@/components/mixins/takeoverMixins';
 import { fetchLinks, fetchAll, createLinks, deleteLinks } from '@/api/application';
 import {
   createSwitches,
-  simpleSwitch
+  singleSwitchIp
 } from '@/api/host';
 import dayjs from 'dayjs';
 export default {
@@ -347,7 +347,7 @@ export default {
       switchModalVisible: false,
       linkCreateModalVisible: false,
       hostLinkIdReadyToSwitch: -1,
-      readyToSimpleSwitch: {},
+      readyToSingleSwitch: {},
       readyToRemoveHostLink: {},
       btnLoading: false
     }
@@ -480,7 +480,7 @@ export default {
     },
     // 单切IP
     simpleSwitchIp(hostLink) {
-      this.readyToSimpleSwitch = hostLink;
+      this.readyToSingleSwitch = hostLink;
       this.switchModalVisible = true;
     },
     // 解除连接
@@ -490,7 +490,7 @@ export default {
     },
     cancelSwitch() {
       this.hostLinkIdReadyToSwitch = -1;
-      this.readyToSimpleSwitch = {};
+      this.readyToSingleSwitch = {};
       this.readyToRemoveHostLink = {};
       this.switchModalVisible = false;
       this.btnLoading = false;
@@ -516,14 +516,14 @@ export default {
           .then(() => {
             this.btnLoading = false;
           });
-      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) { // IP单切
+      } else if(Object.keys(this.readyToSingleSwitch).length > 0) { // IP单切
         this.btnLoading = true;
         const req = {
-          originViceIp: this.simpleSwitchOriginIp(this.readyToSimpleSwitch),
-          targetViceIp: this.simpleSwitchTargetIp(this.readyToSimpleSwitch)
+          originViceIp: this.singleSwitchOriginIp(this.readyToSingleSwitch),
+          targetViceIp: this.singleSwitchTargetIp(this.readyToSingleSwitch)
         };
-        const id = this.readyToSimpleSwitch.id;
-        simpleSwitch(id, req)
+        const id = this.readyToSingleSwitch.id;
+        singleSwitchIp(id, req)
           .then(res => {
             const { data } = res.data
             this.fetchData();
@@ -723,16 +723,17 @@ $vice-color: #6d6d6d;
   position: absolute;
   height: 3em;
   width: 100px;
-  left: 20px;
+  right: -20px;
   background: #fff;
+}
+.leftMask {
+  left: -20px;
 }
 @keyframes move {
   from {
-    left: 20px;
     width: 100px;
   }
   to {
-    left: 150px;
     width: 0;
   }
 }

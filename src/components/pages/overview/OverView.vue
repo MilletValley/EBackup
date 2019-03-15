@@ -5,7 +5,7 @@
 </template>
 <script>
 export default {
-  name: 'Overview',
+  name: 'OverView',
 };
 </script>
 <style>

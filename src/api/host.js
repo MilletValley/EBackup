@@ -58,7 +58,7 @@ const deleteLinks = linkId =>
     url: `/host-links/${linkId}`,
   });
 
-const simpleSwitch = (id, req) =>
+const singleSwitchIp = (id, req) =>
   baseApi.request({
     method: 'patch',
     url: `/host-links/${id}/vice-switch`,
@@ -103,7 +103,7 @@ export {
   createSwitches,
   vipSwitches,
   deleteLinks,
-  simpleSwitch,
+  singleSwitchIp,
   fetchDetailsById,
   addServer,
   fetchServerList,

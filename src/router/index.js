@@ -4,13 +4,8 @@ import Login from '@/components/Login';
 import Layout from '@/components/Layout';
 import Dashboard from '@/components/pages/Dashboard';
 import Profile from '@/components/pages/Profile';
-// import NotFound from '@/components/pages/NotFound';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
-import InputIp from '@/components/pages/InputIp';
-// import Overview from '@/components/pages/Overview';
-// import BackupRecoverView from '@/components/pages/BackupRecoverView';
-// import TakeOverView from '@/components/pages/TakeOverView';
 import MoreState from '@/components/pages/MoreState';
 
 import homeRouter from './home';
@@ -20,6 +15,7 @@ import databaseRouter from './database';
 import vmRouter from './virtuals';
 import systemRouter from './system';
 import applicationServiceRouter from './applicationservice';
+// import overviewRouter from './overview';
 
 Vue.use(Router);
 
@@ -55,10 +51,6 @@ export const basicRouters = [
       },
     ],
   },
-  {
-    path: '/inputip',
-    component: InputIp,
-  },
   ...homeRouter,
 ];
 
@@ -73,64 +65,7 @@ export const asyncRouters = [
   ...vmRouter,
   ...applicationServiceRouter,
   ...systemRouter,
-  // {
-  //   path: '/file',
-  //   component: Layout,
-  //   meta: {
-  //     title: '文件系统',
-  //     icon: 'file',
-  //     roles: ['file admin'],
-  //   },
-  //   children: [
-  //     {
-  //       path: 'windows',
-  //       component: FileHostList,
-  //       meta: {
-  //         title: 'Windows系统',
-  //         roles: ['file admin'],
-  //       },
-  //     },
-  //   ],
-  // },
-  // {
-  //   path: '/demonstrate',
-  //   component: Layout,
-  //   meta: {
-  //     title: '演示',
-  //     icon: 'demonstrate',
-  //     roles: ['view admin'],
-  //   },
-  //   children: [
-  //     {
-  //       path: 'overview',
-  //       name: 'overview',
-  //       component: Overview,
-  //       meta: {
-  //         title: '总览',
-  //         roles: ['view admin'],
-  //       },
-  //     },
-  //     {
-  //       path: 'backuprecoverview',
-  //       name: 'backuprecoverview',
-  //       component: BackupRecoverView,
-  //       meta: {
-  //         title: '备份恢复',
-  //         roles: ['view admin'],
-  //       },
-  //     },
-  //     {
-  //       path: 'takeoverview',
-  //       name: 'takeoverview',
-  //       component: TakeOverView,
-  //       meta: {
-  //         title: '一键接管',
-  //         roles: ['view admin'],
-  //       },
-  //     },
-  //   ]
-  // },
-
+  // ...overviewRouter,
   {
     path: '/error',
     component: Layout,

@@ -139,7 +139,6 @@ export default {
     modalOpened() {
       this.originFormData = { ...this.emailInfo, emailPassword: '' };
       this.formData = { ...this.emailInfo, emailPassword: ''  };
-      console.log(this.formData)
     },
     confirm() {
       this.$refs.formData.validate(valid => {

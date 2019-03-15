@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout';
-import TakeOver from '@/components/pages/TakeOver';
+import TakeOver from '@/components/pages/takeover/TakeOver';
 import OracleList from '@/components/pages/oracle/OracleList';
 import OracleDetail from '@/components/pages/oracle/OracleDetail';
 import SqlServerList from '@/components/pages/sqlserver/SqlServerList';
@@ -10,7 +10,7 @@ import DB2List from '@/components/pages/db2/DB2List';
 import DB2Detail from '@/components/pages/db2/DB2Details';
 import DamengList from '@/components/pages/dm/DamengList';
 import DamengDetails from '@/components/pages/dm/DamengDetails';
-import DatabaseLinkDetail from '@/components/pages/DatabaseLinkDetail';
+import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
 
 const router = [
   {
