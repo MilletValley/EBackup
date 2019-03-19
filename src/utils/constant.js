@@ -128,7 +128,9 @@ const useTypeMapping = {
   4: '虚拟机',
   5: 'mysql',
   6: 'db2',
-  7: '达梦数据库'
+  7: '达梦数据库',
+  8: '应用服务器',
+  9: 'sybase'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -146,7 +148,8 @@ const portHostTypeMapping = {
   5: 'mysql',
   6: 'db2',
   7: '达梦数据库',
-  8: '应用服务器'
+  8: '应用服务器',
+  9: 'sybase'
 };
 
 const keepDateMapping = {
@@ -167,7 +170,8 @@ const databaseTypeMapping = {
   5: 'mysql',
   6: 'db2',
   7: '达梦数据库',
-  8: '应用服务器'
+  8: '应用服务器',
+  9: 'sybase'
 };
 
 // 数据库连接状态

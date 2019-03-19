@@ -39,7 +39,7 @@
                       prop="databaseType">
           <el-radio-group v-model="formData.databaseType">
             <el-radio v-for="db in databaseUseType"
-                      v-if="(useType === 'db'&&[1,2,5,6,7].includes(db.value))||(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
+                      v-if="(useType === 'db'&&[1,2,5,6,7,9].includes(db.value))||(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
                       :key="db.value"
                       :label="db.value">{{ db.text }}</el-radio>
           </el-radio-group>
@@ -65,6 +65,7 @@
                         placeholder="请选择">
                 <el-option v-for="(item, index) in ['Windows', 'Linux', 'AIX']"
                           :key="index"
+                          :disabled="item === 'Linux' && formData.databaseType === 9"
                           v-if="[0, 1].includes(index) || (formData.databaseType === 1 && formData.oracleVersion === 2)"
                           :value="item"></el-option>
               </el-select>
@@ -200,6 +201,7 @@ export default {
           case 5:
           case 6:
           case 7:
+          case 9:
             return 'db';
           case 4:
             return 'vm';
@@ -229,6 +231,9 @@ export default {
     'formData.databaseType': function(newVal, oldVal) {
       if(oldVal === 1) {
         this.formData.oracleVersion = '';
+      }
+      if (newVal === 9) {
+        this.formData.osName = 'Windows';
       }
     },
     'formData.oracleVersion': function(newVal, oldVal) {
