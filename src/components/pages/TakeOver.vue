@@ -287,9 +287,7 @@
                         <el-dropdown-item :disabled="!availableSimpleSwitchDb(hostLink.primaryHost) || !hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                           @click.native="simpleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
                         <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSimpleSwitch(hostLink.primaryHost, link))"
-                                          @click.native="restoreSimpleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSimple(link))"
-                                          @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
+                                          @click.native="restoreSimpleSwitchDatabases(hostLink, true)">单切恢复</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -487,10 +485,14 @@
                           <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
                                             :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
-                          <el-dropdown-item @click.native="restoreSimpleSwitch(hostLink, false, [dbLink])"
+                          <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
                                             :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
 <<<<<<< HEAD
+<<<<<<< HEAD
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
+=======
+                          <el-dropdown-item @click.native="cutBackSwitch(dbLink)"
+>>>>>>> parent of d0d1b60... fix: 增加批量回切初始化入口，以及单切恢复批量可选
                                             :disabled="!(availableCutBackSimple(dbLink))">回切初始化</el-dropdown-item>
 =======
 >>>>>>> parent of 9de65ba... feat: oracle添加回切功能
@@ -557,18 +559,6 @@
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
-    <cut-back-modal :visible="cutBackVisible"
-                    :cut-back-msg="readyToSwitchMsg"
-                    :btn-loading="btnLoading"
-                    :multiply="multiply"
-                    @confirm="cutBackConfirm"
-                    @cancel="cancelCutBack"></cut-back-modal>
-    <restore-switch-modal :visible="restoreSwitchVisible"
-                          :restore-switch-msg="readyToSwitchMsg"
-                          :btnLoading="btnLoading"
-                          :multiply="multiply"
-                          @confirm="restoreSwitchConfirm"
-                          @cancel="cancelRestoreSwitch"></restore-switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :links="links"
                                 :ebackup-hosts="availableEbackupHosts"
@@ -587,8 +577,6 @@
 <script>
 import SwitchModal from '../modal/SwitchModal';
 import BatchSwitchModal from '../modal/BatchSwitchModal';
-import CutBackModal from '../modal/CutBackModal';
-import RestoreSwitchModal from '../modal/RestoreSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import dayjs from 'dayjs';
@@ -672,10 +660,6 @@ export default {
       readyToRemoveHostLink: {},
       btnLoading: false,
       isSimpleSwitch: false, // 标记单切还是双切
-      cutBackVisible: false,
-      restoreSwitchVisible: false,
-      readyToSwitchMsg: {},
-      multiply: false,
       timer: null,
     };
   },
@@ -850,14 +834,6 @@ export default {
       this.switchModalVisible = false;
       this.isSimpleSwitch = false;
     },
-    cancelCutBack() {
-      this.cutBackVisible = false;
-      this.readyToSwitchMsg = {};
-    },
-    cancelRestoreSwitch() {
-      this.restoreSwitchVisible = false;
-      this.readyToSwitchMsg = {}
-    },
     confirmSwitch(formData) {
       /**
        * 1.验证密码；
@@ -970,78 +946,6 @@ export default {
     removeHostLink(hostLink) {
       this.switchModalVisible = true;
       this.readyToRemoveHostLink = hostLink;
-    },
-    // 回切初始化(单个、批量)
-    cutBackSwitch(hostLink, multiply, link) {
-      this.cutBackVisible = true;
-      const { databaseLinks, ...other } = hostLink;
-      this.multiply = multiply;
-      const readyToCutBackLinks = multiply ? databaseLinks.filter(link => this.availableCutBackSimple(link)) : link;
-      this.readyToSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
-    },
-    // 单切恢复（单个、批量）
-    restoreSimpleSwitch(hostLink, multiply, link = []) {
-      this.restoreSwitchVisible = true;
-      const { databaseLinks, ...other } = hostLink;
-      this.multiply = multiply;
-      const readyToSwitchDbLinks = multiply ? hostLink.databaseLinks.filter(item => this.availableRestoreSimpleSwitch(hostLink.primaryHost,item)) : link;
-      this.readyToSwitchMsg = { databaseLinks: readyToSwitchDbLinks, ...other };
-    },
-    // 回切初始化
-    cutBackConfirm(switchIds) {
-      this.btnLoading = true;
-      cutBackSwitchOracle(switchIds)
-        .then(res => {
-          const { data, message } = res.data;
-          this.databaseLinks.forEach(link => {
-            if (switchIds.includes(link.id)) {
-              link.latestSwitch = data.find(s => s.linkId === link.id);
-            }
-          })
-          this.$message.success(message);
-          this.cutBackVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        })
-    },
-    // 单切恢复
-    restoreSwitchConfirm(switchIds) {
-      this.btnLoading = true;
-      restoreSimpleSwitchOracle(switchIds)
-        .then(res => {
-          const { data, message } = res.data;
-          this.databaseLinks.forEach(link => {
-            if (switchIds.includes(link.id)) {
-              link.latestSwitch = data.find(s => s.linkId === link.id);
-            }
-          });
-          this.$message.success(message);
-          this.restoreSwitchVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        })
-    },
-    // 回切初始化或单切恢复
-    readyToCutBack(hostLink, multiply, link = []) {
-      this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.restoreSimpleSwitch(hostLink, multiply, link);
-        })
-        .catch(() => {
-          this.cutBackSwitch(hostLink, multiply, link);
-        });
     },
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
@@ -1215,7 +1119,10 @@ export default {
         .catch(error => {});
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of d0d1b60... fix: 增加批量回切初始化入口，以及单切恢复批量可选
     restoreSimpleSwitchDatabases(link, isMultiple = false) {
       this.$confirm('此操作将执行单切恢复，是否继续？', '提示', {
         confirmButtonText: '确定',
@@ -1240,7 +1147,29 @@ export default {
         })
         .catch(error => {});
     },
+<<<<<<< HEAD
 >>>>>>> parent of 9de65ba... feat: oracle添加回切功能
+=======
+    // 回切初始化
+    cutBackSwitch(link) {
+      this.$confirm('此操作将执行回切初始化，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          cutBackSwitchOracle([link.id])
+            .then(res => {
+              const { message } = res.data;
+              this.fetchData();
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+        })
+        .catch(error => {});
+    },
+>>>>>>> parent of d0d1b60... fix: 增加批量回切初始化入口，以及单切恢复批量可选
     // 非主节点VIP集合
     sonNodeVip(hostLink) {
       if(hostLink.primaryNodes)
@@ -1299,8 +1228,6 @@ export default {
     SwitchModal,
     DatabaseLinkCreateModal,
     BatchSwitchModal,
-    CutBackModal,
-    RestoreSwitchModal
   },
 };
 </script>
