@@ -140,11 +140,34 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-                      <p v-if="(!hostLink.latestSwitch || [1, 4, 5, 6].includes(hostLink.latestSwitch.type))">暂无操作</p>
-                      <!-- 切换IP, 单切IP -->
-                      <el-form v-else-if="[2, 7].includes(hostLink.latestSwitch.type)"
-                               size="mini"
-                               label-width="70px">
+                      <p v-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
+                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type)) ||
+                                          hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
+                                size="mini"
+                                label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                          {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
+                                  size="mini">
+                            {{ hostLink.simpleSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换信息">
+                          {{ hostLink.simpleSwitch.message }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="完成时间">
+                          {{ hostLink.simpleSwitch.switchTime }}
+                        </el-form-item>
+                      </el-form>
+                      <el-form v-else-if="hostLink.latestSwitch.type === 2"
+                              size="mini"
+                              label-width="70px">
                         <el-form-item :class="$style.switchFormItem"
                                       label="切换内容">
                           <span>{{ hostLink.latestSwitch.content }}</span>
@@ -166,7 +189,6 @@
                           <span>{{ hostLink.latestSwitch.switchTime }}</span>
                         </el-form-item>
                       </el-form>
-                      <!-- 解除连接 -->
                       <el-form v-else-if="hostLink.latestSwitch.type === 3"
                               size="mini"
                               label-width="70px">
@@ -192,10 +214,20 @@
                               slot="reference"></i-icon>
                     </el-popover>
                   </div>
-                  <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && [2, 3, 7].includes(hostLink.latestSwitch.type)"
+                  <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
+                      style="margin-top: 12px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
+                  </div>
+                  <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
+                      style="margin-top: 12px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
+                  </div>
+                  <div v-else-if="simpleSwitchGoing(hostLink)"
                        style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">{{ hostLink.latestSwitch.type | switchTypeFilter }}中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP中...</span>
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
@@ -203,16 +235,16 @@
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
                                 @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
                       <el-button type="text"
-                                 @click="switchHostIp(hostLink)"
-                                 :disabled="hostLink.primaryHost.osName === 'AIX'">切IP</el-button>
+                                @click="switchHostIp(hostLink)"
+                                :disabled="hostLink.primaryHost.osName === 'AIX'">切IP</el-button>
                       <el-button type="text"
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                 @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
                     </div>
                     <div v-show="!enterFromMenu">
                       <el-button type="text"
-                                 @click="removeHostLink(hostLink)"
-                                 :class="$style.removeHostLink">解除连接</el-button>
+                                @click="removeHostLink(hostLink)"
+                                :class="$style.removeHostLink">解除连接</el-button>
                     </div>
                   </template>
                 </div>
@@ -234,9 +266,7 @@
                         <el-dropdown-item :disabled="!availableSimpleSwitchDb(hostLink.primaryHost) || !hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                           @click.native="simpleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
                         <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSimpleSwitch(hostLink.primaryHost, link))"
-                                          @click.native="restoreSimpleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSimple(link))"
-                                          @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
+                                          @click.native="restoreSimpleSwitchDatabases(hostLink, true)">单切恢复</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -349,7 +379,7 @@
                       </el-form-item>
                     </el-form>
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-                    <p v-if="!dbLink.latestSwitch || ![1, 4, 5, 6].includes(dbLink.latestSwitch.type)">暂无操作</p>
+                    <p v-if="!dbLink.latestSwitch">暂无操作</p>
                     <el-form v-else
                             size="mini"
                             label-width="70px">
@@ -374,36 +404,34 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
-                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                    <div slot="reference" style="position: relative; height: 3em"
                          v-if="dbLink.state === 1">
-                      <div :class="$style.rightMask"></div>
-                      <i-icon name="transportationRight"
-                              :class="$style.transportationIcon"></i-icon>
-                    </div>
-                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
-                         v-else-if="dbLink.state === 6">
-                      <div :class="$style.leftMask"></div>
-                      <i-icon name="transportationLeft"
+                      <div :class="$style.mask"></div>
+                      <i-icon name="transportation"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
                     <i-icon :name="`switch-${dbLink.state}`"
-                            slot="reference"
-                            :class="$style.switchIcon"
-                            v-else></i-icon>
+                              slot="reference"
+                              :class="$style.switchIcon"
+                              v-else></i-icon>
                   </el-popover>
-                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && [1, 4, 5, 6].includes(dbLink.latestSwitch.type)"
-                       style="margin-top: 6px;">
+                  <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 1 "
+                      style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      <template v-if="dbLink.latestSwitch.type === 1">切换{{instanceName.substring(0, instanceName.length-1)}}中...</template>
-                      <template v-else>{{ dbLink.latestSwitch.type | switchTypeFilter}}中...</template>
-                    </span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换{{instanceName.substring(0, instanceName.length-1)}}中...</span>
                   </div>
                   <div v-else-if="dbLink.failOverOnGoing"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
                       {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
+                    </span>
+                  </div>
+                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 4"
+                       style="margin-top: 6px;">
+                    <i class="el-icon-loading"></i>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                      单切恢复中...
                     </span>
                   </div>
                   <div v-else>
@@ -421,10 +449,8 @@
                           <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
                                             :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
-                          <el-dropdown-item @click.native="restoreSimpleSwitch(hostLink, false, [dbLink])"
+                          <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
                                             :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
-                          <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
-                                            :disabled="!(availableCutBackSimple(dbLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -443,7 +469,7 @@
                     <el-col :span="8">
                       <h4>
                         <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                                     :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
+                                    :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
                           {{dbLink.viceDatabase.name}}
                         </router-link>
                       </h4>
@@ -488,18 +514,6 @@
                   @cancel="cancelSwitch"
                   :btn-loading="btnLoading"
                   @confirm="confirmSwitch"></switch-modal>
-    <cut-back-modal :visible="cutBackVisible"
-                    :cut-back-msg="readyToSwitchMsg"
-                    :btn-loading="btnLoading"
-                    :multiply="multiply"
-                    @confirm="cutBackConfirm"
-                    @cancel="cancelCutBack"></cut-back-modal>
-    <restore-switch-modal :visible="restoreSwitchVisible"
-                          :restore-switch-msg="readyToSwitchMsg"
-                          :btnLoading="btnLoading"
-                          :multiply="multiply"
-                          @confirm="restoreSwitchConfirm"
-                          @cancel="cancelRestoreSwitch"></restore-switch-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :links="links"
                                 :ebackup-hosts="availableEbackupHosts"
@@ -518,8 +532,6 @@
 <script>
 import SwitchModal from '../modal/SwitchModal';
 import BatchSwitchModal from '../modal/BatchSwitchModal';
-import CutBackModal from '../modal/CutBackModal';
-import RestoreSwitchModal from '../modal/RestoreSwitchModal';
 import IIcon from '@/components/IIcon';
 import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import dayjs from 'dayjs';
@@ -530,8 +542,7 @@ import {
   createSwitches as switchOracle,
   createSimpleSwitches as simpleSwitchOracle,
   failOver as failOverOracle,
-  restoreSimpleSwitch as restoreSimpleSwitchOracle,
-  cutBackSwitch as cutBackSwitchOracle
+  restoreSimpleSwitch as restoreSimpleSwitchOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -604,10 +615,6 @@ export default {
       readyToRemoveHostLink: {},
       btnLoading: false,
       isSimpleSwitch: false, // 标记单切还是双切
-      cutBackVisible: false,
-      restoreSwitchVisible: false,
-      readyToSwitchMsg: {},
-      multiply: false,
       timer: null,
     };
   },
@@ -782,14 +789,6 @@ export default {
       this.switchModalVisible = false;
       this.isSimpleSwitch = false;
     },
-    cancelCutBack() {
-      this.cutBackVisible = false;
-      this.readyToSwitchMsg = {};
-    },
-    cancelRestoreSwitch() {
-      this.restoreSwitchVisible = false;
-      this.readyToSwitchMsg = {}
-    },
     confirmSwitch(formData) {
       /**
        * 1.验证密码；
@@ -903,78 +902,6 @@ export default {
       this.switchModalVisible = true;
       this.readyToRemoveHostLink = hostLink;
     },
-    // 回切初始化(单个、批量)
-    cutBackSwitch(hostLink, multiply, link) {
-      this.cutBackVisible = true;
-      const { databaseLinks, ...other } = hostLink;
-      this.multiply = multiply;
-      const readyToCutBackLinks = multiply ? databaseLinks.filter(link => this.availableCutBackSimple(link)) : link;
-      this.readyToSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
-    },
-    // 单切恢复（单个、批量）
-    restoreSimpleSwitch(hostLink, multiply, link = []) {
-      this.restoreSwitchVisible = true;
-      const { databaseLinks, ...other } = hostLink;
-      this.multiply = multiply;
-      const readyToSwitchDbLinks = multiply ? hostLink.databaseLinks.filter(item => this.availableRestoreSimpleSwitch(hostLink.primaryHost,item)) : link;
-      this.readyToSwitchMsg = { databaseLinks: readyToSwitchDbLinks, ...other };
-    },
-    // 回切初始化
-    cutBackConfirm(switchIds) {
-      this.btnLoading = true;
-      cutBackSwitchOracle(switchIds)
-        .then(res => {
-          const { data, message } = res.data;
-          this.databaseLinks.forEach(link => {
-            if (switchIds.includes(link.id)) {
-              link.latestSwitch = data.find(s => s.linkId === link.id);
-            }
-          })
-          this.$message.success(message);
-          this.cutBackVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        })
-    },
-    // 单切恢复
-    restoreSwitchConfirm(switchIds) {
-      this.btnLoading = true;
-      restoreSimpleSwitchOracle(switchIds)
-        .then(res => {
-          const { data, message } = res.data;
-          this.databaseLinks.forEach(link => {
-            if (switchIds.includes(link.id)) {
-              link.latestSwitch = data.find(s => s.linkId === link.id);
-            }
-          });
-          this.$message.success(message);
-          this.restoreSwitchVisible = false;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.btnLoading = false;
-        })
-    },
-    // 回切初始化或单切恢复
-    readyToCutBack(hostLink, multiply, link = []) {
-      this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.restoreSimpleSwitch(hostLink, multiply, link);
-        })
-        .catch(() => {
-          this.cutBackSwitch(hostLink, multiply, link);
-        });
-    },
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
         .filter(dbLink => dbLink.primaryDatabase.role === 2)
@@ -1075,13 +1002,6 @@ export default {
       }
       return false;
     },
-    /** ● 连接：异常不可接管
-        ● 易备库主，正常
-        ● 生产库备，非正常
-    **/
-    availableCutBackSimple({ state, viceDatabase, primaryDatabase }) {
-      return state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) && (primaryDatabase.role === 2 && primaryDatabase.state !== 1);
-    },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
         this.$router.push({
@@ -1153,6 +1073,30 @@ export default {
         })
         .catch(error => {});
     },
+    restoreSimpleSwitchDatabases(link, isMultiple = false) {
+      this.$confirm('此操作将执行单切恢复，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const alreadyToSwitchDbLinks = isMultiple ? link.databaseLinks.filter(item => this.availableRestoreSimpleSwitch(link.primaryHost,item)) : [link];
+          const restoreSimpleSwitchIds = alreadyToSwitchDbLinks.map(dbLink => dbLink.id);
+          restoreSimpleSwitchOracle(restoreSimpleSwitchIds)
+            .then(res => {
+              const { data } = res.data;
+              this.databaseLinks.forEach(link => {
+                if (restoreSimpleSwitchIds.includes(link.id)) {
+                  link.latestSwitch = data.find(s => s.linkId === link.id);
+                }
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+        })
+        .catch(error => {});
+    },
     // 非主节点VIP集合
     sonNodeVip(hostLink) {
       if(hostLink.primaryNodes)
@@ -1211,8 +1155,6 @@ export default {
     SwitchModal,
     DatabaseLinkCreateModal,
     BatchSwitchModal,
-    CutBackModal,
-    RestoreSwitchModal
   },
 };
 </script>
@@ -1432,23 +1374,21 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
-.rightMask,
-.leftMask {
+.mask {
   animation: move 2s infinite;
   position: absolute;
   height: 3em;
   width: 100px;
-  right: -20px;
+  left: 20px;
   background: #fff;
-}
-.leftMask {
-  left: -20px;
 }
 @keyframes move {
   from {
+    left: 20px;
     width: 100px;
   }
   to {
+    left: 150px;
     width: 0;
   }
 }

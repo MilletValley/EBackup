@@ -125,15 +125,35 @@
       </el-row>
     </header>
     <h3>操作记录</h3>
-    <el-tabs type="border-card" v-model="activeName">
-      <el-tab-pane v-for="(msg, index) in tabMsgs"
-                   :key="index"
-                   :name="msg.name"
-                   :label="msg.label"
-                   v-if="!(databaseType === 'sqlserver' && [4, 5, 6, 7].includes(Number(msg.name)))">
-        <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
-      </el-tab-pane>
-    </el-tabs>
+    <el-table :data="switches"
+              :default-sort="{prop: 'switchTime', order: 'descending'}">
+      <el-table-column label="切换时间"
+                       width="220"
+                       align="center"
+                       prop="switchTime"></el-table-column>
+      <el-table-column label="类型"
+                       width="150"
+                       align="center"
+                       prop="type"
+                       :formatter="switchTypeFormatter"></el-table-column>
+      <el-table-column label="切换内容"
+                       min-width="200"
+                       header-align="center"
+                       prop="content"></el-table-column>
+      <el-table-column label="切换形式"
+                       width="120"
+                       align="center"
+                       :formatter="switchManualFormatter"
+                       prop="manual"></el-table-column>
+      <el-table-column label="状态"
+                       width="120"
+                       align="center"
+                       prop="state">
+        <template slot-scope="scope">
+          <i :class="switchStateIconClass(scope.row.state)"></i>
+        </template>
+      </el-table-column>
+    </el-table>
     <switch-modal :visible="switchModalVisible"
                   :database-links-ready-to-switch="[databaseLink]"
                   @cancel="switchModalCancel"
@@ -144,8 +164,6 @@
 import SwitchModal from '../modal/SwitchModal';
 import takeoverMixin from '../mixins/takeoverMixins';
 import IIcon from '@/components/IIcon';
-import LinkDetailTable from '@/components/pages/LinkDetailTable';
-import { switchTypeMapping } from '@/utils/constant';
 import {
   fetchLinkByLinkId as fetchLinkByLinkIdOracle,
   fetchSwitches as fetchSwitchesOracle,
@@ -179,20 +197,10 @@ export default {
       latestSwitch: {},
       switches: [],
       switchModalVisible: false,
-      activeName: ''
     };
   },
   created() {
     this.fetchData();
-    this.activeName = this.tabMsgs[0].name;
-  },
-  filters: {
-    formatType(records, name) {
-      if(records.length<=0) {
-        return [];
-      }
-      return records.filter(record => record.type === Number(name));
-    }
   },
   computed: {
     databaseType() {
@@ -214,12 +222,6 @@ export default {
         viceDatabase: this.ebackupDatabase,
       };
     },
-    tabMsgs() {
-      return Object.keys(switchTypeMapping).map(type => ({
-        label: Number(type) === 1 && this.databaseType === 'sqlserver' ? '切换数据库' : switchTypeMapping[type],
-        name: type
-      }));
-    }
   },
   methods: {
     fetchData() {
@@ -248,6 +250,18 @@ export default {
           this.$message.error(error);
         });
     },
+    switchStateIconClass(value) {
+      switch (value) {
+        case 0:
+          return ['el-icon-time', this.$style.waitingColor];
+        case 1:
+          return ['el-icon-loading'];
+        case 2:
+          return ['el-icon-success', this.$style.successColor];
+        case 3:
+          return ['el-icon-error', this.$style.errorColor];
+      }
+    },
     switchIconClick() {
       this.switchModalVisible = true;
     },
@@ -272,7 +286,6 @@ export default {
   components: {
     IIcon,
     SwitchModal,
-    LinkDetailTable
   },
 };
 </script>
