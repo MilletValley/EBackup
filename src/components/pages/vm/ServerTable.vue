@@ -10,17 +10,45 @@
           </el-col>
       </el-row>
       <el-table v-show="!isSelect" :data="serverTableData" ref="serverTable" :size="customSize">
-            <el-table-column type="expand">
-                  <template slot-scope="props">
-                      <mutil-table :tableData="props.row.vmList" 
-                                  :ref="props.row.id" 
-                                  :refTable="props.row.serverName" 
-                                  :selectData.sync="selectData" 
-                                  :curSelectData="curSelectData" 
-                                  :size="customSize"
-                                  :showDelete="showDelete"
-                                  @refresh="refreshOneServer(props.row)"></mutil-table>
-                  </template>
+          <el-table-column type="expand">
+              <template slot-scope="props">
+                <template v-if="props.row.serverType === 1">
+                  <el-tabs tab-position="left"
+                           class="serverHost">
+                    <el-tab-pane v-for="host in props.row.hostList"
+                                 :key="host.id"
+                                 :label="host.serverName">
+                      <el-card style="margin-top: 5px; margin-bottom: 5px">
+                        <div slot="header">
+                          <el-row>
+                            <el-col :span="8" style="text-align: center">所属设备：{{ host.hostName }}</el-col>
+                            <el-col :span="8" style="text-align: center">主机IP：{{ host.serverIp }}</el-col>
+                            <el-col :span="8" style="text-align: center">主机类型：{{ host.serverType | vmHostServerTypeFilter }}</el-col>
+                          </el-row>
+                        </div>
+                        <mutil-table :tableData="host.vmList"
+                                     :ref="host.id"
+                                     :refTable="host.serverName"
+                                     :selectData.sync="selectData"
+                                     :curSelectData="curSelectData"
+                                     :size="customSize"
+                                     :showDelete="showDelete"
+                                     @refresh="refreshOneServer(host)"></mutil-table>
+                      </el-card>
+                    </el-tab-pane>
+                  </el-tabs>
+                </template>
+                <template v-else>
+                  <mutil-table :tableData="props.row.vmList"
+                               :ref="props.row.id"
+                               :refTable="props.row.serverName"
+                               :selectData.sync="selectData"
+                               :curSelectData="curSelectData"
+                               :size="customSize"
+                               :showDelete="showDelete"
+                               @refresh="refreshOneServer(props.row)"></mutil-table>
+                </template>
+              </template>
           </el-table-column>
           <el-table-column label="主机名" prop="serverName" align="left"
                       min-width="100">
@@ -116,6 +144,11 @@ export default {
     return {
     };
   },
+  filters: {
+    vmHostServerTypeFilter(value) {
+      return vmHostServerTypeMapping[value];
+    }
+  },
   computed: {
     customSize() {
       return this.size ? this.size : '-';
@@ -125,12 +158,13 @@ export default {
         // this.currentSelect = [];
         return [];
       }
-     return this.tableData.map(e => {
+     const serverList = this.tableData.map(e => {
         e.disabled = false;
         e.icon = 'el-icon-refresh';
         e.delBtnIcon = 'el-icon-delete';
         return e;
       });
+      return this.formatServerData(serverList);
       // this.currentSelect = [];
     },
     selectData: {
@@ -191,6 +225,21 @@ export default {
     },
     deleteServer(data) {
       this.$emit('delete', data);
+    },
+    formatServerData(serverList) { // 主机=>vcenter=>物理主机
+      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce((initArray, item) => initArray.concat(item.serverListIds), []);
+      const results = serverList.reduce(([pass, fail], item) => {
+        if (item.serverType === 2 && hostIdsInVcenter.includes(item.id)) {
+          return [[...pass, item], fail];
+        }
+        return [pass, [...fail, item]];
+      }, [[], []]);
+      return results[1].map(server => {
+        if (server.serverType === 1) {
+          server.hostList = results[0].filter(host => server.serverListIds.includes(host.id));
+        }
+        return server;
+      });
     }
   },
 };
@@ -198,7 +247,39 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 </style>
-<style>
+<style scoped>
+.serverHost {
+  position: relative;
+}
+.serverHost >>> .el-tabs__content {
+  margin-left: 150px;
+}
+.serverHost >>> .el-tabs__header {
+  padding-right: 10px;
+  padding-bottom: 15px;
+  width: 150px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 5px;
+}
+.serverHost>>>.el-tabs__nav::-webkit-scrollbar {
+  width: 8px;
+}
+.serverHost>>>.el-tabs__nav::-webkit-scrollbar-track {
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius:2em;
+  border: 1px solid #ddd;
+}
+.serverHost>>>.el-tabs__nav::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+  border-radius:2em;
+}
+.serverHost>>>.el-tabs__nav {
+  height: 100%;
+  overflow-y: auto;
+}
 </style>
-
-

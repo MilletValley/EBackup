@@ -8,10 +8,10 @@
         </el-col>
     </el-row>
     <el-table :data="curTableData" @select="selectDbChangeFn"  :ref="refTable" :size="customSize"
-                @sort-change="sortChangeFn"
-                :default-sort="defaultSort"
-           @select-all="((selection) => selectAll(selection, curTableData))">
-        <el-table-column   
+              @sort-change="sortChangeFn"
+              :default-sort="defaultSort"
+              @select-all="((selection) => selectAll(selection, curTableData))">
+        <el-table-column
             type="selection"
             :selectable="selectableFn"
             align="left"

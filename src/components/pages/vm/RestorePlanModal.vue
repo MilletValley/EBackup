@@ -22,43 +22,56 @@
       <el-row v-if="vmType === 'HW'">
         <el-col :span="24">
           <el-form-item label="新虚拟机名"
-                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row v-if="vmType === 'VMware'">
-        
         <el-form-item label="恢复主机"
-                        prop="hostIp">
-            <!-- <el-input v-model="formData.hostIp"></el-input> -->
-            <el-select v-model="formData.hostIp" :disabled="action !== 'create'"
-                        style="width: 100%;">
-              <el-option v-for="server in serverData"
-                          :key="server.id"
-                          :value="server.serverIp"
-                          :label="`${server.serverName}(${server.serverIp})`">
-                <span style="float: left">{{ server.serverName }}</span>
-                <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
-              </el-option>
-            </el-select>
-          </el-form-item>
+                      prop="hostIp">
+          <el-select v-model="formData.hostIp" :disabled="action !== 'create'"
+                     @change="changeHostIp"
+                     style="width: 100%;">
+            <el-option v-for="(server, index) in serverData"
+                       :key="index"
+                       :value="server.serverIp"
+                       :label="`${server.serverName}(${server.serverIp})`">
+              <span style="float: left">{{ server.serverName }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-row>
       <el-row v-if="vmType === 'VMware'">
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
-                        :rules="[{ required: true, message: '请输入新虚拟机名', trigger: 'blur' }]"
                         prop="newName">
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="恢复磁盘名"
-                      prop="diskName"
-                      :rules="[{ required: true, message: '请输入恢复磁盘名', trigger: 'blur' }]">
-          <el-input v-model="formData.diskName"></el-input>
-        </el-form-item>
+          <el-col :span="21">
+            <el-form-item label="恢复磁盘"
+                          prop="diskName">
+              <el-select v-model="formData.diskName"
+                        :disabled="!hasHostIp"
+                        :placeholder="showLoading?'加载中':'请选择恢复磁盘'">
+                <el-option v-for="(disk, index) in disks"
+                          :key="index"
+                          :label="disk"
+                          :value="disk"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3" style="text-align: center" v-if="showLoading">
+            <el-row>
+              <i class="el-icon-loading"></i>
+            </el-row>
+            <el-row style="font-size: 12px">
+              加载中
+            </el-row>
+          </el-col>
         </el-col>
       </el-row>
       
@@ -78,7 +91,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
-
 
 const basiceFormData = {
   name: '',
@@ -117,6 +129,9 @@ export default {
         newName: validate.newVmName,
         diskName: validate.diskName,
       },
+      hasHostIp: false, // 用于虚拟机恢复，根据已选的hostId获取可选的恢复磁盘
+      disks: [],
+      showLoading: false
     };
   },
   methods: {
@@ -174,6 +189,9 @@ export default {
       this.$refs.timeIntervalComponent.clearValidate();
       this.$refs.restorePlanCreateForm.clearValidate();
       this.hiddenPassword = true;
+      this.disks = [];
+      this.hasHostIp = false;
+      this.showLoading = false;
     },
   },
 };

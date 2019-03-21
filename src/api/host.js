@@ -76,22 +76,22 @@ const fetchDetailsById = id =>
 const addServer = server =>
   baseApi.request({
     method: 'post',
-    url: '/hosts/server',
+    url: '/virtuals/hosts/server',
     data: server
   });
 
 const fetchServerList = () =>
-  baseApi.request({
-    method: 'get',
-    url: '/hosts/server/list'
-  });
+  baseApi
+    .request({
+      method: 'get',
+      url: '/virtuals/hosts/server/list'
+    });
 
 const deleteServer = id =>
   baseApi.request({
     method: 'delete',
-    url: `/hosts/server/${id}`
+    url: `/virtuals/hosts/server/${id}`
   });
-
 
 export {
   fetchAll,
