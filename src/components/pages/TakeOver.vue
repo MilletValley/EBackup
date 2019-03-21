@@ -140,21 +140,8 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
-<<<<<<< HEAD
-<<<<<<< HEAD
-                      <p v-if="(!hostLink.latestSwitch || [1, 4, 5, 6].includes(hostLink.latestSwitch.type))">暂无操作</p>
-                      <!-- 切换IP, 单切IP -->
-                      <el-form v-else-if="[2, 7].includes(hostLink.latestSwitch.type)"
-                               size="mini"
-                               label-width="70px">
-=======
                       <p v-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
                       <el-form v-else-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type)) ||
-=======
-                      <p v-if="(!hostLink.latestSwitch || [1, 4, 5].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
-                      <!-- 单切IP -->
-                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4, 5].includes(hostLink.latestSwitch.type)) ||
->>>>>>> parent of 5a7d2fe... fix: 一健接管最近切换操作添加单切实例类型、单切IP类型
                                           hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
                                 size="mini"
                                 label-width="70px">
@@ -178,17 +165,9 @@
                           {{ hostLink.simpleSwitch.switchTime }}
                         </el-form-item>
                       </el-form>
-<<<<<<< HEAD
                       <el-form v-else-if="hostLink.latestSwitch.type === 2"
                               size="mini"
                               label-width="70px">
->>>>>>> parent of 9de65ba... feat: oracle添加回切功能
-=======
-                      <!-- 切换IP -->
-                      <el-form v-else-if="hostLink.latestSwitch.type === 2"
-                              size="mini"
-                              label-width="70px">
->>>>>>> parent of 5a7d2fe... fix: 一健接管最近切换操作添加单切实例类型、单切IP类型
                         <el-form-item :class="$style.switchFormItem"
                                       label="切换内容">
                           <span>{{ hostLink.latestSwitch.content }}</span>
@@ -400,15 +379,7 @@
                       </el-form-item>
                     </el-form>
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    <p v-if="!dbLink.latestSwitch || ![1, 4, 5, 6].includes(dbLink.latestSwitch.type)">暂无操作</p>
-=======
                     <p v-if="!dbLink.latestSwitch">暂无操作</p>
->>>>>>> parent of 9de65ba... feat: oracle添加回切功能
-=======
-                    <p v-if="!dbLink.latestSwitch || ![1, 4, 5].includes(dbLink.latestSwitch.type)">暂无操作</p>
->>>>>>> parent of 5a7d2fe... fix: 一健接管最近切换操作添加单切实例类型、单切IP类型
                     <el-form v-else
                             size="mini"
                             label-width="70px">
@@ -463,13 +434,6 @@
                       单切恢复中...
                     </span>
                   </div>
-                  <div v-else-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && dbLink.latestSwitch.type === 5"
-                       style="margin-top: 6px;">
-                    <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      回切初始化中...
-                    </span>
-                  </div>
                   <div v-else>
                     <div v-if="availableFailOver(hostLink.primaryHost)">
                       <el-button type="text"
@@ -487,15 +451,6 @@
                                             :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="restoreSimpleSwitchDatabases(dbLink, false)"
                                             :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
-<<<<<<< HEAD
-<<<<<<< HEAD
-                          <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
-=======
-                          <el-dropdown-item @click.native="cutBackSwitch(dbLink)"
->>>>>>> parent of d0d1b60... fix: 增加批量回切初始化入口，以及单切恢复批量可选
-                                            :disabled="!(availableCutBackSimple(dbLink))">回切初始化</el-dropdown-item>
-=======
->>>>>>> parent of 9de65ba... feat: oracle添加回切功能
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -1118,11 +1073,6 @@ export default {
         })
         .catch(error => {});
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of d0d1b60... fix: 增加批量回切初始化入口，以及单切恢复批量可选
     restoreSimpleSwitchDatabases(link, isMultiple = false) {
       this.$confirm('此操作将执行单切恢复，是否继续？', '提示', {
         confirmButtonText: '确定',
@@ -1147,29 +1097,6 @@ export default {
         })
         .catch(error => {});
     },
-<<<<<<< HEAD
->>>>>>> parent of 9de65ba... feat: oracle添加回切功能
-=======
-    // 回切初始化
-    cutBackSwitch(link) {
-      this.$confirm('此操作将执行回切初始化，是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          cutBackSwitchOracle([link.id])
-            .then(res => {
-              const { message } = res.data;
-              this.fetchData();
-            })
-            .catch(error => {
-              this.$message.error(error);
-            })
-        })
-        .catch(error => {});
-    },
->>>>>>> parent of d0d1b60... fix: 增加批量回切初始化入口，以及单切恢复批量可选
     // 非主节点VIP集合
     sonNodeVip(hostLink) {
       if(hostLink.primaryNodes)

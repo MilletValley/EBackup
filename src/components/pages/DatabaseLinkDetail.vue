@@ -125,17 +125,6 @@
       </el-row>
     </header>
     <h3>操作记录</h3>
-<<<<<<< HEAD
-    <el-tabs type="border-card" v-model="activeName">
-      <el-tab-pane v-for="(msg, index) in tabMsgs"
-                   :key="index"
-                   :name="msg.name"
-                   :label="msg.label"
-                   v-if="!(databaseType === 'sqlserver' && [4, 5].includes(Number(msg.name)))">
-        <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
-      </el-tab-pane>
-    </el-tabs>
-=======
     <el-table :data="switches"
               :default-sort="{prop: 'switchTime', order: 'descending'}">
       <el-table-column label="切换时间"
@@ -165,7 +154,6 @@
         </template>
       </el-table-column>
     </el-table>
->>>>>>> parent of 9de65ba... feat: oracle添加回切功能
     <switch-modal :visible="switchModalVisible"
                   :database-links-ready-to-switch="[databaseLink]"
                   @cancel="switchModalCancel"
