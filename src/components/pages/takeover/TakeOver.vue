@@ -54,10 +54,7 @@
         <div :class="$style.hostLinkContainer">
           <fieldset :class="$style.hostLinkInOs">
             <legend>
-              <span v-if="hostLink.primaryHost.osName === 'Windows'">Windows</span>
-              <span v-else-if="hostLink.primaryHost.osName === 'AIX'">AIX</span>
-              <span v-else-if="hostLink.primaryHost.osName === 'Linux'&&hostLink.primaryHost.isRacMark === 1">Linux</span>
-              <span v-else>RAC</span>
+              <span>{{ osType(hostLink.primaryHost) }}</span>
             </legend>
             <el-row type="flex"
                     justify="space-around">
@@ -72,7 +69,7 @@
                     <p v-if="!(hostLink.primaryNodes && hostLink.primaryNodes.length)">暂无子节点</p>
                     <div v-else>
                       <p v-for="primaryNode in hostLink.primaryNodes"
-                        :key="primaryNode.id">
+                         :key="primaryNode.id">
                         <el-row>
                           <el-col :span="12">{{ primaryNode.name }}</el-col>
                           <el-col :span="12"
@@ -97,8 +94,8 @@
                           <h4 style="margin: 5px 0; padding: 3px 0;">非主节点VIP</h4>
                           <p v-if="!sonNodeVip(hostLink).length">暂无</p>
                           <div v-else>
-                            <p v-for="vip in sonNodeVip(hostLink)"
-                              :key="vip.id"
+                            <p v-for="(vip, index) in sonNodeVip(hostLink)"
+                              :key="index"
                               :class="$style.hostIp">{{ vip }}</p>
                           </div>
                           <div v-show="hostLink.vipIpMark && hostLink.vipIpMark === 1"
@@ -116,14 +113,14 @@
                         <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
                       </el-col>
                       <el-col :span="8"
-                              v-show="hostLink.serviceIpMark === 1 && hostLink.primaryHost.osName === 'Linux'">
+                              v-show="hostLink.serviceIpMark === 1 && osType(hostLink.primaryHost) === 'Linux'">
                         <el-tooltip content="提供服务中"
                                     effect="light"
                                     placement="right"
                                     :open-delay="200">
                           <div :class="$style.wordHover">
                             <i-icon :class="$style.ipIcon"
-                                name="service"></i-icon>
+                                    name="service"></i-icon>
                             <span :class="$style.hostIp">{{ hostLink.primaryHost.serviceIp }}</span>
                           </div>
                         </el-tooltip>
@@ -200,11 +197,11 @@
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
                       <el-button type="text"
-                                :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
-                                @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
+                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
+                                 @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
                       <el-button type="text"
                                  @click="switchHostIp(hostLink)"
-                                 :disabled="hostLink.primaryHost.osName === 'AIX'">切IP</el-button>
+                                 :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
                       <el-button type="text"
                                 :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
                                 @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
@@ -224,18 +221,19 @@
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
                     <el-dropdown style="position: absolute; right: 0px; top: -9px;"
-                                 v-if="hostLink.primaryHost.databaseType === 1">
+                                 v-if="true">
+                                 <!-- hostLink.primaryHost.databaseType === 1 -->
                       <el-button size="mini">
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item :disabled="!availableSimpleSwitchIp(hostLink.primaryHost)"
-                                          @click.native="simpleSwitchIp(hostLink)">单切IP</el-dropdown-item>
-                        <el-dropdown-item :disabled="!availableSimpleSwitchDb(hostLink.primaryHost) || !hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                                          @click.native="simpleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSimpleSwitch(hostLink.primaryHost, link))"
-                                          @click.native="restoreSimpleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSimple(link))"
+                        <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
+                                          @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
+                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
+                                          @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
+                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
+                                          @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
+                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link))"
                                           @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
@@ -270,7 +268,7 @@
                         <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
                       </el-col>
                       <el-col :span="8"
-                              v-show="hostLink.serviceIpMark === 2 && hostLink.viceHost.osName === 'Linux'">
+                              v-show="hostLink.serviceIpMark === 2 && osType(hostLink.viceHost) === 'Linux'">
                         <el-tooltip content="提供服务中"
                                     effect="light"
                                     placement="right"
@@ -305,7 +303,7 @@
                     </el-col>
                     <el-col :span="5"
                             :class="$style.dbInfoCol">
-                      <h5>{{instanceName}}</h5>
+                      <h5>{{ instanceName }}</h5>
                       <p>{{ dbLink.primaryDatabase.instanceName }}</p>
                     </el-col>
                     <el-col :span="5"
@@ -337,7 +335,7 @@
                               width="300"
                               :open-delay="200">
                     <el-form size="mini"
-                            label-width="70px">
+                             label-width="70px">
                       <el-form-item :class="$style.switchFormItem"
                                     label="连接状态">
                         <el-tag :type="databaseLinkStateStyle(dbLink.state)"
@@ -351,8 +349,8 @@
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
                     <p v-if="!dbLink.latestSwitch || ![1, 4, 5, 6].includes(dbLink.latestSwitch.type)">暂无操作</p>
                     <el-form v-else
-                            size="mini"
-                            label-width="70px">
+                             size="mini"
+                             label-width="70px">
                       <el-form-item :class="$style.switchFormItem"
                                     label="切换内容">
                         <span>{{ dbLink.latestSwitch.content }}</span>
@@ -403,28 +401,29 @@
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
                     <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
-                      {{ dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}中...
+                      {{ dbLink.failOverState === 1 ? '关闭故障转移' : '开启故障转移'}}中...
                     </span>
                   </div>
                   <div v-else>
-                    <div v-if="availableFailOver(hostLink.primaryHost)">
+                    <div v-if="availableFailOver(hostLink)">
                       <el-button type="text"
-                              @click="failOver(dbLink)"
-                              :class="$style.failOver">{{dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}}</el-button>
+                                 @click="failOver(dbLink)"
+                                 :class="$style.failOver">{{dbLink.failOverState === 1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
                     <div>
-                      <el-dropdown v-if="hostLink.primaryHost.databaseType === 1">
+                      <!-- hostLink.primaryHost.databaseType === 1 -->
+                      <el-dropdown v-if="true">
                         <span :class="$style.dropdownLink">
                           切换操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
                         </span>
                         <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
-                          <el-dropdown-item @click.native="simpleSwitchDatabase(dbLink.id)"
-                                            :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
-                          <el-dropdown-item @click.native="restoreSimpleSwitch(hostLink, false, [dbLink])"
-                                            :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
+                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换实例</el-dropdown-item>
+                          <el-dropdown-item @click.native="singleSwitchDatabase(dbLink.id)"
+                                            :disabled="!availableSingleSwitchDb(hostLink, dbLink)">单切实例</el-dropdown-item>
+                          <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
+                                            :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
-                                            :disabled="!(availableCutBackSimple(dbLink))">回切初始化</el-dropdown-item>
+                                            :disabled="!(availableCutBackSingle(dbLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -450,7 +449,7 @@
                     </el-col>
                     <el-col :span="5"
                             :class="$style.dbInfoCol">
-                      <h5>{{instanceName}}</h5>
+                      <h5>{{ instanceName }}</h5>
                       <p>{{ dbLink.viceDatabase.instanceName }}</p>
                     </el-col>
                     <el-col :span="5"
@@ -479,27 +478,37 @@
         </div>
       </div>
     </section>
-    <switch-modal :visible="switchModalVisible"
-                  :host-link-ready-to-switch="hostLinkReadyToSwitch"
-                  :ready-to-simple-switch="readyToSimpleSwitch"
-                  :ready-to-remove-host-link="readyToRemoveHostLink"
-                  :database-links-ready-to-switch="databaseLinksReadyToSwitch"
-                  :is-simple-switch="isSimpleSwitch"
-                  @cancel="cancelSwitch"
-                  :btn-loading="btnLoading"
-                  @confirm="confirmSwitch"></switch-modal>
-    <cut-back-modal :visible="cutBackVisible"
-                    :cut-back-msg="readyToSwitchMsg"
+    <cut-back-modal :visible.sync="cutBackVisible"
+                    :cut-back-msg="hostLinkSwitchMsg"
                     :btn-loading="btnLoading"
                     :multiply="multiply"
-                    @confirm="cutBackConfirm"
-                    @cancel="cancelCutBack"></cut-back-modal>
-    <restore-switch-modal :visible="restoreSwitchVisible"
-                          :restore-switch-msg="readyToSwitchMsg"
+                    @confirm="cutBackConfirm"></cut-back-modal>
+    <single-switch-ip-modal :visible.sync="singleSwitchIpModalVisible"
+                            :single-switch-ip-msg="hostLinkSwitchMsg"
+                            :btnLoading="btnLoading"
+                            @confirm="singleSwitchIpConfirm"></single-switch-ip-modal>
+    <switch-database-links-modal :visible.sync="switchDatabasesModalVisible"
+                                 :database-links-ready-to-switch="databaseLinksReadyToSwitch"
+                                 :btn-loading="btnLoading"
+                                 :single-switch-databases="singleSwitchDatabases"
+                                 @confirm="switchDatabaseLinksConfirm"></switch-database-links-modal>
+    <restore-switch-modal :visible.sync="restoreSwitchVisible"
+                          :restore-switch-msg="hostLinkSwitchMsg"
                           :btnLoading="btnLoading"
                           :multiply="multiply"
-                          @confirm="restoreSwitchConfirm"
-                          @cancel="cancelRestoreSwitch"></restore-switch-modal>
+                          @confirm="restoreSwitchConfirm"></restore-switch-modal>
+    <switch-ip-modal :visible.sync="switchIpModalVisible"
+                     :host-link-ready-to-switch="hostLinkReadyToSwitch"
+                     :btn-loading="btnLoading"
+                     @confirm="switchIpConfirm"></switch-ip-modal>
+    <remove-host-link-modal :visible.sync="removeHostLinkModalVisible"
+                            :ready-to-remove-host-link.sync="hostLinkSwitchMsg"
+                            :btn-loading="btnLoading"
+                            @confirm="removeHostLinkConfirm"></remove-host-link-modal>
+    <fail-over-modal :visible.sync="failOverModalVisible"
+                     :fail-over-msg="dbSwitchMsg"
+                     :btn-loading="btnLoading"
+                     @confirm="failOverConfirm"></fail-over-modal>
     <database-link-create-modal :production-hosts="availableProductionHosts"
                                 :links="links"
                                 :ebackup-hosts="availableEbackupHosts"
@@ -516,46 +525,50 @@
   </section>
 </template>
 <script>
-import SwitchModal from '../modal/SwitchModal';
-import BatchSwitchModal from '../modal/BatchSwitchModal';
-import CutBackModal from '../modal/CutBackModal';
-import RestoreSwitchModal from '../modal/RestoreSwitchModal';
+import BatchSwitchModal from '@/components/modal/BatchSwitchModal';
+import DatabaseLinkCreateModal from '@/components/pages/takeover/DatabaseLinkCreateModal';
+import CutBackModal from '@/components/pages/takeover/CutBackModal';
+import RestoreSwitchModal from '@/components/pages/takeover/RestoreSwitchModal';
+import RemoveHostLinkModal from '@/components/pages/takeover/RemoveHostLinkModal';
+import SingleSwitchIpModal from '@/components/pages/takeover/SingleSwitchIpModal';
+import SwitchIpModal from '@/components/pages/takeover/SwitchIpModal';
+import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabaseLinksModal';
+import FailOverModal from '@/components/pages/takeover/FailOverModal';
 import IIcon from '@/components/IIcon';
-import DatabaseLinkCreateModal from '@/components/modal/DatabaseLinkCreateModal';
 import dayjs from 'dayjs';
 import {
   fetchAll as fetchAllOracle,
   fetchLinks as fetchLinksOracle,
   createLinks as createLinksOracle,
   createSwitches as switchOracle,
-  createSimpleSwitches as simpleSwitchOracle,
+  createSingleSwitches as singleSwitchOracle,
   failOver as failOverOracle,
-  restoreSimpleSwitch as restoreSimpleSwitchOracle,
+  restoreSingleSwitch as restoreSingleSwitchOracle,
   cutBackSwitch as cutBackSwitchOracle
-} from '../../api/oracle';
+} from '@/api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
   fetchLinks as fetchLinksSqlserver,
   createLinks as createLinksSqlserver,
   createSwitches as switchSqlserver,
-} from '../../api/sqlserver';
+} from '@/api/sqlserver';
 import {
   createSwitches as switchHostIp,
   vipSwitches as switchVip,
   fetchAll,
   deleteLinks,
-  simpleSwitch
-} from '../../api/host';
-import { validatePassword } from '../../api/user';
+  singleSwitchIp
+} from '@/api/host';
+import { validatePassword } from '@/api/user';
 import {
   databaseStateMapping,
   databaseRoleMapping,
   linkStateMapping,
   switchStateMapping,
-  switchManualMapping,
-} from '../../utils/constant';
-import takeoverMixin from '../mixins/takeoverMixins';
-import batchSwitchMinxin from '../mixins/batchSwitchMixins'
+  switchManualMapping
+} from '@/utils/constant';
+import takeoverMixin from '@/components/mixins/takeoverMixins';
+import batchSwitchMixin from '@/components/mixins/batchSwitchMixins'
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -575,39 +588,56 @@ const createSwitchMethod = {
   oracle: switchOracle,
   sqlserver: switchSqlserver,
 };
-const createSimpleSwitchMethod = {
-  oracle: simpleSwitchOracle
+const createSingleSwitchMethod = {
+  oracle: singleSwitchOracle,
+  sqlserver: switchSqlserver
 }
 const switchMethod = {
-  true: createSimpleSwitchMethod,
+  true: createSingleSwitchMethod,
   false: createSwitchMethod
 }
 
-const switchOneIp = {
-  vip: switchVip,
-  scanIp: switchHostIp,
-  allNot: switchHostIp
+const switchIpMethod = {
+  true: switchVip,
+  false: switchHostIp
 }
 
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin, batchSwitchMinxin],
+  mixins: [takeoverMixin, batchSwitchMixin],
+  components: {
+    IIcon,
+    DatabaseLinkCreateModal,
+    BatchSwitchModal,
+    CutBackModal,
+    RestoreSwitchModal,
+    RestoreSwitchModal,
+    RestoreSwitchModal,
+    SingleSwitchIpModal,
+    SwitchDatabaseLinksModal,
+    SwitchIpModal,
+    RemoveHostLinkModal,
+    FailOverModal
+  },
   data() {
     return {
       items: [], // 所有的数据库
       links: [], // 数据库连接
       linkCreateModalVisible: false,
-      switchModalVisible: false,
       databaseLinkIdsReadyToSwitch: [],
-      hostLinkIdReadyToSwitch: -1,
-      readyToSimpleSwitch: {},
-      readyToRemoveHostLink: {},
       btnLoading: false,
-      isSimpleSwitch: false, // 标记单切还是双切
+      hostLinkIdReadyToSwitch: -1, // 切IP
+      singleSwitchDatabases: false, // 标记单切实例还是双切实例
       cutBackVisible: false,
       restoreSwitchVisible: false,
-      readyToSwitchMsg: {},
-      multiply: false,
+      singleSwitchIpModalVisible: false,
+      switchDatabasesModalVisible: false,
+      switchIpModalVisible: false,
+      removeHostLinkModalVisible: false,
+      failOverModalVisible: false,
+      hostLinkSwitchMsg: {}, // 即将切换的设备连接
+      dbSwitchMsg: {}, // 即将切换的数据库连接
+      multiply: false, // 标记单个或批量操作
       timer: null,
     };
   },
@@ -638,17 +668,14 @@ export default {
         this.$router.push({ name: `${value}TakeOverView` });
       },
     },
-    // 无奈 0620
-    // 判断是不是从菜单进入，有不同的展示形式
+    // 判断是不是从菜单进入，有不同的展示形式
     enterFromMenu() {
       return this.$route.path.substring(1, 3) === 'db' ? false : true;
     },
     specialHosts() {
       if (this.databaseType === 'oracle') {
-        // return hosts;
         return this.$store.getters.oracleHosts;
       } else if (this.databaseType === 'sqlserver') {
-        // return hosts2;
         return this.$store.getters.sqlserverHosts;
       }
     },
@@ -774,150 +801,72 @@ export default {
     displayLinkCreateModal() {
       this.linkCreateModalVisible = true;
     },
-    cancelSwitch() {
-      this.databaseLinkIdsReadyToSwitch = [];
-      this.readyToSimpleSwitch = {};
-      this.readyToRemoveHostLink = {};
-      this.hostLinkIdReadyToSwitch = -1;
-      this.switchModalVisible = false;
-      this.isSimpleSwitch = false;
-    },
-    cancelCutBack() {
-      this.cutBackVisible = false;
-      this.readyToSwitchMsg = {};
-    },
-    cancelRestoreSwitch() {
-      this.restoreSwitchVisible = false;
-      this.readyToSwitchMsg = {}
-    },
-    confirmSwitch(formData) {
-      /**
-       * 1.验证密码；
-       * 2.判断是切换IP还是切换实例，调用不用的请求
-       * 3.1.切换IP：修改该设备连接的最近切换记录--服务IP、临时IP、scanIp、vip，服务IP、临时IP、scanIP用同一个url
-       * 3.2.切换实例：遍历修改数据库连接的最近切换记录（直接修改了计算属性的引用），单切或双向切换
-       * 3.3 易备库单切IP
-       * 3.4 解除连接
-       */
-      if (!!~this.hostLinkIdReadyToSwitch) { // 切IP
-        this.btnLoading = true;
-        // 切vip或者切服务IP、scanIP、临时IP
-        switchOneIp[formData](this.hostLinkIdReadyToSwitch)
-          .then(res => {
-            const { data } = res.data;
-            this.links.find(
-              link => link.id === this.hostLinkIdReadyToSwitch
-            ).latestSwitch = data;
-            this.switchModalVisible = false;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          })
-          .then(() => {
-            this.btnLoading = false;
-          });
-      } else if(Object.keys(this.readyToSimpleSwitch).length > 0) { // IP单切
-        this.btnLoading = true;
-        const req = {
-          originViceIp: this.simpleSwitchOriginIp(this.readyToSimpleSwitch),
-          targetViceIp: this.simpleSwitchTargetIp(this.readyToSimpleSwitch)
-        };
-        const id = this.readyToSimpleSwitch.id;
-        simpleSwitch(id, req)
-          .then(res => {
-            const { data } = res.data
-            if(this.osIsWindows(this.readyToSimpleSwitch.viceHost.osName)) {
-              this.links.find(
-                link => link.id === id
-              ).simpleSwitch = data;
-            } else { // 切换成功，Linux下服务IP位置发生变化
-              if(data.state === 2) {
-                if(this.links.find(link => link.id).serviceIpMark === 1) {
-                  this.links.find(link => link.id).serviceIpMark = 2;
-                } else {
-                  this.links.find(link => link.id).serviceIpMark = 1;
-                }
-              }
-            }
-            this.$message({message: data.message, type: this.messageType(data.state)})
-            this.switchModalVisible = false;
-          })
-          .catch(error => {
-            this.$message.error(error)
-          })
-          .then(() => {
-            this.btnLoading = false;
-          })
-      } else if(Object.keys(this.readyToRemoveHostLink).length > 0) { // 解除连接
-        this.btnLoading = true;
-        deleteLinks(this.readyToRemoveHostLink.id)
-          .then(res => {
-            const { data: cancelOperation } = res.data;
-            this.links.find(
-              link => link.id === this.readyToRemoveHostLink.id
-            ).latestSwitch = cancelOperation;
-            this.switchModalVisible = false;
-            this.$message.info('正在尝试解除连接，请等待');
-          })
-          .catch(error => {
-            this.$message.error(error);
-          })
-          .then(() => {
-            this.btnLoading = false;
-          });
-      } else { // 实例单切或双切
-        this.btnLoading = true;
-        switchMethod[this.isSimpleSwitch][this.databaseType]({
-          linkIds: this.databaseLinkIdsReadyToSwitch,
-        })
-          .then(res => {
-            const { data } = res.data;
-            // 修改的是computed数据的引用，引用指向的就是data中的数据
-            this.databaseLinks.forEach(link => {
-              if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
-                link.latestSwitch = data.find(s => s.linkId === link.id);
-              }
-            });
-            this.switchModalVisible = false;
-          })
-          .catch(error => {
-            this.$message.error(error);
-          })
-          .then(() => {
-            this.btnLoading = false;
-          });
-      }
-    },
-    // 双切
-    switchDatabase(databaseLinkId) {
-      this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
-      this.switchModalVisible = true;
-    },
-    // 单切
-    simpleSwitchDatabase(databaseLinkId) {
-      this.switchDatabase(databaseLinkId);
-      this.isSimpleSwitch = true;
-    },
     // 解除连接
     removeHostLink(hostLink) {
-      this.switchModalVisible = true;
-      this.readyToRemoveHostLink = hostLink;
+      this.removeHostLinkModalVisible = true;
+      this.hostLinkSwitchMsg = hostLink;
     },
     // 回切初始化(单个、批量)
-    cutBackSwitch(hostLink, multiply, link) {
+    cutBackSwitch(hostLink, multiply, link = []) {
       this.cutBackVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
-      const readyToCutBackLinks = multiply ? databaseLinks.filter(link => this.availableCutBackSimple(link)) : link;
-      this.readyToSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
+      const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
+      this.hostLinkSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
     },
     // 单切恢复（单个、批量）
-    restoreSimpleSwitch(hostLink, multiply, link = []) {
+    restoreSingleSwitch(hostLink, multiply, link = []) {
       this.restoreSwitchVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
-      const readyToSwitchDbLinks = multiply ? hostLink.databaseLinks.filter(item => this.availableRestoreSimpleSwitch(hostLink.primaryHost,item)) : link;
-      this.readyToSwitchMsg = { databaseLinks: readyToSwitchDbLinks, ...other };
+      const readyToSwitchDbLinks = multiply ? hostLink.databaseLinks.filter(item => this.availableRestoreSingleSwitch(hostLink, item)) : link;
+      this.hostLinkSwitchMsg = { databaseLinks: readyToSwitchDbLinks, ...other };
+    },
+    // 切主
+    switchMultiDatabasesToProduction(hostLink) {
+      const links = hostLink.databaseLinks
+        .filter(dbLink => dbLink.primaryDatabase.role === 2)
+        .map(dbLink => dbLink.id);
+      this.databaseLinkIdsReadyToSwitch = links;
+      this.switchDatabasesModalVisible = true;
+    },
+    // 切备
+    switchMultiDatabaseToEbackup(hostLink) {
+      const links = hostLink.databaseLinks
+        .filter(dbLink => dbLink.viceDatabase.role === 2)
+        .map(dbLink => dbLink.id);
+      this.databaseLinkIdsReadyToSwitch = links;
+      this.switchDatabasesModalVisible = true;
+    },
+    // 双切单个实例
+    switchDatabase(databaseLinkId) {
+      this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
+      this.switchDatabasesModalVisible = true;
+    },
+    // 单切多个实例
+    singleSwitchMultiDatabases(hostLink) {
+      this.switchMultiDatabaseToEbackup(hostLink);
+      this.singleSwitchDatabases = true;
+    },
+    // 单切单个实例
+    singleSwitchDatabase(databaseLinkId) {
+      this.switchDatabase(databaseLinkId);
+      this.singleSwitchDatabases = true;
+    },
+    // 切IP(临时IP、服务IP、scanIP、vip)
+    switchHostIp(hostLink) {
+      this.hostLinkIdReadyToSwitch = hostLink.id;
+      this.switchIpModalVisible = true;
+    },
+    // 单切IP
+    singleSwitchIp(hostLink) {
+      this.hostLinkSwitchMsg = hostLink;
+      this.singleSwitchIpModalVisible = true;
+    },
+    // 故障转移
+    failOver(link) {
+      this.dbSwitchMsg = link;
+      this.failOverModalVisible = true;
     },
     // 回切初始化
     cutBackConfirm(switchIds) {
@@ -930,8 +879,8 @@ export default {
               link.latestSwitch = data.find(s => s.linkId === link.id);
             }
           })
-          this.$message.success(message);
           this.cutBackVisible = false;
+          this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);
@@ -940,10 +889,56 @@ export default {
           this.btnLoading = false;
         })
     },
+    // 单切IP
+    singleSwitchIpConfirm(singleSwitchIpMsg) {
+      this.btnLoading = true;
+      const req = {
+        originViceIp: this.singleSwitchOriginIp(singleSwitchIpMsg),
+        targetViceIp: this.singleSwitchTargetIp(singleSwitchIpMsg)
+      };
+      const id = singleSwitchIpMsg.id;
+      singleSwitchIp(id, req)
+        .then(res => {
+          const { message } = res.data;
+          this.fetchData();
+          this.singleSwitchIpModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        })
+    },
+    // 切换实例(单切/双切)
+    switchDatabaseLinksConfirm() {
+      this.btnLoading = true;
+      switchMethod[this.singleSwitchDatabases][this.databaseType]({
+          linkIds: this.databaseLinkIdsReadyToSwitch,
+        })
+          .then(res => {
+            const { data, message } = res.data;
+            // 修改的是computed数据的引用，引用指向的就是data中的数据
+            this.databaseLinks.forEach(link => {
+              if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
+                link.latestSwitch = data.find(s => s.linkId === link.id);
+              }
+            });
+            this.switchDatabasesModalVisible = false;
+            this.$message.success(message);
+          })
+          .catch(error => {
+            this.$message.error(error);
+          })
+          .then(() => {
+            this.btnLoading = false;
+          });
+    },
     // 单切恢复
     restoreSwitchConfirm(switchIds) {
       this.btnLoading = true;
-      restoreSimpleSwitchOracle(switchIds)
+      restoreSingleSwitchOracle(switchIds)
         .then(res => {
           const { data, message } = res.data;
           this.databaseLinks.forEach(link => {
@@ -961,6 +956,72 @@ export default {
           this.btnLoading = false;
         })
     },
+    // 切vip或者切服务IP、scanIP、临时IP(服务IP、scanIP，临时IP用的同一个url)
+    switchIpConfirm(switchVip) {
+      this.btnLoading = true;
+      switchIpMethod[switchVip](this.hostLinkIdReadyToSwitch)
+        .then(res => {
+          const { data, message } = res.data;
+          this.links.find(
+            link => link.id === this.hostLinkIdReadyToSwitch
+          ).latestSwitch = data;
+          this.switchIpModalVisible = false;
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    // 解除连接
+    removeHostLinkConfirm(readyToRemoveHostLink) {
+      this.btnLoading = true;
+      deleteLinks(readyToRemoveHostLink.id)
+        .then(res => {
+          const { data: cancelOperation } = res.data;
+          this.links.find(
+            link => link.id === readyToRemoveHostLink.id
+          ).latestSwitch = cancelOperation;
+          this.removeHostLinkModalVisible = false;
+          this.$message.info('正在尝试解除连接，请等待');
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    },
+    // 故障转移
+    failOverConfirm(failOverMsg) {
+      this.btnLoading = true;
+      this.$set(failOverMsg, 'failOverOnGoing', true); // 标识是否正在开启或关闭故障转移
+      const req = {
+        linkId: failOverMsg.id,
+        data: {
+          failOverState: failOverMsg.failOverState
+        }
+      }
+      failOverOracle(req)
+        .then(res => {
+          const { data: failOverOperation } = res.data;
+          const msgType = !failOverOperation.operationState?'success':'error';
+          this.databaseLinks.find(
+            link => link.id === failOverMsg.id
+          ).failOverState = failOverOperation.failOverState;
+          this.failOverModalVisible = false;
+          this.$message[msgType](failOverOperation.msg);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        }).
+        then(() => {
+          this.btnLoading = false;
+          this.$delete(failOverMsg, 'failOverOnGoing');
+        });
+    },
     // 回切初始化或单切恢复
     readyToCutBack(hostLink, multiply, link = []) {
       this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
@@ -969,64 +1030,33 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          this.restoreSimpleSwitch(hostLink, multiply, link);
+          this.restoreSingleSwitch(hostLink, multiply, link);
         })
         .catch(() => {
           this.cutBackSwitch(hostLink, multiply, link);
         });
     },
-    switchMultiDatabasesToProduction(hostLink) {
-      const links = hostLink.databaseLinks
-        .filter(dbLink => dbLink.primaryDatabase.role === 2)
-        .map(dbLink => dbLink.id);
-      this.databaseLinkIdsReadyToSwitch = links;
-      this.switchModalVisible = true;
-    },
-    switchMultiDatabaseToEbackup(hostLink) {
-      const links = hostLink.databaseLinks
-        .filter(dbLink => dbLink.viceDatabase.role === 2)
-        .map(dbLink => dbLink.id);
-      this.databaseLinkIdsReadyToSwitch = links;
-      this.switchModalVisible = true;
-    },
-    // 单切备库
-    simpleSwitchMultiDatabases(hostLink) {
-      this.switchMultiDatabaseToEbackup(hostLink);
-      this.isSimpleSwitch = true;
-    },
-    switchHostIp(hostLink) {
-      this.hostLinkIdReadyToSwitch = hostLink.id;
-      this.switchModalVisible = true;
-    },
-    simpleSwitchIp(hostLink) {
-      this.readyToSimpleSwitch = hostLink;
-      this.switchModalVisible = true;
-    },
-    // 单切进行中
-    simpleSwitchGoing(hostLink) {
-      return this.hasSimpleSwitch(hostLink.simpleSwitch) && hostLink.simpleSwitch.state === 1
-    },
-    switchModalClosed() {
-      this.databaseLinkIdsReadyToSwitch = [];
-      this.hostLinkIdReadyToSwitch = -1;
-    },
     /**
         可以单切实例的环境：
         1、windows的10g、11g、12c
-        2、linux的11g、12c、11g rac、10g rac
-        3、AIX的11g、11g rac
+        2、linux的11g、12c
+        3、rac的10g、11g
+        4、AIX的11g
         生产库-主，易备库-备
     */
-    availableSimpleSwitchDb(primaryHost) {
-      if(primaryHost.databaseType === 1) {
-        if(primaryHost.osName === 'Windows') {
-          return [1, 2, 3].includes(primaryHost.oracleVersion);
-        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1) {
-          return [2, 3].includes(primaryHost.oracleVersion);
-        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0) {
-          return [1, 2].includes(primaryHost.oracleVersion);
-        } else if (primaryHost.osName === 'AIX') {
-          return primaryHost.oracleVersion === 2;
+    availableSingleSwitchDb({ primaryHost }, { viceDatabase }) {
+      if(viceDatabase.role === 2) {
+        switch(this.osType(primaryHost)) {
+          case 'Windows':
+            return [1, 2, 3].includes(primaryHost.oracleVersion);
+          case 'Linux':
+            return [2, 3].includes(primaryHost.oracleVersion);
+          case 'RAC':
+            return [1, 2].includes(primaryHost.oracleVersion);
+          case 'AIX':
+            return primaryHost.oracleVersion === 2;
+          default:
+            return false;
         }
       }
       return false;
@@ -1036,41 +1066,52 @@ export default {
      * 1、windows的10g、11g、12c
      * 2、linux的11g、12c
      **/
-    availableSimpleSwitchIp(primaryHost) {
-      if(primaryHost.databaseType === 1) {
-        if(primaryHost.osName === 'Windows') {
+    availableSingleSwitchIp({ primaryHost }) {
+      switch(this.osType(primaryHost)) {
+        case 'Windows':
           return [1, 2, 3].includes(primaryHost.oracleVersion);
-        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1) {
+        case 'Linux':
           return [2, 3].includes(primaryHost.oracleVersion);
-        }
+        default:
+          return false;
       }
       return false;
     },
     /**
      * 可以使用故障转移的环境：
      * 1、windows的11g、12c
-     * 2、linux的11g、12c、rac 11g
-     * 3、AIX的11g
+     * 2、linux的11g、12c
+       3、rac的11g
+     * 4、AIX的11g
      */
-    availableFailOver(primaryHost) {
+    availableFailOver({ primaryHost }) {
       if(primaryHost.databaseType === 1) {
-        if(primaryHost.osName === 'Windows') {
-          return [2, 3].includes(primaryHost.oracleVersion);
-        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1) {
-          return [2, 3].includes(primaryHost.oracleVersion);
-        } else if (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 0) {
-          return primaryHost.oracleVersion === 2;
-        } else if (primaryHost.osName === 'AIX' && primaryHost.isRacMark === 1) {
-          return primaryHost.oracleVersion === 2;
+        switch(this.osType(primaryHost)) {
+          case 'Windows':
+          case 'Linux':
+            return [2, 3].includes(primaryHost.oracleVersion);
+          case 'RAC':
+          case 'AIX':
+            return primaryHost.oracleVersion === 2;
+          default:
+            return false;
         }
       }
       return false;
     },
-    // 可以批量单切恢复的实例: windows、linux下的11g,12C环境，生产库非正常，易备库环境为主，故障转移处于关闭状态
-    availableRestoreSimpleSwitch(primaryHost, dbLink) {
-      if(primaryHost.databaseType === 1) {
-        if(primaryHost.osName === 'Windows' || (primaryHost.osName === 'Linux' && primaryHost.isRacMark === 1)) {
-          return [2,3].includes(primaryHost.oracleVersion) && dbLink.viceDatabase.role === 1 && dbLink.primaryDatabase.state !== 1 && dbLink.failOverState === 0;
+    /**
+      可以批量单切恢复的实例: windows、linux下的11g,12C环境
+      生产库非正常，易备库环境为主
+      故障转移处于关闭状态
+    */
+    availableRestoreSingleSwitch({ primaryHost }, dbLink) {
+      if(dbLink.viceDatabase.role === 1 && dbLink.primaryDatabase.state !== 1 && dbLink.failOverState === 0) {
+        switch(this.osType(primaryHost)) {
+          case 'Windows':
+          case 'Linux':
+            return [2, 3].includes(primaryHost.oracleVersion);
+          default:
+            return false;
         }
       }
       return false;
@@ -1079,7 +1120,7 @@ export default {
         ● 易备库主，正常
         ● 生产库备，非正常
     **/
-    availableCutBackSimple({ state, viceDatabase, primaryDatabase }) {
+    availableCutBackSingle({ state, viceDatabase, primaryDatabase }) {
       return state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) && (primaryDatabase.role === 2 && primaryDatabase.state !== 1);
     },
     jumpToLinkDetail(linkId) {
@@ -1099,19 +1140,19 @@ export default {
       this.btnLoading = true;
       createLinksMethod[this.databaseType](data)
         .then(res => {
-          const { data: link } = res.data;
+          const { data } = res.data;
           this.linkCreateModalVisible = false;
-          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === link.id);
+          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === data.id);
           if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
-            const databaseLinks = this.links.find(linked => linked.id === link.id).databaseLinks;
-            link.databaseLinks = link.databaseLinks.concat(databaseLinks);
+            const databaseLinks = this.links.find(linked => linked.id === data.id).databaseLinks;
+            data.databaseLinks = data.databaseLinks.concat(databaseLinks);
             this.links.splice(
               alreadyLinkedIndex,
               1,
-              link
+              data
             );
           } else { // 新创建的设备连接与实例连接
-            this.links.push(link);
+            this.links.push(data);
           }
         })
         .catch(error => {
@@ -1120,38 +1161,6 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
-    },
-    failOver(dbLink) {
-      this.$confirm(`此操作将${dbLink.failOverState===1?'关闭故障转移':'开启故障转移'}，是否继续？`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      })
-        .then(() => {
-          this.$set(dbLink, 'failOverOnGoing', true); // 标识是否正在开启或关闭故障转移
-          const req = {
-            linkId: dbLink.id,
-            data: {
-              failOverState: dbLink.failOverState
-            }
-          }
-          failOverOracle(req)
-            .then(res => {
-              const { data: failOverOperation } = res.data;
-              const msgType = !failOverOperation.operationState?'success':'error';
-              this.databaseLinks.find(
-                link => link.id === dbLink.id
-              ).failOverState = failOverOperation.failOverState;
-              this.$message[msgType](failOverOperation.msg);
-            })
-            .catch(error => {
-              this.$message.error(error);
-            }).
-            then(() => {
-              this.$delete(dbLink, 'failOverOnGoing');
-            });
-        })
-        .catch(error => {});
     },
     // 非主节点VIP集合
     sonNodeVip(hostLink) {
@@ -1204,21 +1213,12 @@ export default {
         }
       });
     }
-  },
-
-  components: {
-    IIcon,
-    SwitchModal,
-    DatabaseLinkCreateModal,
-    BatchSwitchModal,
-    CutBackModal,
-    RestoreSwitchModal
-  },
+  }
 };
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
-@import '../../style/color.scss';
+@import '@/style/common.scss';
+@import '@/style/color.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
 
@@ -1288,32 +1288,7 @@ $vice-color: #6d6d6d;
   vertical-align: -0.3em;
   margin-top: 10px;
 }
-.simpleSwitchDb {
-  position: absolute;
-  margin-top: -0.3em;
-  right: 90px;
-  width: 2em;
-  height: 2em;
-  cursor: pointer;
-  transition: all 0.5s ease;
-  &:hover {
-    transform: scale(1.2);
-  }
-}
-.simpleSwitch {
-  position: absolute;
-  // margin-left: 75px;
-  margin-top: -0.3em;
-  right: 50px;
-  width: 2em;
-  height: 2em;
-  cursor: pointer;
-  transition: all 0.5s ease;
-  &:hover {
-    transform: rotate(180deg);
-  }
-}
-.restoreSimpleSwitchDb {
+.restoreSingleSwitchDb {
   position: absolute;
   margin-top: -0.3em;
   right: 10px;
@@ -1328,14 +1303,6 @@ $vice-color: #6d6d6d;
 .dropdownLink {
   cursor: pointer;
   color: #409EFF;
-}
-.simpleSwitchGoing {
-  position: absolute;
-  // margin-left: 75px;
-  right: 50px;
-  margin-top: -0.2em;
-  color: $primary-color;
-  font-size: 34px;
 }
 .hostIp {
   color: #909399;

@@ -64,13 +64,47 @@ const takeoverMixin = {
           return '';
       }
     },
+    osType(host) {
+      if (host.osName === 'Linux' && host.isRacMark === 1) {
+        return 'Linux';
+      } else if (host.osName === 'Linux' && host.isRacMark === 0) {
+        return 'RAC';
+      }
+      return host.osName; // Windows、AIX
+    },
+    isServiceIpOK(hostLinkReadyToSwitch) {
+      let res = true;
+      if (!hostLinkReadyToSwitch) {
+        return res;
+      }
+      if (hostLinkReadyToSwitch.serviceIpMark === 1) {
+        // 服务IP属于生产设备
+        if (!hostLinkReadyToSwitch.primaryHost.serviceIp) res = false;
+        // eslint-disable-next-line
+        else if (
+          hostLinkReadyToSwitch.primaryHost.hostIp ===
+          hostLinkReadyToSwitch.primaryHost.serviceIp
+        )
+          res = false;
+      } else if (hostLinkReadyToSwitch.serviceIpMark === 2) {
+        // 服务IP属于易备设备
+        if (!hostLinkReadyToSwitch.viceHost.serviceIp) res = false;
+        // eslint-disable-next-line
+        else if (
+          hostLinkReadyToSwitch.viceHost.hostIp ===
+          hostLinkReadyToSwitch.viceHost.serviceIp
+        )
+          res = false;
+      }
+      return res;
+    },
     // 是否进行过单切
     hasSimpleSwitch(simpleSwitch) {
       return Object.keys(simpleSwitch).length > 0;
     },
     // 单切源IP
-    simpleSwitchOriginIp(hostLink) {
-      if (this.osIsWindows(hostLink.viceHost.osName)) { // Windows下
+    singleSwitchOriginIp(hostLink) {
+      if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
         // 第一次单切
         if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
           return hostLink.viceHost.hostIp;
@@ -89,8 +123,8 @@ const takeoverMixin = {
       }
     },
     // 单切目的IP
-    simpleSwitchTargetIp(hostLink) {
-      if (this.osIsWindows(hostLink.viceHost.osName)) { // Windows下
+    singleSwitchTargetIp(hostLink) {
+      if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
         // 第一次单切
         if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
           return hostLink.primaryHost.hostIp;
@@ -111,9 +145,6 @@ const takeoverMixin = {
     // 易备设备是否在Windows下，用于区分显示IP切换方向：
     // 1.源=>目标
     // 2.服务IP=>生产/易备设备
-    osIsWindows(osName) {
-      return osName === 'Windows';
-    },
     switchManualFormatter(row, column, cellValue) {
       return switchManualMapping[cellValue];
     },

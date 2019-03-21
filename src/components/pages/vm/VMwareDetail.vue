@@ -186,7 +186,7 @@ export default {
     serverData() {
       return this.serverDatas.filter( e => {
         if(this.details && this.details.host){
-          return e.hostId === this.details.host.id;
+          return e.hostId === this.details.host.id && e.serverType !== 1;
         }
         return false;
       })
@@ -207,7 +207,7 @@ export default {
     },
     fetchServer(){
       fetchServerList().then(res => {
-        const { data} = res.data;
+        const { data } = res.data;
         this.serverDatas = Array.isArray(data) ? data : [];
       }).catch( error => {
         this.$message.error(error);

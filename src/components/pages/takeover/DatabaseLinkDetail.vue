@@ -134,27 +134,26 @@
         <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
       </el-tab-pane>
     </el-tabs>
-    <switch-modal :visible="switchModalVisible"
-                  :database-links-ready-to-switch="[databaseLink]"
-                  @cancel="switchModalCancel"
-                  @confirm="switchModalConfirm"></switch-modal>
+    <switch-database-links-modal :visible.sync="switchModalVisible"
+                                 :database-links-ready-to-switch="[databaseLink]"
+                                 @confirm="switchModalConfirm"></switch-database-links-modal>
   </section>
 </template>
 <script>
-import SwitchModal from '../modal/SwitchModal';
-import takeoverMixin from '../mixins/takeoverMixins';
+import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabaseLinksModal';
+import LinkDetailTable from '@/components/pages/takeover/LinkDetailTable';
+import takeoverMixin from '@/components/mixins/takeoverMixins';
 import IIcon from '@/components/IIcon';
-import LinkDetailTable from '@/components/pages/LinkDetailTable';
 import { switchTypeMapping } from '@/utils/constant';
 import {
   fetchLinkByLinkId as fetchLinkByLinkIdOracle,
   fetchSwitches as fetchSwitchesOracle,
   createSwitches,
-} from '../../api/oracle';
+} from '@/api/oracle';
 import {
   fetchLinkByLinkId as fetchLinkByLinkIdSqlserver,
   fetchSwitches as fetchSwitchesSqlserver,
-} from '../../api/sqlserver';
+} from '@/api/sqlserver';
 const fetchLinkByLinkIdMethod = {
   oracle: fetchLinkByLinkIdOracle,
   sqlserver: fetchLinkByLinkIdSqlserver,
@@ -251,9 +250,6 @@ export default {
     switchIconClick() {
       this.switchModalVisible = true;
     },
-    switchModalCancel() {
-      this.switchModalVisible = false;
-    },
     switchModalConfirm() {
       createSwitches({
         linkIds: [this.id],
@@ -271,14 +267,14 @@ export default {
   },
   components: {
     IIcon,
-    SwitchModal,
+    SwitchDatabaseLinksModal,
     LinkDetailTable
   },
 };
 </script>
 <style lang="scss" module>
-@import '../../style/common.scss';
-@import '../../style/color.scss';
+@import '@/style/common.scss';
+@import '@/style/color.scss';
 .header {
   padding-bottom: 10px;
 }

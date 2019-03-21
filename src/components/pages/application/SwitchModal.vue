@@ -11,7 +11,7 @@
         <el-col :span="18">
           <div style="height: 220px;max-height: 220px;overflow: scroll;">
             <h4>即将执行以下操作，请检查。</h4>
-            <span v-if="!isServiceIpOK"
+            <span v-if="!isServiceIpOK(hostLinkReadyToSwitch)"
                   :class="$style.errorTip">服务IP不符合切换要求，进入
               <el-button type="text"
                          @click="$router.push({name: 'deviceManager'})">设备管理</el-button>修改！</span>
@@ -55,40 +55,40 @@
             <!-- 服务IP结束 -->
             <!-- 单切开始 -->
             <div v-else-if="switchSimpleIp">
-              <div v-if="osIsWindows(readyToSimpleSwitch.viceHost.osName)">
+              <div v-if="readyToSingleSwitch.viceHost.osName === 'Windows'">
                 <p>
                   <i-icon name="ebackup-env"
                           style="vertical-align: -0.3em;"></i-icon>
                   <span :class="$style.ebackupEnvColor">易备环境</span>
-                  <span :class="$style.switchModalName">{{ readyToSimpleSwitch.viceHost.name }}</span>的IP将由
+                  <span :class="$style.switchModalName">{{ readyToSingleSwitch.viceHost.name }}</span>的IP将由
                 </p>
                 <p>
-                  <span :class="$style.ebackupEnvColor">{{ simpleSwitchOriginIp(readyToSimpleSwitch) }}</span>
-                  切换至
-                  <span :class="$style.productionEnvColor">{{ simpleSwitchTargetIp(readyToSimpleSwitch) }}</span>
+                  <span :class="$style.ebackupEnvColor">{{ singleSwitchOriginIp(readyToSingleSwitch) }}</span>
+                  切换为
+                  <span :class="$style.productionEnvColor">{{ singleSwitchTargetIp(readyToSingleSwitch) }}</span>
                 </p>
               </div>
               <div v-else>
                 <p>
-                  服务IP: <span :class="$style.serviceIp">{{ simpleSwitchOriginIp(readyToSimpleSwitch) }}</span>将从
+                  服务IP: <span :class="$style.serviceIp">{{ singleSwitchOriginIp(readyToSingleSwitch) }}</span>将从
                 </p>
                 <p>
-                  <span :class="readyToSimpleSwitch.serviceIpMark === 2 ? $style.ebackupEnvColor : $style.productionEnvColor">
-                    <i-icon :name="readyToSimpleSwitch.serviceIpMark === 2 ? 'ebackup-env' : 'production-env'"
+                  <span :class="readyToSingleSwitch.serviceIpMark === 2 ? $style.ebackupEnvColor : $style.productionEnvColor">
+                    <i-icon :name="readyToSingleSwitch.serviceIpMark === 2 ? 'ebackup-env' : 'production-env'"
                             style="vertical-align: -0.3em;"></i-icon>
-                    {{ readyToSimpleSwitch.serviceIpMark === 2 ? '易备环境' : '生产环境' }}
+                    {{ readyToSingleSwitch.serviceIpMark === 2 ? '易备环境' : '生产环境' }}
                   </span>
                   <span :class="$style.switchModalName">
-                    {{ readyToSimpleSwitch.serviceIpMark === 2 ? readyToSimpleSwitch.viceHost.name : readyToSimpleSwitch.primaryHost.name }}
+                    {{ readyToSingleSwitch.serviceIpMark === 2 ? readyToSingleSwitch.viceHost.name : readyToSingleSwitch.primaryHost.name }}
                   </span>
                   切换至
-                  <span :class="readyToSimpleSwitch.serviceIpMark === 1 ? $style.ebackupEnvColor : $style.productionEnvColor">
-                    <i-icon :name="readyToSimpleSwitch.serviceIpMark === 1 ? 'ebackup-env' : 'production-env'"
+                  <span :class="readyToSingleSwitch.serviceIpMark === 1 ? $style.ebackupEnvColor : $style.productionEnvColor">
+                    <i-icon :name="readyToSingleSwitch.serviceIpMark === 1 ? 'ebackup-env' : 'production-env'"
                             style="vertical-align: -0.3em;"></i-icon>
-                    {{ readyToSimpleSwitch.serviceIpMark === 1 ? '易备环境' : '生产环境' }}
+                    {{ readyToSingleSwitch.serviceIpMark === 1 ? '易备环境' : '生产环境' }}
                   </span>
                   <span :class="$style.switchModalName">
-                    {{ readyToSimpleSwitch.serviceIpMark === 1 ? readyToSimpleSwitch.viceHost.name : readyToSimpleSwitch.primaryHost.name }}
+                    {{ readyToSingleSwitch.serviceIpMark === 1 ? readyToSingleSwitch.viceHost.name : readyToSingleSwitch.primaryHost.name }}
                   </span>
                 </p>
               </div>
@@ -150,7 +150,7 @@ export default {
     hostLinkReadyToSwitch: {
       type: Object,
     },
-    readyToSimpleSwitch: {
+    readyToSingleSwitch: {
       type: Object
     },
     readyToRemoveHostLink: {
@@ -179,30 +179,6 @@ export default {
     confirmBtnDisable() {
       return !this.password;
     },
-    isServiceIpOK() {
-      let res = true;
-      if (!this.hostLinkReadyToSwitch) {
-        return res;
-      }
-      if (this.hostLinkReadyToSwitch.serviceIpMark === 1) {
-        // 服务IP属于生产设备
-        if (!this.hostLinkReadyToSwitch.primaryHost.serviceIp) res = false;
-        else if (
-          this.hostLinkReadyToSwitch.primaryHost.hostIp ===
-          this.hostLinkReadyToSwitch.primaryHost.serviceIp
-        )
-          res = false;
-      } else if (this.hostLinkReadyToSwitch.serviceIpMark === 2) {
-        // 服务IP属于易备设备
-        if (!this.hostLinkReadyToSwitch.viceHost.serviceIp) res = false;
-        else if (
-          this.hostLinkReadyToSwitch.viceHost.hostIp ===
-          this.hostLinkReadyToSwitch.viceHost.serviceIp
-        )
-          res = false;
-      }
-      return res;
-    },
     // windows下--切临时IP
     switchTempIp() {
       return this.hostLinkReadyToSwitch&&this.hostLinkReadyToSwitch.primaryHost.osName==='Windows';
@@ -213,7 +189,7 @@ export default {
     },
     // 单切IP
     switchSimpleIp() {
-      return this.readyToSimpleSwitch&&Object.keys(this.readyToSimpleSwitch).length>0
+      return this.readyToSingleSwitch&&Object.keys(this.readyToSingleSwitch).length>0
     },
     // 解除连接
     isRemoveHostLink() {

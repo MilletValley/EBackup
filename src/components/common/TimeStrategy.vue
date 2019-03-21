@@ -41,7 +41,7 @@
                       v-show="formData.timeStrategy === 4">
           <el-checkbox-group v-model="formData.weekPoints">
             <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                                :label="Number(w)"
+                                :label="w"
                                 :key="w">{{ weekMapping[w] }}</el-checkbox-button>
           </el-checkbox-group>
         </el-form-item>
@@ -51,13 +51,13 @@
           <el-select v-model="formData.datePoints"
                      multiple
                      style="width: 60%;">
-            <el-option v-for="day in Array.from(new Array(31), (val, index) => index + 1)"
+            <el-option v-for="day in Array.from(new Array(31), (val, index) => String(index + 1))"
                        :key="day"
                        :value="day"
                        :label="day + '号'"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="`时间点${index+1}`" 
+        <el-form-item :label="`时间点${index+1}`"
                       style="width: 100%"
                       v-for="(p, index) in formData.timePoints"
                       :key="p.key"
@@ -66,13 +66,13 @@
                           :picker-options="{start: '00:00', end: '23:45', step: '00:15'}"></el-time-select>
           <template v-if="!disable">
             <el-button icon="el-icon-delete"
-                      type="danger"
-                      v-show="formData.timePoints.length !== 1"
-                      @click="formData.timePoints.splice(index, 1)"></el-button>
+                       type="danger"
+                       v-show="formData.timePoints.length !== 1"
+                       @click="formData.timePoints.splice(index, 1)"></el-button>
             <el-button icon="el-icon-plus"
-                      type="primary"
-                      v-show="index + 1 === formData.timePoints.length"
-                      @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
+                       type="primary"
+                       v-show="index + 1 === formData.timePoints.length"
+                       @click="formData.timePoints.push({ value: '00:00', key: Date.now() })"></el-button>
           </template>
           
         </el-form-item>

@@ -6,7 +6,7 @@ export default global.install = Vue => {
     Message({
       message,
       type: 'error',
-      duration: 0,
+      duration: 5000,
       showClose: true
     });
   };

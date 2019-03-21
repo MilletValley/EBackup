@@ -330,8 +330,8 @@ export default {
             linkIds: item.linkIds,
           }
           if(item.flag === 3) { // 单切时需在原结构中加入切换目标及原IP
-            switchItem.originViceIp = this.simpleSwitchOriginIp(item);
-            switchItem.targetViceIp = this.simpleSwitchTargetIp(item);
+            switchItem.originViceIp = this.singleSwitchOriginIp(item);
+            switchItem.targetViceIp = this.singleSwitchTargetIp(item);
           }
           return switchItem;
         })

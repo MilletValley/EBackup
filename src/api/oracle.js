@@ -208,7 +208,7 @@ const createSwitches = data =>
     data,
   });
 
-const createSimpleSwitches = data =>
+const createSingleSwitches = data =>
   baseApi.request({
     method: 'post',
     url: '/oracle-simple-switches',
@@ -240,7 +240,7 @@ const failOver = ({ linkId, data }) =>
     data
   });
 
-const restoreSimpleSwitch = data =>
+const restoreSingleSwitch = data =>
   baseApi.request({
     method: 'post',
     url: '/oracle-restore-simple-switches',
@@ -279,12 +279,12 @@ export {
   fetchRestoreOperation,
   fetchLinks,
   createSwitches,
-  createSimpleSwitches,
+  createSingleSwitches,
   createLinks,
   fetchSwitches,
   fetchLink,
   fetchLinkByLinkId,
   failOver,
-  restoreSimpleSwitch,
+  restoreSingleSwitch,
   cutBackSwitch
 };

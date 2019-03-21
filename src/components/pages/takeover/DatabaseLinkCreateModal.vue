@@ -116,7 +116,7 @@
   </el-dialog>
 </template>
 <script>
-import { sortMixin } from '../mixins/commonMixin';
+import { sortMixin } from '@/components/mixins/commonMixin';
 import InputToggle from '@/components/InputToggle';
 export default {
   name: 'DatabaseLinkCreateModal',

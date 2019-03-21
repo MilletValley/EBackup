@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout';
-import TakeOver from '@/components/pages/TakeOver';
+import TakeOver from '@/components/pages/takeover/TakeOver';
 import SwitchList from '@/components/pages/SwitchList';
 import SwitchDetail from '@/components/pages/SwitchDetail';
 import AppTakeOver from '@/components/pages/application/TakeOver';

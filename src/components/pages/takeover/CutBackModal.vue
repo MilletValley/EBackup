@@ -2,7 +2,8 @@
   <section>
     <el-dialog custom-class="min-width-dialog"
                :visible.sync="modalVisible"
-               @close="switchModalClosed">
+               @close="cancelBtn"
+               @open="dialogOpen">
       <el-row v-if="Object.keys(cutBackMsg).length">
         <el-col :span="6">
           <i-icon name="warning"
@@ -10,6 +11,7 @@
         </el-col>
         <el-col :span="18">
           <div style="height: 220px;max-height: 220px;overflow: scroll;">
+            <h4>即将执行以下操作，请检查。</h4>
             <h4>
               <span :class="$style.ebackupEnvColor">
                   <i-icon name="ebackup-env"
@@ -45,7 +47,7 @@
               </el-checkbox-group>
             </template>
             <template v-else>
-              <h4>的以下数据库连接即将进行回切初始化，请检查。</h4>
+              <h4>的以下数据库连接即将进行回切初始化。</h4>
               <p v-for="link in cutBackMsg.databaseLinks"
                  :key="link.id">
                 <span>{{ link.viceDatabase.name }}</span> => <span>{{ link.primaryDatabase.name }}</span>
@@ -58,7 +60,7 @@
         </el-col>
       </el-row>
       <span slot="footer">
-        <el-button @click="cancelSwitch">取消</el-button>
+        <el-button @click="cancelBtn">取消</el-button>
         <el-button type="primary"
                    :disabled="confirmBtnDisable"
                    :loading="btnLoading"
@@ -68,13 +70,16 @@
   </section>
 </template>
 <script>
-import IIcon from '../IIcon';
-import { validatePassword } from '../../api/user';
+import IIcon from '@/components/IIcon';
+import { validatePassword } from '@/api/user';
 export default {
-  name: 'CutBack',
+  name: 'CutBackModal',
   props: {
     cutBackMsg: {
-      type: Object
+      type: Object,
+      default: function() {
+        return {}
+      }
     },
     visible: {
       type: Boolean
@@ -104,7 +109,7 @@ export default {
       },
       set(value) {
         if (!value) {
-          this.$emit('cancel');
+          this.$emit('update:visible', false);
         }
       },
     },
@@ -120,13 +125,6 @@ export default {
     }
   },
   methods: {
-    switchModalClosed() {
-      this.password = '';
-      this.checkAll = false;
-      this.isIndeterminate = false;
-      this.switchIds = [];
-      this.$emit('cancel');
-    },
     checkAllChange(val) {
       this.switchIds = val ? this.allIds : [];
       this.isIndeterminate = false;
@@ -136,25 +134,30 @@ export default {
       this.checkAll = checkedCount === this.allIds.length;
       this.isIndeterminate = checkedCount > 0 && checkedCount < this.allIds.length;
     },
-    cancelSwitch() {
-      this.$emit('cancel');
-    },
     confirmBtn() {
       validatePassword(this.password)
         .then(() => {
           const ids = this.multiply ? this.switchIds : this.cutBackMsg.databaseLinks.map(link => link.id);
           this.$emit('confirm', ids);
-          this.password = '';
         })
         .catch(error => {
           this.$message.error(error);
         });
+    },
+    cancelBtn() {
+      this.checkAll = false;
+      this.isIndeterminate = false;
+      this.switchIds = [];
+      this.modalVisible = false;
+    },
+    dialogOpen() {
+      this.password = '';
     }
   }
 }
 </script>
 <style lang="scss" module>
-@import '../../style/color.scss';
+@import '@/style/color.scss';
 .switchModalIcon {
   width: 9em;
   height: 9em;
