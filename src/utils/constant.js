@@ -203,12 +203,16 @@ const switchTypeMapping = {
   3: '解除连接',
 <<<<<<< HEAD
   4: '单切恢复',
+<<<<<<< HEAD
   5: '回切初始化',
   6: '单切实例',
   7: '单切IP'
 =======
   4: '单切恢复'
 >>>>>>> parent of 9de65ba... feat: oracle添加回切功能
+=======
+  5: '回切初始化'
+>>>>>>> parent of 5a7d2fe... fix: 一健接管最近切换操作添加单切实例类型、单切IP类型
 };
 
 const serviceIpMarkMapping = {
