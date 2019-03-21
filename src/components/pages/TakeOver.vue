@@ -140,11 +140,42 @@
                                 width="300"
                                 :open-delay="200">
                       <h4 style="margin: 5px 0; padding: 3px 0;">最近操作</h4>
+<<<<<<< HEAD
                       <p v-if="(!hostLink.latestSwitch || [1, 4, 5, 6].includes(hostLink.latestSwitch.type))">暂无操作</p>
                       <!-- 切换IP, 单切IP -->
                       <el-form v-else-if="[2, 7].includes(hostLink.latestSwitch.type)"
                                size="mini"
                                label-width="70px">
+=======
+                      <p v-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type))&&(!hasSimpleSwitch(hostLink.simpleSwitch))">暂无操作</p>
+                      <el-form v-else-if="(!hostLink.latestSwitch || [1, 4].includes(hostLink.latestSwitch.type)) ||
+                                          hasSimpleSwitch(hostLink.simpleSwitch)&&(hostLink.simpleSwitch.switchTime>hostLink.latestSwitch.switchTime)"
+                                size="mini"
+                                label-width="70px">
+                        <el-form-item :class="$style.switchFormItem"
+                                      :label="osIsWindows(hostLink.viceHost.osName)?'易备IP':'服务IP'">
+                          {{ hostLink.simpleSwitch.originIp }}<i class="el-icon-d-arrow-right"></i>{{ hostLink.simpleSwitch.targetIp }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="状态">
+                          <el-tag :type="switchStateStyle(hostLink.simpleSwitch.state)"
+                                  size="mini">
+                            {{ hostLink.simpleSwitch.state | switchStateFilter }}
+                          </el-tag>
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="切换信息">
+                          {{ hostLink.simpleSwitch.message }}
+                        </el-form-item>
+                        <el-form-item :class="$style.switchFormItem"
+                                      label="完成时间">
+                          {{ hostLink.simpleSwitch.switchTime }}
+                        </el-form-item>
+                      </el-form>
+                      <el-form v-else-if="hostLink.latestSwitch.type === 2"
+                              size="mini"
+                              label-width="70px">
+>>>>>>> parent of 9de65ba... feat: oracle添加回切功能
                         <el-form-item :class="$style.switchFormItem"
                                       label="切换内容">
                           <span>{{ hostLink.latestSwitch.content }}</span>
@@ -166,7 +197,6 @@
                           <span>{{ hostLink.latestSwitch.switchTime }}</span>
                         </el-form-item>
                       </el-form>
-                      <!-- 解除连接 -->
                       <el-form v-else-if="hostLink.latestSwitch.type === 3"
                               size="mini"
                               label-width="70px">
@@ -349,7 +379,11 @@
                       </el-form-item>
                     </el-form>
                     <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近操作</h4>
+<<<<<<< HEAD
                     <p v-if="!dbLink.latestSwitch || ![1, 4, 5, 6].includes(dbLink.latestSwitch.type)">暂无操作</p>
+=======
+                    <p v-if="!dbLink.latestSwitch">暂无操作</p>
+>>>>>>> parent of 9de65ba... feat: oracle添加回切功能
                     <el-form v-else
                             size="mini"
                             label-width="70px">
@@ -374,22 +408,16 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
-                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                    <div slot="reference" style="position: relative; height: 3em"
                          v-if="dbLink.state === 1">
-                      <div :class="$style.rightMask"></div>
-                      <i-icon name="transportationRight"
-                              :class="$style.transportationIcon"></i-icon>
-                    </div>
-                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
-                         v-else-if="dbLink.state === 6">
-                      <div :class="$style.leftMask"></div>
-                      <i-icon name="transportationLeft"
+                      <div :class="$style.mask"></div>
+                      <i-icon name="transportation"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
                     <i-icon :name="`switch-${dbLink.state}`"
-                            slot="reference"
-                            :class="$style.switchIcon"
-                            v-else></i-icon>
+                              slot="reference"
+                              :class="$style.switchIcon"
+                              v-else></i-icon>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && [1, 4, 5, 6].includes(dbLink.latestSwitch.type)"
                        style="margin-top: 6px;">
@@ -423,8 +451,11 @@
                                             :disabled="!availableSimpleSwitchDb(hostLink.primaryHost)||dbLink.viceDatabase.role !== 2">单切{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
                           <el-dropdown-item @click.native="restoreSimpleSwitch(hostLink, false, [dbLink])"
                                             :disabled="!availableRestoreSimpleSwitch(hostLink.primaryHost, dbLink)">单切恢复</el-dropdown-item>
+<<<<<<< HEAD
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
                                             :disabled="!(availableCutBackSimple(dbLink))">回切初始化</el-dropdown-item>
+=======
+>>>>>>> parent of 9de65ba... feat: oracle添加回切功能
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -530,8 +561,7 @@ import {
   createSwitches as switchOracle,
   createSimpleSwitches as simpleSwitchOracle,
   failOver as failOverOracle,
-  restoreSimpleSwitch as restoreSimpleSwitchOracle,
-  cutBackSwitch as cutBackSwitchOracle
+  restoreSimpleSwitch as restoreSimpleSwitchOracle
 } from '../../api/oracle';
 import {
   fetchAll as fetchAllSqlserver,
@@ -1075,13 +1105,6 @@ export default {
       }
       return false;
     },
-    /** ● 连接：异常不可接管
-        ● 易备库主，正常
-        ● 生产库备，非正常
-    **/
-    availableCutBackSimple({ state, viceDatabase, primaryDatabase }) {
-      return state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) && (primaryDatabase.role === 2 && primaryDatabase.state !== 1);
-    },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
         this.$router.push({
@@ -1153,6 +1176,33 @@ export default {
         })
         .catch(error => {});
     },
+<<<<<<< HEAD
+=======
+    restoreSimpleSwitchDatabases(link, isMultiple = false) {
+      this.$confirm('此操作将执行单切恢复，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const alreadyToSwitchDbLinks = isMultiple ? link.databaseLinks.filter(item => this.availableRestoreSimpleSwitch(link.primaryHost,item)) : [link];
+          const restoreSimpleSwitchIds = alreadyToSwitchDbLinks.map(dbLink => dbLink.id);
+          restoreSimpleSwitchOracle(restoreSimpleSwitchIds)
+            .then(res => {
+              const { data } = res.data;
+              this.databaseLinks.forEach(link => {
+                if (restoreSimpleSwitchIds.includes(link.id)) {
+                  link.latestSwitch = data.find(s => s.linkId === link.id);
+                }
+              });
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+        })
+        .catch(error => {});
+    },
+>>>>>>> parent of 9de65ba... feat: oracle添加回切功能
     // 非主节点VIP集合
     sonNodeVip(hostLink) {
       if(hostLink.primaryNodes)
@@ -1432,23 +1482,21 @@ $vice-color: #6d6d6d;
     transform: scale(1.2);
   }
 }
-.rightMask,
-.leftMask {
+.mask {
   animation: move 2s infinite;
   position: absolute;
   height: 3em;
   width: 100px;
-  right: -20px;
+  left: 20px;
   background: #fff;
-}
-.leftMask {
-  left: -20px;
 }
 @keyframes move {
   from {
+    left: 20px;
     width: 100px;
   }
   to {
+    left: 150px;
     width: 0;
   }
 }
