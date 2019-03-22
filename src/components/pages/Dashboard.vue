@@ -54,7 +54,7 @@
               </el-row>
             </div>
             <div :class="$style.nfsNotUsed" v-show="!Object.keys(spaceDetail).length">
-              <span>暂未使用</span>
+              <span>加载中...</span>
             </div>
           </el-card>
         </el-col>
@@ -67,7 +67,7 @@
               <div id="spaceRatio" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
             </div>
             <div :class="$style.nfsNotUsed" v-show="!(nfsAssignedSpace&&nfsAssignedSpace.length>0)">
-              <span>暂未使用</span>
+              <span>加载中...</span>
             </div>
           </el-card>
         </el-col>
@@ -576,7 +576,7 @@ export default {
       4: '虚拟机',
       5: 'mysql',
       6: 'db2',
-      7: '达梦'
+      7: '达梦',
     }
     const color = ['', '#D9554B','#F96305','#dcc54d','#1ABB9C','#5faf37','#1a48a5','#660066']
     return {
@@ -609,13 +609,6 @@ export default {
     nfsAssignedSpace() {
       return this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails;
     },
-    nfsPieColor() {
-      if(this.spaceDetail&&this.spaceDetail.nfsData&&this.spaceDetail.nfsData.nfsUseDetails) {
-        const color = this.color.filter((c, index) => this.spaceDetail.nfsData.nfsUseDetails.map(detail => detail.nfsUseType).includes(index));
-        return color;
-      }
-      return [];
-    },
     nfsPieData() {
       let data = {};
       if (this.spaceDetail && this.spaceDetail.nfsData)
@@ -636,11 +629,9 @@ export default {
   },
   methods: {
     fetchData() {
-      Promise.all([fetchAll(), fetchSpaceUse()])
+      fetchSpaceUse()
         .then(res => {
-          const { data: pieData } = res[0].data;
-          const { data: spaceData } = res[1].data;
-          this.total = pieData;
+          const { data: spaceData } = res.data;
           this.spaceDetail = spaceData;
           if(this.spaceDetail.nfsData) {
             this.spaceData.name.push('存储1');
@@ -654,11 +645,23 @@ export default {
           }
         })
         .then(() => {
-          this.drawLine();
+          this.drawSpaceRatio();
+          this.drawSpaceChartData();
         })
         .catch(error => {
           this.$message.error(error);
-        })
+        });
+        fetchAll()
+          .then(res => {
+            const { data: pieData } = res.data;
+            this.total = pieData;
+          })
+          .then(() => {
+            this.drawPies();
+          })
+          .catch(error => {
+            this.$message.error(error);
+          })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
@@ -705,62 +708,8 @@ export default {
       }
       return [x, y];
     },
-    drawLine() {
-      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
-      let backupTotal = echarts.init(document.getElementById('backupTotal'));
-      let initConn = echarts.init(document.getElementById('initConn'));
-      const that = this;
-      if(Object.keys(this.spaceDetail).length) {
-        this.spaceChartData = [{
-          id: 'canvas1',
-          value: this.spaceData.percentData[0]/100 > 1 ? 1 : this.spaceData.percentData[0]/100,
-          width: this.$refs.space1.innerWidth || this.$refs.space1.clientWidth,
-          height: 200,
-          color: ['#04C1F9','#C3E9F5'],
-          title: {
-              show: true,
-              text: '存储1',
-              style: {
-                color: '#333',
-                fontSize: '14px',
-              }
-            },
-            subTitle: {
-              show: true,
-              text: this.spaceData.explain[0],
-              style: {
-                color: '#04C1F9',
-                fontSize: '12px',
-              }
-            }
-        }];
-        if(Object.keys(this.spaceDetail).length > 1) {
-          this.spaceChartData.push({
-            id: 'canvas2',
-            value: this.spaceData.percentData[1]/100 > 1 ? 1 : this.spaceData.percentData[1]/100,
-            width: this.$refs.space2.innerWidth || this.$refs.space2.clientWidth,
-            height: 200,
-            color: ['green', '#D1EBD0'],
-            title: {
-              show: true,
-              text: '存储2',
-              style: {
-                color: '#333',
-                fontSize: '14px',
-              }
-            },
-            subTitle: {
-              show: true,
-              text: this.spaceData.explain[1],
-              style: {
-                color: 'green',
-                fontSize: '12px',
-              }
-            }
-          })
-        }
-      }
-      if (this.nfsAssignedSpace && this.nfsAssignedSpace.length > 0) {
+    drawSpaceRatio() {
+        if (this.nfsAssignedSpace && this.nfsAssignedSpace.length > 0) {
         var spaceRatio = echarts.init(document.getElementById('spaceRatio'));
         const labelObject = {
           oracle: {
@@ -890,7 +839,68 @@ export default {
           ],
         };
         spaceRatio.setOption(spacePieOption);
+        window.addEventListener("resize", () => {
+          spaceRatio.resize();
+        });
       }
+    },
+    drawSpaceChartData() {
+      if(Object.keys(this.spaceDetail).length) {
+        this.spaceChartData = [{
+          id: 'canvas1',
+          value: this.spaceData.percentData[0]/100 > 1 ? 1 : this.spaceData.percentData[0]/100,
+          width: this.$refs.space1.innerWidth || this.$refs.space1.clientWidth,
+          height: 200,
+          color: ['#04C1F9','#C3E9F5'],
+          title: {
+              show: true,
+              text: '存储1',
+              style: {
+                color: '#333',
+                fontSize: '14px',
+              }
+            },
+            subTitle: {
+              show: true,
+              text: this.spaceData.explain[0],
+              style: {
+                color: '#04C1F9',
+                fontSize: '12px',
+              }
+            }
+        }];
+        if(Object.keys(this.spaceDetail).length > 1) {
+          this.spaceChartData.push({
+            id: 'canvas2',
+            value: this.spaceData.percentData[1]/100 > 1 ? 1 : this.spaceData.percentData[1]/100,
+            width: this.$refs.space2.innerWidth || this.$refs.space2.clientWidth,
+            height: 200,
+            color: ['green', '#D1EBD0'],
+            title: {
+              show: true,
+              text: '存储2',
+              style: {
+                color: '#333',
+                fontSize: '14px',
+              }
+            },
+            subTitle: {
+              show: true,
+              text: this.spaceData.explain[1],
+              style: {
+                color: 'green',
+                fontSize: '12px',
+              }
+            }
+          })
+        }
+      }
+    },
+    drawPies() {
+      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
+      let backupTotal = echarts.init(document.getElementById('backupTotal'));
+      let initConn = echarts.init(document.getElementById('initConn'));
+      const that = this;
       let backupOption = {
         tooltip: {
           trigger: 'item',
@@ -1126,10 +1136,7 @@ export default {
         restoreTotal.resize();
         backupTotal.resize();
         initConn.resize();
-        if(that.nfsAssignedSpace&&that.nfsAssignedSpace.length>0) {
-          spaceRatio.resize();
-        }
-     });
+      });
      }
    },
 };

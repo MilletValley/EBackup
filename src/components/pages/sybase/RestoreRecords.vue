@@ -65,6 +65,7 @@
                 </el-tooltip>
               </el-col>
             </el-row>
+            
           </el-card>
         </el-col>
       </el-row>
@@ -88,16 +89,10 @@
                          align="center"
                          min-width="150px">
         </el-table-column>
-        <!-- mysql数据库恢复后的数据库名始终与要恢复的数据库名相同，后台返回的为恢复配置的数据库名，即 登录恢复设备时必须要填的数据库名，2个名称不一定相同 -->
         <el-table-column prop="detailInfo"
                          label="数据库名"
                          align="center"
-                         min-width="150px">
-          <template slot-scope="scope">
-            <span>{{details.instanceName}}</span>
-          </template>
-        </el-table-column>
-          
+                         min-width="150px"></el-table-column>
         <!-- <el-table-column prop="dbPort"
                          label="端口"
                          align="center"
@@ -140,9 +135,6 @@ export default {
       type: Array,
       required: true,
     },
-    details: {
-      type: Object
-    }
   },
   data() {
     return {

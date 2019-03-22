@@ -18,7 +18,8 @@ const dbTypeMapping = {
   2: 'oracle',
   3: 'mysql',
   4: 'db2',
-  5: 'dm'
+  5: 'dm',
+  6: 'sybase'
 };
 
 const routerNameMapping = {
@@ -30,7 +31,8 @@ const routerNameMapping = {
   sqlserver: 'sqlserverDetail',
   mysql: 'mysqlDetail',
   db2: 'db2Detail',
-  dm: 'damengDetail'
+  dm: 'damengDetail',
+  sybase: 'sybaseDetail'
 };
 const commonTypeMapping = {
   windows: 'Windows',
@@ -41,7 +43,8 @@ const commonTypeMapping = {
   sqlserver: 'SQL Server',
   mysql: 'MySql',
   db2: 'DB2',
-  dm: '达梦数据库'
+  dm: '达梦数据库',
+  sybase: 'Sybase'
 };
 const planDetailsMixin = {
   data() {

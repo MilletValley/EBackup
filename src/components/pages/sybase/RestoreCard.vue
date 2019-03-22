@@ -60,7 +60,7 @@
               <el-tag :class="$style.infoTag"
                       v-for="point in restoreConfig.weekPoints"
                       :key="point"
-                      size="small">{{ weekPointMaping(point) }}</el-tag>
+                      size="small">{{ weekPointMapping(point) }}</el-tag>
             </div>
           </el-form-item>
           <el-form-item label="日期"
@@ -164,7 +164,7 @@ export default {
     },
   },
   methods: {
-    weekPointMaping(num) {
+    weekPointMapping(num) {
       return weekMapping[num];
     },
     timeStrategy(key) {

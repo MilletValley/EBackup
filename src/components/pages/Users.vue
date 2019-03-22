@@ -266,6 +266,10 @@ const rolesUser = [
   {
     id: 'application admin',
     name: '应用服务管理员'
+  },
+  {
+    id: 'sybase dba',
+    name: 'Sybase管理员'
   }
 ];
 
