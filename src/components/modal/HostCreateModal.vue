@@ -37,9 +37,18 @@
         </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">
-          <el-radio-group v-model="formData.databaseType">
+          <el-select v-model="formData.databaseType"
+                     v-if="useType === 'db'">
+            <el-option v-for="db in databaseUseType"
+                       v-if="[1,2,5,6,7,9,10].includes(db.value)"
+                       :key="db.value"
+                       :value="db.value"
+                       :label="db.text"></el-option>
+          </el-select>
+          <el-radio-group v-model="formData.databaseType"
+                          v-else>
             <el-radio v-for="db in databaseUseType"
-                      v-if="(useType === 'db'&&[1,2,5,6,7,9].includes(db.value))||(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
+                      v-if="(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
                       :key="db.value"
                       :label="db.value">{{ db.text }}</el-radio>
           </el-radio-group>
@@ -202,6 +211,7 @@ export default {
           case 6:
           case 7:
           case 9:
+          case 10:
             return 'db';
           case 4:
             return 'vm';
