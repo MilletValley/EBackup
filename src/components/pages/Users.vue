@@ -270,6 +270,10 @@ const rolesUser = [
   {
     id: 'sybase dba',
     name: 'Sybase管理员'
+  },
+  {
+    id: 'cache dba',
+    name: 'Cache管理员'
   }
 ];
 

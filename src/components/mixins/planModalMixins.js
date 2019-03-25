@@ -23,6 +23,10 @@ const strategyMapping = {
     1: [0, 2, 3, 4, 5]
   },
   sybase: {
+    0: [0, 2, 3, 4, 5],
+    1: [0, 2, 3, 4, 5]
+  },
+  cache: {
     1: [0, 2, 3, 4, 5]
   },
   vm: {
@@ -48,7 +52,8 @@ const mapping = {
   windows: '恢复目标路径',
   linux: '恢复目标路径',
   vm: '新虚拟机名',
-  sybase: '数据库'
+  sybase: '数据库',
+  cache: '数据库'
 };
 
 const backupPlanModalMixin = {
@@ -364,7 +369,7 @@ const restorePlanModalMixin = {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'db2', 'sybase', 'windows', 'linux', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'sybase', 'cache', 'windows', 'linux', 'vm', ''].includes(value);
       },
     },
     id: {

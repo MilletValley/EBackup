@@ -12,6 +12,8 @@ import DamengList from '@/components/pages/dm/DamengList';
 import DamengDetails from '@/components/pages/dm/DamengDetails';
 import SybaseList from '@/components/pages/sybase/SybaseList';
 import SybaseDetails from '@/components/pages/sybase/SybaseDetails';
+import CacheList from '@/components/pages/cache/CacheList';
+import CacheDetails from '@/components/pages/cache/CacheDetails';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
 
 const router = [
@@ -21,7 +23,7 @@ const router = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba'],
     },
     children: [
       {
@@ -243,6 +245,26 @@ const router = [
         },
       },
       {
+        path: 'cache',
+        name: 'cacheList',
+        component: CacheList,
+        meta: {
+          title: 'Cache',
+          activeName: 'cache',
+          roles: ['cache dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Cache列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'dm/:id',
         props: true,
         component: DamengDetails,
@@ -378,6 +400,30 @@ const router = [
             {
               name: 'Sybase列表',
               path: '/db/sybase',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'cache/:id',
+        props: true,
+        component: CacheDetails,
+        name: 'cacheDetail',
+        meta: {
+          activeName: 'cache',
+          roles: ['cache dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Cache列表',
+              path: '/db/cache',
             },
             {
               name: '数据库详情',

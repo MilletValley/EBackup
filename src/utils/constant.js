@@ -130,7 +130,8 @@ const useTypeMapping = {
   6: 'db2',
   7: '达梦数据库',
   8: '应用服务器',
-  9: 'sybase'
+  9: 'sybase',
+  10: 'cache'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -149,7 +150,8 @@ const portHostTypeMapping = {
   6: 'db2',
   7: '达梦数据库',
   8: '应用服务器',
-  9: 'sybase'
+  9: 'sybase',
+  10: 'cache'
 };
 
 const keepDateMapping = {
@@ -171,7 +173,8 @@ const databaseTypeMapping = {
   6: 'db2',
   7: '达梦数据库',
   8: '应用服务器',
-  9: 'sybase'
+  9: 'sybase',
+  10: 'cache'
 };
 
 // 数据库连接状态
@@ -240,7 +243,9 @@ const dbTypeMapping = {
   2: 'oracle',
   3: 'mysql',
   4: 'db2',
-  5: '达梦'
+  5: '达梦',
+  6: 'sybase',
+  7: 'cache'
 };
 // 首页数据库详情路由(不含虚拟机)
 const dbDetailRouterMapping = {
@@ -248,7 +253,9 @@ const dbDetailRouterMapping = {
   2: 'oracleDetail',
   3: 'mysqlDetail',
   4: 'db2Detail',
-  5: 'damengDetail'
+  5: 'damengDetail',
+  6: 'sybaseDetail',
+  7: 'cacheDetail'
 };
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {
