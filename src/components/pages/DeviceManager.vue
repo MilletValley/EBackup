@@ -196,7 +196,7 @@ export default {
     },
     judgeOsName(data){
       let str = data.osName;
-      if(data.osName === 'Windows' && data.databaseType === 2 && windowsTypeMapping[data.windowsType]){
+      if(data.osName === 'Windows' && [2, 10].includes(data.databaseType) && windowsTypeMapping[data.windowsType]){
         str += (' ' + windowsTypeMapping[data.windowsType]);
       }
       return str;
@@ -237,6 +237,9 @@ export default {
     },
     createItem(host) {
       this.btnLoading = true;
+      if(!(host.osName === 'Windows' && [2, 10].includes(host.databaseType))) {
+        delete host.windowsType;
+      }
       createOne(host)
         .then(res => {
           this.createModalVisible = false;
@@ -270,6 +273,9 @@ export default {
     },
     updateItem(host) {
       this.btnLoading = true;
+      if(!(host.osName === 'Windows' && [2, 10].includes(host.databaseType))) {
+        delete host.windowsType;
+      }
       modifyOne(host)
         .then(res => {
           this.updateModalVisible = false;

@@ -81,10 +81,12 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="formData.osName === 'Windows' && formData.databaseType === 2">
+          <el-col :span="12" v-if="formData.osName === 'Windows' && [2, 10].includes(formData.databaseType)">
             <el-form-item label="Windows系统版本"
                       prop="windowsType">
-          <el-select v-model="formData.windowsType" placeholder="请选择">
+          <el-select v-model="formData.windowsType"
+                     placeholder="请选择"
+                     key="update-host-windows-type">
                 <el-option v-for="item in [{label: 1, value: '2003'}, {label: 2, value: '2008及以上'}]"
                            :key="item.label"
                            :label="item.value"
