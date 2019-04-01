@@ -404,10 +404,10 @@
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
                       </el-form-item>
                     </el-form>
-                    <div slot="reference" style="position: relative; height: 3em"
+                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
                          v-if="dbLink.state === 1">
                       <div :class="$style.mask"></div>
-                      <i-icon name="transportation"
+                      <i-icon name="transportationRight"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
                     <i-icon :name="`switch-${dbLink.state}`"
@@ -804,9 +804,10 @@ export default {
         switchOneIp[formData](this.hostLinkIdReadyToSwitch)
           .then(res => {
             const { data } = res.data;
-            this.links.find(
-              link => link.id === this.hostLinkIdReadyToSwitch
-            ).latestSwitch = data;
+            // this.links.find(
+            //   link => link.id === this.hostLinkIdReadyToSwitch
+            // ).latestSwitch = data;
+            this.fetchData();
             this.switchModalVisible = false;
           })
           .catch(error => {
@@ -824,25 +825,13 @@ export default {
         const id = this.readyToSimpleSwitch.id;
         simpleSwitch(id, req)
           .then(res => {
-            const { data } = res.data
-            if(this.osIsWindows(this.readyToSimpleSwitch.viceHost.osName)) {
-              this.links.find(
-                link => link.id === id
-              ).simpleSwitch = data;
-            } else { // 切换成功，Linux下服务IP位置发生变化
-              if(data.state === 2) {
-                if(this.links.find(link => link.id).serviceIpMark === 1) {
-                  this.links.find(link => link.id).serviceIpMark = 2;
-                } else {
-                  this.links.find(link => link.id).serviceIpMark = 1;
-                }
-              }
-            }
+            const { data } = res.data;
+            this.fetchData();
             this.$message({message: data.message, type: this.messageType(data.state)})
             this.switchModalVisible = false;
           })
           .catch(error => {
-            this.$message.error(error)
+            this.$message.error(error);
           })
           .then(() => {
             this.btnLoading = false;
@@ -872,11 +861,12 @@ export default {
           .then(res => {
             const { data } = res.data;
             // 修改的是computed数据的引用，引用指向的就是data中的数据
-            this.databaseLinks.forEach(link => {
-              if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
-                link.latestSwitch = data.find(s => s.linkId === link.id);
-              }
-            });
+            // this.databaseLinks.forEach(link => {
+            //   if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
+            //     link.latestSwitch = data.find(s => s.linkId === link.id);
+            //   }
+            // });
+            this.fetchData();
             this.switchModalVisible = false;
           })
           .catch(error => {
@@ -1021,18 +1011,19 @@ export default {
         .then(res => {
           const { data: link } = res.data;
           this.linkCreateModalVisible = false;
-          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === link.id);
-          if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
-            const databaseLinks = this.links.find(linked => linked.id === link.id).databaseLinks;
-            link.databaseLinks = link.databaseLinks.concat(databaseLinks);
-            this.links.splice(
-              alreadyLinkedIndex,
-              1,
-              link
-            );
-          } else { // 新创建的设备连接与实例连接
-            this.links.push(link);
-          }
+          // const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === link.id);
+          // if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
+          //   const databaseLinks = this.links.find(linked => linked.id === link.id).databaseLinks;
+          //   link.databaseLinks = link.databaseLinks.concat(databaseLinks);
+          //   this.links.splice(
+          //     alreadyLinkedIndex,
+          //     1,
+          //     link
+          //   );
+          // } else { // 新创建的设备连接与实例连接
+          //   this.links.push(link);
+          // }
+          this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -1379,16 +1370,14 @@ $vice-color: #6d6d6d;
   position: absolute;
   height: 3em;
   width: 100px;
-  left: 20px;
+  right: -20px;
   background: #fff;
 }
 @keyframes move {
   from {
-    left: 20px;
     width: 100px;
   }
   to {
-    left: 150px;
     width: 0;
   }
 }
