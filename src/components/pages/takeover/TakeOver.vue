@@ -920,13 +920,9 @@ export default {
           .then(res => {
             const { data, message } = res.data;
             // 修改的是computed数据的引用，引用指向的就是data中的数据
-            this.databaseLinks.forEach(link => {
-              if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
-                link.latestSwitch = data.find(s => s.linkId === link.id);
-              }
-            });
             this.switchDatabasesModalVisible = false;
             this.$message.success(message);
+            this.fetchData();
           })
           .catch(error => {
             this.$message.error(error);
@@ -956,17 +952,15 @@ export default {
           this.btnLoading = false;
         })
     },
-    // 切vip或者切服务IP、scanIP、临时IP(服务IP、scanIP，临时IP用的同一个url)
+    // 切vip或者切服务IP、scanIP、临时IP(服务IP、scanIP、临时IP用的同一个url)
     switchIpConfirm(switchVip) {
       this.btnLoading = true;
       switchIpMethod[switchVip](this.hostLinkIdReadyToSwitch)
         .then(res => {
           const { data, message } = res.data;
-          this.links.find(
-            link => link.id === this.hostLinkIdReadyToSwitch
-          ).latestSwitch = data;
           this.switchIpModalVisible = false;
           this.$message.success(message);
+          this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -1142,18 +1136,19 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.linkCreateModalVisible = false;
-          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === data.id);
-          if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
-            const databaseLinks = this.links.find(linked => linked.id === data.id).databaseLinks;
-            data.databaseLinks = data.databaseLinks.concat(databaseLinks);
-            this.links.splice(
-              alreadyLinkedIndex,
-              1,
-              data
-            );
-          } else { // 新创建的设备连接与实例连接
-            this.links.push(data);
-          }
+          // const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === data.id);
+          // if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
+          //   const databaseLinks = this.links.find(linked => linked.id === data.id).databaseLinks;
+          //   data.databaseLinks = data.databaseLinks.concat(databaseLinks);
+          //   this.links.splice(
+          //     alreadyLinkedIndex,
+          //     1,
+          //     data
+          //   );
+          // } else { // 新创建的设备连接与实例连接
+          //   this.links.push(data);
+          // }
+          this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);

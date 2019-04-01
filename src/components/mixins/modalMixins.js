@@ -155,20 +155,6 @@ const genModalMixin = type => {
         }],
       };
       const hostRules = { // 设备管理输入校验
-        name: [{
-          required: true,
-          message: '请输入设备名称',
-          trigger: 'blur'
-        },
-        {
-          validator: validateLength(50),
-          trigger: 'blur',
-        },
-        {
-          pattern: '^[^\\s]*$',
-          message: '不能包含空格',
-          trigger: 'blur',
-        }],
         hostIp: baseRules.hostIp,
         serviceIp: ipFormat,
         vip: ipFormat,

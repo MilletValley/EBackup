@@ -47,6 +47,17 @@ const hasPermission = (roles, route) => {
   return true;
 };
 
+const filterRoutes = (routes, roleIds) =>
+  (routes.filter(v => {
+    if (hasPermission(roleIds, v)) {
+      if (v.children && v.children.length > 0) {
+        v.children = filterRoutes(v.children, roleIds);
+      }
+      return v;
+    }
+    return false;
+  }));
+
 const actions = {
   /**
    * 登陆获得Token
@@ -114,28 +125,7 @@ const actions = {
       let accessedRouters;
       if (roleIds.indexOf('admin') >= 0) accessedRouters = asyncRouters;
       else {
-        accessedRouters = asyncRouters.filter(v => {
-          if (hasPermission(roleIds, v)) {
-            if (v.children && v.children.length > 0) {
-              v.children = v.children.filter(childRouter => {
-                if (hasPermission(roleIds, childRouter)) {
-                  if (childRouter.children && childRouter.children.length > 0) {
-                    childRouter.children = childRouter.children.filter(threeRouter => {
-                      if (hasPermission(roleIds, threeRouter)) {
-                        return threeRouter;
-                      }
-                      return false;
-                    });
-                  }
-                  return childRouter;
-                }
-                return false;
-              });
-            }
-            return v;
-          }
-          return false;
-        });
+        accessedRouters = filterRoutes(asyncRouters, roleIds);
       }
       context.commit(types.SET_ROUTERS, accessedRouters);
       resolve(accessedRouters);

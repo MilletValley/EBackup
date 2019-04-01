@@ -54,7 +54,7 @@
               </el-row>
             </div>
             <div :class="$style.nfsNotUsed" v-show="!Object.keys(spaceDetail).length">
-              <span>加载中...</span>
+              <span>暂未使用</span>
             </div>
           </el-card>
         </el-col>
@@ -67,7 +67,7 @@
               <div id="spaceRatio" :style="{width: '100%', height: '300%', margin: '0 auto'}"></div>
             </div>
             <div :class="$style.nfsNotUsed" v-show="!(nfsAssignedSpace&&nfsAssignedSpace.length>0)">
-              <span>加载中...</span>
+              <span>暂未使用</span>
             </div>
           </el-card>
         </el-col>
