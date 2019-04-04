@@ -229,4 +229,3 @@ export default {
   right: 5px;
 }
 </style>
-

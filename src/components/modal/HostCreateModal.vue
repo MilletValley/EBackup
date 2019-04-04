@@ -13,7 +13,9 @@
                ref="createForm"
                size="small">
         <el-form-item label="设备名"
-                      prop="name">
+                      prop="name"
+                      class="is-required"
+                      :rules="{validator: validateHostName, trigger: ['blur']}">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
         <el-form-item label="设备IP"
@@ -164,13 +166,33 @@ import InputToggle from '@/components/InputToggle';
 import { createOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
 import { oracleVersionMapping } from '@/utils/constant';
+import { validateLength } from '../../utils/common';
 
 export default {
   name: 'HostCreateModal',
   mixins: [genModalMixin('host')],
+  props: {
+    hostNames: {
+      type: Array,
+      default: []
+    }
+  },
   data() {
+    const validateHostName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入设备名'));
+      } else if (!(/^\S*$/.test(value))) {
+        callback(new Error('不能包含空格'));
+      } else if (this.hostNames.includes(value)) {
+        callback(new Error('设备名已存在'));
+      } else {
+        validateLength(50)(rule, value, callback);
+      }
+      return false;
+    };
     return {
-      oracleVersionMapping
+      oracleVersionMapping,
+      validateHostName
     }
   },
   methods: {

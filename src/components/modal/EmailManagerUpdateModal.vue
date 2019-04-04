@@ -11,22 +11,28 @@
           ref="formData"
           :rules="rules"
           size="small">
-        <el-form-item label="主机名"
+        <el-form-item label="服务器名"
                       prop="mailHost">
           <el-input v-model="formData.mailHost"></el-input></el-form-item>
-        <el-form-item label="协议名"
-                      prop="mailTransportProtocol">
-          <el-select v-model="formData.mailTransportProtocol"
-                     placeholder="请选择">
-            <el-option v-for="item in ['pop3', 'SMTP']"
-                       :key="item.value"
-                       :value="item"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="端口"
-                      prop="mailSmtpPort">
-          <el-input v-model="formData.mailSmtpPort"></el-input>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="协议名"
+                          prop="mailTransportProtocol">
+              <el-select v-model="formData.mailTransportProtocol"
+                        placeholder="请选择">
+                <el-option v-for="item in ['SMTP', 'pop3']"
+                          :key="item.value"
+                          :value="item"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="端口"
+                          prop="mailSmtpPort">
+              <el-input v-model="formData.mailSmtpPort"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="状态"
                       prop="emailStatus">
           <el-radio v-model="formData.emailStatus" :label="'0'">启用</el-radio>
@@ -36,11 +42,6 @@
                       prop="emailLoginName">
           <el-input v-model="formData.emailLoginName"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="登录密码"
-                      prop="emailPassword">
-          <input-toggle v-model="formData.emailPassword"
-                        :hidden.sync="hiddenPassword"></input-toggle>
-        </el-form-item> -->
         <el-row>
             <el-col :span="12">
               <el-form-item label="登录密码"
@@ -139,7 +140,6 @@ export default {
     modalOpened() {
       this.originFormData = { ...this.emailInfo, emailPassword: '' };
       this.formData = { ...this.emailInfo, emailPassword: ''  };
-      console.log(this.formData)
     },
     confirm() {
       this.$refs.formData.validate(valid => {

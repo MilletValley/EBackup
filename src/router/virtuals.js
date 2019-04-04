@@ -33,7 +33,7 @@ const vmRouter = [
             meta: {
               title: '虚拟机主机管理',
               activeName: 'vmwareHost',
-              roles: [],
+              roles: ['vm admin'],
             },
           },
           {
@@ -41,7 +41,7 @@ const vmRouter = [
             name: 'VMwareList',
             component: VMwareList,
             meta: {
-              title: 'veeam虚拟机列表',
+              title: 'VMware列表',
               activeName: 'vmware',
               roles: ['vm admin'],
               breadcrumb: [
@@ -63,7 +63,7 @@ const vmRouter = [
             meta: {
               title: '备份计划',
               activeName: 'vmwareBackup',
-              roles: [],
+              roles: ['vm admin'],
             },
           },
           {
@@ -112,7 +112,7 @@ const vmRouter = [
             meta: {
               title: '虚拟机主机管理',
               activeName: 'hwHost',
-              roles: []
+              roles: ['vm admin']
             }
           },
           {
@@ -142,7 +142,7 @@ const vmRouter = [
             meta: {
               title: '备份计划',
               activeName: 'hwBackup',
-              roles: [],
+              roles: ['vm admin'],
             },
           },
           {

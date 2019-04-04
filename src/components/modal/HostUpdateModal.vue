@@ -15,6 +15,8 @@
                ref="itemUpdateForm"
                size="small">
         <el-form-item label="设备名"
+                      class="is-required"
+                      :rules="{validator: validateHostName, trigger: ['blur']}"
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
@@ -183,6 +185,7 @@ import InputToggle from '@/components/InputToggle';
 import { modifyOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
 import { oracleVersionMapping } from '@/utils/constant';
+import { validateLength } from '../../utils/common';
 
 export default {
   name: 'HostUpdateModal',
@@ -192,6 +195,10 @@ export default {
       type: Object,
       default: {},
     },
+    hostNames: {
+      type: Array,
+      default: []
+    }
   },
   data(){
     const validateCheckPassword = (rule, value, callback) => {
@@ -204,10 +211,23 @@ export default {
         callback();
       }
     };
+    const validateHostName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入设备名'));
+      } else if (!(/^\S*$/.test(value))) {
+        callback(new Error('不能包含空格'));
+      } else if (this.hostNames.includes(value) && value !== this.originFormData.name) {
+        callback(new Error('设备名已存在'));
+      } else {
+        validateLength(50)(rule, value, callback);
+      }
+      return false;
+    };
     return {
       validateCheckPassword,
       hiddenPassword1: true,
-      oracleVersionMapping
+      oracleVersionMapping,
+      validateHostName
     }
   },
   methods: {
