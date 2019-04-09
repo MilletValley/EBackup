@@ -28,7 +28,7 @@
               <span class="card-title">一键接管</span>
             </div>
             <div class="text item">
-              <div id="initConn" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
+              <div id="takeoverTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
             </div>
           </el-card>
         </el-col>
@@ -549,13 +549,20 @@
   </section>
 </template>
 <script>
-import { fetchAll, fetchSpaceUse } from '../../api/home';
-import { fmtSizeFn, keepTwoDecimalFull } from '../../utils/common';
-import baseMixin from '../mixins/baseMixins';
-import DashboardTab from '../mixins/DashboardTabMixins';
+import {
+  fetchBackupStatistics,
+  fetchRestoreStatistics,
+  fetchTakeOverStatistics,
+  fetchSpaceUse
+} from '@/api/home';
+import { fmtSizeFn, keepTwoDecimalFull } from '@/utils/common';
+import { useTypeMapping } from '@/utils/constant';
+import baseMixin from '@/components/mixins/baseMixins';
+import DashboardTab from '@/components/mixins/DashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
+import DrawPie from '@/components/common/DrawPie';
 var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
 require('echarts/lib/chart/pie');
@@ -566,23 +573,16 @@ export default {
   name: 'Dashboard',
   mixins: [baseMixin, DashboardTab],
   components: {
-    Cylinder
+    Cylinder,
+    DrawPie
   },
   data() {
-    const nfsInUsedTypeMapping= {
-      1: 'oracle',
-      2: 'sqlserver',
-      3: '文件',
-      4: '虚拟机',
-      5: 'mysql',
-      6: 'db2',
-      7: '达梦',
-    }
-    const color = ['', '#D9554B','#F96305','#dcc54d','#1ABB9C','#5faf37','#1a48a5','#660066']
+    const color = ['', '#D9554B','#F96305','#dcc54d','#1ABB9C','#5faf37','#1a48a5','#660066', 'ffc15e', '76b39d', '679186']
     return {
-      total: {},
+      backupStatistics: {}, // 备份统计
+      restoreStatistics: {}, // 恢复统计
+      takeoverStatistics: {}, // 一键接管统计
       spaceDetail: {},
-      nfsInUsedTypeMapping,
       color, // nfs环形图颜色
       infoLoading: true, // table动画加载
       spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
@@ -613,10 +613,6 @@ export default {
       let data = {};
       if (this.spaceDetail && this.spaceDetail.nfsData)
         this.spaceDetail.nfsData.nfsUseDetails.forEach(detail => {
-          // return {
-          //   value: detail.nfsUseSize,
-          //   name: this.nfsInUsedTypeMapping[detail.nfsUseType],
-          // };
           data[detail.nfsUseType] = detail.nfsUseSize;
         });
       return data;
@@ -651,17 +647,39 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-        fetchAll()
-          .then(res => {
-            const { data: pieData } = res.data;
-            this.total = pieData;
-          })
-          .then(() => {
-            this.drawPies();
-          })
-          .catch(error => {
-            this.$message.error(error);
-          })
+      fetchBackupStatistics()
+        .then(res => {
+          const { data } = res.data;
+          this.backupStatistics = data;
+        })
+        .then(() => {
+          this.drawBackupPie();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+      fetchRestoreStatistics()
+        .then(res => {
+          const { data } = res.data;
+          this.restoreStatistics = data;
+        })
+        .then(() => {
+          this.drawRestorePie();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+      fetchTakeOverStatistics()
+        .then(res => {
+          const { data } = res.data;
+          this.takeoverStatistics = data;
+        })
+        .then(() => {
+          this.drawTakeOverPie();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
@@ -729,7 +747,7 @@ export default {
             color: 'rgb(128, 160, 50)'
           },
           dm: {
-            value: '达梦数据库',
+            value: '达梦',
             color: '#072D5C'
           },
           filehost: {
@@ -739,20 +757,25 @@ export default {
           vm: {
             value: '虚拟机',
             color: 'rgb(143, 190, 72)'
+          },
+          application: {
+            value: '应用服务器',
+            color: '#385170'
+          },
+          sybase: {
+            value: 'Sybase',
+            color: '#8158fc'
+          },
+          cache: {
+            value: 'Cache',
+            color: '#fdc57b'
           }
         };
         let spacePieOption = {
-          // backgroundColor: '#00265f',
-          // grid: {
-          //   left: '3%',
-          //   right: '4%',
-          //   bottom: '3%',
-          //   containLabel: true,
-          // },
           xAxis: [
             {
               type: 'category',
-              data: ['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'filehost', 'vm'],
+              data: ['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'filehost', 'vm', 'application', 'sybase', 'cache'],
               axisLine: {
                 show: true,
                 lineStyle: {
@@ -815,7 +838,10 @@ export default {
               {name: 'db2', value: this.nfsPieData[6]},
               {name: 'dm', value: this.nfsPieData[7]},
               {name: 'filehost', value: this.nfsPieData[3]},
-              {name: 'vm', value: this.nfsPieData[4]}],
+              {name: 'vm', value: this.nfsPieData[4]},
+              {name: 'application', value: this.nfsPieData[8]},
+              {name: 'sybase', value: this.nfsPieData[9]},
+              {name: 'cache', value: this.nfsPieData[10]}],
               barWidth: 25, //柱子宽度
               // barGap: 1, //柱子之间间距
               itemStyle: {
@@ -896,11 +922,8 @@ export default {
         }
       }
     },
-    drawPies() {
-      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
+    drawBackupPie() {
       let backupTotal = echarts.init(document.getElementById('backupTotal'));
-      let initConn = echarts.init(document.getElementById('initConn'));
-      const that = this;
       let backupOption = {
         tooltip: {
           trigger: 'item',
@@ -913,19 +936,27 @@ export default {
           },
           position: this.tooltipPosition,
           formatter: res => {
-            const arr = `<p ${res.data.explain.oracle?'style="display: block"':'style="display: none"'}>${res.marker}oracle: <b>${res.data.explain.oracle}</b></p>
-                    <p ${res.data.explain.sqlserver?'style="display: block"':'style="display: none"'}>${res.marker}sqlserver: <b>${res.data.explain.sqlserver}</b></p>
-                    <p ${res.data.explain.filehost?'style="display: block"':'style="display: none"'}>${res.marker}文件: <b>${res.data.explain.filehost}</b></p>
-                    <p ${res.data.explain.vm?'style="display: block"':'style="display: none"'}>${res.marker}VMware: <b>${res.data.explain.vm}</b></p>
-                    <p ${res.data.explain.hw?'style="display: block"':'style="display: none"'}>${res.marker}华为虚拟机: <b>${res.data.explain.hw}</b></p>
-                    <p ${res.data.explain.mysql?'style="display: block"':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
-                    <p ${res.data.explain.dm?'style="display: block"':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
-                    <p ${res.data.explain.db2?'style="display: block"':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
-            return `<p>${res.data.explain.total?arr:'无'}</p>`
+            const total = res.data.explain === 'success' ? this.backupStatistics.successTotal : this.backupStatistics.failTotal;
+            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
+            if(total <= 0) {
+              return `<p>${res.marker}无</p>`;
+            } else {
+              let backupRootElement = document.createElement('p');
+              backupRootElement.id = 'backupRootElement';
+              const details = this.backupStatistics.details;
+              for (let i = 0, j = details.length; i < j; i++) {
+                if (details[i][num] > 0) {
+                  let p = document.createElement('p');
+                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
+                  backupRootElement.appendChild(p);
+                }
+              }
+              return backupRootElement.innerHTML;
+            }
           }
         },
         title: {
-          text: this.calcPercent(this.total.totalBackupNumSuccess, this.total.totalBackupNumSuccess+this.total.totalBackupNumFail)+'%',
+          text: this.calcPercent(this.backupStatistics.successTotal, this.backupStatistics.successTotal + this.backupStatistics.failTotal) + '%',
           subtext: '成功率',
           x: 'center',
           y: '45%',
@@ -943,7 +974,7 @@ export default {
             color: ['#1abb9c', '#7F7F7F'],
             data: [
               {
-                value: this.total.totalBackupNumSuccess,
+                value: this.backupStatistics.successTotal,
                 name: '成功',
                 dataType: 1,
                 label: {
@@ -952,20 +983,10 @@ export default {
                     position: 'inner'
                   }
                 },
-                explain: {
-                  'oracle': this.total.oracleBackupNumSuccess,
-                  'sqlserver': this.total.sqlserverBackupNumSuccess,
-                  'filehost': this.total.fileBackupNumSuccess,
-                  'vm': this.total.vmBackupNumSuccess,
-                  'hw': this.total.hwvmBackupNumSuccess,
-                  'mysql': this.total.mysqlBackupNumSuccess,
-                  'dm': this.total.dmBackupNumSuccess,
-                  'db2': this.total.db2BackupNumSuccess,
-                  'total': this.total.totalBackupNumSuccess
-                }
+                explain: 'success'
               },
               {
-                value: this.total.totalBackupNumFail,
+                value: this.backupStatistics.failTotal,
                 name: '失败',
                 label: {
                   normal: {
@@ -973,22 +994,22 @@ export default {
                     position: 'inner'
                   }
                 },
-                explain: {
-                  'oracle': this.total.oracleBackupNumFail,
-                  'sqlserver': this.total.sqlserverBackupNumFail,
-                  'filehost': this.total.fileBackupNumFail,
-                  'vm': this.total.vmBackupNumFail,
-                  'hw': this.total.hwvmBackupNumFail,
-                  'mysql': this.total.mysqlBackupNumFail,
-                  'dm': this.total.dmBackupNumFail,
-                  'db2': this.total.db2BackupNumFail,
-                  'total': this.total.totalBackupNumFail
-                }
+                explain: 'fail'
               }
             ]
           }
         ]
       }
+      backupTotal.setOption(backupOption)
+            backupTotal.on('click', params => {
+        this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
+      })
+      window.addEventListener("resize", () => {
+        backupTotal.resize();
+      });
+    },
+    drawRestorePie() {
+      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
       let restoreOption = {
         tooltip: {
           trigger: 'item',
@@ -1000,19 +1021,28 @@ export default {
             color: 'black'
           },
           position: this.tooltipPosition,
-          formatter: function(res) {const arr = `<p ${res.data.explain.oracle?'':'style="display: none"'}>${res.marker}oracle: <b>${res.data.explain.oracle}</b></p>
-                        <p ${res.data.explain.sqlserver?'':'style="display: none"'}>${res.marker}sqlserver: <b>${res.data.explain.sqlserver}</b></p>
-                        <p ${res.data.explain.filehost?'':'style="display: none"'}>${res.marker}文件: <b>${res.data.explain.filehost}</b></p>
-                        <p ${res.data.explain.vm?'':'style="display: none"'}>${res.marker}VMware: <b>${res.data.explain.vm}</b></p>
-                        <p ${res.data.explain.hw?'':'style="display: none"'}>${res.marker}华为虚拟机: <b>${res.data.explain.hw}</b></p>
-                        <p ${res.data.explain.mysql?'':'style="display: none"'}>${res.marker}mysql: <b>${res.data.explain.mysql}</b></p>
-                        <p ${res.data.explain.dm?'':'style="display: none"'}>${res.marker}达梦: <b>${res.data.explain.dm}</b></p>
-                        <p ${res.data.explain.db2?'':'style="display: none"'}>${res.marker}db2: <b>${res.data.explain.db2}</b></p>`
-            return `<p>${res.data.explain.total?arr:'无'}</p>`
+          formatter: res => {
+            const total = res.data.explain === 'success' ? this.restoreStatistics.successTotal : this.restoreStatistics.failTotal;
+            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
+            if(total <= 0) {
+              return `<p>${res.marker}无</p>`;
+            } else {
+              let backupRootElement = document.createElement('p');
+              backupRootElement.id = 'backupRootElement';
+              const details = this.restoreStatistics.details;
+              for (let i = 0, j = details.length; i < j; i++) {
+                if (details[i][num] > 0) {
+                  let p = document.createElement('p');
+                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
+                  backupRootElement.appendChild(p);
+                }
+              }
+              return backupRootElement.innerHTML;
+            }
           }
         },
         title: {
-          text: this.calcPercent(this.total.totalRestoreNumSuccess, this.total.totalRestoreNumSuccess+this.total.totalRestoreNumFail)+'%',
+          text: this.calcPercent(this.restoreStatistics.successTotal, this.restoreStatistics.successTotal + this.restoreStatistics.failTotal) + '%',
           subtext: '成功率',
           x: 'center',
           y: '45%',
@@ -1023,14 +1053,14 @@ export default {
         },
         series: [
           {
-            name: '恢复演练',
+            name: '数据备份',
             type: 'pie',
             radius: ['45%', '55%'],
             hoverAnimation: false,
             color: ['#1abb9c', '#7F7F7F'],
             data: [
               {
-                value: this.total.totalRestoreNumSuccess,
+                value: this.restoreStatistics.successTotal,
                 name: '成功',
                 dataType: 1,
                 label: {
@@ -1039,20 +1069,10 @@ export default {
                     position: 'inner'
                   }
                 },
-                explain: {
-                  'oracle': this.total.oracleRestoreNumSuccess,
-                  'sqlserver': this.total.sqlserverRestoreNumSuccess,
-                  'filehost': this.total.fileRestoreNumSuccess,
-                  'vm': this.total.vmRestoreNumSuccess,
-                  'hw': this.total.hwvmRestoreNumSuccess,
-                  'mysql': this.total.mysqlRestoreNumSuccess,
-                  'dm': this.total.dmRestoreNumSuccess,
-                  'db2': this.total.db2RestoreNumSuccess,
-                  'total': this.total.totalRestoreNumSuccess
-                }
+                explain: 'success'
               },
               {
-                value: this.total.totalRestoreNumFail,
+                value: this.restoreStatistics.failTotal,
                 name: '失败',
                 label: {
                   normal: {
@@ -1060,23 +1080,23 @@ export default {
                     position: 'inner'
                   }
                 },
-                explain: {
-                  'oracle': this.total.oracleRestoreNumFail,
-                  'sqlserver': this.total.sqlserverRestoreNumFail,
-                  'filehost': this.total.fileRestoreNumFail,
-                  'vm': this.total.vmRestoreNumFail,
-                  'hw': this.total.hwvmRestoreNumFail,
-                  'mysql': this.total.mysqlRestoreNumFail,
-                  'dm': this.total.dmRestoreNumFail,
-                  'db2': this.total.db2RestoreNumFail,
-                  'total': this.total.totalRestoreNumFail
-                }
+                explain: 'fail'
               }
             ]
           }
         ]
       }
-      let initConnOption = {
+      restoreTotal.setOption(restoreOption);
+      restoreTotal.on('click', params => {
+        this.jumpToMoreState(params, this.clickPieJumpTo.rs, this.clickPieJumpTo.rf);
+      })
+      window.addEventListener("resize", () => {
+        restoreTotal.resize();
+      });
+    },
+    drawTakeOverPie() {
+      let takeoverTotal = echarts.init(document.getElementById('takeoverTotal'));
+      let takeoverOption = {
         tooltip: {
           trigger: 'item',
           backgroundColor:'rgba(255,255,255,0.8)',
@@ -1086,12 +1106,29 @@ export default {
           textStyle: {
             color: 'black'
           },
-          formatter: function(params) {
-                       return `${params.marker}${params.name}: ${params.value}(${params.percent}%)`
-                     }
+          position: this.tooltipPosition,
+          formatter: res => {
+            const total = res.data.explain === 'success' ? this.takeoverStatistics.successTotal : this.takeoverStatistics.failTotal;
+            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
+            if(total <= 0) {
+              return `<p>${res.marker}无</p>`;
+            } else {
+              let backupRootElement = document.createElement('p');
+              backupRootElement.id = 'backupRootElement';
+              const details = this.takeoverStatistics.details;
+              for (let i = 0, j = details.length; i < j; i++) {
+                if (details[i][num] > 0) {
+                  let p = document.createElement('p');
+                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
+                  backupRootElement.appendChild(p);
+                }
+              }
+              return backupRootElement.innerHTML;
+            }
+          }
         },
         title: {
-          text: this.calcPercent(this.total.initConnNumSuccess, this.total.initConnNumSuccess+this.total.initConnNumFail)+'%',
+          text: this.calcPercent(this.takeoverStatistics.successTotal, this.takeoverStatistics.successTotal + this.takeoverStatistics.failTotal) + '%',
           subtext: '成功率',
           x: 'center',
           y: '45%',
@@ -1102,42 +1139,47 @@ export default {
         },
         series: [
           {
-            name: '一键接管',
+            name: '数据备份',
             type: 'pie',
             radius: ['45%', '55%'],
             hoverAnimation: false,
             color: ['#1abb9c', '#7F7F7F'],
-            label: {
-              normal: {
-                formatter: '{b} : {c}',
-                position: 'inner'
-              }
-            },
             data: [
-              { value: this.total.initConnNumSuccess, name: '成功' },
-              { value: this.total.initConnNumFail, name:'失败' }
+              {
+                value: this.takeoverStatistics.successTotal,
+                name: '成功',
+                dataType: 1,
+                label: {
+                  normal: {
+                    formatter: '{b} : {c}',
+                    position: 'inner'
+                  }
+                },
+                explain: 'success'
+              },
+              {
+                value: this.takeoverStatistics.failTotal,
+                name: '失败',
+                label: {
+                  normal: {
+                    formatter: '{b} : {c}',
+                    position: 'inner'
+                  }
+                },
+                explain: 'fail'
+              }
             ]
           }
         ]
       }
-      backupTotal.setOption(backupOption),
-      restoreTotal.setOption(restoreOption),
-      initConn.setOption(initConnOption),
-      backupTotal.on('click', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
-      }),
-      restoreTotal.on('click', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.rs, this.clickPieJumpTo.rf);
-      }),
-      initConn.on('click', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.ics, this.clickPieJumpTo.icf);
-      }),
+      takeoverTotal.setOption(takeoverOption);
+      takeoverTotal.on('click', params => {
+        this.jumpToMoreState(params, this.clickPieJumpTo.ts, this.clickPieJumpTo.tf);
+      })
       window.addEventListener("resize", () => {
-        restoreTotal.resize();
-        backupTotal.resize();
-        initConn.resize();
+        takeoverTotal.resize();
       });
-     }
+    }
    },
 };
 </script>

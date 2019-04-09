@@ -22,7 +22,7 @@ const vmRouter = [
           }
         },
         meta: {
-          title: 'veeam',
+          title: 'VMware',
           roles: ['vm admin']
         },
         children: [

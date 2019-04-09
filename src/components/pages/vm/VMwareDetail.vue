@@ -87,6 +87,7 @@
     <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm">
       <template slot="backupCard">
         <backup-card :id="plan.id"
+                     :vm-type="vmType"
                      v-for="plan in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"

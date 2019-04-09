@@ -2,6 +2,7 @@
   <el-dialog title="接管初始化"
              custom-class="min-width-dialog"
              :visible.sync="modalVisible"
+             :close-on-click-modal="false"
              @open="modalOpened"
              @close="modalClosed">
     <el-form size="small"
@@ -164,7 +165,7 @@ export default {
       this.selectedDbPort = this.dbPorts[0] || '';
       this.selectedEbackupHostId = '';
     },
-    selectedDbPort(value) {
+    readyToResetTabs(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
         primaryDatabaseId: db.id,
         // primaryLsn: '',
@@ -231,6 +232,9 @@ export default {
         this.selectedEbackupHostId === ''
       );
     },
+    readyToResetTabs() {
+      return this.selectedProductionHostId + this.selectedDbPort;
+    }
   },
   methods: {
     cancelBtnClick() {

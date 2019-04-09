@@ -131,7 +131,8 @@ const useTypeMapping = {
   7: '达梦数据库',
   8: '应用服务器',
   9: 'sybase',
-  10: 'cache'
+  10: 'cache',
+  11: 'insql'
 };
 // 保留策略类型
 const keepStrategyMapping = {

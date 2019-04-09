@@ -122,7 +122,7 @@
             </div>
             <div v-else>-</div>
           </li>
-          <li>
+          <li v-if="vmType === 'VMware'">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
@@ -158,6 +158,9 @@ export default {
     backupPlan: {
       type: Object,
       required: true,
+    },
+    vmType: {
+      type: String
     },
   },
   data(){
