@@ -96,10 +96,10 @@ const databaseModalMixin = {
       return '添加数据库';
     },
     availableHosts() {
-      const mysqlEbackupHosts = this.$store.getters[`${this.type}Hosts`].filter(
+      const productHosts = this.$store.getters[`${this.type}Hosts`].filter(
         h => h.hostType === 1
       );
-      return mysqlEbackupHosts;
+      return productHosts;
     },
   },
   methods: {
@@ -258,10 +258,10 @@ const restorePlanModalMixin = {
     // 2.type类型设备
     // 3.没有“安装”数据库
     availableHostsForRestore() {
-      const mysqlEbackupHosts = this.$store.getters[`${this.type}Hosts`].filter(
+      const ebackupHosts = this.$store.getters[`${this.type}Hosts`].filter(
         h => h.hostType === 2
       );
-      return mysqlEbackupHosts;
+      return ebackupHosts;
     },
   },
   methods: {

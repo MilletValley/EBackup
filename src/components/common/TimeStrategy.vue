@@ -145,6 +145,10 @@ const strategyMapping = {
   },
   cache: {
     1: [0, 2, 3, 4, 5]
+  },
+  insql: {
+    1: [0, 2, 3, 4, 5],
+    2: [1],
   }
 };
 export default {

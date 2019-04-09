@@ -152,7 +152,8 @@ const portHostTypeMapping = {
   7: '达梦数据库',
   8: '应用服务器',
   9: 'sybase',
-  10: 'cache'
+  10: 'cache',
+  11: 'insql'
 };
 
 const keepDateMapping = {
@@ -175,7 +176,8 @@ const databaseTypeMapping = {
   7: '达梦数据库',
   8: '应用服务器',
   9: 'sybase',
-  10: 'cache'
+  10: 'cache',
+  11: 'insql'
 };
 
 // 数据库连接状态
@@ -246,7 +248,8 @@ const dbTypeMapping = {
   4: 'db2',
   5: '达梦',
   6: 'sybase',
-  7: 'cache'
+  7: 'cache',
+  8: 'insql'
 };
 // 首页数据库详情路由(不含虚拟机)
 const dbDetailRouterMapping = {
@@ -256,7 +259,8 @@ const dbDetailRouterMapping = {
   4: 'db2Detail',
   5: 'damengDetail',
   6: 'sybaseDetail',
-  7: 'cacheDetail'
+  7: 'cacheDetail',
+  8: 'insqlDetail'
 };
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {

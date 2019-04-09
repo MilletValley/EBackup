@@ -42,7 +42,7 @@
           <el-select v-model="formData.databaseType"
                      v-if="useType === 'db'">
             <el-option v-for="db in databaseUseType"
-                       v-if="[1,2,5,6,7,9,10].includes(db.value)"
+                       v-if="[1,2,5,6,7,9,10,11].includes(db.value)"
                        :key="db.value"
                        :value="db.value"
                        :label="db.text"></el-option>
@@ -82,7 +82,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="formData.osName === 'Windows' && [2, 10].includes(formData.databaseType)">
+          <el-col :span="12" v-if="formData.osName === 'Windows' && [2, 10, 11].includes(formData.databaseType)">
             <el-form-item label="Windows系统版本"
                           prop="windowsType">
               <el-select v-model="formData.windowsType"
@@ -236,6 +236,7 @@ export default {
           case 7:
           case 9:
           case 10:
+          case 11:
             return 'db';
           case 4:
             return 'vm';

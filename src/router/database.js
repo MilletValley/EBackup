@@ -14,6 +14,8 @@ import SybaseList from '@/components/pages/sybase/SybaseList';
 import SybaseDetails from '@/components/pages/sybase/SybaseDetails';
 import CacheList from '@/components/pages/cache/CacheList';
 import CacheDetails from '@/components/pages/cache/CacheDetails';
+import InSqlList from '@/components/pages/insql/InSqlList';
+import InSqlDetail from '@/components/pages/insql/InSqlDetail';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
 
 const router = [
@@ -23,7 +25,7 @@ const router = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba'],
     },
     children: [
       {
@@ -265,6 +267,26 @@ const router = [
         },
       },
       {
+        path: 'insql',
+        name: 'insqlList',
+        component: InSqlList,
+        meta: {
+          title: 'InSql',
+          activeName: 'insql',
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'dm/:id',
         props: true,
         component: DamengDetails,
@@ -424,6 +446,30 @@ const router = [
             {
               name: 'Cache列表',
               path: '/db/cache',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'insql/:id',
+        props: true,
+        component: InSqlDetail,
+        name: 'insqlDetail',
+        meta: {
+          activeName: 'insql',
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '/db/insql',
             },
             {
               name: '数据库详情',

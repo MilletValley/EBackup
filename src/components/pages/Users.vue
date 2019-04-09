@@ -274,6 +274,10 @@ const rolesUser = [
   {
     id: 'cache dba',
     name: 'Cache管理员'
+  },
+  {
+    id: 'insql dba',
+    name: 'InSql管理员'
   }
 ];
 

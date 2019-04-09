@@ -769,13 +769,17 @@ export default {
           cache: {
             value: 'Cache',
             color: '#fdc57b'
+          },
+          insql: {
+            value: 'InSql',
+            color: '#38598b'
           }
         };
         let spacePieOption = {
           xAxis: [
             {
               type: 'category',
-              data: ['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'filehost', 'vm', 'application', 'sybase', 'cache'],
+              data: ['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'filehost', 'vm', 'application', 'sybase', 'cache', 'insql'],
               axisLine: {
                 show: true,
                 lineStyle: {
@@ -841,7 +845,8 @@ export default {
               {name: 'vm', value: this.nfsPieData[4]},
               {name: 'application', value: this.nfsPieData[8]},
               {name: 'sybase', value: this.nfsPieData[9]},
-              {name: 'cache', value: this.nfsPieData[10]}],
+              {name: 'cache', value: this.nfsPieData[10]},
+              {name: 'insql', value: this.nfsPieData[11]}],
               barWidth: 25, //柱子宽度
               // barGap: 1, //柱子之间间距
               itemStyle: {

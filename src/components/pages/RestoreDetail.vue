@@ -72,7 +72,7 @@
                       </div>
                     </el-form-item>
                   </el-col>
-                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'sybase', 'cache', 'dm'].includes(target)">
+                    <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'sybase', 'cache', 'insql', 'dm'].includes(target)">
                       <el-col :span="8">
                         <el-form-item label="恢复设备IP：">
                           <span>{{ config.hostIp }}</span>
@@ -138,9 +138,9 @@
                       <el-tag size="small">{{target|commonTypeFilter}}</el-tag>
                     </el-form-item>
                   </el-col>
-                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'sybase', 'cache', 'dm'].includes(target)">
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'sybase', 'cache', 'insql', 'dm'].includes(target)">
                     <el-col :span="8">
-                      <el-form-item  :label="['sqlserver', 'mysql', 'dm', 'sybase', 'cache'].includes(target) ? '数据库名：':'实例名：'" >
+                      <el-form-item  :label="['sqlserver', 'mysql', 'dm', 'sybase', 'cache', 'insql'].includes(target) ? '数据库名：':'实例名：'" >
                         <span>{{target === 'dm' ? machine.dbName : machine.instanceName}}</span>
                       </el-form-item>
                     </el-col>
@@ -150,7 +150,7 @@
                       </el-form-item>
                     </el-col>
                   </div>
-                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'vmware', 'hw'].includes(target)">
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql', 'vmware', 'hw'].includes(target)">
                     <el-col :span="8">
                       <el-form-item label="所属设备IP：">
                         <span>{{machine.host ? machine.host.hostIp : ''}}</span>
@@ -365,7 +365,7 @@ export default {
       return this.details.restoreResult ? this.details.restoreResult : [];
     },
     nameLabel() {
-      if (['sqlserver', 'mysql','dm', 'sybase', 'cache'].includes(this.target)) {
+      if (['sqlserver', 'mysql','dm', 'sybase', 'cache', 'insql'].includes(this.target)) {
         return '数据库名';
       } else if (['oracle', 'db2'].includes(this.target)) {
         return '实例名';
@@ -377,7 +377,7 @@ export default {
       return '';
     },
     hostIpLabel() {
-      if (['oracle', 'db2', 'sqlserver', 'mysql','dm', 'sybase', 'cache'].includes(this.target)) {
+      if (['oracle', 'db2', 'sqlserver', 'mysql','dm', 'sybase', 'cache', 'insql'].includes(this.target)) {
         return '恢复设备IP';
       } else if (['vmware', 'hw', 'windows', 'linux'].includes(this.target)) {
         return '恢复主机IP';
