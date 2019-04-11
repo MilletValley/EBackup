@@ -19,8 +19,8 @@ const DashboardTab = {
       bf: 'backupFail',
       rs: 'restoreSuccess',
       rf: 'restoreFail',
-      ts: 'initConnSuccess',
-      tf: 'initConnFail'
+      ts: 'takeoverSuccess',
+      tf: 'takeoverFail'
     };
     return {
       databaseBackup: [],

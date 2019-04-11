@@ -9,6 +9,7 @@
             </div>
             <div class="text item">
               <div id="backupTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
+              <draw-pie :id="backupTotal"></draw-pie>
             </div>
           </el-card>
         </el-col>

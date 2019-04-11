@@ -130,7 +130,7 @@
                    :key="index"
                    :name="msg.name"
                    :label="msg.label"
-                   v-if="!(databaseType === 'sqlserver' && [4, 5, 6, 7].includes(Number(msg.name)))">
+                   v-if="!(['sqlserver', 'insql'].includes(databaseType) && [4, 5, 6, 7].includes(Number(msg.name)))">
         <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
       </el-tab-pane>
     </el-tabs>
@@ -154,13 +154,19 @@ import {
   fetchLinkByLinkId as fetchLinkByLinkIdSqlserver,
   fetchSwitches as fetchSwitchesSqlserver,
 } from '@/api/sqlserver';
+import {
+  fetchLinkByLinkId as fetchLinkByLinkIdInSql,
+  fetchSwitches as fetchSwitchesInSql,
+} from '@/api/insql';
 const fetchLinkByLinkIdMethod = {
   oracle: fetchLinkByLinkIdOracle,
   sqlserver: fetchLinkByLinkIdSqlserver,
+  insql: fetchLinkByLinkIdInSql,
 };
 const fetchSwitchesMethod = {
   oracle: fetchSwitchesOracle,
   sqlserver: fetchSwitchesSqlserver,
+  insql: fetchSwitchesInSql,
 };
 export default {
   name: 'DatabaseLinkDetail',
@@ -215,7 +221,7 @@ export default {
     },
     tabMsgs() {
       return Object.keys(switchTypeMapping).map(type => ({
-        label: Number(type) === 1 && this.databaseType === 'sqlserver' ? '切换数据库' : switchTypeMapping[type],
+        label: Number(type) === 1 && ['sqlserver', 'insql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
         name: type
       }));
     }

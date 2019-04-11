@@ -10,9 +10,14 @@
           </el-col>
           <el-col :span="23">
             <el-row type="flex"
-                    justify="middle">
-              <el-col :span="8">
-                <h1>{{details.name}}</h1>
+                    align="middle">
+              <el-col :span="8"
+                      class="title">
+                <h1 :class="details.role === 1 ? $style.primaryLink : $style.viceLink">{{details.name}}
+                  <i-icon v-if="details.role !== 0"
+                          :name="roleIconName(this.details.role)"
+                          :class="$style.roleIconHeader"></i-icon>
+                </h1>
               </el-col>
               <el-col :span="12"
                       :offset="4"
@@ -41,40 +46,64 @@
                      size="small"
                      class="item-info">
               <el-row style="margin-right: 5px;">
-                <el-col :span="8">
-                  <el-form-item label="数据库名：">
-                    <span>{{ details.instanceName }}</span>
-                  </el-form-item>
-                  <el-form-item label="端口号：">
-                    <span>{{ details.dbPort }}</span>
-                  </el-form-item>
-                  <el-form-item label="数据库状态：">
-                    <el-tag :type="databaseStateStyle(details.state)"
-                            size="mini">{{ details.state | databaseStateFilter }}</el-tag>
-                  </el-form-item>
-                  <el-form-item label="所属系统：">
-                    <span>{{ details.application }}</span>
-                  </el-form-item>
+                <el-col :span="16">
+                  <el-col :span="12">
+                    <el-form-item label="数据库名：">
+                      <span>{{ details.instanceName }}</span>
+                    </el-form-item>
+                    <el-form-item label="端口号：">
+                      <span>{{ details.dbPort }}</span>
+                    </el-form-item>
+                    <el-form-item label="数据库状态：">
+                      <el-tag :type="databaseStateStyle(details.state)"
+                              size="mini">{{ details.state | databaseStateFilter }}</el-tag>
+                    </el-form-item>
+                    <el-form-item label="所属系统：">
+                      <span>{{ details.application }}</span>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="主机名：">
+                      <span>{{ details.host.name }}</span>
+                    </el-form-item>
+                    <el-form-item label="操作系统：">
+                      <span>{{ judgeOsName(details.host) }}</span>
+                    </el-form-item>
+                    <el-form-item label="所属设备：">
+                      <span>{{ details.host.name }}</span>
+                    </el-form-item>
+                    <el-form-item label="设备IP：">
+                      <span>{{ details.host.hostIp }}</span>
+                    </el-form-item>
+                  </el-col>
+                  <el-col>
+                    <el-form-item label="数据库版本：">
+                      <span>{{ details.dbVersion }}</span>
+                    </el-form-item>
+                  </el-col>
                 </el-col>
-                <el-col :span="12">
-                  <el-form-item label="主机名：">
-                    <span>{{ details.host.name }}</span>
-                  </el-form-item>
-                  <el-form-item label="操作系统：">
-                    <span>{{ judgeOsName(details.host) }}</span>
-                  </el-form-item>
-                  <el-form-item label="所属设备：">
-                    <span>{{ details.host.name }}</span>
-                  </el-form-item>
-                  <el-form-item label="设备IP：">
-                    <span>{{ details.host.hostIp }}</span>
-                  </el-form-item>
-                </el-col>
-                <el-col>
-                  <el-form-item label="数据库版本：">
-                    <span>{{ details.dbVersion }}</span>
-                  </el-form-item>
-                </el-col>
+                <template v-if="!!link.id">
+                  <el-col :span="8"
+                          :class="$style.linkInfo">
+                    <h4 style="margin: 10px 0 7px;">连接信息</h4>
+                    <el-form-item>
+                      <i-icon :name="`switch-${link.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                      <span>{{ link.state | linkStateFilter }}</span>
+                    </el-form-item>
+                    <el-form-item>
+                      <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
+                              :class="$style.roleIconOppsition"></i-icon>
+                      <router-link :to="`/db/insql/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
+                                   :class="link.oppsiteDatabase.role === 1 ? $style.primaryLink : $style.viceLink">
+                        {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
+                      </router-link>
+                    </el-form-item>
+
+                  </el-col>
+                  <router-link :to="`/db/insql/takeover/${link.id}`"
+                               :class="$style.moreLink">查看更多</router-link>
+                </template>
               </el-row>
             </el-form>
           </el-col>
@@ -135,6 +164,10 @@
   </section>
 </template>
 <script>
+import {
+  fetchLink,
+} from '@/api/insql';
+import takeoverMixin from '@/components/mixins/takeoverMixins';
 import { windowsTypeMapping } from '@/utils/constant';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import BackupPlanModal from '@/components/pages/insql/BackupPlanModal';
@@ -147,7 +180,7 @@ import RestoreRecords from '@/components/pages/insql/RestoreRecords';
 
 export default {
   name: 'InSqlDetail',
-  mixins: [detailPageMixin],
+  mixins: [detailPageMixin, takeoverMixin],
   components: {
     BackupPlanModal,
     RestorePlanModal,
@@ -162,7 +195,35 @@ export default {
       type: 'insql',
     };
   },
+  watch: {
+    '$route' (to, from) {
+      this.fetchData();
+    }
+  },
   methods: {
+    fetchLink(){
+      fetchLink(this.id).then(res => {
+        const { data: link } = res.data;
+        const { id, state, errMsg, tempPort } = link;
+        this.link = { id, state, errMsg, tempPort };
+        const {host} = this.details;
+        if (host) {
+          if (host.hostType === 1) {
+            this.link.oppsiteDatabase = link.viceDatabase;
+          }else if (host.hostType === 2) {
+            this.link.oppsiteDatabase = link.primaryDatabase;
+          }
+        }
+        // if (this.details.role === 1) {
+        //   this.link.oppsiteDatabase = link.viceDatabase;
+        // } else if (this.details.role === 2) {
+        //   this.link.oppsiteDatabase = link.primaryDatabase;
+        // }
+      })
+      .catch(error => {
+        this.$message.error(error);
+      });
+    },
     judgeOsName(data){
       let str = data.osName;
       if(data.osName === 'Windows' && data.databaseType === 11 && windowsTypeMapping[data.windowsType]){
@@ -173,3 +234,36 @@ export default {
   },
 };
 </script>
+<style lang="scss" module>
+@import '@/style/common.scss';
+.roleIconHeader {
+  padding: 5px;
+  margin: -5px 5px;
+  vertical-align: -0.2em;
+}
+.roleIconOppsition {
+  vertical-align: -0.2em;
+  padding: 3px;
+  margin: -3px 0 -3px 1px;
+}
+.switchIcon {
+  width: 1.7em;
+  height: 1.7em;
+  vertical-align: -0.5em;
+}
+.databaseLink {
+  composes: link;
+  font-size: 1.2em;
+  // color: rgb(170, 84, 27);
+}
+.linkInfo {
+  text-align: right;
+}
+.moreLink {
+  composes: link;
+  font-size: 0.9em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+</style>

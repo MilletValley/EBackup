@@ -8,7 +8,9 @@
               <span class="card-title">数据备份</span>
             </div>
             <div class="text item">
-              <div id="backupTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
+              <draw-pie id="backupTotal"
+                        type="backup"
+                        echarts-name="数据备份"></draw-pie>
             </div>
           </el-card>
         </el-col>
@@ -18,7 +20,9 @@
               <span class="card-title">恢复演练</span>
             </div>
             <div class="text item">
-              <div id="restoreTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
+              <draw-pie id="restoreTotal"
+                        type="restore"
+                        echarts-name="恢复演练"></draw-pie>
             </div>
           </el-card>
         </el-col>
@@ -28,7 +32,9 @@
               <span class="card-title">一键接管</span>
             </div>
             <div class="text item">
-              <div id="takeoverTotal" :style="{marginTop: '-30px', width: '100%', height: '300%'}"></div>
+              <draw-pie id="takeoverTotal"
+                        type="takeover"
+                        echarts-name="一键接管"></draw-pie>
             </div>
           </el-card>
         </el-col>
@@ -549,12 +555,7 @@
   </section>
 </template>
 <script>
-import {
-  fetchBackupStatistics,
-  fetchRestoreStatistics,
-  fetchTakeOverStatistics,
-  fetchSpaceUse
-} from '@/api/home';
+import { fetchSpaceUse } from '@/api/home';
 import { fmtSizeFn, keepTwoDecimalFull } from '@/utils/common';
 import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
@@ -562,13 +563,7 @@ import DashboardTab from '@/components/mixins/DashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
-import DrawPie from '@/components/common/DrawPie';
-var echarts = require('echarts/lib/echarts');
-require('echarts/lib/chart/bar');
-require('echarts/lib/chart/pie');
-require('echarts/lib/component/tooltip');
-require('echarts/lib/component/title');
-require("echarts/lib/component/legend");
+import DrawPie from '@/components/pages/home/DrawPie';
 export default {
   name: 'Dashboard',
   mixins: [baseMixin, DashboardTab],
@@ -577,13 +572,8 @@ export default {
     DrawPie
   },
   data() {
-    const color = ['', '#D9554B','#F96305','#dcc54d','#1ABB9C','#5faf37','#1a48a5','#660066', 'ffc15e', '76b39d', '679186']
     return {
-      backupStatistics: {}, // 备份统计
-      restoreStatistics: {}, // 恢复统计
-      takeoverStatistics: {}, // 一键接管统计
       spaceDetail: {},
-      color, // nfs环形图颜色
       infoLoading: true, // table动画加载
       spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
         name: [],
@@ -647,39 +637,6 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-      fetchBackupStatistics()
-        .then(res => {
-          const { data } = res.data;
-          this.backupStatistics = data;
-        })
-        .then(() => {
-          this.drawBackupPie();
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-      fetchRestoreStatistics()
-        .then(res => {
-          const { data } = res.data;
-          this.restoreStatistics = data;
-        })
-        .then(() => {
-          this.drawRestorePie();
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-      fetchTakeOverStatistics()
-        .then(res => {
-          const { data } = res.data;
-          this.takeoverStatistics = data;
-        })
-        .then(() => {
-          this.drawTakeOverPie();
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
@@ -690,13 +647,6 @@ export default {
       }
       return keepTwoDecimalFull((diviver/dividend)*100);
     },
-    jumpToMoreState(params, successPath, errorPath) {
-      if(params.name.includes('成功')) {
-        this.$router.push({path: 'morestate', query: { type: successPath } });
-      } else if(params.name.includes('失败')) {
-        this.$router.push({path: 'morestate', query: { type: errorPath } });
-      }
-    },
     // 单位由M开始转化
     addUnit(data) {
       if (Number(data) < 0) {
@@ -704,31 +654,9 @@ export default {
       }
       return fmtSizeFn(Number(data)*1024*1024);
     },
-    tooltipPosition(point, params, dom, rect, size) {
-      var x = 0; // x坐标位置
-      var y = 0; // y坐标位置
-      var pointX = point[0];
-      var pointY = point[1];
-      // 提示框大小
-      var boxWidth = size.contentSize[0];
-      var boxHeight = size.contentSize[1];
-      // boxWidth > pointX 说明鼠标左边放不下提示框
-      if (boxWidth > pointX) {
-        x = 150;
-      } else { // 左边放的下
-        x = pointX - boxWidth-15;
-      }
-      // boxHeight > pointY 说明鼠标上边放不下提示框
-      if (boxHeight > pointY) {
-        y = 5;
-      } else { // 上边放得下
-        y = pointY - boxHeight;
-      }
-      return [x, y];
-    },
     drawSpaceRatio() {
         if (this.nfsAssignedSpace && this.nfsAssignedSpace.length > 0) {
-        var spaceRatio = echarts.init(document.getElementById('spaceRatio'));
+        var spaceRatio = this.$echarts.init(document.getElementById('spaceRatio'));
         const labelObject = {
           oracle: {
             value: 'Oracle',
@@ -847,7 +775,7 @@ export default {
               {name: 'sybase', value: this.nfsPieData[9]},
               {name: 'cache', value: this.nfsPieData[10]},
               {name: 'insql', value: this.nfsPieData[11]}],
-              barWidth: 25, //柱子宽度
+              barWidth: 15, //柱子宽度
               // barGap: 1, //柱子之间间距
               itemStyle: {
                 normal: {
@@ -926,264 +854,6 @@ export default {
           })
         }
       }
-    },
-    drawBackupPie() {
-      let backupTotal = echarts.init(document.getElementById('backupTotal'));
-      let backupOption = {
-        tooltip: {
-          trigger: 'item',
-          backgroundColor:'rgba(255,255,255,0.8)',
-          color:'black',
-          borderWidth:'1',
-          borderColor:'gray',
-          textStyle: {
-            color: 'black'
-          },
-          position: this.tooltipPosition,
-          formatter: res => {
-            const total = res.data.explain === 'success' ? this.backupStatistics.successTotal : this.backupStatistics.failTotal;
-            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
-            if(total <= 0) {
-              return `<p>${res.marker}无</p>`;
-            } else {
-              let backupRootElement = document.createElement('p');
-              backupRootElement.id = 'backupRootElement';
-              const details = this.backupStatistics.details;
-              for (let i = 0, j = details.length; i < j; i++) {
-                if (details[i][num] > 0) {
-                  let p = document.createElement('p');
-                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
-                  backupRootElement.appendChild(p);
-                }
-              }
-              return backupRootElement.innerHTML;
-            }
-          }
-        },
-        title: {
-          text: this.calcPercent(this.backupStatistics.successTotal, this.backupStatistics.successTotal + this.backupStatistics.failTotal) + '%',
-          subtext: '成功率',
-          x: 'center',
-          y: '45%',
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 30
-          }
-        },
-        series: [
-          {
-            name: '数据备份',
-            type: 'pie',
-            radius: ['45%', '55%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            data: [
-              {
-                value: this.backupStatistics.successTotal,
-                name: '成功',
-                dataType: 1,
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'success'
-              },
-              {
-                value: this.backupStatistics.failTotal,
-                name: '失败',
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'fail'
-              }
-            ]
-          }
-        ]
-      }
-      backupTotal.setOption(backupOption)
-            backupTotal.on('click', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.bs, this.clickPieJumpTo.bf);
-      })
-      window.addEventListener("resize", () => {
-        backupTotal.resize();
-      });
-    },
-    drawRestorePie() {
-      let restoreTotal = echarts.init(document.getElementById('restoreTotal'));
-      let restoreOption = {
-        tooltip: {
-          trigger: 'item',
-          backgroundColor:'rgba(255,255,255,0.8)',
-          color:'black',
-          borderWidth:'1',
-          borderColor:'gray',
-          textStyle: {
-            color: 'black'
-          },
-          position: this.tooltipPosition,
-          formatter: res => {
-            const total = res.data.explain === 'success' ? this.restoreStatistics.successTotal : this.restoreStatistics.failTotal;
-            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
-            if(total <= 0) {
-              return `<p>${res.marker}无</p>`;
-            } else {
-              let backupRootElement = document.createElement('p');
-              backupRootElement.id = 'backupRootElement';
-              const details = this.restoreStatistics.details;
-              for (let i = 0, j = details.length; i < j; i++) {
-                if (details[i][num] > 0) {
-                  let p = document.createElement('p');
-                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
-                  backupRootElement.appendChild(p);
-                }
-              }
-              return backupRootElement.innerHTML;
-            }
-          }
-        },
-        title: {
-          text: this.calcPercent(this.restoreStatistics.successTotal, this.restoreStatistics.successTotal + this.restoreStatistics.failTotal) + '%',
-          subtext: '成功率',
-          x: 'center',
-          y: '45%',
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 30
-          }
-        },
-        series: [
-          {
-            name: '数据备份',
-            type: 'pie',
-            radius: ['45%', '55%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            data: [
-              {
-                value: this.restoreStatistics.successTotal,
-                name: '成功',
-                dataType: 1,
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'success'
-              },
-              {
-                value: this.restoreStatistics.failTotal,
-                name: '失败',
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'fail'
-              }
-            ]
-          }
-        ]
-      }
-      restoreTotal.setOption(restoreOption);
-      restoreTotal.on('click', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.rs, this.clickPieJumpTo.rf);
-      })
-      window.addEventListener("resize", () => {
-        restoreTotal.resize();
-      });
-    },
-    drawTakeOverPie() {
-      let takeoverTotal = echarts.init(document.getElementById('takeoverTotal'));
-      let takeoverOption = {
-        tooltip: {
-          trigger: 'item',
-          backgroundColor:'rgba(255,255,255,0.8)',
-          color:'black',
-          borderWidth:'1',
-          borderColor:'gray',
-          textStyle: {
-            color: 'black'
-          },
-          position: this.tooltipPosition,
-          formatter: res => {
-            const total = res.data.explain === 'success' ? this.takeoverStatistics.successTotal : this.takeoverStatistics.failTotal;
-            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
-            if(total <= 0) {
-              return `<p>${res.marker}无</p>`;
-            } else {
-              let backupRootElement = document.createElement('p');
-              backupRootElement.id = 'backupRootElement';
-              const details = this.takeoverStatistics.details;
-              for (let i = 0, j = details.length; i < j; i++) {
-                if (details[i][num] > 0) {
-                  let p = document.createElement('p');
-                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
-                  backupRootElement.appendChild(p);
-                }
-              }
-              return backupRootElement.innerHTML;
-            }
-          }
-        },
-        title: {
-          text: this.calcPercent(this.takeoverStatistics.successTotal, this.takeoverStatistics.successTotal + this.takeoverStatistics.failTotal) + '%',
-          subtext: '成功率',
-          x: 'center',
-          y: '45%',
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 30
-          }
-        },
-        series: [
-          {
-            name: '数据备份',
-            type: 'pie',
-            radius: ['45%', '55%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            data: [
-              {
-                value: this.takeoverStatistics.successTotal,
-                name: '成功',
-                dataType: 1,
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'success'
-              },
-              {
-                value: this.takeoverStatistics.failTotal,
-                name: '失败',
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'fail'
-              }
-            ]
-          }
-        ]
-      }
-      takeoverTotal.setOption(takeoverOption);
-      takeoverTotal.on('click', params => {
-        this.jumpToMoreState(params, this.clickPieJumpTo.ts, this.clickPieJumpTo.tf);
-      })
-      window.addEventListener("resize", () => {
-        takeoverTotal.resize();
-      });
     }
    },
 };

@@ -186,6 +186,59 @@ const fetchRestoreOperation = id =>
     method: 'get',
     url: `/insql-restore-plans/${id}`,
   });
+const fetchLinks = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/insql-links',
+  });
+
+const createLinks = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/insql-links',
+    data,
+  });
+
+const createSwitches = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/insql-switches',
+    data,
+  });
+
+const fetchSwitches = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/insql-links/${linkId}/switches`,
+  });
+
+const fetchLink = insqlId =>
+  baseApi.request({
+    method: 'get',
+    url: `/insqls/${insqlId}/insql-links`,
+  });
+
+const fetchLinkByLinkId = linkId =>
+  baseApi.request({
+    method: 'get',
+    url: `/insql-links/${linkId}`,
+  });
+
+// 批量添加数据库
+const batchCreate = dbs =>
+  baseApi.request({
+    method: 'post',
+    url: '/database/create/batch',
+    data: dbs
+  });
+
+// 根据设备扫描数据库
+const scanDatabase = host =>
+  baseApi.request({
+    method: 'put',
+    url: '/database/scan',
+    data: host
+  });
 
 export {
   fetchAll,
@@ -208,5 +261,13 @@ export {
   createRestorePlan,
   deleteRestorePlan,
   updateRestorePlan,
-  fetchRestoreOperation
+  fetchRestoreOperation,
+  fetchLinks,
+  createSwitches,
+  createLinks,
+  fetchSwitches,
+  fetchLink,
+  fetchLinkByLinkId,
+  batchCreate,
+  scanDatabase
 };

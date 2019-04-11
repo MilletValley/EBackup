@@ -134,7 +134,7 @@ export default {
       // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
-        hostIp: validate.selectHost,
+        // hostIp: validate.selectHost,
         detailInfo: validate.dbName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
@@ -149,12 +149,29 @@ export default {
           .validate()
           .then(res => {
             if (valid && res) {
-              let data = this.pruneFormData(this.formData);
-              if (this.action === 'update') {
-                data.id = this.restorePlan.id;
-                data.config.id = this.restorePlan.config.id;
-              }
-              this.$emit('confirm', data, this.action);
+              const h = this.$createElement;
+              this.$msgbox({
+                title: '提示',
+                message: h('p', null, [
+                  h('span', null, '此计划将恢复数据库下'),
+                  h('span', { style: 'color: red' }, '最后一次全备'),
+                  h('span', null, '，是否继续？')
+                ]),
+                showCancelButton: true,
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+              })
+                .then(() => {
+                  let data = this.pruneFormData(this.formData);
+                  if (this.action === 'update') {
+                    data.id = this.restorePlan.id;
+                    data.config.id = this.restorePlan.config.id;
+                  }
+                  this.$emit('confirm', data, this.action);
+                })
+                .catch(() => {
+                  this.$message.info('已取消操作');
+                })
             }
           })
           .catch(error => {

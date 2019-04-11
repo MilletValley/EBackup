@@ -3,9 +3,10 @@
     <el-form inline
              size="small">
       <el-form-item v-show="enterFromMenu">
-        <el-radio-group v-model="databaseType">
-          <el-radio-button label="oracle">Oracle</el-radio-button>
-          <el-radio-button label="sqlserver">SQLServer</el-radio-button>
+        <el-radio-group v-model="databaseType" size="small">
+          <el-radio label="oracle" border>Oracle</el-radio>
+          <el-radio label="sqlserver" border>SQLServer</el-radio>
+          <el-radio label="insql" border>InSql</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
@@ -553,6 +554,12 @@ import {
   createSwitches as switchSqlserver,
 } from '@/api/sqlserver';
 import {
+  fetchAll as fetchAllInSql,
+  fetchLinks as fetchLinksInSql,
+  createLinks as createLinksInSql,
+  createSwitches as switchInSql,
+} from '@/api/insql';
+import {
   createSwitches as switchHostIp,
   vipSwitches as switchVip,
   fetchAll,
@@ -575,22 +582,27 @@ import batchSwitchMixin from '@/components/mixins/batchSwitchMixins'
 const fetchDatabaseMethod = {
   oracle: fetchAllOracle,
   sqlserver: fetchAllSqlserver,
+  insql: fetchAllInSql
 };
 const fetchLinksMethod = {
   oracle: fetchLinksOracle,
   sqlserver: fetchLinksSqlserver,
+  insql: fetchLinksInSql
 };
 const createLinksMethod = {
   oracle: createLinksOracle,
   sqlserver: createLinksSqlserver,
+  insql: createLinksInSql
 };
 const createSwitchMethod = {
   oracle: switchOracle,
   sqlserver: switchSqlserver,
+  insql: switchInSql
 };
 const createSingleSwitchMethod = {
   oracle: singleSwitchOracle,
-  sqlserver: switchSqlserver
+  sqlserver: switchSqlserver,
+  insql: switchInSql
 }
 const switchMethod = {
   true: createSingleSwitchMethod,
@@ -638,7 +650,7 @@ export default {
       hostLinkSwitchMsg: {}, // 即将切换的设备连接
       dbSwitchMsg: {}, // 即将切换的数据库连接
       multiply: false, // 标记单个或批量操作
-      timer: null,
+      timer: null
     };
   },
   created() {
@@ -677,6 +689,8 @@ export default {
         return this.$store.getters.oracleHosts;
       } else if (this.databaseType === 'sqlserver') {
         return this.$store.getters.sqlserverHosts;
+      } else if (this.databaseType === 'insql') {
+        return this.$store.getters.insqlHosts;
       }
     },
     /**
@@ -1126,6 +1140,11 @@ export default {
       } else if (this.databaseType === 'sqlserver') {
         this.$router.push({
           name: 'sqlserverLinkDetail',
+          params: { id: String(linkId) },
+        });
+      } else if (this.databaseType === 'insql') {
+        this.$router.push({
+          name: 'insqlLinkDetail',
           params: { id: String(linkId) },
         });
       }

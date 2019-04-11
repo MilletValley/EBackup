@@ -567,8 +567,8 @@ export default {
       'backupFail': 'databaseBackup',
       'restoreSuccess': 'databaseRestore',
       'restoreFail': 'databaseRestore',
-      'initConnSuccess': 'initconnNum',
-      'initConnFail': 'initconnNum'
+      'takeoverSuccess': 'initconnNum',
+      'takeoverFail': 'initconnNum'
     }
     return {
       checkType: '',
@@ -598,7 +598,7 @@ export default {
       return !this.checkType||this.checkType.includes('restore');
     },
     showTakeOver() {
-      return !this.checkType||this.checkType.includes('initConn');
+      return !this.checkType||this.checkType.includes('takeover');
     }
   },
   methods: {

@@ -100,6 +100,28 @@ const router = [
         },
       },
       {
+        path: 'insql/takeover',
+        name: 'insqlTakeOver',
+        component: TakeOver,
+        meta: {
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '/db/insql',
+            },
+            {
+              name: 'InSql一键接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'sqlserver/takeover/:id',
         name: 'sqlserverLinkDetail',
         props: true,
@@ -118,6 +140,33 @@ const router = [
             {
               name: 'SQLServer一键接管',
               path: '/db/sqlserver/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'insql/takeover/:id',
+        name: 'insqlLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '/db/insql',
+            },
+            {
+              name: 'InSql一键接管',
+              path: '/db/insql/takeover',
             },
             {
               name: '连接详情',

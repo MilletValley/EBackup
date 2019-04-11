@@ -11,7 +11,7 @@ const takeoverRouter = [
     meta: {
       title: '一键接管',
       icon: 'takeover',
-      roles: ['oracle dba', 'sql server dba', 'application admin'],
+      roles: ['oracle dba', 'sql server dba', 'application admin', 'insql dba'],
     },
     children: [
       {
@@ -48,6 +48,25 @@ const takeoverRouter = [
             },
             {
               name: 'SQLServer接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'insql/takeover',
+        name: 'insqlTakeOverView',
+        component: TakeOver,
+        meta: {
+          activeName: 'overview',
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql接管',
               path: '',
             },
           ],

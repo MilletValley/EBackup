@@ -83,7 +83,7 @@
                 <el-input-number v-model="multiFormData[index].port"></el-input-number>
               </el-form-item>
             </template>
-            <template v-if="type === 'sqlserver'">
+            <template v-if="['sqlserver', 'insql'].includes(type)">
               <el-form-item label="备库登录名">
                 <el-input :disabled="keep"
                           v-model="multiFormData[index].viceLoginName"></el-input>
@@ -138,7 +138,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver'].includes(value);
+        return ['oracle', 'sqlserver', 'insql'].includes(value);
       },
     },
     btnLoading: {
@@ -215,7 +215,7 @@ export default {
     instanceName() {
       if (this.type === 'oracle') {
         return '实例';
-      } else if (this.type === 'sqlserver') {
+      } else if (['sqlserver', 'insql'].includes(this.type)) {
         return '数据库';
       }
     },
@@ -250,6 +250,7 @@ export default {
         const validateProps = {
           oracle: ['primaryLsn', 'viceLsn', 'port'],
           sqlserver: ['viceLoginName', 'vicePassword'],
+          insql: ['viceLoginName', 'vicePassword']
         };
         let isSuccess = true;
         for (let i = 0, l = multiFormData.length; i < l; ++i) {

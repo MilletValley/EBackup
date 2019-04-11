@@ -11,6 +11,14 @@
           </el-input>
         </el-form-item>
         <el-form-item style="float: right;">
+          <el-button type="info"
+                    @click="$router.push({name: 'insqlTakeOver'})">一键接管</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary"
+                    @click="batchCreateModalVisible = true">批量添加</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
           <el-button type="primary"
                     @click="addFn">添加</el-button>
         </el-form-item>
@@ -48,6 +56,19 @@
                        label="登录账号"
                        min-width="150"
                        align="center"></el-table-column> -->
+      <el-table-column prop="role"
+                       label="角色"
+                       :filters="roleFilters"
+                       column-key="role"
+                       width="100"
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="roleTagType(scope.row.role)"
+                  size="mini">
+            {{ databaseRole(scope.row.role) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="state"
                        label="状态"
                        width="100"
@@ -95,12 +116,17 @@
                     :action="action"
                     :data="currentSelectData"
                     @confirm="confirmCall"></database-modal>
+    <batch-database-create-modal type="sqlserver"
+                           :visible.sync="batchCreateModalVisible"
+                           :btn-loading="btnLoading"
+                           @confirm="batchCreateDb"></batch-database-create-modal>
   </section>
 </template>
 <script>
 import DatabaseModal from '@/components/pages/insql/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import BatchDatabaseCreateModal from '@/components/modal/BatchDatabaseCreateModal';
+import { batchCreate } from '@/api/insql';
 
 export default {
   name: 'InSqlList',
@@ -109,7 +135,12 @@ export default {
     return {
       databaseType: 'insql',
       batchCreateModalVisible: false,
-      tableFilter: {}
+      tableFilter: {},
+      roleFilters: [
+        { text: '无连接', value: 0 },
+        { text: '主库', value: 1 },
+        { text: '备库', value: 2 }
+      ]
     }
   },
   watch: {
