@@ -74,10 +74,8 @@
                           prop="osName">
               <el-select v-model="formData.osName"
                          placeholder="请选择">
-                <el-option v-for="(item, index) in ['Windows', 'Linux', 'AIX']"
+                <el-option v-for="(item, index) in availableOs"
                           :key="index"
-                          :disabled="item === 'Linux' && formData.databaseType === 9"
-                          v-if="[0, 1].includes(index) || (formData.databaseType === 1 && formData.oracleVersion === 2)"
                           :value="item"></el-option>
               </el-select>
             </el-form-item>
@@ -97,7 +95,7 @@
           </el-col>
         </el-row>
         <el-form-item label="是否Rac环境"
-                      v-if="['Linux', 'AIX'].includes(formData.osName)"
+                      v-if="['Linux', 'AIX'].includes(formData.osName) && this.formData.databaseType === 1"
                       prop="isRacMark">
           <el-radio v-model="formData.isRacMark"
                     :label="0">是</el-radio>
@@ -260,6 +258,16 @@ export default {
           default:
         }
       }
+    },
+    availableOs() {
+      if(this.formData.databaseType === 9) {
+        return ['Windows'];
+      } else if (this.formData.databaseType === 1 && this.formData.oracleVersion === 2) {
+        return ['Windows', 'Linux', 'AIX'];
+      } else if (this.formData.databaseType === 10) {
+        return ['Windows', 'AIX'];
+      }
+      return ['Windows', 'Linux'];
     }
   },
   watch: {

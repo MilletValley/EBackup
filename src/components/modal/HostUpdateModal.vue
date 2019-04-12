@@ -74,11 +74,9 @@
             <el-form-item label="操作系统"
                           prop="osName">
               <el-select v-model="formData.osName"
-                        placeholder="请选择">
-                 <el-option v-for="(item, index) in ['Windows', 'Linux', 'AIX']"
+                         placeholder="请选择">
+                <el-option v-for="(item, index) in availableOs"
                           :key="index"
-                          :disabled="item === 'Linux' && formData.databaseType === 9"
-                          v-if="[0, 1].includes(index) || (formData.databaseType === 1 && formData.oracleVersion === 2)"
                           :value="item"></el-option>
               </el-select>
             </el-form-item>
@@ -105,7 +103,7 @@
           <el-radio v-model="formData.isRacMark"
                     :label="1">否</el-radio>
         </el-form-item>
-        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName)">
+        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName)&&this.formData.databaseType === 1">
           <el-col :span="12">
             <el-form-item label="VIP"
                           prop="vip">
@@ -300,6 +298,16 @@ export default {
           default:
         }
       }
+    },
+    availableOs() {
+      if(this.formData.databaseType === 9) {
+        return ['Windows'];
+      } else if (this.formData.databaseType === 1 && this.formData.oracleVersion === 2) {
+        return ['Windows', 'Linux', 'AIX'];
+      } else if (this.formData.databaseType === 10) {
+        return ['Windows', 'AIX'];
+      }
+      return ['Windows', 'Linux'];
     }
   },
   watch: {
