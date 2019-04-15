@@ -159,6 +159,9 @@ export default {
       type: Object,
       required: true,
     },
+    vmType: {
+      type: String
+    }
   },
   data(){
     return {
