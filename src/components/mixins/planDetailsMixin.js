@@ -1,6 +1,6 @@
 import {
   weekMapping,
-  vmHostServerTypeMapping
+  virtualHostServerTypeMapping
 } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 
@@ -10,8 +10,9 @@ const typeMapping = {
   3: '虚拟机',
 };
 const vmTypeMapping = {
-  1: 'vmware',
-  2: 'hw'
+  1: 'VMware',
+  2: 'fusionSphere',
+  3: 'hyperV'
 };
 const dbTypeMapping = {
   1: 'sqlserver',
@@ -129,7 +130,7 @@ const planDetailsMixin = {
       return a * 60 + b;
     },
     serverTypeFilter(val) {
-      return vmHostServerTypeMapping[val];
+      return virtualHostServerTypeMapping[val];
     }
   }
 };

@@ -85,16 +85,16 @@
     
 </template>
 <script>
-import { addServer, fetchServerList, deleteServer } from '../../api/host';
+import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVMByserverId,
-} from '../../api/virtuals';
+  getVirtualByserverId,
+} from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
 import ServerModal from '@/components/modal/ServerModal';
 import MutilTable from '@/components/modal/MutilTable';
-import { vmHostServerTypeMapping } from '../../utils/constant';
+import { virtualHostServerTypeMapping } from '@/utils/constant';
 export default {
   components: {
     BackupPlanModal,
@@ -194,7 +194,7 @@ export default {
           h(
             'i',
             { style: 'color:rgb(158, 158, 22)' },
-            vmHostServerTypeMapping[server.serverType]
+            virtualHostServerTypeMapping[server.serverType]
           ),
           h('span', null, '，请确认是否继续？'),
         ]),
@@ -264,7 +264,7 @@ export default {
     },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
-      getVMByserverId(row.id).then(res => {
+      getVirtualByserverId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.currentSelect = this.currentSelect.filter(e => {
           if (ids.includes(e.id)) {
@@ -295,7 +295,7 @@ export default {
       }
     },
     serverTypeFormat(row, column, cellValue, index) {
-      return vmHostServerTypeMapping[cellValue];
+      return virtualHostServerTypeMapping[cellValue];
     },
     refresh(scope) {
       scope.row.disabled = true;

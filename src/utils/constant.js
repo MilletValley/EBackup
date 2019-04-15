@@ -223,10 +223,11 @@ const serviceIpMarkMapping = {
   2: '易备环境',
 };
 
-const vmHostServerTypeMapping = {
+const virtualHostServerTypeMapping = {
   1: 'vCenter',
   2: '物理主机',
-  3: 'FusionSphere'
+  3: 'FusionSphere',
+  4: 'Hyper-V'
 };
 
 const backupTypeMapping = {
@@ -276,7 +277,20 @@ const vmDetailRouterMapping = {
 
 const vmTypeMapping = {
   1: 'VMware',
-  2: '华为虚拟机'
+  2: '华为虚拟机',
+  3: 'Hyper-V'
+};
+
+const virtualMapping = {
+  1: 'vmware',
+  2: 'fusionSphere',
+  3: 'hyperV'
+};
+
+const serverTypeMapping = {
+  1: [1, 2],
+  2: [3],
+  3: [4]
 };
 
 export {
@@ -311,12 +325,14 @@ export {
   switchManualMapping,
   switchTypeMapping,
   serviceIpMarkMapping,
-  vmHostServerTypeMapping,
+  virtualHostServerTypeMapping,
   backupTypeMapping,
   dbTypeMapping,
   dbDetailRouterMapping,
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
   vmTypeMapping,
+  virtualMapping,
+  serverTypeMapping,
   yesOrNoMapping
 };

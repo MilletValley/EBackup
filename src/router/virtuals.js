@@ -1,12 +1,12 @@
 import Layout from '@/components/Layout';
-import VMwareList from '@/components/pages/vm/VmwareList';
-import VMwareDetail from '@/components/pages/vm/VMwareDetail';
-import BackupPlanList from '@/components/pages/vm/BackupPlanList';
-import ServerManager from '@/components/pages/vm/ServerManager';
+import VirtualList from '@/components/pages/virtual/VirtualList';
+import VirtualDetail from '@/components/pages/virtual/VirtualDetail';
+import BackupPlanList from '@/components/pages/virtual/BackupPlanList';
+import ServerManager from '@/components/pages/virtual/ServerManager';
 
-const vmRouter = [
+const virtualRouter = [
   {
-    path: '/vm',
+    path: '/virtual',
     component: Layout,
     meta: {
       title: '虚拟机',
@@ -27,8 +27,8 @@ const vmRouter = [
         },
         children: [
           {
-            path: 'virtuals/collectManager',
-            name: 'virtualCollectManager',
+            path: 'vmwares/collectManager',
+            name: 'vmwareCollectManager',
             component: ServerManager,
             meta: {
               title: '虚拟机主机管理',
@@ -37,9 +37,9 @@ const vmRouter = [
             },
           },
           {
-            path: 'virtual',
-            name: 'VMwareList',
-            component: VMwareList,
+            path: 'vmware',
+            name: 'vmwareList',
+            component: VirtualList,
             meta: {
               title: 'VMware列表',
               activeName: 'vmware',
@@ -57,8 +57,8 @@ const vmRouter = [
             },
           },
           {
-            path: 'virtuals/backup',
-            name: 'virtualBackup',
+            path: 'vmwares/backup',
+            name: 'vmwareBackup',
             component: BackupPlanList,
             meta: {
               title: '备份计划',
@@ -67,10 +67,10 @@ const vmRouter = [
             },
           },
           {
-            path: 'virtual/:id',
+            path: 'vmware/:id',
             props: true,
-            component: VMwareDetail,
-            name: 'virtualDetail',
+            component: VirtualDetail,
+            name: 'vmwareDetail',
             meta: {
               activeName: 'vmware',
               roles: ['vm admin'],
@@ -81,7 +81,7 @@ const vmRouter = [
                 },
                 {
                   name: '虚拟机列表',
-                  path: '/vm/virtual',
+                  path: '/virtual/vmware',
                 },
                 {
                   name: '虚拟机详情',
@@ -101,27 +101,27 @@ const vmRouter = [
         },
         meta: {
           title: '华为虚拟机',
-          activeName: 'hwVirtuals',
+          activeName: 'fusionSphere',
           roles: ['vm admin']
         },
         children: [
           {
-            path: 'hwVirtuals/collectManager',
-            name: 'hwVirtualCollectManager',
+            path: 'fusionSpheres/collectManager',
+            name: 'fusionSphereCollectManager',
             component: ServerManager,
             meta: {
               title: '虚拟机主机管理',
-              activeName: 'hwHost',
+              activeName: 'fusionSphereHost',
               roles: ['vm admin']
             }
           },
           {
-            path: 'hwVirtual',
-            name: 'HWwareList',
-            component: VMwareList,
+            path: 'fusionSphere',
+            name: 'fusionSphereList',
+            component: VirtualList,
             meta: {
-              title: '华为虚拟机',
-              activeName: 'hw',
+              title: '华为虚拟机列表',
+              activeName: 'fusionSphere',
               roles: ['vm admin'],
               breadcrumb: [
                 {
@@ -136,22 +136,22 @@ const vmRouter = [
             },
           },
           {
-            path: 'hwVirtuals/backup',
-            name: 'hwVirtualBackup',
+            path: 'fusionSpheres/backup',
+            name: 'fusionSphereBackup',
             component: BackupPlanList,
             meta: {
               title: '备份计划',
-              activeName: 'hwBackup',
+              activeName: 'fusionSphereBackup',
               roles: ['vm admin'],
             },
           },
           {
-            path: 'hwVirtual/:id',
+            path: 'fusionSphere/:id',
             props: true,
-            component: VMwareDetail,
-            name: 'hwVirtualDetail',
+            component: VirtualDetail,
+            name: 'fusionSphereDetail',
             meta: {
-              activeName: 'hw',
+              activeName: 'fusionSphere',
               roles: ['vm admin'],
               breadcrumb: [
                 {
@@ -160,7 +160,7 @@ const vmRouter = [
                 },
                 {
                   name: '虚拟机列表',
-                  path: '/vm/hwVirtual',
+                  path: '/virtual/fusionSphere',
                 },
                 {
                   name: '虚拟机详情',
@@ -170,9 +170,87 @@ const vmRouter = [
             },
           },
         ]
-      }
+      },
+      {
+        path: '',
+        component: {
+          render(c) {
+            return c('router-view');
+          }
+        },
+        meta: {
+          title: 'Hyper-V',
+          roles: ['vm admin']
+        },
+        children: [
+          {
+            path: 'hyperVs/collectManager',
+            name: 'hyperVCollectManager',
+            component: ServerManager,
+            meta: {
+              title: '虚拟机主机管理',
+              activeName: 'hyperVHost',
+              roles: ['vm admin'],
+            },
+          },
+          {
+            path: 'hyperV',
+            name: 'hyperVList',
+            component: VirtualList,
+            meta: {
+              title: 'Hyper-V列表',
+              activeName: 'hyperV',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '',
+                },
+              ],
+            },
+          },
+          {
+            path: 'hyperVs/backup',
+            name: 'hyperVBackup',
+            component: BackupPlanList,
+            meta: {
+              title: '备份计划',
+              activeName: 'hyperVBackup',
+              roles: ['vm admin'],
+            },
+          },
+          {
+            path: 'hyperV/:id',
+            props: true,
+            component: VirtualDetail,
+            name: 'hyperVDetail',
+            meta: {
+              activeName: 'hyperV',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '/virtual/hyperV',
+                },
+                {
+                  name: '虚拟机详情',
+                  path: '',
+                },
+              ],
+            },
+          },
+        ]
+      },
     ],
   }
 ];
 
-export default vmRouter;
+export default virtualRouter;

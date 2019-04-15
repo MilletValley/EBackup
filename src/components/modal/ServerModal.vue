@@ -38,17 +38,17 @@
         </el-form-item>
         <el-form-item label="主机类型："
                     prop="serverType">
-          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)&&isVirtual"
-                    :label="1">vCenter</el-radio>
-          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType === 3)&&isVirtual"
-                    :label="2">物理主机</el-radio>
-          <el-radio v-model="formData.serverType" v-if="!(formData.hostName && formData.serverType !== 3)&&!isVirtual"
-                    :label="3">FusionSphere</el-radio>
+          <el-radio-group v-model="formData.serverType">
+            <el-radio v-for="(serverType, index) in serverTypeMapping[vmType]"
+                      :key="index"
+                      :label="serverType">{{ virtualHostServerTypeMapping[serverType] }}</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
-      <select-device-modal @confirm="selectedhandler"  :selected="{ hostId:this.formData.hostId, hostName: this.formData.hostName }"
-            :visible.sync="deviceModalVisible"></select-device-modal>
-
+      <select-device-modal @confirm="selectedhandler"
+                           :selected="{ hostId:this.formData.hostId, hostName: this.formData.hostName }"
+                           :visible.sync="deviceModalVisible"
+                           :vm-type="vmType"></select-device-modal>
       <span slot="footer">
         <el-button type="primary"
                    @click="confirm"
@@ -63,6 +63,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal';
 import { validateLength } from '../../utils/common';
+import { virtualMapping, serverTypeMapping, virtualHostServerTypeMapping } from '@/utils/constant';
 
 export default {
   name: '',
@@ -84,14 +85,16 @@ export default {
       serverIp: '',
       serverLoginName: '',
       serverPassword: '',
-      serverType: 2,
+      serverType: 1,
     };
     return {
       originFormData: data,
       formData: Object.assign({}, data),
       hiddenPassword: true,
       deviceModalVisible: false,
-      isVirtual: true,
+      serverTypeMapping,
+      virtualHostServerTypeMapping,
+      virtualMapping,
       rules: {
         serverName: [
           {
@@ -179,7 +182,12 @@ export default {
     },
     showDevice() {
       return this.type === 'device';
-    }
+    },
+    vmType() {
+      return Number(Object.keys(virtualMapping).find(type =>
+        this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
+      ));
+    },
   },
   methods: {
     // 点击确认按钮触发
@@ -191,11 +199,9 @@ export default {
       });
     },
     modalOpened() {
-      this.isVirtual = this.$route.name === 'virtualCollectManager'
-      if(!this.isVirtual) {
-        this.formData.serverType = 3;
-        this.originFormData.serverType = 3;
-      }
+      const serverType = serverTypeMapping[this.vmType][0];
+      this.formData.serverType = serverType;
+      this.originFormData.serverType = serverType;
     },
     modalClosed() {
       this.formData = { ...this.originFormData };
@@ -233,14 +239,8 @@ export default {
       this.deviceModalVisible = true;
     },
     selectedhandler(data) {
-      const { id: hostId, name: hostName, databaseType, osName } = data;
-      let serverType;
-      if(databaseType === 4 && osName === 'Linux'){
-        serverType = 3;
-      }else{
-        serverType = 2;
-      }
-      this.formData = Object.assign(this.formData, { hostId, hostName, serverType });
+      const { id: hostId, name: hostName } = data;
+      this.formData = Object.assign(this.formData, { hostId, hostName });
       this.deviceModalVisible = false;
     },
   },

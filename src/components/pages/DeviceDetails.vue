@@ -70,11 +70,11 @@
     
 </template>
 <script>
-import {fetchDetailsById, addServer} from '../../api/host'
+import {fetchDetailsById, addServer} from '@/api/host'
 import {
   createMultipleVirtualBackupPlan
-} from '../../api/virtuals';
-import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
+} from '@/api/virtuals';
+import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import ServerModal from '@/components/modal/ServerModal';
 import MutilTable from '@/components/modal/MutilTable';
 export default {

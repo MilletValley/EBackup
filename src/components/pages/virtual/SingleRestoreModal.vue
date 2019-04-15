@@ -13,11 +13,11 @@
              :model="formData"
              :rules="rules"
              ref="singleRestorePlanForm">
-      <el-form-item label="新虚拟机名"   v-if="vmType === 'HW'"
+      <el-form-item label="新虚拟机名" v-if="vmType === 2"
                     prop="newName">
         <el-input v-model="formData.newName"></el-input>
       </el-form-item>
-      <el-row v-if="vmType === 'VMware'">
+      <el-row v-if="[1, 3].includes(vmType)">
          <el-form-item label="恢复主机"
                        prop="hostIp">
             <el-select v-model="formData.hostIp"
@@ -33,7 +33,7 @@
             </el-select>
           </el-form-item>
       </el-row> 
-      <el-row v-if="vmType === 'VMware'">
+      <el-row v-if="[1, 3].includes(vmType)">
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
                         prop="newName">
@@ -92,7 +92,7 @@ export default {
       required: true,
     },
     vmType: {
-      type: String,
+      type: Number,
     },
     serverData: {
       type: Array

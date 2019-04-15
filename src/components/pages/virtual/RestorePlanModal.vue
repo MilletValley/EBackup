@@ -19,7 +19,7 @@
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
       </el-row>
-      <el-row v-if="vmType === 'HW'">
+      <el-row v-if="vmType === 2">
         <el-col :span="24">
           <el-form-item label="新虚拟机名"
                         prop="newName">
@@ -27,7 +27,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="vmType === 'VMware'">
+      <el-row v-if="[1, 3].includes(vmType)">
         <el-form-item label="恢复主机"
                       prop="hostIp">
           <el-select v-model="formData.hostIp" :disabled="action !== 'create'"
@@ -43,7 +43,7 @@
           </el-select>
         </el-form-item>
       </el-row>
-      <el-row v-if="vmType === 'VMware'">
+      <el-row v-if="[1, 3].includes(vmType)">
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
                         prop="newName">
@@ -114,7 +114,7 @@ export default {
   },
   props: {
     vmType: {
-      type: String
+      type: Number
     },
     serverData: {
       type: Array

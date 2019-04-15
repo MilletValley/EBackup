@@ -63,9 +63,6 @@ export default {
     TimeStrategy,
   },
   props: {
-    vmType: {
-      type: String
-    },
     disable: {
       type: Boolean,
       default: false
@@ -137,7 +134,6 @@ export default {
         this.originFormData = Object.assign({}, baseFormData);
       }
       this.formData = Object.assign({}, this.originFormData);
-      console.log(this.formData);
     },
     modalClosed() {
       this.$refs.timeStrategyComponent.clearValidate();

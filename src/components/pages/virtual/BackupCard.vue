@@ -122,7 +122,7 @@
             </div>
             <div v-else>-</div>
           </li>
-          <li v-if="vmType === 'VMware'">
+          <li v-if="[1, 3].includes(vmType)">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
@@ -160,7 +160,7 @@ export default {
       required: true,
     },
     vmType: {
-      type: String
+      type: Number
     },
   },
   data(){

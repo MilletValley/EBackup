@@ -97,7 +97,7 @@
         </el-table-column>
         <el-table-column prop="diskName"
                          label="恢复磁盘名"
-                         v-if="vmType === 'VMware'"
+                         v-if="[1, 3].includes(vmType)"
                          align="center"
                          min-width="200px">
         </el-table-column>
@@ -140,7 +140,7 @@ export default {
       required: true,
     },
     vmType: {
-      type: String
+      type: Number
     }
   },
   data() {

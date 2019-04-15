@@ -23,7 +23,7 @@
                           <el-row>
                             <el-col :span="8" style="text-align: center">所属设备：{{ host.hostName }}</el-col>
                             <el-col :span="8" style="text-align: center">主机IP：{{ host.serverIp }}</el-col>
-                            <el-col :span="8" style="text-align: center">主机类型：{{ host.serverType | vmHostServerTypeFilter }}</el-col>
+                            <el-col :span="8" style="text-align: center">主机类型：{{ host.serverType | virtualHostServerTypeFilter }}</el-col>
                           </el-row>
                         </div>
                         <mutil-table :tableData="host.vmList"
@@ -62,9 +62,8 @@
                           min-width="100">
           </el-table-column>
           <el-table-column v-if="false" prop="createDate" align="left"
-                          label="创建时间"
-                          min-width="150">
-          </el-table-column>
+                           label="创建时间"
+                           min-width="150"></el-table-column>
           <el-table-column prop="serverType" 
               label="主机类型"
               :formatter="serverTypeFormat"
@@ -111,10 +110,10 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVMByserverId,
+  getVirtualByserverId,
 } from '@/api/virtuals';
 import MutilTable from '@/components/modal/MutilTable';
-import { vmHostServerTypeMapping } from '@/utils/constant';
+import { virtualHostServerTypeMapping } from '@/utils/constant';
 export default {
   props: {
     tableData: {
@@ -145,8 +144,8 @@ export default {
     };
   },
   filters: {
-    vmHostServerTypeFilter(value) {
-      return vmHostServerTypeMapping[value];
+    virtualHostServerTypeFilter(value) {
+      return virtualHostServerTypeMapping[value];
     }
   },
   computed: {
@@ -186,11 +185,11 @@ export default {
   },
   methods: {
     serverTypeFormat(row, column, cellValue, index) {
-      return vmHostServerTypeMapping[cellValue];
+      return virtualHostServerTypeMapping[cellValue];
     },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
-      getVMByserverId(row.id).then(res => {
+      getVirtualByserverId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.selectData = this.selectData.filter(e => {
           if (ids.includes(e.id) && !this.curSelectData.some(n => n.id === e.id)) {

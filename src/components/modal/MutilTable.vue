@@ -31,7 +31,7 @@
                     min-width="150"
                     sortable="custom">
             <template slot-scope="scope">
-                <router-link :to="scope.row.type === 1 ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
+                <router-link :to="`/virtual/${virtualMapping[scope.row.type]}/${scope.row.id}`"
                             :class="$style.link">{{scope.row.vmName}}</router-link>
             </template>
         </el-table-column>
@@ -72,7 +72,8 @@
     
 </template>
 <script>
-import { getVMByserverId, deleteVirtualInServerHost } from '../../api/virtuals';
+import { getVirtualByserverId, deleteVirtualInServerHost } from '@/api/virtuals';
+import { virtualMapping } from '@/utils/constant';
 export default {
   props: {
     tableData: {
@@ -102,6 +103,7 @@ export default {
       filterItem: '',
       inputSearch: '',
       defaultSort: { prop: 'vmName', order: 'descending' },
+      virtualMapping
     };
   },
   mounted() {
@@ -155,7 +157,7 @@ export default {
   computed: {
     curTableData() {
       let data = [];
-      // if(this.buttonfalg){
+      // if(this.buttonflag){
       //     data = this.currentSelectDb.filter(v => v.vmName.toLowerCase().includes(this.filterItem.toLowerCase()));
       // }else{
       data = this.tableData.filter(v =>
@@ -213,7 +215,7 @@ export default {
   },
   methods: {
     refresh(id) {
-      getVMByserverId(id)
+      getVirtualByserverId(id)
         .then(res => {
           const { data } = res.data;
           //更新数据前，去除已选数据。表格刷新后默认清空该表格的选中状态

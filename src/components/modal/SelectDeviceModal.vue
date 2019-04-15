@@ -5,17 +5,20 @@
         @close="modalClosed"
         append-to-body>
         <el-table :data="hostsInVuex"
-                style="width: 100%">
+                  style="width: 100%">
             <el-table-column  width="50" style="text-align: center">
                 <template slot-scope="scope" >
-                    <el-radio class="radio" v-model="radioValue"  :label="scope.row.id" 
-                    @change.native="getCurrentRow(scope.$index,scope.row)" >&nbsp;</el-radio>
+                    <el-radio class="radio"
+                              v-model="radioValue"
+                              :label="scope.row.id"
+                              :disabled="([1, 3].includes(vmType) && scope.row.osName === 'Linux') || (vmType === 2 && scope.row.osName === 'Windows')"
+                              @change.native="getCurrentRow(scope.$index,scope.row)" >&nbsp;</el-radio>
                 </template>
             </el-table-column>
             <el-table-column prop="name"
-                            label="设备名"
-                            min-width="150"
-                            align="center">
+                             label="设备名"
+                             min-width="150"
+                             align="center">
             </el-table-column>
             <el-table-column prop="hostIp"
                             label="设备IP"
@@ -61,6 +64,10 @@ export default {
         selected: {
             type: Object
         },
+        vmType: {
+            type: Number,
+            default: -1
+        }
     },
     data(){
         return {

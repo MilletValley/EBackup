@@ -15,15 +15,14 @@
         <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
-                <router-link :to="scope.row.vm.type === 1 ? `/vm/virtual/${scope.row.vm.id}` : `/vm/hwVirtual/${scope.row.vm.id}`"
-                            :class="$style.link">{{scope.row.vm.vmName}}</router-link>
+                <router-link :to="`/virtual/${virtualMapping[scope.row.vm.type]}/${scope.row.vm.id}`"
+                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
         <el-table-column prop="vm.type" align="center" show-overflow-tooltip
-                        label="类型"
-                        >
+                        label="类型">
             <template slot-scope="scope">
-              <span>{{scope.row.vm.type === 1 ? 'VMware' : '华为虚拟机'}}</span>
+              <span>{{ vmTypeMapping[scope.row.vm.type] }}</span>
             </template>
         </el-table-column>
         <el-table-column prop="vm.vmHostName"
@@ -91,7 +90,7 @@
       <server-table v-loading="loading" :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="comfirCB" :disabled="selectIds.length === 0">确 定</el-button>
+        <el-button type="primary" @click="comfirmCB" :disabled="selectIds.length === 0">确 定</el-button>
       </span>
     </el-dialog>
 </div>
@@ -100,8 +99,8 @@
 import dayjs from 'dayjs';
 import {
   deleteVirtualBackupPlan,
-  getVmsBackupResult,
-  updateBackupPlanForVm
+  getVirtualsBackupResult,
+  updateBackupPlanForVirtual
 } from '@/api/virtuals';
 import { fetchServerList } from '@/api/host';
 import {
@@ -109,10 +108,14 @@ import {
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
+  virtualHostServerTypeMapping,
+  vmTypeMapping,
+  virtualMapping,
+  serverTypeMapping
 } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import { paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
-import ServerTable from '@/components/pages/vm/ServerTable';
+import ServerTable from '@/components/pages/virtual/ServerTable';
 export default {
   mixins: [baseMixin, paginationMixin, filterMixin, sortMixin],
   components: {
@@ -127,7 +130,7 @@ export default {
       default: () => [],
     },
     type: {
-      type: String
+      type: Number
     }
   },
   data() {
@@ -142,7 +145,10 @@ export default {
       currentSelect: [],
       curSelectData: [],
       isSelect: false,
-      btnDisable: false
+      btnDisable: false,
+      virtualHostServerTypeMapping,
+      vmTypeMapping,
+      virtualMapping
     };
   },
   computed: {
@@ -168,11 +174,7 @@ export default {
   },
   methods: {
     fmtData() {
-      if(this.$route.name === 'virtualBackup') {
-        this.tableData = this.data.filter(item => item.vm.type === 1);
-      } else {
-        this.tableData = this.data.filter(item => item.vm.type === 2);
-      }
+      this.tableData = this.data.filter(item => item.vm.type === this.type);
       if (this.backupPlan.config.timeStrategy === 0) {
         const time = this.backupPlan.config.singleTime;
         this.btnDisable = dayjs(new Date()) > dayjs(time) ? true : false;
@@ -278,10 +280,7 @@ export default {
           return;
         }
         this.serverTableData = data.filter(item => {
-          if (this.type === 'virtualBackup') {
-            return [1, 2].includes(item.serverType);
-          }
-          return item.serverType === 3;
+          return serverTypeMapping[this.type].includes(item.serverType);
         });
         this.currentSelect = this.tableData.map(e => e.vm);
         this.curSelectData = this.tableData.map(e => e.vm);
@@ -292,8 +291,8 @@ export default {
         this.loading = false;
       });
     },
-    comfirCB() {
-      updateBackupPlanForVm(this.backupPlan.id, {vmList: this.selectIds}).then(res => {
+    comfirmCB() {
+      updateBackupPlanForVirtual(this.backupPlan.id, {vmList: this.selectIds}).then(res => {
         this.$message.success('添加成功！');
         this.dialogVisible = false;
         this.$emit('refresh');

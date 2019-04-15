@@ -176,7 +176,7 @@ const rescan = ids =>
   });
 
 // 获取备份计划列表
-const fetchVmBackupPlanList = () =>
+const fetchVirtualBackupPlanList = () =>
   baseApi.request({
     method: 'get',
     url: '/virtual-backup-plans/list'
@@ -198,13 +198,13 @@ const deletePlan = (id, delBackupResults) =>
   });
 
 // 根据备份计划获取虚拟机备份进度
-const getVmsBackupResult = id =>
+const getVirtualsBackupResult = id =>
   baseApi.request({
     method: 'get',
     url: `/virtual-backup-plans/virtuals/details/${id}`
   });
 
-const getVMByserverId = id =>
+const getVirtualByserverId = id =>
   baseApi.request({
     method: 'get',
     url: `/virtuals/hosts/server/vmList/${id}`
@@ -235,7 +235,7 @@ const deleteVirtualBackupResult = id =>
  * @param {*} planId 大备份计划id
  * @param {*} idList 虚拟机id列表
  */
-const updateBackupPlanForVm = (planId, idList) =>
+const updateBackupPlanForVirtual = (planId, idList) =>
   baseApi.request({
     method: 'patch',
     url: `/virtuals/virtual-backup-plans/multiple/${planId}`,
@@ -268,13 +268,13 @@ export {
   updateRestorePlan,
   fetchRestoreOperation,
   rescan,
-  fetchVmBackupPlanList,
-  getVmsBackupResult,
-  getVMByserverId,
+  fetchVirtualBackupPlanList,
+  getVirtualsBackupResult,
+  getVirtualByserverId,
   deletePlan,
   stopAllBackupPlan,
   deleteVirtualInServerHost,
   deleteVirtualBackupResult,
-  updateBackupPlanForVm,
+  updateBackupPlanForVirtual,
   fetchDisksByHostId
 };
