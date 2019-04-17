@@ -185,13 +185,12 @@ export default {
       ));
     },
     serverData() {
-      // return this.serverDatas.filter( e => {
-      //   if(this.details && this.details.host){
-      //     return e.hostId === this.details.host.id && e.serverType !== 1;
-      //   }
-      //   return false;
-      // })
-      return this.serverDatas
+      return this.serverDatas.filter( e => {
+        if(this.details && this.details.host){
+          return e.hostId === this.details.host.id && e.serverType !== 1;
+        }
+        return false;
+      })
     }
   },
   filters: {
