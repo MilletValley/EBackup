@@ -326,8 +326,7 @@ const restorePlanModalMixin = {
       this.hiddenPassword1 = true;
     },
     // 根据已选主机id获取可选恢复磁盘名(虚拟机恢复)
-    changeHostIp(hostIp) {
-      const id = this.serverData.find(host => host.serverIp === hostIp).id;
+    changeHost(id) {
       this.showLoading = true;
       this.hasHostIp = false;
       fetchDisksByHostId(id)

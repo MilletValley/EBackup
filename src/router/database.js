@@ -350,7 +350,7 @@ const router = [
             },
             {
               name: '达梦数据库列表',
-              path: '/db/dameng',
+              path: '/db/dm',
             },
             {
               name: '数据库详情',
