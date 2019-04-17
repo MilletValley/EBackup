@@ -19,13 +19,13 @@
       </el-form-item>
       <el-row v-if="[1, 3].includes(vmType)">
          <el-form-item label="恢复主机"
-                       prop="hostId">
-            <el-select v-model="formData.hostId"
+                       prop="serverId">
+            <el-select v-model="formData.serverId"
                        @change="changeHost"
                        style="width: 100%;">
               <el-option v-for="(server, index) in serverData"
                          :key="index"
-                         :value="server.hostId"
+                         :value="server.id"
                          :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
@@ -79,7 +79,7 @@ import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin'
 import validate from '@/utils/validate';
 const baseFormData = {
   newName: '',
-  hostId: '',
+  serverId: '',
   diskName: '',
 };
 
@@ -103,7 +103,7 @@ export default {
       type: 'vm',
       rules: {
         newName: validate.newVmName,
-        hostId: validate.selectServer,
+        serverId: validate.selectServer,
         diskName: validate.diskName,
       },
       hasHostIp: false, // 用于虚拟机恢复，根据已选的服务id获取可选的恢复磁盘
@@ -116,9 +116,9 @@ export default {
       this.$refs.singleRestorePlanForm.validate(valid => {
         if (valid) {
           const name = dayjs().format('YYYYMMDDHHmmss');
-          const { hostId, newName, diskName, ...other } = this.formData;
+          const { serverId, newName, diskName, ...other } = this.formData;
           const config = {
-            hostId,
+            serverId,
             newName,
             diskName,
             timeStrategy: 1,

@@ -29,13 +29,13 @@
       </el-row>
       <el-row v-if="[1, 3].includes(vmType)">
         <el-form-item label="恢复主机"
-                      prop="hostId">
-          <el-select v-model="formData.hostId" :disabled="action !== 'create'"
+                      prop="serverId">
+          <el-select v-model="formData.serverId" :disabled="action !== 'create'"
                      @change="changeHost"
                      style="width: 100%;">
             <el-option v-for="(server, index) in serverData"
                        :key="index"
-                       :value="server.hostId"
+                       :value="server.id"
                        :label="`${server.serverName}(${server.serverIp})`">
               <span style="float: left">{{ server.serverName }}</span>
               <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
@@ -94,7 +94,7 @@ import TimeInterval from '@/components/common/TimeInterval';
 
 const basiceFormData = {
   name: '',
-  hostId: '',
+  serverId: '',
   newName: '',
   // oldName: '',
   diskName: '',
@@ -125,7 +125,7 @@ export default {
       type: 'vm',
       rules: {
         name: validate.planName,
-        hostId: validate.selectServer,
+        serverId: validate.selectServer,
         newName: validate.newVmName,
         diskName: validate.diskName,
       },
