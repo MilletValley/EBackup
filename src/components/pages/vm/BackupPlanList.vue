@@ -153,20 +153,11 @@ export default {
           const { data } = res.data;
           const allData = Array.isArray(data) ? data : [];
           this.vmType = this.$route.name;
-          if(this.$route.name === 'virtualBackup') {
-            this.tableData = allData.map(e => {
-              e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 1) : [];
-              return e;
-            });
-          } else {
-            this.tableData = allData.filter(e => {
-              e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 2) : [];
-              if (e.backupResult.length > 0) {
-                return true;
-              }
-              return false;
-            });
-          }
+          const itemType = this.$route.name === 'virtualBackup' ? 1 : 2;
+          this.tableData = allData.filter(e => {
+            e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === itemType) : [];
+            return e.backupResult.length > 0;
+          });
         })
         .catch(error => {
           this.$message.error(error);

@@ -210,6 +210,9 @@ const detailPageMixin = {
     clearTimer() {
       clearInterval(this.timer);
     },
+    sortPlans(plans) {
+      return plans.slice().sort((a, b) => a.config.startTime < b.config.startTime);
+    },
     getDatabaseDetails() {
       fetchOne(this.type, this.id)
         .then(res => {
@@ -243,7 +246,7 @@ const detailPageMixin = {
       fetchBackupPlans(this.type, this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.backupPlans = Array.isArray(plans) ? plans : [];
+          this.backupPlans = Array.isArray(plans) ? this.sortPlans(plans) : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -262,7 +265,7 @@ const detailPageMixin = {
     getRestorePlans() {
       fetchRestorePlans(this.type, this.id).then(res => {
         const { data: plans } = res.data;
-        this.restorePlans = Array.isArray(plans) ? plans : [];
+        this.restorePlans = Array.isArray(plans) ? this.sortPlans(plans) : [];
       }).catch(error => {
         this.$message.error(error);
       });

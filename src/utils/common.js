@@ -44,20 +44,11 @@ const validateLength = length =>
       callback();
     }
   };
-
-const validateLength30 = (rule, value, callback) => {
-  if (maxLengthFn(value, 30)) {
-    callback(new Error('长度在30个字符以内，注：中文占2个字符'));
-  } else {
-    callback();
-  }
-};
 // eslint-disable-next-line
 export {
   applyFilterMethods,
   fmtSizeFn,
   keepTwoDecimalFull,
   maxLengthFn,
-  validateLength,
-  validateLength30
+  validateLength
 };
