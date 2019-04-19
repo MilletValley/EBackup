@@ -26,7 +26,7 @@
         <span>{{ restoreConfig.hostIp }}</span>
       </el-form-item>
       <el-form-item label="数据库名：">
-        <span>{{ restoreConfig.instanceName }}</span>
+        <span>{{ restoreConfig.detailInfo }}</span>
       </el-form-item>
       <el-form-item label="端口：">
         <span>{{ restoreConfig.dbPort }}</span>
