@@ -27,7 +27,7 @@
               </el-tooltip >
           </span>
            <el-input disabled v-if="action !== 'create'"
-                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>  
+                      :value="`${currentHost.name}(${formData.hostIp})`"></el-input>  
           <el-select v-model="formData.hostIp" v-else
                       style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore"
@@ -141,6 +141,13 @@ export default {
       },
     };
   },
+  computed: {
+    currentHost() {
+      if (this.formData.hostIp) {
+        return this.availableHostsForRestore.find(e => e.hostIp === this.formData.hostIp) || {};
+      } return {};
+    }
+  },
   methods: {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
@@ -164,7 +171,8 @@ export default {
       });
     },
     fmtData(plan) {
-      if (plan.config.timePoints.length === 0) {
+      if (!plan.config.timePoints || plan.config.timePoints.length === 0) {
+        plan.config.timePoints = [];
         plan.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
       const { name, config, ...other } = plan;

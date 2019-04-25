@@ -109,7 +109,8 @@ export default {
     },
     fmtData(backupData) {
       // 当备份策略时间点为空时（非按天、周、月）需要初始化才会显示
-      if (backupData.config.timePoints.length === 0) {
+      if (!backupData.config.timePoints || backupData.config.timePoints.length === 0) {
+        backupData.config.timePoints = [];
         backupData.config.timePoints.push({ value: '00:00', key: Date.now() });
       }
       const { name, config, ...other } = backupData;
