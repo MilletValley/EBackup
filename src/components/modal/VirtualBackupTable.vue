@@ -12,18 +12,17 @@
         <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
-                <router-link :to="scope.row.vm.type === 1 ? `/vm/virtual/${scope.row.vm.id}` : `/vm/hwVirtual/${scope.row.vm.id}`"
-                            :class="$style.link">{{scope.row.vm.vmName}}</router-link>
+                <router-link :to="`/virtual/${virtualMapping[scope.row.type]}/${scope.row.id}`"
+                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
         <el-table-column prop="vm.vmPath" align="left" show-overflow-tooltip
-                        label="路径"
-                        >
+                         label="路径">
         </el-table-column>
         <el-table-column prop="vm.vmHostName"
-            label="所属物理主机"
-            min-width="150"
-            align="left">
+                         label="所属物理主机"
+                         min-width="150"
+                         align="left">
         </el-table-column>
         <el-table-column prop="startTime" align="left"
                         min-width="160"
@@ -83,15 +82,15 @@
 import {
   deleteVirtualBackupPlan,
   getVmsBackupResult,
-} from '../../api/virtuals';
+} from '@/api/virtuals';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
-} from '../../utils/constant';
-import baseMixin from '../mixins/baseMixins';
-import { paginationMixin, sortMixin } from '../mixins/commonMixin';
+} from '@/utils/constant';
+import baseMixin from '@/components/mixins/baseMixins';
+import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 export default {
   mixins: [baseMixin, paginationMixin, sortMixin],
   props: {

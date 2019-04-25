@@ -3,7 +3,7 @@
     <div style="margin-bottom: 22px;">
       <el-row>
         <el-col :span="6" >
-          <el-input v-if="!buttonfalg" placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
+          <el-input v-if="!buttonflag" placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
           <el-button v-else size="small" type="primary" @click="backupPlanCreateModalVisible=true" :disabled="currentSelectDb.length ? false : true">
@@ -12,7 +12,7 @@
         </el-col>
         <el-col :span="18" style="text-align:right">
           <el-button size="small" type="primary" @click="buttonClick" >
-            {{buttonfalg ? '返回' : '查看已选虚拟机'}}
+            {{buttonflag ? '返回' : '查看已选虚拟机'}}
           </el-button>
         </el-col>
       </el-row>
@@ -85,10 +85,11 @@ import {
   createMultipleVirtualBackupPlan,
   rescan,
 } from '@/api/virtuals';
-import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
-import { hostTypeMapping, databaseTypeMapping } from '@/utils/constant';
+import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
+import { hostTypeMapping, databaseTypeMapping, virtualMapping } from '@/utils/constant';
+import type from '@/store/type';
 export default {
-  name: 'VMwareList',
+  name: 'VirtualList',
   components: {
     BackupPlanModal,
   },
@@ -100,7 +101,7 @@ export default {
       inputSearch: '',
       filterItem: '',
       currentSelectDb: [],
-      buttonfalg: false,
+      buttonflag: false,
       btnLoading: false,
       action: 'create',
       backupPlanCreateModalVisible: false,
@@ -110,7 +111,7 @@ export default {
   computed: {
     processDbTableData() {
       let data = [];
-      if (this.buttonfalg) {
+      if (this.buttonflag) {
         data = this.currentSelectDb;
       } else {
         data = this.vmItems.filter(v =>
@@ -145,7 +146,7 @@ export default {
       return data;
     },
     total() {
-      if (this.buttonfalg) {
+      if (this.buttonflag) {
         return this.currentSelectDb.length;
       }
       return this.vmItems.filter(v =>
@@ -158,7 +159,9 @@ export default {
       });
     },
     vmType() {
-      return this.$route.name === 'VMwareList' ? 'VMware' : 'HW';
+      return Number(Object.keys(virtualMapping).find(type =>
+        this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
+      ));
     },
   },
   created() {
@@ -173,7 +176,7 @@ export default {
     },
     $route: function() {
       this.vmItems = [];
-      this.buttonfalg = false;
+      this.buttonflag = false;
       this.currentSelectDb = [];
       this.currentPage = 1;
       this.pagesize = 10;
@@ -191,11 +194,7 @@ export default {
             this.vmItems = [];
             return;
           }
-          if (this.vmType === 'VMware') {
-            this.vmItems = data.filter(item => item.type === 1);
-          } else {
-            this.vmItems = data.filter(item => item.type === 2);
-          }
+          this.vmItems = data.filter(item => item.type === this.vmType);
         })
         .catch(error => {
           this.$message.error(error);
@@ -248,7 +247,7 @@ export default {
       }
     },
     buttonClick() {
-      this.buttonfalg = !this.buttonfalg;
+      this.buttonflag = !this.buttonflag;
       this.currentPage = 1;
     },
     addBackupPlan(data) {
@@ -268,11 +267,7 @@ export default {
             type: 'success',
           })
             .then(() => {
-              if (this.vmType === 'VMware') {
-                this.$router.push({ name: 'virtualBackup' });
-              } else {
-                this.$router.push({ name: 'hwVirtualBackup' });
-              }
+              this.$router.push({ name: `${virtualMapping[this.vmType]}Backup` });
             })
             .catch(action => {});
         })

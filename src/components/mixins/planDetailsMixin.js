@@ -1,6 +1,6 @@
 import {
   weekMapping,
-  vmHostServerTypeMapping
+  virtualHostServerTypeMapping
 } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 
@@ -10,15 +10,19 @@ const typeMapping = {
   3: '虚拟机',
 };
 const vmTypeMapping = {
-  1: 'vmware',
-  2: 'hw'
+  1: 'VMware',
+  2: 'fusionSphere',
+  3: 'hyperV'
 };
 const dbTypeMapping = {
   1: 'sqlserver',
   2: 'oracle',
   3: 'mysql',
   4: 'db2',
-  5: 'dm'
+  5: 'dm',
+  6: 'sybase',
+  7: 'cache',
+  8: 'insql'
 };
 
 const routerNameMapping = {
@@ -30,8 +34,12 @@ const routerNameMapping = {
   sqlserver: 'sqlserverDetail',
   mysql: 'mysqlDetail',
   db2: 'db2Detail',
-  dm: 'damengDetail'
+  dm: 'damengDetail',
+  sybase: 'sybaseDetail',
+  cache: 'cacheDetail',
+  insql: 'insqlDetail'
 };
+
 const commonTypeMapping = {
   windows: 'Windows',
   linux: 'Linnux',
@@ -41,7 +49,10 @@ const commonTypeMapping = {
   sqlserver: 'SQL Server',
   mysql: 'MySql',
   db2: 'DB2',
-  dm: '达梦数据库'
+  dm: '达梦数据库',
+  sybase: 'Sybase',
+  cache: 'Cache',
+  insql: 'InSql'
 };
 const planDetailsMixin = {
   data() {
@@ -119,7 +130,7 @@ const planDetailsMixin = {
       return a * 60 + b;
     },
     serverTypeFilter(val) {
-      return vmHostServerTypeMapping[val];
+      return virtualHostServerTypeMapping[val];
     }
   }
 };

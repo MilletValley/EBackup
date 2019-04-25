@@ -2,6 +2,7 @@
   <el-dialog title="接管初始化"
              custom-class="min-width-dialog"
              :visible.sync="modalVisible"
+             :close-on-click-modal="false"
              @open="modalOpened"
              @close="modalClosed">
     <el-form size="small"
@@ -82,7 +83,7 @@
                 <el-input-number v-model="multiFormData[index].port"></el-input-number>
               </el-form-item>
             </template>
-            <template v-if="type === 'sqlserver'">
+            <template v-if="['sqlserver', 'insql'].includes(type)">
               <el-form-item label="备库登录名">
                 <el-input :disabled="keep"
                           v-model="multiFormData[index].viceLoginName"></el-input>
@@ -137,7 +138,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver'].includes(value);
+        return ['oracle', 'sqlserver', 'insql'].includes(value);
       },
     },
     btnLoading: {
@@ -164,7 +165,7 @@ export default {
       this.selectedDbPort = this.dbPorts[0] || '';
       this.selectedEbackupHostId = '';
     },
-    selectedDbPort(value) {
+    readyToResetTabs(value) {
       this.multiFormData = this.databaseTabs.map(db => ({
         primaryDatabaseId: db.id,
         // primaryLsn: '',
@@ -214,7 +215,7 @@ export default {
     instanceName() {
       if (this.type === 'oracle') {
         return '实例';
-      } else if (this.type === 'sqlserver') {
+      } else if (['sqlserver', 'insql'].includes(this.type)) {
         return '数据库';
       }
     },
@@ -231,6 +232,9 @@ export default {
         this.selectedEbackupHostId === ''
       );
     },
+    readyToResetTabs() {
+      return this.selectedProductionHostId + this.selectedDbPort;
+    }
   },
   methods: {
     cancelBtnClick() {
@@ -246,6 +250,7 @@ export default {
         const validateProps = {
           oracle: ['primaryLsn', 'viceLsn', 'port'],
           sqlserver: ['viceLoginName', 'vicePassword'],
+          insql: ['viceLoginName', 'vicePassword']
         };
         let isSuccess = true;
         for (let i = 0, l = multiFormData.length; i < l; ++i) {

@@ -5,6 +5,7 @@ import ElementUI, { Message } from 'element-ui';
 import VueWorker from 'vue-worker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
+import echarts from 'echarts';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'element-ui/lib/theme-chalk/display.css';
 import 'babel-polyfill';
@@ -20,6 +21,7 @@ Vue.use(ElementUI);
 Vue.use(global);
 Vue.use(VueWorker);
 Vue.config.productionTip = false;
+Vue.prototype.$echarts = echarts;
 
 dayjs.locale('zh-cn');
 

@@ -102,6 +102,9 @@ const takeoverMixin = {
     hasSimpleSwitch(simpleSwitch) {
       return Object.keys(simpleSwitch).length > 0;
     },
+    // 易备设备是否在Windows下，用于区分显示IP切换方向：
+    // 1.源=>目标
+    // 2.服务IP=>生产/易备设备
     // 单切源IP
     singleSwitchOriginIp(hostLink) {
       if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
@@ -142,9 +145,6 @@ const takeoverMixin = {
         return hostLink.primaryHost.hostIp;
       }
     },
-    // 易备设备是否在Windows下，用于区分显示IP切换方向：
-    // 1.源=>目标
-    // 2.服务IP=>生产/易备设备
     switchManualFormatter(row, column, cellValue) {
       return switchManualMapping[cellValue];
     },

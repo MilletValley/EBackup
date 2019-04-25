@@ -10,6 +10,12 @@ import DB2List from '@/components/pages/db2/DB2List';
 import DB2Detail from '@/components/pages/db2/DB2Details';
 import DamengList from '@/components/pages/dm/DamengList';
 import DamengDetails from '@/components/pages/dm/DamengDetails';
+import SybaseList from '@/components/pages/sybase/SybaseList';
+import SybaseDetails from '@/components/pages/sybase/SybaseDetails';
+import CacheList from '@/components/pages/cache/CacheList';
+import CacheDetails from '@/components/pages/cache/CacheDetails';
+import InSqlList from '@/components/pages/insql/InSqlList';
+import InSqlDetail from '@/components/pages/insql/InSqlDetail';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
 
 const router = [
@@ -19,7 +25,7 @@ const router = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba'],
     },
     children: [
       {
@@ -94,6 +100,28 @@ const router = [
         },
       },
       {
+        path: 'insql/takeover',
+        name: 'insqlTakeOver',
+        component: TakeOver,
+        meta: {
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '/db/insql',
+            },
+            {
+              name: 'InSql一键接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'sqlserver/takeover/:id',
         name: 'sqlserverLinkDetail',
         props: true,
@@ -112,6 +140,33 @@ const router = [
             {
               name: 'SQLServer一键接管',
               path: '/db/sqlserver/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'insql/takeover/:id',
+        name: 'insqlLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '/db/insql',
+            },
+            {
+              name: 'InSql一键接管',
+              path: '/db/insql/takeover',
             },
             {
               name: '连接详情',
@@ -221,6 +276,66 @@ const router = [
         },
       },
       {
+        path: 'sybase',
+        name: 'sybaseList',
+        component: SybaseList,
+        meta: {
+          title: 'Sybase',
+          activeName: 'sybase',
+          roles: ['sybase dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Sybase列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'cache',
+        name: 'cacheList',
+        component: CacheList,
+        meta: {
+          title: 'Cache',
+          activeName: 'cache',
+          roles: ['cache dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Cache列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'insql',
+        name: 'insqlList',
+        component: InSqlList,
+        meta: {
+          title: 'InSql',
+          activeName: 'insql',
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'dm/:id',
         props: true,
         component: DamengDetails,
@@ -235,7 +350,7 @@ const router = [
             },
             {
               name: '达梦数据库列表',
-              path: '/db/dameng',
+              path: '/db/dm',
             },
             {
               name: '数据库详情',
@@ -332,6 +447,78 @@ const router = [
             {
               name: 'DB2列表',
               path: '/db/db2',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'sybase/:id',
+        props: true,
+        component: SybaseDetails,
+        name: 'sybaseDetail',
+        meta: {
+          activeName: 'sybase',
+          roles: ['sybase dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Sybase列表',
+              path: '/db/sybase',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'cache/:id',
+        props: true,
+        component: CacheDetails,
+        name: 'cacheDetail',
+        meta: {
+          activeName: 'cache',
+          roles: ['cache dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Cache列表',
+              path: '/db/cache',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'insql/:id',
+        props: true,
+        component: InSqlDetail,
+        name: 'insqlDetail',
+        meta: {
+          activeName: 'insql',
+          roles: ['insql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'InSql列表',
+              path: '/db/insql',
             },
             {
               name: '数据库详情',

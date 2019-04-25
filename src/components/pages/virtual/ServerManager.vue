@@ -22,13 +22,17 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVMByserverId,
+  getVirtualByserverId,
 } from '@/api/virtuals';
-import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
-import ServerTable from '@/components/pages/vm/ServerTable';
+import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
+import ServerTable from '@/components/pages/virtual/ServerTable';
 import ServerModal from '@/components/modal/ServerModal';
 import MutilTable from '@/components/modal/MutilTable';
-import { vmHostServerTypeMapping } from '@/utils/constant';
+import {
+  virtualHostServerTypeMapping,
+  serverTypeMapping,
+  virtualMapping
+} from '@/utils/constant';
 export default {
   components: {
     BackupPlanModal,
@@ -50,6 +54,11 @@ export default {
   computed: {
     disabled() {
       return this.isSelect && this.currentSelect.length === 0;
+    },
+    vmType() {
+      return Number(Object.keys(virtualMapping).find(type =>
+        this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
+      ));
     },
   },
   mounted() {
@@ -79,11 +88,7 @@ export default {
           this.$message.error(error);
         })
         .then(() => {
-          if(this.$route.name === 'virtualCollectManager') {
-            this.serverTableData = this.serverTableData.filter(item => [1, 2].includes(item.serverType));
-          } else {
-            this.serverTableData = this.serverTableData.filter(item => item.serverType === 3);
-          }
+          this.serverTableData = this.serverTableData.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
         })
     },
     addBackupPlan(data) {
@@ -103,11 +108,7 @@ export default {
             type: 'success',
           })
             .then(() => {
-              if(this.$route.name === 'virtualCollectManager') {
-                this.$router.push({ name: 'virtualBackup' });
-              } else {
-                this.$router.push({ name: 'hwVirtualBackup' });
-              }
+              this.$router.push({ name: `${virtualMapping[this.vmType]}Backup` });
             })
             .catch(action => {});
         })
@@ -129,7 +130,7 @@ export default {
           h(
             'i',
             { style: 'color:rgb(158, 158, 22)' },
-            vmHostServerTypeMapping[server.serverType]
+            virtualHostServerTypeMapping[server.serverType]
           ),
           h('span', null, '，请确认是否继续？'),
         ]),
@@ -214,7 +215,7 @@ export default {
       }
     },
     serverTypeFormat(row, column, cellValue, index) {
-      return vmHostServerTypeMapping[cellValue];
+      return virtualHostServerTypeMapping[cellValue];
     },
     refresh(scope) {
       scope.row.disabled = true;
@@ -224,7 +225,7 @@ export default {
       setTimeout(() => {
         rescan(scope.row)
           .then(res => {
-            getVMByserverId(scope.row.id).then(res => {
+            getVirtualByserverId(scope.row.id).then(res => {
               const ids = scope.row.vmList.map(i => i.id);
               this.currentSelect = this.currentSelect.filter(e => {
                 if (ids.includes(e.id)) {

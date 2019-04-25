@@ -19,8 +19,8 @@ const DashboardTab = {
       bf: 'backupFail',
       rs: 'restoreSuccess',
       rf: 'restoreFail',
-      ics: 'initConnSuccess',
-      icf: 'initConnFail'
+      ts: 'takeoverSuccess',
+      tf: 'takeoverFail'
     };
     return {
       databaseBackup: [],
@@ -94,9 +94,9 @@ const DashboardTab = {
           const initconnData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
           if (this.$route.name === 'dashboard') {
             this.initconnNum = initconnData.slice(0, 5);
-          } else if (this.checkType === this.clickPieJumpTo.ics) {
+          } else if (this.checkType === this.clickPieJumpTo.ts) {
             this.initconnNum = initconnData.filter(db => Number(db.overState) === 2);
-          } else if (this.checkType === this.clickPieJumpTo.icf) {
+          } else if (this.checkType === this.clickPieJumpTo.tf) {
             this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(Number(db.overState)));
           } else {
             this.initconnNum = initconnData;

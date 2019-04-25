@@ -16,7 +16,19 @@ const genModalMixin = type => {
         type: String,
         required: true,
         validator(value) {
-          return ['oracle', 'sqlserver', 'mysql', 'db2', 'filehost', 'host', 'vm', 'vmManageCollect'].includes(value);
+          return [
+            'oracle',
+            'sqlserver',
+            'mysql',
+            'insql',
+            'db2',
+            'sybase',
+            'cache',
+            'filehost',
+            'host',
+            'vm',
+            'vmManageCollect'
+          ].includes(value);
         },
       },
       btnLoading: {
@@ -88,6 +100,9 @@ const genModalMixin = type => {
         sqlserver: databaseBaseFormData,
         mysql: databaseBaseFormData,
         db2: databaseBaseFormData,
+        sybase: databaseBaseFormData,
+        cache: databaseBaseFormData,
+        insql: databaseBaseFormData,
         filehost: fileHostBaseFormData,
         host: hostBaseFormData,
         vm: virtualFormData,
@@ -98,6 +113,9 @@ const genModalMixin = type => {
         sqlserver: 'sql server数据库',
         mysql: 'mysql数据库',
         db2: 'db2数据库',
+        sybase: 'sybase数据库',
+        cache: 'cache数据库',
+        insql: 'insql数据库',
         filehost: '服务器',
         host: '设备'
       };
@@ -151,20 +169,6 @@ const genModalMixin = type => {
         }],
       };
       const hostRules = { // 设备管理输入校验
-        name: [{
-          required: true,
-          message: '请输入设备名称',
-          trigger: 'blur'
-        },
-        {
-          validator: validateLength(50),
-          trigger: 'blur',
-        },
-        {
-          pattern: '^[^\\s]*$',
-          message: '不能包含空格',
-          trigger: 'blur',
-        }],
         hostIp: baseRules.hostIp,
         serviceIp: ipFormat,
         vip: ipFormat,
@@ -308,35 +312,10 @@ const genModalMixin = type => {
       databaseOrInstance() {
         return this.type === 'oracle' ? '实例名' : '数据库名';
       },
-      sqlserverHosts() {
-        return this.$store.getters.sqlserverHosts.filter(
-          h => h.hostType === 1
-        );
-      },
-      mysqlHosts() {
-        return this.$store.getters.mysqlHosts.filter(
-          h => h.hostType === 1
-        );
-      },
-      oracleHosts() {
-        return this.$store.getters.oracleHosts.filter(
-          h => h.hostType === 1
-        );
-      },
-      db2Hosts() {
-        return this.$store.getters.db2Hosts.filter(
-          h => h.hostType === 1
-        );
-      },
       availableHosts() {
-        if (this.type === 'oracle') {
-          return this.oracleHosts;
-        } else if (this.type === 'sqlserver') {
-          return this.sqlserverHosts;
-        } else if (this.type === 'db2') {
-          return this.db2Hosts;
-        }
-        return this.mysqlHosts;
+        return this.$store.getters[`${this.type}Hosts`].filter(
+          h => h.hostType === 1
+        );
       },
       databaseUseType() {
         return Object.keys(databaseTypeMapping).map(index =>

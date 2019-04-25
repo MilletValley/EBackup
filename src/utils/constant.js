@@ -130,7 +130,9 @@ const useTypeMapping = {
   6: 'db2',
   7: '达梦数据库',
   8: '应用服务器',
-  9: 'sybase'
+  9: 'sybase',
+  10: 'cache',
+  11: 'insql'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -149,7 +151,9 @@ const portHostTypeMapping = {
   6: 'db2',
   7: '达梦数据库',
   8: '应用服务器',
-  9: 'sybase'
+  9: 'sybase',
+  10: 'cache',
+  11: 'insql'
 };
 
 const keepDateMapping = {
@@ -171,7 +175,9 @@ const databaseTypeMapping = {
   6: 'db2',
   7: '达梦数据库',
   8: '应用服务器',
-  9: 'sybase'
+  9: 'sybase',
+  10: 'cache',
+  11: 'insql'
 };
 
 // 数据库连接状态
@@ -217,10 +223,11 @@ const serviceIpMarkMapping = {
   2: '易备环境',
 };
 
-const vmHostServerTypeMapping = {
+const virtualHostServerTypeMapping = {
   1: 'vCenter',
   2: '物理主机',
-  3: 'FusionSphere'
+  3: 'FusionSphere',
+  4: 'Hyper-V'
 };
 
 const backupTypeMapping = {
@@ -240,7 +247,10 @@ const dbTypeMapping = {
   2: 'oracle',
   3: 'mysql',
   4: 'db2',
-  5: '达梦'
+  5: '达梦',
+  6: 'sybase',
+  7: 'cache',
+  8: 'insql'
 };
 // 首页数据库详情路由(不含虚拟机)
 const dbDetailRouterMapping = {
@@ -248,7 +258,10 @@ const dbDetailRouterMapping = {
   2: 'oracleDetail',
   3: 'mysqlDetail',
   4: 'db2Detail',
-  5: 'damengDetail'
+  5: 'damengDetail',
+  6: 'sybaseDetail',
+  7: 'cacheDetail',
+  8: 'insqlDetail'
 };
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {
@@ -264,7 +277,20 @@ const vmDetailRouterMapping = {
 
 const vmTypeMapping = {
   1: 'VMware',
-  2: '华为虚拟机'
+  2: '华为虚拟机',
+  3: 'Hyper-V'
+};
+
+const virtualMapping = {
+  1: 'vmware',
+  2: 'fusionSphere',
+  3: 'hyperV'
+};
+
+const serverTypeMapping = {
+  1: [1, 2],
+  2: [3],
+  3: [4]
 };
 
 export {
@@ -299,12 +325,14 @@ export {
   switchManualMapping,
   switchTypeMapping,
   serviceIpMarkMapping,
-  vmHostServerTypeMapping,
+  virtualHostServerTypeMapping,
   backupTypeMapping,
   dbTypeMapping,
   dbDetailRouterMapping,
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
   vmTypeMapping,
+  virtualMapping,
+  serverTypeMapping,
   yesOrNoMapping
 };

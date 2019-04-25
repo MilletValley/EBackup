@@ -10,22 +10,27 @@
           ref="formData"
           :rules="rules"
           size="small">
-        <el-form-item label="主机名"
+        <el-form-item label="服务器名"
                       prop="mailHost">
           <el-input v-model="formData.mailHost"></el-input></el-form-item>
-        <el-form-item label="协议名"
-                      prop="mailTransportProtocol">
-          <el-select v-model="formData.mailTransportProtocol"
-                     placeholder="请选择">
-            <el-option v-for="item in ['pop3', 'SMTP']"
-                       :key="item.value"
-                       :value="item"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="端口"
-                      prop="mailSmtpPort">
-          <el-input v-model="formData.mailSmtpPort"></el-input>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="协议名"
+                          prop="mailTransportProtocol">
+              <el-select v-model="formData.mailTransportProtocol">
+                <el-option v-for="item in ['SMTP', 'pop3']"
+                          :key="item.value"
+                          :value="item"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="端口"
+                          prop="mailSmtpPort">
+              <el-input v-model="formData.mailSmtpPort"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="状态"
                       prop="emailStatus">
           <el-radio v-model="formData.emailStatus" :label="'0'">启用</el-radio>
@@ -58,7 +63,7 @@ export default {
     const baseFormData = {
       emailId: -1,
       mailHost: '',
-      mailTransportProtocol: '',
+      mailTransportProtocol: 'SMTP',
       mailSmtpPort: '25',
       emailLoginName: '',
       emailPassword: '',
@@ -68,9 +73,6 @@ export default {
       mailHost: [
         { validator: validateLength(60), triggle: 'blur' },
         { required: true, message: '请输入邮件服务器主机名', triggle: 'blur' }
-      ],
-      mailTransportProtocol: [
-        { required: true, message: '请选择邮件协议', triggle: 'blur' }
       ],
       emailLoginName: [
         { required: true, message: '请输入登录名', triggle: 'blur' },
@@ -95,6 +97,11 @@ export default {
     },
     btnLoading: {
       type: Boolean,
+    }
+  },
+  watch: {
+    'formData.mailTransportProtocol': function(newVal, oldVal) {
+      this.formData.mailSmtpPort = newVal === 'pop3' ? '110' : '25';
     }
   },
   computed: {

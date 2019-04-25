@@ -1,9 +1,19 @@
 import baseApi from './base';
 
-const fetchAll = () =>
+const fetchBackupStatistics = () =>
   baseApi.request({
     method: 'get',
-    url: '/home/total',
+    url: '/home/backup-statistics',
+  });
+const fetchRestoreStatistics = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/restore-statistics',
+  });
+const fetchTakeOverStatistics = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/takeover-statistics',
   });
 const fetchBackup = () =>
   baseApi.request({
@@ -18,7 +28,7 @@ const fetchRestore = () =>
 const fetchInitconn = () =>
   baseApi.request({
     method: 'get',
-    url: '/home/onekeymanage',
+    url: '/home/takeover',
   });
 
 const fetchSpaceUse = () =>
@@ -63,7 +73,9 @@ const cancelRestoreHighlight = (id, type) =>
     url: `/restore-plan/cancel-highlight?id=${id}&type=${type}`
   });
 export {
-  fetchAll,
+  fetchBackupStatistics,
+  fetchRestoreStatistics,
+  fetchTakeOverStatistics,
   fetchBackup,
   fetchRestore,
   fetchInitconn,

@@ -1,16 +1,14 @@
 <template>
   <div id="app">
     <el-row type="flex" class="row-bg" justify="end">
-      <el-form inline
-             size="small">
-      <el-form-item style="float: right;">
-        <el-button type="danger" :disabled="delDisabled" @click="delAll()">删除</el-button>
-      </el-form-item>
-      <el-form-item style="float: right;">
-        <el-button type="primary" @click="handleCreate()">添加</el-button>
-      </el-form-item>
-    </el-form>
-
+      <el-form inline>
+        <el-form-item style="float: right;">
+          <el-button type="danger" :disabled="delDisabled" @click="delAll()">删除</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="primary" @click="handleCreate()">添加</el-button>
+        </el-form-item>
+      </el-form>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="24">
@@ -266,6 +264,18 @@ const rolesUser = [
   {
     id: 'application admin',
     name: '应用服务管理员'
+  },
+  {
+    id: 'sybase dba',
+    name: 'Sybase管理员'
+  },
+  {
+    id: 'cache dba',
+    name: 'Cache管理员'
+  },
+  {
+    id: 'insql dba',
+    name: 'InSql管理员'
   }
 ];
 

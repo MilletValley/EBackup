@@ -15,6 +15,8 @@
                ref="itemUpdateForm"
                size="small">
         <el-form-item label="设备名"
+                      class="is-required"
+                      :rules="{validator: validateHostName, trigger: ['blur']}"
                       prop="name">
           <el-input v-model="formData.name"></el-input>
         </el-form-item>
@@ -39,9 +41,18 @@
         </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">
-          <el-radio-group v-model="formData.databaseType">
+           <el-select v-model="formData.databaseType"
+                     v-if="useType === 'db'">
+            <el-option v-for="db in databaseUseType"
+                       v-if="[1,2,5,6,7,9,10,11].includes(db.value)"
+                       :key="db.value"
+                       :value="db.value"
+                       :label="db.text"></el-option>
+          </el-select>
+          <el-radio-group v-model="formData.databaseType"
+                          v-else>
             <el-radio v-for="db in databaseUseType"
-                      v-if="(useType === 'db'&&[1,2,5,6,7,9].includes(db.value))||(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
+                      v-if="(useType === 'vm'&&db.value === 4) || (useType === 'application'&&db.value === 8)"
                       :key="db.value"
                       :label="db.value">{{ db.text }}</el-radio>
           </el-radio-group>
@@ -63,19 +74,19 @@
             <el-form-item label="操作系统"
                           prop="osName">
               <el-select v-model="formData.osName"
-                        placeholder="请选择">
-                 <el-option v-for="(item, index) in ['Windows', 'Linux', 'AIX']"
+                         placeholder="请选择">
+                <el-option v-for="(item, index) in availableOs"
                           :key="index"
-                          :disabled="item === 'Linux' && formData.databaseType === 9"
-                          v-if="[0, 1].includes(index) || (formData.databaseType === 1 && formData.oracleVersion === 2)"
                           :value="item"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="formData.osName === 'Windows' && formData.databaseType === 2">
+          <el-col :span="12" v-if="formData.osName === 'Windows' && [2, 10, 11].includes(formData.databaseType)">
             <el-form-item label="Windows系统版本"
                       prop="windowsType">
-          <el-select v-model="formData.windowsType" placeholder="请选择">
+          <el-select v-model="formData.windowsType"
+                     placeholder="请选择"
+                     key="update-host-windows-type">
                 <el-option v-for="item in [{label: 1, value: '2003'}, {label: 2, value: '2008及以上'}]"
                            :key="item.label"
                            :label="item.value"
@@ -92,7 +103,7 @@
           <el-radio v-model="formData.isRacMark"
                     :label="1">否</el-radio>
         </el-form-item>
-        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName)">
+        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName)&&this.formData.databaseType === 1">
           <el-col :span="12">
             <el-form-item label="VIP"
                           prop="vip">
@@ -184,6 +195,7 @@ import InputToggle from '@/components/InputToggle';
 import { modifyOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
 import { oracleVersionMapping } from '@/utils/constant';
+import { validateLength } from '../../utils/common';
 
 export default {
   name: 'HostUpdateModal',
@@ -193,6 +205,10 @@ export default {
       type: Object,
       default: {},
     },
+    hostNames: {
+      type: Array,
+      default: []
+    }
   },
   data(){
     const validateCheckPassword = (rule, value, callback) => {
@@ -205,8 +221,21 @@ export default {
         callback();
       }
     };
+    const validateHostName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入设备名'));
+      } else if (!(/^\S*$/.test(value))) {
+        callback(new Error('不能包含空格'));
+      } else if (this.hostNames.includes(value) && value !== this.originFormData.name) {
+        callback(new Error('设备名已存在'));
+      } else {
+        validateLength(50)(rule, value, callback);
+      }
+      return false;
+    }
     return {
       validateCheckPassword,
+      validateHostName,
       hiddenPassword1: true,
       oracleVersionMapping
     }
@@ -244,6 +273,8 @@ export default {
           case 6:
           case 7:
           case 9:
+          case 10:
+          case 11:
             return 'db';
           case 4:
             return 'vm';
@@ -267,6 +298,16 @@ export default {
           default:
         }
       }
+    },
+    availableOs() {
+      if(this.formData.databaseType === 9) {
+        return ['Windows'];
+      } else if (this.formData.databaseType === 1 && this.formData.oracleVersion === 2) {
+        return ['Windows', 'Linux', 'AIX'];
+      } else if (this.formData.databaseType === 10) {
+        return ['Windows', 'AIX'];
+      }
+      return ['Windows', 'Linux'];
     }
   },
   watch: {

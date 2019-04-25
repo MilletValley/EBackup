@@ -139,6 +139,17 @@ const strategyMapping = {
     0: [0, 2, 3, 4, 5],
     1: [0, 2, 3, 4, 5],
   },
+  sybase: {
+    0: [0, 2, 3, 4, 5],
+    1: [0, 2, 3, 4, 5]
+  },
+  cache: {
+    1: [0, 2, 3, 4, 5]
+  },
+  insql: {
+    1: [0, 2, 3, 4, 5],
+    2: [1],
+  }
 };
 export default {
   name: 'time-strategy',

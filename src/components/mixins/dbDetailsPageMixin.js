@@ -7,7 +7,8 @@ import {
   databaseRoleMapping,
   linkStateMapping,
   databaseStateMapping,
-} from '../../utils/constant';
+  virtualMapping
+} from '@/utils/constant';
 
 import {
   fetchBackupPlans,
@@ -24,11 +25,11 @@ import {
   createRestorePlan,
   updateRestorePlan,
   deleteBackupResult
-} from '../../api/backup';
+} from '@/api/backup';
 
 import {
   fetchOne
-} from '../../api/database';
+} from '@/api/database';
 
 const detailPageMixin = {
   props: ['id'],
@@ -210,6 +211,9 @@ const detailPageMixin = {
     clearTimer() {
       clearInterval(this.timer);
     },
+    sortPlans(plans) {
+      return plans.slice().sort((a, b) => a.config.startTime < b.config.startTime);
+    },
     getDatabaseDetails() {
       fetchOne(this.type, this.id)
         .then(res => {
@@ -218,19 +222,14 @@ const detailPageMixin = {
           if (this.details.role && this.details.role !== 0 && this.fetchLink) {
             this.fetchLink();
           }
-          if (this.vmType && this.vmType === 'VMware' && this.fetchServer) {
+          if ([1, 3].includes(this.vmType) && this.fetchServer) {
             this.fetchServer();
           }
         })
         .catch(error => {
           this.$message.error(error);
           if (this.type === 'virtual') {
-            const path = this.$route.path;
-            if (this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual') {
-              this.$router.push({ name: 'VmwareList' });
-            } else {
-              this.$router.push({ name: 'HWwareList' });
-            }
+            this.$route.push({ name: `${virtualMapping[this.vmType]}List` });
           } else {
             this.$router.push({ name: `${this.type}List` });
           }
@@ -243,7 +242,7 @@ const detailPageMixin = {
       fetchBackupPlans(this.type, this.id)
         .then(res => {
           const { data: plans } = res.data;
-          this.backupPlans = Array.isArray(plans) ? plans : [];
+          this.backupPlans = Array.isArray(plans) ? this.sortPlans(plans) : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -262,7 +261,7 @@ const detailPageMixin = {
     getRestorePlans() {
       fetchRestorePlans(this.type, this.id).then(res => {
         const { data: plans } = res.data;
-        this.restorePlans = Array.isArray(plans) ? plans : [];
+        this.restorePlans = Array.isArray(plans) ? this.sortPlans(plans) : [];
       }).catch(error => {
         this.$message.error(error);
       });

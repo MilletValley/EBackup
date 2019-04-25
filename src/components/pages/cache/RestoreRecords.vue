@@ -9,7 +9,6 @@
               :class="$style.stateRefresh"
               @click="$emit('restoreinfo:refresh')"></i>
         </el-tooltip>
-        
       </h4>
       <div v-show="plans.length === 0"
            :class="$style.noRestoreTip">
@@ -46,7 +45,7 @@
               <el-col :span="12">
                 <i-icon name="ip"
                         :class="$style.ongoingRestoreIcon"></i-icon>
-                <el-tooltip content="恢复主机IP"
+                <el-tooltip content="目标设备IP"
                             placement="right"
                             :open-delay="300">
                   <span >{{ item.config.hostIp }}</span>
@@ -55,18 +54,17 @@
             </el-row>
             <el-row :class="$style.margin14">
               <el-col :span=18>
-                <el-tooltip content="新虚拟机名"
+                <el-tooltip content="数据库名"
                             placement="right"
                             :open-delay="300">
                   <div :class="$style.wordsOverFlow">
                     <i-icon name="instance"
                             :class="$style.ongoingRestoreIcon"></i-icon>
-                    <span>{{item.config.newName }}</span>
+                    <span>{{item.config.detailInfo }}</span>
                   </div>
                 </el-tooltip>
               </el-col>
             </el-row>
-            
           </el-card>
         </el-col>
       </el-row>
@@ -86,21 +84,23 @@
                          min-width="150px">
         </el-table-column>
         <el-table-column prop="hostIp"
-                         label="恢复主机IP"
+                         label="恢复设备IP"
                          align="center"
                          min-width="150px">
         </el-table-column>
-        <el-table-column prop="newName"
-                         label="新虚拟机名"
+        <el-table-column prop="detailInfo"
+                         label="数据库名"
                          align="center"
-                         min-width="200px">
+                         min-width="150px">
+          <template slot-scope="scope">
+            <span>{{details.instanceName}}</span>
+          </template>
         </el-table-column>
-        <el-table-column prop="diskName"
-                         label="恢复磁盘名"
-                         v-if="vmType === 'VMware'"
+          
+        <!-- <el-table-column prop="dbPort"
+                         label="端口"
                          align="center"
-                         min-width="200px">
-        </el-table-column>
+                         min-width="50px"></el-table-column> -->
         <el-table-column prop="state"
                          label="状态"
                          align="center"
@@ -139,13 +139,13 @@ export default {
       type: Array,
       required: true,
     },
-    vmType: {
-      type: String
+    details: {
+      type: Object
     }
   },
   data() {
     return {
-      machineType: 3
+      machineType: 1
     }
   },
   computed: {

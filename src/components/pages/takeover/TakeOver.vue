@@ -3,9 +3,10 @@
     <el-form inline
              size="small">
       <el-form-item v-show="enterFromMenu">
-        <el-radio-group v-model="databaseType">
-          <el-radio-button label="oracle">Oracle</el-radio-button>
-          <el-radio-button label="sqlserver">SQLServer</el-radio-button>
+        <el-radio-group v-model="databaseType" size="small">
+          <el-radio label="oracle" border>Oracle</el-radio>
+          <el-radio label="sqlserver" border>SQLServer</el-radio>
+          <el-radio label="insql" border>InSql</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
@@ -553,6 +554,12 @@ import {
   createSwitches as switchSqlserver,
 } from '@/api/sqlserver';
 import {
+  fetchAll as fetchAllInSql,
+  fetchLinks as fetchLinksInSql,
+  createLinks as createLinksInSql,
+  createSwitches as switchInSql,
+} from '@/api/insql';
+import {
   createSwitches as switchHostIp,
   vipSwitches as switchVip,
   fetchAll,
@@ -575,22 +582,27 @@ import batchSwitchMixin from '@/components/mixins/batchSwitchMixins'
 const fetchDatabaseMethod = {
   oracle: fetchAllOracle,
   sqlserver: fetchAllSqlserver,
+  insql: fetchAllInSql
 };
 const fetchLinksMethod = {
   oracle: fetchLinksOracle,
   sqlserver: fetchLinksSqlserver,
+  insql: fetchLinksInSql
 };
 const createLinksMethod = {
   oracle: createLinksOracle,
   sqlserver: createLinksSqlserver,
+  insql: createLinksInSql
 };
 const createSwitchMethod = {
   oracle: switchOracle,
   sqlserver: switchSqlserver,
+  insql: switchInSql
 };
 const createSingleSwitchMethod = {
   oracle: singleSwitchOracle,
-  sqlserver: switchSqlserver
+  sqlserver: switchSqlserver,
+  insql: switchInSql
 }
 const switchMethod = {
   true: createSingleSwitchMethod,
@@ -638,7 +650,7 @@ export default {
       hostLinkSwitchMsg: {}, // 即将切换的设备连接
       dbSwitchMsg: {}, // 即将切换的数据库连接
       multiply: false, // 标记单个或批量操作
-      timer: null,
+      timer: null
     };
   },
   created() {
@@ -677,6 +689,8 @@ export default {
         return this.$store.getters.oracleHosts;
       } else if (this.databaseType === 'sqlserver') {
         return this.$store.getters.sqlserverHosts;
+      } else if (this.databaseType === 'insql') {
+        return this.$store.getters.insqlHosts;
       }
     },
     /**
@@ -920,13 +934,9 @@ export default {
           .then(res => {
             const { data, message } = res.data;
             // 修改的是computed数据的引用，引用指向的就是data中的数据
-            this.databaseLinks.forEach(link => {
-              if (this.databaseLinkIdsReadyToSwitch.includes(link.id)) {
-                link.latestSwitch = data.find(s => s.linkId === link.id);
-              }
-            });
             this.switchDatabasesModalVisible = false;
             this.$message.success(message);
+            this.fetchData();
           })
           .catch(error => {
             this.$message.error(error);
@@ -956,17 +966,15 @@ export default {
           this.btnLoading = false;
         })
     },
-    // 切vip或者切服务IP、scanIP、临时IP(服务IP、scanIP，临时IP用的同一个url)
+    // 切vip或者切服务IP、scanIP、临时IP(服务IP、scanIP、临时IP用的同一个url)
     switchIpConfirm(switchVip) {
       this.btnLoading = true;
       switchIpMethod[switchVip](this.hostLinkIdReadyToSwitch)
         .then(res => {
           const { data, message } = res.data;
-          this.links.find(
-            link => link.id === this.hostLinkIdReadyToSwitch
-          ).latestSwitch = data;
           this.switchIpModalVisible = false;
           this.$message.success(message);
+          this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -1134,6 +1142,11 @@ export default {
           name: 'sqlserverLinkDetail',
           params: { id: String(linkId) },
         });
+      } else if (this.databaseType === 'insql') {
+        this.$router.push({
+          name: 'insqlLinkDetail',
+          params: { id: String(linkId) },
+        });
       }
     },
     createLink(data) {
@@ -1142,18 +1155,19 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.linkCreateModalVisible = false;
-          const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === data.id);
-          if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
-            const databaseLinks = this.links.find(linked => linked.id === data.id).databaseLinks;
-            data.databaseLinks = data.databaseLinks.concat(databaseLinks);
-            this.links.splice(
-              alreadyLinkedIndex,
-              1,
-              data
-            );
-          } else { // 新创建的设备连接与实例连接
-            this.links.push(data);
-          }
+          // const alreadyLinkedIndex = this.links.findIndex(linked => linked.id === data.id);
+          // if(alreadyLinkedIndex !== -1) { // 当前创建的实例连接的上级设备连接已存在
+          //   const databaseLinks = this.links.find(linked => linked.id === data.id).databaseLinks;
+          //   data.databaseLinks = data.databaseLinks.concat(databaseLinks);
+          //   this.links.splice(
+          //     alreadyLinkedIndex,
+          //     1,
+          //     data
+          //   );
+          // } else { // 新创建的设备连接与实例连接
+          //   this.links.push(data);
+          // }
+          this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);

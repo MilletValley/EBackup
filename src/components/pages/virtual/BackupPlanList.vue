@@ -15,7 +15,7 @@
                 style="width: 100%;">
                 <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
-                        <vm-backup-table :backupPlan="props.row" :data="props.row.backupResult" :type="vmType" @refresh="fetchAll"></vm-backup-table>
+                        <virtual-backup-table :backupPlan="props.row" :data="props.row.backupResult" :type="vmType" @refresh="fetchAll"></virtual-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -100,29 +100,32 @@
                             :backup-plan="selectedBackupPlan">
         </backup-plan-modal>
         
-        <select-device-modal @confirm="selectedhandler"  :selected="{ }"
-            :visible.sync="deviceModalVisible"></select-device-modal>
+        <select-device-modal @confirm="selectedhandler"
+                             :selected="{ }"
+                             :vm-type="vmType"
+                             :visible.sync="deviceModalVisible"></select-device-modal>
     </div>
 </template>
 
 <script>
 import {
-  fetchVmBackupPlanList,
+  fetchVirtualBackupPlanList,
   deletePlan,
   stopAllBackupPlan,
 } from '@/api/virtuals';
-import VmBackupTable from '@/components/pages/vm/VmBackupTable';
-import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
+import VirtualBackupTable from '@/components/pages/virtual/VirtualBackupTable';
+import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
+  virtualMapping
 } from '@/utils/constant';
 export default {
   components: {
-    VmBackupTable,
+    VirtualBackupTable,
     BackupPlanModal,
     SelectDeviceModal
   },
@@ -135,8 +138,7 @@ export default {
       deviceModalVisible: false,
       intervalObj: null,
       expandRowKeys: [],
-      action: 'query',
-      vmType: ''
+      action: 'query'
     };
   },
   mounted() {
@@ -148,25 +150,14 @@ export default {
   },
   methods: {
     fetchAll() {
-      fetchVmBackupPlanList()
+      fetchVirtualBackupPlanList()
         .then(res => {
           const { data } = res.data;
           const allData = Array.isArray(data) ? data : [];
-          this.vmType = this.$route.name;
-          if(this.$route.name === 'virtualBackup') {
-            this.tableData = allData.map(e => {
-              e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 1) : [];
-              return e;
-            });
-          } else {
-            this.tableData = allData.filter(e => {
-              e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === 2) : [];
-              if (e.backupResult.length > 0) {
-                return true;
-              }
-              return false;
-            });
-          }
+          this.tableData = allData.filter(e => {
+            e.backupResult = Array.isArray(e.backupResult) ? e.backupResult.filter(item => item.vm.type === this.vmType) : [];
+            return e.backupResult.length > 0;
+          });
         })
         .catch(error => {
           this.$message.error(error);
@@ -187,12 +178,7 @@ export default {
       return timeStrategyMapping[cellValue];
     },
     addPlan() {
-      if(this.$route.name === 'virtualBackup') {
-        this.$router.push({ name: 'virtualCollectManager' });
-      }
-      if(this.$route.name === 'hwVirtualBackup') {
-        this.$router.push({ name: 'hwVirtualCollectManager' })
-      }
+      this.$router.push({ name:  `${ virtualMapping[this.vmType]}CollectManager`})
     },
     deletePlan(scope) {
       const h = this.$createElement;
@@ -312,6 +298,13 @@ export default {
       return status;
     },
   },
+  computed: {
+    vmType() {
+      return Number(Object.keys(virtualMapping).find(type =>
+        this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
+      ));
+    }
+  }
 };
 </script>
 <style lang="scss" module>

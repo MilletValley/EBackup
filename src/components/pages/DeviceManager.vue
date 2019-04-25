@@ -72,7 +72,7 @@
       <el-table-column prop="osName"
                        label="操作系统"
                        :formatter="judgeOsName"
-                       :filters="osNameFilters"
+                       :filters="Array.from(new Array('Windows', 'Linux', 'AIX'), val => ({text: val, value: val}))"
                        column-key="osName"
                        min-width="120"
                        align="center"></el-table-column>
@@ -115,28 +115,30 @@
     </div>
     <host-create-modal type="host"
                        :visible.sync="createModalVisible"
+                       :host-names="hostNames"
                        @confirm="createItem"
                        :btn-loading="btnLoading"></host-create-modal>
     <host-update-modal type="host"
                        :visible.sync="updateModalVisible"
+                       :host-names="hostNames"
                        :item-info="selectedHost"
                        @confirm="updateItem"
                        :btn-loading="btnLoading"></host-update-modal>
   </section>
 </template>
 <script>
-import { listMixin } from '../mixins/databaseListMixin';
-import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '../mixins/commonMixin';
-import HostCreateModal from '../modal/HostCreateModal';
-import HostUpdateModal from '../modal/HostUpdateModal';
-import { createOne, deleteOne, modifyOne } from '../../api/host';
+import { listMixin } from '@/components/mixins/databaseListMixin';
+import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
+import HostCreateModal from '@/components/modal/HostCreateModal';
+import HostUpdateModal from '@/components/modal/HostUpdateModal';
+import { createOne, deleteOne, modifyOne } from '@/api/host';
 import { mapActions } from 'vuex';
 import {
   hostTypeMapping,
   databaseTypeMapping,
   windowsTypeMapping,
   oracleVersionMapping
-} from '../../utils/constant';
+} from '@/utils/constant';
 
 export default {
   name: 'DeviceManager',
@@ -145,11 +147,6 @@ export default {
     return {
       wsuri: '/test',
       selectedId: '',
-      osNameFilters: [
-        {text: 'Windows', value: 'Windows'},
-        {text: 'Linux', value: 'Linux'},
-        {text: 'AIX', value: 'AIX'}
-      ],
       tableData: [],
       tableFilter: {},
       defaultSort: { prop: 'createdTime', order: 'descending' },
@@ -162,6 +159,9 @@ export default {
     },
     selectedHost() {
       return this.$store.getters.selectedHost(this.selectedId);
+    },
+    hostNames() {
+      return this.tableData.map(host => host.name);
     },
     hostTypeFilters() {
       return Object.keys(hostTypeMapping).map(type => ({
@@ -196,7 +196,7 @@ export default {
     },
     judgeOsName(data){
       let str = data.osName;
-      if(data.osName === 'Windows' && data.databaseType === 2 && windowsTypeMapping[data.windowsType]){
+      if(data.osName === 'Windows' && [2, 10].includes(data.databaseType) && windowsTypeMapping[data.windowsType]){
         str += (' ' + windowsTypeMapping[data.windowsType]);
       }
       return str;
@@ -227,7 +227,7 @@ export default {
     filterFn(item, i){
       if(Array.isArray(this.filter[i]) && this.filter[i].length > 0){
         return this.filter[i].includes(item[i]);
-      }else {
+      } else {
         return item[i].toLowerCase().includes(this.filter[i].toLowerCase());
       }
     },
@@ -237,6 +237,9 @@ export default {
     },
     createItem(host) {
       this.btnLoading = true;
+      if(!(host.osName === 'Windows' && [2, 10].includes(host.databaseType))) {
+        delete host.windowsType;
+      }
       createOne(host)
         .then(res => {
           this.createModalVisible = false;
@@ -249,7 +252,7 @@ export default {
           this.btnLoading = false;
         });
     },
-    deleteItem({ row: host, $index }) {
+    deleteItem({ row: host }) {
       this.$confirm('确认删除此设备?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -265,11 +268,14 @@ export default {
             })
         })
         .catch(error => {
-          this.$message.info('已取消删除操作!')
+          this.$message.info('已取消删除操作!');
         });
     },
     updateItem(host) {
       this.btnLoading = true;
+      if(!(host.osName === 'Windows' && [2, 10].includes(host.databaseType))) {
+        delete host.windowsType;
+      }
       modifyOne(host)
         .then(res => {
           this.updateModalVisible = false;

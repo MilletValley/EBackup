@@ -13,19 +13,19 @@
              :model="formData"
              :rules="rules"
              ref="singleRestorePlanForm">
-      <el-form-item label="新虚拟机名"   v-if="vmType === 'HW'"
+      <el-form-item label="新虚拟机名" v-if="vmType === 2"
                     prop="newName">
         <el-input v-model="formData.newName"></el-input>
       </el-form-item>
-      <el-row v-if="vmType === 'VMware'">
+      <el-row v-if="[1, 3].includes(vmType)">
          <el-form-item label="恢复主机"
-                       prop="hostIp">
-            <el-select v-model="formData.hostIp"
-                       @change="changeHostIp"
+                       prop="serverId">
+            <el-select v-model="formData.serverId"
+                       @change="changeHost"
                        style="width: 100%;">
               <el-option v-for="(server, index) in serverData"
                          :key="index"
-                         :value="server.serverIp"
+                         :value="server.id"
                          :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
@@ -33,7 +33,7 @@
             </el-select>
           </el-form-item>
       </el-row> 
-      <el-row v-if="vmType === 'VMware'">
+      <el-row v-if="[1, 3].includes(vmType)">
         <el-col :span="12">
           <el-form-item label="新虚拟机名"
                         prop="newName">
@@ -79,7 +79,7 @@ import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin'
 import validate from '@/utils/validate';
 const baseFormData = {
   newName: '',
-  hostIp: '',
+  serverId: '',
   diskName: '',
 };
 
@@ -92,7 +92,7 @@ export default {
       required: true,
     },
     vmType: {
-      type: String,
+      type: Number,
     },
     serverData: {
       type: Array
@@ -103,7 +103,7 @@ export default {
       type: 'vm',
       rules: {
         newName: validate.newVmName,
-        hostIp: validate.selectServer,
+        serverId: validate.selectServer,
         diskName: validate.diskName,
       },
       hasHostIp: false, // 用于虚拟机恢复，根据已选的服务id获取可选的恢复磁盘
@@ -116,9 +116,9 @@ export default {
       this.$refs.singleRestorePlanForm.validate(valid => {
         if (valid) {
           const name = dayjs().format('YYYYMMDDHHmmss');
-          const { hostIp, newName, diskName, ...other } = this.formData;
+          const { serverId, newName, diskName, ...other } = this.formData;
           const config = {
-            hostIp,
+            serverId,
             newName,
             diskName,
             timeStrategy: 1,

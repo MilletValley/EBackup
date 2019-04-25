@@ -49,7 +49,7 @@
                   </el-col>
                   <el-col :span="8">
                     <el-form-item label="类型：">
-                      <div>{{ details.type === 1 ? 'VMware' : '华为虚拟机' }}</div>
+                      <div>{{ details.type | vmTypeFilter }}</div>
                     </el-form-item>
                    </el-col>
                 </el-row>
@@ -87,6 +87,7 @@
     <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm">
       <template slot="backupCard">
         <backup-card :id="plan.id"
+                     :vm-type="vmType"
                      v-for="plan in filteredBackupPlans"
                      :key="plan.id"
                      :backupPlan="plan"
@@ -143,14 +144,14 @@
 </template>
 <script>
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
-import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
-import RestorePlanModal from '@/components/pages/vm/RestorePlanModal';
-import SingleRestoreModal from '@/components/pages/vm/SingleRestoreModal';
-import BackupCard from '@/components/pages/vm/BackupCard';
-import BackupResultList from '@/components/pages/vm/BackupResultList';
-import RestoreCard from '@/components/pages/vm/RestoreCard';
-import RestoreRecords from '@/components/pages/vm/RestoreRecords';
-import { vmHostServerTypeMapping } from '@/utils/constant';
+import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
+import RestorePlanModal from '@/components/pages/virtual/RestorePlanModal';
+import SingleRestoreModal from '@/components/pages/virtual/SingleRestoreModal';
+import BackupCard from '@/components/pages/virtual/BackupCard';
+import BackupResultList from '@/components/pages/virtual/BackupResultList';
+import RestoreCard from '@/components/pages/virtual/RestoreCard';
+import RestoreRecords from '@/components/pages/virtual/RestoreRecords';
+import { virtualHostServerTypeMapping, virtualMapping, vmTypeMapping } from '@/utils/constant';
 
 import {
   updateVirtualBackupPlan,
@@ -160,7 +161,7 @@ import {
 import { fetchServerList } from '@/api/host';
 
 export default {
-  name: 'VMwareDetail',
+  name: 'VirtualDetail',
   mixins: [detailPageMixin],
   components: {
     BackupPlanModal,
@@ -179,9 +180,9 @@ export default {
   },
   computed: {
     vmType() {
-      const path = this.$route.path;
-      return this.$route.path.substring(4, path.lastIndexOf('/')) === 'virtual' ? 'VMware' : 'HW';
-      // return this.details && this.details.type === 1 ? 'VMware' : 'HW';
+      return Number(Object.keys(virtualMapping).find(type =>
+        this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
+      ));
     },
     serverData() {
       return this.serverDatas.filter( e => {
@@ -194,7 +195,10 @@ export default {
   },
   filters: {
     serverTypeFilter(data) {
-      return vmHostServerTypeMapping[data];
+      return virtualHostServerTypeMapping[data];
+    },
+    vmTypeFilter(type) {
+      return vmTypeMapping[type];
     }
   },
   methods: {

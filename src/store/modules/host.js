@@ -13,6 +13,9 @@ const getters = {
   mysqlHosts: state => state.hosts.filter(host => host.databaseType === 5),
   db2Hosts: state => state.hosts.filter(host => host.databaseType === 6),
   dmHosts: state => state.hosts.filter(host => host.databaseType === 7),
+  sybaseHosts: state => state.hosts.filter(host => host.databaseType === 9),
+  cacheHosts: state => state.hosts.filter(host => host.databaseType === 10),
+  insqlHosts: state => state.hosts.filter(host => host.databaseType === 11),
   applicationHosts: state => state.hosts.filter(host => host.databaseType === 8)
 };
 const mutations = {

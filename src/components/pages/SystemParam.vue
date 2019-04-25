@@ -98,18 +98,13 @@
                :before-close="handleClose">
       <span slot="title">
         修改参数
-        <span style="color: #999999">（ID: {{formData.id}}）</span>
+        <span style="color: #999999">(ID: {{formData.id}})</span>
       </span>
       <el-form :model="formData"
                ref="formData"
                :rules="rules"
                label-width="130px"
                size="small">
-        <!-- <el-form-item label="系统类别"
-                      prop="sysType">
-          <el-radio v-model="formData.sysType" :label="1">Windows</el-radio>
-          <el-radio v-model="formData.sysType" :label="2">Linux</el-radio>
-        </el-form-item> -->
         <el-form-item label="系统类别"
                       prop="sysType">
           <el-radio-group v-model="formData.sysType">
@@ -128,7 +123,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
-                      v-if="[1, 3].includes(formData.sysType) && formData.useType === 2"
+                      v-if="[1, 3].includes(formData.sysType) && [2, 10].includes(formData.useType)"
                       prop="windowsType">
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
@@ -219,7 +214,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Windows系统版本"
-                      v-if="[1, 3].includes(formData.sysType) && formData.useType === 2"
+                      v-if="[1, 3].includes(formData.sysType) && [2, 10].includes(formData.useType)"
                       prop="windowsType">
           <el-radio v-model="formData.windowsType" :label="1">2003</el-radio>
           <el-radio v-model="formData.windowsType" :label="2">2008及以上</el-radio>
@@ -334,6 +329,13 @@ export default {
       },
     }
   },
+  watch: {
+    'formData.useType': function(newVal, oldVal) {
+      if(oldVal === 3 && this.formData.sysType === 3) {
+        this.formData.sysType = 1;
+      }
+    }
+  },
   computed: {
     isShowLogin(){
       if(this.formData.sysType === 1 && this.formData.useType===3){
@@ -376,7 +378,7 @@ export default {
           str += data.sysType === 1 ? 'Windows' : 'Linux';
         }
       }
-      if(data.useType === 2 && data.sysType === 1 && windowsTypeMapping[data.windowsType]){
+      if([2, 10].includes(data.useType) && data.sysType === 1 && windowsTypeMapping[data.windowsType]){
         str += windowsTypeMapping[data.windowsType];
       }
       return str;
@@ -466,7 +468,7 @@ export default {
         if (valid) {
           this.btnLoading=true;
           let data = {...this.formData};
-          if(!(data.sysType === 1 && data.useType === 2)){
+          if(!(data.sysType === 1 && [2, 10].includes(data.useType))){
             delete data.windowsType
           }
           delete data.rPassword;
@@ -496,7 +498,7 @@ export default {
         if (valid) {
           this.btnLoading=true;
           let data = {...this.formData};
-          if(!(data.sysType === 1 && data.useType === 2)){
+          if(!(data.sysType === 1 && [2, 10].includes(data.useType))){
             delete data.windowsType
           }
           createOne(data)

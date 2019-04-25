@@ -15,7 +15,7 @@
                 style="width: 100%;">
                 <el-table-column type="expand" align="center" width="55">
                     <template slot-scope="props">
-                        <vm-backup-table :id="props.row.id" :tableData="props.row.backupResult"></vm-backup-table>
+                        <virtual-backup-table :id="props.row.id" :tableData="props.row.backupResult"></virtual-backup-table>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -103,8 +103,8 @@
 </template>
 
 <script>
-import {fetchVmBackupPlanList, deletePlan, stopAllBackupPlan} from '../../api/virtuals';
-import VmBackupTable from '@/components/modal/VmBackupTable';
+import {fetchVmBackupPlanList, deletePlan, stopAllBackupPlan} from '@/api/virtuals';
+import VirtualBackupTable from '@/components/modal/VirtualBackupTable';
 import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal'
 import {
@@ -112,10 +112,10 @@ import {
   timeStrategyMapping,
   weekMapping,
   operationStateMapping,
-} from '../../utils/constant';
+} from '@/utils/constant';
 export default {
     components: {
-        VmBackupTable,
+        VirtualBackupTable,
         BackupPlanUpdateModal,
         SelectDeviceModal
     },
