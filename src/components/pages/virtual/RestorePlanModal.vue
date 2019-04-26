@@ -31,7 +31,7 @@
         <el-form-item label="恢复主机"
                       prop="serverId">
           <el-select v-model="formData.serverId" :disabled="action !== 'create'"
-                     @change="changeHost"
+                     @change="`${[1, 2].includes(vmType)}?changeHost:''`"
                      style="width: 100%;">
             <el-option v-for="(server, index) in serverData"
                        :key="index"
@@ -50,12 +50,12 @@
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-if="[1, 2].includes(vmType)">
           <el-col :span="21">
             <el-form-item label="恢复磁盘"
                           prop="diskName">
               <el-select v-model="formData.diskName"
-                        :disabled="!hasHostIp"
+                         :disabled="!hasHostIp"
                         :placeholder="showLoading?'加载中':'请选择恢复磁盘'">
                 <el-option v-for="(disk, index) in disks"
                           :key="index"
@@ -72,6 +72,13 @@
               加载中
             </el-row>
           </el-col>
+        </el-col>
+        <el-col :span="12" v-else>
+          <el-form-item label="恢复路径"
+                        prop="diskName"
+                        :rules="{ required: true, message: '请输入恢复路径', trigger: 'blur' }">
+            <el-input v-model="formData.diskName"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
       
@@ -136,6 +143,7 @@ export default {
   },
   methods: {
     confirmBtnClick() {
+      console.log(this.vmType)
       this.$refs.restorePlanCreateForm.validate(valid => {
         this.$refs.timeIntervalComponent
           .validate()

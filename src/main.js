@@ -6,6 +6,7 @@ import VueWorker from 'vue-worker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import echarts from 'echarts';
+import * as d3 from 'd3';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'element-ui/lib/theme-chalk/display.css';
 import 'babel-polyfill';
@@ -22,6 +23,7 @@ Vue.use(global);
 Vue.use(VueWorker);
 Vue.config.productionTip = false;
 Vue.prototype.$echarts = echarts;
+Vue.prototype.$d3 = d3;
 
 dayjs.locale('zh-cn');
 
