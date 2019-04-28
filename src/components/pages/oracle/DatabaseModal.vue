@@ -21,11 +21,11 @@
                       :rules="disabled ? [] : validate.selectHost"
                       prop="hostId">
           <span slot="label">所属设备
-              <el-tooltip placement="top" 
+              <el-tooltip placement="top"
                           content="生产环境设备" >
                   <i class="el-icon-info"></i>
-              </el-tooltip >
-          </span> 
+              </el-tooltip>
+          </span>
           <el-input disabled v-if="disabled"
                     :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
           <el-select v-model="formData.hostId"  v-else

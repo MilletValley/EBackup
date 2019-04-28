@@ -31,7 +31,7 @@
         <el-form-item label="恢复主机"
                       prop="serverId">
           <el-select v-model="formData.serverId" :disabled="action !== 'create'"
-                     @change="`${[1, 2].includes(vmType)}?changeHost:''`"
+                     @change="changeHost(formData.serverId, [1, 2].includes(vmType))"
                      style="width: 100%;">
             <el-option v-for="(server, index) in serverData"
                        :key="index"
@@ -56,7 +56,7 @@
                           prop="diskName">
               <el-select v-model="formData.diskName"
                          :disabled="!hasHostIp"
-                        :placeholder="showLoading?'加载中':'请选择恢复磁盘'">
+                         :placeholder="showLoading?'加载中':'请选择恢复磁盘'">
                 <el-option v-for="(disk, index) in disks"
                           :key="index"
                           :label="disk"
@@ -143,18 +143,30 @@ export default {
   },
   methods: {
     confirmBtnClick() {
-      console.log(this.vmType)
       this.$refs.restorePlanCreateForm.validate(valid => {
         this.$refs.timeIntervalComponent
           .validate()
           .then(res => {
             if (valid && res) {
-              let data = this.pruneFormData(this.formData);
-              if (this.action === 'update') {
-                data.id = this.restorePlan.id;
-                data.config.id = this.restorePlan.config.id;
+              if ((this.details.server.id === this.formData.serverId) && this.vmType === 3) {
+                this.$confirm(`恢复主机IP与本虚拟机主机IP相同,
+                              此操作将使恢复主机覆盖本虚拟机主机，是否继续？`, '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning'
+                })
+                .then(() => {
+                  this.confirm();
+                })
+                .catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消操作'
+                  })
+                })
+              } else {
+                this.confirm();
               }
-              this.$emit('confirm', data, this.action);
             }
           })
           .catch(error => {
@@ -163,6 +175,14 @@ export default {
             }
           });
       });
+    },
+    confirm() {
+      let data = this.pruneFormData(this.formData);
+      if (this.action === 'update') {
+        data.id = this.restorePlan.id;
+        data.config.id = this.restorePlan.config.id;
+      }
+      this.$emit('confirm', data, this.action);
     },
     fmtData(plan) {
       if (plan.config.timePoints.length === 0) {

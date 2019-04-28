@@ -21,7 +21,7 @@
          <el-form-item label="恢复主机"
                        prop="serverId">
             <el-select v-model="formData.serverId"
-                       @change="`${[1, 2].includes(vmType)}?changeHost:''`"
+                       @change="changeHost(formData.serverId, [1, 2].includes(vmType))"
                        style="width: 100%;">
               <el-option v-for="(server, index) in serverData"
                          :key="index"
@@ -124,19 +124,39 @@ export default {
     confirmBtnClick() {
       this.$refs.singleRestorePlanForm.validate(valid => {
         if (valid) {
-          const name = dayjs().format('YYYYMMDDHHmmss');
-          const { serverId, newName, diskName, ...other } = this.formData;
-          const config = {
-            serverId,
-            newName,
-            diskName,
-            timeStrategy: 1,
-            singleTime: '',
-            ...other
-          };
-          this.$emit('confirm', { id: this.resultId, data: { name, config } });
+          if((this.details.server.id === this.formData.serverId) && this.vmType === 3) {
+            this.$confirm(`恢复主机IP与本虚拟机主机IP相同, 此操作将使恢复主机覆盖本虚拟机主机，是否继续？`, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            })
+            .then(() => {
+              this.confirm();
+            })
+            .catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消操作'
+              })
+            })
+          } else {
+            this.confirm();
+          }
         }
       });
+    },
+    confirm() {
+        const name = dayjs().format('YYYYMMDDHHmmss');
+        const { serverId, newName, diskName, ...other } = this.formData;
+        const config = {
+          serverId,
+          newName,
+          diskName,
+          timeStrategy: 1,
+          singleTime: '',
+          ...other
+        };
+        this.$emit('confirm', { id: this.resultId, data: { name, config } });
     },
     modalClosed() {
       // this.formData = { ...baseFormData };

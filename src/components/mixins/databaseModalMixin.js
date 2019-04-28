@@ -325,24 +325,6 @@ const restorePlanModalMixin = {
       this.hiddenPassword = true;
       this.hiddenPassword1 = true;
     },
-    // 根据已选主机id获取可选恢复磁盘名(虚拟机恢复)
-    changeHost(id) {
-      this.showLoading = true;
-      this.hasHostIp = false;
-      fetchDisksByHostId(id)
-        .then(res => {
-          const { data } = res.data;
-          this.disks = data;
-          this.formData.diskName = '';
-          this.hasHostIp = true;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-        .then(() => {
-          this.showLoading = false;
-        });
-    },
   },
   components: {
     InputToggle,
