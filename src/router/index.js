@@ -6,6 +6,7 @@ import Dashboard from '@/components/pages/home/Dashboard';
 import Profile from '@/components/pages/Profile';
 import NoFound from '@/components/pages/NoFound';
 import ServerError from '@/components/pages/ServerError';
+import LisenceNotAvail from '@/components/pages/LisenceNotAvail';
 import MoreState from '@/components/pages/MoreState';
 
 import homeRouter from './home';
@@ -23,6 +24,11 @@ export const basicRouters = [
   {
     path: '/login',
     component: Login,
+  },
+  {
+    path: '/lisenceNotAvail',
+    name: 'lisenceNotAvail',
+    component: LisenceNotAvail
   },
   {
     path: '/',
@@ -72,6 +78,7 @@ export const asyncRouters = [
     children: [
       {
         path: 'servererror',
+        name: 'serverError',
         component: ServerError,
       },
       {

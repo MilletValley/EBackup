@@ -26,6 +26,7 @@
               <el-option v-for="(server, index) in serverData"
                          :key="index"
                          :value="server.id"
+                         v-if="!(details.server.id === server.id && vmType === 3)"
                          :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
@@ -124,39 +125,19 @@ export default {
     confirmBtnClick() {
       this.$refs.singleRestorePlanForm.validate(valid => {
         if (valid) {
-          if((this.details.server.id === this.formData.serverId) && this.vmType === 3) {
-            this.$confirm(`恢复主机IP与本虚拟机主机IP相同, 此操作将使恢复主机覆盖本虚拟机主机，是否继续？`, '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            })
-            .then(() => {
-              this.confirm();
-            })
-            .catch(() => {
-              this.$message({
-                type: 'info',
-                message: '已取消操作'
-              })
-            })
-          } else {
-            this.confirm();
-          }
+          const name = dayjs().format('YYYYMMDDHHmmss');
+          const { serverId, newName, diskName, ...other } = this.formData;
+          const config = {
+            serverId,
+            newName,
+            diskName,
+            timeStrategy: 1,
+            singleTime: '',
+            ...other
+          };
+          this.$emit('confirm', { id: this.resultId, data: { name, config } });
         }
       });
-    },
-    confirm() {
-        const name = dayjs().format('YYYYMMDDHHmmss');
-        const { serverId, newName, diskName, ...other } = this.formData;
-        const config = {
-          serverId,
-          newName,
-          diskName,
-          timeStrategy: 1,
-          singleTime: '',
-          ...other
-        };
-        this.$emit('confirm', { id: this.resultId, data: { name, config } });
     },
     modalClosed() {
       // this.formData = { ...baseFormData };

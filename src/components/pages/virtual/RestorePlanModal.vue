@@ -36,6 +36,7 @@
             <el-option v-for="(server, index) in serverData"
                        :key="index"
                        :value="server.id"
+                       v-if="!(details.server.id === server.id && vmType === 3)"
                        :label="`${server.serverName}(${server.serverIp})`">
               <span style="float: left">{{ server.serverName }}</span>
               <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
@@ -148,25 +149,12 @@ export default {
           .validate()
           .then(res => {
             if (valid && res) {
-              if ((this.details.server.id === this.formData.serverId) && this.vmType === 3) {
-                this.$confirm(`恢复主机IP与本虚拟机主机IP相同,
-                              此操作将使恢复主机覆盖本虚拟机主机，是否继续？`, '提示', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  type: 'warning'
-                })
-                .then(() => {
-                  this.confirm();
-                })
-                .catch(() => {
-                  this.$message({
-                    type: 'info',
-                    message: '已取消操作'
-                  })
-                })
-              } else {
-                this.confirm();
+              let data = this.pruneFormData(this.formData);
+              if (this.action === 'update') {
+                data.id = this.restorePlan.id;
+                data.config.id = this.restorePlan.config.id;
               }
+              this.$emit('confirm', data, this.action);
             }
           })
           .catch(error => {
@@ -175,14 +163,6 @@ export default {
             }
           });
       });
-    },
-    confirm() {
-      let data = this.pruneFormData(this.formData);
-      if (this.action === 'update') {
-        data.id = this.restorePlan.id;
-        data.config.id = this.restorePlan.config.id;
-      }
-      this.$emit('confirm', data, this.action);
     },
     fmtData(plan) {
       if (plan.config.timePoints.length === 0) {

@@ -36,6 +36,22 @@ baseApi.interceptors.response.use(undefined, error => {
       message,
     });
     return Promise.reject();
+  } else if (status === 500) {
+    const { message } = data;
+    Message.warning({
+      message,
+    });
+    router.push({ name: 'serverError' });
+    return Promise.reject();
+  } else if (status === 10010 || status === 10011) {
+    // lisence无效或过期
+    // const { message } = data;
+    // Message.warning({
+    //   message,
+    // });
+    // store.commit(types.CLEAR_LOGININFO);
+    // router.push({ name: 'lisenceNotAvail' });
+    // return Promise.reject();
   }
   const errorMsg = `${error.response.data.message}(${
     error.response.data.code
