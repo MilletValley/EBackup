@@ -31,10 +31,13 @@ baseApi.interceptors.response.use(undefined, error => {
     return Promise.reject();
   } else if (status === 403) {
     // 403 FORBIDDEN 权限不足
+    // lisence无效或过期
     const { message } = data;
     Message.warning({
       message,
     });
+    store.commit(types.CLEAR_LOGININFO);
+    router.push({ name: 'lisenceNotAvail' });
     return Promise.reject();
   } else if (status === 500) {
     const { message } = data;
@@ -43,15 +46,6 @@ baseApi.interceptors.response.use(undefined, error => {
     });
     router.push({ name: 'serverError' });
     return Promise.reject();
-  } else if (status === 10010 || status === 10011) {
-    // lisence无效或过期
-    // const { message } = data;
-    // Message.warning({
-    //   message,
-    // });
-    // store.commit(types.CLEAR_LOGININFO);
-    // router.push({ name: 'lisenceNotAvail' });
-    // return Promise.reject();
   }
   const errorMsg = `${error.response.data.message}(${
     error.response.data.code
