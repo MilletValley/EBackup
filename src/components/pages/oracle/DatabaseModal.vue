@@ -21,11 +21,11 @@
                       :rules="disabled ? [] : validate.selectHost"
                       prop="hostId">
           <span slot="label">所属设备
-              <el-tooltip placement="top" 
+              <el-tooltip placement="top"
                           content="生产环境设备" >
                   <i class="el-icon-info"></i>
-              </el-tooltip >
-          </span> 
+              </el-tooltip>
+          </span>
           <el-input disabled v-if="disabled"
                     :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
           <el-select v-model="formData.hostId"  v-else
@@ -108,7 +108,7 @@
         </el-form-item> -->
         <el-form-item label="用户口令"
                       prop="userPassword"
-                      v-if="selected12C">
+                      v-if="selected12C || is12C">
           <el-input v-model="formData.userPassword"
                     placeholder="请输入oracle服务用户的口令"></el-input>
         </el-form-item>
@@ -174,7 +174,13 @@ const vm = {
     },
     selected12C() {
       const selectedHost = this.availableHosts.find(host => host.id === this.formData.hostId);
-      return selectedHost && selectedHost.oracleVersion === 3&&selectedHost.osName==='Windows';
+      return selectedHost && selectedHost.oracleVersion === 3 && selectedHost.osName==='Windows';
+    },
+    is12C() {
+      if(this.formData.host) {
+        return this.formData.host.oracleVersion === 3 && this.formData.host.osName==='Windows';
+      }
+      return false;
     }
   },
   methods: {
@@ -206,7 +212,7 @@ const vm = {
             application,
             // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId),
-            userPassword: this.selected12C ? userPassword : '',
+            userPassword: (this.selected12C || this.is12C) ? userPassword : '',
             // runUser: this.selected12C ? runUser : ''
           }, this.action);
         } else {

@@ -21,11 +21,12 @@
          <el-form-item label="恢复主机"
                        prop="serverId">
             <el-select v-model="formData.serverId"
-                       @change="changeHost"
+                       @change="changeHost(formData.serverId, [1, 2].includes(vmType))"
                        style="width: 100%;">
               <el-option v-for="(server, index) in serverData"
                          :key="index"
                          :value="server.id"
+                         v-if="!(details.server.id === server.id && vmType === 3)"
                          :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
@@ -40,7 +41,8 @@
             <el-input v-model="formData.newName"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12"
+                v-if="[1, 2].includes(vmType)">
           <el-col :span="21">
             <el-form-item label="恢复磁盘名"
                           prop="diskName">
@@ -62,6 +64,14 @@
               加载中
             </el-row>
           </el-col>
+        </el-col>
+        <el-col :span="12"
+                v-else>
+          <el-form-item label="恢复路径"
+                        prop="diskName"
+                        :rules="{ required: true, message: '请输入恢复路径', trigger: 'blur' }">
+            <el-input v-model="formData.diskName"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
     </el-form>

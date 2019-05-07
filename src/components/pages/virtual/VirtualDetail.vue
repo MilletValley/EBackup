@@ -116,29 +116,29 @@
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
-    <backup-plan-modal   :btn-loading="btnLoading"
-                            :visible.sync="backupPlanModalVisible"
-                            @confirm="vmCallback"
-                            :action="action"
-                            :backup-plan="selectedBackupPlan">
+    <backup-plan-modal :btn-loading="btnLoading"
+                       :visible.sync="backupPlanModalVisible"
+                       @confirm="vmCallback"
+                       :action="action"
+                       :backup-plan="selectedBackupPlan">
     </backup-plan-modal>
 
-    <restore-plan-modal   :btn-loading="btnLoading"
+    <restore-plan-modal :btn-loading="btnLoading"
+                        :details="details"
+                        :vm-type="vmType"
+                        :serverData="serverData"
+                        :visible.sync="restorePlanModalVisible"
+                        @confirm="restoreConfirmCallback"
+                        :action="restoreAction"
+                        :restore-plan="selectedRestorePlan">
+    </restore-plan-modal>
+    <single-restore-modal :btn-loading="btnLoading"
                           :details="details"
                           :vm-type="vmType"
                           :serverData="serverData"
-                          :visible.sync="restorePlanModalVisible"
-                          @confirm="restoreConfirmCallback"
-                          :action="restoreAction"
-                          :restore-plan="selectedRestorePlan">
-    </restore-plan-modal>
-    <single-restore-modal   :btn-loading="btnLoading"
-                            :details="details"
-                            :vm-type="vmType"
-                            :serverData="serverData"
-                            :result-id="selectedBackupResultId"
-                            :visible.sync="singleRestoreCreateModalVisible"
-                            @confirm="singleConfirmCallback">
+                          :result-id="selectedBackupResultId"
+                          :visible.sync="singleRestoreCreateModalVisible"
+                          @confirm="singleConfirmCallback">
     </single-restore-modal>
   </section>
 </template>

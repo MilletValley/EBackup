@@ -16,6 +16,7 @@
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "cax": "latest",
+    "d3": "^5.9.2",
     "dayjs": "^1.6.7",
     "echarts": "^4.1.0",
     "echarts-gl": "^1.1.1",
