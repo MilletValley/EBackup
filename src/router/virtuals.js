@@ -22,7 +22,7 @@ const vmRouter = [
           }
         },
         meta: {
-          title: 'veeam',
+          title: 'VMware',
           roles: ['vm admin']
         },
         children: [
@@ -41,7 +41,7 @@ const vmRouter = [
             name: 'VMwareList',
             component: VMwareList,
             meta: {
-              title: 'veeam虚拟机列表',
+              title: 'VMware列表',
               activeName: 'vmware',
               roles: ['vm admin'],
               breadcrumb: [
