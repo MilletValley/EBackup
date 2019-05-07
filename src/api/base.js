@@ -39,13 +39,6 @@ baseApi.interceptors.response.use(undefined, error => {
     store.commit(types.CLEAR_LOGININFO);
     router.push({ name: 'lisenceNotAvail' });
     return Promise.reject();
-  } else if (status === 500) {
-    const { message } = data;
-    Message.warning({
-      message,
-    });
-    router.push({ name: 'serverError' });
-    return Promise.reject();
   }
   const errorMsg = `${error.response.data.message}(${
     error.response.data.code
