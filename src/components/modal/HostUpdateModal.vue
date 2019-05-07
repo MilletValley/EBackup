@@ -96,14 +96,14 @@
           </el-col>
         </el-row>
         <el-form-item label="是否Rac环境"
-                      v-if="['Linux', 'AIX'].includes(formData.osName)"
+                      v-if="['Linux', 'AIX'].includes(formData.osName) && formData.databaseType === 1"
                       prop="isRacMark">
           <el-radio v-model="formData.isRacMark"
                     :label="0">是</el-radio>
           <el-radio v-model="formData.isRacMark"
                     :label="1">否</el-radio>
         </el-form-item>
-        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName)&&this.formData.databaseType === 1">
+        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName) && formData.databaseType === 1">
           <el-col :span="12">
             <el-form-item label="VIP"
                           prop="vip">
@@ -315,13 +315,13 @@ export default {
       if(oldVal === 1) {
         this.formData.oracleVersion = '';
       }
-      if (newVal === 9) {
-        this.formData.osName = 'Windows';
+      if(!this.availableOs.includes(this.formData.osName)) {
+        this.formData.osName = this.availableOs[0];
       }
     },
     'formData.oracleVersion': function(newVal, oldVal) {
       if(oldVal === 2 && this.formData.osName === 'AIX') {
-        this.formData.osName = '';
+        this.formData.osName = this.availableOs[0];
       }
     }
   },
