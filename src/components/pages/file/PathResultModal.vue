@@ -84,11 +84,11 @@
       <el-table-column label="开始时间"
                        prop="startTime"
                        min-width="140px"
+                       sortable
                        align="center"></el-table-column>
       <el-table-column label="结束时间"
                        prop="endTime"
                        min-width="140px"
-                       :sortable="true"
                        align="center"></el-table-column>
       <el-table-column label="大小"
                        prop="size"
@@ -169,7 +169,7 @@ export default {
     return {
       pageSize: 5,
       machineType: 2,
-      defaultSort: { prop: 'endTime', order: 'descending' }
+      defaultSort: { prop: 'startTime', order: 'descending' }
     }
   },
   computed: {
