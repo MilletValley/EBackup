@@ -557,7 +557,7 @@
 import { backupStrategyMapping } from '../../utils/constant';
 import DashboardTab from '../mixins/DashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
-import { paginationMixin, filterMixin } from '../mixins/commonMixin'
+import { paginationMixin, filterMixin } from '../mixins/commonMixin';
 export default {
   name: 'MoreState',
   mixins: [baseMixin, DashboardTab, paginationMixin, filterMixin],

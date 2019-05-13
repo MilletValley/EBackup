@@ -243,30 +243,33 @@ const yesOrNoMapping = {
 
 // 首页备份恢复表格的信息(不含虚拟机)
 const dbTypeMapping = {
-  1: 'sqlserver',
-  2: 'oracle',
-  3: 'mysql',
-  4: 'db2',
-  5: '达梦',
-  6: 'sybase',
-  7: 'cache',
-  8: 'insql'
+  1: 'oracle',
+  2: 'sqlserver',
+  // 3: '文件',
+  // 4: '虚拟机',
+  5: 'mysql',
+  6: 'db2',
+  7: '达梦数据库',
+  // 8: '应用服务器',
+  9: 'sybase',
+  10: 'cache',
+  11: 'insql'
 };
 // 首页数据库详情路由(不含虚拟机)
 const dbDetailRouterMapping = {
-  1: 'sqlserverDetail',
-  2: 'oracleDetail',
-  3: 'mysqlDetail',
-  4: 'db2Detail',
-  5: 'damengDetail',
-  6: 'sybaseDetail',
-  7: 'cacheDetail',
-  8: 'insqlDetail'
+  1: 'oracleDetail',
+  2: 'sqlserverDetail',
+  5: 'mysqlDetail',
+  6: 'db2Detail',
+  7: 'dmDetail',
+  9: 'sybaseDetail',
+  10: 'cacheDetail',
+  11: 'insqlDetail'
 };
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {
-  1: 'sqlserverLinkDetail',
-  2: 'oracleLinkDetail'
+  1: 'oracleLinkDetail',
+  2: 'sqlserverLinkDetail'
 };
 
 // 首页虚拟机详情路由
