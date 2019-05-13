@@ -96,14 +96,14 @@
           </el-col>
         </el-row>
         <el-form-item label="是否Rac环境"
-                      v-if="['Linux', 'AIX'].includes(formData.osName) && formData.databaseType === 1"
+                      v-if="formData.databaseType === 1"
                       prop="isRacMark">
           <el-radio v-model="formData.isRacMark"
                     :label="0">是</el-radio>
           <el-radio v-model="formData.isRacMark"
                     :label="1">否</el-radio>
         </el-form-item>
-        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName) && formData.databaseType === 1">
+        <el-row v-if="formData.isRacMark===0 && formData.databaseType === 1">
           <el-col :span="12">
             <el-form-item label="VIP"
                           prop="vip">
