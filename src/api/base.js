@@ -45,7 +45,7 @@ baseApi.interceptors.response.use(undefined, error => {
       message,
     });
     router.push({ name: 'serverError' });
-    return Promise.reject(message);
+    return Promise.reject();
   }
   const errorMsg = `${error.response.data.message}(${
     error.response.data.code
