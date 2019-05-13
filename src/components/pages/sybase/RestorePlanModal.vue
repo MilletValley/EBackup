@@ -42,8 +42,8 @@
 				<el-row>
 					<el-col :span="12" >
 						<el-form-item label="数据库名"
-													prop="detailInfo">
-							<el-input v-model="formData.detailInfo" :disabled="action !== 'create'"></el-input>
+													prop="dbName">
+							<el-input v-model="formData.dbName" :disabled="action !== 'create'"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
@@ -108,7 +108,7 @@ import TimeInterval from '@/components/common/TimeInterval';
 const basiceFormData = {
   name: '',
   hostIp: '',
-  detailInfo: '',
+  dbName: '',
   dbPort: '',
   loginName: '',
   password: '',
@@ -134,7 +134,7 @@ export default {
       rules: {
         name: validate.planName,
         hostIp: validate.selectHost,
-        detailInfo: validate.dbName,
+        dbName: validate.dbName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
         password: validate.dbPassword,
@@ -169,14 +169,14 @@ export default {
       }
       const { name, config, ...other } = plan;
       const { id, startTime, timePoints, timeStrategy, database, ...otherConfig } = config;
-      const { instanceName: detailInfo, loginName, host } = database;
+      const { instanceName: dbName, loginName, host } = database;
       const { name: hostName, hostIp } = host;
       return {
         name,
         startTime: timeStrategy === 1 ? '' : startTime,
         timePoints: cloneDeep(timePoints),
         timeStrategy,
-        detailInfo,
+        dbName,
         loginName,
         hostName,
         hostIp,
@@ -192,8 +192,8 @@ export default {
           this.fmtData({ ...this.restorePlan })
         );
       } else {
-        const {instanceName, dbPort} = this.details;
-        this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort});
+        const { instanceName, dbPort } = this.details;
+        this.originFormData = Object.assign({}, baseFormData, { dbName: instanceName, dbPort });
       }
       // 暂时清空密码，等后台删除密码返回后可删除此行
       this.originFormData.password = '';
