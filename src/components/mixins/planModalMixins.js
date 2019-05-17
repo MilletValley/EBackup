@@ -87,7 +87,7 @@ const backupPlanModalMixin = {
         if (!value) {
           callback(new Error('请输入计划时间'));
         } else if (dayjs(value) < dayjs()) {
-          callback(new Error('计划时间不能晚于当前时间'));
+          callback(new Error('计划时间必须晚于当前时间'));
         } else callback();
       } else {
         callback();
