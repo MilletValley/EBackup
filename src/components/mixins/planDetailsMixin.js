@@ -30,7 +30,7 @@ const routerNameMapping = {
 
 const commonTypeMapping = {
   windows: 'Windows',
-  linux: 'Linnux',
+  linux: 'Linux',
   vmware: 'VMware',
   fusionSphere: 'fusionSphere',
   hyperV: 'hyper-V',

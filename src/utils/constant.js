@@ -257,9 +257,9 @@ const dbDetailRouterMapping = {
 const dbTypeMapping = {
   1: 'oracle',
   2: 'sqlserver',
-  3: 'mysql',
-  4: 'db2',
-  5: '达梦数据库',
+  5: 'mysql',
+  6: 'db2',
+  7: 'dm',
   9: 'sybase',
   10: 'cache',
   11: 'insql'
