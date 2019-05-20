@@ -1,6 +1,8 @@
 import {
   weekMapping,
-  virtualHostServerTypeMapping
+  virtualHostServerTypeMapping,
+  dbTypeMapping,
+  vmTypeMapping
 } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 
@@ -8,21 +10,6 @@ const typeMapping = {
   1: '数据库',
   2: '文件',
   3: '虚拟机',
-};
-const vmTypeMapping = {
-  1: 'VMware',
-  2: 'fusionSphere',
-  3: 'hyperV'
-};
-const dbTypeMapping = {
-  1: 'sqlserver',
-  2: 'oracle',
-  3: 'mysql',
-  4: 'db2',
-  5: 'dm',
-  6: 'sybase',
-  7: 'cache',
-  8: 'insql'
 };
 
 const routerNameMapping = {

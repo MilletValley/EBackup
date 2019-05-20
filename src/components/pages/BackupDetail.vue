@@ -129,7 +129,7 @@
                   </el-col>
                   <el-col :span="8">
                     <el-form-item label="类型：">
-                      <el-tag size="small">{{target|commonTypeFilter}}</el-tag>
+                      <el-tag size="small">{{target}}</el-tag>
                     </el-form-item>
                   </el-col>
                   <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql'].includes(target)">
