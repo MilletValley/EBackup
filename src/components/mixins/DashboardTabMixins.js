@@ -4,7 +4,7 @@ import {
   databaseStateMapping,
   backupResultMapping,
   restoreResultMapping,
-  dbTypeMapping,
+  useTypeMapping,
   dbDetailRouterMapping,
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
@@ -41,7 +41,7 @@ const DashboardTab = {
     },
     // 数据库类型
     dbTypeFilter() {
-      return this.mappingConvertToFilters(dbTypeMapping);
+      return this.mappingConvertToFilters(useTypeMapping);
     },
     // 恢复结果
     filterRestoreStateFilter() {
@@ -147,7 +147,7 @@ const DashboardTab = {
       return row[property] === value;
     },
     dbType(row) {
-      return dbTypeMapping[row.ddvType];
+      return useTypeMapping[row.ddvType];
     },
     dbDetailRouter(row) {
       return dbDetailRouterMapping[row.ddvType];

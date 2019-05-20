@@ -2,7 +2,7 @@ import {
   weekMapping,
   virtualHostServerTypeMapping,
   dbTypeMapping,
-  vmTypeMapping
+  virtualMapping
 } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 
@@ -15,8 +15,9 @@ const typeMapping = {
 const routerNameMapping = {
   windows: 'filehostDetail',
   linux: 'filehostDetail',
-  vmware: 'virtualDetail',
-  hw: 'hwVirtualDetail',
+  vmware: 'vmwareDetail',
+  fusionSphere: 'fusionSphereDetail',
+  hyperV: 'hyperVDetail',
   oracle: 'oracleDetail',
   sqlserver: 'sqlserverDetail',
   mysql: 'mysqlDetail',
@@ -31,7 +32,8 @@ const commonTypeMapping = {
   windows: 'Windows',
   linux: 'Linnux',
   vmware: 'VMware',
-  hw: '华为虚拟机',
+  fusionSphere: 'fusionSphere',
+  hyperV: 'hyper-V',
   oracle: 'Oracle',
   sqlserver: 'SQL Server',
   mysql: 'MySql',
@@ -86,7 +88,7 @@ const planDetailsMixin = {
           target = this.details.machine && this.details.machine.osName ? this.details.machine.osName.toLowerCase() : 'windows';
           break;
         case 3:
-          target = vmTypeMapping[type];
+          target = virtualMapping[type];
           break;
         default:
       }

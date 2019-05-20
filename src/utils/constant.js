@@ -241,20 +241,6 @@ const yesOrNoMapping = {
   2: '否'
 };
 
-// 首页备份恢复表格的信息(不含虚拟机)
-const dbTypeMapping = {
-  1: 'oracle',
-  2: 'sqlserver',
-  // 3: '文件',
-  // 4: '虚拟机',
-  5: 'mysql',
-  6: 'db2',
-  7: '达梦数据库',
-  // 8: '应用服务器',
-  9: 'sybase',
-  10: 'cache',
-  11: 'insql'
-};
 // 首页数据库详情路由(不含虚拟机)
 const dbDetailRouterMapping = {
   1: 'oracleDetail',
@@ -266,6 +252,19 @@ const dbDetailRouterMapping = {
   10: 'cacheDetail',
   11: 'insqlDetail'
 };
+
+// 数据库类型
+const dbTypeMapping = {
+  1: 'oracle',
+  2: 'sqlserver',
+  3: 'mysql',
+  4: 'db2',
+  5: '达梦数据库',
+  9: 'sybase',
+  10: 'cache',
+  11: 'insql'
+};
+
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {
   1: 'oracleLinkDetail',
@@ -274,8 +273,9 @@ const dbTakeOverRouterMapping = {
 
 // 首页虚拟机详情路由
 const vmDetailRouterMapping = {
-  1: 'virtualDetail',
-  2: 'hwVirtualDetail'
+  1: 'vmwareDetail',
+  2: 'fusionSphereDetail',
+  3: 'hyperVDetail'
 };
 
 const vmTypeMapping = {
