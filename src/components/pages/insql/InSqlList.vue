@@ -116,7 +116,7 @@
                     :action="action"
                     :data="currentSelectData"
                     @confirm="confirmCall"></database-modal>
-    <batch-database-create-modal type="sqlserver"
+    <batch-database-create-modal type="insql"
                            :visible.sync="batchCreateModalVisible"
                            :btn-loading="btnLoading"
                            @confirm="batchCreateDb"></batch-database-create-modal>
