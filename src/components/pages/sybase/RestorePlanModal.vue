@@ -169,7 +169,7 @@ export default {
       }
       const { name, config, ...other } = plan;
       const { id, startTime, timePoints, timeStrategy, database, ...otherConfig } = config;
-      const { instanceName: dbName, loginName, host } = database;
+      const { dbName, loginName, host } = database;
       const { name: hostName, hostIp } = host;
       return {
         name,
@@ -192,8 +192,8 @@ export default {
           this.fmtData({ ...this.restorePlan })
         );
       } else {
-        const { instanceName, dbPort } = this.details;
-        this.originFormData = Object.assign({}, baseFormData, { dbName: instanceName, dbPort });
+        const { dbName, dbPort } = this.details;
+        this.originFormData = Object.assign({}, baseFormData, { dbName, dbPort });
       }
       // 暂时清空密码，等后台删除密码返回后可删除此行
       this.originFormData.password = '';
