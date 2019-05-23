@@ -40,7 +40,9 @@
             <!-- 服务IP开始：Linux下单机 -->
             <div v-else-if="osType(hostLinkReadyToSwitch.primaryHost) === 'Linux'">
               <p>服务IP
-                <span :class="$style.serviceIp">{{hostLinkReadyToSwitch.primaryHost.serviceIp }}</span> 将由</p>
+                <span :class="$style.serviceIp">
+                  {{hostLinkReadyToSwitch.serviceIpMark === 1 ? hostLinkReadyToSwitch.primaryHost.serviceIp : hostLinkReadyToSwitch.viceHost.serviceIp }}
+                </span> 将由</p>
               <p>
                 <i-icon :name="hostLinkReadyToSwitch.serviceIpMark === 1 ? 'production-env' : 'ebackup-env'"
                         style="vertical-align: -0.3em;"></i-icon>
