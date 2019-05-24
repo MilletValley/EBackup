@@ -153,12 +153,14 @@
                         :visible.sync="restorePlanModalVisible"
                         @confirm="restoreConfirmCallback"
                         :action="restoreAction"
+                        :host-in-links="hostInLinks"
                         :restore-plan="selectedRestorePlan">
     </restore-plan-modal>
     <single-restore-modal :btn-loading="btnLoading"
                           :details="details"
                           :result-id="selectedBackupResultId"
                           :visible.sync="singleRestoreCreateModalVisible"
+                          :host-in-links="hostInLinks"
                           @confirm="singleConfirmCallback">
     </single-restore-modal>
     
@@ -178,6 +180,7 @@ import BackupCard from '@/components/pages/sqlserver/BackupCard';
 import BackupResultList from '@/components/pages/sqlserver/BackupResultList';
 import RestoreCard from '@/components/pages/sqlserver/RestoreCard';
 import RestoreRecords from '@/components/pages/sqlserver/RestoreRecords';
+import { fetchLinks } from '@/api/sqlserver';
 
 export default {
   name: 'SqlServerDetail',
@@ -194,6 +197,7 @@ export default {
   data() {
     return {
       type: 'sqlserver',
+      hostInLinks: []
     };
   },
   watch: {
@@ -224,6 +228,18 @@ export default {
       .catch(error => {
         this.$message.error(error);
       });
+    },
+    fetchLinks() { // 恢复设备不能选择一键接管设备
+      fetchLinks()
+        .then(res => {
+          const { data: links } = res.data;
+          const primaryHostIds = links.map(link => link.primaryHost.id);
+          const viceHostIds = links.map(link => link.viceHost.id);
+          this.hostInLinks = primaryHostIds.concat(viceHostIds);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
     },
     judgeOsName(data){
       let str = data.osName;

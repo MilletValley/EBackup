@@ -19,7 +19,8 @@
         <el-button type="primary"
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
-      <el-form-item style="float: right;">
+      <el-form-item style="float: right;"
+                    v-show="['oracle', 'sqlserver'].includes(databaseType)">
         <el-button type="primary"
                    @click="batchSwitch">批量切换</el-button>
       </el-form-item>
