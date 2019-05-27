@@ -148,7 +148,7 @@ export default {
   hostIp: [
     {
       required: true,
-      message: '请输入主机IP',
+      message: '请输入IP地址',
       trigger: 'blur'
     },
     {
