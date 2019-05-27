@@ -192,10 +192,11 @@ export default {
         return tab.upload;
       })
       let uploadData = new FormData();
+      uploadData.append('packages', packages);
       // uploadData.append('versionCode', this.versionData.versionCode);
       // uploadData.append('packagePath', this.versionData.packagePath);
       // uploadData.append('packages', packages[0]);
-      this.$emit('confirm', packages[0]);
+      this.$emit('confirm', uploadData);
     },
     cancelButtonClick() {
       this.modalVisible = false;
