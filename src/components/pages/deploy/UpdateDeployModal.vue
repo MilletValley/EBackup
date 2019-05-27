@@ -5,9 +5,10 @@
                custom-class="min-width-dialog"
                @open="modalOpen">
       <el-form ref="form"
-                v-model="formData"
-                size="small"
-                label-width="120px">
+               v-model="formData"
+               size="small"
+               :rules="rules"
+               label-width="120px">
         <el-form-item label="代理IP"
                       prop="agentIp">
           <el-input v-model="formData.agentIp"
@@ -92,6 +93,7 @@
 
 <script>
 import { switchManualMapping } from '@/utils/constant';
+import validate from '@/utils/validate';
 
 const basicData = {
   agentIp: '',
@@ -103,6 +105,16 @@ const basicData = {
   user: '',
   pass: ''
 };
+const rules = {
+  // agentIp: validate.hostIp,
+  // agentOs: [{ required: true, message: '请输入选择操作系统', trigger: 'blur' }],
+  // installPath: [{ required: true, message: '请输入安装路径', triggle: 'blur' }],
+  // versionId: [{ required: true, message: '请选择部署版本', triggle: 'blur' }],
+  // packageId: [{ required: true, message: '请选择部署包', triggle: 'blur' }],
+  // auto: [{ required: true, message: '请选择部署方式', triggle: 'blur' }],
+  // user: [{ required: true, message: '请输入系统名', triggle: 'blur' }],
+  // pass: [{ required: true, message: '请输入系统密码', triggle: 'blur' }],
+};
 export default {
   name: 'UpdateDeployModal',
   props: ['visible', 'versions', 'btnLoading', 'selectData'],
@@ -110,7 +122,8 @@ export default {
     return {
       formData: {},
       originFormData: {},
-      switchManualMapping
+      switchManualMapping,
+      rules
     }
   },
   computed: {
@@ -125,8 +138,9 @@ export default {
       }
     },
     availPackages() {
-      const version = this.versions.find(v => v.id === this.formData.versionId);
-      return version ? vesion.package : [];
+      console.log(this.versions);
+      const version = Object.assign({}, this.versions.find(v => v.id === this.formData.versionId));
+      return version ? version.packages : [];
     }
   },
   methods: {
@@ -139,7 +153,9 @@ export default {
     },
     confirm() {
       let { versionId, packageId, depPackage, ...other } = this.formData;
-      const version = this.versions.find(version => version.id === versionId);
+      console.log(this.versions);
+      console.log(this.formData);
+      const version = Object.assign({}, this.versions.find(version => version.id === versionId));
       const newDepPackage = version ? version.packages.find(pack => pack.id === packageId) : {};
       newDepPackage.version = version;
       this.$emit('confirm', { depPackage: newDepPackage, ...other });

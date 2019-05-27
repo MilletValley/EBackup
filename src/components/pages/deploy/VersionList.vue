@@ -203,7 +203,7 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.versionType = data;
-          this.activeTabId = String(this.versions[0].id);
+          this.activeTabId = this.versions[0] ? String(this.versions[0].id) : '-1';
         })
     },
     createVersion() {
