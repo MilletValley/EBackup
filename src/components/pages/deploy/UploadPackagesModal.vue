@@ -6,19 +6,6 @@
                title="批量上传"
                @open="modalOpen"
                @close="modalClosed">
-      <!-- <el-form v-model="versionData"
-               inline
-               size="small"
-               label-width="120px">
-        <el-form-item label="版本号">
-          <el-input v-model="versionData.versionCode"
-                    disabled></el-input>
-        </el-form-item>
-        <el-form-item label="路径">
-          <el-input v-model="versionData.packagePath"
-                    disabled></el-input>
-        </el-form-item>
-      </el-form> -->
       <el-tabs v-model="editableTabsValue"
                type="card"
                @edit="handleTabsEdit"
@@ -31,10 +18,6 @@
           <el-form v-model="item.formData"
                    size="small"
                    label-width="120px">
-            <!-- <el-form-item label="代理包名"
-                          prop="packageName">
-              <el-input v-model="item.formData.packageName"></el-input>
-            </el-form-item> -->
             <el-row>
               <el-col :span="12">
                 <el-form-item label="操作系统"
@@ -116,13 +99,13 @@ export default {
   data() {
     return {
       formData: {},
-      // versionData: {},
       originFormData: {},
       fileList: [],
       params: {},
       editableTabsValue: '1',
       tabIndex: 1,
       editableTabs: [],
+      test: new FormData(),
       yesOrNoMapping,
       useTypeMapping
     }
@@ -171,7 +154,6 @@ export default {
       }
     },
     modalOpen() {
-      // this.versionData = Object.assign({}, this.selectData);
       this.editableTabs = [{
         title: '代理包1',
         name: '1',
@@ -186,28 +168,24 @@ export default {
     },
     confirm() {
       const packages = this.editableTabs.map(tab => {
-        Object.keys(tab.formData).forEach(key => {
-          tab.upload.append(key, tab.formData[key])
-        });
-        return tab.upload;
+        return tab.formData;
       })
+      this.test.append('packagesInfo', packages);
       let uploadData = new FormData();
       uploadData.append('packages', packages);
-      // uploadData.append('versionCode', this.versionData.versionCode);
-      // uploadData.append('packagePath', this.versionData.packagePath);
-      // uploadData.append('packages', packages[0]);
-      this.$emit('confirm', uploadData);
+      this.$emit('confirm', this.test);
     },
     cancelButtonClick() {
       this.modalVisible = false;
     },
     onChange(file, fileList) {
-      this.activeTab.upload.append('file', file.raw, file.name);
-       this.activeTab.formData.packageName = file.name;
+      // this.activeTab.upload.append('file', file.raw, file.name);
+      this.test.append('files', file.raw, file.name);
+      this.activeTab.formData.packageName = file.name;
     },
     handleRemove(file, fileList) {
-      this.activeTab.upload.delete('file');
-      this.activeTab.formData.packageName = '';
+      // this.activeTab.upload.delete('file');
+      // this.activeTab.formData.packageName = '';
     }
   }
 }
