@@ -3,77 +3,67 @@
     <el-dialog :visible.sync="modalVisible"
                :before-close="beforeModalClose"
                custom-class="min-width-dialog"
-               title="批量上传"
+               title="上传代理包"
                @open="modalOpen"
                @close="modalClosed">
-      <el-tabs v-model="editableTabsValue"
-               type="card"
-               @edit="handleTabsEdit"
-               addable>
-        <el-tab-pane v-for="item in editableTabs"
-                     :closable="editableTabs.length > 1"
-                     :key="item.name"
-                     :label="item.title"
-                     :name="item.name">
-          <el-form v-model="item.formData"
-                   size="small"
-                   label-width="120px">
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="操作系统"
-                              prop="osType">
-                  <el-select v-model="item.formData.osType">
-                    <el-option v-for="os in ['Windows', 'Linux', 'AIX']"
-                              :key="`${os}${item.name}`"
-                              :label="os"
-                              :value="os"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="设备类型">
-                  <el-select v-model="item.formData.hostType">
-                    <el-option v-for="type in Object.keys(useTypeMapping)"
-                              :key="`${type}${item.name}`"
-                              :label="useTypeMapping[type]"
-                              :value="Number(type)"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item label="Wrapper部署"
-                          prop="isWrapper">
-              <el-radio-group v-model="item.formData.isWrapper">
-                <el-radio v-for="type in Object.keys(yesOrNoMapping)"
-                          :key="type"
-                          :label="Number(type)">{{ yesOrNoMapping[type] }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="上传">
-              <el-upload action=""
-                          :limit="1"
-                          :auto-upload="false"
-                          :on-change="onChange"
-                          :on-remove="handleRemove"
-                          :fileList="fileList">
-                <el-button size="small"
-                            type="primary">点击上传</el-button>
-              </el-upload>
-            </el-form-item>
-            <el-form-item label="代理包名"
-                          prop="packageName">
-              <el-input v-model="item.formData.packageName"
-                        disabled></el-input>
-            </el-form-item>
-            <el-form-item label="代理包信息"
-                          prop="updateMsg">
-              <el-input type="textarea"
-                        v-model="item.formData.updateMsg"
-                        :autosize="{minRows: 5, maxRows: 10}"></el-input>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-      </el-tabs>
+        <el-form v-model="formData"
+                  size="small"
+                  label-width="120px">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="操作系统"
+                            prop="osType">
+                <el-select v-model="formData.osType">
+                  <el-option v-for="os in ['Windows', 'Linux', 'AIX']"
+                            :key="os"
+                            :label="os"
+                            :value="os"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="设备类型">
+                <el-select v-model="formData.hostType">
+                  <el-option v-for="type in Object.keys(useTypeMapping)"
+                            :key="type"
+                            :label="useTypeMapping[type]"
+                            :value="Number(type)"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="Wrapper部署"
+                        prop="isWrapper">
+            <el-radio-group v-model="formData.isWrapper">
+              <el-radio v-for="type in Object.keys(yesOrNoMapping)"
+                        :key="type"
+                        :label="Number(type)">{{ yesOrNoMapping[type] }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="上传">
+            <el-upload action=""
+                        :limit="1"
+                        :auto-upload="false"
+                        :on-change="onChange"
+                        :on-remove="handleRemove"
+                        :fileList="fileList">
+              <el-button size="small"
+                         type="primary"
+                         :disabled="Boolean(upload.get('file'))">点击上传</el-button>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="代理包名"
+                        prop="packageName">
+            <el-input v-model="formData.packageName"
+                      disabled></el-input>
+          </el-form-item>
+          <el-form-item label="代理包信息"
+                        prop="updateMsg">
+            <el-input type="textarea"
+                      v-model="formData.updateMsg"
+                      :autosize="{minRows: 5, maxRows: 10}"></el-input>
+          </el-form-item>
+        </el-form>
       <span slot="footer">
         <el-button type="primary"
                    @click="confirm"
@@ -101,11 +91,11 @@ export default {
       formData: {},
       originFormData: {},
       fileList: [],
+      upload: new FormData(),
       params: {},
       editableTabsValue: '1',
       tabIndex: 1,
       editableTabs: [],
-      test: new FormData(),
       yesOrNoMapping,
       useTypeMapping
     }
@@ -123,69 +113,35 @@ export default {
     },
     activeTab() {
       return this.editableTabs.find(tab => tab.name === this.editableTabsValue);
-    },
-    upload() {
-      return new FormData();
     }
   },
   methods: {
     beforeModalClose() {},
-    handleTabsEdit(targetName, action) {
-      if (action === 'add') {
-        let newTabName = String(++this.tabIndex);
-        this.editableTabs.push({
-          title: `代理包${newTabName}`,
-          name: newTabName,
-          upload: new FormData(),
-          formData: Object.assign({}, basicData)
-        });
-        this.editableTabsValue = newTabName;
-      }
-      if (action === 'remove') {
-        const tabs = this.editableTabs;
-        const targetIndex = tabs.findIndex(tab => tab.name === targetName);
-        if(this.editableTabsValue === targetName) {
-          const nextTab = tabs[targetIndex + 1] || tabs[targetIndex - 1];
-          if(nextTab) {
-            this.editableTabsValue = nextTab.name;
-          }
-        }
-        this.editableTabs.splice(targetIndex, 1);
-      }
-    },
     modalOpen() {
-      this.editableTabs = [{
-        title: '代理包1',
-        name: '1',
-        upload: new FormData(),
-        formData: Object.assign({}, basicData)
-      }];
-      this.editableTabsValue = this.editableTabs[0].name;
+      this.formData = Object.assign({}, basicData);
+      this.upload = new FormData();
+      this.fileList = [];
       this.tabIndex = 1;
     },
     modalClosed() {
       this.modalVisible = false;
     },
     confirm() {
-      const packages = this.editableTabs.map(tab => {
-        return tab.formData;
-      })
-      this.test.append('packagesInfo', packages);
-      let uploadData = new FormData();
-      uploadData.append('packages', packages);
-      this.$emit('confirm', this.test);
+      Object.keys(this.formData).forEach(key => {
+          this.upload.append(key, this.formData[key])
+      });
+      this.$emit('confirm', this.upload);
     },
     cancelButtonClick() {
       this.modalVisible = false;
     },
     onChange(file, fileList) {
-      // this.activeTab.upload.append('file', file.raw, file.name);
-      this.test.append('files', file.raw, file.name);
-      this.activeTab.formData.packageName = file.name;
+      this.upload.append('file', file.raw, file.name);
+       this.formData.packageName = file.name;
     },
     handleRemove(file, fileList) {
-      // this.activeTab.upload.delete('file');
-      // this.activeTab.formData.packageName = '';
+      this.upload.delete('file');
+      this.formData.packageName = '';
     }
   }
 }
