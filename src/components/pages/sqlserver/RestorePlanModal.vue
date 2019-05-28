@@ -5,7 +5,7 @@
              @close="modalClosed"
              :visible.sync="modalVisible">
     <span slot="title">
-      {{title}}
+      {{ title }}
       <!-- <span style="color: #999999"> (ID: {{restorePlan.id}})</span> -->
     </span>
     <el-form size="small"
@@ -31,7 +31,7 @@
           <el-select v-model="formData.hostIp" v-else -->
           <el-select v-model="formData.hostIp" :disabled="action !== 'create'"
                       style="width: 100%;">
-            <el-option v-for="host in availableHostsForRestore"
+            <el-option v-for="host in availableHostsForRestore.filter(host => !hostInLinks.includes(host.id))"
                         :key="host.id"
                         :value="host.hostIp"
                         :label="`${host.name}(${host.hostIp})`">
@@ -124,6 +124,12 @@ const basiceFormData = {
 export default {
   name: 'RestorePlanCreateModal',
   mixins: [restorePlanModalMixin],
+  props: {
+    hostInLinks: {
+      type: Array,
+      default: []
+    }
+  },
   components: {
     TimeInterval,
   },

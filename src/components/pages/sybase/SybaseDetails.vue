@@ -43,7 +43,7 @@
               <el-row style="margin-right: 5px;">
                 <el-col :span="8">
                   <el-form-item label="数据库名：">
-                    <span>{{ details.instanceName }}</span>
+                    <span>{{ details.dbName }}</span>
                   </el-form-item>
                   <el-form-item label="端口号：">
                     <span>{{ details.dbPort }}</span>

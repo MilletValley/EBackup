@@ -23,7 +23,7 @@
           </span>  
           <el-select v-model="formData.hostIp"
                       style="width: 100%;">
-            <el-option v-for="host in availableHostsForRestore"
+            <el-option v-for="host in availableHostsForRestore.filter(host => !hostInLinks.includes(host.id))"
                         :key="host.id"
                         :value="host.hostIp"
                         :label="`${host.name}(${host.hostIp})`">
@@ -91,6 +91,10 @@ export default {
       type: Number,
       required: true,
     },
+    hostInLinks: {
+      type: Array,
+      default: []
+    }
   },
   data() {
     return {

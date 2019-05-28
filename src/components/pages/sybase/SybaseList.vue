@@ -33,10 +33,10 @@
                           :class="$style.link">{{scope.row.name}}</router-link>
           </template>
         </el-table-column>
-        <el-table-column prop="instanceName"
-                        label="数据库名"
-                        min-width="150"
-                        align="center"></el-table-column>
+        <el-table-column prop="dbName"
+                         label="数据库名"
+                         min-width="150"
+                         align="center"></el-table-column>
         <el-table-column prop="host.hostIp"
                         label="主机IP"
                         min-width="150"

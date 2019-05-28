@@ -158,12 +158,14 @@
                         :visible.sync="restorePlanModalVisible"
                         @confirm="restoreConfirmCallback"
                         :action="restoreAction"
-                        :restore-plan="selectedRestorePlan">
+                        :restore-plan="selectedRestorePlan"
+                        :host-in-links="hostInLinks">
     </restore-plan-modal>
     <single-restore-modal :btn-loading="btnLoading"
                           :details="details"
                           :result-id="selectedBackupResultId"
                           :visible.sync="singleRestoreCreateModalVisible"
+                          :host-in-links="hostInLinks"
                           @confirm="singleConfirmCallback">
     </single-restore-modal>
   </section>
@@ -179,6 +181,7 @@ import BackupCard from '@/components/pages/oracle/BackupCard';
 import BackupResultList from '@/components/pages/oracle/BackupResultList';
 import RestoreCard from '@/components/pages/oracle/RestoreCard';
 import RestoreRecords from '@/components/pages/oracle/RestoreRecords';
+import { fetchLinks } from '@/api/oracle';
 
 import {
   fetchLink,
@@ -199,6 +202,7 @@ export default {
   data() {
     return {
       type: 'oracle',
+      hostInLinks: []
     };
   },
   watch: {
@@ -229,7 +233,19 @@ export default {
       .catch(error => {
         this.$message.error(error);
       });
-    }
+    },
+    fetchLinks() { // 恢复设备不能选择一键接管设备
+      fetchLinks()
+        .then(res => {
+          const { data: links } = res.data;
+          const primaryHostIds = links.map(link => link.primaryHost.id);
+          const viceHostIds = links.map(link => link.viceHost.id);
+          this.hostInLinks = primaryHostIds.concat(viceHostIds);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+    },
   },
 };
 </script>

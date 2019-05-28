@@ -147,7 +147,7 @@
                              min-width="100"></el-table-column>
             <el-table-column label="备份策略"
                              align="center"
-                             :formatter="backupStrategyFmt"
+                             :formatter="fileBackupStrategyFmt"
                              prop="backupStrategy"
                              min-width="130">
             </el-table-column>
@@ -295,7 +295,8 @@ import {
   timeStrategyMapping,
   operationStateMapping,
   vmTypeMapping,
-  vmDetailRouterMapping
+  vmDetailRouterMapping,
+  filehostBackupStrategyMapping
 } from '../../utils/constant';
 export default {
   name: 'backupPlans',
@@ -401,6 +402,9 @@ export default {
     },
     backupStrategyFmt(row){
       return backupStrategyMapping[row.backupStrategy];
+    },
+    fileBackupStrategyFmt(row) {
+      return filehostBackupStrategyMapping[row.backupStrategy];
     },
     timeStrategyFmt(row){
       return timeStrategyMapping[row.timeStrategy];
