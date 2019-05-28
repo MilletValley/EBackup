@@ -120,18 +120,6 @@
                        width="250"
                        align="center">
         <template slot-scope="scope">
-          <el-button type="primary"
-                    icon="el-icon-edit"
-                    circle
-                    size="mini"
-                    :class="$style.miniCricleIconBtn"
-                    @click="modifyOne(scope)"></el-button>
-          <el-button type="danger"
-                      icon="el-icon-delete"
-                      circle
-                      size="mini"
-                      :class="$style.miniCricleIconBtn"
-                      @click="deleteOne(scope)"></el-button>
           <el-button type="info"
                      icon="el-icon-refresh"
                      circle
@@ -151,6 +139,18 @@
                       size="mini"
                       :class="$style.miniCricleIconBtn"
                       @click="stopOne(scope)"></el-button>
+          <el-button type="primary"
+                    icon="el-icon-edit"
+                    circle
+                    size="mini"
+                    :class="$style.miniCricleIconBtn"
+                    @click="modifyOne(scope)"></el-button>
+          <el-button type="danger"
+                      icon="el-icon-delete"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="deleteOne(scope)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -341,10 +341,14 @@ export default {
       refreshDeploys(ids)
         .then(res => {
           const { data: deploys } = res.data;
-          this.tableData.forEach(v => {
+          this.tableData.forEach((v, index) => {
             const deploy = deploys.find(deploy => deploy.id  === v.id);
-            v = Object.assign({}, deploy);
-          })
+            if(deploy) {
+              this.tableData.splice(index,
+              1,
+              deploy);
+            }
+          });
         })
         .catch(error => {
           this.$message.error(error);

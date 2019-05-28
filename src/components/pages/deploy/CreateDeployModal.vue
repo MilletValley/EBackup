@@ -1,11 +1,10 @@
 <template>
   <section>
     <el-dialog :visible.sync="modalVisible"
-               :before-close="beforeModalClose"
                title="批量部署"
                custom-class="min-width-dialog"
                @open="modalOpen"
-               @close="modalClosed">
+               @opened="modalOpened">
       <el-tabs v-model="editableTabsValue"
                type="card"
                @edit="handleTabsEdit"
@@ -15,8 +14,9 @@
                      :key="item.name"
                      :label="item.title"
                      :name="item.name">
-          <el-form ref="form"
-                   v-model="item.formData"
+          <el-form :ref="`form${item.name}`"
+                   :rules="rules"
+                   :model="item.formData"
                    size="small"
                    label-width="120px">
             <el-form-item label="代理IP"
@@ -27,7 +27,7 @@
               <el-col :span="12">
                 <el-form-item label="部署版本"
                               prop="versionId">
-                  <el-select v-model="item.formData.versionId">
+                  <el-select v-model.number="item.formData.versionId">
                     <el-option v-for="version in versions"
                               :key="version.id"
                               :label="version.versionCode"
@@ -38,7 +38,7 @@
               <el-col :span="12">
                 <el-form-item label="部署包"
                               prop="packageId">
-                  <el-select v-model="item.formData.packageId">
+                  <el-select v-model.number="item.formData.packageId">
                     <el-option v-for="pack in (item.formData.versionId ? versions.find(v => v.id === item.formData.versionId).packages : [])"
                               :key="pack.id"
                               :label="pack.packageName"
@@ -62,11 +62,11 @@
               <el-col :span="12">
                 <el-form-item label="部署方式"
                               prop="auto">
-                  <el-select v-model="item.formData.auto">
+                  <el-select v-model.number="item.formData.auto">
                     <el-option v-for="type in Object.keys(switchManualMapping)"
                               :key="type"
                               :label="switchManualMapping[type]"
-                              :value="type"></el-option>
+                              :value="Number(type)"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -103,9 +103,9 @@
 </template>
 
 <script>
-import isEqual from 'lodash/isEqual';
 import { switchManualMapping } from '@/utils/constant';
 import validate from '@/utils/validate';
+import { rejects } from 'assert';
 
 const basicData = {
   agentIp: '',
@@ -117,15 +117,29 @@ const basicData = {
   user: '',
   pass: ''
 };
+
+const rules = {
+  agentIp: validate.hostIp,
+  agentOs: [{ required: true, message: '请选择操作系统', trigger: 'blur' }],
+  installPath: [{ required: true, message: '请输入安装路径', triggle: 'blur' }],
+  versionId: [{ type: 'number', required: true, message: '请选择部署版本', triggle: 'blur' }],
+  packageId: [{ type: 'number', required: true, message: '请选择部署包', triggle: 'blur' }],
+  auto: [{ type: 'number', required: true, message: '请选择部署方式', triggle: 'blur' }],
+  user: [{ required: true, message: '请输入系统名', triggle: 'blur' }],
+  pass: [{ required: true, message: '请输入系统密码', triggle: 'blur' }],
+}
+
 export default {
   name: 'CreateDeployModal',
   props: ['visible', 'versions', 'btnLoading'],
   data() {
     return {
       editableTabsValue: '1',
+      refForms: [],
       tabIndex: 1,
       switchManualMapping,
       editableTabs: [],
+      rules
     }
   },
   computed: {
@@ -142,7 +156,20 @@ export default {
   },
   methods: {
     validateProp() {
-      const multiFormData = this.editableTabs;
+      const multiFormData = this.refForms;
+      const that = this;
+      return new Promise(function(resolve, reject) {
+        for (let i = 0, l = multiFormData.length; i < l; ++i) {
+          const refForm = multiFormData[i];
+          that.$refs[refForm][0].validate(valid => {
+            if(valid) {
+              resolve();
+            } else {
+              reject();
+            }
+          })
+        }
+      });
     },
     handleTabsEdit(targetName, action) {
       if (action === 'add') {
@@ -153,6 +180,7 @@ export default {
           formData: Object.assign({}, basicData)
         });
         this.editableTabsValue = newTabName;
+        this.refForms.push(`form${this.newTabName}`);
       }
       if (action === 'remove') {
         const tabs = this.editableTabs;
@@ -164,6 +192,7 @@ export default {
           }
         }
         this.editableTabs.splice(targetIndex, 1);
+        this.refForms.splice(targetIndex, 1);
       }
     },
     modalOpen() {
@@ -174,44 +203,30 @@ export default {
       }];
       this.editableTabsValue = this.editableTabs[0].name;
       this.tabIndex = 1;
-    },
-    beforeModalClose(done) {
-      // this.hasModifiedBeforeClose(done);
-      this.modalVisible = false;
+      this.refForms.push(`form${this.editableTabsValue}`);
     },
     cancelButtonClick() {
-      // this.hasModifiedBeforeClose(() => {
-      //   this.modalVisible = false;
-      // });
       this.modalVisible = false;
     },
-    hasModifiedBeforeClose(fn) {
-      // if (isEqual(this.formData, this.originFormData)) {
-      //   fn();
-      // } else {
-      //   this.$confirm('有未保存的修改，是否退出？', {
-      //     type: 'warning',
-      //     confirmButtonText: '确定',
-      //     cancelButtonText: '取消',
-      //   })
-      //     .then(() => {
-      //       fn();
-      //     })
-      //     .catch(() => {});
-      // }
-    },
-    modalClosed() {
+    modalOpened() {
+      this.$refs.form1[0].clearValidate();
     },
     confirm() {
-      const depRecords = this.editableTabs.map(tab => {
-        const { versionId, packageId, ...other } = tab.formData;
-        const version = this.versions.find(version => version.id === versionId);
-        const { packages, ...another } = version;
-        const depPackage = Object.assign({}, version.packages.find(pack => pack.id === packageId));
-        depPackage.version = version;
-        return { ...other, depPackage };
-      })
-      this.$emit('confirm', { depRecords });
+      this.validateProp()
+        .then(() => {
+          const depRecords = this.editableTabs.map(tab => {
+            const { versionId, packageId, ...other } = tab.formData;
+            const version = this.versions.find(version => version.id === versionId);
+            const { packages, ...another } = version;
+            const depPackage = Object.assign({}, version.packages.find(pack => pack.id === packageId));
+            depPackage.version = version;
+            return { ...other, depPackage };
+          })
+          this.$emit('confirm', { depRecords });
+        })
+        .catch(() => {
+          this.$message.warning('初始化信息不符合要求');
+        })
     }
   }
 }

@@ -5,10 +5,12 @@
                custom-class="min-width-dialog"
                title="上传代理包"
                @open="modalOpen"
-               @close="modalClosed">
-        <el-form v-model="formData"
-                  size="small"
-                  label-width="120px">
+               @opened="modalOpened">
+        <el-form :model="formData"
+                 :rules="rules"
+                 ref="ruleForm"
+                 size="small"
+                 label-width="120px">
           <el-row>
             <el-col :span="12">
               <el-form-item label="操作系统"
@@ -22,8 +24,9 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="设备类型">
-                <el-select v-model="formData.hostType">
+              <el-form-item label="设备类型"
+                            prop="hostType">
+                <el-select v-model.number="formData.hostType">
                   <el-option v-for="type in Object.keys(useTypeMapping)"
                             :key="type"
                             :label="useTypeMapping[type]"
@@ -34,7 +37,7 @@
           </el-row>
           <el-form-item label="Wrapper部署"
                         prop="isWrapper">
-            <el-radio-group v-model="formData.isWrapper">
+            <el-radio-group v-model.number="formData.isWrapper">
               <el-radio v-for="type in Object.keys(yesOrNoMapping)"
                         :key="type"
                         :label="Number(type)">{{ yesOrNoMapping[type] }}</el-radio>
@@ -45,8 +48,7 @@
                         :limit="1"
                         :auto-upload="false"
                         :on-change="onChange"
-                        :on-remove="handleRemove"
-                        :fileList="fileList">
+                        :on-remove="handleRemove">
               <el-button size="small"
                          type="primary"
                          :disabled="Boolean(upload.get('file'))">点击上传</el-button>
@@ -76,6 +78,7 @@
 
 <script>
 import { yesOrNoMapping, useTypeMapping } from '@/utils/constant';
+import isEqual from 'lodash/isEqual';
 const basicData = {
   packageName: '',
   osType: '',
@@ -83,6 +86,13 @@ const basicData = {
   hostType: '',
   updateMsg: ''
 };
+const rules = {
+  packageName: [{ required: true, message: '请上传文件', triggle: 'blur' }],
+  osType: [{ required: true, message: '请选择操作系统', triggle: 'blur' }],
+  isWrapper: [{ type: 'number', required: true, message: '请选择部署方式', triggle: 'blur' }],
+  hostType: [{ type: 'number', required: true, message: '请选择设备类型', triggle: 'blur' }],
+  updateMsg: [{ required: true, message: '请输入更新信息', triggle: 'blur' }]
+}
 export default {
   name: 'UploadPackagesModal',
   props: ['visible', 'selectData', 'btnLoading'],
@@ -90,7 +100,7 @@ export default {
     return {
       formData: {},
       originFormData: {},
-      fileList: [],
+      rules,
       upload: new FormData(),
       params: {},
       editableTabsValue: '1',
@@ -116,24 +126,49 @@ export default {
     }
   },
   methods: {
-    beforeModalClose() {},
+    beforeModalClose(done) {
+      this.hasModifiedBeforeClose(done);
+    },
     modalOpen() {
       this.formData = Object.assign({}, basicData);
+      this.originFormData = { ...this.formData };
       this.upload = new FormData();
-      this.fileList = [];
       this.tabIndex = 1;
     },
-    modalClosed() {
-      this.modalVisible = false;
+    modalOpened() {
+      this.$refs.ruleForm.clearValidate();
     },
     confirm() {
-      Object.keys(this.formData).forEach(key => {
-          this.upload.append(key, this.formData[key])
-      });
-      this.$emit('confirm', this.upload);
+      this.$refs.ruleForm.validate(valid => {
+        if(valid) {
+          Object.keys(this.formData).forEach(key => {
+            this.upload.append(key, this.formData[key])
+          });
+          this.$emit('confirm', this.upload);
+        } else {
+          return false;
+        }
+      })
     },
     cancelButtonClick() {
-      this.modalVisible = false;
+      this.hasModifiedBeforeClose(() => {
+        this.modalVisible = false;
+      });
+    },
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => {});
+      }
     },
     onChange(file, fileList) {
       this.upload.append('file', file.raw, file.name);

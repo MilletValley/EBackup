@@ -1,11 +1,13 @@
 <template>
   <section>
     <el-dialog :visible.sync="modalVisible"
+               :before-close="beforeModalClose"
                title="修改部署信息"
                custom-class="min-width-dialog"
-               @open="modalOpen">
-      <el-form ref="form"
-               v-model="formData"
+               @open="modalOpen"
+               @close="modalClosed">
+      <el-form ref="ruleForm"
+               :model="formData"
                size="small"
                :rules="rules"
                label-width="120px">
@@ -22,18 +24,18 @@
                 <el-option v-for="version in versions"
                           :key="version.id"
                           :label="version.versionCode"
-                          :value="Number(version.id)"></el-option>
+                          :value="version.id"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="部署包"
                           prop="packageId">
-              <el-select v-model="formData.packageId">
+              <el-select v-model.number="formData.packageId">
                 <el-option v-for="pack in availPackages"
                           :key="pack.id"
                           :label="pack.packageName"
-                          :value="Number(pack.id)"></el-option>
+                          :value="pack.id"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -53,7 +55,7 @@
           <el-col :span="12">
             <el-form-item label="部署方式"
                           prop="auto">
-              <el-select v-model="formData.auto">
+              <el-select v-model.number="formData.auto">
                 <el-option v-for="type in Object.keys(switchManualMapping)"
                           :key="type"
                           :label="switchManualMapping[type]"
@@ -94,6 +96,7 @@
 <script>
 import { switchManualMapping } from '@/utils/constant';
 import validate from '@/utils/validate';
+import isEqual from 'lodash/isEqual';
 
 const basicData = {
   agentIp: '',
@@ -107,13 +110,13 @@ const basicData = {
 };
 const rules = {
   // agentIp: validate.hostIp,
-  // agentOs: [{ required: true, message: '请输入选择操作系统', trigger: 'blur' }],
-  // installPath: [{ required: true, message: '请输入安装路径', triggle: 'blur' }],
-  // versionId: [{ required: true, message: '请选择部署版本', triggle: 'blur' }],
-  // packageId: [{ required: true, message: '请选择部署包', triggle: 'blur' }],
-  // auto: [{ required: true, message: '请选择部署方式', triggle: 'blur' }],
-  // user: [{ required: true, message: '请输入系统名', triggle: 'blur' }],
-  // pass: [{ required: true, message: '请输入系统密码', triggle: 'blur' }],
+  agentOs: [{ required: true, message: '请选择操作系统', trigger: 'blur' }],
+  installPath: [{ required: true, message: '请输入安装路径', triggle: 'blur' }],
+  versionId: [{ type: 'number', required: true, message: '请选择部署版本', triggle: 'blur' }],
+  packageId: [{ type: 'number', required: true, message: '请选择部署包', triggle: 'blur' }],
+  auto: [{ type: 'number', required: true, message: '请选择部署方式', triggle: 'blur' }],
+  user: [{ required: true, message: '请输入系统名', triggle: 'blur' }],
+  pass: [{ required: true, message: '请输入系统密码', triggle: 'blur' }],
 };
 export default {
   name: 'UpdateDeployModal',
@@ -138,7 +141,6 @@ export default {
       }
     },
     availPackages() {
-      console.log(this.versions);
       const version = Object.assign({}, this.versions.find(v => v.id === this.formData.versionId));
       return version ? version.packages : [];
     }
@@ -149,20 +151,47 @@ export default {
       const packageId = depPackage.id;
       const versionId = depPackage.version.id;
       this.formData = Object.assign({ ...basicData, packageId, versionId }, this.selectData);
-      this.originFormData = Object.assign({ ...basicData, packageId, versionId }, this.selectData);
+      this.originFormData = { ...this.formData };
     },
     confirm() {
-      let { versionId, packageId, depPackage, ...other } = this.formData;
-      console.log(this.versions);
-      console.log(this.formData);
-      const version = Object.assign({}, this.versions.find(version => version.id === versionId));
-      const newDepPackage = version ? version.packages.find(pack => pack.id === packageId) : {};
-      newDepPackage.version = version;
-      this.$emit('confirm', { depPackage: newDepPackage, ...other });
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          let { versionId, packageId, depPackage, ...other } = this.formData;
+          const version = { ...this.versions.find(version => version.id === versionId) };
+          const newDepPackage = version ? Object.assign({}, version.packages.find(pack => pack.id === packageId)) : {};
+          newDepPackage.version = Object.assign({}, version);
+          this.$emit('confirm', { depPackage: newDepPackage, ...other });
+        } else {
+          return false;
+        }
+      })
     },
     cancelButtonClick() {
-      this.modalVisible = false;
-    }
+      this.hasModifiedBeforeClose(() => {
+        this.modalVisible = false;
+      });
+    },
+    modalClosed() {
+      this.$refs.ruleForm.clearValidate();
+    },
+    beforeModalClose(done) {
+      this.hasModifiedBeforeClose(done);
+    },
+    hasModifiedBeforeClose(fn) {
+      if (isEqual(this.formData, this.originFormData)) {
+        fn();
+      } else {
+        this.$confirm('有未保存的修改，是否退出？', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        })
+          .then(() => {
+            fn();
+          })
+          .catch(() => {});
+      }
+    },
   }
 }
 </script>
