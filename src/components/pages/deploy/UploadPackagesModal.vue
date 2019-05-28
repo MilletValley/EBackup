@@ -48,7 +48,8 @@
                         :limit="1"
                         :auto-upload="false"
                         :on-change="onChange"
-                        :on-remove="handleRemove">
+                        :on-remove="handleRemove"
+                        :file-list="fileList">
               <el-button size="small"
                          type="primary"
                          :disabled="Boolean(upload.get('file'))">点击上传</el-button>
@@ -101,6 +102,7 @@ export default {
       formData: {},
       originFormData: {},
       rules,
+      fileList: [],
       upload: new FormData(),
       params: {},
       editableTabsValue: '1',
@@ -134,6 +136,7 @@ export default {
       this.originFormData = { ...this.formData };
       this.upload = new FormData();
       this.tabIndex = 1;
+      this.fileList = [];
     },
     modalOpened() {
       this.$refs.ruleForm.clearValidate();

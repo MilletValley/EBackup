@@ -26,20 +26,9 @@
                           class="detailFormItem">
               <span>{{ props.row.agentOs }}</span>
             </el-form-item>
-            <el-form-item label="wrapper部署"
-                          class="detailFormItem">
-              <el-tag :type="props.row.depPackage.isWrapper | wrapperTagFilter"
-                      size="mini">
-                {{ props.row.depPackage.isWrapper | yesOrNoFilter }}
-              </el-tag>
-            </el-form-item>
             <el-form-item label="部署路径"
                           class="detailFormItem">
               <span>{{ props.row.installPath }}</span>
-            </el-form-item>
-            <el-form-item label="部署方式"
-                          class="detailFormItem">
-              <span>{{ props.row.auto | switchManualFilter }}</span>
             </el-form-item>
             <el-form-item label="部署时间"
                           class="detailFormItem">
@@ -51,13 +40,6 @@
               <span>{{ props.row.user }}</span>
             </el-form-item>
           </el-form>
-        </template>
-      </el-table-column>
-      <el-table-column label="序号"
-                       width="60"
-                       align="center">
-        <template slot-scope="scope">
-            {{scope.$index+1+(currentPage-1)*pageSize}}
         </template>
       </el-table-column>
       <el-table-column label="代理IP"
@@ -100,6 +82,25 @@
           </el-popover>
         </template>
       </el-table-column>
+      <el-table-column label="wrapper部署"
+                       min-width="80"
+                       align="center"
+                       prop="depPackage">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.depPackage.isWrapper | wrapperTagFilter"
+                  size="mini">
+            {{ scope.row.depPackage.isWrapper | yesOrNoFilter }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="部署方式"
+                       min-width="60"
+                       align="center"
+                       prop="auto">
+        <template slot-scope="scope">
+          <span>{{ scope.row.auto | switchManualFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="部署状态"
                        min-width="60"
                        align="center"
@@ -117,7 +118,7 @@
         </template>
       </el-table-column>
       <el-table-column label="操作"
-                       width="250"
+                       width="220"
                        align="center">
         <template slot-scope="scope">
           <el-button type="info"
@@ -191,6 +192,7 @@ import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { yesOrNoMapping, switchManualMapping, deployStateMapping } from '@/utils/constant';
 import CreateDeployModal from '@/components/pages/deploy/CreateDeployModal';
 import UpdateDeployModal from '@/components/pages/deploy/UpdateDeployModal';
+import { setTimeout } from 'timers';
 export default {
   name: 'DeployManager',
   mixins: [paginationMixin, sortMixin],
@@ -273,11 +275,24 @@ export default {
         type: 'warning'
       })
         .then(() => {
+          const opt = {
+            type: 'info',
+            message: `正在卸载${row.agentIp}的部署包中，请稍后`,
+            duration: 0
+          }
+          const { close } = this.$message(opt);
           deletePackageRecord(row.id)
             .then(res => {
               const { message } = res.data;
-              this.$message.success(message);
+              opt.type = 'success';
+              opt.message = message;
+              setTimeout(close, 1000);
               this.fetchData();
+            })
+            .catch(() => {
+              opt.type = 'error';
+              opt.message = error;
+              setTimeout(close, 1000);
             })
         })
         .catch(() => {
@@ -294,11 +309,24 @@ export default {
         type: 'warning'
       })
         .then(() => {
+          const opt = {
+            type: 'info',
+            message: `正在启动${row.agentIp}的部署包中，请稍后`,
+            duration: 0
+          }
+          const { close } = this.$message(opt);
           startPackageRecord(row.id)
             .then(res => {
               const { message } = res.data;
-              this.$message.success(message);
+              opt.type = 'success';
+              opt.message = message;
+              setTimeout(close, 1000);
               this.fetchData();
+            })
+            .catch(() => {
+              opt.type = 'error';
+              opt.message = error;
+              setTimeout(close, 1000);
             })
         })
         .catch(() => {
@@ -315,12 +343,25 @@ export default {
         type: 'warning'
       })
         .then(() => {
+          const opt = {
+            type: 'info',
+            message: `正在停止${row.agentIp}的部署包中，请稍后`,
+            duration: 0
+          }
+          const { close } = this.$message(opt);
           stopPackageRecord(row.id)
             .then(res => {
               const { message } = res.data;
-              this.$message.success(message);
+              opt.type = 'success';
+              opt.message = message;
+              setTimeout(close, 1000);
               this.fetchData();
             })
+            .catch(() => {
+              opt.type = 'error';
+              opt.message = error;
+              setTimeout(close, 1000);
+            });
         })
         .catch(() => {
           this.$message({
@@ -338,9 +379,15 @@ export default {
       this.refresh(ids);
     },
     refresh(ids) {
+      const opt = {
+        type: 'info',
+        message: '正在刷新中，请稍后',
+        duration: 0
+      }
+      const { close } = this.$message(opt);
       refreshDeploys(ids)
         .then(res => {
-          const { data: deploys } = res.data;
+          const { data: deploys, message } = res.data;
           this.tableData.forEach((v, index) => {
             const deploy = deploys.find(deploy => deploy.id  === v.id);
             if(deploy) {
@@ -349,9 +396,14 @@ export default {
               deploy);
             }
           });
+          opt.type = 'success';
+          opt.message = message;
+          setTimeout(close, 1000);
         })
         .catch(error => {
-          this.$message.error(error);
+          opt.type = 'error';
+          opt.message = error;
+          setTimeout(close, 1000);
         })
     },
     createConfirm(requestData) {
@@ -394,12 +446,12 @@ export default {
 </style>
 <style scoped>
 .detailFormItem {
-  width: 50%;
+  width: 40%;
   margin-right: 0;
   margin-bottom: 0;
 }
 .detailFormItem:nth-child(2n){
-  width: 69%;
+  width: 59%;
 }
 </style>
 

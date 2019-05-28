@@ -51,7 +51,8 @@
               <el-col :span="12">
                 <el-form-item label="操作系统"
                               prop="agentOs">
-                  <el-select v-model="item.formData.agentOs">
+                  <el-select v-model="item.formData.agentOs"
+                             @change="agentOsChange(item)">
                     <el-option v-for="(os, index) in ['Windows', 'Linux', 'AIX']"
                               :key="index"
                               :label="os"
@@ -210,6 +211,13 @@ export default {
     },
     modalOpened() {
       this.$refs.form1[0].clearValidate();
+    },
+    agentOsChange({ formData }) {
+      if(formData.agentOs === 'Windows') {
+        formData.installPath = 'C:\\';
+      } else if (['Linux', 'AIX'].includes(formData.agentOs)) {
+        formData.installPath = '/opt/';
+      }
     },
     confirm() {
       this.validateProp()

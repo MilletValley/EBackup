@@ -70,7 +70,7 @@
             <el-table-column prop="hostType"
                             label="设备类型"
                             align="center"
-                            width="150">
+                            width="120">
               <template slot-scope="scope">
                 <span>{{ scope.row.hostType | hostTypeFilter }}</span>
               </template>
@@ -78,16 +78,25 @@
             <el-table-column label="路径"
                               align="center"
                               min-width="200"
-                              tooltip-effect="light"
+                              effect="light"
                               show-overflow-tooltip>
               <template slot-scope="scope">
-                <span>{{ version.packagePath }}\{{ scope.row.packageName }}</span>
+                <span>{{ version.packagePath }}{{ version.versionCode }}\{{ scope.row.packageName }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="osType"
-                            label="操作系统"
-                            width="120"
-                            align="center"></el-table-column>
+                             label="操作系统"
+                             width="120"
+                             align="center"></el-table-column>
+            <el-table-column prop="upTime"
+                             label="上传时间"
+                             width="180"
+                             align="center">
+              <template slot-scope="scope">
+                <i class="el-icon-time"></i>
+                <span>{{ scope.row.upTime }}</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="isWrapper"
                             label="wrapper部署"
                             width="120"
@@ -231,14 +240,24 @@ export default {
         })
     },
     deleteVersionConfirm() {
+      const opt = {
+        type: 'info',
+        message: `正在删除版本${this.operateVersionData.versionCode}及其代理包中，请稍后`,
+        duration: 0
+      }
+      const { close } = this.$message(opt);
       deleteVersion(this.operateVersionData.id)
         .then(res => {
           const { message } = res.data;
-          this.$message.success(message);
+          opt.type = 'success';
+          opt.message = message;
+          setTimeout(close, 1000);
           this.fetchData();
         })
         .catch(error => {
-          this.$message.error(error);
+          opt.type = 'error';
+          opt.message = error;
+          setTimeout(close, 1000);
         });
     },
     deleteVersion() {
@@ -290,7 +309,7 @@ export default {
         .then(({ value: pass }) => {
           validatePassword(pass)
             .then(() => {
-              this.deletePackageConfirm(row.id);
+              this.deletePackageConfirm(row);
             })
             .catch(error => {
               this.$message.error(error);
@@ -303,15 +322,25 @@ export default {
     downLoadPackage({ row }) {
       window.open(`${this.saveIp}/${this.operateVersionData.packagePath}/${row.packageName}`, '_self')
     },
-    deletePackageConfirm(packageId) {
-      deletePackage(packageId)
+    deletePackageConfirm(pack) {
+      const opt = {
+        type: 'info',
+        message: `正在删除代理包${pack.packageName}中，请稍后`,
+        duration: 0
+      }
+      const { close } = this.$message(opt);
+      deletePackage(pack.id)
         .then(res => {
           const { message } = res.data;
-          this.$message.success(message);
+          opt.type = 'success';
+          opt.message = message;
+          setTimeout(close, 1000);
           this.fetchData();
         })
         .catch(error => {
-          this.$message.error(error);
+          opt.type = 'error';
+          opt.message = error;
+          setTimeout(close, 1000);
         });
     }
   }
