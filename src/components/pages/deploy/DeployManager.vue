@@ -129,17 +129,19 @@
                      :class="$style.miniCricleIconBtn"
                      @click="refreshOne(scope)"></el-button>
           <el-button type="success"
-                      icon="el-icon-check"
-                      circle
-                      size="mini"
-                      :class="$style.miniCricleIconBtn"
-                      @click="startOne(scope)"></el-button>
-          <el-button type="info"
-                      icon="el-icon-minus"
-                      circle
-                      size="mini"
-                      :class="$style.miniCricleIconBtn"
-                      @click="stopOne(scope)"></el-button>
+                     icon="el-icon-caret-right"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="startOne(scope)">
+          </el-button>
+          <el-button type="danger"
+                     circle
+                     size="mini"
+                     :class="$style.miniCricleIconBtn"
+                     @click="stopOne(scope)">
+            <div style="height: 8px; width: 8px; background-color: #fff"></div>
+          </el-button>
           <el-button type="primary"
                     icon="el-icon-edit"
                     circle

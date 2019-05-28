@@ -265,6 +265,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPlaceholder: '请输入用户密码',
+        inputType: 'password',
         inputValidator: value => !value ? '密码不能为空！' : true
       })
         .then(({ value: pass }) => {
@@ -304,6 +305,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPlaceholder: '请输入用户密码',
+        inputType: 'password',
         inputValidator: value => !value ? '密码不能为空！' : true
       })
         .then(({ value: pass }) => {
@@ -320,7 +322,7 @@ export default {
         })
     },
     downLoadPackage({ row }) {
-      window.open(`${this.saveIp}/${this.operateVersionData.packagePath}/${row.packageName}`, '_self')
+      window.open(`${this.saveIp}/${this.operateVersionData.packagePath}${this.operateVersionData.versionCode}/${row.packageName}`, '_self')
     },
     deletePackageConfirm(pack) {
       const opt = {

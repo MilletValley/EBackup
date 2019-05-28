@@ -43,7 +43,7 @@ import isEqual from 'lodash/isEqual';
 
 const basicData = {
   versionCode: '',
-  packagePath: 'C:\packages\\',
+  packagePath: 'C:\\packages\\',
   versionMsg: ''
 }
 const rules = {

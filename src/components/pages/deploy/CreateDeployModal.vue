@@ -86,7 +86,8 @@
               <el-col :span="12">
                 <el-form-item label="密码"
                               prop="pass">
-                  <el-input v-model="item.formData.pass"></el-input>
+                  <el-input v-model="item.formData.pass"
+                            type="password"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>

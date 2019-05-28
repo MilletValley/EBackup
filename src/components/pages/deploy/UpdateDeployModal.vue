@@ -78,7 +78,8 @@
           <el-col :span="12">
             <el-form-item label="密码"
                           prop="pass">
-              <el-input v-model="formData.pass"></el-input>
+              <input-toggle v-model="formData.pass"
+                            :hidden.sync="hiddenPassword"></input-toggle>
             </el-form-item>
           </el-col>
         </el-row>
@@ -97,6 +98,7 @@
 import { switchManualMapping } from '@/utils/constant';
 import validate from '@/utils/validate';
 import isEqual from 'lodash/isEqual';
+import InputToggle from '@/components/InputToggle';
 
 const basicData = {
   agentIp: '',
@@ -121,11 +123,15 @@ const rules = {
 export default {
   name: 'UpdateDeployModal',
   props: ['visible', 'versions', 'btnLoading', 'selectData'],
+  components: {
+    InputToggle
+  },
   data() {
     return {
       formData: {},
       originFormData: {},
       switchManualMapping,
+      hiddenPassword: true,
       rules
     }
   },
@@ -173,6 +179,7 @@ export default {
     },
     modalClosed() {
       this.$refs.ruleForm.clearValidate();
+      this.hiddenPassword = true;
     },
     beforeModalClose(done) {
       this.hasModifiedBeforeClose(done);
