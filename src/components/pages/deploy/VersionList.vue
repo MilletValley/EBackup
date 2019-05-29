@@ -51,7 +51,7 @@
             <el-table-column prop="packageName"
                             label="代理包名"
                             align="center"
-                            min-width="120"
+                            min-width="160"
                             tooltip-effect="light"
                             show-overflow-tooltip>
               <template slot-scope="scope">
@@ -77,7 +77,7 @@
             </el-table-column>
             <el-table-column label="路径"
                               align="center"
-                              min-width="200"
+                              min-width="180"
                               effect="light"
                               show-overflow-tooltip>
               <template slot-scope="scope">
@@ -322,7 +322,7 @@ export default {
         })
     },
     downLoadPackage({ row }) {
-      window.open(`${this.saveIp}/${this.operateVersionData.packagePath}${this.operateVersionData.versionCode}/${row.packageName}`, '_self')
+      window.open(`${this.saveIp}/api/v1/package-types/${row.id}/download`, '_self')
     },
     deletePackageConfirm(pack) {
       const opt = {
