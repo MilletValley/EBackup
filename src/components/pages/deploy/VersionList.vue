@@ -322,7 +322,7 @@ export default {
         })
     },
     downLoadPackage({ row }) {
-      window.open(`${this.saveIp}/api/v1/package-types/${row.id}/download`, '_self')
+      window.open(`http://${this.saveIp}:8089/api/v1/package-types/${row.id}/download`, '_self')
     },
     deletePackageConfirm(pack) {
       const opt = {
