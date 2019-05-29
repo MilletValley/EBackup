@@ -154,6 +154,9 @@ export default {
                 data.id = this.restorePlan.id;
                 data.config.id = this.restorePlan.config.id;
               }
+              if (!data.config.serverId) {
+                data.config.serverId = this.details.server.id;
+              }
               this.$emit('confirm', data, this.action);
             }
           })
