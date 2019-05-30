@@ -31,6 +31,14 @@
           <el-radio v-model="formData.hostType"
                     :label="2">易备环境</el-radio>
         </el-form-item>
+        <el-form-item label="存储方式"
+                      prop="storeType">
+          <el-radio-group v-model.number="formData.storeType">
+            <el-radio v-for="type in Object.keys(storeTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
           <el-radio-group v-model="useType">
@@ -194,7 +202,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { modifyOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
-import { oracleVersionMapping } from '@/utils/constant';
+import { oracleVersionMapping, storeTypeMapping } from '@/utils/constant';
 import { validateLength } from '../../utils/common';
 
 export default {
@@ -237,7 +245,8 @@ export default {
       validateCheckPassword,
       validateHostName,
       hiddenPassword1: true,
-      oracleVersionMapping
+      oracleVersionMapping,
+      storeTypeMapping
     }
   },
   methods: {

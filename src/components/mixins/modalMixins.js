@@ -79,7 +79,8 @@ const genModalMixin = type => {
         sharingPath: '',
         isRacMark: 1,
         vip: '',
-        tempVip: ''
+        tempVip: '',
+        storeType: 1
       };
       const virtualFormData = {
         id: -1,

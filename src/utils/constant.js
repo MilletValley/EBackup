@@ -306,6 +306,11 @@ const deployStateMapping = {
   7: '未知'
 };
 
+const storeTypeMapping = {
+  1: 'NFS',
+  2: 'CLOUD'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -348,5 +353,6 @@ export {
   virtualMapping,
   serverTypeMapping,
   yesOrNoMapping,
-  deployStateMapping
+  deployStateMapping,
+  storeTypeMapping
 };

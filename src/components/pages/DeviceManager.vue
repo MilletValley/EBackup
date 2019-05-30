@@ -76,11 +76,19 @@
                        column-key="osName"
                        min-width="120"
                        align="center"></el-table-column>
-      <el-table-column prop="loginName"
+      <!-- <el-table-column prop="loginName"
                        label="登录账号"
                        min-width="100"
                        show-overflow-tooltip
-                       align="center"></el-table-column>
+                       align="center"></el-table-column> -->
+      <el-table-column prop="storeType"
+                       label="存储方式"
+                       min-width="100"
+                       align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.storeType | storeTypeFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作"
                        min-width="120"
                        header-align="center"
@@ -133,6 +141,7 @@ import HostCreateModal from '@/components/modal/HostCreateModal';
 import HostUpdateModal from '@/components/modal/HostUpdateModal';
 import { createOne, deleteOne, modifyOne } from '@/api/host';
 import { mapActions } from 'vuex';
+import { storeTypeMapping } from '@/utils/constant';
 import {
   hostTypeMapping,
   databaseTypeMapping,
@@ -174,6 +183,11 @@ export default {
         text: databaseTypeMapping[Number(db)],
         value: Number(db)
       }))
+    }
+  },
+  filters: {
+    storeTypeFilter(type) {
+      return storeTypeMapping[type];
     }
   },
   watch: {
