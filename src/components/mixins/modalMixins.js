@@ -75,7 +75,7 @@ const genModalMixin = type => {
         databaseType: 1,
         windowsType: 2,
         oracleVersion: '',
-        storagePath: '',
+        storagePath: 'C',
         sharingPath: '',
         isRacMark: 1,
         vip: '',

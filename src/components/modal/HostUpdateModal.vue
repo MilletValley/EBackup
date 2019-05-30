@@ -136,7 +136,8 @@
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
         <!--windows下 10G Oracle版本显示 -->
-        <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType===1&&this.formData.osName==='Windows'">
+        <template v-if="formData.storeType === 2 ||
+                  (formData.oracleVersion===1&&formData.databaseType===1&&formData.osName==='Windows')">
           <el-row>
             <el-col :span="12">
               <el-form-item label="存储盘符"
@@ -148,7 +149,8 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="12"
+                    v-if="formData.oracleVersion===1&&formData.databaseType===1&&formData.osName==='Windows'">
               <el-form-item label="共享盘符"
                             prop="sharingPath">
                 <el-select v-model="formData.sharingPath">
