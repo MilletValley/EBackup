@@ -24,10 +24,10 @@
               <el-tooltip placement="top" 
                           content="易备环境设备" >
                   <i class="el-icon-info"></i>
-              </el-tooltip >
-          </span>  
+              </el-tooltip>
+          </span>
           <el-input disabled v-if="action !== 'create'"
-                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
+                    :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
           <el-select v-model="formData.hostIp" v-else
                       style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore"
@@ -206,6 +206,12 @@ export default {
     //   this.hiddenPassword = true;
     // },
   },
+  computed: {
+    availableHostsForRestore() {
+      const ebackupHosts = this.$store.getters[`${this.type}Hosts`];
+      return ebackupHosts;
+    },
+  }
 };
 </script>
 <style >

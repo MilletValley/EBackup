@@ -106,6 +106,12 @@ export default {
       },
     };
   },
+  computed: {
+    availableHostsForRestore() {
+      const ebackupHosts = this.$store.getters[`${this.type}Hosts`];
+      return ebackupHosts;
+    },
+  },
   methods: {
     confirmBtnClick() {
       this.$refs.singleRestorePlanForm.validate(valid => {
