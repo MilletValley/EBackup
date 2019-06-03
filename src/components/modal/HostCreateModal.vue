@@ -277,6 +277,8 @@ export default {
         return ['Windows', 'Linux', 'AIX'];
       } else if (this.formData.databaseType === 10) {
         return ['Windows', 'AIX'];
+      } else if (this.formData.databaseType === 6) {
+        return ['Linux', 'AIX'];
       }
       return ['Windows', 'Linux'];
     }
