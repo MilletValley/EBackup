@@ -142,6 +142,14 @@
             <el-col :span="12">
               <el-form-item label="存储盘符"
                             prop="storagePath">
+                <span slot="label">
+                  存储地址
+                  <el-tooltip :content="`存储地址为: ${formData.storagePath}:\\backup\\`"
+                              placement="right"
+                              effect="light">
+                  <i class="el-icon-info"></i>
+                </el-tooltip>
+                </span>
                 <el-select v-model="formData.storagePath">
                   <el-option v-for="item in words"
                             :key="item.value.value"
