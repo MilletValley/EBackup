@@ -19,7 +19,8 @@
         <el-button type="primary"
                    @click="displayLinkCreateModal">添加</el-button>
       </el-form-item>
-      <el-form-item style="float: right;">
+      <el-form-item style="float: right;"
+                    v-show="['oracle', 'sqlserver'].includes(databaseType)">
         <el-button type="primary"
                    @click="batchSwitch">批量切换</el-button>
       </el-form-item>
@@ -222,8 +223,7 @@
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
                     <el-dropdown style="position: absolute; right: 0px; top: -9px;"
-                                 v-if="true">
-                                 <!-- hostLink.primaryHost.databaseType === 1 -->
+                                 v-if="hostLink.primaryHost.databaseType === 1">
                       <el-button size="mini">
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
@@ -412,8 +412,7 @@
                                  :class="$style.failOver">{{dbLink.failOverState === 1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
                     <div>
-                      <!-- hostLink.primaryHost.databaseType === 1 -->
-                      <el-dropdown v-if="true">
+                      <el-dropdown v-if="hostLink.primaryHost.databaseType === 1">
                         <span :class="$style.dropdownLink">
                           切换操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
                         </span>

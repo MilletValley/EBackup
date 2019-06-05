@@ -15,6 +15,19 @@
                 <template v-if="props.row.serverType === 1">
                   <el-tabs tab-position="left"
                            class="serverHost">
+                    <el-tab-pane label="所有虚拟机"
+                                 v-if="allVirtuals(props.row).length">
+                      <el-card style="margin-top: 5px; margin-bottom: 5px">
+                        <mutil-table :tableData="allVirtuals(props.row)"
+                                     :ref="props.row.id"
+                                     :refTable="props.row.serverName"
+                                     :selectData.sync="selectData"
+                                     :curSelectData="curSelectData"
+                                     :size="customSize"
+                                     :showDelete="showDelete"
+                                     @refresh="refreshOneServer(props.row)"></mutil-table>
+                      </el-card>
+                    </el-tab-pane>
                     <el-tab-pane v-for="host in props.row.hostList"
                                  :key="host.id"
                                  :label="host.serverName">
@@ -62,8 +75,8 @@
                           min-width="100">
           </el-table-column>
           <el-table-column v-if="false" prop="createDate" align="left"
-                           label="创建时间"
-                           min-width="150"></el-table-column>
+                          label="创建时间"
+                          min-width="150"></el-table-column>
           <el-table-column prop="serverType" 
               label="主机类型"
               :formatter="serverTypeFormat"
@@ -239,6 +252,9 @@ export default {
         }
         return server;
       });
+    },
+    allVirtuals(server) {
+      return server.hostList.reduce((flat, next) => flat.concat(next.vmList), server.vmList);
     }
   },
 };

@@ -128,7 +128,7 @@ export default {
           const name = dayjs().format('YYYYMMDDHHmmss');
           const { serverId, newName, diskName, ...other } = this.formData;
           const config = {
-            serverId,
+            serverId: !serverId ? this.details.server.id : serverId,
             newName,
             diskName,
             timeStrategy: 1,

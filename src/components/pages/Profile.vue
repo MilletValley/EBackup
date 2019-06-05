@@ -1,49 +1,9 @@
 <template>
     <section>
       <el-card>
-        <el-tabs v-model="activeName" tab-position="left" :class="$style.tabInfo">
+        <!-- <el-tabs v-model="activeName" tab-position="left" :class="$style.tabInfo">
           <el-tab-pane name="personalInfo">
             <span slot="label"><i class="el-icon-date"></i>基本信息</span>
-            <el-row :gutter="20">
-              <el-col :span="12" :offset="4">
-                <el-form label-width="100px">
-                  <el-form-item label="用户ID" :class="$style.baseInfoItem">
-                    <span>{{ userInfo.id }}</span>
-                  </el-form-item>
-                  <el-form-item label="用户名" :class="$style.baseInfoItem">
-                    <span>{{ userInfo.userName }}</span>
-                  </el-form-item>
-                  <el-form-item label="登录名" :class="$style.baseInfoItem">
-                    <span>{{ userInfo.loginName }}</span>
-                  </el-form-item>
-                  <el-form-item label="邮箱" :class="$style.baseInfoItem">
-                    <span>{{ userInfo.email }}</span>
-                  </el-form-item>
-                  <el-form-item label="邮箱接收状态" :class="$style.baseInfoItem">
-                    <span>
-                      <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px" v-if="userInfo.receiveState === 1"></i>
-                      <i class="el-icon-remove" style="color: #909399;font-size: 18px" v-else></i>
-                    </span>
-                  </el-form-item>
-                  <el-form-item label="角色" :class="$style.baseInfoItem">
-                    <span v-for="(role, index) in userInfo.roles"
-                          :key="index">{{ role.name }}</span>
-                  </el-form-item>
-                  <el-form-item label="状态" :class="$style.baseInfoItem">
-                    <el-tag :type="userInfo.state === 1 ? '' : 'danger'"
-                          size="small">{{ userInfo.state==1?'启用':'禁用' }}</el-tag>
-                  </el-form-item>
-                </el-form>
-              </el-col>
-              <el-col :span="8">
-                <el-form inline size="small">
-                  <el-form-item style="float: right;">
-                    <el-button type="primary"
-                               @click="update">修改</el-button>
-                  </el-form-item>
-                </el-form>
-              </el-col>
-            </el-row>
           </el-tab-pane>
           <el-tab-pane name="updatePass">
             <span slot="label"><i class="el-icon-edit-outline"></i>修改密码</span>
@@ -84,7 +44,47 @@
               </el-col>
             </el-row>
           </el-tab-pane>
-        </el-tabs>
+        </el-tabs> -->
+        <el-row :gutter="20">
+          <el-col :span="12" :offset="8">
+            <el-form label-width="100px">
+              <el-form-item label="用户ID" :class="$style.baseInfoItem">
+                <span>{{ userInfo.id }}</span>
+              </el-form-item>
+              <el-form-item label="用户名" :class="$style.baseInfoItem">
+                <span>{{ userInfo.userName }}</span>
+              </el-form-item>
+              <el-form-item label="登录名" :class="$style.baseInfoItem">
+                <span>{{ userInfo.loginName }}</span>
+              </el-form-item>
+              <el-form-item label="邮箱" :class="$style.baseInfoItem" v-if="userInfo.email">
+                <span>{{ userInfo.email }}</span>
+              </el-form-item>
+              <el-form-item label="邮箱接收状态" :class="$style.baseInfoItem" v-if="userInfo.email">
+                <span>
+                  <i class="el-icon-circle-check" style="color: #67C23A;font-size: 18px" v-if="userInfo.receiveState === 1"></i>
+                  <i class="el-icon-remove" style="color: #909399;font-size: 18px" v-else></i>
+                </span>
+              </el-form-item>
+              <el-form-item label="角色" :class="$style.baseInfoItem">
+                <span v-for="(role, index) in userInfo.roles"
+                      :key="index">{{ role.name }}</span>
+              </el-form-item>
+              <el-form-item label="状态" :class="$style.baseInfoItem">
+                <el-tag :type="userInfo.state === 1 ? '' : 'danger'"
+                      size="small">{{ userInfo.state==1?'启用':'禁用' }}</el-tag>
+              </el-form-item>
+            </el-form>
+          </el-col>
+          <!-- <el-col :span="8">
+            <el-form inline size="small">
+              <el-form-item style="float: right;">
+                <el-button type="primary"
+                            @click="update">修改</el-button>
+              </el-form-item>
+            </el-form>
+          </el-col> -->
+        </el-row>
       </el-card>
       <el-dialog title="修改信息"
                 :visible.sync = "dialogVisible"

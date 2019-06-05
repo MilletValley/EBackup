@@ -221,6 +221,7 @@ const detailPageMixin = {
           this.details = db;
           if (this.details.role && this.details.role !== 0 && this.fetchLink) {
             this.fetchLink();
+            this.fetchLinks();
           }
           if ([1, 3].includes(this.vmType) && this.fetchServer) {
             this.fetchServer();

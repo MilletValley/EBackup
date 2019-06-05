@@ -196,7 +196,7 @@ export default {
     },
     judgeOsName(data){
       let str = data.osName;
-      if(data.osName === 'Windows' && [2, 10].includes(data.databaseType) && windowsTypeMapping[data.windowsType]){
+      if(data.osName === 'Windows' && [2, 10, 11].includes(data.databaseType) && windowsTypeMapping[data.windowsType]){
         str += (' ' + windowsTypeMapping[data.windowsType]);
       }
       return str;
@@ -237,7 +237,7 @@ export default {
     },
     createItem(host) {
       this.btnLoading = true;
-      if(!(host.osName === 'Windows' && [2, 10].includes(host.databaseType))) {
+      if(!(host.osName === 'Windows' && [2, 10, 11].includes(host.databaseType))) {
         delete host.windowsType;
       }
       createOne(host)
@@ -273,7 +273,7 @@ export default {
     },
     updateItem(host) {
       this.btnLoading = true;
-      if(!(host.osName === 'Windows' && [2, 10].includes(host.databaseType))) {
+      if(!(host.osName === 'Windows' && [2, 10, 11].includes(host.databaseType))) {
         delete host.windowsType;
       }
       modifyOne(host)
