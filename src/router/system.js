@@ -5,6 +5,7 @@ import SystemParam from '@/components/pages/SystemParam';
 import EmailManager from '@/components/pages/EmailManager';
 import KeepStrategy from '@/components/pages/keepStrategy/KeepStrategy';
 import PortList from '@/components/pages/port/PortList';
+import CloudStorageList from '@/components/pages/cloudConfig/CloudStorageList';
 import Users from '@/components/pages/Users';
 
 const router = [
@@ -74,6 +75,14 @@ const router = [
             component: SystemParam,
             meta: {
               title: '存储地址',
+              roles: [],
+            },
+          },
+          {
+            path: 'cloudstorage',
+            component: CloudStorageList,
+            meta: {
+              title: '云存储',
               roles: [],
             },
           },

@@ -65,12 +65,10 @@ const takeoverMixin = {
       }
     },
     osType(host) {
-      if (host.osName === 'Linux' && host.isRacMark === 1) {
-        return 'Linux';
-      } else if (host.osName === 'Linux' && host.isRacMark === 0) {
+      if (host.isRacMark === 0) {
         return 'RAC';
       }
-      return host.osName; // Windows、AIX
+      return host.osName; // Windows、AIX、Linux
     },
     isServiceIpOK(hostLinkReadyToSwitch) {
       let res = true;

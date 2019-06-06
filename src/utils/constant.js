@@ -296,6 +296,21 @@ const serverTypeMapping = {
   3: [4]
 };
 
+const deployStateMapping = {
+  1: '部署中',
+  2: '已启动',
+  3: '部署失败',
+  4: '启动失败',
+  5: '已停止',
+  6: '卸载中',
+  7: '未知'
+};
+
+const storeTypeMapping = {
+  1: 'NFS',
+  2: 'CLOUD'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -337,5 +352,7 @@ export {
   vmTypeMapping,
   virtualMapping,
   serverTypeMapping,
-  yesOrNoMapping
+  yesOrNoMapping,
+  deployStateMapping,
+  storeTypeMapping
 };

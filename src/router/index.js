@@ -16,6 +16,7 @@ import databaseRouter from './database';
 import vmRouter from './virtuals';
 import systemRouter from './system';
 import applicationServiceRouter from './applicationservice';
+import deployRouter from './deploy';
 // import overviewRouter from './overview';
 
 Vue.use(Router);
@@ -71,6 +72,7 @@ export const asyncRouters = [
   ...vmRouter,
   ...applicationServiceRouter,
   ...systemRouter,
+  ...deployRouter,
   // ...overviewRouter,
   {
     path: '/error',

@@ -29,6 +29,14 @@
           <el-radio v-model="formData.hostType"
                     :label="2">易备环境</el-radio>
         </el-form-item>
+        <el-form-item label="存储方式"
+                      prop="storeType">
+          <el-radio-group v-model.number="formData.storeType">
+            <el-radio v-for="type in Object.keys(storeTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
           <el-radio-group v-model="useType">
@@ -95,14 +103,14 @@
           </el-col>
         </el-row>
         <el-form-item label="是否Rac环境"
-                      v-if="['Linux', 'AIX'].includes(formData.osName) && formData.databaseType === 1"
+                      v-if="formData.databaseType === 1"
                       prop="isRacMark">
           <el-radio v-model="formData.isRacMark"
                     :label="0">是</el-radio>
           <el-radio v-model="formData.isRacMark"
                     :label="1">否</el-radio>
         </el-form-item>
-        <el-row v-if="formData.isRacMark===0 && ['Linux', 'AIX'].includes(formData.osName) && formData.databaseType === 1">
+        <el-row v-if="formData.isRacMark===0 && formData.databaseType === 1">
           <el-col :span="12">
             <el-form-item label="VIP"
                           prop="vip">
@@ -127,11 +135,20 @@
           <el-input v-model="formData.serviceIp"></el-input>
         </el-form-item>
         <!--windows下 10G Oracle版本显示 -->
-        <template v-if="this.formData.oracleVersion===1&&this.formData.databaseType===1&&this.formData.osName==='Windows'">
+        <template v-if="formData.storeType === 2 ||
+                  (formData.oracleVersion===1&&formData.databaseType===1&&formData.osName==='Windows')">
           <el-row>
             <el-col :span="12">
               <el-form-item label="存储盘符"
                             prop="storagePath">
+                <span slot="label">
+                  存储地址
+                  <el-tooltip :content="`存储地址为: ${formData.storagePath}:\\backup\\`"
+                              placement="right"
+                              effect="light">
+                  <i class="el-icon-info"></i>
+                </el-tooltip>
+                </span>
                 <el-select v-model="formData.storagePath">
                   <el-option v-for="item in words"
                             :key="item.value.value"
@@ -139,7 +156,8 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="12"
+                    v-if="formData.oracleVersion===1&&formData.databaseType===1&&formData.osName==='Windows'">
               <el-form-item label="共享盘符"
                             prop="sharingPath">
                 <el-select v-model="formData.sharingPath">
@@ -175,7 +193,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { createOne } from '../../api/host';
 import { genModalMixin } from '../mixins/modalMixins';
-import { oracleVersionMapping } from '@/utils/constant';
+import { oracleVersionMapping, storeTypeMapping } from '@/utils/constant';
 import { validateLength } from '../../utils/common';
 
 export default {
@@ -202,6 +220,7 @@ export default {
     };
     return {
       oracleVersionMapping,
+      storeTypeMapping,
       validateHostName
     }
   },
@@ -266,6 +285,8 @@ export default {
         return ['Windows', 'Linux', 'AIX'];
       } else if (this.formData.databaseType === 10) {
         return ['Windows', 'AIX'];
+      } else if (this.formData.databaseType === 6) {
+        return ['Linux', 'AIX'];
       }
       return ['Windows', 'Linux'];
     }
