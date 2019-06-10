@@ -86,6 +86,7 @@
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
+          <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)"></i-icon>
           <el-button type="primary"
                      icon="el-icon-edit"
                      circle
@@ -135,6 +136,7 @@ export default {
     return {
       databaseType: 'sqlserver',
       batchCreateModalVisible: false,
+      objectType: 'sqlserver',
       tableFilter: {},
       roleFilters: [
         { text: '无连接', value: 0 },

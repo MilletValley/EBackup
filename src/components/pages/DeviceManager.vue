@@ -90,23 +90,26 @@
         </template>
       </el-table-column>
       <el-table-column label="操作"
-                       min-width="120"
+                       min-width="200"
                        header-align="center"
                        align="center"
                        fixed="right">
         <template slot-scope="scope">
-          <el-button type="primary"
-                     icon="el-icon-edit"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="selectOne(scope)"></el-button>
-          <el-button type="danger"
-                     icon="el-icon-delete"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="deleteItem(scope)"></el-button>
+          <el-row>
+            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)"></i-icon>
+            <el-button type="primary"
+                      icon="el-icon-edit"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="selectOne(scope)"></el-button>
+            <el-button type="danger"
+                      icon="el-icon-delete"
+                      circle
+                      size="mini"
+                      :class="$style.miniCricleIconBtn"
+                      @click="deleteItem(scope)"></el-button>
+          </el-row>
         </template>
       </el-table-column>
     </el-table>
@@ -140,6 +143,7 @@ import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '@/compo
 import HostCreateModal from '@/components/modal/HostCreateModal';
 import HostUpdateModal from '@/components/modal/HostUpdateModal';
 import { createOne, deleteOne, modifyOne } from '@/api/host';
+import { getMonitorInfo } from '@/api/home';
 import { mapActions } from 'vuex';
 import { storeTypeMapping } from '@/utils/constant';
 import {
@@ -249,6 +253,26 @@ export default {
       this.filter = Object.assign({}, this.tableFilter, {[this.selectTag]: this.inputSearch});
       this.currentPage = 1;
     },
+    linkMonitor({row}) {
+      const objId = row.id;
+      getMonitorInfo(objId, 'device').then(res => {
+        const {message, data} = res.data;
+        const {token, id, origin} = data;
+        let popup = window.open(origin + '/monitor/common');
+        window.addEventListener('message', e => {
+          if (e.data === 'monitor') {
+            let obj = {
+              token,
+              id,
+              type: 'deviceDashboard'
+            }
+            popup.postMessage(obj, origin);
+          }
+        });
+      }).catch(error => {
+        this.errorMessage(error);
+      })
+    },
     createItem(host) {
       this.btnLoading = true;
       if(!(host.osName === 'Windows' && [2, 10, 11].includes(host.databaseType))) {
@@ -314,3 +338,4 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
+

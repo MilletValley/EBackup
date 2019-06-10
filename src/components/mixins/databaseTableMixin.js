@@ -1,3 +1,4 @@
+import { getMonitorInfo } from '@/api/home';
 import { paginationMixin, filterMixin, sortMixin } from './commonMixin';
 import {
   databaseStateMapping,
@@ -10,6 +11,7 @@ import {
   deleteDatabase
 } from '../../api/database';
 
+
 const tableMixin = {
   mixins: [paginationMixin, filterMixin, sortMixin],
   data() {
@@ -21,6 +23,7 @@ const tableMixin = {
       action: 'create',
       currentSelectData: null,
       defaultSort: { prop: 'createTime', order: 'descending' },
+      objectType: ''
     };
   },
   mounted() {
@@ -108,6 +111,26 @@ const tableMixin = {
             });
         })
         .catch(() => { });
+    },
+    linkMonitor({ row }) {
+      const objId = row.id;
+      getMonitorInfo(objId, this.objectType).then(res => {
+        const { data } = res.data;
+        const { token, id, origin } = data;
+        const popup = window.open(`${origin}/monitor/common`);
+        window.addEventListener('message', e => {
+          if (e.data === 'monitor') {
+            const obj = {
+              token,
+              id,
+              type: `${this.objectType}Dashboard`
+            };
+            popup.postMessage(obj, origin);
+          }
+        });
+      }).catch(error => {
+        this.errorMessage(error);
+      });
     }
   },
 };
