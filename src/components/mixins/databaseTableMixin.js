@@ -119,7 +119,7 @@ const tableMixin = {
         const { token, id, origin } = data;
         const popup = window.open(`${origin}/monitor/common`);
         window.addEventListener('message', e => {
-          if (e.data === 'monitor') {
+          if (e.origin === origin && e.data === 'monitor') {
             const obj = {
               token,
               id,

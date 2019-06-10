@@ -259,8 +259,9 @@ export default {
         const {message, data} = res.data;
         const {token, id, origin} = data;
         let popup = window.open(origin + '/monitor/common');
+        // let popup = window.open('http://localhost:8080/monitor/common');
         window.addEventListener('message', e => {
-          if (e.data === 'monitor') {
+          if (e.origin === origin && e.data === 'monitor') {
             let obj = {
               token,
               id,
