@@ -60,4 +60,14 @@ body {
 .min-width-dialog {
   min-width: 740px;
 }
+.monitorClass{
+  width: 24px;
+  height: 28px;
+  margin-right: 10px;
+  vertical-align: bottom;
+  cursor: pointer;
+}
+.monitorClass:hover{
+  opacity: 0.8
+}
 </style>

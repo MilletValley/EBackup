@@ -72,6 +72,12 @@ const cancelRestoreHighlight = (id, type) =>
     method: 'put',
     url: `/restore-plan/cancel-highlight?id=${id}&type=${type}`
   });
+
+const getMonitorInfo = (id, type) =>
+  baseApi.request({
+    method: 'get',
+    url: `/get-monitor-id?id=${id}&type=${type}`
+  });
 export {
   fetchBackupStatistics,
   fetchRestoreStatistics,
@@ -85,5 +91,6 @@ export {
   cancelHighlight,
   fetchRestorePlan,
   fetchRestorePlanDetail,
-  cancelRestoreHighlight
+  cancelRestoreHighlight,
+  getMonitorInfo
 };

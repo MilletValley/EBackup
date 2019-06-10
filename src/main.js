@@ -16,11 +16,13 @@ import router from './router';
 import { userToken } from './utils/storage';
 import types from './store/type';
 import './utils/icon-svg';
+import IIcon from './components/IIcon';
 import global from './utils/global';
 
 Vue.use(ElementUI);
 Vue.use(global);
 Vue.use(VueWorker);
+Vue.component('IIcon', IIcon);
 Vue.config.productionTip = false;
 Vue.prototype.$echarts = echarts;
 Vue.prototype.$d3 = d3;
