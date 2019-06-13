@@ -296,6 +296,34 @@ const serverTypeMapping = {
   3: [4]
 };
 
+const syncStragegyMapping = { // 同步策略
+  0: '实时同步',
+  1: '按分钟',
+  2: '按小时',
+  3: '按天',
+  4: '按周'
+};
+
+const syncLinkMapping = {
+  0: '初始化',
+  1: '同步',
+  2: '故障转移',
+  3: '故障恢复',
+  4: '异常'
+};
+
+const syncOperationMapping = {
+  0: '故障转移',
+  1: '故障恢复',
+  2: '解除连接'
+};
+
+const syncStateMapping = {
+  0: '成功',
+  1: '失败',
+  2: '告警'
+};
+
 const deployStateMapping = {
   1: '部署中',
   2: '已启动',
@@ -352,7 +380,11 @@ export {
   vmTypeMapping,
   virtualMapping,
   serverTypeMapping,
+  syncStragegyMapping,
+  syncLinkMapping,
+  syncStateMapping,
   yesOrNoMapping,
   deployStateMapping,
-  storeTypeMapping
+  storeTypeMapping,
+  syncOperationMapping
 };

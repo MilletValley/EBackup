@@ -139,7 +139,8 @@
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     @click="stopOne(scope)">
+                     @click="stopOne(scope)"
+                     style="padding: 9px!important">
             <div style="height: 8px; width: 8px; background-color: #fff"></div>
           </el-button>
           <el-button type="primary"

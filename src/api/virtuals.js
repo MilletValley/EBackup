@@ -249,6 +249,54 @@ const fetchDisksByHostId = hostId =>
     url: `/virtuals/hosts/${hostId}/disks`
   });
 
+// 虚拟机接管创建多个连接
+const createLinks = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/virtual-links',
+    data
+  });
+
+const fetchLinks = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/virtual-links',
+  });
+
+const deleteLink = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/virtual-links/${id}/fail-over`
+  });
+
+const failOverLink = (id, timePoint) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtual-links/${id}/fail-over`,
+    data: { timePoint }
+  });
+
+
+const failBackLink = (id, timePoint) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtual-links/${id}/fail-back`,
+    data: { timePoint }
+  });
+
+const modifyLinkStrategy = (id, data) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtual-links/${id}/sync-strategy`,
+    data
+  });
+
+const fetchOperationRecords = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-links/${id}/operations`
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -276,5 +324,12 @@ export {
   deleteVirtualInServerHost,
   deleteVirtualBackupResult,
   updateBackupPlanForVirtual,
-  fetchDisksByHostId
+  fetchDisksByHostId,
+  createLinks,
+  fetchLinks,
+  deleteLink,
+  failOverLink,
+  failBackLink,
+  modifyLinkStrategy,
+  fetchOperationRecords
 };

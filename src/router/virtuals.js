@@ -1,6 +1,8 @@
 import Layout from '@/components/Layout';
 import VirtualList from '@/components/pages/virtual/VirtualList';
 import VirtualDetail from '@/components/pages/virtual/VirtualDetail';
+import VirtualTakeOver from '@/components/pages/virtual/takeover/TakeOver';
+import VirtualLinkDetail from '@/components/pages/virtual/takeover/VirtualLinkDetail';
 import BackupPlanList from '@/components/pages/virtual/BackupPlanList';
 import ServerManager from '@/components/pages/virtual/ServerManager';
 
@@ -14,6 +16,104 @@ const virtualRouter = [
       roles: ['vm admin'],
     },
     children: [
+      {
+        path: 'vmware/takeover',
+        name: 'vmwareTakeOver',
+        component: VirtualTakeOver,
+        meta: {
+          roles: ['virtual admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'VMware主机管理',
+              path: '/virtual/vmwares/collectManager',
+            },
+            {
+              name: 'VMware一键接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'hyperV/takeover',
+        name: 'hyperVTakeOver',
+        component: VirtualTakeOver,
+        meta: {
+          roles: ['virtual admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Hyper-V主机管理',
+              path: '/virtual/hyperVs/collectManager',
+            },
+            {
+              name: 'Hyper-V一键接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'vmware/takeover/:id',
+        name: 'vmwareLinkDetail',
+        props: true,
+        component: VirtualLinkDetail,
+        meta: {
+          roles: ['virtual admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机主机管理',
+              path: '/virtual/vmwares/collectManager',
+            },
+            {
+              name: 'VMware一键接管',
+              path: '/virtual/vmware/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'hyperV/takeover/:id',
+        name: 'hyperVLinkDetail',
+        props: true,
+        component: VirtualLinkDetail,
+        meta: {
+          roles: ['virtual admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: '虚拟机主机管理',
+              path: '/virtual/hyperVs/collectManager',
+            },
+            {
+              name: 'Hyper-V一键接管',
+              path: '/virtual/hyperV/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
       {
         path: '',
         component: {
