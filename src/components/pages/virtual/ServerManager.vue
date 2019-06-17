@@ -2,8 +2,12 @@
     <div>
         <server-table :tableData="serverTableData" :currentSelect.sync="currentSelect" :showSelect.sync="isSelect" :showDelete="true" @delete="deleteServer">
           <template slot="other">
-            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
-                    >{{isSelect ? '添加备份计划' : '添加主机'}}</el-button>
+            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small">
+              {{isSelect ? '添加备份计划' : '添加主机'}}
+            </el-button>
+            <el-button type="info" @click="takeOverClick" :disabled="disabled" size="small" v-if="[1, 3].includes(vmType)">
+              {{isSelect ? '接管初始化' : '一键接管'}}
+            </el-button>
           </template>
         </server-table>
         <backup-plan-modal type="vm"
@@ -12,10 +16,14 @@
                            @confirm="addBackupPlan"></backup-plan-modal>
         <server-modal :btn-loading="btnLoading"
                       @confirm="submitServerFn"
-                      :visible.sync="serverModalVisible">
-        </server-modal>
+                      :visible.sync="serverModalVisible"></server-modal>
+        <create-link-modal :btn-loading="btnLoading"
+                           :selected-virtuals="currentSelect"
+                           :vm-type="vmType"
+                           :server-data="serverTableData"
+                           @confirm="createLink"
+                           :visible.sync="createLinkModalVisile"></create-link-modal>
     </div>
-    
 </template>
 <script>
 import { addServer, fetchServerList, deleteServer } from '@/api/host';
@@ -23,21 +31,25 @@ import {
   createMultipleVirtualBackupPlan,
   rescan,
   getVirtualByserverId,
+  createLinks
 } from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import ServerTable from '@/components/pages/virtual/ServerTable';
 import ServerModal from '@/components/modal/ServerModal';
+import CreateLinkModal from '@/components/pages/virtual/takeover/CreateLinkModal';
 import MutilTable from '@/components/modal/MutilTable';
 import {
   virtualHostServerTypeMapping,
   serverTypeMapping,
   virtualMapping
 } from '@/utils/constant';
+import { setTimeout } from 'timers';
 export default {
   components: {
     BackupPlanModal,
     ServerTable,
     ServerModal,
+    CreateLinkModal,
     MutilTable,
   },
   data() {
@@ -48,6 +60,7 @@ export default {
       btnLoading: false,
       backupPlanCreateModalVisible: false,
       serverModalVisible: false,
+      createLinkModalVisile: false,
       refreshBtn: false,
     };
   },
@@ -198,6 +211,25 @@ export default {
           return;
         });
     },
+    createLink(data) {
+      this.btnLoading = true;
+      createLinks(data)
+        .then(res => {
+          const { message } = res.data;
+          this.fetchData();
+          this.createLinkModalVisile = false;
+          this.$message.success(message);
+          setTimeout(() => {
+            this.$router.push({ name: `${virtualMapping[this.vmType]}TakeOver` });
+          }, 3000);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .catch(() => {
+          this.btnLoading = false;
+        })
+    },
     rescanVm(data){
       return rescan(data)
         .then(resp => {
@@ -212,6 +244,13 @@ export default {
         this.backupPlanCreateModalVisible = true;
       } else {
         this.serverModalVisible = true;
+      }
+    },
+    takeOverClick() {
+      if (this.isSelect) {
+        this.createLinkModalVisile = true;
+      } else {
+        this.$router.push({ name: `${virtualMapping[this.vmType]}TakeOver` });
       }
     },
     serverTypeFormat(row, column, cellValue, index) {

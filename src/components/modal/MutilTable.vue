@@ -207,6 +207,9 @@ export default {
     customSize() {
       return this.size ? this.size : '-';
     },
+    selectDataIds() {
+      return this.selectData.length ? this.selectData.map(v => Number(v.hostId)) : [];
+    }
     // curTableData: {
     //     get() {
     //         return this.tableData;
@@ -320,8 +323,8 @@ export default {
       }
       this.defaultSort = { prop, order };
     },
-    selectableFn(row) {
-      return !this.curSelectData.some(e => e.id === row.id);
+    selectableFn(row) { // 仅能选择同设备下的虚拟机
+      return !this.curSelectData.some(e => e.id === row.id) && (!this.selectDataIds.length || this.selectDataIds.includes(Number(row.hostId)));
     },
   },
 };

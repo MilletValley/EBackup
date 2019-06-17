@@ -1,5 +1,6 @@
 import Layout from '@/components/Layout';
-import TakeOver from '@/components/pages/takeover/TakeOver';
+import DatabaseTakeOver from '@/components/pages/takeover/TakeOver';
+import VirtualTakeOver from '@/components/pages/virtual/takeover/TakeOver';
 import SwitchList from '@/components/pages/SwitchList';
 import SwitchDetail from '@/components/pages/SwitchDetail';
 import AppTakeOver from '@/components/pages/application/TakeOver';
@@ -17,9 +18,9 @@ const takeoverRouter = [
       {
         path: 'oracle/takeover',
         name: 'oracleTakeOverView',
-        component: TakeOver,
+        component: DatabaseTakeOver,
         meta: {
-          title: '总览',
+          title: '数据库',
           activeName: 'overview',
           roles: ['oracle dba', 'sql server dba'],
           breadcrumb: [
@@ -37,7 +38,7 @@ const takeoverRouter = [
       {
         path: 'sqlserver/takeover',
         name: 'sqlserverTakeOverView',
-        component: TakeOver,
+        component: DatabaseTakeOver,
         meta: {
           activeName: 'overview',
           roles: ['sql server dba'],
@@ -56,7 +57,7 @@ const takeoverRouter = [
       {
         path: 'insql/takeover',
         name: 'insqlTakeOverView',
-        component: TakeOver,
+        component: DatabaseTakeOver,
         meta: {
           activeName: 'overview',
           roles: ['insql dba'],
@@ -67,6 +68,45 @@ const takeoverRouter = [
             },
             {
               name: 'InSql接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'vmware/takeover',
+        name: 'vmwareTakeOverView',
+        component: VirtualTakeOver,
+        meta: {
+          title: '虚拟机',
+          activeName: 'virtualOverView',
+          roles: ['virtual admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'VMware接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'hyperV/takeover',
+        name: 'hyperVTakeOverView',
+        component: VirtualTakeOver,
+        meta: {
+          activeName: 'virtualOverView',
+          roles: ['virtual admin'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Hyper-V接管',
               path: '',
             },
           ],
