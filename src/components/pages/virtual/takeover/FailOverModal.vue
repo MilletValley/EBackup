@@ -10,7 +10,7 @@
                   class="switchModalIcon"></i-icon>
         </el-col>
         <el-col :span="18">
-          <div style="height: 220px;max-height: 220px;overflow: scroll;">
+          <div style="height: 220px;max-height: 220px;overflow: scroll; position: 'relative'">
             <h4>即将执行以下操作，请检查。</h4>
             <p v-if="Object.keys(readyToFailOverLink).length">
               <span class="sourceEnvColor">
@@ -37,6 +37,15 @@
                                    v-model="timePoint"
                                    placeholder="请选择备份时间点"
                                    size="small"></el-date-picker>
+            <p :style="{ opacity: hasShutDowned ? 1 : 0.7, position: 'absolute', bottom : '60px'}">
+              <el-checkbox v-model="hasShutDowned">
+                源虚拟机
+                <span style="color: red">
+                  {{ readyToFailOverLink.sourceVirtual.vmName }}
+                </span>
+                已关闭
+              </el-checkbox>
+            </p>
           </div>
           <el-input type="password"
                     v-model="password"
@@ -66,7 +75,8 @@ export default {
   data() {
     return {
       password: '',
-      timePoint: ''
+      timePoint: '',
+      hasShutDowned: false
     }
   },
   computed: {
@@ -81,7 +91,7 @@ export default {
       }
     },
     confirmBtnDisable() {
-      return !this.password || !this.timePoint;
+      return !this.password || !this.timePoint || !this.hasShutDowned;
     }
   },
   methods: {
@@ -91,6 +101,7 @@ export default {
     dialogOpen() {
       this.password = '';
       this.timePoint = '';
+      this.hasShutDowned = false;
     },
     confirmBtn() {
       validatePassword(this.password)
