@@ -44,13 +44,13 @@
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     @click="modifyDb(scope)"></el-button>
+                     @click="modifyDb(scope.row)"></el-button>
           <el-button type="danger"
                      icon="el-icon-delete"
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
-                     @click="deleteFileHost(scope)"></el-button>
+                     @click="deleteFileHost(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>

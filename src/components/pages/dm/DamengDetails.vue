@@ -5,7 +5,8 @@
         <el-row type="flex"
                 justify="end">
           <el-col :span="1">
-            <img src="../../../assets/DM.fw.png" :class="$style.dmClass">
+            <i-icon name="dm"
+                    class="detail-icon"></i-icon>
           </el-col>
           <el-col :span="23">
             <el-row type="flex"

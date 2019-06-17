@@ -63,7 +63,7 @@ const listMixin = {
     this.fetchData();
   },
   methods: {
-    selectOne({ row: db }) {
+    selectOne(db) {
       this.selectedId = db.id;
       this.updateModalVisible = true;
     },

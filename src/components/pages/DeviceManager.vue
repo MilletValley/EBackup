@@ -2,6 +2,15 @@
   <section>
     <el-row>
       <el-form inline>
+        <el-form-item style="float: left">
+          <i-icon name="list-btn"
+                  :class="`{ ${showType === 'list' ? 'active-btn' : 'inactive-btn'} }`"
+                  @click.native="switchList"></i-icon>
+          <span class="switch-division">/</span>
+          <i-icon name="card-btn"
+                  :class="`{ ${showType === 'card' ? 'active-btn' : 'inactive-btn'} }`"
+                  @click.native="switchCard"></i-icon>
+        </el-form-item>
         <el-form-item style="float: left" class="input-with-select">
           <el-input placeholder="请输入内容"
                     v-model="inputSearch"
@@ -16,13 +25,14 @@
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="createModalVisible = true">添加</el-button>
+                     @click="createModalVisible = true">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
     <el-table :data="processedTableData"
               @filter-change="filterChange"
-              style="width: 100%">
+              style="width: 100%"
+              v-show="showType === 'list'">
       <el-table-column label="序号"
                        min-width="60"
                        fixed
@@ -79,7 +89,7 @@
       <!-- <el-table-column prop="loginName"
                        label="登录账号"
                        min-width="100"
-                       show-overflow-tooltip
+                       show-overflow-tooltip  
                        align="center"></el-table-column> -->
       <el-table-column prop="storeType"
                        label="存储方式"
@@ -96,28 +106,85 @@
                        fixed="right">
         <template slot-scope="scope">
           <el-row>
-            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)"></i-icon>
+            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)"></i-icon>
             <el-button type="primary"
                       icon="el-icon-edit"
                       circle
                       size="mini"
                       :class="$style.miniCricleIconBtn"
-                      @click="selectOne(scope)"></el-button>
+                      @click="selectOne(scope.row)"></el-button>
             <el-button type="danger"
                       icon="el-icon-delete"
                       circle
                       size="mini"
                       :class="$style.miniCricleIconBtn"
-                      @click="deleteItem(scope)"></el-button>
+                      @click="deleteItem(scope.row)"></el-button>
           </el-row>
         </template>
       </el-table-column>
     </el-table>
+    <section v-show="showType === 'card'"
+             style="min-height: 400px">
+      <el-row :gutter="20"
+              v-for="row in Array.from(new Array(Math.ceil(processedTableData.length / 3)), (val, index) => index)"
+              style="margin-bottom: 10px"
+              :key="`row${row}`">
+        <el-col :span="8"
+                v-for="col in [0, 1, 2]"
+                :key="`col${col}`"
+                v-if="row * 3 + col < processedTableData.length">
+          <div class="silk-ribbon"
+               ref="silkRibbon"
+               style="height: 0">
+            <el-card class="content"
+                     ref="content">
+              <div class="header">
+                <i-icon :name="processedTableData[row * 3 + col].databaseType | hostIconFilter"
+                        class="hostIcon"></i-icon>
+                <span class="title">{{ processedTableData[row * 3 + col].name }}</span>
+                <i class="el-icon-delete delete"
+                  @click="deleteItem(processedTableData[row * 3 + col])"></i>
+                <i class="el-icon-edit edit"
+                  @click="selectOne(processedTableData[row * 3 + col])"></i>
+                <i-icon name="monitor"
+                        class="monitor"
+                        @click.native="linkMonitor(processedTableData[row * 3 + col])"></i-icon>
+              </div>
+              <el-form label-position="right"
+                      label-width="80px"
+                      class="hostForm"
+                      inline>
+                <el-form-item label="设备IP"
+                              class="formItem">
+                  <span>{{ processedTableData[row * 3 + col].hostIp }}</span>
+                </el-form-item>
+                <el-form-item label="操作IP"
+                              class="formItem">
+                  <span>{{ processedTableData[row * 3 + col].serviceIp }}</span>
+                </el-form-item>
+                <el-form-item label="存储方式"
+                              class="formItem">
+                  <span>{{ processedTableData[row * 3 + col].storeType | storeTypeFilter }}</span>
+                </el-form-item>
+                <el-form-item label="操作系统"
+                              class="formItem">
+                  <el-tag size="mini"
+                          type="primary">{{ judgeOsName(processedTableData[row * 3 + col]) }}</el-tag>
+                </el-form-item>
+              </el-form>
+            </el-card>
+            <div :class="processedTableData[row * 3 + col].hostType | wrapStyleFilter">
+              <div :class="processedTableData[row * 3 + col].hostType | ribbonStyleFilter">{{ processedTableData[row * 3 + col].hostType | hostTypeFilter }}</div>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+    </section>
     <div class="block" style="text-align: right">
       <el-pagination @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="currentPage"
-                     :page-sizes="[5, 10, 15, 20]"
+                     :page-sizes="showType === 'list' ? [5, 10, 15, 20] : [6, 9, 12, 15]"
                      :page-size="pageSize"
                      background
                      layout="total, sizes, prev, pager, next, jumper"
@@ -140,8 +207,10 @@
 <script>
 import { listMixin } from '@/components/mixins/databaseListMixin';
 import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
+import switchViewMixins from '@/components/mixins/switchViewMixins';
 import HostCreateModal from '@/components/modal/HostCreateModal';
 import HostUpdateModal from '@/components/modal/HostUpdateModal';
+import IIcon from '@/components/IIcon';
 import { createOne, deleteOne, modifyOne } from '@/api/host';
 import { getMonitorInfo } from '@/api/home';
 import { mapActions } from 'vuex';
@@ -153,9 +222,23 @@ import {
   oracleVersionMapping
 } from '@/utils/constant';
 
+const useTypeIconName = {
+  1: 'oracle',
+  2: 'sqlserver',
+  3: 'fileHost',
+  4: 'vmware',
+  5: 'mysql',
+  6: 'db2',
+  7: 'dm',
+  8: 'appHost',
+  9: 'sybase',
+  10: 'cache',
+  11: 'insql'
+}
+
 export default {
   name: 'DeviceManager',
-  mixins: [listMixin, paginationMixin, filterMixin, sortMixin],
+  mixins: [listMixin, paginationMixin, filterMixin, sortMixin, switchViewMixins],
   data() {
     return {
       wsuri: '/test',
@@ -192,6 +275,18 @@ export default {
   filters: {
     storeTypeFilter(type) {
       return storeTypeMapping[type];
+    },
+    hostIconFilter(type) {
+      return useTypeIconName[type];
+    },
+    hostTypeFilter(type) {
+      return hostTypeMapping[type];
+    },
+    ribbonStyleFilter(type) {
+      return type === 1 ? 'production-silk-ribbon' : 'ebackup-silk-ribbon';
+    },
+    wrapStyleFilter(type) {
+      return type === 1 ? 'production-wrap' : 'ebackup-wrap';
     }
   },
   watch: {
@@ -253,7 +348,7 @@ export default {
       this.filter = Object.assign({}, this.tableFilter, {[this.selectTag]: this.inputSearch});
       this.currentPage = 1;
     },
-    linkMonitor({row}) {
+    linkMonitor(row) {
       const objId = row.id;
       getMonitorInfo(objId, 'device').then(res => {
         const {message, data} = res.data;
@@ -291,7 +386,7 @@ export default {
           this.btnLoading = false;
         });
     },
-    deleteItem({ row: host }) {
+    deleteItem(host) {
       this.$confirm('确认删除此设备?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -333,10 +428,92 @@ export default {
   components: {
     HostCreateModal,
     HostUpdateModal,
+    IIcon
   },
 };
 </script>
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
+<style scoped src="../../style/db.css"></style>
+<style scoped>
+.hostIcon {
+  height: 2em;
+  width: 2em;
+  vertical-align: -0.6em;
+}
+.hostIcon .title {
+  vertical-align:middle;
+}
+.hostForm {
+  margin-top: -10px;
+}
+.production-silk-ribbon,
+.ebackup-silk-ribbon {
+  text-align: center;
+  display: inline-block;
+  width: 200px;
+  height: 30px;
+  line-height: 30px;
+  position: absolute;
+  border: 1px dashed #fff;
+  color: #fff;
+  position: absolute;
+	bottom: 40px;
+	right: -50px;
+  z-index: 2;
+  transform: rotate(315deg);
+}
+.production-silk-ribbon {
+  box-shadow: 0 0 0 3px #12A17C,0px 21px 5px -18px rgba(0,0,0,0.6);
+	background: #12A17C;
+}
+.ebackup-silk-ribbon {
+  box-shadow: 0 0 0 3px #BB266D,0px 21px 5px -18px rgba(0,0,0,0.6);
+	background :#BB266D;
+}
+.silk-ribbon {
+	position: relative;
+  overflow: visible!important;
 
+}
+.ebackup-wrap,
+.production-wrap {
+	width:100%;
+	height: 100%;
+	position:absolute;
+	bottom: -8px;
+	right: -8px;
+	overflow:hidden;
+}
+.ebackup-wrap:before,
+.production-wrap:before {
+	content: "";
+	display: block;
+	border-radius: 0 0 10px 10px;
+	width: 40px;
+	height: 8px;
+	position: absolute;
+	right: 100px;
+  bottom: 0;
+}
+.ebackup-wrap:after,
+.production-wrap:after {
+	content:"";
+	display:block;
+	border-radius:0px 10px 10px 0px;
+	width:8px;
+	height:40px;
+	position:absolute;
+	right:0px;
+	bottom:100px;
+}
+.ebackup-wrap:before,
+.ebackup-wrap:after {
+  background: #881c4f;
+}
+.production-wrap:before,
+.production-wrap:after {
+  background: #0f5d49;
+}
+</style>
