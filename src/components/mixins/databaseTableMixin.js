@@ -26,11 +26,6 @@ const tableMixin = {
       objectType: ''
     };
   },
-  computed: {
-    monitorConf() {
-      return this.$store.state.nav.monitorconf;
-    }
-  },
   mounted() {
     this.fetchData();
   },
