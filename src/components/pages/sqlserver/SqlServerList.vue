@@ -96,7 +96,7 @@
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
-          <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)"></i-icon>
+          <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
           <el-button type="primary"
                      icon="el-icon-edit"
                      circle
@@ -139,7 +139,7 @@
                   @click="modifyDb(processedTableData[row * 3 + col])"></i>
                 <i-icon name="monitor"
                         class="monitor"
-                        @click.native="linkMonitor(processedTableData[row * 3 + col])"></i-icon>
+                        @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
               </div>
               <el-form label-position="right"
                       label-width="80px"

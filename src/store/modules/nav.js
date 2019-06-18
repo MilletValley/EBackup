@@ -2,7 +2,8 @@ import types from '../../store/type';
 
 const state = {
   breadcrumb: [],
-  clientWidth: 0
+  clientWidth: 0,
+  monitorconf: ''
 };
 
 /* eslint no-shadow: 0 */
@@ -16,6 +17,9 @@ const mutations = {
   },
   setClientWidth(state, width) {
     state.clientWidth = width;
+  },
+  setMonitorConf(state, conf) {
+    state.monitorconf = conf;
   }
 };
 
