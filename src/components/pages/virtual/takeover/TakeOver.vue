@@ -119,23 +119,40 @@
                     </el-form-item> -->
                   </el-form>
                   <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">上次同步状态</h4>
-                  <p v-if="!Object.keys(link.latestSyncInfo).length">暂无</p>
+                  <p v-if="!link.syncTime">暂未同步</p>
                   <el-form size="mini"
                            label-width="100px"
                            v-else>
                     <el-form-item class="syncFormItem"
                                   label="同步状态">
-                      <el-tag :type="link.latestSyncInfo.state | syncStateStyleFilter"
-                              size="mini">{{ link.latestSyncInfo.state | syncStateFilter }}</el-tag>
+                      <el-tag :type="link.syncState | syncStateStyleFilter"
+                              size="mini">{{ link.syncState | syncStateFilter }}</el-tag>
                     </el-form-item>
                     <el-form-item class="syncFormItem"
                                   label="时间">
-                      <span>{{ link.latestSyncInfo.time }}</span>
+                      <span>{{ link.syncTime }}</span>
+                    </el-form-item>
+                  </el-form>
+                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近一次操作</h4>
+                  <p v-if="!Object.keys(link.latestOperationInfo).length">暂无操作</p>
+                  <el-form size="mini"
+                           label-width="100px"
+                           v-else>
+                    <el-form-item class="syncFormItem"
+                                  label="操作内容">
+                      <span>{{ link.latestOperationInfo.content }}</span>
                     </el-form-item>
                     <el-form-item class="syncFormItem"
-                                  label="信息"
-                                  v-if="link.latestSyncInfo.content">
-                      <span>{{ link.latestSyncInfo.content }}</span>
+                                  label="操作类型">
+                      <span>{{ link.latestOperationInfo.type | syncOperationFilter }}</span>
+                    </el-form-item>
+                    <el-form-item class="syncFormItem"
+                                  label="状态">
+                      <i :class="link.latestOperationInfo.state | operationStateIconFilter"></i>
+                    </el-form-item>
+                    <el-form-item class="syncFormItem"
+                                  label="时间">
+                      <span>{{ link.latestOperationInfo.time }}</span>
                     </el-form-item>
                   </el-form>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
@@ -155,7 +172,12 @@
                           class="linkIcon"
                           v-else></i-icon>
                 </el-popover>
-                <div>
+                <div v-if="link.latestOperationInfo && link.latestOperationInfo.state === 1"
+                     style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                  <i class="el-icon-loading"></i>
+                  <span>{{ link.latestOperationInfo.type | syncOperationFilter }}中...</span>
+                </div>
+                <div v-else>
                   <div>
                     <el-button type="text"
                                class="deleteLink"
@@ -245,6 +267,7 @@ import {
   syncStragegyMapping,
   weekMapping,
   syncStateMapping,
+  syncOperationMapping
 } from '@/utils/constant';
 
 export default {
@@ -284,6 +307,19 @@ export default {
     },
     syncStrategyFilter(type) {
       return syncStragegyMapping[type];
+    },
+    syncOperationFilter(type) {
+      return syncOperationMapping[type];
+    },
+    operationStateIconFilter(state) {
+      if (state === 0) {
+        return 'el-icon-success success-color';
+      } else if (state === 1) {
+        return 'el-icon-loading waiting-color';
+      } else if (state === 2) {
+        return 'el-icon-error error-color';
+      }
+      return '';
     },
     linkStateStyleFilter(type) {
       switch(type) {
@@ -564,5 +600,14 @@ export default {
   to {
     width: 0;
   }
+}
+.waiting-color {
+  color: rgb(158, 158, 22);
+}
+.success-color {
+  color: rgb(39, 202, 39);
+}
+.error-color {
+  color: rgb(202, 39, 39);
 }
 </style>
