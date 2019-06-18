@@ -106,7 +106,7 @@
                        fixed="right">
         <template slot-scope="scope">
           <el-row>
-            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)"></i-icon>
+            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
             <el-button type="primary"
                       icon="el-icon-edit"
                       circle
@@ -148,7 +148,7 @@
                   @click="selectOne(processedTableData[row * 3 + col])"></i>
                 <i-icon name="monitor"
                         class="monitor"
-                        @click.native="linkMonitor(processedTableData[row * 3 + col])"></i-icon>
+                        @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
               </div>
               <el-form label-position="right"
                       label-width="80px"
@@ -270,6 +270,9 @@ export default {
         text: databaseTypeMapping[Number(db)],
         value: Number(db)
       }))
+    },
+    monitorConf() {
+      return this.$store.state.nav.monitorconf;
     }
   },
   filters: {
