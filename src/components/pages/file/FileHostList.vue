@@ -101,7 +101,10 @@
               <div class="header">
                 <i-icon :name="processedTableData[row * 3 + col].osName.toLowerCase()"
                         class="titleIcon"></i-icon>
-                <span class="title">{{ processedTableData[row * 3 + col].hostName }}</span>
+                <router-link :to="`${processedTableData[row * 3 + col].id}`"
+                             append
+                             :class="$style.link"
+                             class="title">{{processedTableData[row * 3 + col].hostName}}</router-link>
                 <i class="el-icon-delete delete"
                   @click="deleteFileHost(processedTableData[row * 3 + col])"></i>
                 <i class="el-icon-edit edit"

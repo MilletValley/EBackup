@@ -399,7 +399,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.deleteLinkModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -416,7 +416,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.failOverModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -433,7 +433,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.failBackModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -450,7 +450,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.updateLinkStrategyModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);

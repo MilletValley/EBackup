@@ -105,7 +105,10 @@
             <el-card class="content"
                      ref="content">
               <div class="header">
-                <span class="title">{{ processedTableData[row * 3 + col].name }}</span>
+                <router-link :to="`${processedTableData[row * 3 + col].id}`"
+                             class="title"
+                             append
+                             :class="$style.link">{{processedTableData[row * 3 + col].name}}</router-link>
                 <i class="el-icon-delete delete"
                   @click="deleteDb(processedTableData[row * 3 + col])"></i>
                 <i class="el-icon-edit edit"
