@@ -82,7 +82,7 @@
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
-          <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)"></i-icon>
+          <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)" v-show="monitorConf"></i-icon>
           <el-button type="primary"
                      icon="el-icon-edit"
                      circle

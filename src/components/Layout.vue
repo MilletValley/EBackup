@@ -98,6 +98,7 @@
 import { mapState, mapActions, mapMutations } from 'vuex';
 import IIcon from './IIcon.vue';
 import { sockMixin } from '@/components/mixins/commonMixin';
+import {getVersion} from '@/api/home';
 
 export default {
   name: 'Layout',
@@ -125,6 +126,7 @@ export default {
     };
   },
   created() {
+    this.fetchVersion();
     this.fetchHost().catch(error => {
       this.$message.error(error);
     });
@@ -154,7 +156,14 @@ export default {
   },
   methods: {
     ...mapActions(['logout', 'fetchHost', 'setHost']),
-    ...mapMutations(['setClientWidth']),
+    ...mapMutations(['setClientWidth', 'setMonitorConf']),
+    fetchVersion() {
+      getVersion().then(res => {
+        const {data} = res.data;
+        const {monitor} = data;
+        this.setMonitorConf(monitor);
+      })
+    },
     handleCommand(command) {
       if (command === 'logout') {
         this._logout();

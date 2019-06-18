@@ -96,7 +96,7 @@
                        fixed="right">
         <template slot-scope="scope">
           <el-row>
-            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)"></i-icon>
+            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope)" v-show="monitorConf"></i-icon>
             <el-button type="primary"
                       icon="el-icon-edit"
                       circle
@@ -187,6 +187,9 @@ export default {
         text: databaseTypeMapping[Number(db)],
         value: Number(db)
       }))
+    },
+    monitorConf() {
+      return this.$store.state.nav.monitorconf;
     }
   },
   filters: {
