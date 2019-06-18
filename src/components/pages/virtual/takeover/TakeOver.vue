@@ -119,7 +119,7 @@
                     </el-form-item> -->
                   </el-form>
                   <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">上次同步状态</h4>
-                  <p v-if="!link.latestSyncInfo">暂无</p>
+                  <p v-if="!Object.keys(link.latestSyncInfo).length">暂无</p>
                   <el-form size="mini"
                            label-width="100px"
                            v-else>
@@ -180,7 +180,8 @@
             <el-col :span="10">
               <div class="targetVirtualInfo">
                 <el-row type="flex"
-                        align="middle">
+                        align="middle"
+                        v-if="Object.keys(link.targetVirtual).length">
                   <el-col :span="8"
                           class="virtualInfoCol">
                     <h4>
@@ -198,6 +199,7 @@
                     <p>{{ link.targetVirtual.vmHostName }}</p>
                   </el-col>
                 </el-row>
+                <h4 v-else class="virtualInfo">暂无信息</h4>
               </div>
             </el-col>
           </el-row>
@@ -229,6 +231,7 @@ import DeleteLinkModal from '@/components/pages/virtual/takeover/DeleteLinkModal
 import FailOverModal from '@/components/pages/virtual/takeover/FailOverModal';
 import FailBackModal from '@/components/pages/virtual/takeover/FailBackModal';
 import UpdateLinkStrategyModal from '@/components/pages/virtual/takeover/UpdateLinkStrategyModal';
+import { sockMixin } from '@/components/mixins/commonMixin';
 import {
   fetchLinks,
   deleteLink,
@@ -246,6 +249,7 @@ import {
 
 export default {
   name: 'TakeOver',
+  mixins: [sockMixin],
   components: {
     IIcon,
     DeleteLinkModal,
@@ -353,6 +357,17 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
+    },
+    connectCallback(client) {
+      let subscription = this.stompClient.subscribe('/virtual-links/send-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data:link } = JSON.parse(msg.body);
+        const index = this.items.findIndex(item => item.id === link.id);
+        if (index > 0) {
+          this.items.splice(index, 1, link);
+        } else {
+          this.items.push(link);
+        }
+      });
     },
     deleteLink(link) {
       this.deleteLinkModalVisible = true;
@@ -472,6 +487,7 @@ export default {
 }
 .targetVirtualInfo {
   border: 1px solid #6d6d6d;
+  position: relative;
 }
 .sourceVirtualInfo:hover {
   box-shadow: 0px 0px 2px 1px #409eff;
@@ -489,6 +505,12 @@ export default {
 }
 .virtualInfoCol {
   text-align: center;
+}
+.virtualInfo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-150%);
 }
 .virtualSync {
   text-align: center;

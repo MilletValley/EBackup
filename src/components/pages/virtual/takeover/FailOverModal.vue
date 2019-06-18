@@ -10,9 +10,10 @@
                   class="switchModalIcon"></i-icon>
         </el-col>
         <el-col :span="18">
-          <div style="height: 220px;max-height: 220px;overflow: scroll; position: 'relative'">
+          <div style="height: 220px;max-height: 220px;overflow: scroll; position: 'relative'"
+               v-if="Object.keys(readyToFailOverLink).length">
             <h4>即将执行以下操作，请检查。</h4>
-            <p v-if="Object.keys(readyToFailOverLink).length">
+            <p>
               <span class="sourceEnvColor">
                 <i-icon name="virtual-source"
                         style="vertical-align: -0.3em;"></i-icon>
