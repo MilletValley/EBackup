@@ -78,6 +78,12 @@ const getMonitorInfo = (id, type) =>
     method: 'get',
     url: `/get-monitor-id?id=${id}&type=${type}`
   });
+
+const getVersion = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/get-version'
+  });
 export {
   fetchBackupStatistics,
   fetchRestoreStatistics,
@@ -92,5 +98,6 @@ export {
   fetchRestorePlan,
   fetchRestorePlanDetail,
   cancelRestoreHighlight,
-  getMonitorInfo
+  getMonitorInfo,
+  getVersion
 };
