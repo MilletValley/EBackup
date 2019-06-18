@@ -192,11 +192,11 @@ export default {
       return syncOperationMapping[type];
     },
     operationStateIconFilter(state) {
-      if (state === 1) {
+      if (state === 0) {
+        return 'el-icon-success success-color';
+      } else if (state === 1) {
         return 'el-icon-loading waiting-color';
       } else if (state === 2) {
-        return 'el-icon-success success-color';
-      } else if (state === 3) {
         return 'el-icon-error error-color';
       }
       return '';

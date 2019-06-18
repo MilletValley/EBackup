@@ -141,8 +141,8 @@ const backupPlanModalMixin = {
         (a, b) =>
           a.slice(0, 2) * 60 +
           a.slice(3, 5) -
-          b.slice(0, 2) * 60 +
-          b.slice(3, 5)
+          (b.slice(0, 2) * 60 +
+          b.slice(3, 5))
       );
     },
     pruneFormData(formData) {
@@ -273,8 +273,8 @@ const restorePlanModalMixin = {
         (a, b) =>
           a.slice(0, 2) * 60 +
           a.slice(3, 5) -
-          b.slice(0, 2) * 60 +
-          b.slice(3, 5)
+          (b.slice(0, 2) * 60 +
+          b.slice(3, 5))
       );
     },
     // 精简计划数据，返回不同时间策略下所需要的数据

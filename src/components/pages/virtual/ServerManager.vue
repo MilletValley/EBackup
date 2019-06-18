@@ -226,7 +226,7 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
-        .catch(() => {
+        .then(() => {
           this.btnLoading = false;
         })
     },

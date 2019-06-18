@@ -74,10 +74,10 @@ const tableMixin = {
       this.action = 'create';
       this.currentSelectData = null;
     },
-    modifyDb(scope) {
+    modifyDb(row) {
       this.createModalVisible = true;
       this.action = 'update';
-      this.currentSelectData = scope.row;
+      this.currentSelectData = row;
     },
     confirmCall(data, type) {
       this.btnLoading = true;
@@ -92,14 +92,14 @@ const tableMixin = {
         this.btnLoading = false;
       });
     },
-    delete(scope, title) {
+    delete(row, title) {
       this.$confirm(title, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
         .then(() => {
-          deleteDatabase(this.databaseType, scope.row.id)
+          deleteDatabase(this.databaseType, row.id)
             .then(() => {
               this.fetchData();
               this.$message.success({
@@ -112,7 +112,7 @@ const tableMixin = {
         })
         .catch(() => { });
     },
-    linkMonitor({ row }) {
+    linkMonitor(row) {
       const objId = row.id;
       getMonitorInfo(objId, this.objectType).then(res => {
         const { data } = res.data;
