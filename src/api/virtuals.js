@@ -297,6 +297,12 @@ const fetchOperationRecords = id =>
     url: `/virtual-links/${id}/operations`
   });
 
+const fetchTimePoints = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-links/${id}/timePoints`
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -331,5 +337,6 @@ export {
   failOverLink,
   failBackLink,
   modifyLinkStrategy,
-  fetchOperationRecords
+  fetchOperationRecords,
+  fetchTimePoints
 };

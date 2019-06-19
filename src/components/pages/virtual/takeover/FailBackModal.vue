@@ -31,12 +31,16 @@
                 {{ readyToFailBackLink.sourceVirtual.vmName }}
               </span>
             </p>
-            时间点：<el-date-picker type="datetime"
-                                   format="yyyy-MM-dd HH:mm:ss"
-                                   value-format="yyyy-MM-dd HH:mm:ss"
-                                   v-model="timePoint"
-                                   placeholder="请选择恢复时间点"
-                                   size="small"></el-date-picker>
+            时间点： <el-select v-model="timePoint"
+                               :placeholder="`${loading ? '加载中...' : ''}`"
+                               size="small"
+                               :disabled="loading">
+                      <el-option v-for="(point, index) in timePoints"
+                                 :key="index"
+                                 :label="point"
+                                 :value="point">
+                      </el-option>
+                    </el-select>
           </div>
           <el-input type="password"
                     v-model="password"
@@ -57,6 +61,7 @@
 <script>
 import IIcon from '@/components/IIcon';
 import { validatePassword } from '@/api/user';
+import { fetchTimePoints } from '@/api/virtuals';
 export default {
   name: 'FailBackModal',
   props: ['visible', 'btnLoading', 'readyToFailBackLink'],
@@ -66,7 +71,9 @@ export default {
   data() {
     return {
       password: '',
-      timePoint: ''
+      timePoint: '',
+      loading: false,
+      timePoints: []
     }
   },
   computed: {
@@ -90,7 +97,17 @@ export default {
     },
     dialogOpen() {
       this.password = '';
-      this.timePoint = ''
+      this.loading = true;
+      fetchTimePoints(this.readyToFailBackLink.id)
+        .then(res => {
+          const { data: points } = res.data;
+          this.timePoints = [].concat(points.sort((a, b) => a < b));
+          this.timePoint = this.timePoints.length ? this.timePoints[0] : '';
+          this.loading = false;
+        })
+        .catch(() => {
+          this.$message.error(error);
+        });
     },
     confirmBtn() {
       validatePassword(this.password)
@@ -118,7 +135,7 @@ export default {
 }
 .syncVirtualName {
   display: inline-block;
-  width: 8em;
+  min-width: 6em;
   margin-left: 0.5em;
 }
 </style>
