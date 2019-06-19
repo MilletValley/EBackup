@@ -36,13 +36,13 @@
         <el-col :span="10">
           <section class="linkSection">
             <div style="position: relative; height: 3em; display: inline-block"
-                 v-if="link.state === 2">
-                <div class="rightMask"></div>
-                <i-icon :name="link.state | linkIconFilter"
-                        class="linkIcon"></i-icon>
-              </div>
+                 v-if="[1, 2].includes(link.state)">
+              <div class="rightMask"></div>
+              <i-icon :name="link.state | linkIconFilter"
+                      class="linkIcon"></i-icon>
+            </div>
             <div style="position: relative; height: 3em; display: inline-block"
-                 v-else-if="[1, 3].includes(link.state)">
+                  v-else-if="link.state === 3">
                 <div class="leftMask"></div>
                 <i-icon :name="link.state | linkIconFilter"
                         class="linkIcon"></i-icon>
