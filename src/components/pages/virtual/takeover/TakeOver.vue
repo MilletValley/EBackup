@@ -398,15 +398,10 @@ export default {
       let subscription = this.stompClient.subscribe('/virtual-links/send-virtual-link', msg => { // 订阅服务端提供的某个topic
         let { data:link } = JSON.parse(msg.body);
         const index = this.items.findIndex(item => item.id === link.id);
-        console.log(this.items);
-        console.log(link);
-        console.log(index);
-        if (index > 0) {
-          this.items.splice(index, 1, link);
-          console.log('重置');
-        } else {
+        if (index < 0) {
           this.items.push(link);
-          console.log('添加');
+        } else {
+          this.items.splice(index, 1, link);
         }
       });
     },
