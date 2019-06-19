@@ -87,6 +87,9 @@
                     <el-tag class="infoTag"
                             size="mini">{{ link.strategyConfig.syncRunTime }}</el-tag>
                   </el-form-item>
+                  <el-form-item label="下次同步时间">
+                    <span>{{ link.strategyConfig.nextSyncTime }}</span>
+                  </el-form-item>
                 </el-col>
               </el-row>
             </el-form>
@@ -238,10 +241,13 @@ export default {
       const path = this.$route.path;
       return this.$route.path.split('/')[2];
     },
+    linkId() {
+      return Number(this.id);
+    }
   },
   methods: {
     fetchData() {
-      fetchOperationRecords(this.id)
+      fetchOperationRecords(this.linkId)
         .then(res => {
           const { data } = res.data;
           this.records = data;
@@ -252,7 +258,7 @@ export default {
       fetchLinks()
         .then(res => {
           const { data: links } = res.data;
-          this.link = links.find(link => link.id === this.id);
+          this.link = links.find(link => link.id === this.linkId);
         })
         .catch(error => {
           this.$message.error(error);

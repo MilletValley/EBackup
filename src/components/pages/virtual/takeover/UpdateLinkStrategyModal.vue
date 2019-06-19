@@ -134,10 +134,11 @@ export default {
     confirmBtnClick() {
       this.$refs.refForm.validate(valid => {
         if(valid) {
-          const { syncTimeStrategy, minuteInterval, hourInterval, ...others } = this.formData;
+          const { syncTimeStrategy, syncRunTime, minuteInterval, hourInterval, ...others } = this.formData;
           this.$emit('confirm', {
             syncTimeStrategy,
             syncTimeInterval: syncTimeStrategy === 1 ? minuteInterval : hourInterval,
+            syncRunTime: [3, 4].includes(syncTimeStrategy) ? syncRunTime : [],
             ...others
           })
         } else {

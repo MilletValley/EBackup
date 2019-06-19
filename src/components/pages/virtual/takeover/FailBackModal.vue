@@ -101,7 +101,7 @@ export default {
       fetchTimePoints(this.readyToFailBackLink.id)
         .then(res => {
           const { data: points } = res.data;
-          this.timePoints = [].concat(points.sort((a, b) => a < b));
+          this.timePoints = [].concat(points.sort((a, b) => new Date(a).getTime() < new Date(b).getTime()));
           this.timePoint = this.timePoints.length ? this.timePoints[0] : '';
           this.loading = false;
         })

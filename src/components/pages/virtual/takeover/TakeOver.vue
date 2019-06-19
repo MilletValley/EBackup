@@ -112,11 +112,10 @@
                       <el-tag class="infoTag"
                               size="mini">{{ link.strategyConfig.syncRunTime }}</el-tag>
                     </el-form-item>
-                    <!-- <el-form-item label="下次同步时间"
-                                  class="syncFormItem"
-                                  v-if="[3, 4].includes(link.strategyConfig.syncTimeStrategy)">
+                    <el-form-item label="下次同步时间"
+                                  class="syncFormItem">
                       <span>{{ link.strategyConfig.nextSyncTime }}</span>
-                    </el-form-item> -->
+                    </el-form-item>
                   </el-form>
                   <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">上次同步状态</h4>
                   <p v-if="!link.syncTime">暂未同步</p>
