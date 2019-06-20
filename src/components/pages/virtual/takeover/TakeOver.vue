@@ -13,6 +13,11 @@
         <el-button type="info"
                    @click="$router.push({name: `${type}CollectManager`})">虚拟机主机</el-button>
       </el-form-item>
+      <el-form-item v-show="!enterFromMenu"
+                    style="float: right;">
+        <el-button type="info"
+                   @click="$router.push({name: `${type}List`})">虚拟机列表</el-button>
+      </el-form-item>
     </el-form>
     <section style="clear: both">
       <el-row>

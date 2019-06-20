@@ -6,24 +6,37 @@
           <el-input v-if="!buttonflag" placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select">
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
-          <el-button v-else size="small" type="primary" @click="backupPlanCreateModalVisible=true" :disabled="currentSelectDb.length ? false : true">
-            添加备份计划
-          </el-button>
+          <template v-else>
+            <el-button size="small" type="primary" @click="backupPlanCreateModalVisible=true" :disabled="currentSelectDb.length ? false : true">
+              添加备份计划
+            </el-button>
+            <el-button type="info"
+                       size="small"
+                       v-if="[1, 3].includes(vmType)"
+                       @click="createTakeOverLink">接管初始化</el-button>
+          </template>
         </el-col>
         <el-col :span="18" style="text-align:right">
           <el-button size="small" type="primary" @click="buttonClick" >
             {{buttonflag ? '返回' : '查看已选虚拟机'}}
           </el-button>
+          <el-button size="small" type="info"
+                     v-if="!buttonflag && [1, 3].includes(vmType)"
+                     @click="jumpToTakeOver">
+            一键接管
+          </el-button>
         </el-col>
       </el-row>
     </div>
     <el-table :data="processDbTableData" ref="dbTable"
-              @select="selectDbChangeFn"    @select-all="selectAll"
+              @select="selectDbChangeFn"
+              @select-all="selectAll"
               @sort-change="sortChangeFn"
               :default-sort="defaultSort"
               style="width: 100%">
       <el-table-column
           type="selection"
+          :selectable="selectFn"
           align="center"
           width="55">
       </el-table-column>
@@ -76,7 +89,12 @@
                           @confirm="addBackupPlan"
                           :action="action">
       </backup-plan-modal>
-
+      <create-link-modal :btn-loading="btnLoading"
+                          :selected-virtuals="currentSelectDb"
+                          :vm-type="vmType"
+                          :server-data="serverData"
+                          @confirm="createLink"
+                          :visible.sync="createLinkModalVisile"></create-link-modal>
   </section>
 </template>
 <script>
@@ -84,18 +102,23 @@ import {
   fetchAll,
   createMultipleVirtualBackupPlan,
   rescan,
+  createLinks
 } from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
+import CreateLinkModal from '@/components/pages/virtual/takeover/CreateLinkModal';
 import { hostTypeMapping, databaseTypeMapping, virtualMapping } from '@/utils/constant';
+import { fetchServerList } from '@/api/host';
 import type from '@/store/type';
 export default {
   name: 'VirtualList',
   components: {
     BackupPlanModal,
+    CreateLinkModal
   },
   data() {
     return {
       vmItems: [],
+      serverData: [],
       currentPage: 1,
       pagesize: 10,
       inputSearch: '',
@@ -103,6 +126,7 @@ export default {
       currentSelectDb: [],
       buttonflag: false,
       btnLoading: false,
+      createLinkModalVisile: false,
       action: 'create',
       backupPlanCreateModalVisible: false,
       defaultSort: { prop: 'vmName', order: 'descending' },
@@ -199,6 +223,44 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+      fetchServerList()
+        .then(res => {
+          const { data:serverData } = res.data;
+          this.serverData = serverData.filter(item => this.vmType === item.serverType);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+    },
+    selectFn(row, index) { // 限制虚拟机一键接管是否可选
+      if ([1, 3].includes(this.vmType))
+        return !this.currentSelectDb.length || this.currentSelectDb.some(v => v.hostId === row.hostId);
+      return true;
+    },
+    jumpToTakeOver() {
+      this.$router.push({ name: `${virtualMapping[this.vmType]}TakeOver` });
+    },
+    createTakeOverLink() {
+      this.createLinkModalVisile = true;
+    },
+    createLink(data) {
+      this.btnLoading = true;
+      createLinks(data)
+        .then(res => {
+          const { message } = res.data;
+          this.fetchData();
+          this.createLinkModalVisile = false;
+          this.$message.success(message);
+          setTimeout(() => {
+            this.$router.push({ name: `${virtualMapping[this.vmType]}TakeOver` });
+          }, 3000);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        })
     },
     searchByName() {
       this.filterItem = this.inputSearch;
@@ -224,7 +286,11 @@ export default {
       }
     },
     selectAll(selection) {
-      if (selection.length === 0) {
+      const hostIds = this.processDbTableData.map(v => v.hostId);
+      if (Array.from(new Set(hostIds)).length > 1 && selection.length > 0 && [1, 3].includes(this.vmType)) {
+        this.$refs.dbTable.clearSelection();
+        this.$message.warning('无法选择不同设备下的虚拟机！');
+      } else if (selection.length === 0) {
         this.currentSelectDb = this.currentSelectDb.filter(e => {
           let flag = true;
           this.processDbTableData.forEach(i => {
