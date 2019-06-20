@@ -7,6 +7,13 @@
         <el-col :span="7">
           <section>
             <h4 class="title">
+              <el-tooltip content="提供服务中"
+                          placement="top"
+                          effect="light">
+                <i-icon name="service"
+                        class="link-service"
+                        v-if="[0, 1].includes(link.state)"></i-icon>
+              </el-tooltip>
               <router-link :class="$style.primaryLink"
                            :to="`/virtual/${type}/${link.sourceVirtual.id}`">
                 {{link.sourceVirtual.vmName}}
@@ -36,18 +43,18 @@
         <el-col :span="10">
           <section class="linkSection">
             <div style="position: relative; height: 3em; display: inline-block"
-                 v-if="[1, 2].includes(link.state)">
+                 v-if="link.state === 1">
               <div class="rightMask"></div>
-              <i-icon :name="link.state | linkIconFilter"
+              <i-icon :name="linkIcon(link)"
                       class="linkIcon"></i-icon>
             </div>
             <div style="position: relative; height: 3em; display: inline-block"
                   v-else-if="link.state === 3">
                 <div class="leftMask"></div>
-                <i-icon :name="link.state | linkIconFilter"
+                <i-icon :name="linkIcon(link)"
                         class="linkIcon"></i-icon>
             </div>
-            <i-icon :name="link.state | linkIconFilter"
+            <i-icon :name="linkIcon(link)"
                     class="linkIcon"
                     v-else></i-icon>
             <div>
@@ -98,7 +105,14 @@
         <el-col :span="7">
           <section>
             <h4 class="title">
-                {{link.targetVirtual.vmName}}
+              <el-tooltip content="提供服务中"
+                          placement="top"
+                          effect="light">
+                <i-icon name="service"
+                        class="link-service"
+                        v-if="[2, 3].includes(link.state)"></i-icon>
+              </el-tooltip>
+              {{link.targetVirtual.vmName}}
             </h4>
             <el-form size="small"
                      label-width="100px"
@@ -139,18 +153,21 @@
                        align="center"
                        min-width="60">
         <template slot-scope="scope">
-          <i :class="scope.row.state | operationStateIconFilter"></i>
+          <el-tag :type="scope.row.state | operationStateStyleFilter"
+                  size="mini">
+            {{ scope.row.state | operationStateFilter }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="信息"
                        prop="content"
-                       header-align="center"
+                       align="center"
                        min-width="150">
         <template slot-scope="scope">
           <span>{{ scope.row.content ? scope.row.content : '' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="完成时间"
+      <el-table-column label="时间"
                        prop="time"
                        align="center"
                        min-width="80"></el-table-column>
@@ -164,7 +181,8 @@ import {
   syncLinkMapping,
   weekMapping,
   syncStragegyMapping,
-  syncOperationMapping
+  syncOperationMapping,
+  syncOperationStateMapping
 } from '@/utils/constant';
 import { fetchOperationRecords, fetchLinks } from '@/api/virtuals';
 
@@ -194,15 +212,18 @@ export default {
     syncOperationFilter(type) {
       return syncOperationMapping[type];
     },
-    operationStateIconFilter(state) {
+    operationStateStyleFilter(state) {
       if (state === 0) {
-        return 'el-icon-success success-color';
+        return 'success';
       } else if (state === 1) {
-        return 'el-icon-loading waiting-color';
+        return 'warning';
       } else if (state === 2) {
-        return 'el-icon-error error-color';
+        return 'danger';
       }
       return '';
+    },
+    operationStateFilter(state) {
+      return syncOperationStateMapping[state];
     },
     linkStateStyleFilter(type) {
       switch(type) {
@@ -211,6 +232,7 @@ export default {
           return 'warning';
         case 2:
         case 3:
+        case 4:
           return 'danger';
         default:
           return 'primary';
@@ -249,8 +271,8 @@ export default {
     fetchData() {
       fetchOperationRecords(this.linkId)
         .then(res => {
-          const { data } = res.data;
-          this.records = data;
+          const { data: records } = res.data;
+          this.records = records.sort((a, b) => new Date(a.time).getTime() < new Date(b.time).getTime());
         })
         .catch(error => {
           this.$message.error(error);
@@ -263,6 +285,22 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
+    },
+    linkIcon(link) {
+      if (link.state === 0) {
+        return 'switch-1';
+      } else if (link.state === 1) {
+        return 'transportationRight';
+      } else if (link.state === 2 && link.latestOperationInfo.type === 0 && link.latestOperationInfo.state === 1) {
+        return 'link-exchange';
+      } else if (link.state === 2) {
+        return 'link-stop';
+      } else if (link.state === 3) {
+        return 'transportationLeft-warning';
+      } else if (link.state === 4) {
+        return 'switch-3';
+      }
+      return '';
     },
   }
 }
@@ -295,15 +333,6 @@ export default {
 .infoTag {
   margin: 0 2px;
 }
-.waiting-color {
-  color: rgb(158, 158, 22);
-}
-.success-color {
-  color: rgb(39, 202, 39);
-}
-.error-color {
-  color: rgb(202, 39, 39);
-}
 .rightMask,
 .leftMask {
   animation: move 2s infinite;
@@ -323,5 +352,13 @@ export default {
   to {
     width: 0;
   }
+}
+.link-service {
+  vertical-align: -0.3em;
+  transition: all 0.5s ease;
+}
+.link-service:hover {
+  transform: scale(1.2);
+  cursor: pointer;
 }
 </style>

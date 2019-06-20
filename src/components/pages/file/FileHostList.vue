@@ -105,10 +105,14 @@
                              append
                              :class="$style.link"
                              class="title">{{processedTableData[row * 3 + col].hostName}}</router-link>
-                <i class="el-icon-delete delete"
-                  @click="deleteFileHost(processedTableData[row * 3 + col])"></i>
-                <i class="el-icon-edit edit"
-                  @click="modifyFn(processedTableData[row * 3 + col])"></i>
+                <el-tooltip content="删除" placement="top" effect="light">
+                  <i class="el-icon-delete delete"
+                     @click="deleteFileHost(processedTableData[row * 3 + col])"></i>
+                </el-tooltip>
+                <el-tooltip content="修改" placement="top" effect="light">
+                  <i class="el-icon-edit edit"
+                     @click="modifyFn(processedTableData[row * 3 + col])"></i>
+                </el-tooltip>
               </div>
               <el-form label-position="right"
                       label-width="80px"

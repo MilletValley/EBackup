@@ -128,13 +128,19 @@
                              class="title"
                              append
                              :class="$style.link">{{processedTableData[row * 3 + col].name}}</router-link>
-                <i class="el-icon-delete delete"
-                  @click="deleteDb(processedTableData[row * 3 + col])"></i>
-                <i class="el-icon-edit edit"
-                  @click="modifyDb(processedTableData[row * 3 + col])"></i>
-                <i-icon name="monitor"
-                        class="monitor"
-                        @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
+                <el-tooltip content="删除" placement="top" effect="light">
+                  <i class="el-icon-delete delete"
+                     @click="deleteDb(processedTableData[row * 3 + col])"></i>
+                </el-tooltip>
+                <el-tooltip content="修改" placement="top" effect="light">
+                  <i class="el-icon-edit edit"
+                     @click="modifyDb(processedTableData[row * 3 + col])"></i>
+                </el-tooltip>
+                <el-tooltip content="监控" placement="top" effect="light">
+                  <i-icon name="monitor"
+                          class="monitor"
+                          @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
+                </el-tooltip>
               </div>
               <el-form label-position="right"
                       label-width="80px"

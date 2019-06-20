@@ -48,6 +48,13 @@
                   <el-col :span="8"
                           class="virtualInfoCol">
                     <h4>
+                      <el-tooltip content="提供服务中"
+                                  placement="top"
+                                  effect="light">
+                        <i-icon name="service"
+                                class="link-service"
+                                v-if="[0, 1].includes(link.state)"></i-icon>
+                      </el-tooltip>
                       <router-link :to="`/virtual/${type}/${link.sourceVirtual.id}`"
                                    :class="$style.primaryLink">
                         {{ link.sourceVirtual.vmName }}
@@ -147,7 +154,10 @@
                     </el-form-item>
                     <el-form-item class="syncFormItem"
                                   label="状态">
-                      <i :class="link.latestOperationInfo.state | operationStateIconFilter"></i>
+                      <el-tag :type="link.latestOperationInfo.state | operationStateStyleFilter"
+                              size="mini">
+                        {{ link.latestOperationInfo.state | operationStateFilter }}
+                      </el-tag>
                     </el-form-item>
                     <el-form-item class="syncFormItem"
                                   label="时间">
@@ -155,18 +165,18 @@
                     </el-form-item>
                   </el-form>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
-                      v-if="[1, 2].includes(link.state)">
+                      v-if="link.state === 1">
                     <div class="rightMask"></div>
-                    <i-icon :name="link.state | linkIconFilter"
+                    <i-icon :name="linkIcon(link)"
                             class="linkIcon"></i-icon>
                   </div>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
                        v-else-if="link.state === 3">
                       <div class="leftMask"></div>
-                      <i-icon :name="link.state | linkIconFilter"
+                      <i-icon :name="linkIcon(link)"
                               class="linkIcon"></i-icon>
                   </div>
-                  <i-icon :name="link.state | linkIconFilter"
+                  <i-icon :name="linkIcon(link)"
                           slot="reference"
                           class="linkIcon"
                           v-else></i-icon>
@@ -175,6 +185,10 @@
                      style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
                   <i class="el-icon-loading"></i>
                   <span>{{ link.latestOperationInfo.type | syncOperationFilter }}中...</span>
+                </div>
+                <div v-else-if="link.state === 0">
+                  <i class="el-icon-loading"></i>
+                  <span>初始化中...</span>
                 </div>
                 <div v-else>
                   <div>
@@ -206,6 +220,13 @@
                   <el-col :span="8"
                           class="virtualInfoCol">
                     <h4>
+                      <el-tooltip content="提供服务中"
+                                  placement="top"
+                                  effect="light">
+                        <i-icon name="service"
+                                class="link-service"
+                                v-if="[2, 3].includes(link.state)"></i-icon>
+                      </el-tooltip>
                       {{ link.targetVirtual.vmName }}
                     </h4>
                   </el-col>
@@ -266,7 +287,8 @@ import {
   syncStragegyMapping,
   weekMapping,
   syncStateMapping,
-  syncOperationMapping
+  syncOperationMapping,
+  syncOperationStateMapping
 } from '@/utils/constant';
 
 export default {
@@ -310,15 +332,18 @@ export default {
     syncOperationFilter(type) {
       return syncOperationMapping[type];
     },
-    operationStateIconFilter(state) {
+    operationStateStyleFilter(state) {
       if (state === 0) {
-        return 'el-icon-success success-color';
+        return 'success';
       } else if (state === 1) {
-        return 'el-icon-loading waiting-color';
+        return 'warning';
       } else if (state === 2) {
-        return 'el-icon-error error-color';
+        return 'danger';
       }
       return '';
+    },
+    operationStateFilter(state) {
+      return syncOperationStateMapping[state];
     },
     linkStateStyleFilter(type) {
       switch(type) {
@@ -327,6 +352,7 @@ export default {
           return 'warning';
         case 2:
         case 3:
+        case 4:
           return 'danger';
         default:
           return 'primary';
@@ -345,22 +371,6 @@ export default {
     syncStateFilter(state) {
       return syncStateMapping[state];
     },
-    linkIconFilter(state) {
-      switch(state) {
-        case 0:
-          return 'switch-1';
-        case 1:
-          return 'transportationRight';
-        case 2:
-          return 'transportationRight-warning';
-        case 3:
-          return 'transportationLeft-warning';
-        case 4:
-          return 'switch-3';
-        default:
-          return '';
-      }
-    }
   },
   computed: {
     enterFromMenu() {
@@ -394,15 +404,36 @@ export default {
         })
     },
     connectCallback(client) {
-      let subscription = this.stompClient.subscribe('/virtual-links/send-virtual-link', msg => { // 订阅服务端提供的某个topic
-        let { data:link } = JSON.parse(msg.body);
-        const index = this.items.findIndex(item => item.id === link.id);
-        if (index < 0) {
-          this.items.push(link);
-        } else {
-          this.items.splice(index, 1, link);
-        }
+      this.stompClient.subscribe('/virtual-links/add-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data: link } = JSON.parse(msg.body);
+        this.items.push(link);
       });
+      this.stompClient.subscribe('/virtual-links/update-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data: link } = JSON.parse(msg.body);
+        const index = this.items.findIndex(item => item.id === link.id);
+        this.items.splice(index, 1, link);
+      });
+      this.stompClient.subscribe('/virtual-links/delete-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data: id } = JSON.parse(msg.body);
+        const index = this.items.findIndex(item => item.id === id);
+        this.items.splice(index, 1);
+      });
+    },
+    linkIcon(link) {
+      if (link.state === 0) {
+        return 'switch-1';
+      } else if (link.state === 1) {
+        return 'transportationRight';
+      } else if (link.state === 2 && link.latestOperationInfo.type === 0 && link.latestOperationInfo.state === 1) {
+        return 'link-exchange';
+      } else if (link.state === 2) {
+        return 'link-stop';
+      } else if (link.state === 3) {
+        return 'transportationLeft-warning';
+      } else if (link.state === 4) {
+        return 'switch-3';
+      }
+      return '';
     },
     deleteLink(link) {
       this.deleteLinkModalVisible = true;
@@ -592,6 +623,14 @@ export default {
 .leftMask {
   left: -20px;
 }
+.link-service {
+  vertical-align: -0.3em;
+  transition: all 0.5s ease;
+}
+.link-service:hover {
+  transform: scale(1.2);
+  cursor: pointer;
+}
 @keyframes move {
   from {
     width: 100px;
@@ -599,14 +638,5 @@ export default {
   to {
     width: 0;
   }
-}
-.waiting-color {
-  color: rgb(158, 158, 22);
-}
-.success-color {
-  color: rgb(39, 202, 39);
-}
-.error-color {
-  color: rgb(202, 39, 39);
 }
 </style>

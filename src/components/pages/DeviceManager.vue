@@ -142,13 +142,19 @@
                 <i-icon :name="processedTableData[row * 3 + col].databaseType | hostIconFilter"
                         class="hostIcon"></i-icon>
                 <span class="title">{{ processedTableData[row * 3 + col].name }}</span>
-                <i class="el-icon-delete delete"
+                <el-tooltip content="删除" placement="top" effect="light">
+                  <i class="el-icon-delete delete"
                   @click="deleteItem(processedTableData[row * 3 + col])"></i>
-                <i class="el-icon-edit edit"
+                </el-tooltip>
+                <el-tooltip content="修改" placement="top" effect="light">
+                  <i class="el-icon-edit edit"
                   @click="selectOne(processedTableData[row * 3 + col])"></i>
-                <i-icon name="monitor"
+                </el-tooltip>
+                <el-tooltip content="监控" placement="top" effect="light">
+                  <i-icon name="monitor"
                         class="monitor"
                         @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
+                </el-tooltip>
               </div>
               <el-form label-position="right"
                       label-width="80px"

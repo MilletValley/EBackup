@@ -312,6 +312,12 @@ const syncLinkMapping = {
   4: '异常'
 };
 
+const syncOperationStateMapping = {
+  0: '成功',
+  1: '开始',
+  2: '失败'
+};
+
 const syncOperationMapping = {
   0: '故障转移',
   1: '故障恢复',
@@ -383,6 +389,7 @@ export {
   syncStragegyMapping,
   syncLinkMapping,
   syncStateMapping,
+  syncOperationStateMapping,
   yesOrNoMapping,
   deployStateMapping,
   storeTypeMapping,
