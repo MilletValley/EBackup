@@ -206,12 +206,6 @@ export default {
     //   this.hiddenPassword = true;
     // },
   },
-  computed: {
-    availableHostsForRestore() {
-      const ebackupHosts = this.$store.getters[`${this.type}Hosts`];
-      return ebackupHosts;
-    },
-  }
 };
 </script>
 <style >
