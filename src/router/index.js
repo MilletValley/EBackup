@@ -62,6 +62,8 @@ export const basicRouters = [
 ];
 
 export default new Router({
+  mode: 'history',
+  base: '/ebackup',
   routes: basicRouters,
 });
 
