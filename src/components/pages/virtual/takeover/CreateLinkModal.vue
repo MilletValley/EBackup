@@ -232,7 +232,7 @@ export default {
     confirmBtnClick() {
       this.$refs.refForm.validate(valid => {
         if(valid) {
-          const { ipConfigs, syncTimeStrategy, minuteInterval, hourInterval, ...others } = this.formData;
+          const { ipConfigs, syncTimeStrategy, syncRunTime, minuteInterval, hourInterval, ...others } = this.formData;
           this.$emit('confirm', {
             ipConfigs: ipConfigs.map(config => ({
               vmId: config.vmId,
@@ -240,6 +240,7 @@ export default {
             })),
             syncTimeStrategy,
             syncTimeInterval: syncTimeStrategy === 1 ? minuteInterval : hourInterval,
+            syncRunTime: [3, 4].includes(syncTimeStrategy) ? syncRunTime : [],
             ...others
           })
         } else {

@@ -13,6 +13,11 @@
         <el-button type="info"
                    @click="$router.push({name: `${type}CollectManager`})">虚拟机主机</el-button>
       </el-form-item>
+      <el-form-item v-show="!enterFromMenu"
+                    style="float: right;">
+        <el-button type="info"
+                   @click="$router.push({name: `${type}List`})">虚拟机列表</el-button>
+      </el-form-item>
     </el-form>
     <section style="clear: both">
       <el-row>
@@ -48,6 +53,13 @@
                   <el-col :span="8"
                           class="virtualInfoCol">
                     <h4>
+                      <el-tooltip content="提供服务中"
+                                  placement="top"
+                                  effect="light">
+                        <i-icon name="service"
+                                class="link-service"
+                                v-if="[0, 1].includes(link.state)"></i-icon>
+                      </el-tooltip>
                       <router-link :to="`/virtual/${type}/${link.sourceVirtual.id}`"
                                    :class="$style.primaryLink">
                         {{ link.sourceVirtual.vmName }}
@@ -112,50 +124,78 @@
                       <el-tag class="infoTag"
                               size="mini">{{ link.strategyConfig.syncRunTime }}</el-tag>
                     </el-form-item>
-                    <!-- <el-form-item label="下次同步时间"
-                                  class="syncFormItem"
-                                  v-if="[3, 4].includes(link.strategyConfig.syncTimeStrategy)">
+                    <el-form-item label="下次同步时间"
+                                  class="syncFormItem">
                       <span>{{ link.strategyConfig.nextSyncTime }}</span>
-                    </el-form-item> -->
+                    </el-form-item>
                   </el-form>
                   <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">上次同步状态</h4>
-                  <p v-if="!link.latestSyncInfo">暂无</p>
+                  <p v-if="!link.syncTime">暂未同步</p>
                   <el-form size="mini"
                            label-width="100px"
                            v-else>
                     <el-form-item class="syncFormItem"
                                   label="同步状态">
-                      <el-tag :type="link.latestSyncInfo.state | syncStateStyleFilter"
-                              size="mini">{{ link.latestSyncInfo.state | syncStateFilter }}</el-tag>
+                      <el-tag :type="link.syncState | syncStateStyleFilter"
+                              size="mini">{{ link.syncState | syncStateFilter }}</el-tag>
                     </el-form-item>
                     <el-form-item class="syncFormItem"
                                   label="时间">
-                      <span>{{ link.latestSyncInfo.time }}</span>
+                      <span>{{ link.syncTime }}</span>
+                    </el-form-item>
+                  </el-form>
+                  <h4 style="margin: 10px 0 5px; padding: 3px 0;border-top: 1px solid;">最近一次操作</h4>
+                  <p v-if="!Object.keys(link.latestOperationInfo).length">暂无操作</p>
+                  <el-form size="mini"
+                           label-width="100px"
+                           v-else>
+                    <el-form-item class="syncFormItem"
+                                  label="操作内容">
+                      <span>{{ link.latestOperationInfo.content }}</span>
                     </el-form-item>
                     <el-form-item class="syncFormItem"
-                                  label="信息"
-                                  v-if="link.latestSyncInfo.content">
-                      <span>{{ link.latestSyncInfo.content }}</span>
+                                  label="操作类型">
+                      <span>{{ link.latestOperationInfo.type | syncOperationFilter }}</span>
+                    </el-form-item>
+                    <el-form-item class="syncFormItem"
+                                  label="状态">
+                      <el-tag :type="link.latestOperationInfo.state | operationStateStyleFilter"
+                              size="mini">
+                        {{ link.latestOperationInfo.state | operationStateFilter }}
+                      </el-tag>
+                    </el-form-item>
+                    <el-form-item class="syncFormItem"
+                                  label="时间">
+                      <span>{{ link.latestOperationInfo.time }}</span>
                     </el-form-item>
                   </el-form>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
-                      v-if="[1, 2].includes(link.state)">
+                      v-if="link.state === 1">
                     <div class="rightMask"></div>
-                    <i-icon :name="link.state | linkIconFilter"
+                    <i-icon :name="linkIcon(link)"
                             class="linkIcon"></i-icon>
                   </div>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
                        v-else-if="link.state === 3">
                       <div class="leftMask"></div>
-                      <i-icon :name="link.state | linkIconFilter"
+                      <i-icon :name="linkIcon(link)"
                               class="linkIcon"></i-icon>
                   </div>
-                  <i-icon :name="link.state | linkIconFilter"
+                  <i-icon :name="linkIcon(link)"
                           slot="reference"
                           class="linkIcon"
                           v-else></i-icon>
                 </el-popover>
-                <div>
+                <div v-if="link.latestOperationInfo && link.latestOperationInfo.state === 1"
+                     style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                  <i class="el-icon-loading"></i>
+                  <span>{{ link.latestOperationInfo.type | syncOperationFilter }}中...</span>
+                </div>
+                <div v-else-if="link.state === 0">
+                  <i class="el-icon-loading"></i>
+                  <span>初始化中...</span>
+                </div>
+                <div v-else>
                   <div>
                     <el-button type="text"
                                class="deleteLink"
@@ -180,10 +220,18 @@
             <el-col :span="10">
               <div class="targetVirtualInfo">
                 <el-row type="flex"
-                        align="middle">
+                        align="middle"
+                        v-if="Object.keys(link.targetVirtual).length">
                   <el-col :span="8"
                           class="virtualInfoCol">
                     <h4>
+                      <el-tooltip content="提供服务中"
+                                  placement="top"
+                                  effect="light">
+                        <i-icon name="service"
+                                class="link-service"
+                                v-if="[2, 3].includes(link.state)"></i-icon>
+                      </el-tooltip>
                       {{ link.targetVirtual.vmName }}
                     </h4>
                   </el-col>
@@ -198,6 +246,7 @@
                     <p>{{ link.targetVirtual.vmHostName }}</p>
                   </el-col>
                 </el-row>
+                <h4 v-else class="virtualInfo">暂无信息</h4>
               </div>
             </el-col>
           </el-row>
@@ -229,6 +278,7 @@ import DeleteLinkModal from '@/components/pages/virtual/takeover/DeleteLinkModal
 import FailOverModal from '@/components/pages/virtual/takeover/FailOverModal';
 import FailBackModal from '@/components/pages/virtual/takeover/FailBackModal';
 import UpdateLinkStrategyModal from '@/components/pages/virtual/takeover/UpdateLinkStrategyModal';
+import { sockMixin } from '@/components/mixins/commonMixin';
 import {
   fetchLinks,
   deleteLink,
@@ -242,10 +292,13 @@ import {
   syncStragegyMapping,
   weekMapping,
   syncStateMapping,
+  syncOperationMapping,
+  syncOperationStateMapping
 } from '@/utils/constant';
 
 export default {
   name: 'TakeOver',
+  mixins: [sockMixin],
   components: {
     IIcon,
     DeleteLinkModal,
@@ -281,6 +334,22 @@ export default {
     syncStrategyFilter(type) {
       return syncStragegyMapping[type];
     },
+    syncOperationFilter(type) {
+      return syncOperationMapping[type];
+    },
+    operationStateStyleFilter(state) {
+      if (state === 0) {
+        return 'success';
+      } else if (state === 1) {
+        return 'warning';
+      } else if (state === 2) {
+        return 'danger';
+      }
+      return '';
+    },
+    operationStateFilter(state) {
+      return syncOperationStateMapping[state];
+    },
     linkStateStyleFilter(type) {
       switch(type) {
         case 0:
@@ -288,6 +357,7 @@ export default {
           return 'warning';
         case 2:
         case 3:
+        case 4:
           return 'danger';
         default:
           return 'primary';
@@ -306,22 +376,6 @@ export default {
     syncStateFilter(state) {
       return syncStateMapping[state];
     },
-    linkIconFilter(state) {
-      switch(state) {
-        case 0:
-          return 'switch-1';
-        case 1:
-          return 'transportationRight';
-        case 2:
-          return 'transportationRight-warning';
-        case 3:
-          return 'transportationLeft-warning';
-        case 4:
-          return 'switch-3';
-        default:
-          return '';
-      }
-    }
   },
   computed: {
     enterFromMenu() {
@@ -354,6 +408,38 @@ export default {
           this.$message.error(error);
         })
     },
+    connectCallback(client) {
+      this.stompClient.subscribe('/virtual-links/add-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data: link } = JSON.parse(msg.body);
+        this.items.push(link);
+      });
+      this.stompClient.subscribe('/virtual-links/update-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data: link } = JSON.parse(msg.body);
+        const index = this.items.findIndex(item => item.id === link.id);
+        this.items.splice(index, 1, link);
+      });
+      this.stompClient.subscribe('/virtual-links/delete-virtual-link', msg => { // 订阅服务端提供的某个topic
+        let { data: id } = JSON.parse(msg.body);
+        const index = this.items.findIndex(item => item.id === id);
+        this.items.splice(index, 1);
+      });
+    },
+    linkIcon(link) {
+      if (link.state === 0) {
+        return 'switch-1';
+      } else if (link.state === 1) {
+        return 'transportationRight';
+      } else if (link.state === 2 && link.latestOperationInfo.type === 0 && link.latestOperationInfo.state === 1) {
+        return 'link-exchange';
+      } else if (link.state === 2) {
+        return 'link-stop';
+      } else if (link.state === 3) {
+        return 'transportationLeft-warning';
+      } else if (link.state === 4) {
+        return 'switch-3';
+      }
+      return '';
+    },
     deleteLink(link) {
       this.deleteLinkModalVisible = true;
       this.readyToDeleteLink = link;
@@ -384,7 +470,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.deleteLinkModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -401,7 +487,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.failOverModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -418,7 +504,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.failBackModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -435,7 +521,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.updateLinkStrategyModalVisible = false;
-          this.fetchData();
+          // this.fetchData();
         })
         .catch(error => {
           this.$message.error(error);
@@ -472,6 +558,7 @@ export default {
 }
 .targetVirtualInfo {
   border: 1px solid #6d6d6d;
+  position: relative;
 }
 .sourceVirtualInfo:hover {
   box-shadow: 0px 0px 2px 1px #409eff;
@@ -489,6 +576,12 @@ export default {
 }
 .virtualInfoCol {
   text-align: center;
+}
+.virtualInfo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-150%);
 }
 .virtualSync {
   text-align: center;
@@ -534,6 +627,14 @@ export default {
 }
 .leftMask {
   left: -20px;
+}
+.link-service {
+  vertical-align: -0.3em;
+  transition: all 0.5s ease;
+}
+.link-service:hover {
+  transform: scale(1.2);
+  cursor: pointer;
 }
 @keyframes move {
   from {
