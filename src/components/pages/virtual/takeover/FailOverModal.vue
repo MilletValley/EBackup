@@ -35,11 +35,12 @@
             时间点：<span v-if="loading">加载中...</span>
                    <span v-else-if="!loading && !handleSelect">
                      <span>{{ timePoint }}</span>
-                     <i-icon name="gaojing"
-                             style="vertical-align: -0.2em; margin-left: 10px; width: 1.2em"></i-icon>
-                     <el-button type="text"
-                                @click="handleSelect = !handleSelect"
-                                style="color: #D81E06">手动选择</el-button>
+                     <el-tooltip content="默认选择最近时间点" placement="top" effect="light">
+                        <el-button type="text"
+                                   @click="handleSelect = !handleSelect"
+                                   style="margin-left: 20px">手动选择</el-button>
+                     </el-tooltip>
+                     <span style="color: #D81E06">(不推荐)</span>
                    </span>
                    <el-select v-model="timePoint"
                               :placeholder="`${loading ? '加载中...' : ''}`"
@@ -123,7 +124,7 @@ export default {
       fetchTimePoints(this.readyToFailOverLink.id)
         .then(res => {
           const { data: points } = res.data;
-          this.timePoints = [].concat(points.sort((a, b) => new Date(a).getTime() < new Date(b).getTime()));
+          this.timePoints = [].concat(points.sort((a, b) => new Date(b).getTime() - new Date(a).getTime()));
           this.timePoint = this.timePoints.length ? this.timePoints[0] : '';
           this.loading = false;
         })

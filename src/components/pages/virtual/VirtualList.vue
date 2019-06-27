@@ -273,9 +273,9 @@ export default {
       this.currentPage = currentPage;
     },
     selectDbChangeFn(selectData, row) {
-      if (selectData.includes(row)) {
+      if (!this.currentSelectDb.includes(row)) {
         this.currentSelectDb.push(row);
-      } else {
+      } else if (!selectData.includes(row)) {
         //需要优化，匹配到即跳出循环
         this.currentSelectDb = this.currentSelectDb.filter(e => {
           if (e.id === row.id) {

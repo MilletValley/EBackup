@@ -94,7 +94,8 @@
                     <el-tag class="infoTag"
                             size="mini">{{ link.strategyConfig.syncRunTime }}</el-tag>
                   </el-form-item>
-                  <el-form-item label="下次同步时间">
+                  <el-form-item label="下次同步时间"
+                                v-if="link.strategyConfig.nextSyncTime">
                     <span>{{ link.strategyConfig.nextSyncTime }}</span>
                   </el-form-item>
                 </el-col>
@@ -272,7 +273,7 @@ export default {
       fetchOperationRecords(this.linkId)
         .then(res => {
           const { data: records } = res.data;
-          this.records = records.sort((a, b) => new Date(a.time).getTime() < new Date(b.time).getTime());
+          this.records = records.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
         })
         .catch(error => {
           this.$message.error(error);
@@ -329,6 +330,7 @@ export default {
 }
 .title {
   text-align: center;
+  display: block;
 }
 .infoTag {
   margin: 0 2px;
