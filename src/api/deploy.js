@@ -64,6 +64,12 @@ const deleteVersion = id =>
     url: `/version-types/${id}`
   });
 
+const scanVersion = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/version-types/scan'
+  });
+
 const deletePackage = id =>
   baseApi.request({
     method: 'delete',
@@ -99,6 +105,7 @@ export {
   updateVersion,
   deleteVersion,
   deletePackage,
+  scanVersion,
   refreshDeploys,
   uploadPackages
 };
