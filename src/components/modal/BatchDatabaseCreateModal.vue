@@ -256,9 +256,9 @@ const vm = {
       });
     },
     selectDbChangeFn(selectData, row){
-      if(selectData.includes(row)){
+      if(!this.currentSelect.includes(row)){
         this.currentSelect.push(row);
-      }else{
+      }else if (!selectData.includes(row)){
         //需要优化，匹配到即跳出循环
         this.currentSelect = this.currentSelect.filter( e => {
           if(e === row){
