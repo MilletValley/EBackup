@@ -5,6 +5,10 @@
         <el-button type="primary"
                    @click="createVersion">添加</el-button>
       </el-form-item>
+      <el-form-item style="float: right">
+        <el-button type="info"
+                   @click="scanVersion">扫描</el-button>
+      </el-form-item>
     </el-form>
     <div style="position: relative"
          v-if="versions.length > 0">
@@ -148,6 +152,7 @@ import {
   createVersion,
   updateVersion,
   deleteVersion,
+  scanVersion,
   deletePackage,
   uploadPackages
 } from '@/api/deploy';
@@ -223,6 +228,22 @@ export default {
       this.operateVersionModalVisible = true;
       this.operateVersionType = 'update';
     },
+    scanVersion() {
+      this.$confirm('即将扫描版本库，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      .then(() => {
+        this.scanVersionConfirm();
+      })
+      .catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        });
+      });
+    },
     operateVersionConfirm(requestData) {
       this.btnLoading = true;
       operateVerionMethod[this.operateVersionType](requestData)
@@ -259,6 +280,20 @@ export default {
           opt.message = error;
           setTimeout(close, 1000);
         });
+    },
+    scanVersionConfirm() {
+      scanVersion()
+        .then(res => {
+          const { data, message } = res.data;
+          this.versionType = data;
+          this.$message.success(message);
+          if(this.versions.findIndex(version => String(version.id) === this.activeTabId) < 0) {
+            this.activeTabId = this.versions[0] ? String(this.versions[0].id) : '-1';
+          }
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
     },
     deleteVersion() {
       this.$prompt('此操作即将删除该版本及其所有部署包，是否继续？', '提示', {

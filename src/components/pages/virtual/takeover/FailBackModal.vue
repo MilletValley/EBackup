@@ -31,10 +31,20 @@
                 {{ readyToFailBackLink.sourceVirtual.vmName }}
               </span>
             </p>
-            时间点： <el-select v-model="timePoint"
-                               :placeholder="`${loading ? '加载中...' : ''}`"
-                               size="small"
-                               :disabled="loading">
+            时间点：<span v-if="loading">加载中...</span>
+                   <span v-else-if="!loading && !handleSelect">
+                     <span>{{ timePoint }}</span>
+                     <el-tooltip content="默认选择最近时间点" placement="top" effect="light">
+                        <el-button type="text"
+                                   @click="handleSelect = !handleSelect"
+                                   style="margin-left: 20px">手动选择</el-button>
+                     </el-tooltip>
+                     <span style="color: #D81E06">(不推荐)</span>
+                   </span>
+                   <el-select v-model="timePoint"
+                              :placeholder="`${loading ? '加载中...' : ''}`"
+                              size="small"
+                              v-else-if="!loading && handleSelect">
                       <el-option v-for="(point, index) in timePoints"
                                  :key="index"
                                  :label="point"
@@ -73,6 +83,7 @@ export default {
       password: '',
       timePoint: '',
       loading: false,
+      handleSelect: false,
       timePoints: []
     }
   },
@@ -98,10 +109,11 @@ export default {
     dialogOpen() {
       this.password = '';
       this.loading = true;
+      this.handleSelect = false;
       fetchTimePoints(this.readyToFailBackLink.id)
         .then(res => {
           const { data: points } = res.data;
-          this.timePoints = [].concat(points.sort((a, b) => new Date(a).getTime() < new Date(b).getTime()));
+          this.timePoints = [].concat(points.sort((a, b) => new Date(b).getTime() - new Date(a).getTime()));
           this.timePoint = this.timePoints.length ? this.timePoints[0] : '';
           this.loading = false;
         })

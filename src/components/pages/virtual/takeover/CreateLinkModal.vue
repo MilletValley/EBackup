@@ -232,17 +232,20 @@ export default {
     confirmBtnClick() {
       this.$refs.refForm.validate(valid => {
         if(valid) {
-          const { ipConfigs, syncTimeStrategy, syncRunTime, minuteInterval, hourInterval, ...others } = this.formData;
-          this.$emit('confirm', {
+          const { ipConfigs, syncTimeStrategy, minuteInterval, hourInterval, ...others } = this.formData;
+          const syncConfig = {
             ipConfigs: ipConfigs.map(config => ({
               vmId: config.vmId,
               sourceIp: config.sourceIp
             })),
             syncTimeStrategy,
             syncTimeInterval: syncTimeStrategy === 1 ? minuteInterval : hourInterval,
-            syncRunTime: [3, 4].includes(syncTimeStrategy) ? syncRunTime : [],
             ...others
-          })
+          }
+          if (![3, 4].includes(syncTimeStrategy)) {
+            this.$delete(syncConfig, 'syncRunTime');
+          }
+          this.$emit('confirm', syncConfig);
         } else {
           return false;
         }
