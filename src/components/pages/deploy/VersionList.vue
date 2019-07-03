@@ -37,102 +37,104 @@
                      @click="deleteVersion">删除</el-button>
         </el-form-item>
       </el-form>
-      <el-tabs type="border-card"
-               v-model="activeTabId">
-        <el-tab-pane v-for="version in versions"
-                    :key="version.id"
-                    :name="String(version.id)">
-          <span slot="label">
-            {{ version.versionCode }}
-            <el-popover placement="right"
-                        :content="version.versionMsg"
-                        :open-delay="300"
-                        trigger="hover">
-              <i class="el-icon-info transitionScale" slot="reference"></i>
-            </el-popover>
-          </span>
-          <el-table :data="version.packages">
-            <el-table-column prop="packageName"
-                            label="代理包名"
-                            align="center"
-                            min-width="160"
-                            tooltip-effect="light"
-                            show-overflow-tooltip>
-              <template slot-scope="scope">
-                <el-popover trigger="hover"
-                            placement="top">
-                  <span>
-                    {{ scope.row.updateMsg }}
-                  </span>
-                  <div slot="reference" style="cursor: pointer">
-                    <i class="el-icon-info"></i>
-                    <span>{{ scope.row.packageName }}</span>
-                  </div>
-                </el-popover>
-              </template>
-            </el-table-column>
-            <el-table-column prop="hostType"
-                            label="设备类型"
-                            align="center"
-                            width="120">
-              <template slot-scope="scope">
-                <span>{{ scope.row.hostType | hostTypeFilter }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="路径"
+      <template>
+        <el-tabs type="border-card"
+                v-model="activeTabId">
+          <el-tab-pane v-for="version in versions"
+                      :key="version.id"
+                      :name="String(version.id)">
+            <span slot="label">
+              {{ version.versionCode }}
+              <el-popover placement="right"
+                          :content="version.versionMsg"
+                          :open-delay="300"
+                          trigger="hover">
+                <i class="el-icon-info transitionScale" slot="reference"></i>
+              </el-popover>
+            </span>
+            <el-table :data="version.packages">
+              <el-table-column prop="packageName"
+                              label="代理包名"
                               align="center"
-                              min-width="180"
-                              effect="light"
+                              min-width="160"
+                              tooltip-effect="light"
                               show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span>{{ version.packagePath }}{{ version.versionCode }}\{{ scope.row.packageName }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="osType"
-                             label="操作系统"
-                             width="120"
-                             align="center"></el-table-column>
-            <el-table-column prop="upTime"
-                             label="上传时间"
-                             width="180"
-                             align="center">
-              <template slot-scope="scope">
-                <i class="el-icon-time"></i>
-                <span>{{ scope.row.upTime }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="isWrapper"
-                            label="wrapper部署"
-                            width="120"
-                            align="center">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isWrapper | wrapperTagFilter"
-                        size="mini">
-                  {{ scope.row.isWrapper | yesOrNoFilter }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作"
-                            align="center"
-                            width="120">
-              <template slot-scope="scope">
-                <el-button type="primary"
-                           icon="el-icon-download"
-                           circle
-                           size="mini"
-                           :class="$style.miniCricleIconBtn"
-                           @click="downLoadPackage(scope)"></el-button>
-                <el-button type="danger"
-                           icon="el-icon-delete"
-                           circle
-                           size="mini"
-                           :class="$style.miniCricleIconBtn"
-                           @click="deletePackage(scope)"></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
-      </el-tabs>
+                <template slot-scope="scope">
+                  <el-popover trigger="hover"
+                              placement="top">
+                    <span>
+                      {{ scope.row.updateMsg }}
+                    </span>
+                    <div slot="reference" style="cursor: pointer">
+                      <i class="el-icon-info"></i>
+                      <span>{{ scope.row.packageName }}</span>
+                    </div>
+                  </el-popover>
+                </template>
+              </el-table-column>
+              <el-table-column prop="hostType"
+                              label="设备类型"
+                              align="center"
+                              width="120">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.hostType | hostTypeFilter }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="路径"
+                                align="center"
+                                min-width="180"
+                                effect="light"
+                                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span>{{ version.packagePath }}{{ version.versionCode }}\{{ scope.row.packageName }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="osType"
+                              label="操作系统"
+                              width="120"
+                              align="center"></el-table-column>
+              <el-table-column prop="upTime"
+                              label="上传时间"
+                              width="180"
+                              align="center">
+                <template slot-scope="scope">
+                  <i class="el-icon-time"></i>
+                  <span>{{ scope.row.upTime }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="isWrapper"
+                              label="wrapper部署"
+                              width="120"
+                              align="center">
+                <template slot-scope="scope">
+                  <el-tag :type="scope.row.isWrapper | wrapperTagFilter"
+                          size="mini">
+                    {{ scope.row.isWrapper | yesOrNoFilter }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作"
+                              align="center"
+                              width="120">
+                <template slot-scope="scope">
+                  <el-button type="primary"
+                            icon="el-icon-download"
+                            circle
+                            size="mini"
+                            :class="$style.miniCricleIconBtn"
+                            @click="downLoadPackage(scope)"></el-button>
+                  <el-button type="danger"
+                            icon="el-icon-delete"
+                            circle
+                            size="mini"
+                            :class="$style.miniCricleIconBtn"
+                            @click="deletePackage(scope)"></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+      </template>
     </div>
     <operate-version-modal :visible.sync="operateVersionModalVisible"
                            :select-data="operateVersionData"
@@ -217,7 +219,9 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.versionType = data;
-          this.activeTabId = this.versions[0] ? String(this.versions[0].id) : '-1';
+          if(this.versions.findIndex(version => String(version.id) === this.activeTabId) < 0) {
+            this.activeTabId = this.versions[0] ? String(this.versions[0].id) : '-1';
+          }
         })
     },
     createVersion() {
