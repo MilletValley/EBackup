@@ -101,7 +101,7 @@ export default {
           this.$message.error(error);
         })
         .then(() => {
-          this.serverTableData = this.serverTableData.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
+          this.serverTableData = this.serverTableData.filter(item => this.vmType === item.serverType);
         })
     },
     addBackupPlan(data) {

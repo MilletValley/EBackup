@@ -21,7 +21,7 @@ const virtualRouter = [
         name: 'vmwareTakeOver',
         component: VirtualTakeOver,
         meta: {
-          roles: ['virtual admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
@@ -43,7 +43,7 @@ const virtualRouter = [
         name: 'hyperVTakeOver',
         component: VirtualTakeOver,
         meta: {
-          roles: ['virtual admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
@@ -66,7 +66,7 @@ const virtualRouter = [
         props: true,
         component: VirtualLinkDetail,
         meta: {
-          roles: ['virtual admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
@@ -93,7 +93,7 @@ const virtualRouter = [
         props: true,
         component: VirtualLinkDetail,
         meta: {
-          roles: ['virtual admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
