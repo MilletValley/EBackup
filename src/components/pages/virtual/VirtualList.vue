@@ -106,7 +106,7 @@ import {
 } from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import CreateLinkModal from '@/components/pages/virtual/takeover/CreateLinkModal';
-import { hostTypeMapping, databaseTypeMapping, virtualMapping } from '@/utils/constant';
+import { hostTypeMapping, databaseTypeMapping, virtualMapping, serverTypeMapping } from '@/utils/constant';
 import { fetchServerList } from '@/api/host';
 import type from '@/store/type';
 export default {
@@ -226,7 +226,7 @@ export default {
       fetchServerList()
         .then(res => {
           const { data:serverData } = res.data;
-          this.serverData = serverData.filter(item => this.vmType === item.serverType);
+          this.serverData = serverData.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
         })
         .catch(error => {
           this.$message.error(error);
