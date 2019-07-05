@@ -12,7 +12,7 @@ const takeoverRouter = [
     meta: {
       title: '一键接管',
       icon: 'takeover',
-      roles: ['oracle dba', 'sql server dba', 'application admin', 'insql dba'],
+      roles: ['oracle dba', 'sql server dba', 'application admin', 'insql dba', 'vm admin'],
     },
     children: [
       {
@@ -80,7 +80,7 @@ const takeoverRouter = [
         meta: {
           title: '虚拟机',
           activeName: 'virtualOverView',
-          roles: ['virtual admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
@@ -99,7 +99,7 @@ const takeoverRouter = [
         component: VirtualTakeOver,
         meta: {
           activeName: 'virtualOverView',
-          roles: ['virtual admin'],
+          roles: ['vm admin'],
           breadcrumb: [
             {
               name: '首页',
