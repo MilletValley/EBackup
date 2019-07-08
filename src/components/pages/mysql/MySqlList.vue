@@ -45,7 +45,7 @@
                         :class="$style.link">{{scope.row.name}}</router-link>
         </template>
       </el-table-column>
-      <el-table-column prop="dbName"
+      <el-table-column prop="instanceName"
                        label="数据库名"
                        min-width="150"
                        align="center"></el-table-column>
@@ -124,7 +124,7 @@
                       inline>
                 <el-form-item label="数据库名"
                               class="formItem">
-                  <span>{{ processedTableData[row * 3 + col].dbName }}</span>
+                  <span>{{ processedTableData[row * 3 + col].instanceName }}</span>
                 </el-form-item>
                 <el-form-item label="主机IP"
                               class="formItem">
