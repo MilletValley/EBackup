@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { databaseTypeMapping } from '@/utils/constant';
+import { useTypeMapping } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 import { resolve } from 'url';
 export default {
@@ -26,7 +26,7 @@ export default {
   },
   computed: {
     types() {
-        return Object.keys(databaseTypeMapping).map(v => {
+        return Object.keys(useTypeMapping).map(v => {
             if(Object.keys(this.sourceData).includes(v)) {
                 return {
                     type: v,
@@ -44,7 +44,7 @@ export default {
         return this.types ? this.types.map(v => v.value) : []
     },
     dimensions() {
-        return this.types ? this.types.map(v => databaseTypeMapping[v.type]) : [];
+        return this.types ? this.types.map(v => useTypeMapping[v.type]) : [];
     }
   },
   watch: {
