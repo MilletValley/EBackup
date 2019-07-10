@@ -45,7 +45,7 @@
         <el-select v-model="formData.datePoints"
                    multiple
                    style="width: 60%;">
-          <el-option v-for="day in Array.from(new Array(31), (val, index) => index + 1)"
+          <el-option v-for="day in Array.from(new Array(31), (val, index) => String(index + 1))"
                      :key="day"
                      :value="day"
                      :label="day + '号'"></el-option>
