@@ -25,10 +25,16 @@ const fetchRestore = () =>
     method: 'get',
     url: '/home/restore',
   });
-const fetchInitconn = () =>
+const fetchTakeOver = () =>
   baseApi.request({
     method: 'get',
     url: '/home/takeover',
+  });
+
+const fetchVirtualTakeOver = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/home/takeover/virtual'
   });
 
 const fetchSpaceUse = () =>
@@ -90,7 +96,8 @@ export {
   fetchTakeOverStatistics,
   fetchBackup,
   fetchRestore,
-  fetchInitconn,
+  fetchTakeOver,
+  fetchVirtualTakeOver,
   fetchSpaceUse,
   fetchBackupPlan,
   fetchBackupPlanDetail,

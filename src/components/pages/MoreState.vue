@@ -167,13 +167,13 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="一键接管"
-                     name="initconnNum"
+        <el-tab-pane label="数据库接管"
+                     name="databaseTakeOver"
                      v-if="showTakeOver">
           <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
-                    ref="initconnNum"
+                    ref="databaseTakeOver"
                     style="width: 100%">
             <el-table-column min-width="50"
                              align="center"
@@ -188,7 +188,7 @@
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbTakeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                <router-link :to="{ name: `${takeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
                              :class="$style.link">
                   {{ scope.row.instanceName }}
                 </router-link>
@@ -391,6 +391,54 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+        <el-tab-pane label="应用服务器接管"
+                     name="appTakeOver"
+                     v-if="showTakeOver">
+          <el-table :data="appTakeOver"
+                    v-loading="infoLoading"
+                    ref="appTakeOver"
+                    style="width: 100%">
+            <el-table-column label="名称"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${takeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.instanceName }}
+                </router-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="primaryHostIp"
+                             label="主机IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column prop="viceHostIp"
+                             label="备库IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="连接状态"
+                             prop="overState"
+                             :filters="dbLinkStateFilter"
+                             :filter-method="filterHandle"
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag :type="linkTagType(scope.row.overState)"
+                        size="mini">
+                  {{ linkTypeConverter(scope.row.overState) }}
+                </el-tag>
+              </template>              
+            </el-table-column>
+            <el-table-column label="初始化完成时间"
+                             align="center"
+                             min-width="130">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup"
                      v-if="showBackup">
@@ -539,6 +587,72 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+        <el-tab-pane label="虚拟机接管"
+                     name="vmTakeOver"
+                     v-if="showTakeOver">
+          <el-table :data="vmTakeOver"
+                    v-loading="infoLoading"
+                    ref="vmTakeOver"
+                    style="width: 100%">
+            <el-table-column label="虚拟机名"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${vmTakeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             :class="$style.link">
+                  {{ scope.row.vmName }}
+                </router-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="sourceIp"
+                             label="源虚拟机IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="源物理主机IP"
+                             align="center"
+                             min-width="100"
+                             prop="sourceVmHost"></el-table-column>
+            <el-table-column label="虚拟机类型"
+                             prop="vmType"
+                             align="center"
+                             min-width="100"
+                             :filters="vmTypeFilter"
+                             :filter-method="filterHandle">
+              <template slot-scope="scope">
+                <span>{{ vmTypeMapping[scope.row.vmType] }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="targetIp"
+                             label="同步虚拟机IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="同步物理主机IP"
+                             align="center"
+                             prop="targetVmHost"
+                             min-width="100"></el-table-column>
+            <el-table-column label="接管状态"
+                             prop="overState"
+                             :filters="vmLinkStateFilter"
+                             :filter-method="filterHandle"
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag size="mini"
+                        :type="vmLinkTagType(scope.row.linkState)">
+                  {{ vmLinkType(scope.row.linkState) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="创建时间"
+                             align="center"
+                             min-width="130">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.createTime }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
       <el-pagination style="text-align:right;margin-top:10px;"
                      @size-change="handleSizeChange"
@@ -567,8 +681,8 @@ export default {
       'backupFail': 'databaseBackup',
       'restoreSuccess': 'databaseRestore',
       'restoreFail': 'databaseRestore',
-      'takeoverSuccess': 'initconnNum',
-      'takeoverFail': 'initconnNum'
+      'takeoverSuccess': 'databaseTakeOver',
+      'takeoverFail': 'databaseTakeOver'
     }
     return {
       checkType: '',

@@ -9,8 +9,10 @@ import {
   dbTakeOverRouterMapping,
   vmDetailRouterMapping,
   vmTypeMapping,
+  vmTakeOverRouterMapping,
+  syncLinkMapping
 } from '../../utils/constant';
-import { fetchBackup, fetchRestore, fetchInitconn } from '../../api/home';
+import { fetchBackup, fetchRestore, fetchTakeOver, fetchVirtualTakeOver } from '../../api/home';
 
 const DashboardTab = {
   data() {
@@ -25,13 +27,16 @@ const DashboardTab = {
     return {
       databaseBackup: [],
       databaseRestore: [],
-      initconnNum: [],
+      databaseTakeOver: [],
       filehostBackup: [],
       filehostRestore: [],
+      appTakeOver: [],
       vmBackup: [],
       vmRestore: [],
+      vmTakeOver: [],
       activeName: 'databaseBackup',
-      clickPieJumpTo
+      clickPieJumpTo,
+      vmTypeMapping
     };
   },
   computed: {
@@ -54,6 +59,10 @@ const DashboardTab = {
     // 数据库连接状态
     dbLinkStateFilter() {
       return this.mappingConvertToFilters(linkStateMapping);
+    },
+    // 虚拟机接管状态
+    vmLinkStateFilter() {
+      return this.mappingConvertToFilters(syncLinkMapping);
     },
     // 虚拟机类型
     vmTypeFilter() {
@@ -88,18 +97,44 @@ const DashboardTab = {
         .then(() => {
           this.infoLoading = false;
         });
-      fetchInitconn()
+      fetchTakeOver()
         .then(res => {
           const { data } = res.data;
-          const initconnData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
+          const takeOverData = data.sort((a, b) => Date.parse(b.initFinishTime) - Date.parse(a.initFinishTime));
+          const databaseData = takeOverData.filter(item => item.ddvType !== 3);
+          const appData = takeOverData.filter(item => item.ddvType === 3);
           if (this.$route.name === 'dashboard') {
-            this.initconnNum = initconnData.slice(0, 5);
+            this.databaseTakeOver = databaseData.slice(0, 5);
+            this.appTakeOver = appData.slice(0, 5);
           } else if (this.checkType === this.clickPieJumpTo.ts) {
-            this.initconnNum = initconnData.filter(db => Number(db.overState) === 2);
+            this.databaseTakeOver = databaseData.filter(db => Number(db.overState) === 2);
+            this.appTakeOver = appData.filter(item => Number(item.overState) === 2);
           } else if (this.checkType === this.clickPieJumpTo.tf) {
-            this.initconnNum = initconnData.filter(db => [3, 4, 5].includes(Number(db.overState)));
+            this.databaseTakeOver = databaseData.filter(db => [3, 4, 5, 6].includes(Number(db.overState)));
+            this.appTakeOver = appData.filter(item => [3, 4, 5, 6].includes(Number(item.overState)));
           } else {
-            this.initconnNum = initconnData;
+            this.databaseTakeOver = databaseData;
+            this.appTakeOver = appData;
+          }
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.infoLoading = false;
+        });
+      fetchVirtualTakeOver()
+        .then(res => {
+          const { data } = res.data;
+          const takeOverData = data.sort((a, b) => Date.parse(b.createTime) - Date.parse(a.createTime));
+          if (this.$route.name === 'dashboard') {
+            this.vmTakeOver = takeOverData.slice(0, 5);
+          } else if (this.checkType === this.clickPieJumpTo.ts) {
+            this.vmTakeOver = takeOverData.filter(db => [0, 1, 2, 3].includes(db.linkState));
+          } else if (this.checkType === this.clickPieJumpTo.tf) {
+            this.vmTakeOver = takeOverData.filter(db => Number(db.linkState) === 4);
+          } else {
+            this.vmTakeOver = takeOverData;
           }
         })
         .catch(error => {
@@ -152,8 +187,11 @@ const DashboardTab = {
     dbDetailRouter(row) {
       return dbDetailRouterMapping[row.ddvType];
     },
-    dbTakeOverRouter(row) {
+    takeOverRouter(row) {
       return dbTakeOverRouterMapping[row.ddvType];
+    },
+    vmTakeOverRouter(row) {
+      return vmTakeOverRouterMapping[row.vmType];
     },
     vmDetailRouter(row) {
       return vmDetailRouterMapping[row.ddvType];
@@ -166,6 +204,9 @@ const DashboardTab = {
     },
     linkTypeConverter(state) { // 连接状态
       return linkStateMapping[Number(state)];
+    },
+    vmLinkType(state) {
+      return syncLinkMapping[state];
     },
     sizeFormatter(row, column, cellValue) {
       const size = fmtSizeFn(cellValue);
@@ -200,6 +241,19 @@ const DashboardTab = {
           return '';
       }
     },
+    vmLinkTagType(state) {
+      switch (state) {
+        case 0:
+        case 1:
+          return 'warning';
+        case 2:
+        case 3:
+        case 4:
+          return 'danger';
+        default:
+          return 'primary';
+      }
+    }
   }
 };
 export default DashboardTab;
