@@ -3,11 +3,11 @@
     <el-row>
       <el-form inline>
         <el-form-item style="float: left">
-          <i-icon name="list-btn"
+          <i-icon :name="`${theme}-list-btn`"
                   :class="`{ ${showType === 'list' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchList"></i-icon>
           <span class="switch-division">/</span>
-          <i-icon name="card-btn"
+          <i-icon :name="`${theme}-card-btn`"
                   :class="`{ ${showType === 'card' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchCard"></i-icon>
         </el-form-item>
@@ -84,7 +84,7 @@
                        :formatter="judgeOsName"
                        :filters="Array.from(new Array('Windows', 'Linux', 'AIX'), val => ({text: val, value: val}))"
                        column-key="osName"
-                       min-width="120"
+                       min-width="100"
                        align="center"></el-table-column>
       <!-- <el-table-column prop="loginName"
                        label="登录账号"
@@ -100,13 +100,13 @@
         </template>
       </el-table-column>
       <el-table-column label="操作"
-                       min-width="200"
+                       min-width="150"
                        header-align="center"
                        align="center"
                        fixed="right">
         <template slot-scope="scope">
           <el-row>
-            <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
+            <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
             <el-button type="primary"
                       icon="el-icon-edit"
                       circle
@@ -151,9 +151,9 @@
                   @click="selectOne(processedTableData[row * 3 + col])"></i>
                 </el-tooltip>
                 <el-tooltip content="监控" placement="top" effect="light">
-                  <i-icon name="monitor"
-                        class="monitor"
-                        @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
+                  <i-icon :name="`${theme}-monitor`"
+                          class="monitor"
+                          @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
                 </el-tooltip>
               </div>
               <el-form label-position="right"
@@ -213,6 +213,7 @@
 <script>
 import { listMixin } from '@/components/mixins/databaseListMixin';
 import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
+import themeMixin from '@/components/mixins/themeMixins';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
 import HostCreateModal from '@/components/modal/HostCreateModal';
 import HostUpdateModal from '@/components/modal/HostUpdateModal';
@@ -244,7 +245,7 @@ const useTypeIconName = {
 
 export default {
   name: 'DeviceManager',
-  mixins: [listMixin, paginationMixin, filterMixin, sortMixin, switchViewMixins],
+  mixins: [listMixin, paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin],
   data() {
     return {
       wsuri: '/test',
@@ -369,7 +370,8 @@ export default {
             let obj = {
               token,
               id,
-              type: 'deviceDashboard'
+              type: 'deviceDashboard',
+              theme: this.theme
             }
             popup.postMessage(obj, origin);
           }
@@ -444,8 +446,8 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 </style>
-<style scoped src="../../style/db.css"></style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/style/db.scss';
 .hostIcon {
   height: 2em;
   width: 2em;

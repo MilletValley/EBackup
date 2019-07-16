@@ -211,6 +211,7 @@ export default {
 <style lang="scss" module>
 @import '../../style/common.scss';
 @import '../../style/color.scss';
+@import '@/assets/theme/variable.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
 .plan {
@@ -224,7 +225,7 @@ $vice-color: #6d6d6d;
 .planTitle {
   margin-top: 0;
   line-height: 30px;
-  color: #409EFF;
+  @include primary-color;
 }
 .clearfix {
   margin-top: -20px;

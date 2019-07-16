@@ -4,11 +4,11 @@
       <el-form inline
                size="medium">
         <el-form-item style="float: left">
-          <i-icon name="list-btn"
+          <i-icon :name="`${theme}-list-btn`"
                   :class="`{ ${showType === 'list' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchList"></i-icon>
           <span class="switch-division">/</span>
-          <i-icon name="card-btn"
+          <i-icon :name="`${theme}-card-btn`"
                   :class="`{ ${showType === 'card' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchCard"></i-icon>
         </el-form-item>
@@ -47,7 +47,7 @@
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
                         append
-                        :class="$style.link">{{scope.row.name}}</router-link>
+                        class="routerLink">{{scope.row.name}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="instanceName"
@@ -88,7 +88,7 @@
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
-          <i-icon name="monitor" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
+          <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
           <el-button type="primary"
                      icon="el-icon-edit"
                      circle
@@ -125,9 +125,8 @@
                   {{ databaseRole(processedTableData[row * 3 + col].role) }}
                 </el-tag>
                 <router-link :to="`${processedTableData[row * 3 + col].id}`"
-                             class="title"
-                             append
-                             :class="$style.link">{{processedTableData[row * 3 + col].name}}</router-link>
+                             class="title routerLink"
+                             append>{{processedTableData[row * 3 + col].name}}</router-link>
                 <el-tooltip content="删除" placement="top" effect="light">
                   <i class="el-icon-delete delete"
                      @click="deleteDb(processedTableData[row * 3 + col])"></i>
@@ -137,7 +136,7 @@
                      @click="modifyDb(processedTableData[row * 3 + col])"></i>
                 </el-tooltip>
                 <el-tooltip content="监控" placement="top" effect="light">
-                  <i-icon name="monitor"
+                  <i-icon :name="`${theme}-monitor`"
                           class="monitor"
                           @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
                 </el-tooltip>
@@ -238,8 +237,9 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 </style>
-<style scoped src="../../../style/db.css"></style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/style/db.scss';
+@import '@/assets/theme/variable.scss';
 .margin-top20{
   margin-top: 20px;
 }

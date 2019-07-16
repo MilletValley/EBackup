@@ -18,6 +18,7 @@
           <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="databaseBackup"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -34,7 +35,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -100,6 +101,7 @@
           <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="databaseRestore"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -117,7 +119,7 @@
                              min-width="180">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -173,6 +175,7 @@
           <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="databaseTakeOver"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -189,7 +192,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${takeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.instanceName }}
                 </router-link>
               </template>
@@ -256,6 +259,7 @@
           <el-table :data="processedTableData|NotNullfilter"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="filehostBackup"
                     style="width: 100%">
             <el-table-column min-width="50"
@@ -272,7 +276,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'backup' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -331,6 +335,7 @@
                      v-if="showRestore">
           <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="filehostRestore"
                     @filter-change="filterChange"
                     style="width: 100%">
@@ -348,7 +353,7 @@
                              min-width="180">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'restore' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -444,6 +449,7 @@
                      v-if="showBackup">
           <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     @filter-change="filterChange"
                     ref="vmBackup"
                     style="width: 100%">
@@ -461,7 +467,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>
@@ -527,6 +533,7 @@
                      v-if="showRestore">
           <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     @filter-change="filterChange"
                     ref="vmRestore"
                     style="width: 100%">
@@ -536,7 +543,7 @@
                              min-width="180">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>
@@ -672,9 +679,10 @@ import { backupStrategyMapping } from '../../utils/constant';
 import DashboardTab from '../mixins/DashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
+import themeMixin from '@/components/mixins/themeMixins';
 export default {
   name: 'MoreState',
-  mixins: [baseMixin, DashboardTab, paginationMixin, filterMixin],
+  mixins: [baseMixin, DashboardTab, paginationMixin, filterMixin, themeMixin],
   data() {
     const activeTab = {
       'backupSuccess': 'databaseBackup',
@@ -751,7 +759,7 @@ export default {
 <style scoped>
 .title {
   font-weight: 400;
-  color: #606266;
+  /* color: #606266; */
   padding-top: 0.5em;
   display: inline-block;
 }

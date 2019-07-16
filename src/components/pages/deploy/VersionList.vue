@@ -39,7 +39,7 @@
       </el-form>
       <template>
         <el-tabs type="border-card"
-                v-model="activeTabId">
+                 v-model="activeTabId">
           <el-tab-pane v-for="version in versions"
                       :key="version.id"
                       :name="String(version.id)">

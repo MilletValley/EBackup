@@ -1,65 +1,5 @@
 <template>
   <section>
-    <!-- <header class="detail-header">
-      <div class="content">
-        <el-row type="flex"
-                justify="end">
-          <el-col :span="1">
-            <i-icon name="takeover-plan"
-                    class="detail-icon"></i-icon>
-          </el-col>
-          <el-col :span="23">
-            <el-row type="flex"
-                    align="middle">
-              <el-col :span="8"
-                      class="title">
-                <h1>灾备演练</h1>
-              </el-col>
-              <el-col :span="12"
-                      :offset="4"
-                      class="action">
-                <el-button size="mini"
-                           type="primary">添加</el-button>
-              </el-col>
-            </el-row>
-            <el-form v-loading="infoLoading"
-                     label-position="left"
-                     label-width="110px"
-                     size="small"
-                     class="item-info">
-              <el-row style="margin-right: 5px;">
-                <el-col :span="8">
-                  <el-form-item label="计划总数：">
-                    <span>{{ planNum.totalNum }}</span>
-                  </el-form-item>
-                  <el-form-item label="实例总数：">
-                    <span>{{ planNum.instanceNum }}</span>
-                  </el-form-item>
-                  <el-form-item label="生产设备总数：">
-                    <span>{{ planNum.primaryNum }}</span>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-form-item label="未开始计划数：">
-                    <span>{{ planNum.unStartedNum }}</span>
-                  </el-form-item>
-                  <el-form-item label="进行中计划数：">
-                    <span>{{ planNum.onGoingNum }}</span>
-                  </el-form-item>
-                  <el-form-item label="已完成计划数：">
-                    <span>{{ planNum.finishedNum }}</span>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
-          </el-col>
-        </el-row>
-      </div>
-    </header> -->
-    <!-- <el-tabs style="margin-top: -39px"
-            v-model="activeTab">
-      <el-tab-pane label="灾备计划"
-                  name="plans"> -->
     <el-row>
       <el-form inline
                size="small">
@@ -87,7 +27,7 @@
         <span>
           <router-link :to="`${plan.id}`"
                       append
-                      :class="$style.link">{{ plan.name }}</router-link>
+                      class="routerLink">{{ plan.name }}</router-link>
         </span>
       </div>
       <el-row type="flex">

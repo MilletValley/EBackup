@@ -36,6 +36,7 @@
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     label-position="left"
                     label-width="100px"
                     size="small"

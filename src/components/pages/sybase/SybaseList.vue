@@ -4,11 +4,11 @@
       <el-form size="medium"
                inline>
         <el-form-item style="float: left">
-          <i-icon name="list-btn"
+          <i-icon :name="`${theme}-list-btn`"
                   :class="`{ ${showType === 'list' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchList"></i-icon>
           <span class="switch-division">/</span>
-          <i-icon name="card-btn"
+          <i-icon :name="`${theme}-card-btn`"
                   :class="`{ ${showType === 'card' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchCard"></i-icon>
         </el-form-item>
@@ -43,7 +43,7 @@
           <template slot-scope="scope">
             <router-link :to="`${scope.row.id}`"
                           append
-                          :class="$style.link">{{scope.row.name}}</router-link>
+                          class="routerLink">{{scope.row.name}}</router-link>
           </template>
         </el-table-column>
         <el-table-column prop="dbName"
@@ -112,8 +112,7 @@
                 <div class="header">
                   <router-link :to="`${processedTableData[row * 3 + col].id}`"
                                append
-                               class="title"
-                               :class="$style.link">{{processedTableData[row * 3 + col].name}}</router-link>
+                               class="title routerLink">{{processedTableData[row * 3 + col].name}}</router-link>
                   <el-tooltip content="删除" placement="top" effect="light">
                     <i class="el-icon-delete delete"
                       @click="deleteDb(processedTableData[row * 3 + col])"></i>
@@ -211,8 +210,8 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 </style>
-<style scoped src="../../../style/db.css"></style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/style/db.scss';
 .margin-top20{
   margin-top: 20px;
 }

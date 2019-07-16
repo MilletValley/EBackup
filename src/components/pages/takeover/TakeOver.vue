@@ -104,7 +104,7 @@
                                :class="$style.wordHover"
                                slot="reference">
                             <i-icon :class="$style.ipIcon"
-                                    name="vip"></i-icon>
+                                    :name="`${theme}-vip`"></i-icon>
                             <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
                           </div>
                         </el-popover>
@@ -186,7 +186,7 @@
                           <span>{{ hostLink.latestSwitch.switchTime }}</span>
                         </el-form-item>
                       </el-form>
-                      <i-icon name="link"
+                      <i-icon :name="`${theme}-link`"
                               :class="$style.hostSwitchIcon"
                               slot="reference"></i-icon>
                     </el-popover>
@@ -194,7 +194,8 @@
                   <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && [2, 3, 7].includes(hostLink.latestSwitch.type)"
                        style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">{{ hostLink.latestSwitch.type | switchTypeFilter }}中...</span>
+                    <span style="font-size: 0.9em; vertical-align: 0.1em;"
+                          class="switch-text">{{ hostLink.latestSwitch.type | switchTypeFilter }}中...</span>
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
@@ -258,7 +259,7 @@
                                :class="$style.wordHover"
                                slot="reference">
                             <i-icon :class="$style.ipIcon"
-                                    name="vip"></i-icon>
+                                    :name="`${theme}-vip`"></i-icon>
                             <span :class="$style.hostIp">{{ hostLink.primaryHost.vip }}</span>
                           </div>
                         </el-popover>
@@ -289,15 +290,15 @@
             <!-- 数据库连接的排列 -->
             <el-row v-for="dbLink in sortByCreateTime(hostLink.databaseLinks)"
                     :key="dbLink.id"
-                    style="position: relative">
+                    style="position: relative; display: flex">
               <el-col :span="10">
                 <div :class="dbLink.primaryDatabase.role === 1 ? $style.primaryDatabaseInfo : $style.viceDatabaseInfo">
                   <el-row type="flex"
                           align="middle">
                     <el-col :span="8">
                       <h4>
-                        <router-link :class="dbLink.primaryDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
-                                    :to="`/db/${databaseType}/${dbLink.primaryDatabase.id}`">
+                        <router-link :class="dbLink.primaryDatabase.role === 1 ? 'primaryLink' : 'viceLink'"
+                                     :to="`/db/${databaseType}/${dbLink.primaryDatabase.id}`">
                           {{dbLink.primaryDatabase.name}}
                         </router-link>
                       </h4>
@@ -329,7 +330,7 @@
 
                 </div>
               </el-col>
-              <el-col :span="4">
+              <el-col :span="4" style="align-items: center; align-self: center;">
                 <div :class="$style.databaseSwitch">
                   <el-popover placement="right"
                               trigger="hover"
@@ -393,7 +394,8 @@
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && [1, 4, 5, 6].includes(dbLink.latestSwitch.type)"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                    <span style="font-size: 0.9em; vertical-align: 0.1em;"
+                          class="switch-text">
                       <template v-if="dbLink.latestSwitch.type === 1">切换{{instanceName.substring(0, instanceName.length-1)}}中...</template>
                       <template v-else>{{ dbLink.latestSwitch.type | switchTypeFilter}}中...</template>
                     </span>
@@ -401,7 +403,8 @@
                   <div v-else-if="dbLink.failOverOnGoing"
                        style="margin-top: 6px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
+                    <span style="font-size: 0.9em; vertical-align: 0.1em;"
+                          class="switch-text">
                       {{ dbLink.failOverState === 1 ? '关闭故障转移' : '开启故障转移'}}中...
                     </span>
                   </div>
@@ -441,7 +444,7 @@
                           align="middle">
                     <el-col :span="8">
                       <h4>
-                        <router-link :class="dbLink.viceDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+                        <router-link :class="dbLink.viceDatabase.role === 1 ? 'primaryLink' : 'viceLink'"
                                      :to="`/db/${databaseType}/${dbLink.viceDatabase.id}`">
                           {{dbLink.viceDatabase.name}}
                         </router-link>
@@ -574,7 +577,8 @@ import {
   switchManualMapping
 } from '@/utils/constant';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
-import batchSwitchMixin from '@/components/mixins/batchSwitchMixins'
+import batchSwitchMixin from '@/components/mixins/batchSwitchMixins';
+import themeMixin from '@/components/mixins/themeMixins';
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -615,7 +619,7 @@ const switchIpMethod = {
 
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin, batchSwitchMixin],
+  mixins: [takeoverMixin, batchSwitchMixin, themeMixin],
   components: {
     IIcon,
     DatabaseLinkCreateModal,
@@ -1232,8 +1236,7 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 @import '@/style/color.scss';
-$primary-color: #409eff;
-$vice-color: #6d6d6d;
+@import '@/assets/theme/variable.scss';
 
 .envHeader {
   text-align: center;
@@ -1255,17 +1258,17 @@ $vice-color: #6d6d6d;
 }
 
 .hostLinkContainer {
-  // padding: 5px;
   margin: 10px 0;
-  // border: 1px solid #ababab;
   border-radius: 5px;
-  background-color: #ffffff;
+  @include host-link-content-color
 }
 .hostLinkInOs {
-  border: 1px dotted $primary-color;
+  @include themeify {
+    border: 1px dotted themed('primary-color')
+  }
   border-radius: 5px;
   & legend {
-    color: $primary-color
+    @include primary-color;
   }
 }
 .hostLinkNotRac {
@@ -1315,7 +1318,7 @@ $vice-color: #6d6d6d;
 }
 .dropdownLink {
   cursor: pointer;
-  color: #409EFF;
+  @include primary-color;
 }
 .hostIp {
   color: #909399;
@@ -1328,7 +1331,7 @@ $vice-color: #6d6d6d;
 }
 .removeHostLink,
 .failOver {
-  color: $delete-color;
+  color: $delete-color!important;
   padding: 2px 0 3px;
   &:focus {
     color: $delete-color;
@@ -1339,19 +1342,28 @@ $vice-color: #6d6d6d;
   }
 }
 .primaryDatabaseInfo {
-  border: 1px solid $primary-color;
+  @include themeify {
+    border: 1px solid themed('primary-color')
+  }
   border-radius: 5px;
   transition: box-shadow 0.5s;
   &:hover {
-    box-shadow: 0px 0px 2px 1px $primary-color;
+    // box-shadow: 0px 0px 2px 1px $primary-color;
+    @include themeify {
+      box-shadow: 0px 0px 2px 1px themed('primary-color');
+    }
   }
 }
 .viceDatabaseInfo {
-  border: 1px solid $vice-color;
+  @include themeify {
+    border: 1px solid themed('vice-color');
+  }
   border-radius: 5px;
   transition: box-shadow 0.5s;
   &:hover {
-    box-shadow: 0px 0px 2px 1px $vice-color;
+    @include themeify {
+      box-shadow: 0px 0px 2px 1px themed('vice-color');
+    }
   }
 }
 
@@ -1372,11 +1384,15 @@ $vice-color: #6d6d6d;
 }
 .databaseSwitch {
   text-align: center;
-  margin: 20px 0;
+  // vertical-align: middle;
+  // display: flex;
+  // margin: 20px 0;
 }
 .primaryRole {
   text-align: center;
-  background-color: $primary-color;
+  @include themeify {
+    background-color: themed('primary-color')
+  }
   color: #ffffff;
   font-size: 2.8em;
   line-height: 2.3em;
@@ -1386,7 +1402,9 @@ $vice-color: #6d6d6d;
 }
 .viceRole {
   text-align: center;
-  background-color: $vice-color;
+  @include themeify {
+    background-color: themed('vice-color')
+  }
   color: #ffffff;
   font-size: 2.8em;
   line-height: 2.3em;
@@ -1419,7 +1437,7 @@ $vice-color: #6d6d6d;
   height: 3em;
   width: 100px;
   right: -20px;
-  background: #fff;
+  @include host-link-content-color;
 }
 .leftMask {
   left: -20px;

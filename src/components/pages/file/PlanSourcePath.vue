@@ -173,6 +173,7 @@ export default {
     },
     addDiyDom(treeId, treeNode) {
       let aObj = $("#" + treeNode.tId + "_a");
+      aObj.addClass('text-color');
       if(treeNode.time && treeNode.documentType === 1) {
         let date = `<span class="treeFileTime">${treeNode.time}</span>`;
         aObj.append(date);

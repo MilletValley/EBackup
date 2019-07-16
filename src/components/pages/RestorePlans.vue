@@ -10,6 +10,7 @@
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     :row-class-name="tableRowClassName"
                     ref="database"
                     style="width: 100%">
@@ -28,7 +29,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'restoreDetail', query: { id: scope.row.id, type: scope.row.type}}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
@@ -40,7 +41,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.objName }}
                 </router-link>
               </template>
@@ -90,6 +91,7 @@
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="filehost"
                     :row-class-name="tableRowClassName"
                     style="width: 100%">
@@ -108,7 +110,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'restoreDetail', query: { id: scope.row.id, type: scope.row.type}}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
@@ -120,7 +122,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.objId)}}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.objName }}
                 </router-link>
               </template>
@@ -170,6 +172,7 @@
           <el-table :data="processedTableData"
                     @filter-change="filterChange"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="vm"
                     :row-class-name="tableRowClassName"
                     style="width: 100%">
@@ -188,7 +191,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'restoreDetail', query: { id: scope.row.id, type: scope.row.type}}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>              
@@ -200,7 +203,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.objId)}}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.objName }}
                 </router-link>
               </template>
@@ -262,6 +265,7 @@
 <script>
 import IIcon from '../IIcon.vue';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
+import themeMixin from '@/components/mixins/themeMixins';
 import { fetchRestorePlan } from '@/api/home';
 import zTree from '@/components/common/zTree';
 import {
@@ -275,7 +279,7 @@ import {
 } from '../../utils/constant';
 export default {
   name: 'backupPlans',
-  mixins: [paginationMixin, filterMixin],
+  mixins: [paginationMixin, filterMixin, themeMixin],
   components: {
     IIcon,
     zTree
@@ -401,7 +405,7 @@ export default {
 <style scoped>
 .title {
   font-weight: 400;
-  color: #606266;
+  /* color: #606266; */
   padding-top: 0.5em;
   display: inline-block;
 }

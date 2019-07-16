@@ -56,7 +56,7 @@
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
                         append
-                        :class="$style.link">{{scope.row.vmName}}</router-link>
+                        class="routerLink">{{scope.row.vmName}}</router-link>
         </template>
       </el-table-column>
       <el-table-column prop="vmPath"

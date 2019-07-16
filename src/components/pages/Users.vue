@@ -13,6 +13,7 @@
     <el-row :gutter="20">
       <el-col :span="24">
         <el-table v-loading="loading"
+                  :element-loading-background="themeColor.loadingBackGround"
                   element-loading-text="拼命加载中..."
                   :data="tableUsers|filterAdmin"
                   stripe style="width: 100%"
@@ -227,6 +228,7 @@ import {
 } from '../../api/user';
 
 import {  validateLength } from '../../utils/common';
+import themeMixin from '@/components/mixins/themeMixins';
 
 const rolesUser = [
   // {
@@ -280,6 +282,7 @@ const rolesUser = [
 ];
 
 export default {
+  mixins: [themeMixin],
   created() {
     this.getUsers();
   },

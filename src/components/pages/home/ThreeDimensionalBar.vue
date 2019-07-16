@@ -8,8 +8,10 @@
 import { useTypeMapping } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
 import { resolve } from 'url';
+import themeMixin from '@/components/mixins/themeMixins';
 export default {
   name: 'ThreeDimensionalBar',
+  mixins: [themeMixin],
   props: {
     id: {
         type: String,
@@ -51,6 +53,12 @@ export default {
     sourceData(newVal, oldVal) {
         this.setOption();
     },
+    themeColor: {
+        handler() {
+            this.setOption();
+        },
+        deep: true
+    }
   },
   mounted() {
     this.$nextTick(() => {
@@ -72,19 +80,19 @@ export default {
             xAxis: {
                 data: this.dimensions,
                 axisLabel: {
-                    color: '#51637D',
+                    color: this.themeColor.echartsLabelColor,
                     interval:0,
                     rotate:40
                 },
                 axisLine: {
                     lineStyle: {
-                        color: '#51637D'
+                        color: this.themeColor.echartsLabelColor
                     }
                 },
                 axisTick: {
                     show: false,
                     lineStyle: {
-                        color: '#51637D'
+                        color: this.themeColor.echartsLabelColor
                     }
                 }
             },
@@ -93,7 +101,7 @@ export default {
                     show: false
                 },
                 axisLabel: {
-                    color: '#51637D',
+                    color: this.themeColor.echartsLabelColor,
                     show: true,
                     formatter: (value, index) => {
                         return this.addUnit(value);
@@ -101,12 +109,12 @@ export default {
                 },
                 axisLine: {
                     lineStyle: {
-                        color: '#51637D'
+                        color: this.themeColor.echartsLabelColor
                     }
                 },
                 axisTick: {
                     lineStyle: {
-                        color: '#51637D'
+                        color: this.themeColor.echartsLabelColor
                     }
                 },
             },
@@ -124,7 +132,7 @@ export default {
                                 return this.addUnit(params.value)
                             },
                             textStyle: {
-                                color: 'black',
+                                color: this.themeColor.echartsTextColor,
                                 fontSize: 10
                             }
                         }

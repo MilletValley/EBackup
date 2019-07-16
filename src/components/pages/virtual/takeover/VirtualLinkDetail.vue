@@ -14,7 +14,7 @@
                         class="link-service"
                         v-if="[0, 1].includes(link.state)"></i-icon>
               </el-tooltip>
-              <router-link :class="$style.primaryLink"
+              <router-link class="primaryLink"
                            :to="`/virtual/${type}/${link.sourceVirtual.id}`">
                 {{link.sourceVirtual.vmName}}
               </router-link>
@@ -310,7 +310,8 @@ export default {
 @import '@/style/common.scss';
 @import '@/style/color.scss';
 </style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
 .header {
   padding-bottom: 10px;
 }
@@ -343,6 +344,7 @@ export default {
   width: 100px;
   right: -20px;
   background: #fff;
+  @include host-link-content-color;
 }
 .leftMask {
   left: -20px;

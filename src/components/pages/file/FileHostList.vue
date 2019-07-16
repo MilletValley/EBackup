@@ -4,11 +4,11 @@
       <el-form inline
                size="medium">
         <el-form-item style="float: left">
-          <i-icon name="list-btn"
+          <i-icon :name="`${theme}-list-btn`"
                   :class="`{ ${showType === 'list' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchList"></i-icon>
           <span class="switch-division">/</span>
-          <i-icon name="card-btn"
+          <i-icon :name="`${theme}-card-btn`"
                   :class="`{ ${showType === 'card' ? 'active-btn' : 'inactive-btn'} }`"
                   @click.native="switchCard"></i-icon>
         </el-form-item>
@@ -35,7 +35,7 @@
         <template slot-scope="scope">
           <router-link :to="`${scope.row.id}`"
                         append
-                        :class="$style.link">{{scope.row.hostName}}</router-link>
+                        class="routerLink">{{scope.row.hostName}}</router-link>
         </template>
       </el-table-column>
       <el-table-column label="别名"
@@ -103,8 +103,7 @@
                         class="titleIcon"></i-icon>
                 <router-link :to="`${processedTableData[row * 3 + col].id}`"
                              append
-                             :class="$style.link"
-                             class="title">{{processedTableData[row * 3 + col].hostName}}</router-link>
+                             class="title routerLink">{{processedTableData[row * 3 + col].hostName}}</router-link>
                 <el-tooltip content="删除" placement="top" effect="light">
                   <i class="el-icon-delete delete"
                      @click="deleteFileHost(processedTableData[row * 3 + col])"></i>
@@ -160,6 +159,7 @@
 import DatabaseModal from '@/components/pages/file/DatabaseModal';
 import { applyFilterMethods } from '@/utils/common';
 import { paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
+import themeMixin from '@/components/mixins/themeMixins';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
 import { fetchAll, createOne, modifyOne, deleteOne } from '@/api/file';
 const OperateFileHost = {
@@ -168,7 +168,7 @@ const OperateFileHost = {
 }
 export default {
   name: 'FileHostList',
-  mixins: [paginationMixin, filterMixin, sortMixin, switchViewMixins],
+  mixins: [paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin],
   data() {
     return {
       tableData: [],
@@ -274,8 +274,9 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 </style>
-<style scoped src="../../../style/db.css"></style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
+@import '@/style/db.scss';
 .margin-top20{
   margin-top: 20px;
 }

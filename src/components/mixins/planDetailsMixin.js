@@ -5,6 +5,7 @@ import {
   virtualMapping
 } from '@/utils/constant';
 import { fmtSizeFn } from '@/utils/common';
+import themeMixin from '@/components/mixins/themeMixins';
 
 const typeMapping = {
   1: '数据库',
@@ -44,6 +45,7 @@ const commonTypeMapping = {
   insql: 'InSql'
 };
 const planDetailsMixin = {
+  mixins: [themeMixin],
   data() {
     return {
       infoLoading: false,

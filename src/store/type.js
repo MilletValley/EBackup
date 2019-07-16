@@ -13,6 +13,8 @@ const SET_BREADCRUMB = 'SETBREADCRUMB';
 
 const GET_HOST = 'GETHOST';
 
+const SET_THEME = 'SET_THEME';
+
 export default {
   SET_TOKEN,
   CLEAR_TOKEN,
@@ -24,5 +26,6 @@ export default {
   SET_ROUTERS,
   SET_BREADCRUMB,
   UPDATE_USERINFO,
-  GET_HOST
+  GET_HOST,
+  SET_THEME
 };

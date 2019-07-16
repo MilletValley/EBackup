@@ -1,3 +1,4 @@
+@import '../assets/theme/variable.scss';
 .active-btn {
   font-size: 28px;
 }
@@ -43,7 +44,7 @@
 }
 .edit {
   float: right;
-  color: #409eff;
+  @include primary-color;
 }
 .delete {
   float: right;

@@ -291,7 +291,8 @@ export default {
   max-width: 370px;
 }
 </style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
 .margin-top10{
   margin-top: 10px;
 }
@@ -299,7 +300,8 @@ export default {
   text-align: right;
 }
 .link {
-  color: #409eff;
+  /* color: #409eff; */
+  @include primary-color;
   text-decoration: none;
   cursor: pointer;
 }

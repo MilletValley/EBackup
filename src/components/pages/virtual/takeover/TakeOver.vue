@@ -22,57 +22,57 @@
     <section style="clear: both">
       <el-row>
         <el-col :span="10">
-          <div class="env-header">
-            <h2 class="header-title">
+          <div :class="$style.envHeader">
+            <h2 :class="$style.headerTitle">
               <i-icon name="virtual-source"
-                      class="envIcon"></i-icon>
+                      :class="$style.envIcon"></i-icon>
               <span>源虚拟机</span>
             </h2>
           </div>
         </el-col>
         <el-col :span="10"
                 :offset="4">
-          <div class="env-header">
-            <h2 class="header-title">
+          <div :class="$style.envHeader">
+            <h2 :class="$style.headerTitle">
               <i-icon name="virtual-target"
-                      class="envIcon"></i-icon>
+                      :class="$style.envIcon"></i-icon>
               <span>同步虚拟机</span>
             </h2>
           </div>
         </el-col>
       </el-row>
-      <div class="linkContainer">
+      <div :class="$style.linkContainer">
         <div v-for="link in links"
             :key="link.id"
             style="position: relative">
           <el-row>
             <el-col :span="10">
-              <div class="sourceVirtualInfo">
+              <div :class="$style.sourceVirtualInfo">
                 <el-row type="flex"
                         align="middle">
                   <el-col :span="8"
-                          class="virtualInfoCol">
+                          :class="$style.virtualInfoCol">
                     <h4>
                       <el-tooltip content="提供服务中"
                                   placement="top"
                                   effect="light">
                         <i-icon name="service"
-                                class="link-service"
+                                :class="$style.linkService"
                                 v-if="[0, 1].includes(link.state)"></i-icon>
                       </el-tooltip>
                       <router-link :to="`/virtual/${type}/${link.sourceVirtual.id}`"
-                                   :class="$style.primaryLink">
+                                   class="primaryLink">
                         {{ link.sourceVirtual.vmName }}
                       </router-link>
                     </h4>
                   </el-col>
                   <el-col :span="8"
-                          class="virtualInfoCol">
+                          :class="$style.virtualInfoCol">
                     <h4>IP地址</h4>
                     <p>{{ link.sourceVirtual.ip | ipFilter }}</p>
                   </el-col>
                   <el-col :span="8"
-                          class="virtualInfoCol">
+                          :class="$style.virtualInfoCol">
                     <h4>所属物理主机</h4>
                     <p>{{ link.sourceVirtual.vmHostName }}</p>
                   </el-col>
@@ -80,19 +80,19 @@
               </div>
             </el-col>
             <el-col :span="4">
-              <div class="virtualSync">
+              <div :class="$style.virtualSync">
                 <el-popover placement="right"
                             trigger="hover"
                             width="300"
                             :open-delay="200">
                   <el-form size="mini"
                            label-width="100px">
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="连接状态">
                       <el-tag :type="link.state | linkStateStyleFilter"
                               size="mini">{{ link.state | linkStateFilter }}</el-tag>
                     </el-form-item>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="信息"
                                   v-if="link.linkMessage">
                       <span>{{ link.linkMessage }}</span>
@@ -102,30 +102,30 @@
                   <el-form size="mini"
                            label-width="100px">
                     <el-form-item label="同步策略"
-                                  class="syncFormItem">
+                                  :class="$style.syncFormItem">
                       <span>{{ link.strategyConfig.syncTimeStrategy | syncStrategyFilter }}</span>
                     </el-form-item>
                     <el-form-item label="同步周期"
-                                  class="syncFormItem"
+                                  :class="$style.syncFormItem"
                                   v-if="[1, 2].includes(link.strategyConfig.syncTimeStrategy)">
                       <span>{{ link.strategyConfig.syncTimeInterval  }}{{ link.strategyConfig.syncTimeStrategy === 1 ? '分钟' : '小时' }}</span>
                     </el-form-item>
                     <el-form-item label="星期"
-                                  class="syncFormItem"
+                                  :class="$style.syncFormItem"
                                   v-if="link.strategyConfig.syncTimeStrategy === 4">
-                      <el-tag class="infoTag"
+                      <el-tag :class="$style.infoTag"
                               v-for="week in link.strategyConfig.weekDays"
                               :key="week"
                               size="mini">{{ weekMapping[week] }}</el-tag>
                     </el-form-item>
                     <el-form-item label="时间"
-                                  class="syncFormItem"
+                                  :class="$style.syncFormItem"
                                   v-if="[3, 4].includes(link.strategyConfig.syncTimeStrategy)">
                       <el-tag class="infoTag"
                               size="mini">{{ link.strategyConfig.syncRunTime }}</el-tag>
                     </el-form-item>
                     <el-form-item label="下次同步时间"
-                                  class="syncFormItem"
+                                  :class="$style.syncFormItem"
                                   v-if="link.strategyConfig.nextSyncTime">
                       <span>{{ link.strategyConfig.nextSyncTime }}</span>
                     </el-form-item>
@@ -135,12 +135,12 @@
                   <el-form size="mini"
                            label-width="100px"
                            v-else>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="同步状态">
                       <el-tag :type="link.syncState | syncStateStyleFilter"
                               size="mini">{{ link.syncState | syncStateFilter }}</el-tag>
                     </el-form-item>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="时间">
                       <span>{{ link.syncTime }}</span>
                     </el-form-item>
@@ -150,61 +150,61 @@
                   <el-form size="mini"
                            label-width="100px"
                            v-else>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="操作内容">
                       <span>{{ link.latestOperationInfo.content }}</span>
                     </el-form-item>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="操作类型">
                       <span>{{ link.latestOperationInfo.type | syncOperationFilter }}</span>
                     </el-form-item>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="状态">
                       <el-tag :type="link.latestOperationInfo.state | operationStateStyleFilter"
                               size="mini">
                         {{ link.latestOperationInfo.state | operationStateFilter }}
                       </el-tag>
                     </el-form-item>
-                    <el-form-item class="syncFormItem"
+                    <el-form-item :class="$style.syncFormItem"
                                   label="时间">
                       <span>{{ link.latestOperationInfo.time }}</span>
                     </el-form-item>
                   </el-form>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
-                      v-if="link.state === 0 || (link.state === 1 && link.currentSyncStatus === 1)">
-                    <div class="rightMask"></div>
+                       v-if="link.state === 0 || (link.state === 1 && link.currentSyncStatus === 1)">
+                    <div :class="$style.rightMask"></div>
                     <i-icon :name="linkIcon(link)"
-                            class="linkIcon"></i-icon>
+                            :class="$style.linkIcon"></i-icon>
                   </div>
                   <div slot="reference" style="position: relative; height: 3em; display: inline-block"
                        v-else-if="link.state === 3">
-                      <div class="leftMask"></div>
+                      <div :class="$style.leftMask"></div>
                       <i-icon :name="linkIcon(link)"
-                              class="linkIcon"></i-icon>
+                              :class="$style.linkIcon"></i-icon>
                   </div>
                   <i-icon :name="linkIcon(link)"
                           slot="reference"
-                          class="linkIcon"
+                          :class="$style.linkIcon"
                           v-else></i-icon>
                 </el-popover>
                 <div v-if="link.latestOperationInfo && link.latestOperationInfo.state === 1"
                      style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
                   <i class="el-icon-loading"></i>
-                  <span>{{ link.latestOperationInfo.type | syncOperationFilter }}中...</span>
+                  <span class="switch-text">{{ link.latestOperationInfo.type | syncOperationFilter }}中...</span>
                 </div>
                 <div v-else-if="link.state === 0">
                   <i class="el-icon-loading"></i>
-                  <span>初始化中...</span>
+                  <span class="switch-text">初始化中...</span>
                 </div>
                 <div v-else>
                   <div>
                     <el-button type="text"
-                               class="deleteLink"
+                               :class="$style.deleteLink"
                                @click="deleteLink(link)">解除连接</el-button>
                   </div>
                   <div>
                     <el-dropdown>
-                      <span class="dropdownLink">
+                      <span :class="$style.dropdownLink">
                         同步操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
                       </span>
                       <el-dropdown-menu slot="dropdown">
@@ -219,35 +219,35 @@
               </div>
             </el-col>
             <el-col :span="10">
-              <div class="targetVirtualInfo">
+              <div :class="$style.targetVirtualInfo">
                 <el-row type="flex"
                         align="middle"
                         v-if="Object.keys(link.targetVirtual).length">
                   <el-col :span="8"
-                          class="virtualInfoCol">
+                          :class="$style.virtualInfoCol">
                     <h4>
                       <el-tooltip content="提供服务中"
                                   placement="top"
                                   effect="light">
                         <i-icon name="service"
-                                class="link-service"
+                                :class="$style.linkService"
                                 v-if="[2, 3].includes(link.state)"></i-icon>
                       </el-tooltip>
                       {{ link.targetVirtual.vmName }}
                     </h4>
                   </el-col>
                   <el-col :span="8"
-                          class="virtualInfoCol">
+                          :class="$style.virtualInfoCol">
                     <h4>IP地址</h4>
                     <p>{{ link.targetVirtual.ip | ipFilter }}</p>
                   </el-col>
                   <el-col :span="8"
-                          class="virtualInfoCol">
+                          :class="$style.virtualInfoCol">
                     <h4>所属物理主机</h4>
                     <p>{{ link.targetVirtual.vmHostName }}</p>
                   </el-col>
                 </el-row>
-                <h4 v-else class="virtualInfo">暂无信息</h4>
+                <h4 v-else :class="$style.virtualInfo">暂无信息</h4>
               </div>
             </el-col>
           </el-row>
@@ -534,16 +534,14 @@ export default {
   }
 }
 </script>
+
 <style lang="scss" module>
 @import '@/style/common.scss';
-@import '@/style/color.scss';
-</style>
-
-<style scoped>
-.env-header {
+@import '@/assets/theme/variable.scss';
+.envHeader {
   text-align: center;
 }
-.header-title {
+.headerTitle {
   margin: 5px 0;
 }
 .envIcon {
@@ -552,20 +550,28 @@ export default {
 .linkContainer {
   margin: 10px 0;
   border-radius: 5px;
-  background-color: #ffffff;
+  @include host-link-content-color
 }
 .sourceVirtualInfo {
-  border: 1px solid #409eff;
+  @include themeify {
+    border: 1px solid themed('primary-color');
+  }
 }
 .targetVirtualInfo {
-  border: 1px solid #6d6d6d;
+  @include themeify {
+    border: 1px solid themed('vice-color');
+  }
   position: relative;
 }
 .sourceVirtualInfo:hover {
-  box-shadow: 0px 0px 2px 1px #409eff;
+  @include themeify {
+    box-shadow: 0px 0px 2px 1px themed('primary-color');
+  }
 }
 .targetVirtualInfo:hover {
-  box-shadow: 0px 0px 2px 1px #6d6d6d;
+  @include themeify {
+    box-shadow: 0px 0px 2px 1px themed('vice-color');
+  }
 }
 .sourceVirtualInfo,
 .targetVirtualInfo {
@@ -586,7 +592,6 @@ export default {
 }
 .virtualSync {
   text-align: center;
-  margin: 20px 0;
 }
 .syncFormItem {
   margin-bottom: 5px !important;
@@ -606,7 +611,7 @@ export default {
   transform: scale(1.2);
 }
 .deleteLink {
-  color: rgb(223, 77, 77);
+  color: rgb(223, 77, 77)!important;
   padding: 2px 0 3px;
 }
 .deleteLink:hover {
@@ -615,7 +620,7 @@ export default {
 }
 .dropdownLink {
   cursor: pointer;
-  color: #409EFF;
+  @include primary-color;
 }
 .rightMask,
 .leftMask {
@@ -624,16 +629,16 @@ export default {
   height: 3em;
   width: 100px;
   right: -20px;
-  background: #fff;
+  @include host-link-content-color;
 }
 .leftMask {
   left: -20px;
 }
-.link-service {
+.linkService {
   vertical-align: -0.3em;
   transition: all 0.5s ease;
 }
-.link-service:hover {
+.linkService:hover {
   transform: scale(1.2);
   cursor: pointer;
 }
