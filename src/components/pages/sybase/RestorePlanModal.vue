@@ -21,7 +21,7 @@
         <el-form-item label="恢复设备"
                       prop="hostIp">
           <span slot="label">恢复设备
-              <el-tooltip placement="top" 
+              <el-tooltip placement="top"
                           content="易备环境设备" >
                   <i class="el-icon-info"></i>
               </el-tooltip >
@@ -169,7 +169,7 @@ export default {
       }
       const { name, config, ...other } = plan;
       const { id, startTime, timePoints, timeStrategy, database, ...otherConfig } = config;
-      const { dbName, loginName, host } = database;
+      const { instanceName: dbName, loginName, host } = database; // 后台传的instanceName
       const { name: hostName, hostIp } = host;
       return {
         name,
