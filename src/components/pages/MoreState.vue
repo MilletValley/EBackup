@@ -409,7 +409,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${takeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.instanceName }}
                 </router-link>
               </template>
@@ -607,7 +607,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${vmTakeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.vmName }}
                 </router-link>
               </template>

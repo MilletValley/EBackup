@@ -24,8 +24,8 @@
               <el-tooltip placement="top"
                           content="易备环境设备" >
                   <i class="el-icon-info"></i>
-              </el-tooltip >
-          </span>  
+              </el-tooltip>
+          </span>
           <el-input disabled v-if="action !== 'create'"
                       :value="`${formData.hostName}(${formData.hostIp})`"></el-input>
           <el-select v-model="formData.hostIp" v-else

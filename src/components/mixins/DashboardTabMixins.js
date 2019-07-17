@@ -130,7 +130,7 @@ const DashboardTab = {
           if (this.$route.name === 'dashboard') {
             this.vmTakeOver = takeOverData.slice(0, 5);
           } else if (this.checkType === this.clickPieJumpTo.ts) {
-            this.vmTakeOver = takeOverData.filter(db => [0, 1, 2, 3].includes(db.linkState));
+            this.vmTakeOver = takeOverData.filter(db => [1, 2, 3].includes(db.linkState));
           } else if (this.checkType === this.clickPieJumpTo.tf) {
             this.vmTakeOver = takeOverData.filter(db => Number(db.linkState) === 4);
           } else {
