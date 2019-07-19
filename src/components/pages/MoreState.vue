@@ -595,7 +595,7 @@
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="虚拟机接管"
-                     name="vmTakeOver"
+                     name="linkState"
                      v-if="showTakeOver">
           <el-table :data="vmTakeOver"
                     v-loading="infoLoading"
