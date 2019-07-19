@@ -19,7 +19,7 @@ const deepBlue = {
 };
 
 const yellow = {
-  asideColor: '#60380a',
+  asideColor: '#AA671B',
   echartsTitleColor: '#835F5F',
   echartsLabelColor: '#835F5F',
   echartsTextColor: '#835F5F',

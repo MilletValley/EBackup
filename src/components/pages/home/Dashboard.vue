@@ -660,7 +660,7 @@
               </template>
             </el-table-column> -->
             <el-table-column label="接管状态"
-                             prop="overState"
+                             prop="linkState"
                              :filters="vmLinkStateFilter"
                              :filter-method="filterHandle"
                              align="center"
