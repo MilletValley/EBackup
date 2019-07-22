@@ -369,6 +369,12 @@
                         </el-tag>
                       </el-form-item>
                       <el-form-item :class="$style.switchFormItem"
+                                    v-if="dbLink.latestSwitch.consume"
+                                    label="持续时间">
+                        <timer v-if="dbLink.latestSwitch.state === 1" :val="dbLink.latestSwitch.consume"></timer>
+                        <span v-else>{{ dbLink.latestSwitch.consume | durationFilter }}</span>
+                      </el-form-item>
+                      <el-form-item :class="$style.switchFormItem"
                                     v-if="dbLink.latestSwitch.state !== 1"
                                     label="完成时间">
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
@@ -538,6 +544,7 @@ import SwitchIpModal from '@/components/pages/takeover/SwitchIpModal';
 import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabaseLinksModal';
 import FailOverModal from '@/components/pages/takeover/FailOverModal';
 import IIcon from '@/components/IIcon';
+import Timer from '@/components/Timer';
 import dayjs from 'dayjs';
 import {
   fetchAll as fetchAllOracle,
@@ -579,6 +586,7 @@ import {
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import batchSwitchMixin from '@/components/mixins/batchSwitchMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import baseMixin from '@/components/mixins/baseMixins';
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -619,9 +627,10 @@ const switchIpMethod = {
 
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin, batchSwitchMixin, themeMixin],
+  mixins: [takeoverMixin, batchSwitchMixin, themeMixin, baseMixin],
   components: {
     IIcon,
+    Timer,
     DatabaseLinkCreateModal,
     BatchSwitchModal,
     CutBackModal,

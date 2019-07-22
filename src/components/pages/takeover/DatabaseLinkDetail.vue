@@ -69,6 +69,11 @@
               <span>临时端口：</span>
               <span>{{linkState.tempPort}}</span>
             </p>
+            <div v-if="linkState.initTime">
+              <span>初始化持续时间</span>
+              <timer v-if="linkState.state === 1" :val="linkState.initTime"></timer>
+              <span v-else>{{ linkState.initTime | durationFilter }}</span>
+            </div>
             <div>
               <div :class="$style.linkMsg">
                 {{linkState.errMsg}}
@@ -144,7 +149,9 @@ import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabase
 import LinkDetailTable from '@/components/pages/takeover/LinkDetailTable';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import baseMixin from '@/components/mixins/baseMixins';
 import IIcon from '@/components/IIcon';
+import Timer from '@/components/Timer';
 import { switchTypeMapping } from '@/utils/constant';
 import {
   fetchLinkByLinkId as fetchLinkByLinkIdOracle,
@@ -176,7 +183,7 @@ export default {
       type: String,
     },
   },
-  mixins: [takeoverMixin, themeMixin],
+  mixins: [takeoverMixin, themeMixin, baseMixin],
   data() {
     return {
       linkState: {},

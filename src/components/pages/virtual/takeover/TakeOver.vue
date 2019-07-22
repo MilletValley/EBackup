@@ -45,7 +45,7 @@
         <div v-for="link in links"
             :key="link.id"
             style="position: relative">
-          <el-row>
+          <el-row style="display: flex">
             <el-col :span="10">
               <div :class="$style.sourceVirtualInfo">
                 <el-row type="flex"
@@ -79,7 +79,7 @@
                 </el-row>
               </div>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="4" style="align-items: center; align-self: center">
               <div :class="$style.virtualSync">
                 <el-popover placement="right"
                             trigger="hover"
