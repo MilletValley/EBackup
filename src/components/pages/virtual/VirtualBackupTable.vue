@@ -16,7 +16,7 @@
                     >
             <template slot-scope="scope">
                 <router-link :to="`/virtual/${virtualMapping[scope.row.vm.type]}/${scope.row.vm.id}`"
-                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
+                             class="routerLink">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
         <el-table-column prop="vm.type" align="center" show-overflow-tooltip

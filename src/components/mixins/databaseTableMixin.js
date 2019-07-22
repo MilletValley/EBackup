@@ -1,5 +1,6 @@
 import { getMonitorInfo } from '@/api/home';
 import { paginationMixin, filterMixin, sortMixin } from './commonMixin';
+import themeMixin from './themeMixins';
 import {
   databaseStateMapping,
   databaseRoleMapping
@@ -13,7 +14,7 @@ import {
 
 
 const tableMixin = {
-  mixins: [paginationMixin, filterMixin, sortMixin],
+  mixins: [paginationMixin, filterMixin, sortMixin, themeMixin],
   data() {
     return {
       createModalVisible: false,
@@ -128,7 +129,8 @@ const tableMixin = {
             const obj = {
               token,
               id,
-              type: `${this.objectType}Dashboard`
+              type: `${this.objectType}Dashboard`,
+              theme: this.theme
             };
             popup.postMessage(obj, origin);
           }

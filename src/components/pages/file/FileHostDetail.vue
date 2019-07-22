@@ -39,6 +39,7 @@
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
+                     :element-loading-background="themeColor.loadingBackGround"
                      label-position="left"
                      label-width="100px"
                      size="small"
@@ -138,6 +139,7 @@ import SingleRestoreModal from '@/components/pages/file/SingleRestoreModal';
 import IIcon from '@/components/IIcon';
 import { applyFilterMethods } from '@/utils/common';
 import { sortMixin, sockMixin } from '@/components/mixins/commonMixin';
+import themeMixin from '@/components/mixins/themeMixins';
 import throttle from 'lodash/throttle';
 import {
   fetchOne,
@@ -170,7 +172,7 @@ const OperateBackupPlan = {
 export default {
   name: 'FileHostDetail',
   props: ['id'],
-  mixins: [sortMixin, sockMixin],
+  mixins: [sortMixin, sockMixin, themeMixin],
   data() {
     return {
       infoLoading: true,

@@ -247,6 +247,7 @@ export default {
 </script>
 <style lang="scss" module>
 @import '@/style/color.scss';
+@import '@/assets/theme/variable.scss';
 .backupCard {
   margin-bottom: 15px;
 }

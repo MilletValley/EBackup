@@ -19,7 +19,7 @@
                                 min-width="200">
                         <template slot-scope="scope">
                             <router-link :to="`/vm/virtual/${scope.row.id}`"
-                                        :class="$style.link">{{scope.row.vmName}}</router-link>
+                                        class="routerLink">{{scope.row.vmName}}</router-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="vmPath"
@@ -44,7 +44,7 @@
                                 min-width="200">
                         <template slot-scope="scope">
                             <router-link :to="scope.row.type === 1 ? `/vm/virtual/${scope.row.id}` : `/vm/hwVirtual/${scope.row.id}`"
-                                        :class="$style.link">{{scope.row.vmName}}</router-link>
+                                        class="routerLink">{{scope.row.vmName}}</router-link>
                         </template>
                     </el-table-column>
                     <el-table-column prop="vmPath"

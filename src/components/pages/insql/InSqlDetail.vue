@@ -13,7 +13,7 @@
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1 :class="details.role === 1 ? $style.primaryLink : $style.viceLink">{{details.name}}
+                <h1 :class="details.role === 1 ? 'primaryLink' : 'viceLink'">{{details.name}}
                   <i-icon v-if="details.role !== 0"
                           :name="roleIconName(this.details.role)"
                           :class="$style.roleIconHeader"></i-icon>
@@ -41,6 +41,7 @@
               </el-col>
             </el-row>
             <el-form v-loading="infoLoading"
+                     :element-loading-background="themeColor.loadingBackGround"
                      label-position="left"
                      label-width="100px"
                      size="small"
@@ -95,7 +96,7 @@
                       <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
                               :class="$style.roleIconOppsition"></i-icon>
                       <router-link :to="`/db/insql/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
-                                   :class="link.oppsiteDatabase.role === 1 ? $style.primaryLink : $style.viceLink">
+                                   :class="link.oppsiteDatabase.role === 1 ? 'primaryLink' : 'viceLink'">
                         {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
                       </router-link>
                     </el-form-item>
@@ -252,6 +253,7 @@ export default {
 </script>
 <style lang="scss" module>
 @import '@/style/common.scss';
+@import '@/assets/theme/variable.scss';
 .roleIconHeader {
   padding: 5px;
   margin: -5px 5px;
@@ -281,5 +283,6 @@ export default {
   position: absolute;
   bottom: 0;
   right: 0;
+  @include primary-color;
 }
 </style>

@@ -32,7 +32,7 @@
                     sortable="custom">
             <template slot-scope="scope">
                 <router-link :to="`/virtual/${virtualMapping[scope.row.type]}/${scope.row.id}`"
-                            :class="$style.link">{{scope.row.vmName}}</router-link>
+                            class="routerLink">{{scope.row.vmName}}</router-link>
             </template>
         </el-table-column>
         <el-table-column prop="vmPath"

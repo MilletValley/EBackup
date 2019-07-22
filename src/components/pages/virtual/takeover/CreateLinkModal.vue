@@ -103,7 +103,7 @@
                       v-show="formData.syncTimeStrategy == 4">
         <el-checkbox-group v-model="formData.weekDays">
           <el-checkbox-button v-for="w in Object.keys(weekMapping)"
-                              :label="w"
+                              :label="Number(w)"
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
         </el-checkbox-group>
       </el-form-item>

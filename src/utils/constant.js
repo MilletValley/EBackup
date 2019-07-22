@@ -268,7 +268,16 @@ const dbTypeMapping = {
 // 首页数据库一键接管
 const dbTakeOverRouterMapping = {
   1: 'oracleLinkDetail',
-  2: 'sqlserverLinkDetail'
+  2: 'sqlserverLinkDetail',
+  3: 'applicationLinkDetail',
+  4: 'insqlLinkDetail'
+};
+
+// 首页虚拟机接管详情路由
+const vmTakeOverRouterMapping = {
+  1: 'vmwareLinkDetail',
+  2: 'fusionSphereLinkDetail',
+  3: 'hyperVLinkDetail'
 };
 
 // 首页虚拟机详情路由
@@ -382,6 +391,7 @@ export {
   dbTypeMapping,
   dbDetailRouterMapping,
   dbTakeOverRouterMapping,
+  vmTakeOverRouterMapping,
   vmDetailRouterMapping,
   vmTypeMapping,
   virtualMapping,

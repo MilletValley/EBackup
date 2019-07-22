@@ -73,7 +73,7 @@
         <el-col :span="12">
           <el-card class="box-card" style="width: 100%">
             <div slot="header" class="clearfix">
-              <span class="card-title">存储1已使用空间分配情况</span>
+              <span class="card-title">已使用空间分配情况</span>
             </div>
             <div class="text item" id="nfsBarContent">
               <three-dimensional-bar style="height: 100%"
@@ -102,6 +102,7 @@
           <el-table :data="databaseBackup|NotNullfilter"
                     ref="databaseBackup"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     style="width: 100%">
             <el-table-column label="名称"
                              show-overflow-tooltip
@@ -109,7 +110,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -172,6 +173,7 @@
                      name="databaseRestore">
           <el-table :data="databaseRestore"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="databaseRestore"
                     style="width: 100%">
             <el-table-column label="名称"
@@ -180,7 +182,7 @@
                              min-width="180">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${dbDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -229,19 +231,20 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="一键接管"
-                     name="initconnNum">
-          <el-table :data="initconnNum"
+        <el-tab-pane label="数据库接管"
+                     name="databaseTakeOver">
+          <el-table :data="databaseTakeOver"
                     v-loading="infoLoading"
-                    ref="initconnNum"
+                    :element-loading-background="themeColor.loadingBackGround"
+                    ref="databaseTakeOver"
                     style="width: 100%">
             <el-table-column label="实例名"
                              show-overflow-tooltip
                              align="center"
                              min-width="100">
               <template slot-scope="scope">
-                <router-link :to="{ name: `${dbTakeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
-                             :class="$style.link">
+                <router-link :to="{ name: `${takeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             class="routerLink">
                   {{ scope.row.instanceName }}
                 </router-link>
               </template>
@@ -306,6 +309,7 @@
                      name="filehostBackup">
           <el-table :data="filehostBackup|NotNullfilter"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="filehostBackup"
                     style="width: 100%">
             <el-table-column label="主机IP"
@@ -314,7 +318,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'backup' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -371,6 +375,7 @@
                      name="filehostRestore">
           <el-table :data="filehostRestore"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="filehostRestore"
                     style="width: 100%">
             <el-table-column label="恢复主机IP"
@@ -379,7 +384,7 @@
                              min-width="180">
               <template slot-scope="scope">
                 <router-link :to="{ name: 'filehostDetail', params: { id: String(scope.row.id), type: 'restore' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.ascription }}
                 </router-link>
               </template>
@@ -421,10 +426,58 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+        <el-tab-pane label="应用服务器接管"
+                     name="appTakeOver">
+          <el-table :data="appTakeOver"
+                    v-loading="infoLoading"
+                    ref="appTakeOver"
+                    style="width: 100%">
+            <el-table-column label="名称"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${takeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             class="routerLink">
+                  {{ scope.row.instanceName }}
+                </router-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="primaryHostIp"
+                             label="主机IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column prop="viceHostIp"
+                             label="备库IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="连接状态"
+                             prop="overState"
+                             :filters="dbLinkStateFilter"
+                             :filter-method="filterHandle"
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag :type="linkTagType(scope.row.overState)"
+                        size="mini">
+                  {{ linkTypeConverter(scope.row.overState) }}
+                </el-tag>
+              </template>              
+            </el-table-column>
+            <el-table-column label="初始化完成时间"
+                             align="center"
+                             min-width="130">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
         <el-tab-pane label="虚拟机备份"
                      name="vmBackup">
           <el-table :data="vmBackup|NotNullfilter"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="vmBackup"
                     style="width: 100%">
             <el-table-column label="虚拟机名"
@@ -433,7 +486,7 @@
                              min-width="100">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'backup' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>
@@ -497,6 +550,7 @@
                      name="vmRestore">
           <el-table :data="vmRestore"
                     v-loading="infoLoading"
+                    :element-loading-background="themeColor.loadingBackGround"
                     ref="vmRestore"
                     style="width: 100%">
             <el-table-column label="虚拟机名"
@@ -505,7 +559,7 @@
                              min-width="180">
               <template slot-scope="scope">
                 <router-link :to="{ name: `${vmDetailRouter(scope.row)}`, params: { id: String(scope.row.id), type: 'restore' }}"
-                             :class="$style.link">
+                             class="routerLink">
                   {{ scope.row.name }}
                 </router-link>
               </template>
@@ -555,6 +609,78 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
+        <el-tab-pane label="虚拟机接管"
+                     name="vmTakeOver">
+          <el-table :data="vmTakeOver"
+                    v-loading="infoLoading"
+                    ref="vmTakeOver"
+                    style="width: 100%">
+            <el-table-column label="虚拟机名"
+                             show-overflow-tooltip
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <router-link :to="{ name: `${vmTakeOverRouter(scope.row)}`, params: { id: String(scope.row.id) }}"
+                             class="routerLink">
+                  {{ scope.row.vmName }}
+                </router-link>
+              </template>
+            </el-table-column>
+            <el-table-column prop="sourceIp"
+                             label="源虚拟机IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="源物理主机IP"
+                             align="center"
+                             min-width="100"
+                             prop="sourceVmHost"></el-table-column>
+            <el-table-column label="虚拟机类型"
+                             prop="vmType"
+                             align="center"
+                             min-width="100"
+                             :filters="vmTypeFilter"
+                             :filter-method="filterHandle">
+              <template slot-scope="scope">
+                <span>{{ vmTypeMapping[scope.row.vmType] }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="targetIp"
+                             label="同步虚拟机IP"
+                             align="center"
+                             min-width="100"></el-table-column>
+            <el-table-column label="同步物理主机IP"
+                             align="center"
+                             prop="targetVmHost"
+                             min-width="100"></el-table-column>
+            <!-- <el-table-column label="说明"
+                             align="center"
+                             min-width="150">
+              <template slot-scope="scope">
+                <span>{{ [0, 1].includes(scope.row.linkState) ? '源虚拟机' : '同步虚拟机' }}提供服务</span>
+              </template>
+            </el-table-column> -->
+            <el-table-column label="接管状态"
+                             prop="linkState"
+                             :filters="vmLinkStateFilter"
+                             :filter-method="filterHandle"
+                             align="center"
+                             min-width="100">
+              <template slot-scope="scope">
+                <el-tag size="mini"
+                        :type="vmLinkTagType(scope.row.linkState)">
+                  {{ vmLinkType(scope.row.linkState) }}
+                </el-tag>
+              </template>              
+            </el-table-column>
+            <el-table-column label="创建时间"
+                             align="center"
+                             min-width="130">
+              <template slot-scope="scope">
+                <el-tag size="mini">{{ scope.row.createTime }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </section>
@@ -564,6 +690,7 @@ import { fetchSpaceUse } from '@/api/home';
 import { fmtSizeFn, keepTwoDecimalFull } from '@/utils/common';
 import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
+import themeMixin from '@/components/mixins/themeMixins';
 import DashboardTab from '@/components/mixins/DashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
@@ -573,7 +700,7 @@ import ThreeDimensionalPie from '@/components/pages/home/ThreeDimensionalPie';
 import ThreeDimensionalBar from '@/components/pages/home/ThreeDimensionalBar';
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, DashboardTab],
+  mixins: [baseMixin, DashboardTab, themeMixin],
   components: {
     Cylinder,
     DrawPie,
@@ -622,6 +749,11 @@ export default {
     this.fetchTabData();
     this.activeName = 'databaseBackup';
   },
+  watch: {
+    theme() {
+      this.drawSpaceChartData();
+    }
+  },
   methods: {
     fetchData() {
       fetchSpaceUse()
@@ -669,12 +801,12 @@ export default {
           value: this.spaceData.percentData[0]/100 > 1 ? 1 : this.spaceData.percentData[0]/100,
           width: this.$refs.space1.innerWidth || this.$refs.space1.clientWidth,
           height: 200,
-          color: ['#04C1F9','#C3E9F5'],
+          color: [this.themeColor.echartsSpaceColor,'#C3E9F5'],
           title: {
               show: true,
               text: '存储1',
               style: {
-                color: '#333',
+                color: this.themeColor.echartsTitleColor,
                 fontSize: '14px',
               }
             },
@@ -682,7 +814,7 @@ export default {
               show: true,
               text: this.spaceData.explain[0],
               style: {
-                color: '#04C1F9',
+                color: this.themeColor.echartsSpaceColor,
                 fontSize: '12px',
               }
             }
@@ -698,7 +830,7 @@ export default {
               show: true,
               text: '存储2',
               style: {
-                color: '#333',
+                color: this.themeColor.echartsTitleColor,
                 fontSize: '14px',
               }
             },
@@ -732,10 +864,11 @@ $error-color: rgba(212, 130, 101, 1);
   }
 }
 </style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
 .title {
   font-weight: 400;
-  color: #606266;
+  // color: #606266;
   padding-top: 0.5em;
   display: inline-block;
 }

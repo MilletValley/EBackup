@@ -1,18 +1,15 @@
 <template>
 <div @click="mousemoveCallBack" style="height: 100%">
   <el-container style="height: 100%; min-width: 1000px;" >
-    <el-aside style="width:auto;background-color: #00264a;">
+    <el-aside style="width: auto;"
+              :style="{ backgroundColor: themeColor.asideColor }"
+              class="custom-scrollbar">
       <div class="logo">
-        <img src="../assets/layoutContraction.png"
+        <img :src="logo"
              alt="信服易备"
-             v-show="isMenuCollapsed"
-             height="35px">
-        <img src="../assets/layoutExpansion.png"
-             alt="信服易备"
-             v-show="!isMenuCollapsed"
              height="35px">
       </div>
-      <el-menu background-color="#00264a"
+      <el-menu :background-color="themeColor.asideColor"
                text-color="#fff"
                active-text-color="#fff"
                :unique-opened="true"
@@ -58,14 +55,15 @@
       </el-menu>
     </el-aside>
     <el-container style="overflow: auto;">
-      <el-header style="font-size: 12px">
+      <el-header style="font-size: 12px"
+                 class="header">
         <el-breadcrumb separator="/"
                        class="bread-crumb">
           <el-breadcrumb-item v-for="nav in breadcrumb"
                               :key="nav.path"
                               :to="{ path: nav.path}">{{ nav.name }}</el-breadcrumb-item>
         </el-breadcrumb>
-        <div class="user-info">
+        <div style="float: right;">
           <el-dropdown @command="handleCommand" trigger="click">
             <span class="el-dropdown-link">
               {{ userName }}
@@ -75,17 +73,37 @@
               <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
               <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+              <el-dropdown-item @mouseover.native="leaveInTheme"
+                                @mouseout.native="leaveOutTheme"
+                                style="position: relative">
+                <span>
+                  主题
+                  <i class="el-icon-caret-right"></i>
+                </span>
+                <div v-show="showThemeList"
+                     class="themeList">
+                  <div v-for="(item, index) in Object.keys(themeTypeMapping)"
+                       :key="index"
+                       :class="[item === theme ? 'selectedTheme' : '']"
+                       @click="updateTheme(item)"
+                       style="padding: 0 10px">
+                       {{ themeTypeMapping[item] }}
+                       <i class="el-icon-check"
+                          v-show="item === theme"
+                          style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%)"></i>
+                  </div>
+                </div>
+              </el-dropdown-item>
               <el-dropdown-item command="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-
       </el-header>
       <!-- IE不支持main标签 -->
       <!-- <el-main>
         <router-view/>
       </el-main> -->
-      <div class="el-main">
+      <div class="el-main custom-scrollbar">
         <router-view/>
       </div>
     </el-container>
@@ -97,14 +115,23 @@
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
 import IIcon from './IIcon.vue';
+import layoutContraction from '@/assets/layoutContraction.png';
+import layoutExpansion from '@/assets/layoutExpansion.png';
 import { sockMixin } from '@/components/mixins/commonMixin';
 import {getVersion} from '@/api/home';
-
+import themeMixin from '@/components/mixins/themeMixins';
+const themeTypeMapping = {
+  default: '简约白(默认)',
+  deepBlue: '宝石蓝',
+  yellow: '流沙金'
+};
 export default {
   name: 'Layout',
-  mixins: [sockMixin],
+  mixins: [sockMixin, themeMixin],
   data() {
     return {
+      themeTypeMapping,
+      showThemeList: false,
       clientWidth: 1920,
       curTime: new Date().getTime(),
       lastTime: new Date().getTime(),
@@ -138,6 +165,9 @@ export default {
     isMenuCollapsed() {
       return this.clientWidth < 1300;
     },
+    logo() {
+      return this.isMenuCollapsed ? layoutContraction : layoutExpansion;
+    },
     defaultActive(){
       return this.$route.meta.activeName ? this.$route.meta.activeName : this.$route.path;
     },
@@ -152,6 +182,7 @@ export default {
         state.base.routers.filter(router => router.meta && router.meta.title),
       // [],
       breadcrumb: state => state.nav.breadcrumb,
+      theme: state => state.nav.theme
     }),
   },
   methods: {
@@ -175,6 +206,15 @@ export default {
       } else if (command === 'restorePlan') {
         this.$router.push({ name: 'restorePlans' });
       }
+    },
+    updateTheme(theme) {
+      this.$store.commit('SET_THEME', theme);
+    },
+    leaveInTheme() {
+      this.showThemeList = true;
+    },
+    leaveOutTheme() {
+      this.showThemeList = false;
     },
     _logout() {
       this.logout(this.$store.state.base.token).then(message => {
@@ -207,7 +247,8 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
 .logo {
   padding: 11px 10px;
   padding-top: 20px;
@@ -217,14 +258,15 @@ export default {
   display: block;
 }
 .el-header {
-  background-color: #ffffff;
-  color: #333;
+  @include content-background-color;
+  @include themeify {
+    border-bottom: 1px solid themed('main-background-color');
+  }
   line-height: 60px;
-  box-shadow: 1px 1px #eeeeee;
   position: relative;
 }
 .el-main {
-  background-color: #f0f2f5;
+  @include main-background-color;
   box-sizing: border-box;
   padding: 20px;
 }
@@ -241,12 +283,28 @@ export default {
   display: inline-block;
   line-height: 0.6;
 }
-.user-info {
-  float: right;
-}
 .el-dropdown-link {
+  @include primary-color;
   cursor: pointer;
-  color: #409eff;
+}
+.themeList {
+  position: absolute;
+  right: 100%;
+  top: 0;
+  border-radius: 5px;
+  min-width: 115px;
+  @include text-color;
+  @include content-background-color;
+  @include themeify {
+    border: 1px solid themed('main-background-color');
+  }
+}
+.selectedTheme {
+  @include primary-color;
+  @include themeify {
+    background-color: rgba(themed('primary-color'), 0.1);
+  }
+  position: relative;
 }
 .el-icon-arrow-down {
   font-size: 12px;

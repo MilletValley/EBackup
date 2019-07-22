@@ -1,5 +1,6 @@
 <template>
-  <section v-loading="infoLoading">
+  <section v-loading="infoLoading"
+           :element-loading-background="themeColor.loadingBackGround">
     <header class="plan-detail-header">
       <div class="content">
         <el-row type="flex"
@@ -114,7 +115,7 @@
                     <el-form-item label="主机名：" v-if="['windows', 'linux'].includes(target)">
                       <span>
                         <router-link :to="linkObject"
-                                    :class="$style.link">
+                                    class="routerLink">
                           {{machine.hostName}}
                         </router-link>
                       </span>
@@ -122,7 +123,7 @@
                     <el-form-item :label="['vmware', 'hw'].includes(target) ? '虚拟机名称：':'数据库别名：'" v-else>
                       <span>
                         <router-link :to="linkObject"
-                                    :class="$style.link">
+                                    class="routerLink">
                           {{ machine.name }}
                         </router-link>
                       </span>
@@ -443,7 +444,8 @@ $primary-color: #409eff;
   }
 }
 </style>
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
 .margin-right5 {
   margin-right: 5px;
 }
@@ -454,7 +456,7 @@ $primary-color: #409eff;
   margin-top: 10px;
 }
 .plan-detail-header{
-  background-color: #ffffff;
+  @include content-background-color;
   margin: -20px -20px 0 -20px;
   padding: 10px 10px 50px 10px;
 }

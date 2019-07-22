@@ -3,6 +3,7 @@ import throttle from 'lodash/throttle';
 import { applyFilterMethods } from '@/utils/common';
 import IIcon from '@/components/IIcon';
 import TabPanels from '@/components/common/TabPanels';
+import themeMixin from '@/components/mixins/themeMixins';
 import {
   databaseRoleMapping,
   linkStateMapping,
@@ -33,6 +34,7 @@ import {
 
 const detailPageMixin = {
   props: ['id'],
+  mixins: [themeMixin],
   data() {
     return {
       infoLoading: true, // 信息loading
@@ -195,7 +197,7 @@ const detailPageMixin = {
     roleIconName(role) {
       switch (role) {
         case 1:
-          return 'zhu';
+          return `${this.theme}-zhu`;
         case 2:
           return 'bei';
         default:

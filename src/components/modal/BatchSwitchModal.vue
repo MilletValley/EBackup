@@ -25,7 +25,7 @@
                     <span :class="$style.switchModalDetail">{{ databaseLink.primaryDatabase.instanceName}}</span>
                     <span>{{ databaseLink.primaryDatabase.role | databaseRoleFilter}}</span>
                   </span>
-                  <i-icon name="readySwitch"
+                  <i-icon :name="`${theme}-ready-switch`"
                           :class="$style.readySwitch"></i-icon>
                   <span>
                     <span>{{ databaseLink.viceDatabase.role | databaseRoleFilter}}</span>
@@ -124,12 +124,13 @@
   </section>
 </template>
 <script>
-import takeoverMixin from '../mixins/takeoverMixins';
-import { validatePassword } from '../../api/user';
+import takeoverMixin from '@/components/mixins/takeoverMixins';
+import themeMixin from '@/components/mixins/themeMixins';
+import { validatePassword } from '@/api/user';
 import IIcon from '@/components/IIcon'
 export default {
   name: 'BatchSwitchModal',
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, themeMixin],
   props: {
     originLinks: Array,
     visible: Boolean,

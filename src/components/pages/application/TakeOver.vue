@@ -151,7 +151,7 @@
                           <span>{{ hostLink.latestSwitch.switchTime }}</span>
                         </el-form-item>
                       </el-form>
-                      <i-icon name="link"
+                      <i-icon :name="`${theme}-link`"
                               :class="$style.hostSwitchIcon"
                               slot="reference"></i-icon>
                     </el-popover>
@@ -159,17 +159,20 @@
                   <div v-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 2"
                       style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">切换IP中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;"
+                          class="switch-text">切换IP中...</span>
                   </div>
                   <div v-else-if="hostLink.latestSwitch && hostLink.latestSwitch.state === 1 && hostLink.latestSwitch.type === 3"
                       style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">解除连接中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;"
+                          class="switch-text">解除连接中...</span>
                   </div>
                   <div v-else-if="simpleSwitchGoing(hostLink)"
                        style="margin-top: 12px;">
                     <i class="el-icon-loading"></i>
-                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">单切IP中...</span>
+                    <span style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;"
+                          class="switch-text">单切IP中...</span>
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
@@ -227,7 +230,7 @@
                   <el-row type="flex"
                           align="middle">
                     <el-col :span="8">
-                      <h4 :class="appLink.primaryApp.role === 1 ? $style.primaryLink : $style.viceLink">
+                      <h4 :class="appLink.primaryApp.role === 1 ? 'primaryLink' : 'viceLink'">
                         {{appLink.primaryApp.name}}
                       </h4>
                     </el-col>
@@ -284,7 +287,7 @@
                   <el-row type="flex"
                           align="middle">
                     <el-col :span="8">
-                      <h4 :class="appLink.viceApp.role === 1 ? $style.primaryLink : $style.viceLink">
+                      <h4 :class="appLink.viceApp.role === 1 ? 'primaryLink' : 'viceLink'">
                           {{appLink.viceApp.name}}
                       </h4>
                     </el-col>
@@ -326,6 +329,7 @@ import IIcon from '@/components/IIcon';
 import SwitchModal from '@/components/pages/application/SwitchModal';
 import AppLinkCreateModal from '@/components/pages/application/AppLinkCreateModal';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
+import themeMixin from '@/components/mixins/themeMixins';
 import { fetchLinks, fetchAll, createLinks, deleteLinks } from '@/api/application';
 import {
   createSwitches,
@@ -339,7 +343,7 @@ export default {
     SwitchModal,
     AppLinkCreateModal
   },
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, themeMixin],
   data() {
     return {
       links: [],
@@ -577,6 +581,7 @@ export default {
 <style lang="scss" module>
 @import '@/style/common.scss';
 @import '@/style/color.scss';
+@import '@/assets/theme/variable.scss';
 $primary-color: #409eff;
 $vice-color: #6d6d6d;
 .envHeader {
@@ -591,13 +596,15 @@ $vice-color: #6d6d6d;
 .hostLinkContainer {
   margin: 10px 0;
   border-radius: 5px;
-  background-color: #ffffff;
+   @include host-link-content-color
 }
 .hostLinkInOs {
-  border: 1px dotted $primary-color;
+  @include themeify {
+    border: 1px dotted themed('primary-color')
+  }
   border-radius: 5px;
   & legend {
-    color: $primary-color
+    @include primary-color;
   }
 }
 .hostInfo {
@@ -636,10 +643,10 @@ $vice-color: #6d6d6d;
   }
 }
 .removeHostLink {
-  color: $delete-color;
+  color: $delete-color!important;
   padding: 2px 0 3px;
   &:focus {
-    color: $delete-color;
+    color: $delete-color!important;
   }
   &:hover {
     color: lighten($delete-color, 10%);
@@ -647,19 +654,28 @@ $vice-color: #6d6d6d;
   }
 }
 .primaryAppInfo {
-  border: 1px solid $primary-color;
+  @include themeify {
+    border: 1px solid themed('primary-color')
+  }
   border-radius: 5px;
   transition: box-shadow 0.5s;
   &:hover {
-    box-shadow: 0px 0px 2px 1px $primary-color;
+    // box-shadow: 0px 0px 2px 1px $primary-color;
+    @include themeify {
+      box-shadow: 0px 0px 2px 1px themed('primary-color');
+    }
   }
 }
 .viceAppInfo {
-  border: 1px solid $vice-color;
+  @include themeify {
+    border: 1px solid themed('vice-color');
+  }
   border-radius: 5px;
   transition: box-shadow 0.5s;
   &:hover {
-    box-shadow: 0px 0px 2px 1px $vice-color;
+    @include themeify {
+      box-shadow: 0px 0px 2px 1px themed('vice-color');
+    }
   }
 }
 .primaryAppInfo,
@@ -679,7 +695,9 @@ $vice-color: #6d6d6d;
 }
 .primaryRole {
   text-align: center;
-  background-color: $primary-color;
+  @include themeify {
+    background-color: themed('primary-color')
+  }
   color: #ffffff;
   font-size: 2.8em;
   line-height: 2.3em;
@@ -689,7 +707,9 @@ $vice-color: #6d6d6d;
 }
 .viceRole {
   text-align: center;
-  background-color: $vice-color;
+  @include themeify {
+    background-color: themed('vice-color')
+  }
   color: #ffffff;
   font-size: 2.8em;
   line-height: 2.3em;
@@ -724,7 +744,7 @@ $vice-color: #6d6d6d;
   height: 3em;
   width: 100px;
   right: -20px;
-  background: #fff;
+  @include host-link-content-color
 }
 .leftMask {
   left: -20px;

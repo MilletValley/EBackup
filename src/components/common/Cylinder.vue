@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div :id="id" :style="{width: '100%', height: '300%',marginLeft:'0px', 'text-align': 'center'}">
+    <div :id="id" :ref="id" :style="{width: '100%', height: '300%',marginLeft:'0px', 'text-align': 'center'}">
     </div>
     <div :style="{width: '100%', height: '300%',marginTop: '10px', 'text-align': 'center'}">
       <span v-if="title ? title.show : false" :style="title.style" >{{title.text}}</span>
@@ -17,6 +17,7 @@ export default {
   props: {
     data: {
       type: Object,
+      stage: null
     }
   },
   created() {
@@ -51,11 +52,15 @@ export default {
       if(!this.data) {
         return;
       }
+      if (this.stage) {
+        this.$refs[this.id].innerHTML = null;
+        this.stage = null;
+      }
       let width = this.data && this.data.width ? Math.round(this.data.width / 3) : 0;
       const height = this.data && this.data.height ? this.data.height : 0;
       width = width > 120 ? 120 : width;
-      const stage = new cax.Stage((width + 20), (height + 10), `#${this.id}`);
-      stage.empty();
+      this.stage = new cax.Stage((width + 20), (height + 10), `#${this.id}`);
+      this.stage.empty();
       for (let i = 0; i < 1; i++) {
         let cy = new Cylinder(width, height - width / 2, this.data && this.data.value ? this.data.value : 0, this.color[0], this.color[1]);
         cy.x = 10;
@@ -67,9 +72,9 @@ export default {
         text.x = cy.x + cy.width / 2 - text.getWidth() / 2;
         // text.y = cy.y + cy.surfaceY;
         text.y = height / 2;
-        stage.add(cy, text);
+        this.stage.add(cy, text);
       }
-      cax.tick(stage.update.bind(stage));
+      cax.tick(this.stage.update.bind(this.stage));
     },
   },
 };

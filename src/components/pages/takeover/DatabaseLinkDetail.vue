@@ -7,12 +7,12 @@
         <el-col :span="8">
           <section :class="$style.productionSection">
             <h4>
-              <router-link :class="productionDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+              <router-link :class="productionDatabase.role === 1 ? 'primaryLink' : 'viceLink'"
                            :to="`/db/${databaseType}/${productionDatabase.id}`">
                 {{productionDatabase.name}}
               </router-link>
               <i-icon :class="$style.databaseRoleIcon"
-                      :name="productionDatabase.role === 1 ? 'zhu' : 'bei'"></i-icon>
+                      :name="productionDatabase.role === 1 ? `${theme}-zhu` : 'bei'"></i-icon>
             </h4>
             <el-form size="small"
                      label-width="100px"
@@ -79,12 +79,12 @@
         <el-col :span="8">
           <section :class="$style.ebackupSection">
             <h4>
-              <router-link :class="ebackupDatabase.role === 1 ? $style.primaryLink : $style.viceLink"
+              <router-link :class="productionDatabase.role === 1 ? 'primaryLink' : 'viceLink'"
                            :to="`/db/${databaseType}/${ebackupDatabase.id}`">
                 {{ebackupDatabase.name}}
               </router-link>
               <i-icon :class="$style.databaseRoleIcon"
-                      :name="ebackupDatabase.role === 1 ? 'zhu' : 'bei'"></i-icon>
+                      :name="ebackupDatabase.role === 1 ? `${theme}-zhu` : 'bei'"></i-icon>
             </h4>
             <el-form size="small"
                      label-width="100px"
@@ -143,6 +143,7 @@
 import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabaseLinksModal';
 import LinkDetailTable from '@/components/pages/takeover/LinkDetailTable';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
+import themeMixin from '@/components/mixins/themeMixins';
 import IIcon from '@/components/IIcon';
 import { switchTypeMapping } from '@/utils/constant';
 import {
@@ -175,7 +176,7 @@ export default {
       type: String,
     },
   },
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, themeMixin],
   data() {
     return {
       linkState: {},
@@ -280,7 +281,6 @@ export default {
 </script>
 <style lang="scss" module>
 @import '@/style/common.scss';
-@import '@/style/color.scss';
 .header {
   padding-bottom: 10px;
 }

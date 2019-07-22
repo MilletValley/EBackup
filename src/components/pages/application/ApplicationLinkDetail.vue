@@ -7,10 +7,10 @@
               v-if="productionApp.host">
         <el-col :span="8">
           <section :class="$style.productionSection">
-            <h4 :class="productionApp.role === 1 ? $style.primaryLink : $style.viceLink">
+            <h4 :class="productionApp.role === 1 ? 'primaryLink' : 'viceLink'">
               {{productionApp.name}}
               <i-icon :class="$style.databaseRoleIcon"
-                      :name="productionApp.role === 1 ? 'zhu' : 'bei'"></i-icon>
+                      :name="productionApp.role === 1 ? `${theme}-zhu` : 'bei'"></i-icon>
             </h4>
             <el-form size="small"
                      label-width="100px"
@@ -49,10 +49,10 @@
         </el-col>
         <el-col :span="8">
           <section :class="$style.ebackupSection">
-            <h4 :class="ebackupApp.role === 1 ? $style.primaryLink : $style.viceLink">
+            <h4 :class="ebackupApp.role === 1 ? 'primaryLink' : 'viceLink'">
               {{ebackupApp.name}}
               <i-icon :class="$style.databaseRoleIcon"
-                      :name="ebackupApp.role === 1 ? 'zhu' : 'bei'"></i-icon>
+                      :name="ebackupApp.role === 1 ? `${theme}-zhu` : 'bei'"></i-icon>
             </h4>
             <el-form size="small"
                      label-width="100px"
@@ -110,6 +110,7 @@
 <script>
 import { fetchLinkByLinkId, fetchSwitches } from '@/api/application';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
+import themeMixin from '@/components/mixins/themeMixins';
 import IIcon from '@/components/IIcon';
 export default {
   name: 'ApplicationLinkDetail',
@@ -118,7 +119,7 @@ export default {
       type: String,
     },
   },
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, themeMixin],
   components: {
     IIcon
   },

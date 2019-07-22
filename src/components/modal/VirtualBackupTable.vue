@@ -8,12 +8,15 @@
         </el-col>
     </el-row>
     
-    <el-table :data="processedTableData" v-loading="loading" style="text-align:left;">
+    <el-table :data="processedTableData"
+              v-loading="loading"
+              style="text-align:left;"
+              :element-loading-background="themeColor.loadingBackGround">
         <el-table-column label="虚拟机名称" align="left" min-width="100"
                     >
             <template slot-scope="scope">
                 <router-link :to="`/virtual/${virtualMapping[scope.row.type]}/${scope.row.id}`"
-                             :class="$style.link">{{scope.row.vm.vmName}}</router-link>
+                             class="routerLink">{{scope.row.vm.vmName}}</router-link>
             </template>
         </el-table-column>
         <el-table-column prop="vm.vmPath" align="left" show-overflow-tooltip
@@ -91,8 +94,9 @@ import {
 } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
+import themeMixin from '@/components/mixins/themeMixins';
 export default {
-  mixins: [baseMixin, paginationMixin, sortMixin],
+  mixins: [baseMixin, paginationMixin, sortMixin, themeMixin],
   props: {
     id: {
       type: Number,

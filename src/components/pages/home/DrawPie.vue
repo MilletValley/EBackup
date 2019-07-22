@@ -8,6 +8,7 @@
 import { useTypeMapping } from '@/utils/constant';
 import { keepTwoDecimalFull } from '@/utils/common';
 import DashboardTab from '@/components/mixins/DashboardTabMixins';
+import themeMixin from '@/components/mixins/themeMixins';
 import {
   fetchBackupStatistics,
   fetchRestoreStatistics,
@@ -34,7 +35,7 @@ export default {
       default: ''
     },
   },
-  mixins: [DashboardTab],
+  mixins: [DashboardTab, themeMixin],
   data() {
     return {
       sourceData: {},
@@ -46,6 +47,271 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.sizeFun);
+  },
+  computed: {
+    tooltip() {
+      return {
+        trigger: 'item',
+        backgroundColor:'rgba(255,255,255,0.8)',
+        color:'black',
+        borderWidth:'1',
+        borderColor:'gray',
+        textStyle: {
+          color: 'black'
+        },
+        position: this.tooltipPosition,
+        formatter: res => {
+          const total = res.data.explain === 'success' ? this.sourceData.successTotal : this.sourceData.failTotal;
+          const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
+          res.color = typeof res.color === 'string' ? res.color : '#1abb9c';
+          const marker = `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${res.color};"></span>`
+          if(total <= 0) {
+            return `<p>${res.marker}无</p>`;
+          } else {
+            let rootElement = document.createElement('p');
+            rootElement.id = 'rootElement';
+            const details = this.sourceData.details;
+            for (let i = 0, j = details.length; i < j; i++) {
+              if (details[i][num] > 0) {
+                let p = document.createElement('p');
+                p.innerHTML = `${marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
+                rootElement.appendChild(p);
+              }
+            }
+            return rootElement.innerHTML;
+          }
+        }
+      };
+    },
+    title() {
+      return {
+        text: this.calcPercent(this.sourceData.successTotal, this.sourceData.successTotal + this.sourceData.failTotal) + '%',
+        subtext: '成功率',
+        x: 'center',
+        y: '45%',
+        textStyle: {
+          color: '#1abb9c',
+          fontSize: 30
+        }
+      };
+    },
+    options() {
+      if (this.theme === 'default') {
+        return {
+          tooltip: this.tooltip,
+          title: this.title,
+          series: [
+            {
+              name: this.echartsName,
+              type: 'pie',
+              radius: ['45%', '55%'],
+              hoverAnimation: false,
+              color: ['#1abb9c', '#7F7F7F'],
+              data: [
+                {
+                  value: this.sourceData.successTotal,
+                  name: '成功',
+                  dataType: 1,
+                  label: {
+                    normal: {
+                      formatter: '{b} : {c}',
+                      position: 'inner'
+                    }
+                  },
+                  explain: 'success'
+                },
+                {
+                  value: this.sourceData.failTotal,
+                  name: '失败',
+                  label: {
+                    normal: {
+                      formatter: '{b} : {c}',
+                      position: 'inner'
+                    }
+                  },
+                  explain: 'fail'
+                }
+              ]
+            }
+          ]
+        };
+      } else if (this.theme === 'deepBlue') {
+        return {
+          tooltip: this.tooltip,
+          title: this.title,
+          series: [
+            {
+              name: this.echartsName,
+              type: 'pie',
+              radius: ['45%', '55%'],
+              hoverAnimation: false,
+              data: [
+                {
+                  value: this.sourceData.successTotal,
+                  name: '成功',
+                  dataType: 1,
+                  label: {
+                    normal: {
+                      formatter: '{b} : {c}',
+                      color: '#63c587',
+                      position: 'inner'
+                    }
+                  },
+                  itemStyle: {
+                    color: {
+                      colorStops: [{
+                        offset: 0, color: '#2fb099'
+                      }, {
+                        offset: 1, color: '#206a3d'
+                      }]
+                    },
+                  },
+                  explain: 'success'
+                },
+                {
+                  value: this.sourceData.failTotal,
+                  name: '失败',
+                  itemStyle: {
+                    color: 'rgba(102, 102, 102, 0.5)',
+                  },
+                  label: {
+                    normal: {
+                      formatter: '{b} : {c}',
+                      position: 'inner'
+                    }
+                  },
+                  explain: 'fail'
+                }
+              ]
+            },
+            {
+              type: 'pie',
+              name: '',
+              radius: ['0%', '65%'],
+              center: ['50%', '50%'],
+              avoidLabelOverlap: false,
+              silent: true,
+              label: {
+                show: false
+              },
+              data: [
+                {
+                  value: 1,
+                  itemStyle: {
+                    normal: {
+                      color: {
+                        type: 'radial',
+                        x: 0.5,
+                        y: 0.5,
+                        r: 0.5,
+                        colorStops: [
+                          {
+                            offset: 0,
+                            color: 'rgba(21, 43, 66, 0.5)'
+                          },
+                          {
+                            offset: 0.9,
+                            color: 'rgba(21, 43, 66, 0.1)'
+                          },
+                          {
+                            offset: 1,
+                            color: 'rgba(160,247,255,0.23)'
+                          }
+                        ],
+                        globalCoord: false
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+          ]
+        }
+      } else if (this.theme === 'yellow') {
+        return {
+          tooltip: this.tooltip,
+          title: this.title,
+          series: [
+            {
+              name: this.echartsName,
+              type: 'pie',
+              radius: ['45%', '55%'],
+              hoverAnimation: false,
+              data: [
+                {
+                  value: this.sourceData.successTotal,
+                  name: '成功',
+                  dataType: 1,
+                  itemStyle: {
+                    color: {
+                      colorStops: [{
+                        offset: 0, color: '#2fb099'
+                      }, {
+                        offset: 1, color: '#206a3d'
+                      }]
+                    },
+                  },
+                  label: {
+                    normal: {
+                      formatter: '{b} : {c}',
+                      color: '#63c587',
+                      position: 'inner'
+                    }
+                  },
+                  explain: 'success'
+                },
+                {
+                  value: this.sourceData.failTotal,
+                  name: '失败',
+                  itemStyle: {
+                    color: '#7b7b7b',
+                  },
+                  label: {
+                    normal: {
+                      formatter: '{b} : {c}',
+                      position: 'inner'
+                    }
+                  },
+                  explain: 'fail'
+                }
+              ]
+            },
+            {
+              type: 'pie',
+              name: '',
+              radius: ['58%', '60%'],
+              center: ['50%', '50%'],
+              avoidLabelOverlap: false,
+              silent: true,
+              label: {
+                show: false
+              },
+              data: [
+                {
+                  value: 1,
+                  itemStyle: {
+                    normal: {
+                      color: {
+                        colorStops: [{
+                          offset: 0, color: '#63c587'
+                        }, {
+                          offset: 1, color: '#008000'
+                        }]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+          ]
+        }
+      }
+    },
+  },
+  watch: {
+    theme() {
+      this.setChart();
+    }
   },
   methods: {
     fetchData() {
@@ -104,89 +370,14 @@ export default {
     },
     draw(option) {
       this.chart = this.$echarts.init(document.getElementById(this.id));
-      this.chart.setOption(option);
+      this.chart.setOption(option, true);
       window.addEventListener("resize", this.sizeFun);
       this.chart.on('click', params => {
         this.jumpToMoreState(params, `${this.type}Success`, `${this.type}Fail`);
       });
     },
     setChart() {
-      let option = {
-        tooltip: {
-          trigger: 'item',
-          backgroundColor:'rgba(255,255,255,0.8)',
-          color:'black',
-          borderWidth:'1',
-          borderColor:'gray',
-          textStyle: {
-            color: 'black'
-          },
-          position: this.tooltipPosition,
-          formatter: res => {
-            const total = res.data.explain === 'success' ? this.sourceData.successTotal : this.sourceData.failTotal;
-            const num = res.data.explain === 'success' ? 'successNum' : 'failNum';
-            if(total <= 0) {
-              return `<p>${res.marker}无</p>`;
-            } else {
-              let rootElement = document.createElement('p');
-              rootElement.id = 'rootElement';
-              const details = this.sourceData.details;
-              for (let i = 0, j = details.length; i < j; i++) {
-                if (details[i][num] > 0) {
-                  let p = document.createElement('p');
-                  p.innerHTML = `${res.marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
-                  rootElement.appendChild(p);
-                }
-              }
-              return rootElement.innerHTML;
-            }
-          }
-        },
-        title: {
-          text: this.calcPercent(this.sourceData.successTotal, this.sourceData.successTotal + this.sourceData.failTotal) + '%',
-          subtext: '成功率',
-          x: 'center',
-          y: '45%',
-          textStyle: {
-            color: '#1abb9c',
-            fontSize: 30
-          }
-        },
-        series: [
-          {
-            name: this.echartsName,
-            type: 'pie',
-            radius: ['45%', '55%'],
-            hoverAnimation: false,
-            color: ['#1abb9c', '#7F7F7F'],
-            data: [
-              {
-                value: this.sourceData.successTotal,
-                name: '成功',
-                dataType: 1,
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'success'
-              },
-              {
-                value: this.sourceData.failTotal,
-                name: '失败',
-                label: {
-                  normal: {
-                    formatter: '{b} : {c}',
-                    position: 'inner'
-                  }
-                },
-                explain: 'fail'
-              }
-            ]
-          }
-        ]
-      };
+      let option = this.options;
       this.draw(option);
     }
   }
