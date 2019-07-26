@@ -1,5 +1,5 @@
 <template>
-  <iframe :src="`http://${inspectionWeb.ip}:${inspectionWeb.port}/ebackup/system/params/config`"
+  <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/ebackup/system/params/config`"
           width="100%"
           height="800"
           frameborder="0"></iframe>

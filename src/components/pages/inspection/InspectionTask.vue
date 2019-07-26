@@ -1,6 +1,6 @@
 <template>
   <section>
-    <iframe :src="`http://${inspectionWeb.ip}:${inspectionWeb.port}/ebackup/inspection`"
+    <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/ebackup/inspection`"
             width="100%"
             height="800"
             frameborder="0"

@@ -160,6 +160,9 @@ export default {
     this.fetchHost().catch(error => {
       this.$message.error(error);
     });
+    if (this.inspectActive) {
+      this.sendServerConfig();
+    }
   },
   destroyed() {
     clearInterval(this.intervalObj);

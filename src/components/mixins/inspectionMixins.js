@@ -3,11 +3,11 @@ const inspectionMixin = {
     configMsg() {
       return this.$store.state.nav.configMsg;
     },
-    inspectionWeb() {
-      if (this.configMsg.inspectionWeb) {
+    inspectWeb() {
+      if (this.configMsg.inspectWeb) {
         return {
-          ip: this.configMsg.inspectionWeb.ip,
-          port: this.configMsg.inspectionWeb.port
+          ip: this.configMsg.inspectWeb.ip,
+          port: this.configMsg.inspectWeb.port
         };
       }
       return { ip: null, port: null };
