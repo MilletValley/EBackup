@@ -70,7 +70,7 @@
               <span>{{linkState.tempPort}}</span>
             </p>
             <div v-if="linkState.initTime">
-              <span>初始化持续时间</span>
+              <span>初始化持续时间：</span>
               <timer v-if="linkState.state === 1" :val="linkState.initTime"></timer>
               <span v-else>{{ linkState.initTime | durationFilter }}</span>
             </div>

@@ -90,6 +90,20 @@ const getVersion = () =>
     method: 'get',
     url: '/get-version'
   });
+
+const fetchConfig = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/get-config'
+  });
+
+const modifyInspectionActive = data =>
+  baseApi.request({
+    method: 'post',
+    data,
+    url: '/ebackup/inspection/activate'
+  });
+
 export {
   fetchBackupStatistics,
   fetchRestoreStatistics,
@@ -106,5 +120,7 @@ export {
   fetchRestorePlanDetail,
   cancelRestoreHighlight,
   getMonitorInfo,
+  fetchConfig,
+  modifyInspectionActive,
   getVersion
 };

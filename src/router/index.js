@@ -17,6 +17,7 @@ import vmRouter from './virtuals';
 import systemRouter from './system';
 import applicationServiceRouter from './applicationservice';
 import deployRouter from './deploy';
+import inspection from './inspection';
 // import overviewRouter from './overview';
 
 Vue.use(Router);
@@ -73,6 +74,7 @@ export const asyncRouters = [
   ...databaseRouter,
   ...vmRouter,
   ...applicationServiceRouter,
+  ...inspection,
   ...systemRouter,
   ...deployRouter,
   // ...overviewRouter,
