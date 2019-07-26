@@ -24,7 +24,7 @@
           </router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
-                    v-if="!menu.meta.isActive || (configMsg.inspectWeb && configMsg.inspectWeb.active)"
+                    v-if="!menu.meta.isActive || (configMsg.inspectWeb && inspectActive)"
                     :key="menu.path"
                     :index="menu.path">
           <template slot="title">
@@ -73,7 +73,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
               <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
-              <el-dropdown-item command="inspection" v-if="configMsg.inspectWeb">巡检  (已{{configMsg.inspectWeb.active ? '启用' : '禁用'}})</el-dropdown-item>
+              <el-dropdown-item command="inspection" v-if="configMsg.inspectWeb">巡检  (已{{inspectActive ? '启用' : '禁用'}})</el-dropdown-item>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item @mouseover.native="leaveInTheme"
                                 @mouseout.native="leaveOutTheme"
@@ -174,6 +174,12 @@ export default {
     defaultActive(){
       return this.$route.meta.activeName ? this.$route.meta.activeName : this.$route.path;
     },
+    inspectActive() {
+      if (this.configMsg.inspectWeb) {
+        return this.configMsg.inspectWeb.active;
+      }
+      return false;
+    },
     ...mapState({
       userName: state => {
         if (state.base.userInfo.userName) {
@@ -203,7 +209,7 @@ export default {
       const { ebackupServer, inspectWeb } = this.configMsg;
       axios({
         method: 'post',
-        url: `http://${inspectWeb.ip}:${inspectWeb.port}/inspection/ebackup-config`,
+        url: `http://${inspectWeb.ip}:${inspectWeb.port}/api/v1/inspection/ebackup-config`,
         data: { ...{ ip: ebackupServer.ip, port: ebackupServer.port } },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
       })
@@ -235,16 +241,24 @@ export default {
     },
     updateInspection() {
       if (this.configMsg.inspectWeb.ip && this.configMsg.inspectWeb.port) {
-        this.$confirm(`此操作即将${this.configMsg.inspectWeb.active ? '禁用' : '启用'}巡检功能，是否继续？`, '提示', {
+        this.$confirm(`此操作即将${this.inspectActive ? '禁用' : '启用'}巡检功能，是否继续？`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         })
         .then(() => {
-          modifyInspectionActive({ active: this.configMsg.inspectWeb.active })
+          modifyInspectionActive({ active: this.inspectActive })
             .then(res => {
-              const { message } = res.data;
+              const { data: inspectActive, message } = res.data;
+              const { inspectWeb, ...others } = this.configMsg;
+              const { ip, port, active } = inspectWeb;
+              this.setConfig({
+                inspectWeb: { ip, port, active: inspectActive },
+                ...others
+              });
               this.$message.success(message);
+            })
+            .then(() => {
               this.sendServerConfig();
             })
             .catch(error => {
