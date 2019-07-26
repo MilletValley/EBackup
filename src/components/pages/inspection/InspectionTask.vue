@@ -1,6 +1,6 @@
 <template>
   <section>
-    <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/ebackup/inspection`"
+    <iframe :src="`http://localhost:8089/inspect/ebackup/inspection`"
             width="100%"
             height="800"
             frameborder="0"
@@ -32,24 +32,6 @@ export default {
   },
   mounted() {
     this.sendMsg();
-    // Promise.all([fetchAllOracle(), fetchAllSqlserver()])
-    //   .then(res => {
-    //     const { data: oracles } = res[0].data;
-    //     const { data: sqlservers } = res[1].data;
-    //     this.availOrcl = oracles;
-    //     const availSqlserverHosts = this.$store.getters.sqlserverHosts;
-    //     const availSql = availSqlserverHosts.map(host => {
-    //       host.databases = sqlservers.filter(sqlserver => sqlserver.host.id === host.id);
-    //       return host;
-    //     })
-    //     this.availSql = availSql.filter(host => host.databases.length);
-    //   })
-    //   .then(() => {
-    //     this.sendMsg();
-    //   })
-    //   .catch(error => {
-    //     this.$message.error(error);
-    //   })
   },
   methods: {
     sendMsg() {

@@ -213,8 +213,8 @@ export default {
       axios({
         method: 'post',
         url: `http://${inspectWeb.ip}:${inspectWeb.port}/api/v1/inspection/ebackup-config`,
-        data: { ...{ ip: ebackupServer.ip, port: ebackupServer.port } },
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
+        data: { ip: ebackupServer.ip, port: ebackupServer.port },
+        headers: { 'Content-Type': 'application/json'},
       })
       .then(res => {
       })
@@ -256,7 +256,7 @@ export default {
               const { inspectWeb, ...others } = this.configMsg;
               const { ip, port, active } = inspectWeb;
               this.setConfig({
-                inspectWeb: { ip, port, active: inspectActive },
+                inspectWeb: { ip, port, active: inspectActive.active },
                 ...others
               });
               this.$message.success(message);
