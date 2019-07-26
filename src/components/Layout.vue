@@ -24,6 +24,7 @@
           </router-link>
         </el-menu-item>
         <el-submenu v-for="menu in menus"
+                    v-if="!menu.meta.isActive || (configMsg.inspectWeb && configMsg.inspectWeb.active)"
                     :key="menu.path"
                     :index="menu.path">
           <template slot="title">
@@ -72,6 +73,7 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
               <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
+              <el-dropdown-item command="inspection" v-if="configMsg.inspectWeb">巡检  (已{{configMsg.inspectWeb.active ? '启用' : '禁用'}})</el-dropdown-item>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item @mouseover.native="leaveInTheme"
                                 @mouseout.native="leaveOutTheme"
@@ -118,8 +120,9 @@ import IIcon from './IIcon.vue';
 import layoutContraction from '@/assets/layoutContraction.png';
 import layoutExpansion from '@/assets/layoutExpansion.png';
 import { sockMixin } from '@/components/mixins/commonMixin';
-import {getVersion} from '@/api/home';
+import { fetchConfig, modifyInspectionActive } from '@/api/home';
 import themeMixin from '@/components/mixins/themeMixins';
+import axios from 'axios';
 const themeTypeMapping = {
   default: '简约白(默认)',
   deepBlue: '宝石蓝',
@@ -153,7 +156,7 @@ export default {
     };
   },
   created() {
-    this.fetchVersion();
+    this.fetchConfig();
     this.fetchHost().catch(error => {
       this.$message.error(error);
     });
@@ -182,17 +185,29 @@ export default {
         state.base.routers.filter(router => router.meta && router.meta.title),
       // [],
       breadcrumb: state => state.nav.breadcrumb,
-      theme: state => state.nav.theme
+      theme: state => state.nav.theme,
+      configMsg: state => state.nav.configMsg
     }),
   },
   methods: {
     ...mapActions(['logout', 'fetchHost', 'setHost']),
-    ...mapMutations(['setClientWidth', 'setMonitorConf']),
-    fetchVersion() {
-      getVersion().then(res => {
-        const {data} = res.data;
-        const {monitor} = data;
-        this.setMonitorConf(monitor);
+    ...mapMutations(['setClientWidth', 'setConfig']),
+    fetchConfig() {
+      fetchConfig()
+        .then(res => {
+          const { data: config } = res.data;
+          this.setConfig(config);
+        })
+    },
+    sendServerConfig() {
+      const { ebackupServer, inspectWeb } = this.configMsg;
+      axios({
+        method: 'post',
+        url: `http://${inspectWeb.ip}:${inspectWeb.port}/inspection/ebackup-config`,
+        data: { ...{ ip: ebackupServer.ip, port: ebackupServer.port } },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
+      })
+      .then(res => {
       })
     },
     handleCommand(command) {
@@ -203,6 +218,8 @@ export default {
       } else if (command === 'backupPlan') {
         // this.BackupPlans
         this.$router.push({ name: 'backupPlans' });
+      } else if (command === 'inspection') {
+        this.updateInspection();
       } else if (command === 'restorePlan') {
         this.$router.push({ name: 'restorePlans' });
       }
@@ -215,6 +232,31 @@ export default {
     },
     leaveOutTheme() {
       this.showThemeList = false;
+    },
+    updateInspection() {
+      if (this.configMsg.inspectWeb.ip && this.configMsg.inspectWeb.port) {
+        this.$confirm(`此操作即将${this.configMsg.inspectWeb.active ? '禁用' : '启用'}巡检功能，是否继续？`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        .then(() => {
+          modifyInspectionActive({ active: this.configMsg.inspectWeb.active })
+            .then(res => {
+              const { message } = res.data;
+              this.$message.success(message);
+              this.sendServerConfig();
+            })
+            .catch(error => {
+              this.$message.error(error);
+            })
+        })
+        .catch(() => {
+          this.$message.info('已取消操作')
+        })
+      } else {
+        this.$message.warning('未配置巡检功能！');
+      }
     },
     _logout() {
       this.logout(this.$store.state.base.token).then(message => {

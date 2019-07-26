@@ -16,7 +16,7 @@
                   :element-loading-background="themeColor.loadingBackGround"
                   element-loading-text="拼命加载中..."
                   :data="tableUsers|filterAdmin"
-                  stripe style="width: 100%"
+                  style="width: 100%"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection">
           </el-table-column>

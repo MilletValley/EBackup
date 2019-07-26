@@ -5,7 +5,7 @@ const state = {
   breadcrumb: [],
   clientWidth: 0,
   theme: 'default',
-  monitorconf: ''
+  configMsg: ''
 };
 
 /* eslint no-shadow: 0 */
@@ -26,8 +26,8 @@ const mutations = {
   setClientWidth(state, width) {
     state.clientWidth = width;
   },
-  setMonitorConf(state, conf) {
-    state.monitorconf = conf;
+  setConfig(state, conf) {
+    state.configMsg = conf;
   }
 };
 

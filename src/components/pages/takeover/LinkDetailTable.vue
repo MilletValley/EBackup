@@ -3,11 +3,11 @@
     <el-table :data="records"
               :default-sort="{prop: 'switchTime', order: 'descending'}">
       <el-table-column label="操作时间"
-                       width="220"
+                       min-width="150"
                        align="center"
                        prop="switchTime"></el-table-column>
       <el-table-column label="持续时间"
-                       width="220"
+                       min-width="150"
                        align="center"
                        prop="consume">
         <template slot-scope="scope">
@@ -21,7 +21,7 @@
                        header-align="center"
                        prop="content"></el-table-column>
       <el-table-column label="切换形式"
-                       width="120"
+                       min-width="120"
                        align="center"
                        :formatter="switchManualFormatter"
                        prop="manual"></el-table-column>
