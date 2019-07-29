@@ -1,6 +1,6 @@
 <template>
   <section>
-    <iframe :src="`http://localhost:8089/inspect/ebackup/inspection`"
+    <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/inspection`"
             width="100%"
             height="800"
             frameborder="0"
