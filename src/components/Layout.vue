@@ -122,7 +122,7 @@ import layoutExpansion from '@/assets/layoutExpansion.png';
 import { sockMixin } from '@/components/mixins/commonMixin';
 import { fetchConfig, modifyInspectionActive } from '@/api/home';
 import themeMixin from '@/components/mixins/themeMixins';
-import axios from 'axios';
+import { sendServerConfig } from '@/api/inspection';
 const themeTypeMapping = {
   default: '简约白(默认)',
   deepBlue: '宝石蓝',
@@ -210,14 +210,9 @@ export default {
     },
     sendServerConfig() {
       const { ebackupServer, inspectWeb } = this.configMsg;
-      axios({
-        method: 'post',
-        url: `http://${inspectWeb.ip}:${inspectWeb.port}/api/v1/inspection/ebackup-config`,
-        data: { ip: ebackupServer.ip, port: ebackupServer.port },
-        headers: { 'Content-Type': 'application/json'},
-      })
-      .then(res => {
-      })
+      sendServerConfig(`${inspectWeb.ip}:${inspectWeb.port}`,
+        { ip: ebackupServer.ip, port: ebackupServer.port })
+        .then(res => {})
     },
     handleCommand(command) {
       if (command === 'logout') {
