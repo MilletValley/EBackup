@@ -26,9 +26,6 @@
                   <i class="el-icon-info"></i>
               </el-tooltip >
           </span>  
-          <!-- <el-input disabled v-if="action !== 'create'"
-                      :value="`${formData.hostName}(${formData.hostIp})`"></el-input> -->
-          <!-- <el-select v-model="formData.hostIp" v-else -->
           <el-select v-model="formData.hostIp" :disabled="action !== 'create'"
                       style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore"
@@ -129,12 +126,9 @@ export default {
   },
   data() {
     return {
-      type: 'cache',
-      // formData: Object.assign({}, baseFormData), // 备份数据
-      // originFormData: Object.assign({}, baseFormData), // 原始数据
+      type: 'informix',
       rules: {
         name: validate.planName,
-        hostIp: validate.selectHost,
         detailInfo: validate.dbName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
@@ -148,31 +142,12 @@ export default {
         this.$refs.timeIntervalComponent
           .validate()
           .then(res => {
-            if (valid && res) {
-              const h = this.$createElement;
-              this.$msgbox({
-                title: '提示',
-                message: h('p', null, [
-                  h('span', null, '此计划将恢复数据库下'),
-                  h('span', { style: 'color: red' }, '最后一次全备'),
-                  h('span', null, '，是否继续？')
-                ]),
-                showCancelButton: true,
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-              })
-                .then(() => {
-                  let data = this.pruneFormData(this.formData);
-                  if (this.action === 'update') {
-                    data.id = this.restorePlan.id;
-                    data.config.id = this.restorePlan.config.id;
-                  }
-                  this.$emit('confirm', data, this.action);
-                })
-                .catch(() => {
-                  this.$message.info('已取消操作');
-                })
+            let data = this.pruneFormData(this.formData);
+            if (this.action === 'update') {
+              data.id = this.restorePlan.id;
+              data.config.id = this.restorePlan.config.id;
             }
+            this.$emit('confirm', data, this.action);
           })
           .catch(error => {
             if (error && valid) {
@@ -187,17 +162,11 @@ export default {
       }
       const { name, config, ...other } = plan;
       const { id, startTime, timePoints, timeStrategy, database, ...otherConfig } = config;
-      // const { instanceName: detailInfo, loginName, host } = database;
-      // const { name: hostName, hostIp } = host;
       return {
         name,
         startTime: timeStrategy === 1 ? '' : startTime,
         timePoints: cloneDeep(timePoints),
         timeStrategy,
-        // detailInfo,
-        // loginName,
-        // hostName,
-        // hostIp,
         ...otherConfig,
       };
     },

@@ -46,7 +46,8 @@
         </el-col>
       </el-row>
       <el-card class="pie-card"
-               style="margin-bottom: 10px">
+               style="margin-bottom: 10px"
+               v-if="hasInspectConfig">
         <div slot="header" class="clearfix">
           <span class="card-title">智能巡检</span>
         </div>

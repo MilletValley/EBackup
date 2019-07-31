@@ -240,7 +240,8 @@ const useTypeIconName = {
   8: 'appHost',
   9: 'sybase',
   10: 'cacheDB',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix'
 }
 
 export default {

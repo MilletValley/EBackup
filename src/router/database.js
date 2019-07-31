@@ -16,6 +16,8 @@ import CacheList from '@/components/pages/cache/CacheList';
 import CacheDetails from '@/components/pages/cache/CacheDetails';
 import InSqlList from '@/components/pages/insql/InSqlList';
 import InSqlDetail from '@/components/pages/insql/InSqlDetail';
+import InformixList from '@/components/pages/informix/InformixList';
+import InformixDetail from '@/components/pages/informix/InformixDetail';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
 
 const router = [
@@ -336,6 +338,26 @@ const router = [
         },
       },
       {
+        path: 'informix',
+        name: 'informixList',
+        component: InformixList,
+        meta: {
+          title: 'Informix',
+          activeName: 'informix',
+          roles: ['informix dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Informix列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'dm/:id',
         props: true,
         component: DamengDetails,
@@ -519,6 +541,30 @@ const router = [
             {
               name: 'InSql列表',
               path: '/db/insql',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'informix/:id',
+        props: true,
+        component: InformixDetail,
+        name: 'informixDetail',
+        meta: {
+          activeName: 'informix',
+          roles: ['informix dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Informix列表',
+              path: '/db/informix',
             },
             {
               name: '数据库详情',

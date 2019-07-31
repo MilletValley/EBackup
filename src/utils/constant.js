@@ -132,7 +132,8 @@ const useTypeMapping = {
   8: '应用服务器',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -153,7 +154,8 @@ const portHostTypeMapping = {
   8: '应用服务器',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix'
 };
 
 const keepDateMapping = {
@@ -177,7 +179,8 @@ const databaseTypeMapping = {
   8: '应用服务器',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix'
 };
 
 // 数据库连接状态
@@ -250,7 +253,8 @@ const dbDetailRouterMapping = {
   7: 'dmDetail',
   9: 'sybaseDetail',
   10: 'cacheDetail',
-  11: 'insqlDetail'
+  11: 'insqlDetail',
+  12: 'informixDetail'
 };
 
 // 数据库类型
@@ -262,7 +266,8 @@ const dbTypeMapping = {
   7: 'dm',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix'
 };
 
 // 首页数据库一键接管

@@ -1,16 +1,16 @@
 <template>
   <section>
     <el-dialog :visible.sync="modalVisible"
-               :before-close="beforeModalClose"
-               @open="modalOpen"
-               @close="modalClosed">
+              :before-close="beforeModalClose"
+              @open="modalOpen"
+              @close="modalClosed">
       <span slot="title">
-        {{ title }}
+        {{title}}
       </span>
       <el-form :model="formData"
                :rules="rules"
                label-width="110px"
-               ref="itemForm"
+               ref="itemCreateForm"
                size="small">
         <el-form-item label="名称"
                       prop="name">
@@ -26,23 +26,26 @@
                   <i class="el-icon-info"></i>
               </el-tooltip >
           </span>
-          <el-select v-if="!disabled"
-                     v-model="formData.hostId"
+          <el-input disabled  v-if="disabled"
+                    :value=" formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''"></el-input>
+
+          <el-select v-model="formData.hostId" v-else
                      style="width: 100%;">
             <el-option v-for="host in availableHosts"
                        :key="host.id"
                        :label="`${host.name}(${host.hostIp})`"
                        :value="host.id"></el-option>
           </el-select>
-          <el-input v-else
-                    disabled
-                    :value="formData.host ? `${formData.host.name || ''}(${formData.host.hostIp || ''})` : ''">
-          </el-input>
         </el-form-item>
         <el-form-item label="数据库名"
                       prop="instanceName">
           <el-input v-model="formData.instanceName"
-                    placeholder="请输入要备份的数据库名"></el-input>
+                    placeholder="请输入服务名"></el-input>
+        </el-form-item>
+        <el-form-item label="服务名"
+                      prop="serverName">
+          <el-input v-model="formData.serverName"
+                    placeholder="请输入服务名"></el-input>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -109,94 +112,106 @@
   </section>
 </template>
 <script>
-import isEqual from 'lodash/isEqual';
+// import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { databaseModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
+const rules = {
+  name: validate.name,
+  dbPort: validate.dbPort,
+  // hostId: validate.selectHost,
+  instanceName: validate.dbName,
+  serverName: [{ required: true, message: '请输入服务名', trigger: 'blur' }],
+  loginName: validate.dbLoginName,
+  password: validate.dbPassword,
+  dbVersion: validate.dbVersion,
+  application: validate.application
+};
 export default {
   name: 'DatabaseModal',
   mixins: [databaseModalMixin],
+  props: {
+  },
   data() {
-    const rules = {
-      name: validate.name,
-      dbPort: validate.dbPort,
-      // hostId:validate.selectHost,
-      instanceName: validate.dbName,
-      loginName: validate.dbLoginName,
-      password: validate.dbPassword,
-      dbVersion: validate.dbVersion,
-      application: validate.application
-    };
     return {
-      type: 'db2',
+      type: 'informix',
       rules: rules,
       validate: validate,
       baseData: {
         name: '',
         hostId: '',
         instanceName: '',
-        dbPort: "",
+        dbPort: '',
         loginName: '',
         password: '',
         dbVersion: '',
         application: ''
       }
-    }
+    };
   },
   computed: {
-    disabled() {
-      return this.action === 'update' ? true : false;
-    }
+    disabled(){
+      if(this.action === 'update'){
+        return true;
+      }
+      return false;
+    },
   },
   methods: {
+    // 点击确认按钮触发
     confirm() {
-      this.$refs.itemForm.validate(valid => {
+      this.$refs.itemCreateForm.validate(valid => {
         if (valid) {
           const {
             id,
             instanceName,
             name,
+            serverName,
             loginName,
             password,
             hostId,
+            dbPort,
             dbVersion,
-            application,
-            dbPort
+            application
           } = this.formData;
           this.$emit('confirm', {
             id,
             instanceName,
             name,
+            serverName,
             loginName,
             password,
+            dbPort,
             dbVersion,
             application,
-            dbPort,
+            // 创建对象 传入host对象 0609
             host: this.availableHosts.find(host => host.id === hostId),
           }, this.action);
         } else {
           return false;
         }
-      })
+      });
     },
-    modalOpen() {
-      if(this.action === 'update') {
-        this.originFormData = Object.assign({}, this.baseData, this.data);
-      } else {
-        this.originFormData = {...this.baseData};
+    modalOpen(){
+      if(this.action === 'update'){
+        this.originFormData = Object.assign({},this.baseData, this.data);
+      }else{
+        this.originFormData = {...this.baseData}
       }
       // 暂时清空密码，等后台删除密码返回后可删除此行
       this.originFormData.password = '';
-      this.formData = {...this.originFormData};
+      this.formData = {...this.originFormData}
     },
     modalClosed() {
-      this.$refs.itemForm.clearValidate();
+      this.$refs.itemCreateForm.clearValidate();
       this.hiddenPassword = true;
       this.hiddenPassword1 = true;
-    }
-  }
-}
+    },
+  },
+  components: {
+    InputToggle,
+  },
+};
 </script>
 <style>
 </style>
-

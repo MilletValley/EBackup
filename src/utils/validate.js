@@ -178,12 +178,6 @@ export default {
     message: '请选择操作系统',
     trigger: 'blur'
   }],
-  application: [
-    {
-      validator: validateLength(64),
-      trigger: 'blur'
-    }
-  ],
   backupPath: [
     {
       required: true,
@@ -228,6 +222,12 @@ export default {
   // 虚拟机-恢复-选择主机ip
   selectServer: [
     { required: true, message: '请选择恢复主机', trigger: 'blur' }
+  ],
+  dbVersion: [
+    { validator: validateLength(100), triggle: 'blur' }
+  ],
+  application: [
+    { validator: validateLength(100), trigger: 'blur' }
   ],
   maxLength100: [
     { validator: validateLength(100), triggle: 'blur' }

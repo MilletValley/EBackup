@@ -26,6 +26,7 @@ const routerNameMapping = {
   dm: 'damengDetail',
   sybase: 'sybaseDetail',
   cache: 'cacheDetail',
+  informix: 'informixDetail',
   insql: 'insqlDetail'
 };
 
@@ -42,7 +43,8 @@ const commonTypeMapping = {
   dm: '达梦数据库',
   sybase: 'Sybase',
   cache: 'Cache',
-  insql: 'InSql'
+  insql: 'InSql',
+  informix: 'Informix'
 };
 const planDetailsMixin = {
   mixins: [themeMixin],

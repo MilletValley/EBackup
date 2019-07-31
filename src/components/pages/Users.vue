@@ -278,6 +278,10 @@ const rolesUser = [
   {
     id: 'insql dba',
     name: 'InSql管理员'
+  },
+  {
+    id: 'informix dba',
+    name: 'Informix管理员'
   }
 ];
 
