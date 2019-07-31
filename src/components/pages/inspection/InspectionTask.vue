@@ -1,50 +1,35 @@
 <template>
-  <section>
+  <div style="width: 100%; height: 100%;">
     <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/inspection`"
             width="100%"
             height="800"
             frameborder="0"
             ref="inspectionTask"></iframe>
-  </section>
+  </div>
 </template>
 
 <script>
 import inspectionMixin from '@/components/mixins/inspectionMixins';
 import { fetchAll as fetchAllOracle } from '@/api/oracle';
 import { fetchAll as fetchAllSqlserver } from '@/api/sqlserver';
-import { Promise } from 'q';
 export default {
   name: 'InspectionTask',
   mixins: [inspectionMixin],
-  data() {
-    return {
-      availOrcl: [],
-      availSql: []
-    };
-  },
-  computed: {
-    configMsg() {
-      return this.$store.state.nav.configMsg;
-    },
+  watch: {
+    // height(val) {
+    //   const iframe = this.$refs['inspectionTask'];
+    //   iframe.height = val;
+    // },
     theme() {
-      return this.$store.state.nav.theme;
-    },
-  },
-  mounted() {
-    this.sendMsg();
+      const iframe = this.$refs['inspectionTask'];
+      iframe.src = iframe.src.split('#')[0] + `#theme=${this.theme}`;
+    }
   },
   methods: {
     sendMsg() {
       const iframe = this.$refs['inspectionTask'];
-      if (iframe.attachEvent) {
-        iframe.attachEvent('onload', () => {
-          iframe.src = iframe.src + `#theme=${this.theme}`;
-        })
-      } else {
-        iframe.onload = () => {
-          iframe.src = iframe.src + `#theme=${this.theme}`;
-        }
-      }
+      this.sendTheme(iframe);
+      // this.height = this.setIframeHeight(iframe);
     }
   }
 }

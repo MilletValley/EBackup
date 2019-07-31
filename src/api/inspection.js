@@ -8,13 +8,13 @@ const sendServerConfig = (url, data) =>
     headers: { 'Content-Type': 'application/json' }
   });
 
-const fetchInspectStatistics = url =>
+const fetchInspectRecords = url =>
   axios.request({
     method: 'get',
-    url: `http://${url}/api/v1/inspection/home/count`,
+    url: `http://${url}/api/v1/inspection/home/count?type=ebackup`,
   });
 
 export {
   sendServerConfig,
-  fetchInspectStatistics
+  fetchInspectRecords
 };
