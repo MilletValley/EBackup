@@ -115,7 +115,7 @@
                         <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
                       </el-col>
                       <el-col :span="8"
-                              v-show="hostLink.serviceIpMark === 1 && osType(hostLink.primaryHost) === 'Linux'">
+                              v-show="hostLink.serviceIpMark === 1 && ['Linux', 'RAC'].includes(osType(hostLink.primaryHost))">
                         <el-tooltip content="提供服务中"
                                     effect="light"
                                     placement="right"
@@ -270,7 +270,7 @@
                         <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
                       </el-col>
                       <el-col :span="8"
-                              v-show="hostLink.serviceIpMark === 2 && osType(hostLink.viceHost) === 'Linux'">
+                              v-show="hostLink.serviceIpMark === 2 && ['Linux', 'RAC'].includes(osType(hostLink.viceHost))">
                         <el-tooltip content="提供服务中"
                                     effect="light"
                                     placement="right"
