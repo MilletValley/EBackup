@@ -1,8 +1,9 @@
 <template>
-  <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/ebackup/system/params/config`"
+  <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/system/params/config`"
           width="100%"
           height="800"
-          frameborder="0"></iframe>
+          frameborder="0"
+          ref="inspectionConfig"></iframe>
 </template>
 
 <script>
@@ -14,9 +15,18 @@ export default {
     return {
     };
   },
-  mounted() {
+  watch: {
+    theme() {
+      const iframe = this.$refs['inspectionConfig'];
+      iframe.src = iframe.src.split('#')[0] + `#theme=${this.theme}`;
+    }
   },
   methods: {
+    sendMsg() {
+      const iframe = this.$refs['inspectionConfig'];
+      this.sendTheme(iframe);
+      // this.height = this.setIframeHeight(iframe);
+    }
   }
 }
 </script>

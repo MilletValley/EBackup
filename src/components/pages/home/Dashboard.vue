@@ -45,6 +45,23 @@
           </el-card>
         </el-col>
       </el-row>
+      <el-card class="pie-card"
+               style="margin-bottom: 10px"
+               v-if="hasInspectConfig">
+        <div slot="header" class="clearfix">
+          <span class="card-title">智能巡检</span>
+        </div>
+        <el-row class="text item">
+          <el-col :span="8">
+            <inspection :inspect="inspect"
+                        id="inspect"></inspection>
+          </el-col>
+          <el-col :span="16">
+            <inspection-records :record="record"
+                                id="inspectRecords"></inspection-records>
+          </el-col>
+        </el-row>
+      </el-card>
       <el-row :gutter="10">
         <el-col :span="12">
           <el-card class="box-card" style="width: 100%">
@@ -691,25 +708,32 @@ import { fmtSizeFn, keepTwoDecimalFull } from '@/utils/common';
 import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import inspectionMixin from '@/components/mixins/inspectionMixins';
 import DashboardTab from '@/components/mixins/DashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
 import DrawPie from '@/components/pages/home/DrawPie';
+import Inspection from '@/components/pages/home/Inspection';
+import InspectionRecords from '@/components/pages/home/InspectionRecords';
 import ThreeDimensionalPie from '@/components/pages/home/ThreeDimensionalPie';
 import ThreeDimensionalBar from '@/components/pages/home/ThreeDimensionalBar';
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, DashboardTab, themeMixin],
+  mixins: [baseMixin, DashboardTab, themeMixin, inspectionMixin],
   components: {
     Cylinder,
     DrawPie,
+    Inspection,
+    InspectionRecords,
     ThreeDimensionalPie,
     ThreeDimensionalBar
   },
   data() {
     return {
       spaceDetail: {},
+      inspect: {},
+      record: {},
       infoLoading: true, // table动画加载
       spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
         name: [],
@@ -777,6 +801,17 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+      if (this.hasInspectConfig) {
+        fetchInspectRecords()
+        .then(res => {
+          const { data } = res.data;
+          this.inspect = data.inspect;
+          this.record = data.record;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+      }
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {

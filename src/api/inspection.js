@@ -1,12 +1,20 @@
-import baseApi from './base';
+import axios from 'axios';
 
-const updateInspectionActive = (url, data) =>
-  baseApi.request({
-    methods: 'post',
+const sendServerConfig = (url, data) =>
+  axios.request({
+    method: 'post',
+    url: `http://${url}/api/v1/inspection/ebackup-config`,
     data,
-    url: '/inspection/activate'
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+const fetchInspectRecords = url =>
+  axios.request({
+    method: 'get',
+    url: `http://${url}/api/v1/inspection/home/count?type=ebackup`,
   });
 
 export {
-  updateInspectionActive
+  sendServerConfig,
+  fetchInspectRecords
 };
