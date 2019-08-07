@@ -1,9 +1,9 @@
 <template>
   <section>
     <el-dialog :visible.sync="modalVisible"
-              :before-close="beforeModalClose"
-              @open="modalOpen"
-              @close="modalClosed">
+               :before-close="beforeModalClose"
+               @open="modalOpen"
+               @close="modalClosed">
       <span slot="title">
         {{title}}
       </span>
@@ -37,15 +37,10 @@
                        :value="host.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="数据库名"
+        <el-form-item label="实例名"
                       prop="instanceName">
           <el-input v-model="formData.instanceName"
-                    placeholder="请输入数据库名"></el-input>
-        </el-form-item>
-        <el-form-item label="服务名"
-                      prop="serverName">
-          <el-input v-model="formData.serverName"
-                    placeholder="请输入服务名"></el-input>
+                    placeholder="请输入实例名"></el-input>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -119,9 +114,8 @@ import validate from '@/utils/validate';
 const rules = {
   name: validate.name,
   dbPort: validate.dbPort,
-  // hostId: validate.selectHost,
+  hostId: validate.selectHost,
   instanceName: validate.dbName,
-  serverName: [{ required: true, message: '请输入服务名', trigger: 'blur' }],
   loginName: validate.dbLoginName,
   password: validate.dbPassword,
   dbVersion: validate.dbVersion,
@@ -134,7 +128,7 @@ export default {
   },
   data() {
     return {
-      type: 'informix',
+      type: 'postgresql',
       rules: rules,
       validate: validate,
       baseData: {
@@ -166,7 +160,6 @@ export default {
             id,
             instanceName,
             name,
-            serverName,
             loginName,
             password,
             hostId,
@@ -178,7 +171,6 @@ export default {
             id,
             instanceName,
             name,
-            serverName,
             loginName,
             password,
             dbPort,

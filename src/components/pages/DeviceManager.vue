@@ -241,7 +241,8 @@ const useTypeIconName = {
   9: 'sybase',
   10: 'cacheDB',
   11: 'insql',
-  12: 'informix'
+  12: 'informix',
+  13: 'postgresql'
 }
 
 export default {

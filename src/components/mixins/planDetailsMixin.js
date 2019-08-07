@@ -27,6 +27,7 @@ const routerNameMapping = {
   sybase: 'sybaseDetail',
   cache: 'cacheDetail',
   informix: 'informixDetail',
+  postgresql: 'postgresqlDetail',
   insql: 'insqlDetail'
 };
 
@@ -44,7 +45,8 @@ const commonTypeMapping = {
   sybase: 'Sybase',
   cache: 'Cache',
   insql: 'InSql',
-  informix: 'Informix'
+  informix: 'Informix',
+  postgresql: 'PostgreSQL',
 };
 const planDetailsMixin = {
   mixins: [themeMixin],

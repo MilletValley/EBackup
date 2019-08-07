@@ -25,6 +25,7 @@ const genModalMixin = type => {
             'sybase',
             'cache',
             'informix',
+            'postgresql',
             'filehost',
             'host',
             'vm',
@@ -105,6 +106,7 @@ const genModalMixin = type => {
         sybase: databaseBaseFormData,
         cache: databaseBaseFormData,
         informix: databaseBaseFormData,
+        postgresql: databaseBaseFormData,
         insql: databaseBaseFormData,
         filehost: fileHostBaseFormData,
         host: hostBaseFormData,
@@ -119,6 +121,7 @@ const genModalMixin = type => {
         sybase: 'sybase数据库',
         cache: 'cache数据库',
         informix: 'informix数据库',
+        postgresql: 'postgresql数据库',
         insql: 'insql数据库',
         filehost: '服务器',
         host: '设备'

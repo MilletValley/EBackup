@@ -52,7 +52,7 @@
            <el-select v-model="formData.databaseType"
                      v-if="useType === 'db'">
             <el-option v-for="db in databaseUseType"
-                       v-if="[1,2,5,6,7,9,10,11,12].includes(db.value)"
+                       v-if="[1,2,5,6,7,9,10,11,12,13].includes(db.value)"
                        :key="db.value"
                        :value="db.value"
                        :label="db.text"></el-option>
@@ -295,6 +295,7 @@ export default {
           case 10:
           case 11:
           case 12:
+          case 13:
             return 'db';
           case 4:
             return 'vm';
