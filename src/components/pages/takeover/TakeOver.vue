@@ -223,20 +223,24 @@
                     <i-icon name="host-ebackup"
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
-                    <el-dropdown style="position: absolute; right: 0px; top: -9px;"
-                                 v-if="hostLink.primaryHost.databaseType === 1">
+                    <el-dropdown style="position: absolute; right: 0px; top: -9px;" size="small"
+                                 v-if="hostLink.primaryHost.databaseType === 1 || ['oracle', 'sqlserver'].includes(databaseType)">
                       <el-button size="mini">
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
-                                          @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
-                                          @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
-                                          @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link))"
-                                          @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
+                        <el-dropdown-item :disabled="false" v-if="['oracle', 'sqlserver'].includes(databaseType)"
+                                          @click.native="queryVerifyResult(hostLink)">验证结果</el-dropdown-item>
+                        <span v-if="hostLink.primaryHost.databaseType === 1">
+                          <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
+                                            @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
+                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
+                                            @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
+                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
+                                            @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
+                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link))"
+                                            @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
+                        </span>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -531,6 +535,7 @@
                         :btn-loading="btnLoading"
                         :databaseType="databaseType"
                         @confirm="addSwitchPlan"></batch-switch-modal>
+    <TakeoverVerificationResult :id="selectLinkId" :visible.sync="verifyResultModalVisible"></TakeoverVerificationResult>
   </section>
 </template>
 <script>
@@ -543,6 +548,7 @@ import SingleSwitchIpModal from '@/components/pages/takeover/SingleSwitchIpModal
 import SwitchIpModal from '@/components/pages/takeover/SwitchIpModal';
 import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabaseLinksModal';
 import FailOverModal from '@/components/pages/takeover/FailOverModal';
+import TakeoverVerificationResult from '@/components/modal/TakeoverVerificationResult';
 import IIcon from '@/components/IIcon';
 import Timer from '@/components/Timer';
 import dayjs from 'dayjs';
@@ -641,7 +647,8 @@ export default {
     SwitchDatabaseLinksModal,
     SwitchIpModal,
     RemoveHostLinkModal,
-    FailOverModal
+    FailOverModal,
+    TakeoverVerificationResult
   },
   data() {
     return {
@@ -662,7 +669,9 @@ export default {
       hostLinkSwitchMsg: {}, // 即将切换的设备连接
       dbSwitchMsg: {}, // 即将切换的数据库连接
       multiply: false, // 标记单个或批量操作
-      timer: null
+      timer: null,
+      verifyResultModalVisible: false,
+      selectLinkId: null
     };
   },
   created() {
@@ -1238,7 +1247,11 @@ export default {
             return 0;
         }
       });
-    }
+    },
+    queryVerifyResult(obj) {
+      this.selectLinkId = obj.id;
+      this.verifyResultModalVisible = true;
+    },
   }
 };
 </script>

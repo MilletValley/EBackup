@@ -144,7 +144,11 @@
       <template slot="restoreRecord">
         <restore-records :restore-plan="restorePlans"
                          :records="restoreRecords"
-                         @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
+                         @restoreinfo:refresh="updateRestorePlanAndRecords">
+          <template slot="verify">
+            <el-button style="float: right" size="mini" @click="queryVerifyResult" type="primary">验证结果</el-button>
+          </template>
+        </restore-records>
       </template>
     </tab-panels>
     <backup-plan-modal  :btn-loading="btnLoading"
@@ -169,6 +173,7 @@
                           :host-in-links="hostInLinks"
                           @confirm="singleConfirmCallback">
     </single-restore-modal>
+    <VerificationResult :id="Number(id)" :visible.sync="verifyResultModalVisible"></VerificationResult>
   </section>
 </template>
 <script>
@@ -198,12 +203,12 @@ export default {
     BackupCard,
     BackupResultList,
     RestoreCard,
-    RestoreRecords
+    RestoreRecords,
   },
   data() {
     return {
       type: 'oracle',
-      hostInLinks: []
+      hostInLinks: [],
     };
   },
   watch: {

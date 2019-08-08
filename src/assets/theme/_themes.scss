@@ -14,6 +14,9 @@ $themes: (
     modal-scrollbar-corner-bg-color: #dcdcdc,
     gray-text-color: #666,
     vice-color: #6d6d6d,
+    stripe-table-bg-color: #FBF7F7,
+    custom-table-border-color: #ebeef5,
+    table-hover-bg-color: #f5f7fa,
   ),
   deepBlue: (
     primary-color: #269885,
@@ -29,7 +32,10 @@ $themes: (
     modal-scrollbar-thumb-bg-color: #35354d,
     modal-scrollbar-corner-bg-color: #4b5257,
     gray-text-color: #ccc,
-    vice-color: #989898
+    vice-color: #989898,
+    stripe-table-bg-color: #182F48,
+    custom-table-border-color: #1d3e5f,
+    table-hover-bg-color: #293859,
   ),
   yellow: (
     primary-color: #ea820a,
@@ -45,6 +51,9 @@ $themes: (
     modal-scrollbar-thumb-bg-color: #35354d,
     modal-scrollbar-corner-bg-color: #4b5257,
     gray-text-color: #767676,
-    vice-color: #989898
+    vice-color: #989898,
+    stripe-table-bg-color: #F9F6E9,
+    custom-table-border-color: #ccc,
+    table-hover-bg-color: #f4e2b0,
   )
 )
