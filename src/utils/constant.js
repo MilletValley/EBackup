@@ -359,6 +359,11 @@ const storeTypeMapping = {
   2: 'CLOUD'
 };
 
+const verificationResultMapping = {
+  inconsistent: '不一致',
+  consistent: '一致'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -408,5 +413,6 @@ export {
   yesOrNoMapping,
   deployStateMapping,
   storeTypeMapping,
-  syncOperationMapping
+  syncOperationMapping,
+  verificationResultMapping
 };

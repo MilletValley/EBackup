@@ -31,6 +31,7 @@ import {
 import {
   fetchOne
 } from '@/api/database';
+import VerificationResult from '@/components/modal/VerificationResult';
 
 const detailPageMixin = {
   props: ['id'],
@@ -50,7 +51,7 @@ const detailPageMixin = {
       results: [], // 备份集
       backupPlanModalVisible: false,
       restorePlanModalVisible: false,
-
+      verifyResultModalVisible: false,
       selectedBackupPlan: {},
       selectedBackupResultId: -1,
       selectedRestorePlan: {},
@@ -155,6 +156,9 @@ const detailPageMixin = {
     },
   },
   methods: {
+    queryVerifyResult() {
+      this.verifyResultModalVisible = true;
+    },
     switchPane(name) {
       if (name === 'results') {
         this.updateResults();
@@ -429,6 +433,7 @@ const detailPageMixin = {
   components: {
     IIcon,
     TabPanels,
+    VerificationResult
   },
   filters: {
     linkStateFilter(value) {
