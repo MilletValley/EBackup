@@ -43,6 +43,9 @@ const strategyMapping = {
   informix: {
     1: [0, 2, 3, 4, 5]
   },
+  postgresql: {
+    1: [0, 2, 3, 4, 5]
+  },
   windows: {
     1: [0, 1, 2, 3, 4],
   },
@@ -62,7 +65,8 @@ const mapping = {
   sybase: '数据库',
   cache: '数据库',
   insql: '数据库',
-  informix: '数据库'
+  informix: '数据库',
+  postgresql: '数据库'
 };
 
 const backupPlanModalMixin = {
@@ -387,6 +391,7 @@ const restorePlanModalMixin = {
           'cache',
           'insql',
           'informix',
+          'postgresql',
           'windows',
           'linux',
           'vm',

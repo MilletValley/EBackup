@@ -282,6 +282,10 @@ const rolesUser = [
   {
     id: 'informix dba',
     name: 'Informix管理员'
+  },
+  {
+    id: 'postgresql dba',
+    name: 'PostgreSQL管理员'
   }
 ];
 

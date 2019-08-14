@@ -18,6 +18,8 @@ import InSqlList from '@/components/pages/insql/InSqlList';
 import InSqlDetail from '@/components/pages/insql/InSqlDetail';
 import InformixList from '@/components/pages/informix/InformixList';
 import InformixDetail from '@/components/pages/informix/InformixDetail';
+import PostgreSQLList from '@/components/pages/postgresql/PostgreSQLList';
+import PostgreSQLDetail from '@/components/pages/postgresql/PostgreSQLDetail';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
 
 const router = [
@@ -358,6 +360,26 @@ const router = [
         },
       },
       {
+        path: 'postgresql',
+        name: 'postgresqlList',
+        component: PostgreSQLList,
+        meta: {
+          title: 'PostgreSQL',
+          activeName: 'postgresql',
+          roles: ['postgresql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'PostgreSQL列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'dm/:id',
         props: true,
         component: DamengDetails,
@@ -565,6 +587,30 @@ const router = [
             {
               name: 'Informix列表',
               path: '/db/informix',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'postgresql/:id',
+        props: true,
+        component: PostgreSQLDetail,
+        name: 'postgresqlDetail',
+        meta: {
+          activeName: 'postgresql',
+          roles: ['postgresql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'PostgreSQL列表',
+              path: '/db/postgresql',
             },
             {
               name: '数据库详情',

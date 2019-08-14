@@ -39,7 +39,7 @@
         </el-form-item>
 				<el-row>
 					<el-col :span="12" >
-						<el-form-item label="数据库名"
+						<el-form-item label="实例名"
 													prop="detailInfo">
 							<el-input v-model="formData.detailInfo" :disabled="action !== 'create'"></el-input>
 						</el-form-item>
@@ -116,6 +116,7 @@ const basiceFormData = {
   timePoints: [{ value: '00:00', key: Date.now() }],
   weekPoints: [], // 必须初始化为数组，checkbox group才能识别
   timeStrategy: 1, // 默认单次执行
+  restoreTimePoint: ''
 };
 
 export default {
@@ -126,7 +127,7 @@ export default {
   },
   data() {
     return {
-      type: 'informix',
+      type: 'postgresql',
       rules: {
         name: validate.planName,
         detailInfo: validate.dbName,

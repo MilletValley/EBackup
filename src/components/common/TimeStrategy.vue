@@ -153,6 +153,9 @@ const strategyMapping = {
   informix: {
     1: [0, 2, 3, 4, 5]
   },
+  postgresql: {
+    1: [0, 2, 3, 4, 5]
+  },
 };
 export default {
   name: 'time-strategy',
