@@ -1145,12 +1145,24 @@ export default {
       }
       return false;
     },
-    /** ● 连接：异常不可接管
+    /** 可以回切初始化的实例
+        ● 连接：异常不可接管
         ● 易备库主，正常
         ● 生产库备，非正常
+        ● Windows、Linux的11g
     **/
     availableCutBackSingle({ state, viceDatabase, primaryDatabase }) {
-      return state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) && (primaryDatabase.role === 2 && primaryDatabase.state !== 1);
+      if (state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
+        (primaryDatabase.role === 2 && primaryDatabase.state !== 1)) {
+        switch(this.osType(primaryHost)) {
+          case 'Windows':
+          case 'Linux':
+            return primaryHost.oracleVersion === 1;
+          default:
+            return false;
+        }
+      }
+      return false;
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {

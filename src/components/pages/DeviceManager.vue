@@ -46,7 +46,8 @@
                        min-width="150"
                        align="center">
         <template slot-scope="scope">
-          <span v-html="showData(scope.row.name, scope.column.property)"></span>
+          <span v-html="showData(scope.row.name, scope.column.property)"
+                class="hight-light-content"></span>
         </template>
       </el-table-column>
       <el-table-column prop="hostIp"
@@ -54,7 +55,8 @@
                        min-width="120"
                        align="center">
         <template slot-scope="scope">
-          <span v-html="showData(scope.row.hostIp, scope.column.property)"></span>
+          <span v-html="showData(scope.row.hostIp, scope.column.property)"
+                class="hight-light-content"></span>
         </template>
       </el-table-column>
       <el-table-column prop="serviceIp"
@@ -62,7 +64,8 @@
                        min-width="150"
                        align="center">
         <template slot-scope="scope">
-          <span v-html="showData(scope.row.serviceIp || '', scope.column.property)"></span>
+          <span v-html="showData(scope.row.serviceIp || '', scope.column.property)"
+                class="hight-light-content"></span>
         </template>
       </el-table-column>
       <el-table-column prop="hostType"
@@ -339,7 +342,7 @@ export default {
       const firstIndex = val.toLowerCase().indexOf(this.inputSearch.toLowerCase());
       if (firstIndex>-1 && this.inputSearch && this.selectTag === property) {
         const highLightWords = val.substr(firstIndex, this.inputSearch.length);
-        return val.replace(highLightWords, '<font color="#409EFF">'+highLightWords+'</font>');
+        return val.replace(highLightWords, '<span>'+highLightWords+'</span>');
       }
       return val;
     },
@@ -450,6 +453,7 @@ export default {
 </style>
 <style lang="scss" scoped>
 @import '@/style/db.scss';
+@import '@/assets/theme/variable.scss';
 .hostIcon {
   height: 2em;
   width: 2em;
@@ -528,5 +532,10 @@ export default {
 .production-wrap:before,
 .production-wrap:after {
   background: #0f5d49;
+}
+.hight-light-content {
+  /deep/ span {
+    @include primary-color;
+  }
 }
 </style>

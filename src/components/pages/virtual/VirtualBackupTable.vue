@@ -87,7 +87,13 @@
       :visible.sync="dialogVisible"
       custom-class="min-width-dialog"
       @open="dialogOpenedCB">
-      <server-table v-loading="loading" :tableData="serverTableData" :currentSelect.sync="currentSelect" :curSelectData="curSelectData" size="mini" :showSelect.sync="isSelect"></server-table>
+      <server-table v-loading="loading"
+                    :tableData="serverTableData"
+                    :currentSelect.sync="currentSelect"
+                    :curSelectData="curSelectData"
+                    size="mini"
+                    :showSelect.sync="isSelect"
+                    :vm-type="type"></server-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="comfirmCB" :disabled="selectIds.length === 0">确 定</el-button>
@@ -197,7 +203,7 @@ export default {
       } else if (state === 3) {
         return 'exception';
       }
-      return 'text';
+      return 'warning';
     },
     deletePlan(scope) {
       const h = this.$createElement;

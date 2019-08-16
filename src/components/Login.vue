@@ -215,7 +215,7 @@ export default {
   min-height: 700px;
   background-size: 100% auto;
   background-repeat: no-repeat;
-  background-position: center -40px;
+  background-position: center 0;
   position: relative;
 }
 

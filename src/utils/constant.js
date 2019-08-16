@@ -369,6 +369,18 @@ const verificationResultMapping = {
   consistent: '一致'
 };
 
+const bootStateMapping = {
+  1: '开机',
+  2: '关机',
+  3: '开机中', // 自定义
+  4: '关机中' // 自定义
+};
+
+const bootModeMapping = {
+  1: '手动',
+  2: '自动'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -419,5 +431,7 @@ export {
   deployStateMapping,
   storeTypeMapping,
   syncOperationMapping,
-  verificationResultMapping
+  verificationResultMapping,
+  bootStateMapping,
+  bootModeMapping
 };

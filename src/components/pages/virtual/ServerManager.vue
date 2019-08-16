@@ -1,6 +1,11 @@
 <template>
     <div>
-        <server-table :tableData="serverTableData" :currentSelect.sync="currentSelect" :showSelect.sync="isSelect" :showDelete="true" @delete="deleteServer">
+        <server-table :tableData="serverTableData"
+                      :currentSelect.sync="currentSelect"
+                      :showSelect.sync="isSelect"
+                      :showDelete="true"
+                      @delete="deleteServer"
+                      :vm-type="vmType">
           <template slot="other">
             <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small">
               {{isSelect ? '添加备份计划' : '添加主机'}}

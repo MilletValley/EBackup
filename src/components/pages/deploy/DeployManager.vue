@@ -139,6 +139,7 @@
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
+                     :disabled="scope.row.depPackage.isWrapper === 2"
                      @click="stopOne(scope)"
                      style="padding: 9px!important">
             <div style="height: 8px; width: 8px; background-color: #fff"></div>
@@ -148,6 +149,7 @@
                     circle
                     size="mini"
                     :class="$style.miniCricleIconBtn"
+                    :disabled="scope.row.depPackage.isWrapper === 2"
                     @click="modifyOne(scope)"></el-button>
           <el-button type="danger"
                       icon="el-icon-delete"

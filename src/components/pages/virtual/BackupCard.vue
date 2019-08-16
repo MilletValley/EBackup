@@ -289,7 +289,7 @@ export default {
       } else if (state === 3) {
         return 'exception';
       }
-      return 'text';
+      return 'warning';
     },
   }
 };
