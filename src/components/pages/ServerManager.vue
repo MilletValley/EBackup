@@ -17,6 +17,7 @@
                                      :ref="props.row.id"
                                      :refTable="props.row.serverName"
                                      :selectData.sync="currentSelect"
+                                     :vm-type="vmType"
                                      @refresh="refreshOneServer(props.row)"></mutil-table>
                     </template>
             </el-table-column>
@@ -72,7 +73,11 @@
                 </template>
             </el-table-column>
         </el-table>
-        <mutil-table v-show="isSelect" :tableData="currentSelect" refTable="selectTable" :selectData.sync="currentSelect"></mutil-table>
+        <mutil-table v-show="isSelect"
+                     :tableData="currentSelect"
+                     refTable="selectTable"
+                     :selectData.sync="currentSelect"
+                     :vm-type="vmType"></mutil-table>
         <backup-plan-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"

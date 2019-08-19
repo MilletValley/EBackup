@@ -152,7 +152,7 @@ export default {
       } else if (state === 3) {
         return 'exception';
       }
-      return '';
+      return 'warning';
     },
     // setTimer() {
     //     this.clearTimer();

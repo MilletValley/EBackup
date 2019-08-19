@@ -121,6 +121,9 @@ const detailPageMixin = {
   },
   created() {
     this.fetchData();
+    if (this.fetchLinks) {
+      this.fetchLinks();
+    }
   },
   mounted() {
     this.setTimer(this.timer);
@@ -227,7 +230,6 @@ const detailPageMixin = {
           this.details = db;
           if (this.details.role && this.details.role !== 0 && this.fetchLink) {
             this.fetchLink();
-            this.fetchLinks();
           }
           if ([1, 3].includes(this.vmType) && this.fetchServer) {
             this.fetchServer();

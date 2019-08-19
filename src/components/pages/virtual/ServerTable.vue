@@ -19,12 +19,16 @@
                                  v-if="allVirtuals(props.row).length">
                       <el-card style="margin-top: 5px; margin-bottom: 5px">
                         <mutil-table :tableData="allVirtuals(props.row)"
+                                     :showBootBtn="true"
                                      :ref="props.row.id"
                                      :refTable="props.row.serverName"
                                      :selectData.sync="selectData"
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
+                                     :vm-type="vmType"
+                                     :server-type="props.row.serverType"
+                                     :server-id="props.row.id"
                                      @refresh="refreshOneServer(props.row)"></mutil-table>
                       </el-card>
                     </el-tab-pane>
@@ -46,6 +50,8 @@
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
+                                     :showBootBtn="true"
+                                     :vm-type="vmType"
                                      @refresh="refreshOneServer(host)"></mutil-table>
                       </el-card>
                     </el-tab-pane>
@@ -59,6 +65,7 @@
                                :curSelectData="curSelectData"
                                :size="customSize"
                                :showDelete="showDelete"
+                               :vm-type="vmType"
                                @refresh="refreshOneServer(props.row)"></mutil-table>
                 </template>
               </template>
@@ -83,9 +90,9 @@
               min-width="100"
               align="left"></el-table-column>
           <el-table-column label="操作"
-                          width="150"
-                          header-align="center"
-                          align="center">
+                           width="140"
+                           header-align="center"
+                           align="left">
               <template slot-scope="scope">
                   <el-tooltip 
                           content="重新扫描"
@@ -111,10 +118,32 @@
                                   :class="$style.miniCricleIconBtn"
                                   @click="deleteServer(scope)"></el-button>
                   </el-tooltip>
+                  <el-tooltip content="开机自启"
+                              placement="top"
+                              effect="light"
+                              v-if="[2, 4].includes(scope.row.serverType)">
+                      <el-button type="success"
+                                 icon="el-icon-switch-button"
+                                 circle
+                                 size="mini"
+                                 :class="$style.miniCricleIconBtn"
+                                 @click="setPowerBoot(scope.row)"></el-button>
+                  </el-tooltip>
               </template>
           </el-table-column>
       </el-table>
-      <mutil-table v-show="isSelect" :tableData="selectData" refTable="selectTable" :selectData.sync="selectData" :curSelectData="curSelectData" :size="customSize" :showDelete="false"></mutil-table>
+      <mutil-table v-show="isSelect"
+                   :tableData="selectData"
+                   refTable="selectTable"
+                   :selectData.sync="selectData"
+                   :curSelectData="curSelectData"
+                   :size="customSize"
+                   :vm-type="vmType"
+                   :showDelete="false"></mutil-table>
+      <power-boot-modal :visible.sync="setPowerBootModalVisible"
+                        :virtuals="settingBootVirtuals.vmList"
+                        :id="settingBootVirtuals.id"
+                        :server-type="settingBootVirtuals.serverType"></power-boot-modal>
     </div>
     
 </template>
@@ -126,6 +155,7 @@ import {
   getVirtualByserverId,
 } from '@/api/virtuals';
 import MutilTable from '@/components/modal/MutilTable';
+import PowerBootModal from '@/components/pages/virtual/PowerBootModal';
 import { virtualHostServerTypeMapping } from '@/utils/constant';
 export default {
   props: {
@@ -147,13 +177,19 @@ export default {
     },
     showDelete: {
       type: Boolean
+    },
+    vmType: {
+      type: Number
     }
   },
   components: {
     MutilTable,
+    PowerBootModal
   },
   data() {
     return {
+      setPowerBootModalVisible: false,
+      settingBootVirtuals: []
     };
   },
   filters: {
@@ -255,6 +291,10 @@ export default {
     },
     allVirtuals(server) {
       return server.hostList.reduce((flat, next) => flat.concat(next.vmList), server.vmList);
+    },
+    setPowerBoot(item) {
+      this.setPowerBootModalVisible = true;
+      this.settingBootVirtuals = item;
     }
   },
 };
@@ -265,6 +305,7 @@ export default {
 <style scoped>
 .serverHost {
   position: relative;
+  margin-left: -55px;
 }
 .serverHost >>> .el-tabs__content {
   margin-left: 150px;

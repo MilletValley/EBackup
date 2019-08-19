@@ -12,6 +12,14 @@ export default {
   mounted() {
     this.draw();
   },
+  watch: {
+    record: {
+        handler() {
+            this.draw();
+        },
+        deep: true
+    }
+  },
   methods: {
     draw() {
       let recordChart = this.$echarts.init(document.getElementById(this.id))

@@ -704,6 +704,7 @@
 </template>
 <script>
 import { fetchSpaceUse } from '@/api/home';
+import { fetchInspectRecords } from '@/api/inspection';
 import { fmtSizeFn, keepTwoDecimalFull } from '@/utils/common';
 import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
@@ -776,6 +777,9 @@ export default {
   watch: {
     theme() {
       this.drawSpaceChartData();
+    },
+    hasInspectConfig() {
+      this.fetchInspectData();
     }
   },
   methods: {
@@ -802,7 +806,11 @@ export default {
           this.$message.error(error);
         });
       if (this.hasInspectConfig) {
-        fetchInspectRecords()
+        this.fetchInspectData();
+      }
+    },
+    fetchInspectData() {
+      fetchInspectRecords(`${this.inspectWeb.ip}:${this.inspectWeb.port}`)
         .then(res => {
           const { data } = res.data;
           this.inspect = data.inspect;
@@ -811,7 +819,6 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
-      }
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {

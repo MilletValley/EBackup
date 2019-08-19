@@ -303,6 +303,30 @@ const fetchTimePoints = id =>
     url: `/virtual-links/${id}/timePoints`
   });
 
+// 启动单个虚拟机
+const ModifyOneStartup = (id, state) =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtuals/${id}/modify-startup-state`,
+    data: state
+  });
+
+// 验证物理主机用户名、密码
+const validatePassword = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtuals/hosts/server/list/${id}/validate-password`,
+    data
+  });
+
+// 批量虚拟机开机自启
+const multiBootPower = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtuals/hosts/server/list/${id}/boot-power`,
+    data
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -338,5 +362,8 @@ export {
   failBackLink,
   modifyLinkStrategy,
   fetchOperationRecords,
-  fetchTimePoints
+  fetchTimePoints,
+  ModifyOneStartup,
+  validatePassword,
+  multiBootPower
 };
