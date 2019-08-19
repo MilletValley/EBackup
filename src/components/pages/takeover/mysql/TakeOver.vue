@@ -224,15 +224,14 @@
                     <i-icon name="host-ebackup"
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
-                    <el-dropdown style="position: absolute; right: 0px; top: -9px;" size="small"
-                                 v-if="hostLink.primaryHost.databaseType === 1 || ['oracle', 'sqlserver'].includes(databaseType)">
+                    <el-dropdown style="position: absolute; right: 0px; top: -9px;" size="small">
                       <el-button size="mini">
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
                       <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item :disabled="false" v-if="['oracle', 'sqlserver'].includes(databaseType)"
                                           @click.native="queryVerifyResult(hostLink)">验证结果</el-dropdown-item>
-                        <span v-if="hostLink.primaryHost.databaseType === 1">
+                        <span v-if="[1, 5].includes(hostLink.primaryHost.databaseType)">
                           <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
                                             @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
                           <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
@@ -426,7 +425,7 @@
                                  :class="$style.failOver">{{dbLink.failOverState === 1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
                     <div>
-                      <el-dropdown v-if="hostLink.primaryHost.databaseType === 1">
+                      <el-dropdown v-if="[1, 5].includes(hostLink.primaryHost.databaseType)">
                         <span :class="$style.dropdownLink">
                           切换操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
                         </span>
@@ -554,27 +553,14 @@ import IIcon from '@/components/IIcon';
 import Timer from '@/components/Timer';
 import dayjs from 'dayjs';
 import {
-  fetchAll as fetchAllOracle,
-  fetchLinks as fetchLinksOracle,
-  createLinks as createLinksOracle,
-  createSwitches as switchOracle,
-  createSingleSwitches as singleSwitchOracle,
-  failOver as failOverOracle,
-  restoreSingleSwitch as restoreSingleSwitchOracle,
-  cutBackSwitch as cutBackSwitchOracle
-} from '@/api/oracle';
-import {
-  fetchAll as fetchAllSqlserver,
-  fetchLinks as fetchLinksSqlserver,
-  createLinks as createLinksSqlserver,
-  createSwitches as switchSqlserver,
-} from '@/api/sqlserver';
-import {
-  fetchAll as fetchAllInSql,
-  fetchLinks as fetchLinksInSql,
-  createLinks as createLinksInSql,
-  createSwitches as switchInSql,
-} from '@/api/insql';
+  fetchDBList,
+  fetchLinks,
+  createLinks,
+  createSwitches,
+  createSingleSwitches,
+  singleSwitchInstance,
+  readyToCutBack
+} from '@/api/common';
 import {
   createSwitches as switchHostIp,
   vipSwitches as switchVip,
@@ -597,34 +583,13 @@ import baseMixin from '@/components/mixins/baseMixins';
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
-const fetchDatabaseMethod = {
-  oracle: fetchAllOracle,
-  sqlserver: fetchAllSqlserver,
-  insql: fetchAllInSql
-};
-const fetchLinksMethod = {
-  oracle: fetchLinksOracle,
-  sqlserver: fetchLinksSqlserver,
-  insql: fetchLinksInSql
-};
-const createLinksMethod = {
-  oracle: createLinksOracle,
-  sqlserver: createLinksSqlserver,
-  insql: createLinksInSql
-};
-const createSwitchMethod = {
-  oracle: switchOracle,
-  sqlserver: switchSqlserver,
-  insql: switchInSql
-};
-const createSingleSwitchMethod = {
-  oracle: singleSwitchOracle,
-  sqlserver: switchSqlserver,
-  insql: switchInSql
-}
 const switchMethod = {
-  true: createSingleSwitchMethod,
-  false: createSwitchMethod
+  switchPrimary: createSwitches,
+  switchVice: createSwitches,
+  switchInstance: createSwitches,
+  singleSwitchInstance: singleSwitchInstance,
+  singleSwitchRestore: '',
+  readyToCutBack: ''
 }
 
 const switchIpMethod = {
@@ -672,7 +637,8 @@ export default {
       multiply: false, // 标记单个或批量操作
       timer: null,
       verifyResultModalVisible: false,
-      selectLinkId: null
+      selectLinkId: null,
+      switchType: '',
     };
   },
   created() {
@@ -707,13 +673,7 @@ export default {
       return this.$route.path.substring(1, 3) === 'db' ? false : true;
     },
     specialHosts() {
-      if (this.databaseType === 'oracle') {
-        return this.$store.getters.oracleHosts;
-      } else if (this.databaseType === 'sqlserver') {
-        return this.$store.getters.sqlserverHosts;
-      } else if (this.databaseType === 'insql') {
-        return this.$store.getters.insqlHosts;
-      }
+      return this.$store.getters.mysqlHosts;
     },
     /**
       设备ID与其下数据库的对应关系
@@ -762,6 +722,7 @@ export default {
         const links = hostLink.databaseLinks;
         const productionHost = hostLink.primaryHost;
         const ebackupHost = hostLink.viceHost;
+        console.log(links);
         links.forEach(link => {
           link.primaryDatabase.host = productionHost;
           link.viceDatabase.host = ebackupHost;
@@ -791,7 +752,7 @@ export default {
   },
   methods: {
     fetchData() {
-      fetchDatabaseMethod[this.databaseType]()
+      fetchDBList(this.databaseType)
         .then(res => {
           const { data } = res.data;
           this.items = data;
@@ -799,7 +760,7 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-      fetchLinksMethod[this.databaseType]()
+      fetchLinks(this.databaseType)
         .then(res => {
           const { data: links } = res.data;
           this.links = links;
@@ -816,8 +777,8 @@ export default {
       };
       const { close } = this.$message(opt);
       Promise.all([
-        fetchDatabaseMethod[this.databaseType](),
-        fetchLinksMethod[this.databaseType](),
+        fetchDBList(this.databaseType),
+        fetchLinks(this.databaseType),
       ])
         .then(resArr => {
           const { data } = resArr[0].data;
@@ -844,25 +805,31 @@ export default {
     },
     // 回切初始化(单个、批量)
     cutBackSwitch(hostLink, multiply, link = []) {
+      this.switchType = 'readyToCutBack';
       this.cutBackVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
+      console.log(hostLink, databaseLinks);
       const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
+      // const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
       this.hostLinkSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
     },
     // 单切恢复（单个、批量）
     restoreSingleSwitch(hostLink, multiply, link = []) {
+      this.switchType = 'singleSwitchRestore';
       this.restoreSwitchVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
       const readyToSwitchDbLinks = multiply ? hostLink.databaseLinks.filter(item => this.availableRestoreSingleSwitch(hostLink, item)) : link;
       this.hostLinkSwitchMsg = { databaseLinks: readyToSwitchDbLinks, ...other };
+      console.log(this.hostLinkSwitchMsg);
     },
     // 切主
     switchMultiDatabasesToProduction(hostLink) {
       const links = hostLink.databaseLinks
         .filter(dbLink => dbLink.primaryDatabase.role === 2)
         .map(dbLink => dbLink.id);
+      this.switchType = 'switchPrimary';
       this.databaseLinkIdsReadyToSwitch = links;
       this.switchDatabasesModalVisible = true;
     },
@@ -871,23 +838,29 @@ export default {
       const links = hostLink.databaseLinks
         .filter(dbLink => dbLink.viceDatabase.role === 2)
         .map(dbLink => dbLink.id);
+      this.switchType = 'switchVice';
       this.databaseLinkIdsReadyToSwitch = links;
       this.switchDatabasesModalVisible = true;
     },
     // 双切单个实例
     switchDatabase(databaseLinkId) {
+      this.switchType = 'switchInstance';
       this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
       this.switchDatabasesModalVisible = true;
     },
     // 单切多个实例
     singleSwitchMultiDatabases(hostLink) {
+      this.switchType = 'singleSwitchInstance';
       this.switchMultiDatabaseToEbackup(hostLink);
-      this.singleSwitchDatabases = true;
+      // this.singleSwitchDatabases = true;
     },
     // 单切单个实例
     singleSwitchDatabase(databaseLinkId) {
-      this.switchDatabase(databaseLinkId);
-      this.singleSwitchDatabases = true;
+      this.switchType = 'singleSwitchInstance';
+      // this.switchDatabase(databaseLinkId);
+      this.databaseLinkIdsReadyToSwitch = [databaseLinkId];
+      this.switchDatabasesModalVisible = true;
+      // this.singleSwitchDatabases = true;
     },
     // 切IP(临时IP、服务IP、scanIP、vip)
     switchHostIp(hostLink) {
@@ -907,7 +880,7 @@ export default {
     // 回切初始化
     cutBackConfirm(switchIds) {
       this.btnLoading = true;
-      cutBackSwitchOracle(switchIds)
+      readyToCutBack(this.databaseType, {linkIds: switchIds})
         .then(res => {
           const { data, message } = res.data;
           this.databaseLinks.forEach(link => {
@@ -950,7 +923,8 @@ export default {
     // 切换实例(单切/双切)
     switchDatabaseLinksConfirm() {
       this.btnLoading = true;
-      switchMethod[this.singleSwitchDatabases][this.databaseType]({
+      console.log(this.switchType, switchMethod, switchMethod[this.switchType]);
+      switchMethod[this.switchType](this.databaseType, {
           linkIds: this.databaseLinkIdsReadyToSwitch,
         })
           .then(res => {
@@ -970,7 +944,7 @@ export default {
     // 单切恢复
     restoreSwitchConfirm(switchIds) {
       this.btnLoading = true;
-      restoreSingleSwitchOracle(switchIds)
+      readyToCutBack(this.databaseType, {linkIds: switchIds})
         .then(res => {
           const { data, message } = res.data;
           this.databaseLinks.forEach(link => {
@@ -1008,11 +982,12 @@ export default {
     // 解除连接
     removeHostLinkConfirm(readyToRemoveHostLink) {
       this.btnLoading = true;
-      deleteLinks(readyToRemoveHostLink.id)
+      console.log(this.hostLinkSwitchMsg, readyToRemoveHostLink, this.links);
+      deleteLinks(readyToRemoveHostLink.initHostId)
         .then(res => {
           const { data: cancelOperation } = res.data;
           this.links.find(
-            link => link.id === readyToRemoveHostLink.id
+            link => link.initHostId === readyToRemoveHostLink.initHostId
           ).latestSwitch = cancelOperation;
           this.removeHostLinkModalVisible = false;
           this.$message.info('正在尝试解除连接，请等待');
@@ -1054,17 +1029,18 @@ export default {
     },
     // 回切初始化或单切恢复
     readyToCutBack(hostLink, multiply, link = []) {
-      this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.restoreSingleSwitch(hostLink, multiply, link);
-        })
-        .catch(() => {
-          this.cutBackSwitch(hostLink, multiply, link);
-        });
+      console.log(hostLink)
+      // this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // })
+      //   .then(() => {
+      //     this.restoreSingleSwitch(hostLink, multiply, link);
+      //   })
+      //   .catch(() => {
+      this.cutBackSwitch(hostLink, multiply, link);
+        // });
     },
     /**
         可以单切实例的环境：
@@ -1076,17 +1052,8 @@ export default {
     */
     availableSingleSwitchDb({ primaryHost }, { viceDatabase }) {
       if(viceDatabase.role === 2) {
-        switch(this.osType(primaryHost)) {
-          case 'Windows':
-            return [1, 2, 3].includes(primaryHost.oracleVersion);
-          case 'Linux':
-            return [2, 3].includes(primaryHost.oracleVersion);
-          case 'RAC':
-            return [1, 2].includes(primaryHost.oracleVersion);
-          case 'AIX':
-            return primaryHost.oracleVersion === 2;
-          default:
-            return false;
+        if(this.databaseType === 'mysql') {
+          return true;
         }
       }
       return false;
@@ -1097,13 +1064,8 @@ export default {
      * 2、linux的11g、12c
      **/
     availableSingleSwitchIp({ primaryHost }) {
-      switch(this.osType(primaryHost)) {
-        case 'Windows':
-          return [1, 2, 3].includes(primaryHost.oracleVersion);
-        case 'Linux':
-          return [2, 3].includes(primaryHost.oracleVersion);
-        default:
-          return false;
+      if(this.databaseType === 'mysql') {
+        return true;
       }
       return false;
     },
@@ -1136,34 +1098,18 @@ export default {
     */
     availableRestoreSingleSwitch({ primaryHost }, dbLink) {
       if(dbLink.viceDatabase.role === 1 && dbLink.primaryDatabase.state !== 1 && dbLink.failOverState === 0) {
-        switch(this.osType(primaryHost)) {
-          case 'Windows':
-          case 'Linux':
-            return [2, 3].includes(primaryHost.oracleVersion);
-          default:
-            return false;
+        if(this.databaseType === 'mysql') {
+          return false;
         }
       }
       return false;
     },
-    /** 可以回切初始化的实例
-        ● 连接：异常不可接管
+    /** ● 连接：异常不可接管
         ● 易备库主，正常
         ● 生产库备，非正常
-        ● Windows、Linux的11g
     **/
     availableCutBackSingle({ state, viceDatabase, primaryDatabase }) {
-      if (state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
-        (primaryDatabase.role === 2 && primaryDatabase.state !== 1)) {
-        switch(this.osType(primaryHost)) {
-          case 'Windows':
-          case 'Linux':
-            return primaryHost.oracleVersion === 1;
-          default:
-            return false;
-        }
-      }
-      return false;
+      return (state === 3 || state === 4);
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
@@ -1189,8 +1135,23 @@ export default {
       }
     },
     createLink(data) {
+      let linkObj = data;
+      if (this.databaseType === 'sqlserver') {
+        const detail = data.detail;
+        const {primaryDatabaseId, viceLoginName, vicePassword, vicePathType, vicePath} = detail;
+        let assignPath = '';
+        if (vicePathType === 'custom') {
+          assignPath = vicePath;
+        }
+        linkObj.detail = {
+          primaryDatabaseId,
+          viceLoginName,
+          vicePassword,
+          assignPath
+        }
+      }
       this.btnLoading = true;
-      createLinksMethod[this.databaseType](data)
+      createLinks(this.databaseType, linkObj)
         .then(res => {
           const { data } = res.data;
           this.linkCreateModalVisible = false;
@@ -1225,8 +1186,8 @@ export default {
       this.clearTimer();
       this.timer = setInterval(() => {
         Promise.all([
-          fetchDatabaseMethod[this.databaseType](),
-          fetchLinksMethod[this.databaseType](),
+          fetchDBList(this.databaseType),
+          fetchLinks(this.databaseType),
         ]).then(resArr => {
           const { data } = resArr[0].data;
           const { data: links } = resArr[1].data;

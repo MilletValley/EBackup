@@ -13,7 +13,11 @@
                     align="middle">
               <el-col :span="8"
                       class="title">
-                <h1>{{details.name}}</h1>
+                <h1 :class="details.role === 1 ? 'primaryLink' : 'viceLink'">{{details.name}}
+                  <i-icon v-if="details.role !== 0"
+                          :name="roleIconName(this.details.role)"
+                          :class="$style.roleIconHeader"></i-icon>
+                </h1>
               </el-col>
               <el-col :span="12"
                       :offset="4"
@@ -79,7 +83,28 @@
                     </el-form-item>
                   </el-col>
                 </el-col>
-                
+                <template v-if="!!link.id">
+                  <el-col :span="8"
+                          :class="$style.linkInfo">
+                    <h4 style="margin: 10px 0 7px;">连接信息</h4>
+                    <el-form-item>
+                      <i-icon :name="`switch-${link.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                      <span>{{ link.state | linkStateFilter }}</span>
+                    </el-form-item>
+                    <el-form-item>
+                      <i-icon :name="roleIconName(link.oppsiteDatabase && link.oppsiteDatabase.role)"
+                              :class="$style.roleIconOppsition"></i-icon>
+                      <router-link :to="`/db/mysql/${ link.oppsiteDatabase && link.oppsiteDatabase.id}`"
+                                   :class="link.oppsiteDatabase.role === 1 ? 'primaryLink' : 'viceLink'">
+                        {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
+                      </router-link>
+                    </el-form-item>
+
+                  </el-col>
+                  <router-link :to="`/db/mysql/takeover/${link.id}`"
+                               :class="$style.moreLink">查看更多</router-link>
+                </template>
               </el-row>
             </el-form>
           </el-col>
@@ -129,17 +154,20 @@
                         :visible.sync="restorePlanModalVisible"
                         @confirm="restoreConfirmCallback"
                         :action="restoreAction"
+                        :host-in-links="hostInLinks"
                         :restore-plan="selectedRestorePlan">
     </restore-plan-modal>
     <single-restore-modal :btn-loading="btnLoading"
                           :details="details"
                           :result-id="selectedBackupResultId"
                           :visible.sync="singleRestoreCreateModalVisible"
+                          :host-in-links="hostInLinks"
                           @confirm="singleConfirmCallback">
     </single-restore-modal>
   </section>
 </template>
 <script>
+import takeoverMixin from '@/components/mixins/takeoverMixins';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import BackupPlanModal from '@/components/pages/mysql/BackupPlanModal';
 import RestorePlanModal from '@/components/pages/mysql/RestorePlanModal';
@@ -148,9 +176,10 @@ import BackupCard from '@/components/pages/mysql/BackupCard';
 import BackupResultList from '@/components/pages/mysql/BackupResultList';
 import RestoreCard from '@/components/pages/mysql/RestoreCard';
 import RestoreRecords from '@/components/pages/mysql/RestoreRecords';
+import { fetchLinks, fetchLink } from '@/api/common';
 export default {
   name: 'MySqlDetail',
-  mixins: [detailPageMixin],
+  mixins: [detailPageMixin, takeoverMixin],
   components: {
     BackupPlanModal,
     RestorePlanModal,
@@ -163,11 +192,50 @@ export default {
   data() {
     return {
       type: 'mysql',
+      hostInLinks: []
     };
   },
-  computed: {
+  watch: {
+    '$route' (to, from) {
+      this.fetchData();
+    }
   },
   methods: {
+    fetchLink(){
+      fetchLink(this.type, this.id).then(res => {
+        const { data: link } = res.data;
+        const { id, state, errMsg, tempPort } = link;
+        this.link = { id, state, errMsg, tempPort };
+        const {host} = this.details;
+        if (host) {
+          if (host.hostType === 1) {
+            this.link.oppsiteDatabase = link.viceDatabase;
+          }else if (host.hostType === 2) {
+            this.link.oppsiteDatabase = link.primaryDatabase;
+          }
+        }
+        // if (this.details.role === 1) {
+        //   this.link.oppsiteDatabase = link.viceDatabase;
+        // } else if (this.details.role === 2) {
+        //   this.link.oppsiteDatabase = link.primaryDatabase;
+        // }
+      })
+      .catch(error => {
+        this.$message.error(error);
+      });
+    },
+    fetchLinks() { // 恢复设备不能选择一键接管设备
+      fetchLinks(this.type)
+        .then(res => {
+          const { data: links } = res.data;
+          const primaryHostIds = links.map(link => link.primaryHost.id);
+          const viceHostIds = links.map(link => link.viceHost.id);
+          this.hostInLinks = primaryHostIds.concat(viceHostIds);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+    },
   },
 };
 </script>
