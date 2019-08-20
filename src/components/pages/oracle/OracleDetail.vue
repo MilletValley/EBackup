@@ -33,6 +33,7 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
+                    <el-dropdown-item command="tblRestore">表级恢复</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <!-- <el-button size="mini"
@@ -103,22 +104,19 @@
                         {{ link.oppsiteDatabase && link.oppsiteDatabase.name }}
                       </router-link>
                     </el-form-item>
-
                   </el-col>
                   <router-link :to="`/db/oracle/takeover/${link.id}`"
                                :class="$style.moreLink">查看更多</router-link>
                 </template>
-
               </el-row>
-
             </el-form>
-
           </el-col>
         </el-row>
-
       </div>
     </header>
-    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm">
+    <tab-panels @switchpane="switchPane"
+                :planFilterForm="planFilterForm"
+                type="oracle">
       <template slot="backupCard">
         <backup-card :id="plan.id"
                      v-for="plan in filteredBackupPlans"
@@ -137,6 +135,14 @@
                         @deletePlan="deleteRestorePlan"
                         @updatePlan="selectRestorePlan(plan.id)"></restore-card>
       </template>
+      <template slot="tblRestoreCard">
+        <table-level-restore-card :id="plan.id"
+                                  v-for="plan in filteredTableLevelRestorePlans"
+                                  :key="plan.id"
+                                  :table-level-restore-plan="plan"
+                                  @refresh="refreshSingleTableLevelRestorePlan"
+                                  @restoreinfo:refresh="updateTableLevelRestorePlanAndRecords"></table-level-restore-card>
+      </template>
       <template slot="backupResult">
         <backup-result-list :data="results"
                             @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
@@ -149,6 +155,11 @@
             <el-button style="float: right" size="mini" @click="queryVerifyResult" type="primary">验证结果</el-button>
           </template>
         </restore-records>
+      </template>
+      <template slot="tblRestoreRecord">
+        <table-level-restore-records :plans="tblRestorePlans"
+                                     :records="tblRestoreRecords"
+                                     @refreshAll="fetchTableLevelRestorePlans"></table-level-restore-records>
       </template>
     </tab-panels>
     <backup-plan-modal  :btn-loading="btnLoading"
@@ -174,6 +185,9 @@
                           @confirm="singleConfirmCallback">
     </single-restore-modal>
     <VerificationResult :id="Number(id)" :visible.sync="verifyResultModalVisible"></VerificationResult>
+    <table-level-restore-plan-modal :visible.sync="tableLevelRestorePlanModalVisible"
+                                    :details="details"
+                                    @refreshAll="fetchTableLevelRestorePlans"></table-level-restore-plan-modal>
   </section>
 </template>
 <script>
@@ -187,7 +201,15 @@ import BackupCard from '@/components/pages/oracle/BackupCard';
 import BackupResultList from '@/components/pages/oracle/BackupResultList';
 import RestoreCard from '@/components/pages/oracle/RestoreCard';
 import RestoreRecords from '@/components/pages/oracle/RestoreRecords';
-import { fetchLinks } from '@/api/oracle';
+import TableLevelRestoreRecords from '@/components/pages/oracle/TableLevelRestoreRecords';
+import TableLevelRestoreCard from '@/components/pages/oracle/TableLevelRestoreCard';
+import TableLevelRestorePlanModal from '@/components/pages/oracle/TableLevelRestorePlanModal';
+import {
+  fetchLinks,
+  fetchAllTableLevelRestorePlans,
+  refreshOneTableLevelRestorePlan,
+  fetchAllTableLevelRestoreRecords
+} from '@/api/oracle';
 
 import {
   fetchLink,
@@ -204,17 +226,46 @@ export default {
     BackupResultList,
     RestoreCard,
     RestoreRecords,
+    TableLevelRestoreRecords,
+    TableLevelRestoreCard,
+    TableLevelRestorePlanModal
   },
   data() {
     return {
       type: 'oracle',
       hostInLinks: [],
+      tableLevelRestorePlanModalVisible: false,
+      tblRestorePlans: [],
+      tblRestoreRecords: [],
+      throttleRefreshTableLevelRestore: this.throttleMethod(id => {
+        refreshOneTableLevelRestorePlan(id)
+          .then(response => {
+            const { data } = response.data;
+            Object.assign(
+              this.tblRestorePlans.find(
+                plan => plan.id === id
+              ),
+              data
+            );
+          })
+          .catch(error => {
+            this.$message.error(error);
+          });
+      }),
+      updateTableLevelRestorePlanAndRecords: this.throttleMethod(() => {
+        this.fetchTableLevelRestorePlans();
+        this.fetchTableLevelRestoreRecords();
+      })
     };
   },
   watch: {
     '$route' (to, from) {
       this.fetchData();
     }
+  },
+  created() {
+    this.fetchTableLevelRestorePlans();
+    this.fetchTableLevelRestoreRecords();
   },
   methods: {
     fetchLink() {
@@ -252,6 +303,29 @@ export default {
           this.$message.error(error);
         })
     },
+    fetchTableLevelRestorePlans() {
+      fetchAllTableLevelRestorePlans(this.details.id)
+        .then(res => {
+          const { data: plans } = res.data;
+          this.tblRestorePlans = plans;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+    },
+    fetchTableLevelRestoreRecords () {
+      fetchAllTableLevelRestoreRecords(this.details.id)
+        .then(res => {
+          const { data: records } = res.data;
+          this.tblRestoreRecords = records;
+        })
+        .catch(res => {
+          this.$message.error(error);
+        })
+    },
+    refreshSingleTableLevelRestorePlan(id) {
+      this.throttleRefreshTableLevelRestore(id);
+    }
   },
 };
 </script>

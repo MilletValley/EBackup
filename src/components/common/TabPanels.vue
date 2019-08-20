@@ -16,6 +16,10 @@
             <el-radio border
                       v-model="planFilterForm.planType"
                       label="restore">恢复计划</el-radio>
+            <el-radio border
+                      v-model="planFilterForm.planType"
+                      v-if="type === 'oracle'"
+                      label="tblRestore">表级恢复</el-radio>
           </el-form-item>
           <el-form-item :class="$style.filterFormItem"
                         label="隐藏已完成计划">
@@ -30,7 +34,8 @@
           <!-- 恢复计划面板 -->
           <slot name="restoreCard"></slot>             
         </template>
-
+        <!-- 表恢复 -->
+        <slot name="tblRestoreCard"></slot>
       </el-tab-pane>
       <el-tab-pane :label="['windows', 'linux'].includes(type)?'备份记录':'备份集'"
                    name="results">
@@ -47,7 +52,23 @@
       <el-tab-pane label="恢复记录"
                    name="restore">
         <!-- 恢复记录列表-->
-        <slot name="restoreRecord"></slot>                
+        <el-form inline
+                size="small"
+                v-if="type === 'oracle'"
+                :class="$style.filterForm">
+          <el-form-item :class="$style.filterFormItem">
+            <el-radio border
+                      v-model="recordType"
+                      label="plan">恢复计划</el-radio>
+            <el-radio border
+                      v-model="recordType"
+                      label="table">表级恢复</el-radio>
+          </el-form-item>
+        </el-form>
+        <slot name="restoreRecord"
+              v-if="type !== 'oracle' || recordType === 'plan'"></slot>
+        <slot name="tblRestoreRecord"
+              v-if="recordType === 'table'"></slot>
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -81,6 +102,7 @@ export default {
       restorePlanFilterForm: {
         hiddenCompletePlan: false,
       },
+      recordType: 'plan'
     };
   },
   computed: {

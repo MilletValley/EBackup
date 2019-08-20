@@ -123,7 +123,8 @@
     <power-boot-modal :visible.sync="setPowerBootModalVisible"
                       :virtuals="settingBootVirtuals"
                       :server-type="serverType"
-                      :id="serverId"></power-boot-modal>
+                      :id="serverId"
+                      @refresh="refresh(serverId)"></power-boot-modal>
 </div>
     
 </template>

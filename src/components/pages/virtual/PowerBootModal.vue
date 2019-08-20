@@ -362,6 +362,7 @@ export default {
           const { message } = res.data;
           this.$message.success(message);
           this.modalVisible = false;
+          this.$emit('refresh');
         })
         .catch(error => {
           this.$message.error(error);

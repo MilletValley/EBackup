@@ -399,7 +399,7 @@
         <el-tab-pane label="应用服务器接管"
                      name="appTakeOver"
                      v-if="showTakeOver">
-          <el-table :data="appTakeOver"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     ref="appTakeOver"
                     style="width: 100%">
@@ -595,9 +595,9 @@
           </el-table>
         </el-tab-pane>
         <el-tab-pane label="虚拟机接管"
-                     name="linkState"
+                     name="vmTakeOver"
                      v-if="showTakeOver">
-          <el-table :data="vmTakeOver"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     ref="vmTakeOver"
                     style="width: 100%">

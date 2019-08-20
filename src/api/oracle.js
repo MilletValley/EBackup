@@ -255,6 +255,37 @@ const cutBackSwitch = linkIds =>
     data: { linkIds }
   });
 
+const createTableLevelRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/oracles/${id}/oracle-tbl-restore-plans`,
+    data
+  });
+
+const deleteTableLevelRestorePlan = id =>
+  baseApi.request({
+    method: 'delete',
+    url: `/oracle-tbl-restore-plans/${id}`
+  });
+
+const fetchAllTableLevelRestorePlans = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${id}/oracle-tbl-restore-plans`
+  });
+
+const refreshOneTableLevelRestorePlan = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracle-tbl-restore-plans/${id}`
+  });
+
+const fetchAllTableLevelRestoreRecords = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/oracles/${id}/restore-tbl-records`
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -286,5 +317,10 @@ export {
   fetchLinkByLinkId,
   failOver,
   restoreSingleSwitch,
-  cutBackSwitch
+  cutBackSwitch,
+  createTableLevelRestorePlan,
+  deleteTableLevelRestorePlan,
+  fetchAllTableLevelRestorePlans,
+  refreshOneTableLevelRestorePlan,
+  fetchAllTableLevelRestoreRecords
 };

@@ -100,17 +100,11 @@ const detailPageMixin = {
         fetchRestoreOperation(this.type, id)
           .then(response => {
             const { data } = response.data;
-            // const { state, startTime, consume } = data;
             Object.assign(
               this.restorePlans.find(
                 plan => plan.id === id
               ),
               data
-              // {
-              //   state,
-              //   startTime,
-              //   consume,
-              // }
             );
           })
           .catch(error => {
@@ -157,6 +151,16 @@ const detailPageMixin = {
       }
       return applyFilterMethods(this.restorePlans, filterMethods);
     },
+    filteredTableLevelRestorePlans() {
+      if (this.planFilterForm.planType !== 'tblRestore') {
+        return [];
+      }
+      const filterMethods = [];
+      if (this.planFilterForm.hiddenCompletePlan) {
+        filterMethods.push(plan => plan.state !== 2);
+      }
+      return applyFilterMethods(this.tblRestorePlans, filterMethods);
+    },
   },
   methods: {
     queryVerifyResult() {
@@ -182,6 +186,8 @@ const detailPageMixin = {
       } else if (command === 'restore') {
         this.restorePlanModalVisible = true;
         this.restoreAction = 'create';
+      } else if (command === 'tblRestore') {
+        this.tableLevelRestorePlanModalVisible = true;
       }
     },
     // 单次恢复弹窗
@@ -293,6 +299,9 @@ const detailPageMixin = {
     RefreshTime() {
       this.getBackupPlanList();
       this.getRestorePlans();
+      if (this.fetchTableLevelRestorePlans) {
+        this.fetchTableLevelRestorePlans();
+      }
     },
     confirmCallback(plan, type) {
       this.btnLoading = true;

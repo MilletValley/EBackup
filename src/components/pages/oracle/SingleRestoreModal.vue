@@ -19,10 +19,10 @@
               <el-tooltip placement="top" 
                           content="易备环境设备" >
                   <i class="el-icon-info"></i>
-              </el-tooltip >
-          </span>  
+              </el-tooltip>
+          </span>
           <el-select v-model="formData.hostIp"
-                      style="width: 100%;">
+                     style="width: 100%;">
             <el-option v-for="host in availableHostsForRestore.filter(host => !hostInLinks.includes(host.id))"
                         :key="host.id"
                         :value="host.hostIp"
