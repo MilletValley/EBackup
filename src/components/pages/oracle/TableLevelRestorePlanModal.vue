@@ -47,13 +47,15 @@
           <el-form-item prop="PDBName"
                         :class="{ 'is-required': formData.isPDB }"
                         label="PDB名">
-            <el-input v-model="formData.PDBName"></el-input>
+            <el-input v-model="formData.PDBName"
+                      :disabled="!formData.isPDB"
+                      placeholder="请选择PDB模式"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item prop="isPDB"
                         label-width="20px">
-            <el-checkbox v-model="formData.isPDB">PDB</el-checkbox>
+            <el-checkbox v-model="formData.isPDB">PDB模式</el-checkbox>
           </el-form-item>
         </el-col> 
       </el-row>
@@ -126,6 +128,7 @@ import { createTableLevelRestorePlan } from '@/api/oracle';
 import validate from '@/utils/validate';
 const basicFormData = {
   name: '',
+  hostIp: '',
   hostId: -1,
   hostInfo: '',
   detailInfo: '',
@@ -220,6 +223,7 @@ export default {
         {},
         basicFormData,
         {
+          hostIp: this.details.host.hostIp,
           hostId: this.details.host.id,
           hostInfo: `${this.details.host.hostIp}(${this.details.host.name})`,
           detailInfo: this.details.instanceName,
@@ -236,7 +240,7 @@ export default {
         if (valid) {
           const { name, hostInfo, isPDB, ...config } = this.formData;
           this.btnLoading = true;
-          createTableLevelRestorePlan(this.details.id, { name, ...config })
+          createTableLevelRestorePlan(this.details.id, { name, config: { ...config  } })
             .then(res => {
               const { message } = res.data;
               this.$message.success(message);

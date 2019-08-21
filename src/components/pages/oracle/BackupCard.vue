@@ -42,6 +42,13 @@
                         style="width: 40%">
             <span>{{ timeStrateg }}</span>
           </el-form-item>
+          <el-form-item label="备份粒度"
+                        :class="$style.backupCardFormItem"
+                        style="width: 40%"
+                        v-if="backupConfig.backupStrategy === 3">
+            <el-tag :class="$style.infoTag"
+                    size="small">{{ backupConfig.backupGranularity }}分</el-tag>
+          </el-form-item>
           <el-form-item label="时间"
                         v-if="backupConfig.timeStrategy === 0"
                         :class="$style.backupCardFormItem"

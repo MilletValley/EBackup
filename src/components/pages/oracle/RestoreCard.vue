@@ -7,7 +7,7 @@
               color="#fa4211"
               style="color: #ffffff">恢复</el-tag>
       <span>{{restoreOperation.name}}</span>
-      <i v-if="restoreOperation.state !== 2"
+      <i v-if="restoreOperation.state !== 2 || restoreConfig.planType === 1"
          style="float: right; margin: 3px 0 3px 10px;"
          class="el-icon-refresh state-refresh"
          :class="$style.stateRefresh"
@@ -15,7 +15,7 @@
       <el-button style="float: right; padding: 3px 0; color: #f56c6c;"
                  type="text"
                  @click="planDeleteBtnClick">删除</el-button>
-      <el-button v-if="restoreOperation.state !== 2"
+      <el-button v-if="restoreOperation.state !== 2 && restoreConfig.planType === 1"
                  style="float: right; padding: 3px 3px"
                  type="text"
                  @click="planUpdateBtnClick">编辑</el-button>
@@ -34,6 +34,17 @@
     </el-form>
     <el-row type="flex">
       <el-col :span="18">
+        <el-form inline
+                 label-width="100px"
+                 size="mini"
+                 v-if="restoreConfig.planType === 2">
+          <el-form-item label="恢复表名：">
+            <span>{{ restoreConfig.tblName  }}</span>
+          </el-form-item>
+          <el-form-item label="PDB名：">
+            <span>{{ restoreConfig.PDBName ? restoreConfig.PDBName : '-'  }}</span>
+          </el-form-item>
+        </el-form>
         <el-form label-width="100px"
                  size="mini">
           <el-form-item label="计划创建时间"
@@ -44,6 +55,11 @@
           <el-form-item label="时间策略"
                         style="width: 40%">
             <span>{{ timeStrategy(restoreConfig.timeStrategy) }}</span>
+          </el-form-item>
+          <el-form-item label="恢复至"
+                        style="width: 40%"
+                        v-if="restoreConfig.planType !== 1 && restoreConfig.timeStrategy === 1">
+            <span>{{ restoreConfig.restoreTimePoint }}</span>
           </el-form-item>
           <el-form-item label="时间"
                         v-if="restoreConfig.timeStrategy === 1"

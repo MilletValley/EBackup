@@ -34,6 +34,7 @@
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                     <el-dropdown-item command="tblRestore">表级恢复</el-dropdown-item>
+                    <el-dropdown-item command="logRestore">日志恢复</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <!-- <el-button size="mini"
@@ -50,7 +51,6 @@
               <el-row style="margin-right: 5px;">
                 <el-col :span="16">
                   <el-col :span="12">
-                    
                     <el-form-item label="实例名：">
                       <span>{{ details.instanceName }}</span>
                     </el-form-item>
@@ -63,6 +63,9 @@
                     </el-form-item>
                     <el-form-item label="所属系统：">
                       <span>{{ details.application }}</span>
+                    </el-form-item>
+                    <el-form-item label="Oracle版本：">
+                      <span>{{ details.dbVersion }}</span>
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
@@ -78,11 +81,13 @@
                     <el-form-item label="设备IP：">
                       <span>{{ details.host.hostIp }}</span>
                     </el-form-item>
-                    
-                  </el-col>
-                  <el-col>
-                    <el-form-item label="Oracle版本：">
-                      <span>{{ details.dbVersion }}</span>
+                    <el-form-item label="CDB时间：">
+                      <span>{{ details.CDBTime ? details.CDBTime : '-' }}</span>
+                      <span>
+                        <el-tooltip :content="`${details.CDBMessage ? details.CDBMessage : '-'}`" placement="top" effect="light">
+                          <i class="el-icon-info" :class="$style.iconInfo"></i>
+                        </el-tooltip>
+                      </span>
                     </el-form-item>
                   </el-col>
                 </el-col>
@@ -115,6 +120,7 @@
       </div>
     </header>
     <tab-panels @switchpane="switchPane"
+                @filterRecords="filterRestoreRecords"
                 :planFilterForm="planFilterForm"
                 type="oracle">
       <template slot="backupCard">
@@ -128,45 +134,34 @@
       </template>
       <template slot="restoreCard">
         <restore-card :id="plan.id"
-                        v-for="plan in filteredRestorePlans"
-                        :key="plan.id"
-                        :restore-plan="plan"
-                        @refresh="refreshSingleRestorePlan"
-                        @deletePlan="deleteRestorePlan"
-                        @updatePlan="selectRestorePlan(plan.id)"></restore-card>
-      </template>
-      <template slot="tblRestoreCard">
-        <table-level-restore-card :id="plan.id"
-                                  v-for="plan in filteredTableLevelRestorePlans"
-                                  :key="plan.id"
-                                  :table-level-restore-plan="plan"
-                                  @refresh="refreshSingleTableLevelRestorePlan"
-                                  @restoreinfo:refresh="updateTableLevelRestorePlanAndRecords"></table-level-restore-card>
+                      v-for="plan in filterRestorePlansByPlanType"
+                      :key="plan.id"
+                      :restore-plan="plan"
+                      @refresh="refreshSingleRestorePlan"
+                      @deletePlan="deleteRestorePlan"
+                      @updatePlan="selectRestorePlan(plan.id)"></restore-card>
       </template>
       <template slot="backupResult">
         <backup-result-list :data="results"
                             @single-restore-btn-click="initSingleRestoreModal"></backup-result-list>
       </template>
       <template slot="restoreRecord">
-        <restore-records :restore-plan="restorePlans"
-                         :records="restoreRecords"
+        <restore-records :restore-plan="filterRestorePlansByRecordType"
+                         :records="filterRestoreRecordsByType"
+                         :record-type="recordType"
                          @restoreinfo:refresh="updateRestorePlanAndRecords">
           <template slot="verify">
             <el-button style="float: right" size="mini" @click="queryVerifyResult" type="primary">验证结果</el-button>
           </template>
         </restore-records>
       </template>
-      <template slot="tblRestoreRecord">
-        <table-level-restore-records :plans="tblRestorePlans"
-                                     :records="tblRestoreRecords"
-                                     @refreshAll="fetchTableLevelRestorePlans"></table-level-restore-records>
-      </template>
     </tab-panels>
-    <backup-plan-modal  :btn-loading="btnLoading"
-                        :visible.sync="backupPlanModalVisible"
-                        @confirm="confirmCallback"
-                        :action="action"
-                        :backup-plan="selectedBackupPlan">
+    <backup-plan-modal :btn-loading="btnLoading"
+                       :visible.sync="backupPlanModalVisible"
+                       :has-c-d-b-backup-plan="hasCDBBackupPlan"
+                       @confirm="confirmCallback"
+                       :action="action"
+                       :backup-plan="selectedBackupPlan">
     </backup-plan-modal>
 
     <restore-plan-modal :btn-loading="btnLoading"
@@ -187,12 +182,19 @@
     <VerificationResult :id="Number(id)" :visible.sync="verifyResultModalVisible"></VerificationResult>
     <table-level-restore-plan-modal :visible.sync="tableLevelRestorePlanModalVisible"
                                     :details="details"
-                                    @refreshAll="fetchTableLevelRestorePlans"></table-level-restore-plan-modal>
+                                    @refreshAll="getRestorePlans"></table-level-restore-plan-modal>
+    <log-restore-plan-modal :visible.sync="logRestorePlanModalVisible"
+                            :details="details"
+                            :host-in-links="hostInLinks"
+                            :end-time="firstFullBackupResultEndTime"
+                            :btn-loading.sync="btnLoading"
+                            @refreshAll="getRestorePlans"></log-restore-plan-modal>
   </section>
 </template>
 <script>
+import dayjs from 'dayjs';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
-import { windowsTypeMapping } from '@/utils/constant';
+import { windowsTypeMapping, restoreTypeMapping } from '@/utils/constant';
 import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import BackupPlanModal from '@/components/pages/oracle/BackupPlanModal';
 import RestorePlanModal from '@/components/pages/oracle/RestorePlanModal';
@@ -201,20 +203,23 @@ import BackupCard from '@/components/pages/oracle/BackupCard';
 import BackupResultList from '@/components/pages/oracle/BackupResultList';
 import RestoreCard from '@/components/pages/oracle/RestoreCard';
 import RestoreRecords from '@/components/pages/oracle/RestoreRecords';
-import TableLevelRestoreRecords from '@/components/pages/oracle/TableLevelRestoreRecords';
-import TableLevelRestoreCard from '@/components/pages/oracle/TableLevelRestoreCard';
 import TableLevelRestorePlanModal from '@/components/pages/oracle/TableLevelRestorePlanModal';
+import LogRestorePlanModal from '@/components/pages/oracle/LogRestorePlanModal';
 import {
   fetchLinks,
-  fetchAllTableLevelRestorePlans,
-  refreshOneTableLevelRestorePlan,
-  fetchAllTableLevelRestoreRecords
+  fetchLink
 } from '@/api/oracle';
 
-import {
-  fetchLink,
-} from '@/api/oracle';
-
+const restorePlanRadioType = {
+  'restore': 1,
+  'logRestore': 2,
+  'tblRestore': 3
+};
+const restoreRecordRadioType = {
+  'plan': 1,
+  'log': 2,
+  'table': 3
+};
 export default {
   name: 'OracleDetail',
   mixins: [detailPageMixin],
@@ -226,36 +231,18 @@ export default {
     BackupResultList,
     RestoreCard,
     RestoreRecords,
-    TableLevelRestoreRecords,
-    TableLevelRestoreCard,
-    TableLevelRestorePlanModal
+    TableLevelRestorePlanModal,
+    LogRestorePlanModal
   },
   data() {
     return {
       type: 'oracle',
+      recordType: '',
       hostInLinks: [],
       tableLevelRestorePlanModalVisible: false,
+      logRestorePlanModalVisible: false,
       tblRestorePlans: [],
-      tblRestoreRecords: [],
-      throttleRefreshTableLevelRestore: this.throttleMethod(id => {
-        refreshOneTableLevelRestorePlan(id)
-          .then(response => {
-            const { data } = response.data;
-            Object.assign(
-              this.tblRestorePlans.find(
-                plan => plan.id === id
-              ),
-              data
-            );
-          })
-          .catch(error => {
-            this.$message.error(error);
-          });
-      }),
-      updateTableLevelRestorePlanAndRecords: this.throttleMethod(() => {
-        this.fetchTableLevelRestorePlans();
-        this.fetchTableLevelRestoreRecords();
-      })
+      tblRestoreRecords: []
     };
   },
   watch: {
@@ -263,9 +250,36 @@ export default {
       this.fetchData();
     }
   },
-  created() {
-    this.fetchTableLevelRestorePlans();
-    this.fetchTableLevelRestoreRecords();
+  computed: {
+    filterRestorePlansByPlanType() {
+      return this.filteredRestorePlans.filter(plan => {
+        if (plan.config) {
+          return plan.config.planType === restorePlanRadioType[this.planFilterForm.planType];
+        }
+        return false;
+      })
+    },
+    filterRestoreRecordsByType() {
+      return this.restoreRecords.filter(record =>
+        record.recordType === restoreRecordRadioType[this.recordType]
+      );
+    },
+    filterRestorePlansByRecordType() {
+      return this.filteredRestorePlans.filter(plan => {
+        if (plan.config) {
+          return plan.config.planType === restoreRecordRadioType[this.recordType];
+        }
+        return false;
+      })
+    },
+    firstFullBackupResultEndTime() {
+      const result = this.results.filter(result => result.backupType === 1 && result.state === 0)
+        .sort((pre, next) => dayjs(next.endTime) - dayjs(pre.endTime));
+      return result.length ? result[0].endTime : '';
+    },
+    hasCDBBackupPlan() {
+      return this.backupPlans.some(plan => plan.config && plan.config.backupStrategy === 3);
+    }
   },
   methods: {
     fetchLink() {
@@ -281,11 +295,6 @@ export default {
             this.link.oppsiteDatabase = link.primaryDatabase;
           }
         }
-        // if (this.details.role === 1) {
-        //   this.link.oppsiteDatabase = link.viceDatabase;
-        // } else if (this.details.role === 2) {
-        //   this.link.oppsiteDatabase = link.primaryDatabase;
-        // }
       })
       .catch(error => {
         this.$message.error(error);
@@ -303,28 +312,8 @@ export default {
           this.$message.error(error);
         })
     },
-    fetchTableLevelRestorePlans() {
-      fetchAllTableLevelRestorePlans(this.details.id)
-        .then(res => {
-          const { data: plans } = res.data;
-          this.tblRestorePlans = plans;
-        })
-        .catch(error => {
-          this.$message.error(error);
-        })
-    },
-    fetchTableLevelRestoreRecords () {
-      fetchAllTableLevelRestoreRecords(this.details.id)
-        .then(res => {
-          const { data: records } = res.data;
-          this.tblRestoreRecords = records;
-        })
-        .catch(res => {
-          this.$message.error(error);
-        })
-    },
-    refreshSingleTableLevelRestorePlan(id) {
-      this.throttleRefreshTableLevelRestore(id);
+    filterRestoreRecords(recordType) {
+      this.recordType = recordType;
     }
   },
 };
@@ -354,6 +343,9 @@ export default {
 }
 .linkInfo {
   text-align: right;
+}
+.iconInfo {
+  @include primary-color;
 }
 .moreLink {
   composes: link;

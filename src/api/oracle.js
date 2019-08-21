@@ -262,28 +262,11 @@ const createTableLevelRestorePlan = (id, data) =>
     data
   });
 
-const deleteTableLevelRestorePlan = id =>
+const createLogRestorePlan = (id, data) =>
   baseApi.request({
-    method: 'delete',
-    url: `/oracle-tbl-restore-plans/${id}`
-  });
-
-const fetchAllTableLevelRestorePlans = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/oracles/${id}/oracle-tbl-restore-plans`
-  });
-
-const refreshOneTableLevelRestorePlan = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/oracle-tbl-restore-plans/${id}`
-  });
-
-const fetchAllTableLevelRestoreRecords = id =>
-  baseApi.request({
-    method: 'get',
-    url: `/oracles/${id}/restore-tbl-records`
+    method: 'post',
+    url: `/oracles/${id}/oracle-log-restore-plans`,
+    data
   });
 
 export {
@@ -319,8 +302,5 @@ export {
   restoreSingleSwitch,
   cutBackSwitch,
   createTableLevelRestorePlan,
-  deleteTableLevelRestorePlan,
-  fetchAllTableLevelRestorePlans,
-  refreshOneTableLevelRestorePlan,
-  fetchAllTableLevelRestoreRecords
+  createLogRestorePlan
 };

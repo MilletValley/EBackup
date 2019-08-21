@@ -24,11 +24,24 @@
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
 						<el-radio :label="1">全备+增备</el-radio>
+						<el-radio :label="3">CDB持续备份</el-radio>
           </el-radio-group>
         </el-form-item>
 				
 				<!-- 时间策略 -->
 				<time-strategy :form-data="formData" :type="type" ref="timeStrategyComponent"></time-strategy>
+        <el-form-item label="备份粒度"
+                      class="is-required"
+                      prop="backupGranularity"
+                      v-if="formData.backupStrategy === 3">
+          <el-select v-model="formData.backupGranularity"
+                     style="width: 60%;">
+            <el-option v-for="minute in Array.from(new Array(12), (val, index) => String((index + 1) * 5))"
+                       :key="minute"
+                       :value="Number(minute)"
+                       :label="minute + '分钟'"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer">
         <el-button type="primary" v-if="action !== 'query'"
@@ -57,10 +70,16 @@ const basicFormData = {
   minuteInterval: 10,
   backupStrategy: 1,
   timeStrategy: 0,
+  backupGranularity: ''
 };
 export default {
   name: 'BackupPlanCreateModal',
   mixins: [backupPlanModalMixin],
+  props: {
+    hasCDBBackupPlan: {
+      type: Boolean
+    }
+  },
   components: {
     TimeStrategy,
   },
@@ -76,7 +95,12 @@ export default {
   methods: {
     // 切换备份策略时 同时更新时间策略为第一个可用值
     backupStrategyChange(label) {
-      this.formData.timeStrategy = label === 1 ? 0 : 1;
+      if (label === 3 && this.hasCDBBackupPlan) {
+        this.formData.backupStrategy = 1;
+        this.$message.warning('已存在CDB连续备份计划');
+      } else {
+        this.formData.timeStrategy = label === 1 ? 0 : 3;
+      }
     },
     confirmBtnClick() {
       this.$refs.createForm.validate(valid => {

@@ -193,7 +193,6 @@ export default {
       this.modalVisible = false;
     },
     modalClosed() {
-      console.log(123);
       this.modalVisible = false;
       this.tableData = [];
     },

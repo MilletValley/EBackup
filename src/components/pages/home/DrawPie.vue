@@ -66,7 +66,7 @@ export default {
           res.color = typeof res.color === 'string' ? res.color : '#1abb9c';
           const marker = `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${res.color};"></span>`
           if(total <= 0) {
-            return `<p>${res.marker}无</p>`;
+            return `<p>${marker}无</p>`;
           } else {
             let rootElement = document.createElement('p');
             rootElement.id = 'rootElement';

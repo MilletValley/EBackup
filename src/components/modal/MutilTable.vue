@@ -57,7 +57,7 @@
           <template slot-scope="scope">
             <el-tag size="mini"
                     :type="scope.row.bootState | bootStateTagFilter">
-                    {{ bootStateMapping[scope.row.bootState] }}
+                    {{ scope.row.bootState ? bootStateMapping[scope.row.bootState] : '未知' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -73,7 +73,8 @@
             label="所属物理主机"
             min-width="150"
             align="left"></el-table-column>
-        <el-table-column label="操作" v-if="showDelete"
+        <el-table-column label="操作"
+                         v-if="showDelete"
                          width="100"
                          align="center">
             <template slot-scope="scope">
@@ -89,10 +90,10 @@
                            circle
                            size="mini"
                            :class="$style.miniCricleIconBtn"
-                           v-if="scope.row.bootState === 2 && [1, 3].includes(vmType)"
+                           v-if="(scope.row.bootState === 0 && [1, 3].includes(vmType))"
                            @click="modifyBootState(scope.row)"></el-button>
                 <el-button type="danger"
-                           :disabled="scope.row.bootState === 4"
+                           :disabled="scope.row.bootState === 2"
                            icon="el-icon-video-pause"
                            circle
                            size="mini"

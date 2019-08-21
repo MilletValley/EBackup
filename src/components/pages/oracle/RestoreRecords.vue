@@ -65,7 +65,20 @@
                 </el-tooltip>
               </el-col>
             </el-row>
-            
+            <el-row :class="$style.margin14"
+                    v-if="item.config.planType === 2">
+              <el-col :span=18>
+                <el-tooltip content="表名"
+                            placement="right"
+                            :open-delay="300">
+                  <div :class="$style.wordsOverFlow">
+                    <i-icon name="table"
+                            :class="$style.ongoingRestoreIcon"></i-icon>
+                    <span>{{item.config.tblName }}</span>
+                  </div>
+                </el-tooltip>
+              </el-col>
+            </el-row>
           </el-card>
         </el-col>
       </el-row>
@@ -95,10 +108,11 @@
                          label="实例名"
                          align="center"
                          min-width="150px"></el-table-column>
-        <!-- <el-table-column prop="dbPort"
-                         label="端口"
+        <el-table-column prop="tblName"
+                         label="表名"
                          align="center"
-                         min-width="50px"></el-table-column> -->
+                         min-width="150px"
+                         v-if="recordType === 'table'"></el-table-column>
         <el-table-column prop="state"
                          label="状态"
                          align="center"
@@ -137,6 +151,10 @@ export default {
       type: Array,
       required: true,
     },
+    recordType: {
+      type: String,
+      required: true
+    }
   },
   data() {
     return {

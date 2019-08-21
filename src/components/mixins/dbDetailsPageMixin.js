@@ -142,7 +142,7 @@ const detailPageMixin = {
       return applyFilterMethods(this.backupPlans, filterMethods);
     },
     filteredRestorePlans() {
-      if (this.planFilterForm.planType !== 'restore') {
+      if (!['restore', 'tblRestore', 'logRestore'].includes(this.planFilterForm.planType)) {
         return [];
       }
       const filterMethods = [];
@@ -150,17 +150,7 @@ const detailPageMixin = {
         filterMethods.push(plan => plan.state !== 2);
       }
       return applyFilterMethods(this.restorePlans, filterMethods);
-    },
-    filteredTableLevelRestorePlans() {
-      if (this.planFilterForm.planType !== 'tblRestore') {
-        return [];
-      }
-      const filterMethods = [];
-      if (this.planFilterForm.hiddenCompletePlan) {
-        filterMethods.push(plan => plan.state !== 2);
-      }
-      return applyFilterMethods(this.tblRestorePlans, filterMethods);
-    },
+    }
   },
   methods: {
     queryVerifyResult() {
@@ -188,6 +178,12 @@ const detailPageMixin = {
         this.restoreAction = 'create';
       } else if (command === 'tblRestore') {
         this.tableLevelRestorePlanModalVisible = true;
+      } else if (command === 'logRestore') {
+        if (!this.details.CDBTime) {
+          this.$message.warning('请先进行CDB连续备份');
+        } else {
+          this.logRestorePlanModalVisible = true;
+        }
       }
     },
     // 单次恢复弹窗
@@ -299,9 +295,6 @@ const detailPageMixin = {
     RefreshTime() {
       this.getBackupPlanList();
       this.getRestorePlans();
-      if (this.fetchTableLevelRestorePlans) {
-        this.fetchTableLevelRestorePlans();
-      }
     },
     confirmCallback(plan, type) {
       this.btnLoading = true;
