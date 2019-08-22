@@ -448,6 +448,7 @@ export default {
             bootDelayTime: virtual.bootDelayTime ? virtual.bootDelayTime : 0
           }));
         this.targetData = this.virtuals.filter(virtual => virtual.bootMode === 2)
+          .sort((pre, next) => next.bootOrder - pre.bootOrder)
           .map(virtual => ({
             ...virtual,
             bootDelayTime: virtual.bootDelayTime ? virtual.bootDelayTime : 0

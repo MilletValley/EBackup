@@ -57,7 +57,7 @@
           <template slot-scope="scope">
             <el-tag size="mini"
                     :type="scope.row.bootState | bootStateTagFilter">
-                    {{ scope.row.bootState ? bootStateMapping[scope.row.bootState] : '未知' }}
+                    {{ scope.row.bootState[scope.row.bootState] ? bootStateMapping[scope.row.bootState] : '未知' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -90,7 +90,7 @@
                            circle
                            size="mini"
                            :class="$style.miniCricleIconBtn"
-                           v-if="(scope.row.bootState === 0 && [1, 3].includes(vmType))"
+                           v-if="(!scope.row.bootState) || (scope.row.bootState === 0 && [1, 3].includes(vmType))"
                            @click="modifyBootState(scope.row)"></el-button>
                 <el-button type="danger"
                            :disabled="scope.row.bootState === 2"
@@ -397,14 +397,14 @@ export default {
     },
     modifyBootState(virtual) {
       const { id, vmName, bootState } = virtual;
-      this.$confirm(`此操作将${bootState === 1 ? '关闭' : '开启'}虚拟机${vmName}, 是否继续?`, '提示', {
+      this.$confirm(`此操作将${bootState === 0 ? '开启' : '关闭'}虚拟机${vmName}, 是否继续?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       })
         .then(() => {
-          virtual.bootState = virtual.bootState === 2 ? 3 : 4;
-          ModifyOneStartup(id, { bootState })
+          virtual.bootState = virtual.bootState === 0 ? 3 : 2;
+          ModifyOneStartup(id)
             .then(res => {
               const { message, data } = res.data;
               this.$message.success(message);

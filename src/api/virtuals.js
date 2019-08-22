@@ -304,11 +304,10 @@ const fetchTimePoints = id =>
   });
 
 // 启动单个虚拟机
-const ModifyOneStartup = (id, state) =>
+const ModifyOneStartup = id =>
   baseApi.request({
     method: 'patch',
     url: `/virtuals/${id}/modify-startup-state`,
-    data: state
   });
 
 // 验证物理主机用户名、密码

@@ -104,7 +104,7 @@ export default {
       restorePlanFilterForm: {
         hiddenCompletePlan: false,
       },
-      recordType: ''
+      recordType: 'plan'
     };
   },
   computed: {
@@ -122,7 +122,9 @@ export default {
     } else if (this.$route.params.type === 'restore') {
       this.activeTab = 'restore';
     }
-    this.recordType = 'plan';
+    if (this.type === 'oracle') {
+      this.$emit('filterRecords', this.recordType);
+    }
   },
   methods: {
     switchPane({ name }) {
