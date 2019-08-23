@@ -10,7 +10,8 @@
       <el-row :gutter="15"
               type="flex"
               align="middle">
-        <el-col :span="10">
+        <el-col :span="10"
+                :offset="vmType === 1 ? 0 : 1">
           <div class="header-font">
             <span class="bold">手动启动列表</span>
             <span class="fr">已选 {{ checkSourceData.length }}条 / 共 {{ sourceData.length }}条</span>
@@ -137,7 +138,8 @@
             </div>
           </div>
         </el-col>
-        <el-col :span="2">
+        <el-col :span="2"
+                v-if="vmType === 1">
           <div class="btn-content">
             <div class="btn-content-top">
               <el-button :type="checkTargetData.length ? 'primary' : 'info'"
@@ -187,8 +189,9 @@
 <script>
 import vuedraggable from 'vuedraggable';
 import InputToggle from '@/components/InputToggle';
-import { validatePassword, multiBootPower } from '@/api/virtuals';
+import { multiBootPower } from '@/api/virtuals';
 import isEqual from 'lodash/isEqual';
+import { virtualMapping } from '@/utils/constant';
 
 export default {
   name: 'PowerBootModal',
@@ -225,11 +228,16 @@ export default {
       return {
         animation: 10,
         group: "description",
-        disabled: this.searchTargetData,
+        disabled: this.searchTargetData || this.vmType === 3,
         handle:'.list-group-item',
         ghostClass: "ghost",
         draggable:'.list-group-item'
       };
+    },
+    vmType() {
+      return Number(Object.keys(virtualMapping).find(type =>
+        this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
+      ));
     },
     modalVisible: {
       get() {

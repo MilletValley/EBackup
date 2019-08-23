@@ -14,7 +14,7 @@
           <el-button size="small"
                      v-if="showBootBtn"
                      style="float: right"
-                     @click="setPowerBoot(tableData)">开机自启</el-button>
+                     @click="validatePass">开机自启</el-button>
         </el-col>
     </el-row>
     <el-table :data="curTableData" @select="selectDbChangeFn"  :ref="refTable" :size="customSize"
@@ -119,18 +119,15 @@
         v-if="tableData"
         :total="tableData|filterBySearch(filterItem).length">
     </el-pagination>
-    <power-boot-modal :visible.sync="setPowerBootModalVisible"
-                      :virtuals="settingBootVirtuals"
-                      :id="serverId"
-                      @refresh="refresh(serverId)"></power-boot-modal>
-    <!-- <validate-user-password :visible.sync=""></validate-user-password> -->
+    <validate-user-password :visible.sync="validatePassModalVisible"
+                            :id="serverId"
+                            @refresh="refreshAll"></validate-user-password>
 </div>
     
 </template>
 <script>
 import { getVirtualByserverId, deleteVirtualInServerHost, ModifyOneStartup } from '@/api/virtuals';
 import { virtualMapping, bootModeMapping, bootStateMapping } from '@/utils/constant';
-import PowerBootModal from '@/components/pages/virtual/PowerBootModal';
 import ValidateUserPassword from '@/components/pages/virtual/ValidateUserPassword';
 export default {
   props: {
@@ -170,7 +167,7 @@ export default {
       filterItem: '',
       inputSearch: '',
       defaultSort: { prop: 'vmName', order: 'descending' },
-      setPowerBootModalVisible: false,
+      validatePassModalVisible: false,
       settingBootVirtuals: [],
       virtualMapping,
       bootStateMapping,
@@ -190,7 +187,6 @@ export default {
     });
   },
   components: {
-    PowerBootModal,
     ValidateUserPassword
   },
   filters: {
@@ -321,9 +317,11 @@ export default {
           this.$message.error(error);
         });
     },
-    setPowerBoot(item) {
-      this.setPowerBootModalVisible = true;
-      this.settingBootVirtuals = item;
+    refreshAll() {
+      this.$emit('refresh-and-set-power');
+    },
+    validatePass() {
+      this.validatePassModalVisible = true;
     },
     selectDbChangeFn(selectData, row) {
       if (selectData.includes(row)) {
@@ -379,7 +377,7 @@ export default {
             .then(res => {
               const { message } = res.data;
               this.$message.success(message);
-              this.$emit('refresh', row.id);
+              this.$emit('refresh');
             })
             .catch(error => {
               this.$message.error(error);
@@ -405,7 +403,7 @@ export default {
             .then(res => {
               const { message, data } = res.data;
               this.$message.success(message);
-              this.$emit('refresh', id);
+              this.$emit('refresh');
             })
             .catch(error => {
               this.$message.error(error);

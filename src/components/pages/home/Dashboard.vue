@@ -51,7 +51,11 @@
         <div slot="header" class="clearfix">
           <span class="card-title">智能巡检</span>
         </div>
-        <el-row class="text item">
+        <div :class="$style.nfsNotUsed" v-if="!Object.keys(inspect).length && !Object.keys(record).length">
+          <span>暂未使用</span>
+        </div>
+        <el-row class="text item"
+                v-else>
           <el-col :span="8">
             <inspection :inspect="inspect"
                         id="inspect"></inspection>
@@ -815,9 +819,6 @@ export default {
           const { data } = res.data;
           this.inspect = data.inspect;
           this.record = data.record;
-        })
-        .catch(error => {
-          this.$message.error(error);
         })
     },
     calcPercent(diviver, dividend) {
