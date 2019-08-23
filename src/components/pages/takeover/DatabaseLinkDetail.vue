@@ -153,29 +153,14 @@ import baseMixin from '@/components/mixins/baseMixins';
 import IIcon from '@/components/IIcon';
 import Timer from '@/components/Timer';
 import { switchTypeMapping } from '@/utils/constant';
+// import {
+//   createSwitches,
+// } from '@/api/oracle';
 import {
-  fetchLinkByLinkId as fetchLinkByLinkIdOracle,
-  fetchSwitches as fetchSwitchesOracle,
-  createSwitches,
-} from '@/api/oracle';
-import {
-  fetchLinkByLinkId as fetchLinkByLinkIdSqlserver,
-  fetchSwitches as fetchSwitchesSqlserver,
-} from '@/api/sqlserver';
-import {
-  fetchLinkByLinkId as fetchLinkByLinkIdInSql,
-  fetchSwitches as fetchSwitchesInSql,
-} from '@/api/insql';
-const fetchLinkByLinkIdMethod = {
-  oracle: fetchLinkByLinkIdOracle,
-  sqlserver: fetchLinkByLinkIdSqlserver,
-  insql: fetchLinkByLinkIdInSql,
-};
-const fetchSwitchesMethod = {
-  oracle: fetchSwitchesOracle,
-  sqlserver: fetchSwitchesSqlserver,
-  insql: fetchSwitchesInSql,
-};
+  fetchLinkByLinkId,
+  fetchSwitches,
+  createSwitches
+} from '@/api/common';
 export default {
   name: 'DatabaseLinkDetail',
   props: {
@@ -229,14 +214,14 @@ export default {
     },
     tabMsgs() {
       return Object.keys(switchTypeMapping).map(type => ({
-        label: Number(type) === 1 && ['sqlserver', 'insql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
+        label: Number(type) === 1 && ['sqlserver', 'insql', 'mysql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
         name: type
       }));
     }
   },
   methods: {
     fetchData() {
-      fetchLinkByLinkIdMethod[this.databaseType](this.id)
+      fetchLinkByLinkId(this.databaseType, this.id)
         .then(res => {
           const {
             primaryDatabase,
@@ -252,7 +237,7 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-      fetchSwitchesMethod[this.databaseType](this.id)
+      fetchSwitches(this.databaseType, this.id)
         .then(res => {
           const { data: switches } = res.data;
           this.switches = switches;
@@ -265,7 +250,7 @@ export default {
       this.switchModalVisible = true;
     },
     switchModalConfirm() {
-      createSwitches({
+      createSwitches(this.databaseType, {
         linkIds: [this.id],
       })
         .then(res => {

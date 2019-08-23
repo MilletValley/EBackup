@@ -21,6 +21,7 @@ import InformixDetail from '@/components/pages/informix/InformixDetail';
 import PostgreSQLList from '@/components/pages/postgresql/PostgreSQLList';
 import PostgreSQLDetail from '@/components/pages/postgresql/PostgreSQLDetail';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
+import MysqlTakeOver from '@/components/pages/takeover/mysql/TakeOver';
 
 const router = [
   {
@@ -126,6 +127,28 @@ const router = [
         },
       },
       {
+        path: 'mysql/takeover',
+        name: 'mysqlTakeOver',
+        component: MysqlTakeOver,
+        meta: {
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql列表',
+              path: '/db/mysql',
+            },
+            {
+              name: 'MySql一键接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'sqlserver/takeover/:id',
         name: 'sqlserverLinkDetail',
         props: true,
@@ -171,6 +194,33 @@ const router = [
             {
               name: 'InSql一键接管',
               path: '/db/insql/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'mysql/takeover/:id',
+        name: 'mysqlLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql列表',
+              path: '/db/mysql',
+            },
+            {
+              name: 'MySql一键接管',
+              path: '/db/mysql/takeover',
             },
             {
               name: '连接详情',

@@ -117,7 +117,7 @@
     <span slot="footer">
       <el-button type="primary"
                   @click="download"
-                  :loading="btnLoading" size="medium" disabled>下载</el-button>
+                  :loading="btnLoading" size="medium">下载</el-button>
       <el-button @click="cancelBtnClick()" size="medium">取消</el-button>
     </span>
   </el-dialog>
@@ -196,7 +196,10 @@ export default {
       this.modalVisible = false;
       this.tableData = [];
     },
-    download() {}
+    download() {
+      // window.open(`http://${window.location.host}/api/v1/verify/takeover/report/${this.id}`);
+      window.location.href = `http://${window.location.host}/api/v1/verify/restore/report/${this.id}`;
+    }
   },
 };
 </script>
