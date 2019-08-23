@@ -12,7 +12,7 @@ module.exports = {
     proxyTable: {
       '/api/v1': {
         // target: 'http://localhost:8002',
-        target: 'http://145.170.28.67:8089',
+        target: 'http://145.170.28.70:8089',
         changeOrigin: true,
         pathRewrite: {'^/api/v1': '/api/v1'}
         // target: 'http://145.170.23.128:8089', // 服务器
@@ -27,6 +27,10 @@ module.exports = {
         // changeOrigin: true,
         // pathRewrite: { '^/api/v1': '/api/v1' },
       },
+      '/socket': {
+        target: 'ws://145.170.33.135:8095',
+        ws: true
+      }
     },
 
     // Various Dev Server settings

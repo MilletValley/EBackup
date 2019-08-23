@@ -982,12 +982,11 @@ export default {
     // 解除连接
     removeHostLinkConfirm(readyToRemoveHostLink) {
       this.btnLoading = true;
-      console.log(this.hostLinkSwitchMsg, readyToRemoveHostLink, this.links);
-      deleteLinks(readyToRemoveHostLink.initHostId)
+      deleteLinks(readyToRemoveHostLink.id)
         .then(res => {
           const { data: cancelOperation } = res.data;
           this.links.find(
-            link => link.initHostId === readyToRemoveHostLink.initHostId
+            link => link.id === readyToRemoveHostLink.id
           ).latestSwitch = cancelOperation;
           this.removeHostLinkModalVisible = false;
           this.$message.info('正在尝试解除连接，请等待');
