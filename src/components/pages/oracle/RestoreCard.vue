@@ -37,7 +37,7 @@
         <el-form inline
                  label-width="100px"
                  size="mini"
-                 v-if="restoreConfig.planType === 2">
+                 v-if="restoreConfig.planType === 3">
           <el-form-item label="恢复表名：">
             <span>{{ restoreConfig.tblName  }}</span>
           </el-form-item>

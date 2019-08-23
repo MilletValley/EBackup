@@ -33,8 +33,10 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
                     <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
-                    <el-dropdown-item command="tblRestore">表级恢复</el-dropdown-item>
-                    <el-dropdown-item command="logRestore">日志恢复</el-dropdown-item>
+                    <el-dropdown-item :disabled="!hasTableLevelRestore"
+                                      command="tblRestore">表级恢复</el-dropdown-item>
+                    <el-dropdown-item :disabled="!hasLogRestore"
+                                      command="logRestore">日志恢复</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
                 <!-- <el-button size="mini"
@@ -81,7 +83,8 @@
                     <el-form-item label="设备IP：">
                       <span>{{ details.host.hostIp }}</span>
                     </el-form-item>
-                    <el-form-item label="CDB时间：">
+                    <el-form-item label="CDB时间："
+                                  v-if="hasLogRestore">
                       <span>{{ details.CDBTime ? details.CDBTime : '-' }}</span>
                       <span>
                         <el-tooltip :content="`${details.CDBMessage ? details.CDBMessage : '-'}`" placement="top" effect="light">
@@ -122,6 +125,8 @@
     <tab-panels @switchpane="switchPane"
                 @filterRecords="filterRestoreRecords"
                 :planFilterForm="planFilterForm"
+                :has-table-level-restore="hasTableLevelRestore"
+                :has-log-restore="hasLogRestore"
                 type="oracle">
       <template slot="backupCard">
         <backup-card :id="plan.id"
@@ -279,6 +284,16 @@ export default {
     },
     hasCDBBackupPlan() {
       return this.backupPlans.some(plan => plan.config && plan.config.backupStrategy === 3);
+    },
+    // 表级恢复：12c
+    hasTableLevelRestore() {
+      return this.details.host && this.details.host.oracleVersion === 3;
+    },
+    // 日志恢复：11g Windows
+    hasLogRestore() {
+      return this.details.host
+        && this.details.host.oracleVersion === 2
+        && this.details.host.osName === 'Windows';
     }
   },
   methods: {

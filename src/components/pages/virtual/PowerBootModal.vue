@@ -1,8 +1,8 @@
 <template>
   <section>
     <el-dialog custom-class="min-width-dialog"
-               :before-close="beforeModalClose"
-               width="70%"
+               class="custom-scrollbar power-boot-dialog"
+               width="80%"
                :visible.sync="modalVisible"
                title="虚拟机自启"
                @close="modalClosed"
@@ -11,11 +11,14 @@
               type="flex"
               align="middle">
         <el-col :span="10">
+          <div class="header-font">
+            <span class="bold">手动启动列表</span>
+            <span class="fr">已选 {{ checkSourceData.length }}条 / 共 {{ sourceData.length }}条</span>
+          </div>
           <div class="main">
             <div class="head">
               <el-checkbox :indeterminate="sourceIndeterminate"
                             v-model="isCheckAllSourceData">全选</el-checkbox>
-              <span class="bold">源列表  {{checkSourceData.length}}/{{ sourceData.length }}</span>
               <el-input placeholder="请输入内容"
                         prefix-icon="el-icon-search"
                         v-model="searchSourceData"
@@ -63,11 +66,14 @@
           </div>
         </el-col>
         <el-col :span="10">
+          <div class="header-font">
+            <span class="bold">自动启动列表</span>
+            <span class="fr">已选 {{ checkTargetData.length }}条 / 共 {{ targetData.length }}条</span>
+          </div>
           <div class="main" style="padding-bottom: 40px;">
             <div class="head">
               <el-checkbox :indeterminate="targetIndeterminate"
                             v-model="isCheckAllTargetData">全选</el-checkbox>
-              <span class="bold">目标列表  {{checkTargetData.length}}/{{ targetData.length }}</span>
               <el-input placeholder="请输入内容"
                         prefix-icon="el-icon-search"
                         v-model="searchTargetData"
@@ -101,9 +107,9 @@
                                           prop="virtual.bootDelayTime">
                               <el-input v-model.number="virtual.bootDelayTime"
                                         size="mini"
-                                        style="width: 70px"
+                                        style="width: 60px"
                                         @change="bootDelayTimeChange(virtual)"></el-input>
-                              <span>(单位：s)</span>
+                              <span>s</span>
                             </el-form-item>
                           </el-form>
                         </span>
@@ -168,31 +174,6 @@
           </div>
         </el-col>
       </el-row>
-      <el-form size="small"
-               :model="formData"
-               ref="userInfoForm"
-               :rules="userRules"
-               label-width="80px"
-               label-position="left"
-               style="padding: 20px 30px 0"
-               v-show="serverType === 1">
-        <el-row :gutter="15">
-          <el-col :span="8">
-            <el-form-item label="用户名"
-                          prop="serverLoginName">
-              <el-input v-model="formData.serverLoginName"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8"
-                  :offset="4">
-            <el-form-item label="密码"
-                          prop="serverPassword">
-              <input-toggle v-model="formData.serverPassword"
-														:hidden.sync="hiddenPassword"></input-toggle>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
       <span slot="footer">
         <el-button @click="cancelButtonClick">取消</el-button>
         <el-button type="primary"
@@ -208,18 +189,7 @@ import vuedraggable from 'vuedraggable';
 import InputToggle from '@/components/InputToggle';
 import { validatePassword, multiBootPower } from '@/api/virtuals';
 import isEqual from 'lodash/isEqual';
-const baseForm = {
-  serverLoginName: '',
-  serverPassword: ''
-}
-const userRules = {
-  serverLoginName: [
-    { required: true, message: '请输入登录名', triggle: 'blur' }
-  ],
-  serverPassword: [
-    { required: true, message: '请输入密码名', triggle: 'blur' }
-  ],
-};
+
 export default {
   name: 'PowerBootModal',
   props: {
@@ -232,11 +202,6 @@ export default {
       required: true,
       default: () => []
     },
-    serverType: {
-      type: Number,
-      required: true,
-      default: -1
-    },
     id: {
       type: Number,
       required: true,
@@ -247,16 +212,12 @@ export default {
     return {
       searchSourceData: '',
       searchTargetData: '',
-      hiddenPassword: true,
       btnLoading: false,
       checkSourceData: [],
       checkTargetData: [],
       targetData: [],
       sourceData: [],
-      delayTime: 0,
-      formData: Object.assign({}, baseForm),
-      originFormData: Object.assign({}, baseForm),
-      userRules
+      delayTime: 0
     }
   },
   computed: {
@@ -351,7 +312,28 @@ export default {
       }
       return fullName;
     },
-    setBootPower() {
+    bootDelayTimeChange(virtual) {
+      let time = virtual.bootDelayTime;
+      if(((!parseInt(time) && time !== 0) || time < 0)) {
+        virtual.bootDelayTime = 0;
+        this.$message.warning('请输入正确的延迟时间');
+      }
+    },
+    allBootDelayTimeChange() {
+      if((!parseInt(this.delayTime) && this.delayTime !== 0) || this.delayTime < 0) {
+        this.delayTime = 0;
+        this.$message.warning('请输入正确的延迟时间');
+      }
+    },
+    cancelButtonClick() {
+      this.modalVisible = false;
+    },
+    modalClosed() {
+      this.delayTime = 0;
+      this.modalVisible = false;
+    },
+    confirmBtn() {
+      this.btnLoading = true;
       const bootList = this.targetData.map((virtual, index) => ({
         virtualId: virtual.id,
         bootOrder: index + 1,
@@ -371,84 +353,19 @@ export default {
           this.btnLoading = false;
         })
     },
-    bootDelayTimeChange(virtual) {
-      let time = virtual.bootDelayTime;
-      if(((!parseInt(time) && time !== 0) || time < 0)) {
-        virtual.bootDelayTime = 0;
-        this.$message.warning('请输入正确的延迟时间');
-      }
-    },
-    allBootDelayTimeChange() {
-      if((!parseInt(this.delayTime) && this.delayTime !== 0) || this.delayTime < 0) {
-        this.delayTime = 0;
-        this.$message.warning('请输入正确的延迟时间');
-      }
-    },
-    beforeModalClose(done) {
-      this.hasModifiedBeforeClose(done);
-    },
-    cancelButtonClick() {
-      this.hasModifiedBeforeClose(() => {
-        this.modalVisible = false;
-      });
-    },
-    hasModifiedBeforeClose(fn) {
-      if (isEqual(this.formData, this.originFormData)) {
-        fn();
-      } else {
-        this.$confirm('有未保存的修改，是否退出？', {
-          type: 'warning',
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-        })
-          .then(() => {
-            fn();
-          })
-          .catch(() => {});
-      }
-    },
-    modalClosed() {
-      this.delayTime = 0;
-      this.modalVisible = false;
-      this.hiddenPassword = true;
-      this.formData = Object.assign({}, baseForm);
-    },
-    confirmBtn() {
-      if (this.serverType === 1) {
-        this.$refs.userInfoForm.validate(valid => {
-          if (valid) {
-            this.btnLoading = true;
-              validatePassword(this.id, this.formData)
-              .then(() => {
-                this.setBootPower();
-              })
-              .catch(error => {
-                this.$message.error(error);
-                this.btnLoading = false;
-              });
-          } else {
-            return false;
-          }
-        })
-      } else {
-        this.btnLoading = true;
-        this.setBootPower();
-      }
-    },
     dialogOpen() {
       this.$nextTick(() => {
         this.searchSourceData = '';
         this.searchTargetData = '';
         this.checkSourceData = [];
         this.checkTargetData = [];
-        this.$refs.userInfoForm.clearValidate();
-        this.sourceData = this.virtuals.filter(virtual => virtual.bootMode === 1)
+        this.sourceData = this.virtuals.filter(virtual => virtual.bootMode === 0)
           .map(virtual => ({
             ...virtual,
             bootDelayTime: virtual.bootDelayTime ? virtual.bootDelayTime : 0
           }));
-        this.targetData = this.virtuals.filter(virtual => virtual.bootMode === 2)
-          .sort((pre, next) => next.bootOrder - pre.bootOrder)
+        this.targetData = this.virtuals.filter(virtual => virtual.bootMode === 1)
+          .sort((pre, next) => pre.bootOrder - next.bootOrder)
           .map(virtual => ({
             ...virtual,
             bootDelayTime: virtual.bootDelayTime ? virtual.bootDelayTime : 0
@@ -516,11 +433,29 @@ export default {
 </script>
 <style scoped lang="scss">
 @import '@/assets/theme/variable.scss';
+.power-boot-dialog {
+  /deep/
+  .el-dialog {
+    min-width: 900px!important;
+  }
+}
 ul {
   margin: 0;
   padding: 0;
   li {
     padding-top: 5px;
+  }
+}
+.header-font {
+  padding-bottom: 8px;
+  margin-top: -20px;
+  @include primary-color;
+  .bold {
+    margin-left: 5px;
+    font-weight: 700;
+  }
+  .fr {
+    float: right;
   }
 }
 .main {
@@ -534,22 +469,16 @@ ul {
     @include main-background-color;
     padding: 0 10px;
     border-bottom: 1px solid #dfd5d5;
-    .bold {
-      margin-left: 5px;
-      font-weight: 700;
-    }
   }
   .source-content,
   .target-content {
     padding: 10px;
     width: calc(100% - 20px);
-    max-height: 300px;
-    min-height: 150px;
+    height: 270px;
     overflow: auto;
   };
   .source-content {
-    max-height: 330px;
-    min-height: 180px;
+    height: 300px;
   }
 }
 .btn-content {
@@ -569,6 +498,9 @@ ul {
   }
 }
 .hight-light-content {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
   /deep/
   span {
     @include primary-color;
@@ -581,8 +513,8 @@ ul {
   @include primary-color
 }
 .null-data {
-  height: 60px;
-  line-height: 60px;
+  height: 120px;
+  line-height: 120px;
   text-align: center;
 }
 .ghost {

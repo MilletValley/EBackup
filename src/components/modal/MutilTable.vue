@@ -57,7 +57,7 @@
           <template slot-scope="scope">
             <el-tag size="mini"
                     :type="scope.row.bootState | bootStateTagFilter">
-                    {{ scope.row.bootState[scope.row.bootState] ? bootStateMapping[scope.row.bootState] : '未知' }}
+                    {{ bootStateMapping[scope.row.bootState] ? bootStateMapping[scope.row.bootState] : '未知' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -70,9 +70,9 @@
           </template>
         </el-table-column>
         <el-table-column prop="vmHostName"
-            label="所属物理主机"
-            min-width="150"
-            align="left"></el-table-column>
+                         label="所属物理主机"
+                         min-width="150"
+                         align="left"></el-table-column>
         <el-table-column label="操作"
                          v-if="showDelete"
                          width="100"
@@ -85,15 +85,13 @@
                            :class="$style.miniCricleIconBtn"
                            @click="deleteOne(scope)"></el-button>
                 <el-button type="success"
-                           :disabled="scope.row.bootState === 3"
                            icon="el-icon-video-play"
                            circle
                            size="mini"
                            :class="$style.miniCricleIconBtn"
-                           v-if="(!scope.row.bootState) || (scope.row.bootState === 0 && [1, 3].includes(vmType))"
+                           v-if="(!scope.row.bootState || [0, 2].includes(scope.row.bootState) && [1, 3].includes(vmType))"
                            @click="modifyBootState(scope.row)"></el-button>
                 <el-button type="danger"
-                           :disabled="scope.row.bootState === 2"
                            icon="el-icon-video-pause"
                            circle
                            size="mini"
@@ -106,7 +104,7 @@
                            circle
                            size="mini"
                            :class="$style.miniCricleIconBtn"
-                           v-if="[3, 4].includes(scope.row.bootState) && [1, 3].includes(vmType)"></el-button>
+                           v-if="['starting', 'stopping'].includes(scope.row.bootState) && [1, 3].includes(vmType)"></el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -123,9 +121,9 @@
     </el-pagination>
     <power-boot-modal :visible.sync="setPowerBootModalVisible"
                       :virtuals="settingBootVirtuals"
-                      :server-type="serverType"
                       :id="serverId"
                       @refresh="refresh(serverId)"></power-boot-modal>
+    <!-- <validate-user-password :visible.sync=""></validate-user-password> -->
 </div>
     
 </template>
@@ -133,6 +131,7 @@
 import { getVirtualByserverId, deleteVirtualInServerHost, ModifyOneStartup } from '@/api/virtuals';
 import { virtualMapping, bootModeMapping, bootStateMapping } from '@/utils/constant';
 import PowerBootModal from '@/components/pages/virtual/PowerBootModal';
+import ValidateUserPassword from '@/components/pages/virtual/ValidateUserPassword';
 export default {
   props: {
     tableData: {
@@ -158,9 +157,6 @@ export default {
       type: Boolean
     },
     vmType: {
-      type: Number
-    },
-    serverType: {
       type: Number
     },
     serverId: {
@@ -194,7 +190,8 @@ export default {
     });
   },
   components: {
-    PowerBootModal
+    PowerBootModal,
+    ValidateUserPassword
   },
   filters: {
     filterBySearch(tableData, arg) {
@@ -214,7 +211,7 @@ export default {
     bootStateTagFilter(state) {
       if (state === 1) {
         return 'success';
-      } else if (state === 2) {
+      } else if (state === 0) {
         return 'danger';
       }
       return 'warning';
@@ -403,7 +400,7 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          virtual.bootState = virtual.bootState === 0 ? 3 : 2;
+          virtual.bootState = virtual.bootState === 0 ? 'starting' : 'stopping';
           ModifyOneStartup(id)
             .then(res => {
               const { message, data } = res.data;

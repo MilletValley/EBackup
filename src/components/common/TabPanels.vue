@@ -19,10 +19,12 @@
             <el-radio border
                       v-model="planFilterForm.planType"
                       v-if="type === 'oracle'"
+                      :disabled="!hasLogRestore"
                       label="logRestore">日志恢复</el-radio>
             <el-radio border
                       v-model="planFilterForm.planType"
                       v-if="type === 'oracle'"
+                      :disabled="!hasTableLevelRestore"
                       label="tblRestore">表级恢复</el-radio>
           </el-form-item>
           <el-form-item :class="$style.filterFormItem"
@@ -64,8 +66,10 @@
               <el-radio border
                         label="plan">全备+增备恢复</el-radio>
               <el-radio border
+                        :disabled="!hasLogRestore"
                         label="log">日志恢复</el-radio>
               <el-radio border
+                        :disabled="!hasTableLevelRestore"
                         label="table">表级恢复</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -95,6 +99,14 @@ export default {
       default: function() {
         return 'plans';
       }
+    },
+    hasTableLevelRestore: {
+      type: Boolean,
+      default: false
+    },
+    hasLogRestore: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
