@@ -20,6 +20,40 @@ const getTakeoverVerificationResultList = id =>
   });
 
 /**
+ * 下载数据库一键接管验证报告
+ * @param {Array} data 一键接管验证对象数组
+ */
+const downloadTakeoverVerificationReport = data => {
+  baseApi.request({
+    method: 'post',
+    url: '/verify/takeover/report',
+    data,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      scriptCharset: 'utf-8'
+    },
+    responseType: 'arraybuffer'
+  });
+};
+
+/**
+ * 下载数据库恢复验证报告
+ * @param {Array} data 数据库恢复验证对象数组
+ */
+const downloadRestoreVerificationReport = data => {
+  baseApi.request({
+    method: 'post',
+    url: '/verify/restore/report',
+    data,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      scriptCharset: 'utf-8'
+    },
+    responseType: 'arraybuffer'
+  });
+};
+
+/**
  * 获取数据库列表
  * @param {String} type 数据库类型
  */
@@ -155,6 +189,8 @@ const fetchHostPath = (type, id, data) =>
 export {
   getRestoreVerificationResultList,
   getTakeoverVerificationResultList,
+  downloadTakeoverVerificationReport,
+  downloadRestoreVerificationReport,
   fetchDBList,
   fetchLinks,
   fetchLink,
