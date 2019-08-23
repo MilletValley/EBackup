@@ -4,7 +4,7 @@
              @open="modalOpened"
              @close="modalClosed"
              :visible.sync="modalVisible"
-             title="添加表级恢复计划">
+             title="添加日志恢复计划">
     <el-form size="small"
              label-position="right"
              label-width="120px"
@@ -54,6 +54,7 @@
                         format="yyyy-MM-dd HH:mm:ss"
                         value-format="yyyy-MM-dd HH:mm:ss"
                         v-model="formData.restoreTimePoint"
+                        :picker-options="pickerOptions"
                         style="width: 100%"></el-date-picker>
       </el-form-item>
       <el-row>
@@ -132,6 +133,7 @@ export default {
       type: 'oracle',
       formData: {},
       originFormData: {},
+      pickerOptions: {},
       rules: {
         detailInfo: validate.instanceName,
         dbPort: validate.dbPort,
@@ -163,6 +165,14 @@ export default {
       },
       set(value) {
         this.$emit('update:btnLoading', value);
+      }
+    }
+  },
+  created() {
+    this.pickerOptions = {
+      disabledDate: time => {
+        console.log(time);
+        return dayjs(time) < dayjs(this.details.CDBTime) && dayjs(time) > dayjs(this.endTime);
       }
     }
   },

@@ -373,8 +373,9 @@ const verificationResultMapping = {
 const bootStateMapping = {
   0: '关机',
   1: '开机',
-  2: '关机中', // 自定义
-  3: '开机中' // 自定义
+  2: '未知',
+  starting: '开机中', // 自定义
+  stopping: '关机中' // 自定义
 };
 
 const bootModeMapping = {

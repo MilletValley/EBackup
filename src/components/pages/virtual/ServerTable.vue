@@ -19,7 +19,6 @@
                                  v-if="allVirtuals(props.row).length">
                       <el-card style="margin-top: 5px; margin-bottom: 5px">
                         <mutil-table :tableData="allVirtuals(props.row)"
-                                     :showBootBtn="true"
                                      :ref="props.row.id"
                                      :refTable="props.row.serverName"
                                      :selectData.sync="selectData"
@@ -27,8 +26,6 @@
                                      :size="customSize"
                                      :showDelete="showDelete"
                                      :vm-type="vmType"
-                                     :server-type="props.row.serverType"
-                                     :server-id="props.row.id"
                                      @refresh="refreshOneServer(props.row)"></mutil-table>
                       </el-card>
                     </el-tab-pane>
@@ -50,6 +47,7 @@
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
+                                     :server-id="props.row.id"
                                      :showBootBtn="true"
                                      :vm-type="vmType"
                                      @refresh="refreshOneServer(host)"></mutil-table>
@@ -143,7 +141,6 @@
       <power-boot-modal :visible.sync="setPowerBootModalVisible"
                         :virtuals="settingBootVirtuals.vmList"
                         :id="settingBootVirtuals.id"
-                        :server-type="settingBootVirtuals.serverType"
                         @refresh="refreshOneServer(settingBootVirtuals)"></power-boot-modal>
     </div>
     
@@ -295,6 +292,7 @@ export default {
     },
     setPowerBoot(item) {
       this.setPowerBootModalVisible = true;
+      console.log(item);
       this.settingBootVirtuals = item;
     }
   },

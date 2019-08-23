@@ -91,10 +91,11 @@
                 </el-table-column>
             </el-table>
         </el-row>
-        <backup-plan-update-modal type="vm" :disable="true"
-                              :visible.sync="backupPlanModalVisible"
-                              :backup-plan="selectedBackupPlan"
-                              @cancel="selectedBackupPlan = {}"></backup-plan-update-modal>
+        <backup-plan-update-modal type="vm"
+                                  :disable="true"
+                                  :visible.sync="backupPlanModalVisible"
+                                  :backup-plan="selectedBackupPlan"
+                                  @cancel="selectedBackupPlan = {}"></backup-plan-update-modal>
         
         <select-device-modal @confirm="selectedhandler"  :selected="{ }"
             :visible.sync="deviceModalVisible"></select-device-modal>
@@ -103,7 +104,7 @@
 </template>
 
 <script>
-import {fetchVmBackupPlanList, deletePlan, stopAllBackupPlan} from '@/api/virtuals';
+import {fetchVirtualBackupPlanList, deletePlan, stopAllBackupPlan} from '@/api/virtuals';
 import VirtualBackupTable from '@/components/modal/VirtualBackupTable';
 import BackupPlanUpdateModal from '@/components/modal/BackupPlanUpdateModal';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal'
@@ -139,7 +140,7 @@ export default {
     },
     methods: {
         fetchAll(){
-            fetchVmBackupPlanList().then( res => {
+            fetchVirtualBackupPlanList().then( res => {
                 const {data} = res.data;
                 this.tableData = data;
             }).catch( error => {

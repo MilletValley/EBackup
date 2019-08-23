@@ -69,6 +69,53 @@
                        min-width="150"
                        header-align="center"
                        align="center"></el-table-column>
+      <el-table-column prop="bootState"
+                         label="状态"
+                         align="center"
+                         v-if="[1, 3].includes(vmType)">
+          <template slot-scope="scope">
+            <el-tag size="mini"
+                    :type="scope.row.bootState | bootStateTagFilter">
+                    {{ bootStateMapping[scope.row.bootState] ? bootStateMapping[scope.row.bootState] : '未知' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="bootMode"
+                         label="启动方式"
+                         align="center"
+                         v-if="[1, 3].includes(vmType)">
+          <template slot-scope="scope">
+            <span>{{ bootModeMapping[scope.row.bootMode] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作"
+                         width="100"
+                         v-if="[1, 3].includes(vmType)"
+                         align="center">
+            <template slot-scope="scope">
+                                <el-button type="success"
+                           icon="el-icon-video-play"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           v-if="(!scope.row.bootState || [0, 2].includes(scope.row.bootState) && [1, 3].includes(vmType))"
+                           @click="modifyBootState(scope.row)"></el-button>
+                <el-button type="danger"
+                           icon="el-icon-video-pause"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           v-if="scope.row.bootState === 1 && [1, 3].includes(vmType)"
+                           @click="modifyBootState(scope.row)"></el-button>
+                <el-button type="warning"
+                           disabled
+                           icon="el-icon-loading"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           v-if="['starting', 'stopping'].includes(scope.row.bootState) && [1, 3].includes(vmType)"></el-button>
+            </template>
+        </el-table-column>
     </el-table>
     <div class="block" style="text-align: right">
         <el-pagination
@@ -102,11 +149,19 @@ import {
   fetchAll,
   createMultipleVirtualBackupPlan,
   rescan,
-  createLinks
+  createLinks,
+  ModifyOneStartup
 } from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import CreateLinkModal from '@/components/pages/virtual/takeover/CreateLinkModal';
-import { hostTypeMapping, databaseTypeMapping, virtualMapping, serverTypeMapping } from '@/utils/constant';
+import {
+  hostTypeMapping,
+  databaseTypeMapping,
+  virtualMapping,
+  serverTypeMapping,
+  bootModeMapping,
+  bootStateMapping
+} from '@/utils/constant';
 import { fetchServerList } from '@/api/host';
 import type from '@/store/type';
 export default {
@@ -130,6 +185,8 @@ export default {
       action: 'create',
       backupPlanCreateModalVisible: false,
       defaultSort: { prop: 'vmName', order: 'descending' },
+      bootModeMapping,
+      bootStateMapping
     };
   },
   computed: {
@@ -209,6 +266,16 @@ export default {
       this.fetchData();
     },
   },
+  filters: {
+    bootStateTagFilter(state) {
+      if (state === 1) {
+        return 'success';
+      } else if (state === 0) {
+        return 'danger';
+      }
+      return 'warning';
+    }
+  },
   methods: {
     fetchData() {
       fetchAll()
@@ -231,6 +298,29 @@ export default {
         .catch(error => {
           this.$message.error(error);
         })
+    },
+    modifyBootState(virtual) {
+      const { id, vmName, bootState } = virtual;
+      this.$confirm(`此操作将${bootState === 0 ? '开启' : '关闭'}虚拟机${vmName}, 是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          virtual.bootState = virtual.bootState === 0 ? 'starting' : 'stopping';
+          ModifyOneStartup(id)
+            .then(res => {
+              const { message, data } = res.data;
+              this.$message.success(message);
+              this.$emit('refresh', id);
+            })
+            .catch(error => {
+              this.$message.error(error);
+            });
+        })
+        .catch(() => {
+          this.$message.info('已取消操作！');
+        });
     },
     selectFn(row, index) { // 限制虚拟机一键接管是否可选
       if ([1, 3].includes(this.vmType))
