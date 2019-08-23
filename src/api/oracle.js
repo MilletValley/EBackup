@@ -255,6 +255,20 @@ const cutBackSwitch = linkIds =>
     data: { linkIds }
   });
 
+const createTableLevelRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/oracles/${id}/oracle-tbl-restore-plans`,
+    data
+  });
+
+const createLogRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/oracles/${id}/oracle-log-restore-plans`,
+    data
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -286,5 +300,7 @@ export {
   fetchLinkByLinkId,
   failOver,
   restoreSingleSwitch,
-  cutBackSwitch
+  cutBackSwitch,
+  createTableLevelRestorePlan,
+  createLogRestorePlan
 };

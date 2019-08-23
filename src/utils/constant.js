@@ -19,6 +19,7 @@ const backupStrategyMapping = {
   0: '全备',
   1: '全备+增备',
   2: '全备+日志备份',
+  3: 'CDB持续备份'
 };
 
 // 文件备份策略
@@ -370,15 +371,21 @@ const verificationResultMapping = {
 };
 
 const bootStateMapping = {
+  0: '关机',
   1: '开机',
-  2: '关机',
-  3: '开机中', // 自定义
-  4: '关机中' // 自定义
+  2: '关机中', // 自定义
+  3: '开机中' // 自定义
 };
 
 const bootModeMapping = {
-  1: '手动',
-  2: '自动'
+  0: '手动',
+  1: '自动'
+};
+
+const restoreTypeMapping = {
+  1: '全备+增备恢复',
+  2: '日志恢复',
+  3: '表级恢复'
 };
 
 export {
@@ -433,5 +440,6 @@ export {
   syncOperationMapping,
   verificationResultMapping,
   bootStateMapping,
-  bootModeMapping
+  bootModeMapping,
+  restoreTypeMapping
 };

@@ -113,6 +113,7 @@ const strategyMapping = {
   },
   oracle: {
     1: [0, 2, 3, 4, 5],
+    3: [3, 4, 5]
   },
   mysql: {
     1: [0, 2, 3, 4, 5],

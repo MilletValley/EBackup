@@ -106,7 +106,7 @@ import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin'
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
 
-const basiceFormData = {
+const basicFormData = {
   name: '',
   hostIp: '',
   detailInfo: '',
@@ -191,7 +191,7 @@ export default {
       };
     },
     modalOpened() {
-      const baseFormData = cloneDeep(basiceFormData);
+      const baseFormData = cloneDeep(basicFormData);
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign(
           {},

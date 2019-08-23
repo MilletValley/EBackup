@@ -16,6 +16,14 @@
             <el-radio border
                       v-model="planFilterForm.planType"
                       label="restore">恢复计划</el-radio>
+            <el-radio border
+                      v-model="planFilterForm.planType"
+                      v-if="type === 'oracle'"
+                      label="logRestore">日志恢复</el-radio>
+            <el-radio border
+                      v-model="planFilterForm.planType"
+                      v-if="type === 'oracle'"
+                      label="tblRestore">表级恢复</el-radio>
           </el-form-item>
           <el-form-item :class="$style.filterFormItem"
                         label="隐藏已完成计划">
@@ -28,9 +36,8 @@
 
         <template>
           <!-- 恢复计划面板 -->
-          <slot name="restoreCard"></slot>             
+          <slot name="restoreCard"></slot>
         </template>
-
       </el-tab-pane>
       <el-tab-pane :label="['windows', 'linux'].includes(type)?'备份记录':'备份集'"
                    name="results">
@@ -47,7 +54,23 @@
       <el-tab-pane label="恢复记录"
                    name="restore">
         <!-- 恢复记录列表-->
-        <slot name="restoreRecord"></slot>                
+        <el-form inline
+                size="small"
+                v-if="type === 'oracle'"
+                :class="$style.filterForm">
+          <el-form-item :class="$style.filterFormItem">
+            <el-radio-group v-model="recordType"
+                            @change="recordTypeChange">
+              <el-radio border
+                        label="plan">全备+增备恢复</el-radio>
+              <el-radio border
+                        label="log">日志恢复</el-radio>
+              <el-radio border
+                        label="table">表级恢复</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
+        <slot name="restoreRecord"></slot>
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -81,6 +104,7 @@ export default {
       restorePlanFilterForm: {
         hiddenCompletePlan: false,
       },
+      recordType: 'plan'
     };
   },
   computed: {
@@ -98,11 +122,17 @@ export default {
     } else if (this.$route.params.type === 'restore') {
       this.activeTab = 'restore';
     }
+    if (this.type === 'oracle') {
+      this.$emit('filterRecords', this.recordType);
+    }
   },
   methods: {
     switchPane({ name }) {
       this.$emit('switchpane', name);
     },
+    recordTypeChange() {
+      this.$emit('filterRecords', this.recordType);
+    }
   },
   components: {
     IIcon,

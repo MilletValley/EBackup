@@ -143,7 +143,8 @@
       <power-boot-modal :visible.sync="setPowerBootModalVisible"
                         :virtuals="settingBootVirtuals.vmList"
                         :id="settingBootVirtuals.id"
-                        :server-type="settingBootVirtuals.serverType"></power-boot-modal>
+                        :server-type="settingBootVirtuals.serverType"
+                        @refresh="refreshOneServer(settingBootVirtuals)"></power-boot-modal>
     </div>
     
 </template>

@@ -100,17 +100,11 @@ const detailPageMixin = {
         fetchRestoreOperation(this.type, id)
           .then(response => {
             const { data } = response.data;
-            // const { state, startTime, consume } = data;
             Object.assign(
               this.restorePlans.find(
                 plan => plan.id === id
               ),
               data
-              // {
-              //   state,
-              //   startTime,
-              //   consume,
-              // }
             );
           })
           .catch(error => {
@@ -148,7 +142,7 @@ const detailPageMixin = {
       return applyFilterMethods(this.backupPlans, filterMethods);
     },
     filteredRestorePlans() {
-      if (this.planFilterForm.planType !== 'restore') {
+      if (!['restore', 'tblRestore', 'logRestore'].includes(this.planFilterForm.planType)) {
         return [];
       }
       const filterMethods = [];
@@ -156,7 +150,7 @@ const detailPageMixin = {
         filterMethods.push(plan => plan.state !== 2);
       }
       return applyFilterMethods(this.restorePlans, filterMethods);
-    },
+    }
   },
   methods: {
     queryVerifyResult() {
@@ -182,6 +176,14 @@ const detailPageMixin = {
       } else if (command === 'restore') {
         this.restorePlanModalVisible = true;
         this.restoreAction = 'create';
+      } else if (command === 'tblRestore') {
+        this.tableLevelRestorePlanModalVisible = true;
+      } else if (command === 'logRestore') {
+        if (!this.details.CDBTime) {
+          this.$message.warning('请先进行CDB连续备份');
+        } else {
+          this.logRestorePlanModalVisible = true;
+        }
       }
     },
     // 单次恢复弹窗
