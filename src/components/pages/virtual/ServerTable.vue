@@ -42,15 +42,16 @@
                         </div>
                         <mutil-table :tableData="host.vmList"
                                      :ref="host.id"
+                                     :server-id="host.id"
                                      :refTable="host.serverName"
                                      :selectData.sync="selectData"
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
-                                     :server-id="props.row.id"
                                      :showBootBtn="true"
                                      :vm-type="vmType"
-                                     @refresh="refreshOneServer(host)"></mutil-table>
+                                     @refresh="refreshOneServer(host)"
+                                     @refresh-and-set-power="refreshAndSetPower(host)"></mutil-table>
                       </el-card>
                     </el-tab-pane>
                   </el-tabs>
@@ -250,6 +251,23 @@ export default {
         this.$message.error(error);
       });
     },
+    refreshAndSetPower(row) {
+      getVirtualByserverId(row.id).then(res => {
+        const ids = row.vmList.map(i => i.id);
+        this.selectData = this.selectData.filter(e => {
+          if (ids.includes(e.id) && !this.curSelectData.some(n => n.id === e.id)) {
+            return false;
+          }
+          return true;
+        });
+        const { data } = res.data;
+        row.vmList = data;
+        this.settingBootVirtuals = row;
+        this.setPowerBootModalVisible = true;
+      }).catch(error => {
+        this.$message.error(error);
+      });
+    },
     refresh(scope) {
       scope.row.disabled = true;
       scope.row.icon = 'el-icon-loading';
@@ -292,7 +310,6 @@ export default {
     },
     setPowerBoot(item) {
       this.setPowerBootModalVisible = true;
-      console.log(item);
       this.settingBootVirtuals = item;
     }
   },
