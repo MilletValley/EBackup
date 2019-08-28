@@ -1,5 +1,5 @@
 import throttle from 'lodash/throttle';
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { applyFilterMethods } from '@/utils/common';
 import IIcon from '@/components/IIcon';
 import TabPanels from '@/components/common/TabPanels';
@@ -181,6 +181,8 @@ const detailPageMixin = {
       } else if (command === 'logRestore') {
         if (!this.details.CDBTime) {
           this.$message.warning('请先进行CDB连续备份');
+        } else if (!this.firstFullBackupResultEndTime) {
+          this.$message.warning('不存在成功的全备备份集，无法进行日志恢复');
         } else {
           this.logRestorePlanModalVisible = true;
         }
@@ -223,7 +225,7 @@ const detailPageMixin = {
       clearInterval(this.timer);
     },
     sortPlans(plans) {
-      return plans.slice().sort((a, b) => a.config.startTime < b.config.startTime);
+      return plans.slice().sort((a, b) => dayjs(b.config.startTime) - dayjs(a.config.startTime));
     },
     getDatabaseDetails() {
       fetchOne(this.type, this.id)

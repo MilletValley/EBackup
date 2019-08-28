@@ -57,7 +57,7 @@ export default {
               type: 'bar',
               barMinHeight: 5,
               data: [
-                this.record.recordCountOnRuning,
+                this.record.recordCountOnRunning,
                 this.record.recordCountOnReportGenerating,
                 this.record.recordCountOnFail,
                 this.record.recordCountOnSuccess,

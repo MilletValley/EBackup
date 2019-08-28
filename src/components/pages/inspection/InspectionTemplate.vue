@@ -2,8 +2,9 @@
   <div>
     <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/template`"
             frameborder="0"
+            scrolling="auto"
             width="100%"
-            height="800"
+            class="iframe"
             ref="inspectionTemplate"></iframe>
   </div>
 </template>
@@ -39,3 +40,8 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.iframe {
+  height: calc(100vh - 110px);
+}
+</style>

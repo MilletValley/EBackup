@@ -66,7 +66,7 @@
                          align="center"
                          v-if="[1, 3].includes(vmType)">
           <template slot-scope="scope">
-            <span>{{ bootModeMapping[scope.row.bootMode] }}</span>
+            <span>{{ bootModeMapping[scope.row.bootMode] ? bootModeMapping[scope.row.bootMode] : '未知' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="vmHostName"
@@ -126,10 +126,12 @@
     
 </template>
 <script>
-import { getVirtualByserverId, deleteVirtualInServerHost, ModifyOneStartup } from '@/api/virtuals';
+import { getVirtualByServerId, deleteVirtualInServerHost, ModifyOneStartup } from '@/api/virtuals';
 import { virtualMapping, bootModeMapping, bootStateMapping } from '@/utils/constant';
 import ValidateUserPassword from '@/components/pages/virtual/ValidateUserPassword';
+import { sockMixin } from '@/components/mixins/commonMixin';
 export default {
+  mixins: [sockMixin],
   props: {
     tableData: {
       type: Array,
@@ -171,7 +173,7 @@ export default {
       settingBootVirtuals: [],
       virtualMapping,
       bootStateMapping,
-      bootModeMapping
+      bootModeMapping,
     };
   },
   mounted() {
@@ -289,15 +291,10 @@ export default {
     selectDataIds() {
       return this.selectData.length ? this.selectData.map(v => Number(v.hostId)) : [];
     }
-    // curTableData: {
-    //     get() {
-    //         return this.tableData;
-    //     }
-    // },
   },
   methods: {
     refresh(id) {
-      getVirtualByserverId(id)
+      getVirtualByServerId(id)
         .then(res => {
           const { data } = res.data;
           //更新数据前，去除已选数据。表格刷新后默认清空该表格的选中状态
@@ -316,6 +313,19 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+    },
+    connectCallback(client) {
+      this.stompClient.subscribe('/virtual', msg => {
+        let { data: virtual } = JSON.parse(msg.body);
+        const index = this.tableData.findIndex(item => item.id === virtual.id);
+        if (index > -1) {
+          this.tableData.splice(
+            index,
+            1,
+            virtual
+          )
+        }
+      });
     },
     refreshAll() {
       this.$emit('refresh-and-set-power');

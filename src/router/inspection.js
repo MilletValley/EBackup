@@ -5,7 +5,7 @@ import InspectionConfig from '@/components/pages/inspection/InspectionConfig';
 
 const router = [
   {
-    path: '/inspection',
+    path: '/inspect',
     component: Layout,
     meta: {
       title: '智能巡检',
@@ -30,7 +30,7 @@ const router = [
             },
             {
               name: '巡检任务',
-              path: '/inspection/task',
+              path: '/inspect/task',
             },
           ],
         }
@@ -51,7 +51,7 @@ const router = [
             },
             {
               name: '模板',
-              path: '/inspection/template',
+              path: '/inspect/template',
             },
           ],
         }
@@ -72,7 +72,7 @@ const router = [
             },
             {
               name: '参数配置',
-              path: '/inspection/config',
+              path: '/inspect/config',
             },
           ],
         }

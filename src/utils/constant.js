@@ -380,7 +380,8 @@ const bootStateMapping = {
 
 const bootModeMapping = {
   0: '手动',
-  1: '自动'
+  1: '自动',
+  2: '未知'
 };
 
 const restoreTypeMapping = {

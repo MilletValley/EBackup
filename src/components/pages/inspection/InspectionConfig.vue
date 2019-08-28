@@ -1,7 +1,8 @@
 <template>
   <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/system/params/config`"
           width="100%"
-          height="800"
+          class="iframe"
+          scrolling="auto"
           frameborder="0"
           ref="inspectionConfig"></iframe>
 </template>
@@ -30,3 +31,8 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.iframe {
+  height: calc(100vh - 110px);
+}
+</style>

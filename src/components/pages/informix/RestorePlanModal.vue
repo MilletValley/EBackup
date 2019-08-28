@@ -51,7 +51,11 @@
 						</el-form-item>
 					</el-col>
 				</el-row>
-        
+        <el-form-item label="服务名"
+                      prop="serverName">
+          <el-input v-model="formData.serverName"
+                    placeholder="请输入服务名"></el-input>
+        </el-form-item>
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="登录名"
@@ -103,11 +107,12 @@ import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin'
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
 
-const basiceFormData = {
+const basicFormData = {
   name: '',
   hostIp: '',
   detailInfo: '',
   dbPort: '',
+  serverName: '',
   loginName: '',
   password: '',
   startTime: '',
@@ -132,6 +137,7 @@ export default {
         detailInfo: validate.dbName,
         hostIp: validate.selectHost,
         dbPort: validate.dbPort,
+        serverName: [{ required: true, message: '请输入服务名', trigger: 'blur' }],
         loginName: validate.dbLoginName,
         password: validate.dbPassword,
       },
@@ -172,7 +178,7 @@ export default {
       };
     },
     modalOpened() {
-      const baseFormData = cloneDeep(basiceFormData);
+      const baseFormData = cloneDeep(basicFormData);
       if (this.action === 'update' || this.action === 'query') {
         this.originFormData = Object.assign(
           {},
@@ -180,8 +186,8 @@ export default {
           this.fmtData({ ...this.restorePlan })
         );
       } else {
-        const {instanceName, dbPort} = this.details;
-        this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort});
+        const {instanceName, dbPort, serverName} = this.details;
+        this.originFormData = Object.assign({}, baseFormData, { detailInfo: instanceName, dbPort, serverName });
       }
       // 暂时清空密码，等后台删除密码返回后可删除此行
       this.originFormData.password = '';

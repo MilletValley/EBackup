@@ -46,7 +46,11 @@
 						</el-form-item>
 					</el-col>
 				</el-row>
-        
+        <el-form-item label="服务名"
+                      prop="serverName">
+          <el-input v-model="formData.serverName"
+                    placeholder="请输入服务名"></el-input>
+        </el-form-item>
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="数据库登录名"
@@ -79,6 +83,7 @@ const baseFormData = {
   hostIp: '',
   detailInfo: '',
   dbPort: '',
+  serverName: '',
   loginName: '',
   password: '',
 };
@@ -101,6 +106,7 @@ export default {
         hostIp: validate.selectHost,
         detailInfo: validate.dbName,
         dbPort: validate.dbPort,
+        serverName: [{ required: true, message: '请输入服务名', trigger: 'blur' }],
         loginName: validate.dbLoginName,
         password: validate.dbPassword,
       },
@@ -122,8 +128,8 @@ export default {
       this.hiddenPassword = true;
     },
     modalOpened() {
-      const {instanceName, dbPort} = this.details;
-      this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort});
+      const {instanceName, dbPort, serverName} = this.details;
+      this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort, serverName});
       this.formData = Object.assign({}, this.originFormData);
     }
   },

@@ -248,7 +248,9 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini"
+                        v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -439,7 +441,9 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini"
+                        v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>

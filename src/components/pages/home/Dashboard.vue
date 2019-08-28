@@ -321,7 +321,9 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini"
+                        v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -489,7 +491,8 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini" v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -782,8 +785,10 @@ export default {
     theme() {
       this.drawSpaceChartData();
     },
-    hasInspectConfig() {
-      this.fetchInspectData();
+    hasInspectConfig(val) {
+      if (val) {
+        this.fetchInspectData();
+      }
     }
   },
   methods: {
@@ -819,6 +824,9 @@ export default {
           const { data } = res.data;
           this.inspect = data.inspect;
           this.record = data.record;
+        })
+        .catch(error => {
+          this.$message.error(error);
         })
     },
     calcPercent(diviver, dividend) {
