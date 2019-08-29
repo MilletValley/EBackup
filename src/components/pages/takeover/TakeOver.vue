@@ -239,7 +239,7 @@
                                             @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
                           <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
                                             @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link))"
+                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link, hostLink))"
                                             @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
                         </span>
                       </el-dropdown-menu>
@@ -437,7 +437,7 @@
                           <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
                                             :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
-                                            :disabled="!(availableCutBackSingle(dbLink))">回切初始化</el-dropdown-item>
+                                            :disabled="!(availableCutBackSingle(dbLink, hostLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -847,7 +847,7 @@ export default {
       this.cutBackVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
-      const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
+      const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item, hostLink)) : link;
       this.hostLinkSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
     },
     // 单切恢复（单个、批量）
@@ -1152,7 +1152,7 @@ export default {
         ● 生产库备，非正常
         ● Windows、Linux的11g
     **/
-    availableCutBackSingle({ state, viceDatabase, primaryDatabase }) {
+    availableCutBackSingle({ state, viceDatabase, primaryDatabase }, { primaryHost }) {
       if (state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
         (primaryDatabase.role === 2 && primaryDatabase.state !== 1)) {
         switch(this.osType(primaryHost)) {
