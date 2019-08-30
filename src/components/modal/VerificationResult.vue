@@ -25,10 +25,10 @@
             width="80">
             <template slot-scope="scope">
               <el-row class="source_row">
-                <el-tag size="small">源</el-tag>
+                <el-tag size="small">生产</el-tag>
               </el-row>
               <el-row class="target_row">
-                <el-tag type="warning" size="small">目标</el-tag>
+                <el-tag type="warning" size="small">易备</el-tag>
               </el-row>
             </template>
           </el-table-column>
