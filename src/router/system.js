@@ -7,6 +7,7 @@ import KeepStrategy from '@/components/pages/keepStrategy/KeepStrategy';
 import PortList from '@/components/pages/port/PortList';
 import CloudStorageList from '@/components/pages/cloudConfig/CloudStorageList';
 import Users from '@/components/pages/Users';
+import EmailConfigList from '@/components/pages/emailConfig/EmailConfigList';
 
 const router = [
   {
@@ -69,6 +70,14 @@ const router = [
               title: '邮箱管理',
               roles: [],
             },
+          },
+          {
+            path: 'email-config',
+            component: EmailConfigList,
+            meta: {
+              title: '邮箱设置',
+              roles: []
+            }
           },
           {
             path: 'systemparam',

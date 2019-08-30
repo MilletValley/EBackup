@@ -390,6 +390,12 @@ const restoreTypeMapping = {
   3: '表级恢复'
 };
 
+const emailConfigTimeStrategyMapping = {
+  1: '每天',
+  2: '每周',
+  3: '每月'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -443,5 +449,6 @@ export {
   verificationResultMapping,
   bootStateMapping,
   bootModeMapping,
-  restoreTypeMapping
+  restoreTypeMapping,
+  emailConfigTimeStrategyMapping
 };
