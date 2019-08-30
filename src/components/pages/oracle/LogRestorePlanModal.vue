@@ -46,17 +46,36 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item label="恢复至"
-                    class="is-required"
-                    prop="restoreTimePoint"
-                    style="width: 50%">
-        <el-date-picker type="datetime"
-                        format="yyyy-MM-dd HH:mm:ss"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        v-model="formData.restoreTimePoint"
-                        :picker-options="pickerOptions"
-                        style="width: 100%"></el-date-picker>
-      </el-form-item>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="恢复至(日期)"
+                        class="is-required"
+                        prop="restoreDatePicker">
+            <el-date-picker v-model="formData.restoreDatePicker"
+                            type="date"
+                            format="yyyy-MM-dd"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期"
+                            :picker-options="dateOptions"
+                            style="width: 100%"
+                            @change="dateChangeHandle"></el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item class="is-required"
+                        label-position="left"
+                        label="恢复至(时间)"
+                        prop="restoreTimePicker">
+            <el-time-picker v-model="formData.restoreTimePicker"
+                            :disabled="!formData.restoreDatePicker"
+                            placeholder="选择时间"
+                            format="HH:mm:ss"
+                            value-format="HH:mm:ss"
+                            :picker-options="timeOptions"
+                            style="width: 100%"></el-time-picker>
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-row>
         <el-col :span="12">
           <el-form-item prop="loginName"
@@ -97,6 +116,8 @@ const basicFormData = {
   dbPort: '',
   loginName: '',
   password: '',
+  restoreDatePicker: '',
+  restoreTimePicker: '',
   restoreTimePoint: ''
 };
 export default {
@@ -118,32 +139,22 @@ export default {
     }
   },
   data() {
-    const restoreTimePointValidate = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请选择恢复时间点'));
-      } else if (dayjs(value) > dayjs(this.details.CDBTime)) {
-        callback(new Error('恢复时间点不能晚于最近一次CDB备份成功时间'));
-      } else if (dayjs(value) < dayjs(this.endTime)) {
-        callback(new Error('恢复时间点不能早于全备成功时间'));
-      } else {
-        callback();
-      }
-    }
     return {
       type: 'oracle',
       formData: {},
       originFormData: {},
-      pickerOptions: {},
+      dateOptions: {},
+      timeOptions: {},
       rules: {
         detailInfo: validate.instanceName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,
         password: validate.dbPassword,
-        restoreTimePoint: [
-          {
-            validator: restoreTimePointValidate,
-            triggle: 'blur'
-          }
+        restoreTimePicker: [
+          { required: true, message: '请选择恢复时间', triggle: 'blur' }
+        ],
+        restoreDatePicker: [
+          { required: true, message: '请选择恢复日期', triggle: 'blur' }
         ]
       }
     }
@@ -169,10 +180,9 @@ export default {
     }
   },
   created() {
-    this.pickerOptions = {
+    this.dateOptions = {
       disabledDate: time => {
-        console.log(time);
-        return dayjs(time) < dayjs(this.details.CDBTime) && dayjs(time) > dayjs(this.endTime);
+        return dayjs(time) > dayjs(this.details.CDBTime) || dayjs(time) < dayjs(this.endTime).subtract(1, 'day');
       }
     }
   },
@@ -196,7 +206,18 @@ export default {
         if (valid) {
           this.loading = true;
           const name = dayjs().format('YYYYMMDDHHmmss');
-          const config = {timeStrategy: 1, singleTime: '', ...this.formData };
+          const {
+            restoreDatePicker,
+            restoreTimePicker,
+            restoreTimePoint,
+            ...form
+          } = this.formData;
+          const config = {
+            timeStrategy: 1,
+            singleTime: '',
+            restoreTimePoint: `${restoreDatePicker} ${restoreTimePicker}`,
+            ...form
+          };
           createLogRestorePlan(this.details.id, { name, config })
             .then(res => {
               const { message } = res.data;
@@ -218,6 +239,26 @@ export default {
     modalClosed() {
       this.formData = Object.assign({}, basicFormData);
       this.originFormData = Object.assign({}, basicFormData);
+    },
+    dateChangeHandle(date) {
+      this.formData.restoreTimePicker = '';
+      const CDBTime = dayjs(this.details.CDBTime).format('HH:mm:ss');
+      const endTime = dayjs(this.endTime).format('HH:mm:ss');
+      const sameToCDBTime = dayjs(date).isSame(dayjs(this.details.CDBTime).format('YYYY-MM-DD'));
+      const sameToEndTime = dayjs(date).isSame(dayjs(this.endTime).format('YYYY-MM-DD'));
+      if (sameToCDBTime && sameToEndTime) {
+        this.timeOptions = {
+          selectableRange: `${CDBTime} - ${endTime}`
+        };
+      } else if (sameToCDBTime) {
+        this.timeOptions = {
+          selectableRange: `00:00:00 - ${CDBTime}`
+        };
+      } else if (sameToEndTime) {
+        this.timeOptions = {
+          selectableRange: `${endTime} - 23:59:59`
+        };
+      }
     }
   }
 }

@@ -240,7 +240,7 @@ export default {
       fetchSwitches(this.databaseType, this.id)
         .then(res => {
           const { data: switches } = res.data;
-          this.switches = switches;
+          this.switches = Array.isArray(switches) ? switches : [];
         })
         .catch(error => {
           this.$message.error(error);

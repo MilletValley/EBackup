@@ -54,7 +54,7 @@ const Donut = {
               .each(d => { this._current = d; });
     
         slices.selectAll(".percent").data(_data).enter().append("text").attr("class", "percent")
-              .attr("x",d => 0.5*rx*Math.cos(1*(d.startAngle+d.endAngle)))
+              .attr("x",d => 0.6*rx*Math.cos(0.5*(d.startAngle+d.endAngle)))
               .attr("y",d => 0.6*ry*Math.sin(0.5*(d.startAngle+d.endAngle)))
               // .attr("text-anchor","middle")
               .style("font-weight", 700)

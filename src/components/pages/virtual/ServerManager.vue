@@ -35,9 +35,10 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVirtualByserverId,
+  getVirtualByServerId,
   createLinks
 } from '@/api/virtuals';
+import { sockMixin } from '@/components/mixins/commonMixin';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import ServerTable from '@/components/pages/virtual/ServerTable';
 import ServerModal from '@/components/modal/ServerModal';
@@ -57,6 +58,7 @@ export default {
     CreateLinkModal,
     MutilTable,
   },
+  mixins: [sockMixin],
   data() {
     return {
       serverTableData: [],
@@ -108,6 +110,27 @@ export default {
         .then(() => {
           this.serverTableData = this.serverTableData.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
         })
+    },
+    connectCallback(client) {
+      this.stompClient.subscribe('/virtual-server-list', msg => {
+        let { data: list } = JSON.parse(msg.body);
+        if (!Array.isArray(list)) {
+            this.serverTableData = [];
+            this.currentSelect = [];
+            return;
+          }
+          let ids = [];
+          let tdata = list.map(e => {
+            let vmList = Array.isArray(e.vmList) ? e.vmList : [];
+            ids = ids.concat(vmList);
+            e.disabled = false;
+            e.icon = 'el-icon-refresh';
+            e.delBtnIcon = 'el-icon-delete';
+            return e;
+          });
+          this.serverTableData = tdata;
+          this.currentSelect = this.currentSelect.filter(item => ids.includes(item.id));
+      });
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
@@ -269,7 +292,7 @@ export default {
       setTimeout(() => {
         rescan(scope.row)
           .then(res => {
-            getVirtualByserverId(scope.row.id).then(res => {
+            getVirtualByServerId(scope.row.id).then(res => {
               const ids = scope.row.vmList.map(i => i.id);
               this.currentSelect = this.currentSelect.filter(e => {
                 if (ids.includes(e.id)) {

@@ -722,7 +722,6 @@ export default {
         const links = hostLink.databaseLinks;
         const productionHost = hostLink.primaryHost;
         const ebackupHost = hostLink.viceHost;
-        console.log(links);
         links.forEach(link => {
           link.primaryDatabase.host = productionHost;
           link.viceDatabase.host = ebackupHost;
@@ -809,9 +808,7 @@ export default {
       this.cutBackVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
-      console.log(hostLink, databaseLinks);
       const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
-      // const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
       this.hostLinkSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
     },
     // 单切恢复（单个、批量）

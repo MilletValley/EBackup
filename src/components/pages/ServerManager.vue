@@ -94,7 +94,7 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVirtualByserverId,
+  getVirtualByServerId,
 } from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
 import ServerModal from '@/components/modal/ServerModal';
@@ -269,7 +269,7 @@ export default {
     },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
-      getVirtualByserverId(row.id).then(res => {
+      getVirtualByServerId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.currentSelect = this.currentSelect.filter(e => {
           if (ids.includes(e.id)) {

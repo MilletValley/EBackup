@@ -204,7 +204,7 @@ const getVirtualsBackupResult = id =>
     url: `/virtual-backup-plans/virtuals/details/${id}`
   });
 
-const getVirtualByserverId = id =>
+const getVirtualByServerId = id =>
   baseApi.request({
     method: 'get',
     url: `/virtuals/hosts/server/vmList/${id}`
@@ -347,7 +347,7 @@ export {
   rescan,
   fetchVirtualBackupPlanList,
   getVirtualsBackupResult,
-  getVirtualByserverId,
+  getVirtualByServerId,
   deletePlan,
   stopAllBackupPlan,
   deleteVirtualInServerHost,

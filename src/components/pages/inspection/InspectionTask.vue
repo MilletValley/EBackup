@@ -2,8 +2,9 @@
   <div style="width: 100%; height: 100%;">
     <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/inspection`"
             width="100%"
-            height="800"
+            class="iframe"
             frameborder="0"
+            scrolling="auto"
             ref="inspectionTask"></iframe>
   </div>
 </template>
@@ -16,10 +17,6 @@ export default {
   name: 'InspectionTask',
   mixins: [inspectionMixin],
   watch: {
-    // height(val) {
-    //   const iframe = this.$refs['inspectionTask'];
-    //   iframe.height = val;
-    // },
     theme() {
       const iframe = this.$refs['inspectionTask'];
       iframe.src = iframe.src.split('#')[0] + `#theme=${this.theme}`;
@@ -34,3 +31,9 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+.iframe {
+  height: calc(100vh - 110px);
+  width: calc(100% + 20px);
+}
+</style>

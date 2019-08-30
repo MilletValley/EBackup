@@ -85,7 +85,7 @@
                          align="center"
                          v-if="[1, 3].includes(vmType)">
           <template slot-scope="scope">
-            <span>{{ bootModeMapping[scope.row.bootMode] }}</span>
+            <span>{{ bootModeMapping[scope.row.bootMode] ? bootModeMapping[scope.row.bootMode] : '未知' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作"
@@ -164,8 +164,10 @@ import {
 } from '@/utils/constant';
 import { fetchServerList } from '@/api/host';
 import type from '@/store/type';
+import { sockMixin } from '@/components/mixins/commonMixin';
 export default {
   name: 'VirtualList',
+  mixins: [sockMixin],
   components: {
     BackupPlanModal,
     CreateLinkModal
@@ -277,6 +279,16 @@ export default {
     }
   },
   methods: {
+    connectCallback(client) {
+      this.stompClient.subscribe('/virtual', msg => {
+        let { data: virtual } = JSON.parse(msg.body);
+        this.vmItems.splice(
+          this.vmItems.findIndex(item => item.id === virtual.id),
+          1,
+          virtual
+        );
+      });
+    },
     fetchData() {
       fetchAll()
         .then(res => {
@@ -292,7 +304,8 @@ export default {
         });
       fetchServerList()
         .then(res => {
-          const { data:serverData } = res.data;
+          const { data } = res.data;
+          let serverData = Array.isArray(data) ? data : [];
           this.serverData = serverData.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
         })
         .catch(error => {

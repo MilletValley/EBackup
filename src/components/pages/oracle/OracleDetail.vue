@@ -270,7 +270,7 @@ export default {
       );
     },
     filterRestorePlansByRecordType() {
-      return this.filteredRestorePlans.filter(plan => {
+      return this.restorePlans.filter(plan => {
         if (plan.config) {
           return plan.config.planType === restoreRecordRadioType[this.recordType];
         }
@@ -280,7 +280,7 @@ export default {
     firstFullBackupResultEndTime() {
       const result = this.results.filter(result => result.backupType === 1 && result.state === 0)
         .sort((pre, next) => dayjs(next.endTime) - dayjs(pre.endTime));
-      return result.length ? result[0].endTime : '';
+      return result.length ? result[result.length-1].endTime : '';
     },
     hasCDBBackupPlan() {
       return this.backupPlans.some(plan => plan.config && plan.config.backupStrategy === 3);

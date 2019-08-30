@@ -151,7 +151,7 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVirtualByserverId,
+  getVirtualByServerId,
 } from '@/api/virtuals';
 import MutilTable from '@/components/modal/MutilTable';
 import PowerBootModal from '@/components/pages/virtual/PowerBootModal';
@@ -237,7 +237,7 @@ export default {
     },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
-      getVirtualByserverId(row.id).then(res => {
+      getVirtualByServerId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.selectData = this.selectData.filter(e => {
           if (ids.includes(e.id) && !this.curSelectData.some(n => n.id === e.id)) {
@@ -252,7 +252,7 @@ export default {
       });
     },
     refreshAndSetPower(row) {
-      getVirtualByserverId(row.id).then(res => {
+      getVirtualByServerId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.selectData = this.selectData.filter(e => {
           if (ids.includes(e.id) && !this.curSelectData.some(n => n.id === e.id)) {

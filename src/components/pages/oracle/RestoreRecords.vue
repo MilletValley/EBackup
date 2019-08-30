@@ -66,7 +66,7 @@
               </el-col>
             </el-row>
             <el-row :class="$style.margin14"
-                    v-if="item.config.planType === 2">
+                    v-if="item.config.planType === 3">
               <el-col :span=18>
                 <el-tooltip content="表名"
                             placement="right"

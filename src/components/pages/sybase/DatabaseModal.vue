@@ -40,8 +40,8 @@
           </el-input>
         </el-form-item>
         <el-form-item label="数据库名"
-                      prop="dbName">
-          <el-input v-model="formData.dbName"
+                      prop="instanceName">
+          <el-input v-model="formData.instanceName"
                     placeholder="请输入要备份的数据库名"></el-input>
         </el-form-item>
         <el-row>
@@ -121,7 +121,7 @@ export default {
       name: validate.name,
       dbPort: validate.dbPort,
       // hostId:validate.selectHost,
-      dbName: validate.dbName,
+      instanceName: validate.dbName,
       loginName: validate.dbLoginName,
       password: validate.dbPassword,
       dbVersion: validate.dbVersion,
@@ -134,7 +134,7 @@ export default {
       baseData: {
         name: '',
         hostId: '',
-        dbName: '',
+        instanceName: '',
         dbPort: "",
         loginName: '',
         password: '',
@@ -154,7 +154,7 @@ export default {
         if (valid) {
           const {
             id,
-            dbName,
+            instanceName,
             name,
             loginName,
             password,
@@ -165,7 +165,7 @@ export default {
           } = this.formData;
           this.$emit('confirm', {
             id,
-            dbName,
+            instanceName,
             name,
             loginName,
             password,

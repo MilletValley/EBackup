@@ -122,8 +122,8 @@ export default {
       this.hiddenPassword = true;
     },
     modalOpened() {
-      const {dbName, dbPort} = this.details;
-      this.originFormData = Object.assign({}, baseFormData, {detailInfo: dbName, dbPort});
+      const {instanceName, dbPort} = this.details;
+      this.originFormData = Object.assign({}, baseFormData, {detailInfo: instanceName, dbPort});
       this.formData = Object.assign({}, this.originFormData);
     }
   },
