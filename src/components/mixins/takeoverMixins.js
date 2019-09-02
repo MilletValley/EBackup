@@ -105,9 +105,9 @@ const takeoverMixin = {
     // 2.服务IP=>生产/易备设备
     // 单切源IP
     singleSwitchOriginIp(hostLink) {
-      if (this.osType(hostLink.viceHost) === 'Windows' && hostLink.simpleSwitch) { // Windows下
+      if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
         // 第一次单切
-        if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
+        if (!hostLink.simpleSwitch || !this.hasSimpleSwitch(hostLink.simpleSwitch)) {
           return hostLink.viceHost.hostIp;
         }
         // 非第一次单切
@@ -125,9 +125,9 @@ const takeoverMixin = {
     },
     // 单切目的IP
     singleSwitchTargetIp(hostLink) {
-      if (this.osType(hostLink.viceHost) === 'Windows' && hostLink.simpleSwitch) { // Windows下
+      if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
         // 第一次单切
-        if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
+        if (!hostLink.simpleSwitch || !this.hasSimpleSwitch(hostLink.simpleSwitch)) {
           return hostLink.primaryHost.hostIp;
         }
         // 非第一次单切
