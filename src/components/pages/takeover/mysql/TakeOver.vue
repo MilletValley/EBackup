@@ -848,7 +848,13 @@ export default {
     // 单切多个实例
     singleSwitchMultiDatabases(hostLink) {
       this.switchType = 'singleSwitchInstance';
-      this.switchMultiDatabaseToEbackup(hostLink);
+      const links = hostLink.databaseLinks
+        .filter(dbLink => dbLink.viceDatabase.role === 2)
+        .map(dbLink => dbLink.id);
+      // this.switchType = 'switchVice';
+      this.databaseLinkIdsReadyToSwitch = links;
+      this.switchDatabasesModalVisible = true;
+      // this.switchMultiDatabaseToEbackup(hostLink);
       // this.singleSwitchDatabases = true;
     },
     // 单切单个实例
