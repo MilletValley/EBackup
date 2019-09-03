@@ -41,11 +41,8 @@
                        align="center"
                        min-width="140">
         <template slot-scope="scope">
-          <div v-for="(time, index) in sendTimeList(scope.row)"
-               :key="index">
-            <el-tag size="mini"
-                    type="primary">{{ time }}</el-tag>
-          </div>
+          <el-tag size="mini"
+                  type="primary">{{ sendTimeFmt(scope.row) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作"
@@ -105,17 +102,15 @@ export default {
           this.$message.error(error);
         })
     },
-    sendTimeList(timeConfig) {
-      const { timeStrategy, weekPoints, datePoints, sendTime } = timeConfig;
+    sendTimeFmt(timeConfig) {
+      const { timeStrategy, weekPoint, datePoint, sendTime } = timeConfig;
       switch(timeStrategy) {
         case 1:
-          return [sendTime];
+          return sendTime;
         case 2:
-          const weeks = weekPoints.map(w => `${weekMapping[w]} ${sendTime}`);
-          return weeks;
+          return `${weekMapping[weekPoint]} ${sendTime}`;
         case 3:
-          const dates = datePoints.map(d => `${d}号 ${sendTime}`);
-          return dates;
+          return `${datePoint}号 ${sendTime}`;;
         default:
           return ['-'];
       }

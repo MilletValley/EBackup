@@ -6,7 +6,7 @@
 <script>
 import { useTypeMapping } from '@/utils/constant';
 import { keepTwoDecimalFull } from '@/utils/common';
-import DashboardTab from '@/components/mixins/DashboardTabMixins';
+import dashboardTab from '@/components/mixins/dashboardTabMixins';
 import Dount from '@/components/pages/home/Dount';
 import {
   fetchBackupStatistics,
@@ -20,7 +20,7 @@ const operateMapping = {
 }
 export default {
   name: 'ThreeDimensionalPie',
-  mixins: [DashboardTab, Dount],
+  mixins: [dashboardTab, Dount],
   props: {
     id: {
       type: String,

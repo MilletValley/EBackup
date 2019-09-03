@@ -15,21 +15,23 @@
              :rules="rules">
       <el-form-item prop="emailServer"
                     label="邮箱服务器">
-        <el-select v-model="formData.emailServer"
-                   style="width: 100%"
-                   placeholder="请选择">
-          <el-option v-for="email in emailServerList"
-                     :key="email.value"
-                     :label="email.label"
-                     :value="email.value"></el-option>
-        </el-select>
+        <el-autocomplete v-model="formData.emailServer"
+                         :fetch-suggestions="queryEmailServer"
+                         placeholder="请输入邮箱服务器内容"
+                         style="width: 100%">
+            <i class="el-icon-edit el-input__icon"
+               slot="suffix"></i>
+            <template slot-scope="{ item }">
+              <span>{{ item.value }}</span>
+              <span class="emailServerName">{{ item.name }}</span>
+            </template>
+        </el-autocomplete>
       </el-form-item>
       <el-row>
         <el-col :span="12">
           <el-form-item prop="emailProtocol"
                         label="协议">
-            <el-input v-model="formData.emailProtocol"
-                      disabled></el-input>
+            <el-input v-model="formData.emailProtocol"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -110,20 +112,19 @@
       </el-form-item>
       <el-form-item label="选择星期"
                     class="is-required"
-                    prop="weekPoints"
+                    prop="weekPoint"
                     v-show="formData.timeStrategy === 2">
-        <el-checkbox-group v-model="formData.weekPoints">
-          <el-checkbox-button v-for="w in Object.keys(weekMapping)"
+        <el-radio-group v-model="formData.weekPoint">
+          <el-radio-button v-for="w in Object.keys(weekMapping)"
                               :label="w"
-                              :key="w">{{ weekMapping[w] }}</el-checkbox-button>
-        </el-checkbox-group>
+                              :key="w">{{ weekMapping[w] }}</el-radio-button>
+        </el-radio-group>
       </el-form-item>
       <el-form-item label="选择日期"
                     class="is-required"
-                    prop="datePoints"
+                    prop="datePoint"
                     v-show="formData.timeStrategy === 3">
-        <el-select v-model="formData.datePoints"
-                   multiple
+        <el-select v-model="formData.datePoint"
                    style="width: 60%;">
           <el-option v-for="day in Array.from(new Array(31), (val, index) => String(index + 1))"
                      :key="day"
@@ -133,9 +134,9 @@
       </el-form-item>
       <el-form-item label="发送时间"
                     prop="sendTime">
-          <el-time-picker v-model="formData.sendTime"
-                          value-format="HH:mm:ss"
-                          placeholder="请选择发送时间点"></el-time-picker>
+          <el-time-select v-model="formData.sendTime"
+                          :picker-options="{start: '00:00', end: '23:45', step: '00:15'}"
+                          placeholder="请选择发送时间点"></el-time-select>
       </el-form-item>
     </el-form>
     <span slot="footer">
@@ -163,22 +164,54 @@ const basicFormData = {
   receiverEmail: [],
   carbonCopy: [],
   timeStrategy: 1,
-  weekPoints: [],
-  datePoints: [],
+  weekPoint: '',
+  datePoint: '',
   sendTime: ''
 };
 const emailServerList = [
   {
     value: 'smtp.163.com',
-    label: '163邮箱(smtp.163.com)'
+    name: '163邮箱'
+  },
+  {
+    value: 'smtp.126.com',
+    name: '126邮箱'
+  },
+  {
+    value: 'smtp.139.com',
+    name: '139邮箱'
   },
   {
     value: 'smtp.sina.com',
-    label: '新浪邮箱(smtp.sina.com)'
+    name: '新浪邮箱'
   },
   {
     value: 'smtp.qq.com',
-    label: 'QQ邮箱(smtp.qq.com)'
+    name: 'QQ邮箱'
+  },
+  {
+    value: 'smtp.sohu.com',
+    name: '搜狐邮箱'
+  },
+  {
+    value: 'smtp.mail.yahoo.com',
+    name: '雅虎邮箱'
+  },
+  {
+    value: 'smtp.tom.com',
+    name: 'Tom邮箱'
+  },
+  {
+    value: 'smtp.live.com',
+    name: 'HotMail'
+  },
+  {
+    value: 'smtp.gmail.com',
+    name: 'GMail'
+  },
+  {
+    value: 'smtp.foxmail.com',
+    name: 'FoxMail'
   }
 ];
 const operateOne = {
@@ -206,19 +239,28 @@ export default {
     const validateReceiver = (rule, value, callback) => {
       if (!value.length) {
         callback(new Error('请输入收件人'));
+      } else if (value.length > 5) {
+        callback(new Error('收件人必须少于5个'));
       } else {
         callback();
       }
     };
-    const validateWeekPoints = (rule, value, callback) => {
-      if (this.formData.timeStrategy === 2 && !value.length) {
+    const validateCarbonCopy = (rule, value, callback) => {
+      if (value.length > 5) {
+        callback(new Error('抄送必须少于5个'));
+      } else {
+        callback();
+      }
+    };
+    const validateWeekPoint = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 2 && !value) {
         callback(new Error('请选择发送星期'));
       } else {
         callback();
       }
     };
-    const validateDatePoints = (rule, value, callback) => {
-      if (this.formData.timeStrategy === 3 && !value.length) {
+    const validateDatePoint = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 3 && !value) {
         callback(new Error('请选择发送日期'));
       } else {
         callback();
@@ -236,11 +278,14 @@ export default {
       receiverEmail: [
         { validator: validateReceiver, triggle: 'blur' }
       ],
-      weekPoints: [
-        { validator: validateWeekPoints, triggle: 'blur' }
+      carbonCopy: [
+        { validator: validateCarbonCopy, triggle: 'blur' }
       ],
-      datePoints: [
-        { validator: validateDatePoints, triggle: 'blur' }
+      weekPoint: [
+        { validator: validateWeekPoint, triggle: 'blur' }
+      ],
+      datePoint: [
+        { validator: validateDatePoint, triggle: 'blur' }
       ],
       senderPassword: [
         { required: true, message: '请输入邮箱密码', triggle: 'blur' }
@@ -260,7 +305,8 @@ export default {
       receiverInputVisible: false,
       receiverInputValue: '',
       ccInputVisible: false,
-      ccInputValue: ''
+      ccInputValue: '',
+      emailPattern: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
     }
   },
   computed: {
@@ -274,6 +320,9 @@ export default {
     }
   },
   methods: {
+    queryEmailServer(queryString, cb) {
+      cb(emailServerList);
+    },
     modalOpen() {
       if (this.action === 'modify') {
         this.originFormData = cloneDeep(Object.assign({}, basicFormData, this.emailConfig));
@@ -318,11 +367,17 @@ export default {
       );
     },
     addReceiverConfirm() {
-      if (this.receiverInputValue) {
-        this.formData.receiverEmail.push(this.receiverInputValue);
+      if (this.receiverInputValue && !this.emailPattern.test(this.receiverInputValue)) {
+        this.$message.warning('邮箱地址不合法');
+      } else if (this.formData.receiverEmail.includes(this.receiverInputValue)) {
+        this.$message.warning('存在相同的邮箱地址');
+      } else {
+        if (this.receiverInputValue) {
+          this.formData.receiverEmail.push(this.receiverInputValue);
+        }
+        this.receiverInputVisible = false;
+        this.receiverInputValue = '';
       }
-      this.receiverInputVisible = false;
-      this.receiverInputValue = '';
     },
     showReceiverInput() {
       this.receiverInputVisible = true;
@@ -337,11 +392,17 @@ export default {
       );
     },
     addCarbonCopyConfirm() {
-      if (this.ccInputValue) {
-        this.formData.carbonCopy.push(this.ccInputValue);
+      if (this.ccInputValue && !this.emailPattern.test(this.ccInputValue)) {
+        this.$message.warning('邮箱地址不合法');
+      } else if (this.formData.carbonCopy.includes(this.ccInputValue)) {
+        this.$message.warning('存在相同的邮箱地址');
+      } else {
+        if (this.ccInputValue) {
+          this.formData.carbonCopy.push(this.ccInputValue);
+        }
+        this.ccInputVisible = false;
+        this.ccInputValue = '';
       }
-      this.ccInputVisible = false;
-      this.ccInputValue = '';
     },
     showCarbonCopyInput() {
       this.ccInputVisible = true;
@@ -353,6 +414,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import '@/assets/theme/variable.scss';
 .tag {
   margin-right: 10px;
 }
@@ -366,5 +428,10 @@ export default {
   line-height: 30px;
   padding-top: 0;
   padding-bottom: 0;
+}
+.emailServerName {
+  float: right;
+  color: #8492a6;
+  font-size: 12px;
 }
 </style>

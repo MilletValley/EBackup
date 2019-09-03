@@ -7,7 +7,7 @@
 <script>
 import { useTypeMapping } from '@/utils/constant';
 import { keepTwoDecimalFull } from '@/utils/common';
-import DashboardTab from '@/components/mixins/DashboardTabMixins';
+import dashboardTab from '@/components/mixins/dashboardTabMixins';
 import themeMixin from '@/components/mixins/themeMixins';
 import {
   fetchBackupStatistics,
@@ -35,7 +35,7 @@ export default {
       default: ''
     },
   },
-  mixins: [DashboardTab, themeMixin],
+  mixins: [dashboardTab, themeMixin],
   data() {
     return {
       sourceData: {},

@@ -680,22 +680,22 @@
 </template>
 <script>
 import { backupStrategyMapping } from '../../utils/constant';
-import DashboardTab from '../mixins/DashboardTabMixins';
+import dashboardTab from '../mixins/dashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
+const activeTab = {
+  'backupSuccess': 'databaseBackup',
+  'backupFail': 'databaseBackup',
+  'restoreSuccess': 'databaseRestore',
+  'restoreFail': 'databaseRestore',
+  'takeoverSuccess': 'databaseTakeOver',
+  'takeoverFail': 'databaseTakeOver'
+}
 export default {
   name: 'MoreState',
-  mixins: [baseMixin, DashboardTab, paginationMixin, filterMixin, themeMixin],
+  mixins: [baseMixin, dashboardTab, paginationMixin, filterMixin, themeMixin],
   data() {
-    const activeTab = {
-      'backupSuccess': 'databaseBackup',
-      'backupFail': 'databaseBackup',
-      'restoreSuccess': 'databaseRestore',
-      'restoreFail': 'databaseRestore',
-      'takeoverSuccess': 'databaseTakeOver',
-      'takeoverFail': 'databaseTakeOver'
-    }
     return {
       checkType: '',
       activeTab,

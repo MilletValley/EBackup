@@ -79,7 +79,7 @@
                     <cylinder :data="spaceChartData[0]"></cylinder>
                   </div>
                 </el-col>
-                <el-col :span="12" v-if="Object.keys(spaceDetail).length > 1">
+                <el-col :span="12" v-show="Object.keys(spaceDetail).length > 1">
                   <div  ref="space2">
                     <cylinder :data="spaceChartData[1]"></cylinder>
                   </div>
@@ -717,7 +717,7 @@ import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import themeMixin from '@/components/mixins/themeMixins';
 import inspectionMixin from '@/components/mixins/inspectionMixins';
-import DashboardTab from '@/components/mixins/DashboardTabMixins';
+import dashboardTab from '@/components/mixins/dashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
@@ -728,7 +728,7 @@ import ThreeDimensionalPie from '@/components/pages/home/ThreeDimensionalPie';
 import ThreeDimensionalBar from '@/components/pages/home/ThreeDimensionalBar';
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, DashboardTab, themeMixin, inspectionMixin],
+  mixins: [baseMixin, dashboardTab, themeMixin, inspectionMixin],
   components: {
     Cylinder,
     DrawPie,
@@ -825,9 +825,6 @@ export default {
           this.inspect = data.inspect;
           this.record = data.record;
         })
-        .catch(error => {
-          this.$message.error(error);
-        })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
@@ -845,14 +842,24 @@ export default {
       }
       return fmtSizeFn(Number(data)*1024*1024);
     },
+    spaceColor(size) {
+      const percent = size / 100;
+      if (percent < 80) {
+        return '#32b769';
+      } else if (percent < 90) {
+        return '#ca8327';
+      } else if (percent >= 90) {
+        return '#ca3f27';
+      }
+    },
     drawSpaceChartData() {
       if(Object.keys(this.spaceDetail).length) {
         this.spaceChartData = [{
           id: 'canvas1',
           value: this.spaceData.percentData[0]/100 > 1 ? 1 : this.spaceData.percentData[0]/100,
-          width: this.$refs.space1.innerWidth || this.$refs.space1.clientWidth,
+          width: this.$refs.space1 ? (this.$refs.space1.innerWidth || this.$refs.space1.clientWidth) : 0,
           height: 200,
-          color: [this.themeColor.echartsSpaceColor,'#C3E9F5'],
+          color: [this.spaceColor(this.spaceData.percentData[0]), '#C3E9F5'],
           title: {
               show: true,
               text: '存储1',
@@ -865,7 +872,7 @@ export default {
               show: true,
               text: this.spaceData.explain[0],
               style: {
-                color: this.themeColor.echartsSpaceColor,
+                color: this.spaceColor(this.spaceData.percentData[0]),
                 fontSize: '12px',
               }
             }
@@ -874,9 +881,9 @@ export default {
           this.spaceChartData.push({
             id: 'canvas2',
             value: this.spaceData.percentData[1]/100 > 1 ? 1 : this.spaceData.percentData[1]/100,
-            width: this.$refs.space2.innerWidth || this.$refs.space2.clientWidth,
+            width: this.$refs.space2 ? (this.$refs.space2.innerWidth || this.$refs.space2.clientWidth) : 0,
             height: 200,
-            color: ['green', '#D1EBD0'],
+            color: [this.spaceColor(this.spaceData.percentData[1]), '#D1EBD0'],
             title: {
               show: true,
               text: '存储2',
@@ -889,7 +896,7 @@ export default {
               show: true,
               text: this.spaceData.explain[1],
               style: {
-                color: 'green',
+                color: this.spaceColor(this.spaceData.percentData[1]),
                 fontSize: '12px',
               }
             }
