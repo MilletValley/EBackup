@@ -44,10 +44,10 @@
       </el-form-item>
       <el-row>
         <el-col :span="12">
-          <el-form-item prop="PDBName"
+          <el-form-item prop="pDBName"
                         :class="{ 'is-required': formData.isPDB }"
                         label="PDB名">
-            <el-input v-model="formData.PDBName"
+            <el-input v-model="formData.pDBName"
                       :disabled="!formData.isPDB"
                       placeholder="请选择PDB模式"></el-input>
           </el-form-item>
@@ -134,7 +134,7 @@ const basicFormData = {
   detailInfo: '',
   dbPort: '',
   tblName: '',
-  PDBName: '',
+  pDBName: '',
   isPDB: false,
   tblUser: '',
   tblUserPassword: '',
@@ -155,7 +155,7 @@ export default {
     }
   },
   data() {
-    const PDBNameValidate = (rule, value, callback) => {
+    const pDBNameValidate = (rule, value, callback) => {
       if (this.formData.isPDB && !value) {
         callback(new Error('请输入PDB名'));
       } else {
@@ -196,9 +196,9 @@ export default {
             triggle: 'blur'
           }
         ],
-        PDBName: [
+        pDBName: [
           {
-            validator: PDBNameValidate,
+            validator: pDBNameValidate,
             triggle: 'blur'
           }
         ]

@@ -15,7 +15,7 @@ import {
 } from '../../utils/constant';
 import { fetchBackup, fetchRestore, fetchTakeOver, fetchVirtualTakeOver } from '../../api/home';
 
-const dashboardTab = {
+const dashboardTabMixin = {
   data() {
     const clickPieJumpTo = {
       bs: 'backupSuccess',
@@ -257,4 +257,4 @@ const dashboardTab = {
     }
   }
 };
-export default dashboardTab;
+export default dashboardTabMixin;

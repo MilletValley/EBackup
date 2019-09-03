@@ -680,7 +680,7 @@
 </template>
 <script>
 import { backupStrategyMapping } from '../../utils/constant';
-import dashboardTab from '../mixins/dashboardTabMixins';
+import dashboardTabMixin from '@/components/mixins/dashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
@@ -694,7 +694,7 @@ const activeTab = {
 }
 export default {
   name: 'MoreState',
-  mixins: [baseMixin, dashboardTab, paginationMixin, filterMixin, themeMixin],
+  mixins: [baseMixin, dashboardTabMixin, paginationMixin, filterMixin, themeMixin],
   data() {
     return {
       checkType: '',

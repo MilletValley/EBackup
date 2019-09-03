@@ -42,7 +42,7 @@
             <span>{{ restoreConfig.tblName  }}</span>
           </el-form-item>
           <el-form-item label="PDB名：">
-            <span>{{ restoreConfig.PDBName ? restoreConfig.PDBName : '-'  }}</span>
+            <span>{{ restoreConfig.pDBName ? restoreConfig.pDBName : '-'  }}</span>
           </el-form-item>
         </el-form>
         <el-form label-width="100px"

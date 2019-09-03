@@ -717,7 +717,7 @@ import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import themeMixin from '@/components/mixins/themeMixins';
 import inspectionMixin from '@/components/mixins/inspectionMixins';
-import dashboardTab from '@/components/mixins/dashboardTabMixins';
+import dashboardTabMixin from '@/components/mixins/dashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
@@ -728,7 +728,7 @@ import ThreeDimensionalPie from '@/components/pages/home/ThreeDimensionalPie';
 import ThreeDimensionalBar from '@/components/pages/home/ThreeDimensionalBar';
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, dashboardTab, themeMixin, inspectionMixin],
+  mixins: [baseMixin, dashboardTabMixin, themeMixin, inspectionMixin],
   components: {
     Cylinder,
     DrawPie,
