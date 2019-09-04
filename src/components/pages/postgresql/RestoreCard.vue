@@ -46,7 +46,7 @@
             <span>{{ timeStrategy(restoreConfig.timeStrategy) }}</span>
           </el-form-item>
           <el-form-item label="恢复至"
-                        v-if="restoreConfig.timeStrategy === 1"
+                        v-if="restoreConfig.timeStrategy === 1 && restoreConfig.restoreTimePoint"
                         :style="{ width: '100%'}">
             <span>{{ restoreConfig.restoreTimePoint }}</span>
           </el-form-item>
