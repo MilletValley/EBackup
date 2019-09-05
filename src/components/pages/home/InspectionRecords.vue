@@ -36,6 +36,7 @@ export default {
           },
           xAxis: [{
               type: 'value',
+              minInterval: 1,
               axisLabel: {
                   show:true,
                   color: this.themeColor.echartsLabelColor,

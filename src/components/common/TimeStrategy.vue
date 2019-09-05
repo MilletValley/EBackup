@@ -39,7 +39,8 @@
         <el-form-item label="选择星期"  class="is-required"
                       prop="weekPoints"
                       v-show="formData.timeStrategy === 4">
-          <el-checkbox-group v-model="formData.weekPoints">
+          <el-checkbox-group v-model="formData.weekPoints"
+                             @change="sortWeekPoints">
             <el-checkbox-button v-for="w in Object.keys(weekMapping)"
                                 :label="w"
                                 :key="w">{{ weekMapping[w] }}</el-checkbox-button>
@@ -49,6 +50,7 @@
                       prop="datePoints"
                       v-show="formData.timeStrategy === 5">
           <el-select v-model="formData.datePoints"
+                     @change="sortDatePoints"
                      multiple
                      style="width: 60%;">
             <el-option v-for="day in Array.from(new Array(31), (val, index) => String(index + 1))"
@@ -340,6 +342,12 @@ export default {
         resolve(true);
       });
     },
+    sortWeekPoints() {
+      this.formData.weekPoints = this.formData.weekPoints.sort((pre, next) => pre - next);
+    },
+    sortDatePoints() {
+      this.formData.datePoints = this.formData.datePoints.sort((pre, next) => pre - next);
+    }
   },
 };
 </script>
