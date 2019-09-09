@@ -4,10 +4,11 @@
 <script>
 import { fetchInspectRecords } from '@/api/inspection';
 import Dount from '@/components/pages/home/Dount';
+import themeMixin from '@/components/mixins/themeMixins';
 export default {
   name: 'Inspection',
   props: ['inspect', 'id'],
-  mixins: [Dount],
+  mixins: [Dount, themeMixin],
   data() {
     return {
 
@@ -22,7 +23,10 @@ export default {
         this.draw();
       },
       deep: true
-    }
+    },
+    theme() {
+      this.draw();
+    },
   },
   methods: {
     draw() {

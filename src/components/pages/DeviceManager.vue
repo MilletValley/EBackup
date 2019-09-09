@@ -242,7 +242,7 @@ const useTypeIconName = {
   7: 'dm',
   8: 'appHost',
   9: 'sybase',
-  10: 'cache',
+  10: 'cacheDB',
   11: 'insql',
   12: 'informix',
   13: 'postgresql'

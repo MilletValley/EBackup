@@ -1,5 +1,7 @@
 /* eslint-disable */
+import themeMixin from '@/components/mixins/themeMixins';
 const Donut = {
+  mixins: [themeMixin],
   methods: {
     pieTop(d, rx, ry, ir ){
       if(d.endAngle - d.startAngle == 0 ) return "M 0 0";
@@ -58,7 +60,7 @@ const Donut = {
               .attr("y",d => 0.6*ry*Math.sin(0.5*(d.startAngle+d.endAngle)))
               // .attr("text-anchor","middle")
               .style("font-weight", 700)
-              .style("fill", 'white')
+              .style("fill", this.themeColor.pieLableColor)
               .style('opacity', 0.8)
               .text(this.getPercent).each(d => { this._current=d; });
         // _data.forEach(d => {

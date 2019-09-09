@@ -1,6 +1,6 @@
 <template>
   <div>
-    <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/template`"
+    <iframe :src="src"
             frameborder="0"
             scrolling="auto"
             width="100%"
@@ -18,24 +18,21 @@ export default {
     return {
     };
   },
+  computed: {
+    src() {
+      return `http://${this.inspectWeb.ip}:${this.inspectWeb.port}/inspect/ebackup/template`;
+    }
+  },
   watch: {
-    // height(val) {
-    //   const iframe = this.$refs['inspectionTemplate'];
-    //   iframe.height = val;
-    // }
-    theme: {
-      handler() {
-        const iframe = this.$refs['inspectionTemplate'];
-        iframe.src = iframe.src.split('#')[0] + `#theme=${this.theme}`;
-      },
-      deep: true
+    theme() {
+      const iframe = this.$refs['inspectionTemplate'];
+      iframe.src = `${this.src}#theme=${this.theme}`;
     }
   },
   methods: {
     sendMsg() {
       const iframe = this.$refs['inspectionTemplate'];
       this.sendTheme(iframe);
-      // this.height = this.setIframeHeight(iframe);
     }
   }
 }

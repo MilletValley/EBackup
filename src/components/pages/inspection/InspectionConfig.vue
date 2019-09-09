@@ -1,5 +1,5 @@
 <template>
-  <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/system/params/config`"
+  <iframe :src="src"
           width="100%"
           class="iframe"
           scrolling="auto"
@@ -16,17 +16,21 @@ export default {
     return {
     };
   },
+  computed: {
+    src() {
+      return `http://${this.inspectWeb.ip}:${this.inspectWeb.port}/inspect/ebackup/system/params/config`
+    }
+  },
   watch: {
     theme() {
       const iframe = this.$refs['inspectionConfig'];
-      iframe.src = iframe.src.split('#')[0] + `#theme=${this.theme}`;
+      iframe.src = `${this.src}#theme=${this.theme}`;
     }
   },
   methods: {
     sendMsg() {
       const iframe = this.$refs['inspectionConfig'];
       this.sendTheme(iframe);
-      // this.height = this.setIframeHeight(iframe);
     }
   }
 }

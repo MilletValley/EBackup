@@ -36,23 +36,13 @@ const inspectionMixin = {
     sendTheme(iframe) {
       if (iframe.attachEvent) {
         iframe.attachEvent('onload', () => {
-          iframe.src += `#theme=${this.theme}`;
-          // window.addEventListener('message', event => {
-          //   if (event.origin.includes(url)) {
-          //     if (!isNaN(event.data)) this.height = event.data;
-          //     return this.height;
-          //   }
-          // });
+          iframe.src = `${this.src}#theme=''`;
+          iframe.src = `${this.src}#theme=${this.theme}`;
         });
       } else {
         iframe.onload = () => {
-          iframe.src += `#theme=${this.theme}`;
-          // window.addEventListener('message', event => {
-          //   // if (event.origin.includes(url)) {
-          //   if (!isNaN(event.data)) this.height = `${Number(event.data) + 200}px`;
-          //   return this.height;
-          //   // }
-          // });
+          iframe.src = `${this.src}#theme=''`;
+          iframe.src = `${this.src}#theme=${this.theme}`;
         };
       }
     }

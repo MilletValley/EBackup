@@ -18,6 +18,9 @@ export default {
             this.draw();
         },
         deep: true
+    },
+    theme() {
+        this.draw();
     }
   },
   methods: {
@@ -37,9 +40,15 @@ export default {
           xAxis: [{
               type: 'value',
               minInterval: 1,
+              color: 'red',
               axisLabel: {
                   show:true,
                   color: this.themeColor.echartsLabelColor,
+              },
+              axisLine: {
+                  lineStyle: {
+                      color: this.themeColor.echartsLabelColor
+                  }
               }
           }],
           yAxis: [{
@@ -52,6 +61,11 @@ export default {
               },
               splitLine: {
                 color: this.themeColor.echartsLabelColor,
+              },
+              axisLine: {
+                  lineStyle: {
+                      color: this.themeColor.echartsLabelColor
+                  }
               }
           }],
           series: [{

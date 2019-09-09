@@ -56,11 +56,13 @@
         </div>
         <el-row class="text item"
                 v-else>
-          <el-col :span="8">
+          <el-col :span="8"
+                  v-if="inspect.jobCountByMonth + inspect.jobCountByOne + inspect.jobCountByQuarter">
             <inspection :inspect="inspect"
                         id="inspect"></inspection>
           </el-col>
-          <el-col :span="16">
+          <el-col :span="16"
+                  :offset="Number(`${inspect.jobCountByMonth + inspect.jobCountByOne + inspect.jobCountByQuarter ? 0 : 4}`)">
             <inspection-records :record="record"
                                 id="inspectRecords"></inspection-records>
           </el-col>

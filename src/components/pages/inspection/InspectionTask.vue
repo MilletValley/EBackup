@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%;">
-    <iframe :src="`http://${inspectWeb.ip}:${inspectWeb.port}/inspect/ebackup/inspection`"
+    <iframe :src="src"
             width="100%"
             class="iframe"
             frameborder="0"
@@ -16,17 +16,21 @@ import { fetchAll as fetchAllSqlserver } from '@/api/sqlserver';
 export default {
   name: 'InspectionTask',
   mixins: [inspectionMixin],
+  computed: {
+    src() {
+      return `http://${this.inspectWeb.ip}:${this.inspectWeb.port}/inspect/ebackup/inspection`;
+    }
+  },
   watch: {
     theme() {
       const iframe = this.$refs['inspectionTask'];
-      iframe.src = iframe.src.split('#')[0] + `#theme=${this.theme}`;
+      iframe.src = `${this.src}#theme=${this.theme}`;
     }
   },
   methods: {
     sendMsg() {
       const iframe = this.$refs['inspectionTask'];
       this.sendTheme(iframe);
-      // this.height = this.setIframeHeight(iframe);
     }
   }
 }
