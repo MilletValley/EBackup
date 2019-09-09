@@ -248,7 +248,7 @@ export default {
       const sameToEndTime = dayjs(date).isSame(dayjs(this.endTime).format('YYYY-MM-DD'));
       if (sameToCDBTime && sameToEndTime) {
         this.timeOptions = {
-          selectableRange: `${CDBTime} - ${endTime}`
+          selectableRange: `${endTime} - ${CDBTime}`
         };
       } else if (sameToCDBTime) {
         this.timeOptions = {
