@@ -1158,7 +1158,7 @@ export default {
         switch(this.osType(primaryHost)) {
           case 'Windows':
           case 'Linux':
-            return primaryHost.oracleVersion === 1;
+            return primaryHost.oracleVersion === 2;
           default:
             return false;
         }
