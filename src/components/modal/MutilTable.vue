@@ -51,9 +51,17 @@
                          align="left">
         </el-table-column>
         <el-table-column prop="bootState"
-                         label="状态"
                          align="center"
                          v-if="[1, 3].includes(vmType)">
+          <template slot="header">
+            <span>状态</span>
+            <el-tooltip placement="right"
+                        effect="light"
+                        content="点击开机自启验证物理主机身份后可获取最新状态"
+                        v-if="config && !config.serverLoginName && !config.serverPassword">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
           <template slot-scope="scope">
             <el-tag size="mini"
                     :type="scope.row.bootState | bootStateTagFilter">
@@ -160,6 +168,10 @@ export default {
     },
     serverId: {
       type: Number
+    },
+    config: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {

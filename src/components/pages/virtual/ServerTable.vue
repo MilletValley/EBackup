@@ -19,6 +19,7 @@
                                  v-if="allVirtuals(props.row).length">
                       <el-card style="margin-top: 5px; margin-bottom: 5px">
                         <mutil-table :tableData="allVirtuals(props.row)"
+                                     :config="props.row"
                                      :ref="props.row.id"
                                      :refTable="props.row.serverName"
                                      :selectData.sync="selectData"
@@ -41,6 +42,7 @@
                           </el-row>
                         </div>
                         <mutil-table :tableData="host.vmList"
+                                     :config="host"
                                      :ref="host.id"
                                      :server-id="host.id"
                                      :refTable="host.serverName"
