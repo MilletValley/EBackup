@@ -126,6 +126,9 @@ export default {
             .catch(error => {
               this.$message.error(error);
             })
+            .then(() => {
+              this.btnLoading = false;
+            })
         } else {
           return false;
         }

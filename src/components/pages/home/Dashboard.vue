@@ -844,8 +844,7 @@ export default {
       }
       return fmtSizeFn(Number(data)*1024*1024);
     },
-    spaceColor(size) {
-      const percent = size / 100;
+    spaceColor(percent) {
       if (percent < 80) {
         return '#32b769';
       } else if (percent < 90) {
