@@ -281,7 +281,8 @@ const dbTakeOverRouterMapping = {
   1: 'oracleLinkDetail',
   2: 'sqlserverLinkDetail',
   3: 'applicationLinkDetail',
-  4: 'insqlLinkDetail'
+  4: 'insqlLinkDetail',
+  5: 'mysqlLinkDetail'
 };
 
 // 首页虚拟机接管详情路由
