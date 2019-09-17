@@ -1069,7 +1069,7 @@ export default {
     /**
         可以单切实例的环境：
         1、windows的10g、11g、12c
-        2、linux的11g、12c
+        2、linux的10g、11g、12c
         3、rac的10g、11g
         4、AIX的11g
         生产库-主，易备库-备
@@ -1080,7 +1080,7 @@ export default {
           case 'Windows':
             return [1, 2, 3].includes(primaryHost.oracleVersion);
           case 'Linux':
-            return [2, 3].includes(primaryHost.oracleVersion);
+            return [1, 2, 3].includes(primaryHost.oracleVersion);
           case 'RAC':
             return [1, 2].includes(primaryHost.oracleVersion);
           case 'AIX':
@@ -1094,14 +1094,14 @@ export default {
     /**
      * 可以单切IP的环境：
      * 1、windows的10g、11g、12c
-     * 2、linux的11g、12c
+     * 2、linux的10g、11g、12c
      **/
     availableSingleSwitchIp({ primaryHost }) {
       switch(this.osType(primaryHost)) {
         case 'Windows':
           return [1, 2, 3].includes(primaryHost.oracleVersion);
         case 'Linux':
-          return [2, 3].includes(primaryHost.oracleVersion);
+          return [1, 2, 3].includes(primaryHost.oracleVersion);
         default:
           return false;
       }
