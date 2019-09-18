@@ -11,7 +11,7 @@
         </el-col>
         <el-col :span="18"
                 v-if="Object.keys(readyToDeleteLink).length">
-          <div style="height: 220px;max-height: 220px;overflow: scroll;">
+          <div style="height: 220px;max-height: 220px;">
             <h4>即将执行以下操作，请检查。</h4>
             <p>
               <span class="sourceEnvColor">

@@ -182,8 +182,8 @@
                        min-width="80">
         <template slot-scope="scope">
           <!-- <span>{{ scope.$index }}</span> -->
-          <span v-if="(scope.$index + 1) % 2 === 0">-</span>
-          <span v-else>{{ calcTime(records[scope.$index].time, records[scope.$index+1].time) | durationFilter }}</span>
+          <span v-if="scope.$index % 2 === 0">-</span>
+          <span v-else>{{ calcTime(records[scope.$index].time, records[scope.$index-1].time) | durationFilter }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -202,6 +202,7 @@ import {
 import { fetchOperationRecords, fetchLinks } from '@/api/virtuals';
 import baseMixin from '@/components/mixins/baseMixins';
 import Timer from '@/components/Timer';
+import dayjs from 'dayjs';
 
 export default {
   name: 'VirtualLinkDetail',
@@ -293,7 +294,7 @@ export default {
       fetchOperationRecords(this.linkId)
         .then(res => {
           const { data: records } = res.data;
-          this.records = records.sort((a, b) => this.calcTime(b.time, a.time));
+          this.records = records.sort((a, b) => this.calcTime(a.time, b.time));
         })
         .catch(error => {
           this.$message.error(error);
@@ -308,7 +309,7 @@ export default {
         })
     },
     calcTime(pre, next) {
-      return new Date(pre).getTime() - new Date(next).getTime();
+      return dayjs(pre).unix() - dayjs(next).unix();
     },
     linkIcon(link) {
       if (link.state === 0) {
