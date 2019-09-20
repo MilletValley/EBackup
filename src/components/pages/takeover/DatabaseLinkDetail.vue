@@ -134,8 +134,7 @@
       <el-tab-pane v-for="(msg, index) in tabMsgs"
                    :key="index"
                    :name="msg.name"
-                   :label="msg.label"
-                   v-if="!(['sqlserver', 'insql'].includes(databaseType) && [4, 5, 6, 7].includes(Number(msg.name)))">
+                   :label="msg.label">
         <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
       </el-tab-pane>
     </el-tabs>
@@ -161,6 +160,12 @@ import {
   fetchSwitches,
   createSwitches
 } from '@/api/common';
+const switchType = {
+  oracle: [1, 2, 3, 4, 5, 6, 7],
+  insql: [1, 2, 3],
+  sqlserver: [1, 2, 3, 5],
+  mysql: [1, 2, 3, 4, 5, 6, 7]
+}
 export default {
   name: 'DatabaseLinkDetail',
   props: {
@@ -213,9 +218,9 @@ export default {
       };
     },
     tabMsgs() {
-      return Object.keys(switchTypeMapping).map(type => ({
-        label: Number(type) === 1 && ['sqlserver', 'insql', 'mysql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
-        name: type
+      return switchType[this.databaseType].map(type => ({
+        label: type === 1 && ['sqlserver', 'insql', 'mysql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
+        name: String(type)
       }));
     }
   },

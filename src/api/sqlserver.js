@@ -241,6 +241,14 @@ const scanDatabase = host =>
     data: host
   });
 
+// 回切初始化
+const cutBackSwitch = linkIds =>
+  baseApi.request({
+    method: 'post',
+    url: '/sqlserver-switches/reinit-switch-instances',
+    data: { linkIds }
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -270,5 +278,6 @@ export {
   fetchLink,
   fetchLinkByLinkId,
   batchCreate,
-  scanDatabase
+  scanDatabase,
+  cutBackSwitch
 };

@@ -225,13 +225,12 @@
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
                     <el-dropdown style="position: absolute; right: 0px; top: -9px;" size="small"
-                                 v-if="hostLink.primaryHost.databaseType === 1 || ['oracle', 'sqlserver'].includes(databaseType)">
+                                 v-if="['oracle', 'sqlserver'].includes(databaseType)">
                       <el-button size="mini">
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item :disabled="false" v-if="['oracle', 'sqlserver'].includes(databaseType)"
-                                          @click.native="queryVerifyResult(hostLink)">验证结果</el-dropdown-item>
+                        <el-dropdown-item @click.native="queryVerifyResult(hostLink)">验证结果</el-dropdown-item>
                         <span v-if="hostLink.primaryHost.databaseType === 1">
                           <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
                                             @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
@@ -239,9 +238,9 @@
                                             @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
                           <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
                                             @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link, hostLink))"
-                                            @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
                         </span>
+                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link, hostLink))"
+                                          @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -426,16 +425,19 @@
                                  :class="$style.failOver">{{dbLink.failOverState === 1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
                     <div>
-                      <el-dropdown v-if="hostLink.primaryHost.databaseType === 1">
+                      <el-dropdown v-if="[1, 2].includes(hostLink.primaryHost.databaseType)">
                         <span :class="$style.dropdownLink">
                           切换操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
                         </span>
                         <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换实例</el-dropdown-item>
-                          <el-dropdown-item @click.native="singleSwitchDatabase(dbLink.id)"
-                                            :disabled="!availableSingleSwitchDb(hostLink, dbLink)">单切实例</el-dropdown-item>
-                          <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
-                                            :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
+                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">
+                            切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
+                          <span v-if="hostLink.primaryHost.databaseType === 1">
+                            <el-dropdown-item @click.native="singleSwitchDatabase(dbLink.id)"
+                                              :disabled="!availableSingleSwitchDb(hostLink, dbLink)">单切实例</el-dropdown-item>
+                            <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
+                                              :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
+                          </span>
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
                                             :disabled="!(availableCutBackSingle(dbLink, hostLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>
@@ -568,6 +570,7 @@ import {
   fetchLinks as fetchLinksSqlserver,
   createLinks as createLinksSqlserver,
   createSwitches as switchSqlserver,
+  cutBackSwitch as cutBackSwitchSqlserver
 } from '@/api/sqlserver';
 import {
   fetchAll as fetchAllInSql,
@@ -630,6 +633,11 @@ const switchMethod = {
 const switchIpMethod = {
   true: switchVip,
   false: switchHostIp
+}
+
+const cutBackMethod = {
+  oralce: cutBackSwitchOracle,
+  sqlserver: cutBackSwitchSqlserver
 }
 
 export default {
@@ -907,7 +915,7 @@ export default {
     // 回切初始化
     cutBackConfirm(switchIds) {
       this.btnLoading = true;
-      cutBackSwitchOracle(switchIds)
+      cutBackMethod[this.databaseType](switchIds)
         .then(res => {
           const { data, message } = res.data;
           this.databaseLinks.forEach(link => {
@@ -1054,17 +1062,21 @@ export default {
     },
     // 回切初始化或单切恢复
     readyToCutBack(hostLink, multiply, link = []) {
-      this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.restoreSingleSwitch(hostLink, multiply, link);
+      if (this.databaseType === 'oracle') {
+        this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(() => {
-          this.cutBackSwitch(hostLink, multiply, link);
-        });
+          .then(() => {
+            this.restoreSingleSwitch(hostLink, multiply, link);
+          })
+          .catch(() => {
+            this.cutBackSwitch(hostLink, multiply, link);
+          });
+      } else if (this.databaseType === 'sqlserver') {
+        this.cutBackSwitch(hostLink, multiply, link);
+      }
     },
     /**
         可以单切实例的环境：
@@ -1146,22 +1158,33 @@ export default {
       }
       return false;
     },
-    /** 可以回切初始化的实例
+    /** Oracle：可以回切初始化的实例
         ● 连接：异常不可接管
         ● 易备库主，正常
         ● 生产库备，非正常
         ● Windows、Linux的11g
+        SQL Server：可以回切初始化的实例
+        ● 连接：异常可接管
+        ● 易备库主：正常
+        ● 生产库备，正常
+        ● Windows、Linux
     **/
     availableCutBackSingle({ state, viceDatabase, primaryDatabase }, { primaryHost }) {
-      if (state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
-        (primaryDatabase.role === 2 && primaryDatabase.state !== 1)) {
-        switch(this.osType(primaryHost)) {
-          case 'Windows':
-          case 'Linux':
-            return primaryHost.oracleVersion === 2;
-          default:
-            return false;
+      if(this.databaseType === 'oracle') {
+        if (state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
+          (primaryDatabase.role === 2 && primaryDatabase.state !== 1)) {
+          switch(this.osType(primaryHost)) {
+            case 'Windows':
+            case 'Linux':
+              return primaryHost.oracleVersion === 2;
+            default:
+              return false;
+          }
         }
+        return false;
+      } else if (this.databaseType === 'sqlserver') {
+        return state === 4 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
+          (primaryDatabase.role === 2 && primaryDatabase.state === 1);
       }
       return false;
     },
