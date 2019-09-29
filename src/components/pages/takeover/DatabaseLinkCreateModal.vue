@@ -191,12 +191,10 @@ export default {
   directives: {
     init: {
       inserted(el, binding) {
-        console.log(el, binding)
         binding.value.vicePathType = 'custom';
         // binding.value.primaryDatabaseId = 1;
         // binding.value = 'custom';
         // binding.value();
-        console.log(binding)
         // binding.value.primaryDatabaseId = 1;
       }
     }
@@ -210,7 +208,6 @@ export default {
       this.selectedEbackupHostId = '';
     },
     readyToResetTabs(value) {
-      console.log(value)
       this.multiFormData = this.databaseTabs.map(db => {
         if (this.type === 'sqlserver') {
           return {

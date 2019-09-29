@@ -18,7 +18,7 @@ export default {
   },
   computed: {
     src() {
-      return `http://${this.inspectWeb.ip}:${this.inspectWeb.port}/inspect/ebackup/system/params/config`
+      return `http://${this.inspectUrl}/inspect/ebackup/system/params/config`
     }
   },
   watch: {

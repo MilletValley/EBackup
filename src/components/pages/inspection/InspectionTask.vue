@@ -18,7 +18,7 @@ export default {
   mixins: [inspectionMixin],
   computed: {
     src() {
-      return `http://${this.inspectWeb.ip}:${this.inspectWeb.port}/inspect/ebackup/inspection`;
+      return `http://${this.inspectUrl}/inspect/ebackup/inspection`;
     }
   },
   watch: {

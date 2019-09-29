@@ -821,7 +821,7 @@ export default {
       }
     },
     fetchInspectData() {
-      fetchInspectRecords(`${this.inspectWeb.ip}:${this.inspectWeb.port}`)
+      fetchInspectRecords(this.inspectUrl)
         .then(res => {
           const { data } = res.data;
           this.inspect = data.inspect;

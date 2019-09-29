@@ -123,6 +123,7 @@ import { sockMixin } from '@/components/mixins/commonMixin';
 import { fetchConfig, modifyInspectionActive } from '@/api/home';
 import themeMixin from '@/components/mixins/themeMixins';
 import { sendServerConfig } from '@/api/inspection';
+import inspectionMixin from '@/components/mixins/inspectionMixins';
 const themeTypeMapping = {
   default: '简约白(默认)',
   deepBlue: '宝石蓝',
@@ -130,7 +131,7 @@ const themeTypeMapping = {
 };
 export default {
   name: 'Layout',
-  mixins: [sockMixin, themeMixin],
+  mixins: [sockMixin, themeMixin, inspectionMixin],
   data() {
     return {
       themeTypeMapping,
@@ -209,9 +210,8 @@ export default {
         })
     },
     sendServerConfig() {
-      const { ebackupServer, inspectWeb } = this.configMsg;
-      sendServerConfig(`${inspectWeb.ip}:${inspectWeb.port}`,
-        { ip: ebackupServer.ip, port: ebackupServer.port })
+      const { ebackupServer } = this.configMsg;
+      sendServerConfig(this.inspectUrl, { ip: ebackupServer.ip, port: ebackupServer.port })
         .then(res => {})
     },
     handleCommand(command) {
@@ -238,7 +238,7 @@ export default {
       this.showThemeList = false;
     },
     updateInspection() {
-      if (this.configMsg.inspectWeb.ip && this.configMsg.inspectWeb.port) {
+      if (this.configMsg.inspectWeb.ip) {
         this.$confirm(`此操作即将${this.inspectActive ? '禁用' : '启用'}巡检功能，是否继续？`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',

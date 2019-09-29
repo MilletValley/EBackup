@@ -5,7 +5,8 @@
                :append-to-body="true"
                @open="modalOpenFn"
                @cancel="cancelButtonClick">
-      <span slot="title">
+      <span slot="title"
+            class="text">
         请选择备库存放路径
       </span>
       <div id="areaTree">
@@ -205,8 +206,9 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss" scoped>
 @import '../../../../plugins/ztree/css/zTreeStyle/zTreeStyle.css';
+@import '@/assets/theme/style.scss';
 #areaTree {
   border: 1px solid #e5e5e5;
   margin-bottom: 2px;
@@ -231,5 +233,8 @@ export default {
 .treeFileTime {
   position: absolute;
   right: 5px;
+}
+.text {
+  @include text-color;
 }
 </style>

@@ -20,7 +20,7 @@ export default {
   },
   computed: {
     src() {
-      return `http://${this.inspectWeb.ip}:${this.inspectWeb.port}/inspect/ebackup/template`;
+      return `http://${this.inspectUrl}/inspect/ebackup/template`;
     }
   },
   watch: {

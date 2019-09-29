@@ -128,7 +128,7 @@ export default {
             e.delBtnIcon = 'el-icon-delete';
             return e;
           });
-          this.serverTableData = tdata;
+          this.serverTableData = tdata.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
           this.currentSelect = this.currentSelect.filter(item => ids.includes(item.id));
       });
     },

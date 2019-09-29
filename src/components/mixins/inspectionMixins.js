@@ -21,8 +21,14 @@ const inspectionMixin = {
       }
       return { ip: null, port: null, active: false };
     },
+    inspectUrl() {
+      if (this.inspectWeb.port) {
+        return `${this.inspectWeb.ip}:${this.inspectWeb.port}`;
+      }
+      return this.inspectWeb.ip;
+    },
     hasInspectConfig() {
-      return this.inspectWeb.ip && this.inspectWeb.port && this.inspectWeb.active;
+      return this.inspectWeb.ip && this.inspectWeb.active;
     }
   },
   mounted() {
