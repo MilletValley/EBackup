@@ -282,11 +282,13 @@ export default {
     connectCallback(client) {
       this.stompClient.subscribe('/virtual', msg => {
         let { data: virtual } = JSON.parse(msg.body);
-        this.vmItems.splice(
-          this.vmItems.findIndex(item => item.id === virtual.id),
-          1,
-          virtual
-        );
+        if (virtual.type === this.vmType) {
+          this.vmItems.splice(
+            this.vmItems.findIndex(item => item.id === virtual.id),
+            1,
+            virtual
+          );
+        }
       });
     },
     fetchData() {
