@@ -30,7 +30,8 @@ const router = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba',
+        'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'],
     },
     children: [
       {
