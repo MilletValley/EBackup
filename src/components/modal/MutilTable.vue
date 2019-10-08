@@ -420,7 +420,8 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          virtual.bootState = virtual.bootState === 0 ? 'starting' : 'stopping';
+          const state = virtual.bootState;
+          virtual.bootState = state === 0 ? 'starting' : 'stopping';
           ModifyOneStartup(id)
             .then(res => {
               const { message, data } = res.data;
@@ -428,6 +429,7 @@ export default {
               this.$emit('refresh');
             })
             .catch(error => {
+              virtual.bootState = state;
               this.$message.error(error);
             });
         })
