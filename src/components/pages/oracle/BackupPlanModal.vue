@@ -24,7 +24,7 @@
 					<el-radio-group v-model="formData.backupStrategy"
                           @change="backupStrategyChange">
 						<el-radio :label="1">全备+增备</el-radio>
-						<el-radio :label="3">CDB持续备份</el-radio>
+						<el-radio :label="3">CDP持续备份</el-radio>
           </el-radio-group>
         </el-form-item>
 				
@@ -97,7 +97,7 @@ export default {
     backupStrategyChange(label) {
       if (label === 3 && this.hasCDBBackupPlan) {
         this.formData.backupStrategy = 1;
-        this.$message.warning('已存在CDB连续备份计划');
+        this.$message.warning('已存在CDP连续备份计划');
       } else {
         this.formData.timeStrategy = label === 1 ? 0 : 3;
       }

@@ -103,7 +103,7 @@
                           style="margin-left:0;"></i>
                       </el-tooltip>
                     </el-radio>
-                    <el-radio label="custom">自定义路径</el-radio>
+                    <el-radio label="custom" v-if="type === 'sqlserver'">自定义路径</el-radio>
                   </el-radio-group>
                 </el-row>
               </el-form-item>

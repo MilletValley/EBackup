@@ -83,7 +83,7 @@
                     <el-form-item label="设备IP：">
                       <span>{{ details.host.hostIp }}</span>
                     </el-form-item>
-                    <el-form-item label="CDB时间："
+                    <el-form-item label="CDP时间："
                                   v-if="hasLogRestore">
                       <span>{{ details.CDBTime ? details.CDBTime : '-' }}</span>
                       <span>

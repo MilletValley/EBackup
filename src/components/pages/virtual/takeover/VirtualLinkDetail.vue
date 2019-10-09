@@ -43,7 +43,7 @@
         <el-col :span="10">
           <section class="linkSection">
             <div style="position: relative; height: 3em; display: inline-block"
-                 v-if="link.state === 1">
+                 v-if="link.state === 0 || (link.state === 1 && link.currentSyncStatus === 1)">
               <div class="rightMask"></div>
               <i-icon :name="linkIcon(link)"
                       class="linkIcon"></i-icon>
@@ -312,10 +312,10 @@ export default {
       return dayjs(pre).unix() - dayjs(next).unix();
     },
     linkIcon(link) {
-      if (link.state === 0) {
-        return 'switch-1';
-      } else if (link.state === 1) {
+      if (link.state === 0 || (link.state === 1 && link.currentSyncStatus === 1)) {
         return 'transportationRight';
+      } else if (link.state === 1 && link.currentSyncStatus === 0) {
+        return 'switch-2';
       } else if (link.state === 2 && link.latestOperationInfo.type === 0 && link.latestOperationInfo.state === 1) {
         return 'link-exchange';
       } else if (link.state === 2) {

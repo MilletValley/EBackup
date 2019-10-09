@@ -19,7 +19,7 @@ const backupStrategyMapping = {
   0: '全备',
   1: '全备+增备',
   2: '全备+日志备份',
-  3: 'CDB持续备份'
+  3: 'CDP持续备份'
 };
 
 // 文件备份策略

@@ -236,8 +236,8 @@
                                             @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
                           <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
                                             @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
-                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
-                                            @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
+                          <!-- <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
+                                            @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item> -->
                           <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link))"
                                             @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
                         </span>
@@ -434,8 +434,8 @@
                           <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换实例</el-dropdown-item>
                           <el-dropdown-item @click.native="singleSwitchDatabase(dbLink.id)"
                                             :disabled="!availableSingleSwitchDb(hostLink, dbLink)">单切实例</el-dropdown-item>
-                          <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
-                                            :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
+                          <!-- <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
+                                            :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item> -->
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
                                             :disabled="!(availableCutBackSingle(dbLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>

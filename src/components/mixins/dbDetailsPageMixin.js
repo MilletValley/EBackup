@@ -180,7 +180,7 @@ const detailPageMixin = {
         this.tableLevelRestorePlanModalVisible = true;
       } else if (command === 'logRestore') {
         if (!this.details.CDBTime) {
-          this.$message.warning('请先进行CDB连续备份');
+          this.$message.warning('请先进行CDP连续备份');
         } else if (!this.firstFullBackupResultEndTime) {
           this.$message.warning('不存在成功的全备备份集，无法进行日志恢复');
         } else {
