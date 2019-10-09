@@ -182,10 +182,11 @@
                       <i-icon :name="linkIcon(link)"
                               :class="$style.linkIcon"></i-icon>
                   </div>
-                  <i-icon :name="linkIcon(link)"
-                          slot="reference"
-                          :class="$style.linkIcon"
-                          v-else></i-icon>
+                  <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                       v-else>
+                    <i-icon :name="linkIcon(link)"
+                            :class="$style.linkIcon"></i-icon>
+                  </div>
                 </el-popover>
                 <div v-if="link.latestOperationInfo && link.latestOperationInfo.state === 1"
                      style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
@@ -222,7 +223,7 @@
               <div :class="$style.targetVirtualInfo">
                 <el-row type="flex"
                         align="middle"
-                        v-if="Object.keys(link.targetVirtual).length">
+                        v-if="link.targetVirtual.vmName">
                   <el-col :span="8"
                           :class="$style.virtualInfoCol">
                     <h4>

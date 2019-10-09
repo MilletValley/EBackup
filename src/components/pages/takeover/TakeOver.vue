@@ -396,10 +396,11 @@
                       <i-icon name="transportationLeft"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
-                    <i-icon :name="`switch-${dbLink.state}`"
-                            slot="reference"
-                            :class="$style.switchIcon"
-                            v-else></i-icon>
+                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                         v-else>
+                      <i-icon :name="`switch-${dbLink.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                    </div>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && [1, 4, 5, 6].includes(dbLink.latestSwitch.type)"
                        style="margin-top: 6px;">
