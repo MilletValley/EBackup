@@ -39,11 +39,18 @@ export default {
   data() {
     return {
       sourceData: {},
+      position: {},
       chart: null
     }
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const ele = document.querySelector(`#${this.id}`);
+      this.position = { left: ele.getBoundingClientRect().left, top: ele.getBoundingClientRect().top };
+    })
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.sizeFun);
@@ -74,6 +81,7 @@ export default {
             for (let i = 0, j = details.length; i < j; i++) {
               if (details[i][num] > 0) {
                 let p = document.createElement('p');
+                p.style = "margin: 8px 0"
                 p.innerHTML = `${marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
                 rootElement.appendChild(p);
               }
@@ -362,10 +370,11 @@ export default {
       }
       // boxHeight > pointY 说明鼠标上边放不下提示框
       if (boxHeight > pointY) {
-        y = 5;
+        y = 0;
       } else { // 上边放得下
         y = pointY - boxHeight;
       }
+      // dom.style.position = 'fixed';
       return [x, y];
     },
     draw(option) {
