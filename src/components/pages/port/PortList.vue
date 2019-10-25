@@ -1,14 +1,15 @@
 <template>
   <section>
-    <!-- <el-row>
+    <el-row>
       <el-form inline
                size="small">
         <el-form-item style="float: right;">
-          <el-button type="primary"
-                    @click="createPort()">添加</el-button>
+            <el-button type="success"
+            @click="toguide('port')">操作说明</el-button>
         </el-form-item>
       </el-form>
-    </el-row> -->
+    </el-row> 
+
     <el-table :data="ports"
               style="width: 100%">
       <el-table-column type="index"
@@ -78,6 +79,11 @@ export default {
     }
   },
   methods: {
+    toguide(id){
+      let select = id;
+      localStorage.setItem('id',select);
+      this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
+    },
     fetchData() {
       fetchAll()
         .then(res => {

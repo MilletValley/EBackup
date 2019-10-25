@@ -29,6 +29,10 @@
         <el-button icon="el-icon-refresh"
                    @click="refreshData">刷新</el-button>
       </el-form-item>
+      <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toguide">操作说明</el-button>
+      </el-form-item>
     </el-form>
     <section style="clear: both;">
       <el-row>
@@ -200,15 +204,36 @@
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
+                        <el-tooltip placement="top" effect="light">
+                            <div slot="content">
+                                将业务重新转移到生产环境</br>
+                                <el-button type="text" @click="goto('qiezhu')" style="float: right; ">详细说明</el-button>
+                            </div>
+                        </el-tooltip>
+
                       <el-button type="text"
                                  :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
                                  @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
-                      <el-button type="text"
-                                 @click="switchHostIp(hostLink)"
-                                 :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
-                      <el-button type="text"
-                                :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                                @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              IP切换操作</br>
+                              <el-button type="text" @click="goto('changeip')" style="float: right; ">详细说明</el-button>
+                          </div>
+                          <el-button type="text"
+                          @click="switchHostIp(hostLink)"
+                          :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
+                      </el-tooltip>
+                
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              生产环境故障时，将业务转移到易备环境</br>
+                              <el-button type="text" @click="goto('qiebei')" style="float: right; ">详细说明</el-button>
+                          </div>
+                          <el-button type="text"
+                          :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                          @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                      </el-tooltip>
+                   
                     </div>
                     <div v-show="!enterFromMenu">
                       <el-button type="text"
@@ -230,7 +255,14 @@
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="queryVerifyResult(hostLink)">验证结果</el-dropdown-item>
+                          <el-tooltip placement="top" effect="light">
+                              <div slot="content">
+                                  相关操作的验证结果</br>
+                                  <el-button type="text" @click="goto('verification')" style="float: right; ">详细说明</el-button>
+                              </div>
+                              <el-dropdown-item @click.native="queryVerifyResult(hostLink)"
+                                                v-if="!(hostLink.primaryHost.databaseType === 1 && hostLink.primaryHost.oracleVersion === 1)">验证结果</el-dropdown-item>
+                          </el-tooltip>
                         <span v-if="hostLink.primaryHost.databaseType === 1">
                           <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
                                             @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
@@ -799,6 +831,15 @@ export default {
     },
   },
   methods: {
+    //跳转到指南
+    toguide(){
+      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
+    },
+    goto(id){
+      let select = id;
+      localStorage.setItem('id',select);
+      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
+    },
     fetchData() {
       fetchDatabaseMethod[this.databaseType]()
         .then(res => {

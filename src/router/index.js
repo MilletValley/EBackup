@@ -10,6 +10,7 @@ import LisenceNotAvail from '@/components/pages/LisenceNotAvail';
 import MoreState from '@/components/pages/MoreState';
 
 import homeRouter from './home';
+import manualRouter from './manual';
 import takeoverRouter from './takeover';
 import fileHostRouter from './fileHost';
 import databaseRouter from './database';
@@ -21,7 +22,11 @@ import inspection from './inspection';
 // import overviewRouter from './overview';
 
 Vue.use(Router);
-
+// 跳转到相同路由的地址
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+};
 export const basicRouters = [
   {
     path: '/login',
@@ -56,10 +61,12 @@ export const basicRouters = [
         path: 'morestate',
         name: 'morestate',
         component: MoreState,
-      },
+      }
+
     ],
   },
   ...homeRouter,
+  ...manualRouter,
 ];
 
 export default new Router({

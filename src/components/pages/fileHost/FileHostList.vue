@@ -13,6 +13,10 @@
           <el-button type="primary"
                     @click="addFn">添加</el-button>
       </el-form-item>
+      <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toguide()">操作说明</el-button>
+        </el-form-item>
     </el-form>
     </el-row>
     <el-table :data="filteredInfos"
@@ -86,6 +90,10 @@ export default {
     deleteFileHost(scope) {
       this.delete(scope, '此操作将删除此系统?');
     },
+    toguide(path){
+      this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemDeletion' }})
+
+    }
   },
   components: {
     DatabaseModal

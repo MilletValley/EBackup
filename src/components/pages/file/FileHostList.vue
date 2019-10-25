@@ -23,6 +23,10 @@
           <el-button type="primary"
                       @click="addFn">添加</el-button>
         </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toguide">操作说明</el-button>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-table :data="processedTableData"
@@ -224,6 +228,10 @@ export default {
       this.action = 'create';
       this.currentSelectData = null;
     },
+    toguide(){
+      this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemManual' }})
+    },
+
     modifyFn(row) {
       this.modalVisible = true;
       this.action = 'update';

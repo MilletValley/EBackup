@@ -7,7 +7,12 @@
           <el-button type="primary"
                     @click="createStrategy()">添加</el-button>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toguide('StoreAddress')">操作说明</el-button>
+        </el-form-item>
       </el-form>
+      
     </el-row>
     <el-table :data="strategys"
               style="width: 100%">
@@ -127,6 +132,11 @@ export default {
     }
   },
   methods: {
+    toguide(id){
+      let select = id;
+      localStorage.setItem('id',select);
+      this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
+    },
     fetchData() {
       fetchAll()
         .then(res => {

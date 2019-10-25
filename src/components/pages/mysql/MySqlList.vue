@@ -27,6 +27,10 @@
           <el-button type="primary"
                     @click="addFn">添加</el-button>
         </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toguide">操作说明</el-button>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-table :data="processedTableData"
@@ -213,6 +217,9 @@ export default {
     },
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
+    },
+    toguide(){
+      this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
     }
   },
   components: {

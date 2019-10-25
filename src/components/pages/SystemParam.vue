@@ -7,6 +7,10 @@
           <el-button type="primary"
                     @click="handleCreate()">添加</el-button>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toguide('StoreAddress')">操作说明</el-button>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-table :data="systemParameters"
@@ -357,6 +361,11 @@ export default {
     this.fetchData();
   },
   methods: {
+    toguide(id){
+      let select = id;
+      localStorage.setItem('id',select);
+      this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
+    },
     fetchData() {
       fetchAll()
         .then(res => {

@@ -8,6 +8,10 @@
           <el-radio label="hyperV" border>Hyper-V</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toguide">操作说明</el-button>
+      </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="info"
@@ -205,9 +209,16 @@
                   </div>
                   <div>
                     <el-dropdown>
-                      <span :class="$style.dropdownLink">
-                        同步操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
-                      </span>
+                        <el-tooltip placement="top" effect="dark">
+                            <div slot="content">
+                                一键接管功能操作</br>
+                                <el-button type="text" @click="goto('operation')" style="float: right; ">详细说明</el-button>
+                            </div>
+                            <span :class="$style.dropdownLink">
+                                同步操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
+                              </span>
+                        </el-tooltip>
+                      
                       <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="failOverLink(link)">故障转移</el-dropdown-item>
                         <el-dropdown-item @click.native="failBackLink(link)">故障恢复</el-dropdown-item>
@@ -400,6 +411,14 @@ export default {
     }
   },
   methods: {
+    toguide(){
+      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
+    },
+    goto(id){
+      let select = id;
+      localStorage.setItem('id',select);
+      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
+    },
     fetchData() {
       fetchLinks()
         .then(res => {

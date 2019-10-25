@@ -70,7 +70,10 @@
               {{ userName }}
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
+            
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="toguide">操作说明</el-dropdown-item>
+              <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
               <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
               <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
               <el-dropdown-item command="inspection" v-if="configMsg.inspectWeb">巡检  (已{{inspectActive ? '启用' : '禁用'}})</el-dropdown-item>
@@ -226,6 +229,8 @@ export default {
         this.updateInspection();
       } else if (command === 'restorePlan') {
         this.$router.push({ name: 'restorePlans' });
+      }else if (command === 'toguide') {
+        this.$router.push({ name: 'dataDaseTakeOver' });
       }
     },
     updateTheme(theme) {

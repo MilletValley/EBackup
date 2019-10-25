@@ -8,6 +8,10 @@
         <el-form-item style="float: right;">
           <el-button type="primary" @click="handleCreate()">添加</el-button>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toguide('roleManage')">操作说明</el-button>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-row :gutter="20">
@@ -413,6 +417,11 @@ export default {
     }
   },
   methods: {
+    toguide(id){
+      let select = id;
+      localStorage.setItem('id',select);
+      this.$router.push({ name: 'equipmentManage', query: { aId:'roleManage' }})
+    },
     // 筛选状态
     filterState(value, row) {
       return row.state === value;

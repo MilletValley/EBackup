@@ -7,6 +7,7 @@
                       @delete="deleteServer"
                       :vm-type="vmType">
           <template slot="other">
+            <el-button type="success" size="small" @click="toguide">操作说明</el-button>
             <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small">
               {{isSelect ? '添加备份计划' : '添加主机'}}
             </el-button>
@@ -85,6 +86,9 @@ export default {
     this.fetchData();
   },
   methods: {
+    toguide(){
+      this.$router.push({ name: 'addManagement', query: { aId:'virtualMonitor' }})
+    },
     fetchData() {
       fetchServerList()
         .then(res => {

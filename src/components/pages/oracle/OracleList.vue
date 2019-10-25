@@ -27,6 +27,10 @@
           <el-button type="primary"
                     @click="addFn">添加</el-button>
         </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toguide">操作说明</el-button>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-table :data="processedTableData"
@@ -88,19 +92,42 @@
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
-          <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
-          <el-button type="primary"
-                     icon="el-icon-edit"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="modifyDb(scope.row)"></el-button>
-          <el-button type="danger"
-                     icon="el-icon-delete"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="deleteDb(scope.row)"></el-button>
+          <el-tooltip placement="top" effect="light">
+              <div slot="content">
+                  监控</br>
+                  <el-button type="text" @click="toDataBaseMonitor" style="float: right; ">详细说明</el-button>
+              </div>
+              <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
+          </el-tooltip>
+          
+
+         <el-tooltip placement="top" effect="light">
+            <div slot="content">
+                修改</br>
+                <el-button type="text" @click="toModifyDataBase" style="float: right; ">详细说明</el-button>
+            </div>
+            <el-button type="primary"
+            icon="el-icon-edit"
+            circle
+            size="mini"
+            :class="$style.miniCricleIconBtn"
+            @click="modifyDb(scope.row)"></el-button>
+         </el-tooltip>
+
+         <el-tooltip placement="top" effect="light">
+            <div slot="content">
+              删除数据库</br>
+              <el-button type="text" @click="toModifyDataBase" style="float: right; ">详细说明</el-button>
+            </div>
+            <el-button type="danger"
+            icon="el-icon-delete"
+            circle
+            size="mini"
+            :class="$style.miniCricleIconBtn"
+            @click="deleteDb(scope.row)"></el-button>
+         </el-tooltip>
+          
+         
         </template>
       </el-table-column>
     </el-table>
@@ -228,6 +255,16 @@ export default {
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
     },
+    toguide(){
+     // console.log('hh');
+      this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
+    },
+    toModifyDataBase(){
+      this.$router.push({ name: 'addDataBase', query: { aId:'modifyDataBase' }})
+    },
+    toDataBaseMonitor(){
+      this.$router.push({ name: 'addDataBase', query: { aId:'dataBaseMonitor' }})
+    }
   },
   components: {
     DatabaseModal
