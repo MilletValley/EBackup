@@ -28,8 +28,7 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item command="backup">备份计划</el-dropdown-item>
-                    <el-dropdown-item command="restore"
-                                      >恢复计划</el-dropdown-item>
+                    <el-dropdown-item command="restore">恢复计划</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-col>
@@ -98,12 +97,12 @@
       </template>
       <template slot="restoreCard">
         <restore-card :id="plan.id"
-                        v-for="plan in filteredRestorePlans"
-                        :key="plan.id"
-                        :restore-plan="plan"
-                        @refresh="refreshSingleRestorePlan"
-                        @deletePlan="deleteRestorePlan"
-                        @updatePlan="selectRestorePlan(plan.id)"></restore-card>
+                      v-for="plan in filteredRestorePlans"
+                      :key="plan.id"
+                      :restore-plan="plan"
+                      @refresh="refreshSingleRestorePlan"
+                      @deletePlan="deleteRestorePlan"
+                      @updatePlan="selectRestorePlan(plan.id)"></restore-card>
       </template>
       <template slot="backupResult">
         <backup-result-list :data="results"
@@ -139,8 +138,20 @@
                           :serverData="serverData"
                           :result-id="selectedBackupResultId"
                           :visible.sync="singleRestoreCreateModalVisible"
-                          @confirm="singleConfirmCallback">
-    </single-restore-modal>
+                          @confirm="singleConfirmCallback"></single-restore-modal>
+    <a-cloud-single-restore-plan-modal :btn-loading="btnLoading"
+                                       :details="details"
+                                       :result-id="selectedBackupResultId"
+                                       :visible.sync="aCloudSingleRestoreCreateModalVisible"
+                                       @confirm="aCloudSingleConfirmCallback"></a-cloud-single-restore-plan-modal>
+    <a-cloud-restore-plan-modal :btn-loading="btnLoading"
+                                :details="details"
+                                :vm-type="vmType"
+                                :results="results"
+                                :visible.sync="aCloudRestorePlanModalVisible"
+                                @confirm="aCloudRestoreConfirmCallback"
+                                :action="restoreAction"
+                                :restore-plan="selectedRestorePlan"></a-cloud-restore-plan-modal>
   </section>
 </template>
 <script>
@@ -153,11 +164,15 @@ import BackupResultList from '@/components/pages/virtual/BackupResultList';
 import RestoreCard from '@/components/pages/virtual/RestoreCard';
 import RestoreRecords from '@/components/pages/virtual/RestoreRecords';
 import { virtualHostServerTypeMapping, virtualMapping, vmTypeMapping } from '@/utils/constant';
+import ACloudRestorePlanModal from '@/components/pages/virtual/ACloudRestorePlanModal';
+import ACloudSingleRestorePlanModal from '@/components/pages/virtual/ACloudSingleRestorePlanModal';
+import { createACloudRestorePlan, modifyACloudRestorePlan, createACloudSingleRestorePlan } from '@/api/virtuals';
 
 import {
   updateVirtualBackupPlan,
   createMultipleVirtualBackupPlan,
-  deleteVirtualBackupPlan
+  deleteVirtualBackupPlan,
+  fetchAll
 } from '@/api/virtuals';
 import { fetchServerList } from '@/api/host';
 
@@ -172,11 +187,16 @@ export default {
     BackupResultList,
     RestoreCard,
     RestoreRecords,
+    ACloudRestorePlanModal,
+    ACloudSingleRestorePlanModal
   },
   data() {
     return {
       type: 'virtual',
-      serverDatas: []
+      serverDatas: [],
+      virtuals: [],
+      aCloudRestorePlanModalVisible: false,
+      aCloudSingleRestoreCreateModalVisible: false
     };
   },
   computed: {
@@ -188,7 +208,7 @@ export default {
     serverData() {
       return this.serverDatas.filter( e => {
         if(this.details && this.details.host){
-          return e.hostId === this.details.host.id && e.serverType !== 1;
+          return e.hostId === this.details.host.id && e.serverType !== 1 && this.details.type === e.vmType;
         }
         return false;
       })
@@ -201,6 +221,9 @@ export default {
     vmTypeFilter(type) {
       return vmTypeMapping[type];
     }
+  },
+  created() {
+    this.fetchVirtualList();
   },
   methods: {
     vmCallback(data, type) {
@@ -218,10 +241,47 @@ export default {
         this.$message.error(error);
       })
     },
+    fetchVirtualList() {
+      fetchAll()
+        .then(res => {
+          const { data } = res.data;
+          this.virtuals = Array.isArray(data) ? data : [];
+        });
+    },
+    addPlanBtnClick(command) {
+      if (command === 'backup') {
+        this.backupPlanModalVisible = true;
+        this.action = 'create';
+      } else if (command === 'restore') {
+        if (this.vmType === 4) {
+          this.aCloudRestorePlanModalVisible = true;
+        } else {
+          this.restorePlanModalVisible = true;
+        }
+        this.restoreAction = 'create';
+      }
+    },
+    selectRestorePlan(restorePlanId) {
+      this.selectedRestorePlan = this.restorePlans.find(plan => plan.id === restorePlanId);
+      this.restoreAction = 'update';
+      if (this.vmType === 4) {
+        this.aCloudRestorePlanModalVisible = true;
+      } else {
+        this.restorePlanModalVisible = true;
+      }
+    },
+    initSingleRestoreModal(id) {
+      this.selectedBackupResultId = id;
+      if (this.vmType === 4) {
+        this.aCloudSingleRestoreCreateModalVisible = true;
+      } else {
+        this.singleRestoreCreateModalVisible = true;
+      }
+    },
     addBackupPlan(plan) {
       this.btnLoading = true;
-      // createVirtualBackupPlan({ id: this.id, plan })
-      const data = Object.assign({}, plan, { vmList: [this.id] });
+      const virtual = this.virtuals.find(id => this.id === id);
+      const data = Object.assign({}, plan, { vmList: [virtual] });
       createMultipleVirtualBackupPlan(data)
         .then(res => {
           const { message } = res.data;
@@ -264,6 +324,38 @@ export default {
           this.btnLoading = false;
         });
     },
+    aCloudRestoreConfirmCallback(formData, action) {
+      this.btnLoading = true;
+      (action === 'create' ? createACloudRestorePlan(this.id, formData) : modifyACloudRestorePlan(formData))
+        .then(res => {
+          const { message } = res.data;
+          this.aCloudRestorePlanModalVisible = false;
+          this.$message.success(message);
+          this.getRestorePlans();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        })
+    },
+    aCloudSingleConfirmCallback(id, formData) {
+      this.btnLoading = true;
+      createACloudSingleRestorePlan(id, formData)
+        .then(res => {
+          const { message } = res.data;
+          this.aCloudSingleRestoreCreateModalVisible = false;
+          this.$message.success(message);
+          this.getRestorePlans();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        });
+    }
   },
 };
 </script>

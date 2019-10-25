@@ -13,64 +13,48 @@
              :model="formData"
              :rules="rules"
              ref="singleRestorePlanForm">
-      <el-form-item label="新虚拟机名" v-if="vmType === 2"
+      <el-form-item label="新虚拟机名"
                     prop="newName">
         <el-input v-model="formData.newName"></el-input>
       </el-form-item>
       <el-row v-if="[1, 3].includes(vmType)">
-         <el-form-item label="恢复主机"
-                       prop="serverId">
+        <el-col :span="12">
+          <el-form-item label="恢复主机"
+                        prop="serverId">
             <el-select v-model="formData.serverId"
-                       @change="changeHost(formData.serverId, [1, 2].includes(vmType))"
-                       style="width: 100%;">
+                        @change="changeHost(formData.serverId, vmType === 1)"
+                        style="width: 100%;">
               <el-option v-for="(server, index) in serverData"
-                         :key="index"
-                         :value="server.id"
-                         v-if="!(details.server.id === server.id && vmType === 3)"
-                         :label="`${server.serverName}(${server.serverIp})`">
+                          :key="index"
+                          :value="server.id"
+                          v-if="!(details.server.id === server.id && vmType === 3)"
+                          :label="`${server.serverName}(${server.serverIp})`">
                 <span style="float: left">{{ server.serverName }}</span>
                 <span style="float: right; color: #8492a6; font-size: 13px">{{ server.serverIp }}</span>
               </el-option>
             </el-select>
           </el-form-item>
-      </el-row> 
-      <el-row v-if="[1, 3].includes(vmType)">
+        </el-col>
         <el-col :span="12">
-          <el-form-item label="新虚拟机名"
-                        prop="newName">
-            <el-input v-model="formData.newName"></el-input>
+          <el-form-item label="恢复磁盘名"
+                        prop="diskName"
+                        v-if="vmType === 1">
+            <el-select v-model="formData.diskName"
+                       :disabled="!hasHostIp"
+                       style="width: 100%"
+                       placeholder="请选择恢复磁盘">
+              <el-option v-for="(disk, index) in disks"
+                        :key="index"
+                        :label="disk"
+                        :value="disk"></el-option>
+            </el-select>
           </el-form-item>
-        </el-col>
-        <el-col :span="12"
-                v-if="[1, 2].includes(vmType)">
-          <el-col :span="21">
-            <el-form-item label="恢复磁盘名"
-                          prop="diskName">
-              <el-select v-model="formData.diskName"
-                        :disabled="!hasHostIp"
-                        placeholder="请选择恢复磁盘">
-                <el-option v-for="(disk, index) in disks"
-                          :key="index"
-                          :label="disk"
-                          :value="disk"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="3" style="text-align: center" v-if="showLoading">
-            <el-row>
-              <i class="el-icon-loading"></i>
-            </el-row>
-            <el-row style="font-size: 12px">
-              加载中
-            </el-row>
-          </el-col>
-        </el-col>
-        <el-col :span="12"
-                v-else>
           <el-form-item label="恢复路径"
                         prop="diskName"
+                        v-if="vmType === 3"
                         :rules="{ required: true, message: '请输入恢复路径', trigger: 'blur' }">
-            <el-input v-model="formData.diskName"></el-input>
+            <el-input v-model="formData.diskName"
+                      style="width: 100%"></el-input>
           </el-form-item>
         </el-col>
       </el-row>

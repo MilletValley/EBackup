@@ -52,13 +52,13 @@
         </el-table-column>
         <el-table-column prop="bootState"
                          align="center"
-                         v-if="[1, 3].includes(vmType)">
+                         v-if="[1, 3, 4].includes(vmType)">
           <template slot="header">
             <span>状态</span>
             <el-tooltip placement="right"
                         effect="light"
                         content="点击开机自启验证物理主机身份后可获取最新状态"
-                        v-if="config && !config.serverLoginName && !config.serverPassword">
+                        v-if="[1, 3].includes(vmType) && config && !config.serverLoginName && !config.serverPassword">
               <i class="el-icon-info"></i>
             </el-tooltip>
           </template>
@@ -82,7 +82,7 @@
                          min-width="150"
                          align="left"></el-table-column>
         <el-table-column label="操作"
-                         v-if="showDelete"
+                         v-if="showDelete && vmType !== 4"
                          width="100"
                          align="center">
             <template slot-scope="scope">

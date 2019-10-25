@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout';
-import DeviceManager from '@/components/pages/DeviceManager';
+import DeviceManager from '@/components/pages/host/DeviceManager';
 import DeviceDetails from '@/components/pages/DeviceDetails';
 import SystemParam from '@/components/pages/SystemParam';
 import EmailManager from '@/components/pages/EmailManager';

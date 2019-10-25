@@ -349,6 +349,85 @@ const virtualRouter = [
           },
         ]
       },
+      {
+        path: '',
+        component: {
+          render(c) {
+            return c('router-view');
+          }
+        },
+        meta: {
+          title: 'aCloud',
+          activeName: 'aCloud',
+          roles: ['vm admin']
+        },
+        children: [
+          {
+            path: 'aClouds/collectManager',
+            name: 'aCloudCollectManager',
+            component: ServerManager,
+            meta: {
+              title: '虚拟机主机管理',
+              activeName: 'aCloudHost',
+              roles: ['vm admin']
+            }
+          },
+          {
+            path: 'aCloud',
+            name: 'aCloudList',
+            component: VirtualList,
+            meta: {
+              title: 'aCloud列表',
+              activeName: 'aCloud',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '',
+                },
+              ],
+            },
+          },
+          {
+            path: 'aClouds/backup',
+            name: 'aCloudBackup',
+            component: BackupPlanList,
+            meta: {
+              title: '备份计划',
+              activeName: 'aCloudBackup',
+              roles: ['vm admin'],
+            },
+          },
+          {
+            path: 'aCloud/:id',
+            props: true,
+            component: VirtualDetail,
+            name: 'aCloudDetail',
+            meta: {
+              activeName: 'aCloud',
+              roles: ['vm admin'],
+              breadcrumb: [
+                {
+                  name: '首页',
+                  path: '/',
+                },
+                {
+                  name: '虚拟机列表',
+                  path: '/virtual/aCloud',
+                },
+                {
+                  name: '虚拟机详情',
+                  path: '',
+                },
+              ],
+            },
+          },
+        ]
+      },
     ],
   }
 ];

@@ -70,7 +70,7 @@ export default {
   },
   data() {
     return {
-      type: 'dm',
+      type: 'vm',
       rules: {
         name: validate.planName
       },

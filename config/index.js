@@ -11,9 +11,9 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api/v1': {
-        // target: 'http://localhost:8002',
+        target: 'http://localhost:8002',
         // target: 'http://145.170.28.67:8089',
-        target: 'http://145.170.32.21:8089',
+        // target: 'http://145.170.32.21:8089',
         // target: 'http://145.170.33.144:8089',
         // target: 'http://145.170.28.65:8089',
         changeOrigin: true,
@@ -24,14 +24,15 @@ module.exports = {
         // pathRewrite: { '^/api/v1': '/api/v1' },
       },
       '/api/v2': {
-        target: 'http://localhost:8002',
+        target: 'http://145.170.32.21:8089',
+        // target: 'http://localhost:8002',
         // target: 'http://145.170.23.128:8089', // 服务器
         // target: 'http://145.170.24.163:8089',
         // changeOrigin: true,
         // pathRewrite: { '^/api/v1': '/api/v1' },
       },
       '/socket': {
-        target: 'ws://145.170.28.67:8089',
+        target: 'ws://145.170.32.21:8089',
         ws: true
       }
     },

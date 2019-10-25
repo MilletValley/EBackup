@@ -213,13 +213,11 @@ export default {
             }
         },
         addBackupPlan(data) {
-            console.log(data);
             let plan = Object.assign({}, data);
-            let vmIds = this.selectData.map( e => {
-                return e.id;
-            });
-            plan.vmList = vmIds;
-            console.log(plan);
+            // let vmIds = this.selectData.map( e => {
+            //     return e.id;
+            // });
+            plan.vmList = this.selectData;
             this.btnLoading = true;
             createMultipleVirtualBackupPlan(plan)
                 .then(res => {

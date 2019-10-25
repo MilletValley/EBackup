@@ -122,7 +122,7 @@
             </div>
             <div v-else>-</div>
           </li>
-          <li v-if="[1, 3].includes(vmType)">
+          <li v-if="[1, 3, 4].includes(vmType)">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>

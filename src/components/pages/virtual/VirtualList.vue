@@ -73,7 +73,7 @@
       <el-table-column prop="bootState"
                          label="状态"
                          align="center"
-                         v-if="[1, 3].includes(vmType)">
+                         v-if="[1, 3, 4].includes(vmType)">
           <template slot-scope="scope">
             <el-tag size="mini"
                     :type="scope.row.bootState | bootStateTagFilter">
@@ -94,7 +94,7 @@
                          v-if="[1, 3].includes(vmType)"
                          align="center">
             <template slot-scope="scope">
-                                <el-button type="success"
+                <el-button type="success"
                            icon="el-icon-video-play"
                            circle
                            size="mini"
@@ -429,10 +429,10 @@ export default {
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
-      let vmIds = this.currentSelectDb.map(e => {
-        return e.id;
-      });
-      plan.vmList = vmIds;
+      // let vmIds = this.currentSelectDb.map(e => {
+      //   return e.id;
+      // });
+      plan.vmList = this.currentSelectDb;
       this.btnLoading = true;
       createMultipleVirtualBackupPlan(plan)
         .then(res => {

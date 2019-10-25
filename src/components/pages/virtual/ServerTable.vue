@@ -93,7 +93,8 @@
           <el-table-column label="操作"
                            width="140"
                            header-align="center"
-                           align="left">
+                           align="left"
+                           v-if="vmType !== 4">
               <template slot-scope="scope">
                   <el-tooltip 
                           content="重新扫描"

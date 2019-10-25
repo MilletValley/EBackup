@@ -135,7 +135,8 @@ const useTypeMapping = {
   10: 'cache',
   11: 'insql',
   12: 'informix',
-  13: 'postgresql'
+  13: 'postgresql',
+  14: 'aCloud'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -158,7 +159,8 @@ const portHostTypeMapping = {
   10: 'cache',
   11: 'insql',
   12: 'informix',
-  13: 'postgresql'
+  13: 'postgresql',
+  14: 'aCloud'
 };
 
 const keepDateMapping = {
@@ -184,7 +186,8 @@ const databaseTypeMapping = {
   10: 'cache',
   11: 'insql',
   12: 'informix',
-  13: 'postgresql'
+  13: 'postgresql',
+  14: 'aCloud'
 };
 
 // 数据库连接状态
@@ -234,7 +237,8 @@ const virtualHostServerTypeMapping = {
   1: 'vCenter',
   2: '物理主机',
   3: 'FusionSphere',
-  4: 'Hyper-V'
+  4: 'Hyper-V',
+  5: 'aCloud'
 };
 
 const backupTypeMapping = {
@@ -289,32 +293,37 @@ const dbTakeOverRouterMapping = {
 const vmTakeOverRouterMapping = {
   1: 'vmwareLinkDetail',
   2: 'fusionSphereLinkDetail',
-  3: 'hyperVLinkDetail'
+  3: 'hyperVLinkDetail',
+  4: 'aCloudDetail'
 };
 
 // 首页虚拟机详情路由
 const vmDetailRouterMapping = {
   1: 'vmwareDetail',
   2: 'fusionSphereDetail',
-  3: 'hyperVDetail'
+  3: 'hyperVDetail',
+  4: 'aCloudDetail'
 };
 
 const vmTypeMapping = {
   1: 'VMware',
   2: '华为虚拟机',
-  3: 'Hyper-V'
+  3: 'Hyper-V',
+  4: 'aCloud'
 };
 
 const virtualMapping = {
   1: 'vmware',
   2: 'fusionSphere',
-  3: 'hyperV'
+  3: 'hyperV',
+  4: 'aCloud'
 };
 
 const serverTypeMapping = {
   1: [1, 2],
   2: [3],
-  3: [4]
+  3: [4],
+  4: [5]
 };
 
 const syncStragegyMapping = { // 同步策略

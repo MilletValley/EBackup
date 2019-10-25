@@ -127,6 +127,9 @@ import { fetchConfig, modifyInspectionActive } from '@/api/home';
 import themeMixin from '@/components/mixins/themeMixins';
 import { sendServerConfig } from '@/api/inspection';
 import inspectionMixin from '@/components/mixins/inspectionMixins';
+import baseMixin from '@/components/mixins/baseMixins';
+import { RSAKey } from '@/components/common/rsa';
+import { sendRSAPassword } from '@/api/virtuals';
 const themeTypeMapping = {
   default: '简约白(默认)',
   deepBlue: '宝石蓝',
@@ -134,7 +137,7 @@ const themeTypeMapping = {
 };
 export default {
   name: 'Layout',
-  mixins: [sockMixin, themeMixin, inspectionMixin],
+  mixins: [sockMixin, themeMixin, inspectionMixin, baseMixin],
   data() {
     return {
       themeTypeMapping,
@@ -144,7 +147,8 @@ export default {
       lastTime: new Date().getTime(),
       timeOut: 30 * 60 * 1000,
       intervalObj: null,
-      url: '/socket-host'
+      url: '/socket-host',
+      rsaPassword: ''
     };
   },
   components: {
@@ -211,6 +215,11 @@ export default {
           const { data: config } = res.data;
           this.setConfig(config);
         })
+    },
+    encryption(publickKey, password) {
+      let rsa = new RSAKey();
+      rsa.setPublic(publickKey, '10001');
+      return rsa.encrypt(password);
     },
     sendServerConfig() {
       const { ebackupServer } = this.configMsg;
@@ -297,11 +306,24 @@ export default {
     },
     connectCallback(client) { //connect连接成功的回调函数
       this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
-        let {data} = JSON.parse(msg.body);// msg.body为服务端返回的报文
+        let { data } = JSON.parse(msg.body);// msg.body为服务端返回的报文
         data = Array.isArray(data) ? data : [];
         this.setHost(data);
       });
+      this.stompClient.subscribe('/source-rsa-password', msg => {
+        let { data } = JSON.parse(msg.body);
+        const { id, key, password } = data;
+        this.rsaPassword = password ? this.encryption(key, password) : '';
+        this.sendRSAMsg({ id, password: this.rsaPassword });
+      });
     },
+    sendRSAMsg(data) {
+      sendRSAPassword(data)
+        .then(() => {})
+        .catch(error => {
+          this.$message.error(error);
+        })
+    }
   },
 };
 </script>

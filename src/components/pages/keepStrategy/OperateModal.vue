@@ -18,6 +18,7 @@
           <el-select v-model="formData.hostType"
                      placeholder="请选择">
             <el-option v-for="type in Object.keys(useTypeMapping)"
+                       v-if="Number(type) !== 14"
                        :key="type"
                        :label="useTypeMapping[type]"
                        :disabled="disableSelectHost.includes(Number(type))"

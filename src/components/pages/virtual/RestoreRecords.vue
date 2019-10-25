@@ -97,7 +97,7 @@
         </el-table-column>
         <el-table-column prop="diskName"
                          label="恢复磁盘名"
-                         v-if="[1, 3].includes(vmType)"
+                         v-if="[1, 3, 4].includes(vmType)"
                          align="center"
                          min-width="200px">
         </el-table-column>

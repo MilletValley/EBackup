@@ -326,6 +326,63 @@ const multiBootPower = (id, data) =>
     data
   });
 
+// 发送rsa密码
+const sendRSAPassword = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/send-rsa-encryption',
+    data
+  });
+
+// 扫描主机
+const rescanServerHost = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/virtuals/hosts/server/rescan'
+  });
+
+// 根据备份集id获取aCloud存储位置
+const fetchACloudStorages = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-backup-results/${id}/aCloud-recovery-storages`
+  });
+
+// 根据aCloud存储位置获取主机列表
+const fetchServerHostsByStorage = (id, hostId) =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtuals/aCloud-recovery-storages/${id}/host-servers?hostId=${hostId}`
+  });
+
+// 根据主机id获取aCloud分组列表
+const fetchACloudPaths = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtuals/hosts/${id}/aCloud-paths`
+  });
+
+const createACloudRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtuals/${id}/aCloud-restore-plans`,
+    data
+  });
+
+const createACloudSingleRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtual-backup-results/${id}/aCloud-restore-plans`,
+    data
+  });
+
+const modifyACloudRestorePlan = data =>
+  baseApi.request({
+    method: 'patch',
+    url: `/aCloud-restore-plans/${data.id}`,
+    data
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -364,5 +421,13 @@ export {
   fetchTimePoints,
   ModifyOneStartup,
   validatePassword,
-  multiBootPower
+  multiBootPower,
+  sendRSAPassword,
+  rescanServerHost,
+  fetchACloudStorages,
+  fetchServerHostsByStorage,
+  fetchACloudPaths,
+  createACloudRestorePlan,
+  createACloudSingleRestorePlan,
+  modifyACloudRestorePlan
 };
