@@ -267,7 +267,7 @@ export default {
           }
           this.$emit('confirm', {
             databaseType: type,
-            ...other
+            ...others
           });
         } else {
           return false;

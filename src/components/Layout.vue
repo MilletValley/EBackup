@@ -74,7 +74,6 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="toguide">操作说明</el-dropdown-item>
               <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
-              <el-dropdown-item command="backupPlan">备份计划</el-dropdown-item>
               <el-dropdown-item command="restorePlan">恢复计划</el-dropdown-item>
               <el-dropdown-item command="inspection" v-if="configMsg.inspectWeb">巡检  (已{{inspectActive ? '启用' : '禁用'}})</el-dropdown-item>
               <el-dropdown-item command="profile">个人中心</el-dropdown-item>
