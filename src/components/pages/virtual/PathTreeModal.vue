@@ -42,7 +42,8 @@ export default {
             enable: false
           },
           key: {
-            name: 'name'
+            name: 'name',
+            children: 'data'
           }
         },
         view: {
@@ -65,7 +66,16 @@ export default {
     modalOpenFn(){
       this.$nextTick(() => {
         $.fn.zTree.init($('#treeDemo'), this.setting, this.nodes);
+        this.fixIcon();
       })
+    },
+    fixIcon() {
+      const treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+      var folderNode = treeObj.transformToArray(treeObj.getNodes());
+      folderNode.forEach(node => {
+        node.isParent = true;
+      });
+      treeObj.refresh();
     },
     addDiyDom(treeId, treeNode) {
       let aObj = $("#" + treeNode.tId + "_a");
