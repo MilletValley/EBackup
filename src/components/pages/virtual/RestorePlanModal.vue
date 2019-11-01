@@ -61,7 +61,19 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <time-interval :form-data="formData" :type="type" ref="timeIntervalComponent"></time-interval>
+      <el-form-item label="时间策略" class="is-required"
+                    style="width: 100%">
+        <el-radio-group v-model="formData.timeStrategy">
+          <el-radio :label="1">单次执行</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="恢复时间" class="is-required"
+                    prop="singleTime">
+        <el-date-picker type="datetime"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        v-model="formData.singleTime"></el-date-picker>
+      </el-form-item>
     </el-form>
     <span slot="footer">
       <el-button type="primary"
@@ -77,6 +89,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { restorePlanModalMixin } from '@/components/mixins/backupPlanModalMixin';
 import validate from '@/utils/validate';
 import TimeInterval from '@/components/common/TimeInterval';
+import dayjs from 'dayjs';
 
 const basicFormData = {
   name: '',
@@ -86,9 +99,6 @@ const basicFormData = {
   diskName: '',
   startTime: '',
   singleTime: '',
-  datePoints: [],
-  timePoints: [{ value: '00:00', key: Date.now() }],
-  weekPoints: [], // 必须初始化为数组，checkbox group才能识别
   timeStrategy: 1, // 默认单次执行
 };
 
@@ -107,6 +117,15 @@ export default {
     }
   },
   data() {
+    const singleTimeValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 1 && !value) {
+        callback(new Error('请输入恢复时间'));
+      } else if (dayjs(value) < dayjs()) {
+        callback(new Error('恢复时间必须晚于当前时间'));
+      } else {
+        callback();
+      }
+    };
     return {
       type: 'vm',
       rules: {
@@ -114,6 +133,9 @@ export default {
         serverId: validate.selectServer,
         newName: validate.newVmName,
         diskName: validate.diskName,
+        singleTime: [
+        { validator: singleTimeValidate, trigger: 'blur' }
+        ]
       },
       hasHostIp: false, // 用于虚拟机恢复，根据已选的hostId获取可选的恢复磁盘
       disks: [],
@@ -123,38 +145,25 @@ export default {
   methods: {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
-        this.$refs.timeIntervalComponent
-          .validate()
-          .then(res => {
-            if (valid && res) {
-              let data = this.pruneFormData(this.formData);
-              if (this.action === 'update') {
-                data.id = this.restorePlan.id;
-                data.config.id = this.restorePlan.config.id;
-              }
-              if (!data.config.serverId) {
-                data.config.serverId = this.details.server.id;
-              }
-              this.$emit('confirm', data, this.action);
-            }
-          })
-          .catch(error => {
-            if (error && valid) {
-              this.$message.error(error);
-            }
-          });
+        if (valid) {
+          let data = this.pruneFormData(this.formData);
+          if (this.action === 'update') {
+            data.id = this.restorePlan.id;
+            data.config.id = this.restorePlan.config.id;
+          }
+          if (!data.config.serverId) {
+            data.config.serverId = this.details.server.id;
+          }
+          this.$emit('confirm', data, this.action);
+        }
       });
     },
     fmtData(plan) {
-      if (plan.config.timePoints.length === 0) {
-        plan.config.timePoints.push({ value: '00:00', key: Date.now() });
-      }
       const { name, config, ...other } = plan;
-      const { id, startTime, timePoints, timeStrategy, ...otherConfig } = config;
+      const { id, startTime, timeStrategy, ...otherConfig } = config;
       return {
         name,
         startTime: timeStrategy === 1 ? '' : startTime,
-        timePoints: cloneDeep(timePoints),
         timeStrategy,
         ...otherConfig,
       };
@@ -175,7 +184,6 @@ export default {
     },
     modalClosed() {
       // this.formData = { ...baseFormData };
-      this.$refs.timeIntervalComponent.clearValidate();
       this.$refs.restorePlanCreateForm.clearValidate();
       this.hiddenPassword = true;
       this.disks = [];

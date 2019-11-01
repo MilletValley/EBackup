@@ -140,6 +140,15 @@ export default {
     }
   },
   data() {
+    const startTimeValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 1 && !value) {
+        callback(new Error('请输入恢复时间'));
+      } else if (dayjs(value) < dayjs()) {
+        callback(new Error('恢复时间必须晚于当前时间'));
+      } else {
+        callback();
+      }
+    };
     return {
       type: 'vm',
       rules: {
@@ -153,6 +162,9 @@ export default {
         ],
         pathName: [
           { required: true, message: '请选择分组', trigger: 'blur' }
+        ],
+        startTime: [
+          { validator: startTimeValidate, trigger: 'blur' }
         ]
       },
       pathTreeModalVisible: false,
