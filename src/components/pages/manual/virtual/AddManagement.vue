@@ -116,7 +116,7 @@
                     <p>参见<el-button type="text" @click="toguide('virtualTakeOver','virtualTakeOver')" >**一键接管_虚拟机**</el-button></p>
                 </div> 
             </div>
-            <div id="virtualStart">
+            <div id="virtualStart" class="anchor">
                 <div class="top">
                     <h3>虚拟机启动</h3>
                 </div>
