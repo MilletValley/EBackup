@@ -7,6 +7,20 @@
               :visible.sync="modalVisible">
       <span slot="title">
         {{ title }}
+        <el-popover placement="right" width="400" trigger="hover">
+          <div>
+            <p>
+              1、将从该备份点新建一台全新的虚拟机，原有的虚拟机将不受影响。
+            </p>
+            <p>
+              2、验证确认内部数据正确之后，可以手动将这台虚拟机替换为生产虚拟机。
+            </p>
+            <p>
+              3、为了避免IP地址和现有的虚拟机冲突，需要手动将虚拟机连接到网络中。新生成的虚拟机将会有新的硬件特征，如果虚拟机操作系统或者软件绑定了硬件信息进行授权，需要重新授权，或者使用覆盖原虚拟机方式
+            </p>
+          </div>
+          <i class="el-icon-info" slot="reference"></i>
+        </el-popover>
       </span>
       <el-form size="small"
                label-position="right"
@@ -22,12 +36,12 @@
                       prop="newName">
           <el-input v-model="formData.newName"></el-input>
         </el-form-item>
-        <el-row v-if="action === 'create'">
+        <el-row>
           <el-col :span="12">
             <el-form-item label="存储位置"
                           prop="recoveryStorageId">
               <el-select v-model="formData.recoveryStorageId"
-                        @change="fetchServerHostsByStorage"
+                        @change="recoveryStorageIdChange"
                         style="width: 100%"
                         :disabled="!aCloudStorages.length"
                         :placeholder="aCloudStoragesLoading ? '加载中...' : '请选择存储位置'">
@@ -42,7 +56,6 @@
             <el-form-item label="恢复主机"
                           prop="nodeId">
               <el-select v-model="formData.nodeId"
-                         @change="fetchACloudPaths"
                          style="width: 100%"
                          :disabled="!formData.recoveryStorageId"
                          :placeholder="aCloudServerHostsLoading ? '加载中...' : '请选择恢复主机'">
@@ -58,11 +71,10 @@
           </el-col>
         </el-row>
         <el-form-item label="分组"
-                      prop="path"
-                      v-if="action === 'create'">
-          <el-input v-model="formData.path"
+                      prop="pathName">
+          <el-input v-model="formData.pathName"
                     :placeholder="aCloudPathsLoading ? '加载中...' : '请选择分组'"
-                    :disabled="!formData.nodeId"
+                    :disabled="!aCloudPaths.length"
                     @focus="selectACloudPath">
             <el-button slot="append"
                       @click="selectACloudPath">...</el-button>
@@ -89,6 +101,7 @@
     </el-dialog>
     <path-tree-modal :visible.sync="pathTreeModalVisible"
                      :paths="aCloudPaths"
+                     :selected-path="formData.path"
                      @confirm="selectACloudPathConfirm"></path-tree-modal>
   </section>
 </template>
@@ -107,6 +120,7 @@ const aCloudBasicFormData = {
   recoveryStorageId: '',
   newName: '',
   path: '',
+  pathName: '',
   nodeId: ''
 };
 
@@ -137,7 +151,7 @@ export default {
         nodeId: [
           { required: true, message: '请选择恢复主机', trigger: 'blur' }
         ],
-        path: [
+        pathName: [
           { required: true, message: '请选择分组', trigger: 'blur' }
         ]
       },
@@ -154,19 +168,30 @@ export default {
     confirmBtnClick() {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
-          const { nodeId, ...others } = this.formData;
-          let data = null;
-          if (this.action === 'create') {
-            data = {
-              node: this.aCloudServerHosts.find(n => n.nodeId === nodeId),
-              ...others
-            };
-          } else {
-            data = { ...this.formData };
-          }
-          this.$emit('confirm', data, this.action);
+          const { nodeId, pathName, ...others } = this.formData;
+          this.$emit('confirm', {
+            node: this.aCloudServerHosts.find(n => n.nodeId === nodeId),
+            ...others
+          }, this.action);
         }
       });
+    },
+    getPathNode(path, nodes) {
+      const flattern = nodes =>
+        nodes.reduce(
+          (flat, next) => {
+            if (next.data && next.data.length) {
+              return flat.concat(flattern(next.data), next);
+            }
+            return flat.concat(next);
+          },
+          []
+        );
+      return flattern(nodes).find(node => node.path === path);
+    },
+    recoveryStorageIdChange() {
+      this.formData.nodeId = '';
+      this.fetchServerHostsByStorage();
     },
     fetchServerHostsByStorage() {
       this.aCloudServerHostsLoading = true;
@@ -180,6 +205,7 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+          this.aCloudServerHosts = [];
         })
         .then(() => {
           this.aCloudServerHostsLoading = false;
@@ -187,13 +213,20 @@ export default {
     },
     fetchACloudPaths() {
       this.aCloudPathsLoading = true;
-      fetchACloudPaths(this.formData.nodeId)
+      this.formData.pathName = '';
+      fetchACloudPaths(this.details.hostId)
         .then(res => {
           const { data } = res.data;
           this.aCloudPaths = data;
+          if (this.action === 'update') {
+            const pathMsg = this.getPathNode(this.formData.path, this.aCloudPaths);
+            this.originFormData.pathName = pathMsg && pathMsg.name ? pathMsg.name : '';
+            this.formData.pathName = this.originFormData.pathName;
+          }
         })
         .catch(error => {
           this.$message.error(error);
+          this.aCloudPaths = [];
         })
         .then(() => {
           this.aCloudPathsLoading = false;
@@ -201,7 +234,7 @@ export default {
     },
     fetchACloudStorages() {
       this.aCloudStoragesLoading = true;
-      fetchACloudStorages(this.latestResult.id)
+      fetchACloudStorages(this.resultId)
       .then(res=> {
         const { data } = res.data;
         this.aCloudStorages = data;
@@ -216,25 +249,32 @@ export default {
     modalOpened() {
       let baseFormData = cloneDeep(aCloudBasicFormData);
       this.fetchACloudStorages();
+      this.fetchACloudPaths();
       if (this.action === 'update' || this.action === 'query') {
-        const { id, name, config } = this.restorePlan;
-        const { newName,startTime } = config;
+        const { id, name, config, } = this.restorePlan;
+        const { newName, startTime, recoveryStorageId, path, nodeId } = config;
         this.originFormData = Object.assign(
           {},
+          baseFormData,
           {
             id,
             planName: name,
             newName,
             startTime,
             oldName: this.details.vmName,
-            hostId: this.details.hostId
+            hostId: this.details.hostId,
+            recoveryStorageId,
+            path,
+            nodeId
           }
         )
+        this.formData = Object.assign({}, this.originFormData);
+        this.fetchServerHostsByStorage();
       } else {
         const { vmName } = this.details;
         this.originFormData = Object.assign({}, baseFormData, { oldName: vmName, hostId: this.details.hostId });
+        this.formData = Object.assign({}, this.originFormData);
       }
-      this.formData = Object.assign({}, this.originFormData);
     },
     modalClosed() {
       this.$refs.restorePlanCreateForm.clearValidate();
@@ -244,6 +284,7 @@ export default {
     },
     selectACloudPathConfirm(node) {
       this.formData.path = node.path;
+      this.formData.pathName = node.name;
     }
   },
   computed: {
@@ -253,6 +294,13 @@ export default {
         return normalResults.sort((a, b) => dayjs(b.startTime) - dayjs(a.startTime))[0];
       }
       return {};
+    },
+    resultId() {
+      if (this.action === 'create') {
+        return this.latestResult.id ? this.latestResult.id : -1;
+      } else {
+        return this.restorePlan.config ? this.restorePlan.config.backupId : -1;
+      }
     }
   }
 };

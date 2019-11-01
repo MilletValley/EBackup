@@ -8,7 +8,8 @@
       </el-row>
       <el-row v-show="showFilter">
         <el-form ref="filterForm" :model="filterForm" label-width="150px" size="small">
-          <el-form-item label="备份文件名：" prop="fileName">
+          <el-form-item label="备份文件名：" prop="fileName"
+                        v-if="vmType !== 4">
             <el-input v-model="filterForm.fileName" style="width:400px"></el-input>
           </el-form-item>
           <el-form-item label="开始时间：" prop="startTime">
@@ -50,47 +51,48 @@
                    label-width="100px"
                    size="small"
                    class="result-detail-form">
-            <!-- <el-form-item :class="$style.detailFormItem"
+            <!-- <el-form-item class="detailFormItem"
                           label="ID">
               <span>{{ scope.row.id }}</span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="备份类型">
               <span>{{scope.row.backupType |backupTypeFilter}}</span>
             </el-form-item> -->
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="开始时间">
               <span>{{ scope.row.startTime }}</span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="存储目标路径">
               <span>{{ scope.row.path }}</span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="结束时间">
               <span>{{ scope.row.endTime }}</span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
-                          label="文件名">
+            <el-form-item class="detailFormItem"
+                          label="文件名"
+                          v-if="vmType !== 4">
               <span>{{ scope.row.fileName }}</span>
             </el-form-item>
             
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="大小">
               <span>{{ scope.row.size }}</span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="状态">
               <span>
                 <el-tag size="mini"
                         :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
               </span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="持续时间">
               <span>{{ scope.row.consume | durationFilter }}</span>
             </el-form-item>
-            <el-form-item :class="$style.detailFormItem"
+            <el-form-item class="detailFormItem"
                           label="错误信息"
                           v-if="scope.row.state === 1">
               <span>{{ scope.row.errorMsg }}</span>
@@ -102,7 +104,8 @@
                        prop="fileName"
                        min-width="180px"
                        align="left"
-                       header-align="center"></el-table-column>
+                       header-align="center"
+                       v-if="vmType !== 4"></el-table-column>
       <!-- <el-table-column  label="备份类型"
                        prop="backupType"
                        min-width="100px"
@@ -121,6 +124,14 @@
                        min-width="150px"
                        :sortable="true"
                        align="center"></el-table-column>
+      <el-table-column label="备份类型"
+                       prop="backupType"
+                       min-width="120px"
+                       align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.backupType | backupTypeFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="大小"
                        prop="size"
                        min-width="100px"
@@ -131,11 +142,9 @@
                        align="center">
         <template slot-scope="scope">
           <i v-if="scope.row.state === 0"
-             class="el-icon-success"
-             :class="$style.successColor"></i>
+             class="el-icon-success successColor"></i>
           <i v-else
-             class="el-icon-error"
-             :class="$style.errorColor"></i>
+             class="el-icon-error errorColor"></i>
         </template>
       </el-table-column>
       <el-table-column label="操作"
@@ -163,14 +172,24 @@ import backupResultMixin from '@/components/mixins/backupResultMixin';
 export default {
   name: 'BackupResultList',
   mixins: [baseMixin, backupResultMixin],
+  props: ['vmType'],
   data() {
     return {
       machineType: 3
     }
+  },
+  filters: {
+    backupTypeFilter(type) {
+      const backupTypeMapping = {
+        1: '全备',
+        2: '增备'
+      };
+      return backupTypeMapping[type];
+    }
   }
 };
 </script>
-<style lang="scss" module>
+<style lang="scss" scoped>
 @import '@/style/color.scss';
 .detailFormItem {
   margin: {

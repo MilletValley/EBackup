@@ -7,6 +7,20 @@
               :visible.sync="modalVisible">
       <span slot="title">
         执行恢复操作
+        <el-popover placement="right" width="400" trigger="hover">
+          <div>
+            <p>
+              1、将从该备份点新建一台全新的虚拟机，原有的虚拟机将不受影响。
+            </p>
+            <p>
+              2、验证确认内部数据正确之后，可以手动将这台虚拟机替换为生产虚拟机。
+            </p>
+            <p>
+              3、为了避免IP地址和现有的虚拟机冲突，需要手动将虚拟机连接到网络中。新生成的虚拟机将会有新的硬件特征，如果虚拟机操作系统或者软件绑定了硬件信息进行授权，需要重新授权，或者使用覆盖原虚拟机方式
+            </p>
+          </div>
+          <i class="el-icon-info" slot="reference"></i>
+        </el-popover>
       </span>
       <el-form size="small"
               label-position="right"
@@ -38,7 +52,6 @@
             <el-form-item label="恢复主机"
                           prop="nodeId">
               <el-select v-model="formData.nodeId"
-                          @change="fetchACloudPaths"
                           style="width: 100%"
                           :disabled="!formData.recoveryStorageId"
                           :placeholder="aCloudServerHostsLoading ? '加载中...' : '请选择恢复主机'">
@@ -54,10 +67,10 @@
           </el-col>
         </el-row>
         <el-form-item label="分组"
-                      prop="path">
-          <el-input v-model="formData.path"
+                      prop="pathName">
+          <el-input v-model="formData.pathName"
                     :placeholder="aCloudPathsLoading ? '加载中...' : '请选择分组'"
-                    :disabled="!formData.nodeId"
+                    :disabled="!aCloudPaths.length"
                     @focus="selectACloudPath">
             <el-button slot="append"
                       @click="selectACloudPath">...</el-button>
@@ -87,6 +100,7 @@ const baseFormData = {
   recoveryStorageId: '',
   newName: '',
   path: '',
+  pathName: '',
   nodeId: ''
 };
 
@@ -112,7 +126,7 @@ export default {
         nodeId: [
           { required: true, message: '请选择恢复主机', trigger: 'blur' }
         ],
-        path: [
+        pathName: [
           { required: true, message: '请选择分组', trigger: 'blur' }
         ]
       },
@@ -128,6 +142,7 @@ export default {
   methods: {
     fetchServerHostsByStorage() {
       this.aCloudServerHostsLoading = true;
+       this.formData.nodeId = '';
       fetchServerHostsByStorage(
           this.formData.recoveryStorageId,
           this.details.hostId
@@ -138,6 +153,7 @@ export default {
         })
         .catch(error => {
           this.$message.error(error);
+          this.aCloudServerHosts = [];
         })
         .then(() => {
           this.aCloudServerHostsLoading = false;
@@ -145,13 +161,15 @@ export default {
     },
     fetchACloudPaths() {
       this.aCloudPathsLoading = true;
-      fetchACloudPaths(this.formData.nodeId)
+      this.formData.pathName = '';
+      fetchACloudPaths(this.details.hostId)
         .then(res => {
           const { data } = res.data;
           this.aCloudPaths = data;
         })
         .catch(error => {
           this.$message.error(error);
+          this.aCloudPaths = [];
         })
         .then(() => {
           this.aCloudPathsLoading = false;
@@ -188,6 +206,7 @@ export default {
     },
     modalOpened() {
       this.fetchACloudStorages();
+      this.fetchACloudPaths();
       this.originFormData = Object.assign({}, baseFormData, {
         oldName: this.details.vmName,
         hostId: this.details.hostId
@@ -199,6 +218,7 @@ export default {
     },
     selectACloudPathConfirm(node) {
       this.formData.path = node.path;
+      this.formData.pathName = node.name;
     }
   },
 };

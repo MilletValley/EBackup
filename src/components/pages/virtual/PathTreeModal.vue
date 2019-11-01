@@ -27,7 +27,7 @@ import "../../../../plugins/ztree/js/jquery.ztree.excheck.min.js";
 export default {
   name: 'PathTreeModal',
   mixins: [dialogMixin],
-  props: ['visible', 'paths'],
+  props: ['visible', 'paths', 'selectedPath'],
   data() {
     return {
       setting: {
@@ -42,7 +42,8 @@ export default {
             enable: false
           },
           key: {
-            name: 'name'
+            name: 'name',
+            children: 'data'
           }
         },
         view: {
@@ -58,61 +59,28 @@ export default {
   },
   computed: {
     nodes() {
-      return [
-        {
-          id: "94485",
-          name: "VGmJNZ6eR5",
-          path: "833yQnpPe0",
-          type: "zsBx1cM0U3",
-          children: [
-            {
-              id: "83248",
-              name: "x71Abx18NM",
-              path: "v0pedhzjFk",
-              type: "kC9qinbjTL",
-              children: [
-                {
-                  id: "95960",
-                  name: "kFxxbyCTE1",
-                  path: "lJFqbIP0s9",
-                  type: "vVgKQPw4qQ",
-                  children: []
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: "94923",
-          name: "oqIRKXhBAN",
-          path: "K1gHUvvp1G",
-          type: "zPeGNxav8v",
-          children: [
-            {
-              id: "61765",
-              name: "Dl0kiPH1y6",
-              path: "W7VacqEHwX",
-              type: "wgCit4mdoT",
-              children: []
-            }
-          ]
-        },
-        {
-          id: "95260",
-          name: "D2gfoOO8en",
-          path: "ycFsi2mxo4",
-          type: "EKj7gUXqVr",
-          children: [
-          ]
-        }
-      ]
+      return this.paths;
     }
   },
   methods: {
     modalOpenFn(){
       this.$nextTick(() => {
         $.fn.zTree.init($('#treeDemo'), this.setting, this.nodes);
+        this.fixIcon();
       })
+    },
+    fixIcon() {
+      const treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+      var folderNode = treeObj.transformToArray(treeObj.getNodes());
+      folderNode.forEach(node => {
+        node.isParent = true;
+        if(node.path === this.selectedPath) {
+          this.selectedNode = node;
+          node.checked = true;
+          treeObj.expandNode(node, true, false, true);
+        }
+      });
+      treeObj.refresh();
     },
     addDiyDom(treeId, treeNode) {
       let aObj = $("#" + treeNode.tId + "_a");

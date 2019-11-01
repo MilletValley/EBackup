@@ -122,7 +122,7 @@
             </div>
             <div v-else>-</div>
           </li>
-          <li v-if="[1, 3, 4].includes(vmType)">
+          <li v-if="[1, 3].includes(vmType)">
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
@@ -274,13 +274,13 @@ export default {
     },
     formatProcess(data) {
       if (data.state === 1) {
-        return data.processSpeed;
+        return Number(data.processSpeed);
       } else if (data.state === 0) {
         return 0;
       } else if (data.state === 2) {
         return 100;
       } else if (data.state === 3) {
-        return data.processSpeed;
+        return Number(data.processSpeed);
       }
     },
     formatState(state) {

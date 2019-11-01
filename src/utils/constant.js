@@ -406,6 +406,11 @@ const emailConfigTimeStrategyMapping = {
   3: '每月'
 };
 
+const cloudTypeMapping = {
+  0: '本地服务器',
+  1: '云服务器'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -460,5 +465,6 @@ export {
   bootStateMapping,
   bootModeMapping,
   restoreTypeMapping,
-  emailConfigTimeStrategyMapping
+  emailConfigTimeStrategyMapping,
+  cloudTypeMapping
 };

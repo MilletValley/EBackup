@@ -82,7 +82,8 @@ const genModalMixin = type => {
         isRacMark: 1,
         vip: '',
         tempVip: '',
-        storeType: 1
+        storeType: 1,
+        cloudType: 0
       };
       const virtualFormData = {
         id: -1,

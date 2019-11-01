@@ -33,10 +33,20 @@
         </el-form-item>
         <el-form-item label="存储方式"
                       prop="storeType">
-          <el-radio-group v-model.number="formData.storeType">
+          <el-radio-group v-model.number="formData.storeType"
+                          @change="storeTypeChange">
             <el-radio v-for="type in Object.keys(storeTypeMapping)"
                       :key="type"
                       :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="服务器类型"
+                      prop="cloudType"
+                      v-show="formData.storeType === 2">
+          <el-radio-group v-model.number="formData.cloudType">
+            <el-radio v-for="type in Object.keys(cloudTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ cloudTypeMapping[type] }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="使用类别"
@@ -49,7 +59,8 @@
         </el-form-item>
         <el-form-item label="用途类型"
                       prop="databaseType">
-          <el-select v-model="formData.databaseType">
+          <el-select v-model="formData.databaseType"
+                     style="width: 100%">
             <el-option v-for="item in Object.keys(useTypesMapping[useType])"
                        :key="item"
                        :value="Number(item)"
@@ -131,8 +142,23 @@
                   (formData.oracleVersion === 1 && formData.databaseType === 1 && formData.osName === 'Windows')">
           <el-row>
             <el-col :span="12">
+              <el-form-item label="存储地址"
+                            v-if="formData.osName === 'Linux' && formData.storeType === 2"
+                            prop="storagePath"
+                            :rules="[{ required: true, message: '请输入存储地址', trigger: 'blur' }]">
+                <span slot="label">
+                  存储地址
+                  <el-tooltip :content="`存储地址为: ${formData.storagePath}\\backup\\`"
+                              placement="right"
+                              effect="light">
+                    <i class="el-icon-info"></i>
+                  </el-tooltip>
+                </span>
+                <el-input v-model="formData.storagePath"></el-input>
+              </el-form-item>
               <el-form-item label="存储盘符"
-                            prop="storagePath">
+                            prop="storagePath"
+                            v-else>
                 <span slot="label">
                   存储地址
                   <el-tooltip :content="`存储地址为: ${formData.storagePath}:\\backup\\`"
@@ -203,7 +229,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import { modifyOne } from '@/api/host';
 import { genModalMixin } from '@/components/mixins/modalMixins';
-import { oracleVersionMapping, storeTypeMapping } from '@/utils/constant';
+import { oracleVersionMapping, storeTypeMapping, cloudTypeMapping } from '@/utils/constant';
 import { validateLength } from '@/utils/common';
 
 const useTypesMapping = {
@@ -270,7 +296,8 @@ export default {
       hiddenPassword1: true,
       oracleVersionMapping,
       storeTypeMapping,
-      useTypesMapping
+      useTypesMapping,
+      cloudTypeMapping
     }
   },
   methods: {
@@ -295,6 +322,15 @@ export default {
       this.hiddenPassword = true;
       this.hiddenPassword1 = true;
     },
+    storeTypeChange(storeType) {
+      if (storeType === 2 && this.formData.osName === 'Windows') {
+        this.formData.storagePath = 'C';
+      } else if (storeType === 2 && this.formData.osName === 'Linux') {
+        this.formData.storagePath = '\\home';
+      } else {
+        this.formData.storagePath = '';
+      }
+    }
   },
   computed: {
     useType: {
@@ -331,6 +367,15 @@ export default {
     },
     'formData.oracleVersion': function(newVal, oldVal) {
       this.formData.osName = '';
+    },
+    'formData.osName': function(newVal, oldVal) {
+      if (newVal === 'Linux' && this.formData.storeType === 2) {
+        this.formData.storagePath = '\\home';
+      } else if (newVal === 'Windows' && this.formData.storeType === 2) {
+        this.formData.storagePath = 'C';
+      } else {
+        this.formData.storagePath = '';
+      }
     }
   },
   components: {

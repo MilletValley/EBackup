@@ -17,8 +17,7 @@
                     prop="serverName">
             <el-input v-model="formData.serverName"></el-input>
         </el-form-item>
-        <el-form-item v-if="!showDevice" label="选择设备：" prop="hostName"
-                    >
+        <el-form-item v-if="!showDevice" label="选择设备：" prop="hostName">
             <el-input v-model="hostName" readonly>
                 <el-button slot="append" @click="selectHostFn">...</el-button>
             </el-input>

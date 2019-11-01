@@ -53,7 +53,7 @@
                     </el-form-item>
                    </el-col>
                 </el-row>
-                <el-row>
+                <el-row v-if="vmType !== 4">
                   <el-col :span="8">
                     <el-form-item label="所属设备IP：">
                       <div>{{ details.host.hostIp }}</div>
@@ -72,8 +72,11 @@
                     </el-form-item>
                   </el-col>
                   <el-col :span="8">
-                    <el-form-item label="虚拟机主机类型：">
+                    <el-form-item label="虚拟机主机类型：" v-if="vmType !== 4">
                       <div>{{ details.server.serverType | serverTypeFilter }}</div>
+                    </el-form-item>
+                    <el-form-item label="主控IP：" v-if="vmType === 4">
+                      <div>{{ details.host.hostIp }}</div>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -106,6 +109,7 @@
       </template>
       <template slot="backupResult">
         <backup-result-list :data="results"
+                            :vm-type="vmType"
                             @single-restore-btn-click="initSingleRestoreModal"
                             @delete-result="deleteOneResult"></backup-result-list>
       </template>
@@ -280,7 +284,7 @@ export default {
     },
     addBackupPlan(plan) {
       this.btnLoading = true;
-      const virtual = this.virtuals.find(id => this.id === id);
+      const virtual = this.virtuals.find(v => Number(this.id) === v.id);
       const data = Object.assign({}, plan, { vmList: [virtual] });
       createMultipleVirtualBackupPlan(data)
         .then(res => {
