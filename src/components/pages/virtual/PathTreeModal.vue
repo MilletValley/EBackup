@@ -27,7 +27,7 @@ import "../../../../plugins/ztree/js/jquery.ztree.excheck.min.js";
 export default {
   name: 'PathTreeModal',
   mixins: [dialogMixin],
-  props: ['visible', 'paths'],
+  props: ['visible', 'paths', 'selectedPath'],
   data() {
     return {
       setting: {
@@ -74,6 +74,11 @@ export default {
       var folderNode = treeObj.transformToArray(treeObj.getNodes());
       folderNode.forEach(node => {
         node.isParent = true;
+        if(node.path === this.selectedPath) {
+          this.selectedNode = node;
+          node.checked = true;
+          treeObj.expandNode(node, true, false, true);
+        }
       });
       treeObj.refresh();
     },

@@ -36,12 +36,12 @@
                       prop="newName">
           <el-input v-model="formData.newName"></el-input>
         </el-form-item>
-        <el-row v-if="action === 'create'">
+        <el-row>
           <el-col :span="12">
             <el-form-item label="存储位置"
                           prop="recoveryStorageId">
               <el-select v-model="formData.recoveryStorageId"
-                        @change="fetchServerHostsByStorage"
+                        @change="recoveryStorageIdChange"
                         style="width: 100%"
                         :disabled="!aCloudStorages.length"
                         :placeholder="aCloudStoragesLoading ? '加载中...' : '请选择存储位置'">
@@ -71,8 +71,7 @@
           </el-col>
         </el-row>
         <el-form-item label="分组"
-                      prop="pathName"
-                      v-if="action === 'create'">
+                      prop="pathName">
           <el-input v-model="formData.pathName"
                     :placeholder="aCloudPathsLoading ? '加载中...' : '请选择分组'"
                     :disabled="!aCloudPaths.length"
@@ -102,6 +101,7 @@
     </el-dialog>
     <path-tree-modal :visible.sync="pathTreeModalVisible"
                      :paths="aCloudPaths"
+                     :selected-path="formData.path"
                      @confirm="selectACloudPathConfirm"></path-tree-modal>
   </section>
 </template>
@@ -169,22 +169,32 @@ export default {
       this.$refs.restorePlanCreateForm.validate(valid => {
         if (valid) {
           const { nodeId, pathName, ...others } = this.formData;
-          let data = null;
-          if (this.action === 'create') {
-            data = {
-              node: this.aCloudServerHosts.find(n => n.nodeId === nodeId),
-              ...others
-            };
-          } else {
-            data = { ...this.formData };
-          }
-          this.$emit('confirm', data, this.action);
+          this.$emit('confirm', {
+            node: this.aCloudServerHosts.find(n => n.nodeId === nodeId),
+            ...others
+          }, this.action);
         }
       });
     },
+    getPathNode(path, nodes) {
+      const flattern = nodes =>
+        nodes.reduce(
+          (flat, next) => {
+            if (next.data && next.data.length) {
+              return flat.concat(flattern(next.data), next);
+            }
+            return flat.concat(next);
+          },
+          []
+        );
+      return flattern(nodes).find(node => node.path === path);
+    },
+    recoveryStorageIdChange() {
+      this.formData.nodeId = '';
+      this.fetchServerHostsByStorage();
+    },
     fetchServerHostsByStorage() {
       this.aCloudServerHostsLoading = true;
-      this.formData.nodeId = '';
       fetchServerHostsByStorage(
           this.formData.recoveryStorageId,
           this.details.hostId
@@ -208,6 +218,11 @@ export default {
         .then(res => {
           const { data } = res.data;
           this.aCloudPaths = data;
+          if (this.action === 'update') {
+            const pathMsg = this.getPathNode(this.formData.path, this.aCloudPaths);
+            this.originFormData.pathName = pathMsg && pathMsg.name ? pathMsg.name : '';
+            this.formData.pathName = this.originFormData.pathName;
+          }
         })
         .catch(error => {
           this.$message.error(error);
@@ -219,7 +234,7 @@ export default {
     },
     fetchACloudStorages() {
       this.aCloudStoragesLoading = true;
-      fetchACloudStorages(this.latestResult.id)
+      fetchACloudStorages(this.resultId)
       .then(res=> {
         const { data } = res.data;
         this.aCloudStorages = data;
@@ -236,24 +251,30 @@ export default {
       this.fetchACloudStorages();
       this.fetchACloudPaths();
       if (this.action === 'update' || this.action === 'query') {
-        const { id, name, config } = this.restorePlan;
-        const { newName,startTime } = config;
+        const { id, name, config, } = this.restorePlan;
+        const { newName, startTime, recoveryStorageId, path, nodeId } = config;
         this.originFormData = Object.assign(
           {},
+          baseFormData,
           {
             id,
             planName: name,
             newName,
             startTime,
             oldName: this.details.vmName,
-            hostId: this.details.hostId
+            hostId: this.details.hostId,
+            recoveryStorageId,
+            path,
+            nodeId
           }
         )
+        this.formData = Object.assign({}, this.originFormData);
+        this.fetchServerHostsByStorage();
       } else {
         const { vmName } = this.details;
         this.originFormData = Object.assign({}, baseFormData, { oldName: vmName, hostId: this.details.hostId });
+        this.formData = Object.assign({}, this.originFormData);
       }
-      this.formData = Object.assign({}, this.originFormData);
     },
     modalClosed() {
       this.$refs.restorePlanCreateForm.clearValidate();
@@ -273,6 +294,13 @@ export default {
         return normalResults.sort((a, b) => dayjs(b.startTime) - dayjs(a.startTime))[0];
       }
       return {};
+    },
+    resultId() {
+      if (this.action === 'create') {
+        return this.latestResult.id ? this.latestResult.id : -1;
+      } else {
+        return this.restorePlan.config ? this.restorePlan.config.backupId : -1;
+      }
     }
   }
 };

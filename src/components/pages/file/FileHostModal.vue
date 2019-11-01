@@ -32,7 +32,8 @@
             <el-form-item label="操作系统"
                           prop="osName">
               <el-select v-model="formData.osName"
-                        placeholder="请选择">
+                        placeholder="请选择"
+                        @change="osNameChange">
                 <el-option v-for="item in ['Windows', 'Linux']"
                           :key="item.value"
                           :value="item"></el-option>
@@ -46,6 +47,47 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="存储方式"
+                      prop="storeType">
+          <el-radio-group v-model.number="formData.storeType"
+                          @change="storeTypeChange">
+            <el-radio v-for="type in Object.keys(storeTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="存储地址"
+                      v-if="formData.osName === 'Linux' && formData.storeType === 2"
+                      prop="storagePath"
+                      :rules="[{ required: true, message: '请输入存储地址', trigger: 'blur' }]">
+          <span slot="label">
+            存储地址
+            <el-tooltip :content="`存储地址为: ${formData.storagePath}\\backup\\`"
+                        placement="right"
+                        effect="light">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </span>
+          <el-input v-model="formData.storagePath"></el-input>
+        </el-form-item>
+        <el-form-item label="存储盘符"
+                      prop="storagePath"
+                      v-if="formData.osName === 'Windows' && formData.storeType === 2">
+          <span slot="label">
+            存储地址
+            <el-tooltip :content="`存储地址为: ${formData.storagePath}:\\backup\\`"
+                        placement="right"
+                        effect="light">
+            <i class="el-icon-info"></i>
+          </el-tooltip>
+          </span>
+          <el-select v-model="formData.storagePath"
+                     style="width: 100%">
+            <el-option v-for="item in Array.from(new Array(24), (val, index) => String.fromCharCode(index + 67))"
+                      :key="item"
+                      :value="item"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="所属业务系统"
                       prop="application">
           <el-input v-model="formData.application"></el-input>
@@ -92,6 +134,7 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import validate from '@/utils/validate';
 import { baseModalMixin } from '@/components/mixins/backupPlanModalMixin';
+import { storeTypeMapping } from '@/utils/constant';
 const rules = {
   hostName: validate.hostName,
   hostIp: validate.hostIp,
@@ -101,7 +144,7 @@ const rules = {
   password: validate.filePassword
 };
 export default {
-  name: 'DatabaseModal',
+  name: 'FileHostModal',
   mixins: [baseModalMixin],
   props: {
     btnLoading: {
@@ -141,9 +184,12 @@ export default {
         osName: '',
         application: '',
         loginName: '',
-        password: ''
+        password: '',
+        storeType: 1,
+        storagePath: 'C'
       },
-      validateCheckPassword
+      validateCheckPassword,
+      storeTypeMapping
     };
   },
   computed: {
@@ -193,6 +239,22 @@ export default {
       this.hiddenPassword = true;
       this.hiddenPassword1 = true;
     },
+    osNameChange(osName) {
+      if (osName === 'Windows' && this.formData.storeType === 2) {
+        this.formData.storagePath = 'C';
+      }
+      if (osName === 'Linux' && this.formData.storeType === 2) {
+        this.formData.storagePath = '\\home';
+      }
+    },
+    storeTypeChange(storeType) {
+      if (storeType === 2 && this.formData.osName === 'Windows') {
+        this.formData.storagePath = 'C';
+      }
+      if (storeType === 2 && this.formData.osName === 'Linux') {
+        this.formData.storagePath = '\\home';
+      }
+    }
   },
   components: {
     InputToggle,

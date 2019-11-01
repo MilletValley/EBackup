@@ -379,7 +379,7 @@ const createACloudSingleRestorePlan = (id, data) =>
 const modifyACloudRestorePlan = data =>
   baseApi.request({
     method: 'patch',
-    url: `/aCloud-restore-plans/${data.id}`,
+    url: `virtual-restore-plans/aCloud-restore-plans/${data.id}`,
     data
   });
 

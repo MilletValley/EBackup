@@ -156,7 +156,7 @@
                             :rules="[{ required: true, message: '请输入存储地址', trigger: 'blur' }]">
                 <span slot="label">
                   存储地址
-                  <el-tooltip :content="`存储地址为: ${formData.storagePath}:\\backup\\`"
+                  <el-tooltip :content="`存储地址为: ${formData.storagePath}\\backup\\`"
                               placement="right"
                               effect="light">
                     <i class="el-icon-info"></i>
@@ -311,7 +311,7 @@ export default {
       if (storeType === 2 && this.formData.osName === 'Windows') {
         this.formData.storagePath = 'C';
       } else if (storeType === 2 && this.formData.osName === 'Linux') {
-        this.formData.storagePath = '/home';
+        this.formData.storagePath = '\\home';
       } else {
         this.formData.storagePath = '';
       }
@@ -355,7 +355,7 @@ export default {
     },
     'formData.osName': function(newVal, oldVal) {
       if (newVal === 'Linux' && this.formData.storeType === 2) {
-        this.formData.storagePath = '/home';
+        this.formData.storagePath = '\\home';
       } else if (newVal === 'Windows' && this.formData.storeType === 2) {
         this.formData.storagePath = 'C';
       } else {
