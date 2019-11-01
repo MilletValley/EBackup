@@ -17,7 +17,6 @@
           </template>
         </el-col>
         <el-col :span="18" style="text-align:right">
-          <el-button type="success" size="small" @click="toguide">操作说明</el-button>
           <el-button size="small" type="primary" @click="buttonClick" >
             {{buttonflag ? '返回' : '查看已选虚拟机'}}
           </el-button>
@@ -26,6 +25,7 @@
                      @click="jumpToTakeOver">
             一键接管
           </el-button>
+          <el-button type="success" size="small" @click="toguide">操作说明</el-button>
         </el-col>
       </el-row>
     </div>
@@ -73,7 +73,7 @@
       <el-table-column prop="bootState"
                          label="状态"
                          align="center"
-                         v-if="[1, 3, 4].includes(vmType)">
+                         v-if="[1, 3].includes(vmType)">
           <template slot-scope="scope">
             <el-tag size="mini"
                     :type="scope.row.bootState | bootStateTagFilter">
@@ -94,7 +94,7 @@
                          v-if="[1, 3].includes(vmType)"
                          align="center">
             <template slot-scope="scope">
-                <el-button type="success"
+                                <el-button type="success"
                            icon="el-icon-video-play"
                            circle
                            size="mini"
@@ -429,10 +429,10 @@ export default {
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
-      // let vmIds = this.currentSelectDb.map(e => {
-      //   return e.id;
-      // });
-      plan.vmList = this.currentSelectDb;
+      let vmIds = this.currentSelectDb.map(e => {
+        return e.id;
+      });
+      plan.vmList = vmIds;
       this.btnLoading = true;
       createMultipleVirtualBackupPlan(plan)
         .then(res => {
