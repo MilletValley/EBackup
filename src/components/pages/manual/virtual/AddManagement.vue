@@ -170,7 +170,7 @@
         },
           methods:{
             toguide(toname,toId){
-                this.$router.push({name: toname,query: { aId: toId }})
+                // this.$router.push({name: toname,query: { aId: toId }})
             },
             fetchData(){
            // alert(index);
