@@ -266,7 +266,12 @@ export default {
           }
 
         // console.log('***'+nameStr)
-        this.$router.push({ name: nameStr, query: { aId:idStr}});
+        // this.$router.push({ name: nameStr, query: { aId:idStr}});
+        let routeData = this.$router.resolve({
+        name:nameStr,
+        query:{aId:idStr}
+      });
+      window.open(routeData.href,'_blank')
       }
     },
     updateTheme(theme) {

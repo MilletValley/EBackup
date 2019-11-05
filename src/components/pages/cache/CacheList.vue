@@ -193,7 +193,12 @@ export default {
       this.delete(row, '确认删除此数据库?');
     },
     toguide(){
-      this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
+      // this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
+      let routeData = this.$router.resolve({
+        name:"addDataBase",
+        query:{aId:'addDataBaseManual'}
+      });
+      window.open(routeData.href,'_blank')
     }
   },
   components: {

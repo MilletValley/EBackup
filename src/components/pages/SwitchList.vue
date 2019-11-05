@@ -139,7 +139,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'disasterDrills' }})
+      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'disasterDrills' }})
+      let routeData = this.$router.resolve({
+        name:"dataDaseTakeOver",
+        query:{aId:'disasterDrills'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       // fetchNum()

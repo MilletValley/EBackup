@@ -432,7 +432,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'applicationTakeOver' }})
+      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'applicationTakeOver' }})
+      let routeData = this.$router.resolve({
+        name:"dataDaseTakeOver",
+        query:{aId:'applicationTakeOver'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchAll()

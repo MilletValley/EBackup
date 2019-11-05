@@ -94,8 +94,9 @@
         <template slot-scope="scope">
           <el-tooltip placement="top" effect="light">
               <div slot="content">
-                  监控</br>
-                  <el-button type="text" @click="toDataBaseMonitor" style="float: right; "><li class="el-icon-question"></li></el-button>
+                <span>监控</span>
+                  <el-button type="text" @click="toDataBaseMonitor" >
+                    <li class="el-icon-question"></li></el-button>
               </div>
               <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
           </el-tooltip>
@@ -103,8 +104,9 @@
 
          <el-tooltip placement="top" effect="light">
             <div slot="content">
-                修改</br>
-                <el-button type="text" @click="toModifyDataBase" style="float: right; "><li class="el-icon-question"></li></el-button>
+                修改
+                <el-button type="text" @click="toModifyDataBase" >
+                  <li class="el-icon-question"></li></el-button>
             </div>
             <el-button type="primary"
             icon="el-icon-edit"
@@ -116,8 +118,9 @@
 
          <el-tooltip placement="top" effect="light">
             <div slot="content">
-              删除数据库</br>
-              <el-button type="text" @click="toModifyDataBase" style="float: right; "><li class="el-icon-question"></li></el-button>
+              删除数据库
+              <el-button type="text" @click="toModifyDataBase" >
+                <li class="el-icon-question"></li></el-button>
             </div>
             <el-button type="danger"
             icon="el-icon-delete"
@@ -257,13 +260,28 @@ export default {
     },
     toguide(){
      // console.log('hh');
-      this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
+      // this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
+      let routeData = this.$router.resolve({
+        name:"addDataBase",
+        query:{aId:'addDataBaseManual'}
+      });
+      window.open(routeData.href,'_blank')
     },
     toModifyDataBase(){
-      this.$router.push({ name: 'addDataBase', query: { aId:'modifyDataBase' }})
+      // this.$router.push({ name: 'addDataBase', query: { aId:'modifyDataBase' }})
+      let routeData = this.$router.resolve({
+        name:"addDataBase",
+        query:{aId:'modifyDataBase'}
+      });
+      window.open(routeData.href,'_blank')
     },
     toDataBaseMonitor(){
-      this.$router.push({ name: 'addDataBase', query: { aId:'dataBaseMonitor' }})
+      let routeData = this.$router.resolve({
+        name:"addDataBase",
+        query:{aId:'dataBaseMonitor'}
+      });
+      window.open(routeData.href,'_blank')
+      // this.$router.push({ name: 'addDataBase', query: { aId:'dataBaseMonitor' }})
     }
   },
   components: {

@@ -420,7 +420,12 @@ export default {
     toguide(id){
       let select = id;
       localStorage.setItem('id',select);
-      this.$router.push({ name: 'equipmentManage', query: { aId:'roleManage' }})
+      // this.$router.push({ name: 'equipmentManage', query: { aId:'roleManage' }})
+      let routeData = this.$router.resolve({
+        name:"equipmentManage",
+        query:{aId:'roleManage'}
+      });
+      window.open(routeData.href,'_blank')
     },
     // 筛选状态
     filterState(value, row) {

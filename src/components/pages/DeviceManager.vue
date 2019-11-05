@@ -324,7 +324,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'equipmentManage', query: { aId:'equipmentManage' }})
+      // this.$router.push({ name: 'equipmentManage', query: { aId:'equipmentManage' }})
+      let routeData = this.$router.resolve({
+        name:"deploymentManage",
+        query:{aId:'equipmentManage'}
+      });
+      window.open(routeData.href,'_blank')
     },
     judgeHost(data) {
       return hostTypeMapping[data.hostType];

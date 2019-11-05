@@ -239,7 +239,12 @@ export default {
       this.currentSelectData = null;
     },
     toguide(){
-      this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemManual' }})
+      // this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemManual' }})
+      let routeData = this.$router.resolve({
+        name:"fileSystemDeletion",
+        query:{aId:'fileSystemManual'}
+      });
+      window.open(routeData.href,'_blank')
     },
 
     modifyFn(row) {

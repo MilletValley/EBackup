@@ -206,8 +206,9 @@
                     <div style="margin: -3px 0 -6px;">
                         <el-tooltip placement="top" effect="light">
                             <div slot="content">
-                                将业务重新转移到生产环境</br>
-                                <el-button type="text" @click="goto('qiezhu')" style="float: right; "><li class="el-icon-question"></li></el-button>
+                                将业务重新转移到生产环境
+                                <el-button type="text" @click="goto('qiezhu')" >
+                                  <li class="el-icon-question"></li></el-button>
                             </div>
                         </el-tooltip>
 
@@ -216,8 +217,9 @@
                                  @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
                       <el-tooltip placement="top" effect="light">
                           <div slot="content">
-                              IP切换操作</br>
-                              <el-button type="text" @click="goto('changeip')" style="float: right; "><li class="el-icon-question"></li></el-button>
+                              IP切换操作
+                              <el-button type="text" @click="goto('changeip')" >
+                                <li class="el-icon-question"></li></el-button>
                           </div>
                           <el-button type="text"
                           @click="switchHostIp(hostLink)"
@@ -226,8 +228,9 @@
                 
                       <el-tooltip placement="top" effect="light">
                           <div slot="content">
-                              生产环境故障时，将业务转移到易备环境</br>
-                              <el-button type="text" @click="goto('qiebei')" style="float: right; "><li class="el-icon-question"></li></el-button>
+                              生产环境故障时，将业务转移到易备环境
+                              <el-button type="text" @click="goto('qiebei')" >
+                                <li class="el-icon-question"></li></el-button>
                           </div>
                           <el-button type="text"
                           :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
@@ -258,8 +261,9 @@
                         <!-- 10g版本无验证结果功能 -->
                           <el-tooltip placement="top" effect="light">
                               <div slot="content">
-                                  相关操作的验证结果</br>
-                                  <el-button type="text" @click="goto('verification')" style="float: right; "><li class="el-icon-question"></li></el-button>
+                                  相关操作的验证结果
+                                  <el-button type="text" @click="goto('verification')" >
+                                    <li class="el-icon-question"></li></el-button>
                               </div>
                               <el-dropdown-item @click.native="queryVerifyResult(hostLink)"
                                                 v-if="!(hostLink.primaryHost.databaseType === 1 && hostLink.primaryHost.oracleVersion === 1)">
@@ -836,12 +840,22 @@ export default {
   methods: {
     //跳转到指南
     toguide(){
-      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
+      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
+      let routeData = this.$router.resolve({
+        name:"dataDaseTakeOver",
+        query:{aId:'dataDaseTakeOver'}
+      });
+      window.open(routeData.href,'_blank')
     },
     goto(id){
       let select = id;
       localStorage.setItem('id',select);
-      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
+      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
+      let routeData = this.$router.resolve({
+        name:"dataDaseTakeOver",
+        query:{aId:'dataDaseTakeOver'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchDatabaseMethod[this.databaseType]()

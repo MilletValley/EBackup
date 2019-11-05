@@ -93,7 +93,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'addManagement', query: { aId:'virtualMonitor' }})
+      // this.$router.push({ name: 'addManagement', query: { aId:'virtualMonitor' }})
+      let routeData = this.$router.resolve({
+        name:"addManagement",
+        query:{aId:'virtualMonitor'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchServerList()

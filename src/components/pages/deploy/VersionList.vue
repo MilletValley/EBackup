@@ -221,7 +221,12 @@ export default {
     toguide(id){
       let select = id;
       localStorage.setItem('id',select);
-      this.$router.push({ name: 'deploymentManage', query: { aId:'repository' }})
+      // this.$router.push({ name: 'deploymentManage', query: { aId:'repository' }})
+      let routeData = this.$router.resolve({
+        name:"deploymentManage",
+        query:{aId:'repository'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchVersionTypes()

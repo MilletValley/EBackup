@@ -118,7 +118,12 @@ export default {
     toguide(id){
       let select = id;
       localStorage.setItem('id',select);
-      this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
+      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
+      let routeData = this.$router.resolve({
+        name:"equipmentManage",
+        query:{aId:'configurationManage'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchAll()

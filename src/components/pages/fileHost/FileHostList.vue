@@ -91,7 +91,12 @@ export default {
       this.delete(scope, '此操作将删除此系统?');
     },
     toguide(path){
-      this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemDeletion' }})
+      // this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemDeletion' }})
+      let routeData = this.$router.resolve({
+        name:"fileSystemDeletion",
+        query:{aId:'fileSystemDeletion'}
+      });
+      window.open(routeData.href,'_blank')
 
     }
   },

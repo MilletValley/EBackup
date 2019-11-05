@@ -281,7 +281,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'addManagement', query: { aId:'virtualBackUp' }})
+      // this.$router.push({ name: 'addManagement', query: { aId:'virtualBackUp' }})
+      let routeData = this.$router.resolve({
+        name:"addManagement",
+        query:{aId:'virtualBackUp'}
+      });
+      window.open(routeData.href,'_blank')
     },
     connectCallback(client) {
       this.stompClient.subscribe('/virtual', msg => {

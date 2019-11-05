@@ -253,7 +253,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'deploymentManage', query: { aId:'deploymentManage' }})
+      // this.$router.push({ name: 'deploymentManage', query: { aId:'deploymentManage' }})
+      let routeData = this.$router.resolve({
+        name:"deploymentManage",
+        query:{aId:'deploymentManage'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchPackageRecords()

@@ -211,8 +211,9 @@
                     <el-dropdown>
                         <el-tooltip placement="top" effect="dark">
                             <div slot="content">
-                                一键接管功能操作</br>
-                                <el-button type="text" @click="goto('operation')" style="float: right; "><li class="el-icon-question"></li></el-button>
+                                一键接管功能操作
+                                <el-button type="text" @click="goto('operation')" >
+                                  <li class="el-icon-question"></li></el-button>
                             </div>
                             <span :class="$style.dropdownLink">
                                 同步操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
@@ -412,12 +413,22 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
+      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
+      let routeData = this.$router.resolve({
+        name:"dataDaseTakeOver",
+        query:{aId:'virtualTakeOver'}
+      });
+      window.open(routeData.href,'_blank')
     },
     goto(id){
       let select = id;
       localStorage.setItem('id',select);
-      this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
+      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
+      let routeData = this.$router.resolve({
+        name:"dataDaseTakeOver",
+        query:{aId:'virtualTakeOver'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchLinks()

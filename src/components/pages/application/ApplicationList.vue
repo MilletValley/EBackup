@@ -114,7 +114,12 @@ export default {
   },
   methods: {
     toguide(){
-      this.$router.push({ name: 'addApplication', query: { aId:'addApplication' }})
+      // this.$router.push({ name: 'addApplication', query: { aId:'addApplication' }})
+      let routeData = this.$router.resolve({
+        name:"addApplication",
+        query:{aId:'addApplication'}
+      });
+      window.open(routeData.href,'_blank')
     },
     fetchData() {
       fetchAll()
