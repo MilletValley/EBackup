@@ -124,8 +124,11 @@ import layoutExpansion from '@/assets/layoutExpansion.png';
 import { sockMixin } from '@/components/mixins/commonMixin';
 import { fetchConfig, modifyInspectionActive } from '@/api/home';
 import themeMixin from '@/components/mixins/themeMixins';
-import inspectionMixin from '@/components/mixins/inspectionMixins';
 import { sendServerConfig } from '@/api/inspection';
+import inspectionMixin from '@/components/mixins/inspectionMixins';
+import baseMixin from '@/components/mixins/baseMixins';
+import { RSAKey } from '@/components/common/rsa';
+import { sendRSAPassword } from '@/api/virtuals';
 const themeTypeMapping = {
   default: '简约白(默认)',
   deepBlue: '宝石蓝',
@@ -133,7 +136,7 @@ const themeTypeMapping = {
 };
 export default {
   name: 'Layout',
-  mixins: [sockMixin, themeMixin, inspectionMixin],
+  mixins: [sockMixin, themeMixin, inspectionMixin, baseMixin],
   data() {
     return {
       themeTypeMapping,
@@ -144,6 +147,7 @@ export default {
       timeOut: 30 * 60 * 1000,
       intervalObj: null,
       url: '/socket-host',
+      rsaPassword: ''
       // activedMenuStr:''
     };
   },
@@ -217,6 +221,11 @@ export default {
           this.setConfig(config);
         })
     },
+    encryption(publickKey, password) {
+      let rsa = new RSAKey();
+      rsa.setPublic(publickKey, '10001');
+      return rsa.encrypt(password);
+    },
     sendServerConfig() {
       const { ebackupServer } = this.configMsg;
       sendServerConfig(this.inspectUrl, { ip: ebackupServer.ip, port: ebackupServer.port })
@@ -235,23 +244,23 @@ export default {
       } else if (command === 'restorePlan') {
         this.$router.push({ name: 'restorePlans' });
       }else if (command === 'toguide') {
-        console.log(this.userRole)
         let idStr = '';
         let nameStr = '';
-         let roleArray = this.userRole;
-        if(roleArray[0].name=='文件管理员'){
+        let roleArray = this.userRole.map(role => role.id);
+        if(roleArray.includes('file admin')){
             nameStr ='fileSystemDeletion';
             idStr = 'fileSystemManual';
-          }else if(roleArray[0].name=='Oracle管理员' || roleArray[0]=='SQL Server管理员' || roleArray[0]=='MySql管理员' || roleArray[0]=='DB2管理员' || roleArray[0]=='达梦管理员' || roleArray[0]=='Sybase管理员'|| roleArray[0]=='Cache管理员' || roleArray[0]=='InSql管理员'|| roleArray[0]=='Informix管理员'|| roleArray[0]=='PostgreSQL管理员'){
+          }else if(roleArray.some(role => ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba',
+            'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'].includes(role.id))){
             nameStr ='addDataBase';
             idStr = 'addDataBaseManual';
-          }else if(roleArray[0].name == '虚拟机管理员'){
+          }else if(roleArray.includes('vm admin')){
             nameStr ='addManagement';
             idStr = 'addManagementManual';
-          }else if(roleArray[0].name == '应用服务管理员'){
+          }else if(roleArray.includes('application admin')){
             nameStr ='addApplication';
             idStr = 'addApplicationManual';
-          }else if(roleArray[0].name == '超级管理员'){
+          }else if(roleArray.includes('admin')){
             nameStr ='dataDaseTakeOver';
             idStr = 'dataDaseTakeOver';
           }
@@ -324,11 +333,24 @@ export default {
     },
     connectCallback(client) { //connect连接成功的回调函数
       this.stompClient.subscribe('/host', msg => { // 订阅服务端提供的某个topic
-        let {data} = JSON.parse(msg.body);// msg.body为服务端返回的报文
+        let { data } = JSON.parse(msg.body);// msg.body为服务端返回的报文
         data = Array.isArray(data) ? data : [];
         this.setHost(data);
       });
+      this.stompClient.subscribe('/source-rsa-password', msg => {
+        let { data } = JSON.parse(msg.body);
+        const { id, key, password } = data;
+        this.rsaPassword = password ? this.encryption(key, password) : '';
+        this.sendRSAMsg({ id, password: this.rsaPassword });
+      });
     },
+    sendRSAMsg(data) {
+      sendRSAPassword(data)
+        .then(() => {})
+        .catch(error => {
+          this.$message.error(error);
+        })
+    }
   },
 };
 </script>

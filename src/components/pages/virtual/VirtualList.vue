@@ -429,10 +429,10 @@ export default {
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
-      let vmIds = this.currentSelectDb.map(e => {
-        return e.id;
-      });
-      plan.vmList = vmIds;
+      // let vmIds = this.currentSelectDb.map(e => {
+      //   return e.id;
+      // });
+      plan.vmList = this.currentSelectDb;
       this.btnLoading = true;
       createMultipleVirtualBackupPlan(plan)
         .then(res => {

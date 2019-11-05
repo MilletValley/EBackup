@@ -7,7 +7,12 @@
                       @delete="deleteServer"
                       :vm-type="vmType">
           <template slot="other">
-            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small">
+            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
+                       v-if="vmType === 4 && isSelect">添加备份计划</el-button>
+            <el-button type="primary" @click="rescanServerHost" size="small"
+                       v-if="vmType === 4">扫描主机</el-button>
+            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
+                       v-if="[1, 2, 3].includes(vmType)">
               {{isSelect ? '添加备份计划' : '添加主机'}}
             </el-button>
             <el-button type="info" @click="takeOverClick" :disabled="disabled" size="small" v-if="[1, 3].includes(vmType)">
@@ -37,7 +42,8 @@ import {
   createMultipleVirtualBackupPlan,
   rescan,
   getVirtualByServerId,
-  createLinks
+  createLinks,
+  rescanServerHost
 } from '@/api/virtuals';
 import { sockMixin } from '@/components/mixins/commonMixin';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
@@ -138,10 +144,10 @@ export default {
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
-      let vmIds = this.currentSelect.map(e => {
-        return e.id;
-      });
-      plan.vmList = vmIds;
+      // let vmIds = this.currentSelect.map(e => {
+      //   return e.id;
+      // });
+      plan.vmList = this.currentSelect;
       this.btnLoading = true;
       createMultipleVirtualBackupPlan(plan)
         .then(res => {
@@ -266,6 +272,29 @@ export default {
       return rescan(data)
         .then(resp => {
           this.$message.success(resp.data.message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
+    rescanServerHost() {
+      rescanServerHost()
+        .then(res => {
+          const { data, message } = res.data;
+          if (!Array.isArray(data)) {
+            this.serverTableData = [];
+            this.currentSelect = [];
+            return;
+          }
+          let tdata = data.map(e => {
+            e.disabled = false;
+            e.icon = 'el-icon-refresh';
+            e.delBtnIcon = 'el-icon-delete';
+            return e;
+          });
+          this.serverTableData = tdata.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
+          this.currentSelect = [];
+          this.$message.success(message);
         })
         .catch(error => {
           this.$message.error(error);
