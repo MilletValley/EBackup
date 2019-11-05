@@ -11,3 +11,10 @@
 .anchor:last-child {
     min-height: 100vh!important;
 }
+.router-link-active {
+    text-decoration: none;
+  }
+a {
+    text-decoration: none;
+    color: #409EFF;
+}

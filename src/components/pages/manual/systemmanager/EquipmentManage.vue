@@ -151,9 +151,6 @@
                       elm.scrollIntoView(true);
                   }
               },
-            //   toBottom(){
-            //     this.$emit('func','roleManage')
-            //   },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

@@ -32,7 +32,13 @@
             <div class="content">
                 <p>应用服务器一键接管，在主设备发生故障时，通过一键接管，将业务转移到备设备</p>
                 <h4>功能介绍</h4>
-                <p>具体参见<el-button type="text" @click="toguide('dataDaseTakeOver','applicationTakeOver')" >**一键接管_应用服务器**</el-button></p>
+                <p>具体参见
+                    <router-link 
+                    :to="{ name:'dataDaseTakeOver', query: { aId:'applicationTakeOver'} }"><span>**一键接管_应用服务器**</span>
+                    </router-link>
+                </p>
+                
+                
             </div>  
         </div>
     </div>
@@ -49,13 +55,6 @@
             '$route':'fetchData',
         },
         methods:{
-            toguide(toname,toId){
-                // console.log('hh');
-                // this.$router.push({name: toname,query: { aId: toId }})
-            },
-            // toBottom(){
-            //     this.$emit('func','takeOverApplication')
-            //   },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

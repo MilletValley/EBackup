@@ -10,9 +10,17 @@
                         <p>当主库出现故障时，可以将备库角色切换为主库，用原备库临时顶替原主库</p>
                         <h4>添加接管环境步骤如下</h4>
                         <p><li>在**系统管理_设备管理**内，添加需要进行灾备接管的生产服务器和备用服务器</li></p>
-                        <p>参见步骤 <el-button type="text" @click="toguide('equipmentManage','equipmentManage')" >**系统管理_设备管理**</el-button></p>
+                        <p>参见步骤
+                             <router-link 
+                                :to="{ name:'equipmentManage', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
+                            </router-link>
+                        </p>
                         <p><li>添加需要接管的生产数据库/实例</li></p>
-                        <p>参见步骤 <el-button type="text" @click="toguide('addDataBase','addDataBase')" >**数据库数据保护_添加数据库**</el-button></p>
+                        <p>参见步骤 
+                            <router-link 
+                                :to="{ name:'addDataBase', query: { aId:'addDataBase'} }"><span>**数据库数据保护_添加数据库**</span>
+                            </router-link>
+                        </p>
                         <p><li>在列表页，点击右上角一键接管按钮，进入一键接管配置页面，可查看所有一键接管设备信息</li></p>
                     </div>
     
@@ -197,13 +205,6 @@
                       elm.scrollIntoView(true);
                   }
               },
-            toguide(toname,toId){
-                // console.log('hh');
-                // this.$router.push({name: toname,query: { aId: toId }})
-            },
-            // toBottom(){
-            //     this.$emit('func','disasterDrills')
-            //   },
               onScroll(currentScrollTop){
                 //   console.log('child'+ currentScrollTop)
                 const navContents = document.querySelectorAll('.anchor');

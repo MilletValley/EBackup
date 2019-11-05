@@ -1,7 +1,9 @@
 <template>
 <el-container style="height: 100%; border: 1px solid #eee">
     <el-header style=" font-size: 12px;"> 
-      <h3 style="line-height:40px;height:40px;color:white"><router-link :to="{ name: 'dashboard'}" style="color: white;font-size: 18px;"><i class="el-icon-s-home"></i>主页</router-link> |  信服易备操作手册</h3>
+      <h3 style="line-height:40px;height:40px;color:white">
+        <router-link :to="{ name: 'dashboard'}" style="color: white;font-size: 18px;">
+          <i class="el-icon-s-home"></i>主页</router-link> |  信服易备操作手册</h3>
     </el-header>
 
   <el-container style="height: calc(100% - 120px)" class="middle">
@@ -33,7 +35,7 @@
   <el-main class="main-content"
            @scroll.native="getScroll">
      <div class="main">
-        <router-view ref='child' @func="isActived"></router-view>
+        <router-view ref='child' @func="isActived" @getR="getRouters"></router-view>
       </div>
   </el-main>
   </el-container>
@@ -107,6 +109,9 @@
         // }
         this.$refs.child.onScroll(ele.scrollTop)
       },
+      getRouters(){
+        return this.routers;
+      },
       fetchData(){
           let index = this.$route.name;
           let select = localStorage.getItem('pathid');
@@ -121,7 +126,28 @@
       isActived(str){
         this.defaultAc = '/'+str;
       },
-    }
+    },
+    beforeRouteUpdate (to, from, next) {
+      // 在渲染该组件的对应路由被 confirm 前调用
+      // 不！能！获取组件实例 `this`
+      // 因为当守卫执行前，组件实例还没被创建
+      console.log(to.name);
+      let toName = to.name;
+      let flag = false;
+      for(let i=0;i<this.routers.length;i++){
+        if(toName == this.routers[i].name){
+          flag = true;
+        }
+      }
+      if(flag){
+        next()
+      }else{
+        next(false);
+        alert("没有权限")
+      }
+      console.log(this.routers)
+      console.log('nices')
+    },
   }
 </script>
 <style lang="scss" scoped>

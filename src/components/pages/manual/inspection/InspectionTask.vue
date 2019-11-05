@@ -79,9 +79,6 @@
             '$route':'fetchData',
         },
         methods:{
-            // toBottom(){
-            //     this.$emit('func','parameter')
-            //   },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

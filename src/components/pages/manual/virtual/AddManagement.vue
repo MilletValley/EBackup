@@ -5,7 +5,11 @@
                     <h3>添加虚拟机管理设备</h3>
                 </div>
                 <div class="content">
-                    <p>参见<el-button type="text" @click="toguide('equipmentManage','equipmentManage')" >**系统管理_设备管理**</el-button>选择使用类别为<span style="color: red;">虚拟机</span>，然后据实填写相关信息</p>
+                    <p>参见
+                        <router-link 
+                        :to="{ name:'equipmentManage', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
+                        </router-link>
+                        选择使用类别为<span style="color: red;">虚拟机</span>，然后据实填写相关信息</p>
                 </div> 
             </div>
             <div id="virtualMonitor" class="anchor">
@@ -113,7 +117,11 @@
                     <p>虚拟机一键接管，在主设备发生故障时，通过一键接管，将业务转移到备设备</p>
                     <p>目前支持VMware及Hyper-v虚拟机一键接管功能</p>
                     <h4>功能介绍</h4>
-                    <p>参见<el-button type="text" @click="toguide('virtualTakeOver','virtualTakeOver')" >**一键接管_虚拟机**</el-button></p>
+                    <p>参见
+                        <router-link 
+                        :to="{ name:'dataDaseTakeOver', query: { aId:'virtualTakeOver'} }"><span>**一键接管_虚拟机**</span>
+                        </router-link>
+                    </p>
                 </div> 
             </div>
             <div id="virtualStart" class="anchor">
@@ -169,9 +177,6 @@
             '$route':'fetchData',
         },
           methods:{
-            toguide(toname,toId){
-                // this.$router.push({name: toname,query: { aId: toId }})
-            },
             fetchData(){
            // alert(index);
             let str = '#'+this.$route.query.aId;

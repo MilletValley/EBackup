@@ -129,9 +129,6 @@
               '$route':'fetchData'
           },
           methods:{
-            //   toBottom(){
-            //     this.$emit('func','fileSystemTermination')
-            //   },
               onScroll(currentScrollTop){
                 //   console.log(currentScrollTop+'是从其他子页面跳转的');
                 const navContents = document.querySelectorAll('.anchor');

@@ -6,7 +6,11 @@
             </div>
             <div class="content">
                 <h4>前提条件</h4>
-                <p> <li>首先在“系统管理_设备管理”里面，添加<span style="color: red;">数据库生产/易备服务器</span>，详见<el-button type="text" @click="toguide('equipmentManage','equipmentManage')" >**系统管理_设备管理**</el-button></li></p>
+                <p> <li>首先在“系统管理_设备管理”里面，添加<span style="color: red;">数据库生产/易备服务器</span>，详见
+                    <router-link 
+                    :to="{ name:'equipmentManage', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
+                    </router-link>
+                </li></p>
                 <p><li>再点击“数据库”，选择数据库类型</li></p>
                 <p><li>可点击添加/批量添加按钮<strong>（目前只有SQL Server和InSql具有批量添加功能）</strong></li></p>
                 <p style="color:rgba(255, 0, 0, 0.882)">*部分为必填项</p>
@@ -129,7 +133,11 @@
             </div>
             <div class="content">
                 <p> 目前Oracle、SQL Server、MySql、InSql均有一键接管功能</p>
-                <strong>SQL Server及InSql具体参见<el-button type="text" @click="toguide('dataDaseTakeOver','dataDaseTakeOver')" >**一键接管_数据库**</el-button></strong>
+                <strong>SQL Server及InSql具体参见
+                    <router-link 
+                    :to="{ name:'dataDaseTakeOver', query: { aId:'dataDaseTakeOver'} }"><span>**一键接管_数据库**</span>
+                    </router-link>
+                </strong>
                 <p><strong>由于Oracle数据库及Mysql数据库相关功能复杂，在此单独解释</strong></p>
                 <h4>单实例切换</h4>
                 <p style="color: red">要求：生产库正常，易备库正常，连接正常</p>
@@ -248,10 +256,6 @@
         '$route':'fetchData',
     },
     methods:{
-        toguide(toname,toId){
-                // console.log('hh');
-                // this.$router.push({name: toname,query: { aId: toId }})
-        },
         fetchData(){
            // alert(index);
             let str = '#'+this.$route.query.aId;
@@ -261,9 +265,6 @@
                 document.querySelector(str).scrollIntoView({block:"start"});
             }
         },
-        // toBottom(){
-        //         this.$emit('func','dataBaseMonitor')
-        //       },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)
