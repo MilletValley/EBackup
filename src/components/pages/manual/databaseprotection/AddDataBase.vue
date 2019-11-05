@@ -26,7 +26,7 @@
         </div>
         <div id="modifyDataBase" class="anchor">
             <div class="top">
-                <h3>删改数据库</h3>
+                <h3>编辑数据库</h3>
             </div>
             <div class="content">
                 <h4>修改</h4>
@@ -261,9 +261,9 @@
                 document.querySelector(str).scrollIntoView({block:"start"});
             }
         },
-        toBottom(){
-                this.$emit('func','dataBaseMonitor')
-              },
+        // toBottom(){
+        //         this.$emit('func','dataBaseMonitor')
+        //       },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

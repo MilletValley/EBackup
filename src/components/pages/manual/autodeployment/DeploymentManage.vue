@@ -107,9 +107,9 @@
                       elm.scrollIntoView(true);
                   }
               },
-              toBottom(){
-                this.$emit('func','repository')
-              },
+            //   toBottom(){
+            //     this.$emit('func','repository')
+            //   },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

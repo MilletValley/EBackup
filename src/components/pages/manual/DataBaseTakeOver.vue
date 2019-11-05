@@ -201,9 +201,9 @@
                 // console.log('hh');
                 // this.$router.push({name: toname,query: { aId: toId }})
             },
-            toBottom(){
-                this.$emit('func','disasterDrills')
-              },
+            // toBottom(){
+            //     this.$emit('func','disasterDrills')
+            //   },
               onScroll(currentScrollTop){
                 //   console.log('child'+ currentScrollTop)
                 const navContents = document.querySelectorAll('.anchor');

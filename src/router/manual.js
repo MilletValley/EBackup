@@ -96,7 +96,7 @@ const router = [
             {
               route: 'addDataBase',
               aId: 'modifyDataBase',
-              name: '删改数据库'
+              name: '编辑数据库'
             },
             {
               route: 'addDataBase',

@@ -53,9 +53,9 @@
                 // console.log('hh');
                 // this.$router.push({name: toname,query: { aId: toId }})
             },
-            toBottom(){
-                this.$emit('func','takeOverApplication')
-              },
+            // toBottom(){
+            //     this.$emit('func','takeOverApplication')
+            //   },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

@@ -181,9 +181,9 @@
                 document.querySelector(str).scrollIntoView({block:"start"});
             }
             },
-            toBottom(){
-                this.$emit('func','virtualStart')
-              },
+            // toBottom(){
+            //     this.$emit('func','virtualStart')
+            //   },
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
                 // console.log(navContents)

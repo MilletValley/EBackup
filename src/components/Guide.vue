@@ -99,12 +99,13 @@
     methods:{
       getScroll() {
         const ele = document.querySelector('.main-content');
-        let isbottom = ele.scrollTop+ele.clientHeight-ele.scrollHeight
-        if(isbottom >= 0){
-          this.$refs.child.toBottom()
-        }else{
-          this.$refs.child.onScroll(ele.scrollTop)
-        }
+        // let isbottom = ele.scrollTop+ele.clientHeight-ele.scrollHeight
+        // if(isbottom >= 0){
+        //   this.$refs.child.toBottom()
+        // }else{
+        //   this.$refs.child.onScroll(ele.scrollTop)
+        // }
+        this.$refs.child.onScroll(ele.scrollTop)
       },
       fetchData(){
           let index = this.$route.name;
