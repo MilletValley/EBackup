@@ -93,7 +93,8 @@
         userRole: state => {
           // const roles1 = this._localStorage.get(roles);
           // console.log(roles1)
-          const roles = state.base.userInfo.roles;
+          // const roles = state.base.userInfo.roles;
+          const roles = JSON.parse(localStorage.getItem('manualuserinfo')).roles;
           console.log(roles);
           if(roles && roles.length){
             return roles.map(role => role.id);

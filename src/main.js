@@ -38,8 +38,7 @@ router.beforeEach((to, from, next) => {
   const manualpath = ['/addDataBase', '/addManagement', '/fileSystemDeletion', '/dataDaseTakeOver', '/addApplication', '/inspectionTask', '/equipmentManage', '/deploymentManage'];
   if (manualpath.includes(to.path)) {
     next();
-  }
-  if (store.state.base.token) {
+  } else if (store.state.base.token) {
     if (to.path === '/login') {
       next('/');
     } else {

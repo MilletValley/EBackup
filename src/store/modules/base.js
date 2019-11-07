@@ -25,6 +25,7 @@ const mutations = {
   },
   [types.SET_USERINFO](state, payload) {
     state.userInfo = payload;
+    localStorage.setItem('manualuserinfo', JSON.stringify(payload));
   },
   [types.CLEAR_LOGININFO](state) {
     state.token = '';

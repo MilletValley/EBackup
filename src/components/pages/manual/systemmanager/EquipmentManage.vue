@@ -146,7 +146,7 @@
           computed:{
             ...mapState({
                 userRole: state => {
-                const roles = state.base.userInfo.roles;
+                const roles = JSON.parse(localStorage.getItem('manualuserinfo')).roles;
                 if(roles.length){
                     return roles.map(role => role.id);
                 }
