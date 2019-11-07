@@ -2,7 +2,7 @@
     <section>
         <div style="width: 80%; margin: 0 auto; padding-top: -5%; position: relative;">
             <div style = "display:inline-block; margin-right: 18%;">
-                <img src = "../../../assets/noPermissions.png" style="margin-top: 60px;"/>
+                <img src = "../../../assets/lisenceNotAvail.png" style="margin-top: 100px;"/>
             </div>
             <div style = "position: absolute; top: 20px; right: 10%;">
                 <h1 style = "font-size:72px; margin-top: 80px; padding-top: -20px;">403</h1>
