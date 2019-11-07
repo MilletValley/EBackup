@@ -7,6 +7,7 @@ import AddApplication from '@/components/pages/manual/applicationprotection/AddA
 import InspectionTask from '@/components/pages/manual/inspection/InspectionTask';
 import EquipmentManage from '@/components/pages/manual/systemmanager/EquipmentManage';
 import DeploymentManage from '@/components/pages/manual/autodeployment/DeploymentManage';
+import Nopermissions from '@/components/pages/manual/NoPermissions';
 
 const router = [
   {
@@ -14,6 +15,11 @@ const router = [
     name: 'guide',
     component: Guide,
     children: [
+      {
+        path: '/noPermissions',
+        name: 'noPermissions',
+        component: Nopermissions
+      },
       {
         path: '/dataDaseTakeOver',
         name: 'dataDaseTakeOver',

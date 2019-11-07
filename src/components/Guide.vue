@@ -142,11 +142,11 @@
       if(flag){
         next()
       }else{
-        next(false);
-        alert("没有权限")
+        next({path:'/noPermissions'});
+        // alert("没有权限")
       }
-      console.log(this.routers)
-      console.log('nices')
+      // console.log(this.routers)
+      // console.log('nices')
     },
   }
 </script>
