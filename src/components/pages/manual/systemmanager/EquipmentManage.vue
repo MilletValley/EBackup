@@ -24,7 +24,7 @@
                     <p><li>添加完成后页面展示已添加的设备，左上角可切换列表视图和卡片视图</li></p>
                 </div>  
             </div>
-            <div id="configurationManage" class="anchor">
+            <div id="configurationManage" class="anchor" v-if="showif">
                 <div class="top">
                     <h3>配置管理</h3>
                 </div>
@@ -97,7 +97,7 @@
                     </div>                      
                 </div>  
             </div>
-            <div id="roleManage" class="anchor">
+            <div id="roleManage" class="anchor" v-if="showif">
                 <div class="top">
                     <h3>权限管理</h3>
                 </div>
@@ -117,6 +117,7 @@
         </div>
     </template>
     <script>
+      import { mapState, mapActions, mapMutations } from 'vuex';
       export default {
         data() {
             return {
@@ -141,6 +142,24 @@
         },
           mounted(){
             this.fetchData();
+          },
+          computed:{
+            ...mapState({
+                userRole: state => {
+                const roles = state.base.userInfo.roles;
+                if(roles.length){
+                    return roles.map(role => role.id);
+                }
+                return [];
+                },
+            }),
+            showif(){
+                  if(this.userRole.indexOf('admin') > -1){
+                      return true;
+                  } else {
+                      return false;
+                  }
+              },
           },
           methods:{
              //从本地找到id
