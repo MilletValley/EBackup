@@ -14,7 +14,8 @@
             :default-active="defaultActive">
             <el-submenu v-for="(v, i) in routers"
                         :key="i"
-                        :index="v.path">
+                        :index="v.path"
+                        v-if="i!=0">
               <template slot="title" v-if="v.meta">
                 <i :class="v.meta.icon"></i>
                 {{ v.meta.name }}
