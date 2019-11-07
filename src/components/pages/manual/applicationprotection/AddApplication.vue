@@ -14,7 +14,7 @@
         </div>
         <div id="applicationDeletion" class="anchor">
             <div class="top">
-                <h3>删改应用服务器</h3>
+                <h3>编辑应用服务器</h3>
             </div>
             <div class="content">
                 <h4>修改</h4>
