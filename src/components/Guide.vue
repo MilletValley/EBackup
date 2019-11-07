@@ -91,8 +91,11 @@
       },
       ...mapState({
         userRole: state => {
+          // const roles1 = this._localStorage.get(roles);
+          // console.log(roles1)
           const roles = state.base.userInfo.roles;
-          if(roles.length){
+          console.log(roles);
+          if(roles && roles.length){
             return roles.map(role => role.id);
           }
           return [];
@@ -128,27 +131,28 @@
         this.defaultAc = '/'+str;
       },
     },
-    beforeRouteUpdate (to, from, next) {
-      // 在渲染该组件的对应路由被 confirm 前调用
-      // 不！能！获取组件实例 `this`
-      // 因为当守卫执行前，组件实例还没被创建
-      console.log(to.name);
-      let toName = to.name;
-      let flag = false;
-      for(let i=0;i<this.routers.length;i++){
-        if(toName == this.routers[i].name){
-          flag = true;
-        }
-      }
-      if(flag){
-        next()
-      }else{
-        next({path:'/noPermissions'});
-        // alert("没有权限")
-      }
-      // console.log(this.routers)
-      // console.log('nices')
-    },
+    // 无需权限判断
+    // beforeRouteUpdate (to, from, next) {
+    //   // 在渲染该组件的对应路由被 confirm 前调用
+    //   // 不！能！获取组件实例 `this`
+    //   // 因为当守卫执行前，组件实例还没被创建
+    //   // console.log(to.name);
+    //   // let toName = to.name;
+    //   // let flag = false;
+    //   // for(let i=0;i<this.routers.length;i++){
+    //   //   if(toName == this.routers[i].name){
+    //   //     flag = true;
+    //   //   }
+    //   // }
+    //   // if(flag){
+    //   //   next()
+    //   // }else{
+    //   //   next({path:'/noPermissions'});
+    //   //   // alert("没有权限")
+    //   // }
+    //   // console.log(this.routers)
+    //   // console.log('nices')
+    // },
   }
 </script>
 <style lang="scss" scoped>

@@ -247,13 +247,14 @@ export default {
         let idStr = '';
         let nameStr = '';
         let roleArray = this.userRole.map(role => role.id);
+        // console.log(roleArray)
         if(roleArray.includes('file admin')){
             nameStr ='fileSystemDeletion';
             idStr = 'fileSystemManual';
           }else if(roleArray.some(role => ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba',
-            'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'].includes(role.id))){
+            'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'].includes(role))){
             nameStr ='addDataBase';
-            idStr = 'addDataBaseManual';
+            idStr = 'addDataBase';
           }else if(roleArray.includes('vm admin')){
             nameStr ='addManagement';
             idStr = 'addManagementManual';
@@ -264,14 +265,11 @@ export default {
             nameStr ='dataDaseTakeOver';
             idStr = 'dataDaseTakeOver';
           }
-
-        // console.log('***'+nameStr)
-        // this.$router.push({ name: nameStr, query: { aId:idStr}});
-        let routeData = this.$router.resolve({
-        name:nameStr,
-        query:{aId:idStr}
-      });
-      window.open(routeData.href,'_blank')
+          let routeData = this.$router.resolve({
+            name:nameStr,
+            query:{aId:idStr}
+          });
+          window.open(routeData.href,'_blank')
       }
     },
     updateTheme(theme) {

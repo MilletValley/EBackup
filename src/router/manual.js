@@ -25,7 +25,8 @@ const router = [
         name: 'dataDaseTakeOver',
         component: DataBaseTakeOver,
         meta: {
-          roles: ['oracle dba', 'sql server dba', 'mysql dba', 'insql dba', 'vm admin', 'application admin'],
+          // roles: ['oracle dba', 'sql server dba', 'mysql dba', 'insql dba', 'vm admin', 'application admin'],
+          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
           name: '一键接管',
           icon: 'el-icon-sort',
           child: [
@@ -57,14 +58,15 @@ const router = [
         name: 'fileSystemDeletion',
         component: FileSystemDeletion,
         meta: {
-          roles: ['file admin'],
+          // roles: ['file admin'],
+          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
           name: '文件系统数据保护',
           icon: 'el-icon-document',
           child: [
             {
               route: 'fileSystemDeletion',
               aId: 'fileSystemDeletion',
-              name: '增删改服务器'
+              name: '编辑服务器'
             },
             {
               route: 'fileSystemDeletion',
@@ -89,8 +91,7 @@ const router = [
         name: 'addDataBase',
         component: AddDataBase,
         meta: {
-          roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba',
-            'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'],
+          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
           name: '数据库数据保护',
           icon: 'el-icon-coin',
           child: [
@@ -132,7 +133,8 @@ const router = [
         name: 'addManagement',
         component: AddManagement,
         meta: {
-          roles: ['vm admin'],
+          // roles: ['vm admin'],
+          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
           name: '虚拟机数据保护',
           icon: 'el-icon-collection',
           child: [
@@ -174,7 +176,8 @@ const router = [
         name: 'addApplication',
         component: AddApplication,
         meta: {
-          roles: ['application admin'],
+          // roles: ['application admin'],
+          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
           name: '应用服务器保护',
           icon: 'el-icon-suitcase',
           child: [
@@ -186,7 +189,7 @@ const router = [
             {
               route: 'addApplication',
               aId: 'applicationDeletion',
-              name: '删改应用服务器'
+              name: '编辑应用服务器'
             },
             {
               route: 'addApplication',
