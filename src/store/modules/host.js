@@ -18,7 +18,9 @@ const getters = {
   insqlHosts: state => state.hosts.filter(host => host.databaseType === 11),
   informixHosts: state => state.hosts.filter(host => host.databaseType === 12),
   postgresqlHosts: state => state.hosts.filter(host => host.databaseType === 13),
-  applicationHosts: state => state.hosts.filter(host => host.databaseType === 8)
+  applicationHosts: state => state.hosts.filter(host => host.databaseType === 8),
+  aCloudHosts: state => state.hosts.filter(host => host.databaseType === 14),
+  vmwareMasterControlHosts: state => state.hosts.filter(host => host.databaseType === 15),
 };
 const mutations = {
   [types.GET_HOST](state, host) {

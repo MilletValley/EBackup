@@ -4,12 +4,14 @@
              size="small">
              <el-form-item style="float: right;">
                 <el-button type="success"
-                          @click="toguide('emilset')">操作说明</el-button>
+                           @click="toguide('emilset')"
+                           size="small">操作说明</el-button>
             </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="primary"
                    :disabled="Boolean(emailConfigs.length)"
-                   @click="createOne">添加</el-button>
+                   @click="createOne"
+                   size="small">添加</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="emailConfigs"

@@ -84,7 +84,7 @@
                       <span>{{ details.host.hostIp }}</span>
                     </el-form-item>
                     <el-form-item label="CDP时间："
-                                  v-if="hasLogRestore">
+                                  v-if="hasLogRestore && details.CDBTime">
                       <span>{{ details.CDBTime ? details.CDBTime : '-' }}</span>
                       <span>
                         <el-tooltip :content="`${details.CDBMessage ? details.CDBMessage : '-'}`" placement="top" effect="light">

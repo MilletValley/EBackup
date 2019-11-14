@@ -136,7 +136,8 @@ const useTypeMapping = {
   11: 'insql',
   12: 'informix',
   13: 'postgresql',
-  14: 'aCloud'
+  14: 'aCloud',
+  15: 'VMware主控'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -160,7 +161,8 @@ const portHostTypeMapping = {
   11: 'insql',
   12: 'informix',
   13: 'postgresql',
-  14: 'aCloud'
+  14: 'aCloud',
+  15: 'VMware主控'
 };
 
 const keepDateMapping = {
@@ -187,7 +189,8 @@ const databaseTypeMapping = {
   11: 'insql',
   12: 'informix',
   13: 'postgresql',
-  14: 'aCloud'
+  14: 'aCloud',
+  15: 'VMware主控'
 };
 
 // 数据库连接状态
@@ -411,6 +414,13 @@ const cloudTypeMapping = {
   1: '云服务器'
 };
 
+const migrationStateMapping = {
+  0: '本地存储',
+  1: '上传中',
+  2: '上传成功',
+  3: '上传失败'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -466,5 +476,6 @@ export {
   bootModeMapping,
   restoreTypeMapping,
   emailConfigTimeStrategyMapping,
-  cloudTypeMapping
+  cloudTypeMapping,
+  migrationStateMapping
 };

@@ -59,6 +59,10 @@
         </el-col>
       </el-row>
     </el-form>
+    <span v-if="vmType === 1 && backupResultMigrationState === 2" style="color: rgb(202, 39, 39);">
+      <i class="el-icon-warning"></i>
+      此操作将持续较长时间
+    </span>
     <span slot="footer">
       <el-button type="primary"
                  @click="confirmBtnClick"
@@ -90,6 +94,10 @@ export default {
     },
     serverData: {
       type: Array
+    },
+    results: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -104,6 +112,12 @@ export default {
       disks: [],
       showLoading: false
     };
+  },
+  computed: {
+    backupResultMigrationState() {
+      const result = this.results.find(result => result.id === this.resultId);
+      return result && result.id ? result.migrationState : -1;
+    }
   },
   methods: {
     confirmBtnClick() {

@@ -3,10 +3,12 @@
     <el-form inline size="medium">
       <el-form-item style="float: right">
         <el-button type="info"
-                   @click="$router.push({name: 'versionList'})">版本库</el-button>
+                   @click="$router.push({name: 'versionList'})"
+                   size="small">版本库</el-button>
       </el-form-item>
       <el-form-item style="float: right">
-        <el-button type="primary">部署</el-button>
+        <el-button type="primary"
+                   size="small">部署</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="processedTableData"

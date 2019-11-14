@@ -25,11 +25,13 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide">操作说明</el-button>
+                       @click="toguide"
+                       size="small">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                     @click="createModalVisible = true">添加</el-button>
+                     @click="createModalVisible = true"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -369,7 +371,7 @@ export default {
       if(Array.isArray(this.filter[i]) && this.filter[i].length > 0){
         return this.filter[i].includes(item[i]);
       } else {
-        return item[i].toLowerCase().includes(this.filter[i].toLowerCase());
+        return item[i] && item[i].toLowerCase().includes(this.filter[i].toLowerCase());
       }
     },
     searchByName(){

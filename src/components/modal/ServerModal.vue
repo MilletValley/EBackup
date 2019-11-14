@@ -17,10 +17,39 @@
                     prop="serverName">
             <el-input v-model="formData.serverName"></el-input>
         </el-form-item>
-        <el-form-item v-if="!showDevice" label="选择设备：" prop="hostName">
+        <el-form-item label="类型："
+                      prop="underlyingType"
+                      class="is-required">
+          <el-radio-group v-model="formData.underlyingType">
+            <el-radio v-for="type in Object.keys(underlyingTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ underlyingTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="!showDevice && formData.underlyingType === 1" label="选择设备：" prop="hostName">
             <el-input v-model="hostName" readonly>
                 <el-button slot="append" @click="selectHostFn">...</el-button>
             </el-input>
+        </el-form-item>
+        <el-form-item label="存储方式："
+                      prop="storeType"
+                      class="is-required"
+                      v-show="formData.underlyingType === 2">
+          <el-radio-group v-model.number="formData.storeType">
+            <el-radio v-for="type in Object.keys(storeTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="存储盘符"
+                      prop="storagePath"
+                      v-if="formData.underlyingType === 2 && formData.storeType === 2">
+          <el-select v-model="formData.storagePath"
+                     style="width: 100%">
+            <el-option v-for="item in Array.from(new Array(24), (val, index) => String.fromCharCode(index + 67))"
+                      :key="item"
+                      :value="item"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="主机IP："
                     prop="serverIp">
@@ -62,7 +91,12 @@ import isEqual from 'lodash/isEqual';
 import InputToggle from '@/components/InputToggle';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal';
 import { validateLength } from '../../utils/common';
-import { virtualMapping, serverTypeMapping, virtualHostServerTypeMapping } from '@/utils/constant';
+import {
+  virtualMapping,
+  serverTypeMapping,
+  virtualHostServerTypeMapping,
+  storeTypeMapping
+} from '@/utils/constant';
 
 export default {
   name: '',
@@ -85,7 +119,14 @@ export default {
       serverLoginName: '',
       serverPassword: '',
       serverType: 1,
+      underlyingType: 1,
+      storeType: 1,
+      storagePath: ''
     };
+    const underlyingTypeMapping = {
+      1: 'veeam',
+      2: 'vddk'
+    }
     return {
       originFormData: data,
       formData: Object.assign({}, data),
@@ -94,6 +135,8 @@ export default {
       serverTypeMapping,
       virtualHostServerTypeMapping,
       virtualMapping,
+      underlyingTypeMapping,
+      storeTypeMapping,
       rules: {
         serverName: [
           {
@@ -162,6 +205,13 @@ export default {
             trigger: ['blur'],
           },
         ],
+        storagePath: [
+          {
+            required: true,
+            message: '请选择存储盘符',
+            trigger: 'blur'
+          }
+        ]
       },
     };
   },
@@ -193,7 +243,14 @@ export default {
     confirm() {
       this.$refs.createForm.validate(valid => {
         if (valid) {
-          this.$emit('confirm', this.formData);
+          const { underlyingType, storeType, storagePath, hostName, ...others } = this.formData;
+          this.$emit('confirm', {
+            underlyingType,
+            storeType: underlyingType === 1 ? 1 : storeType,
+            storagePath: underlyingType === 1 ? '' : storagePath,
+            hostName: underlyingType === 1 ? hostName : null,
+            ...others
+          });
         }
       });
     },

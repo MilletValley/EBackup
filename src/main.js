@@ -35,8 +35,7 @@ Vue.prototype.$d3 = d3;
 dayjs.locale('zh-cn');
 
 router.beforeEach((to, from, next) => {
-  const manualpath = ['/addDataBase', '/addManagement', '/fileSystemDeletion', '/dataDaseTakeOver', '/addApplication', '/inspectionTask', '/equipmentManage', '/deploymentManage'];
-  if (manualpath.includes(to.path)) {
+  if (to.matched.some(match => match && match.name === 'guide')) {
     next();
   } else if (store.state.base.token) {
     if (to.path === '/login') {

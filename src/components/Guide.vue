@@ -15,13 +15,13 @@
             <el-submenu v-for="(v, i) in routers"
                         :key="i"
                         :index="v.path"
-                        v-if="i!=0">
-              <template slot="title" v-if="v.meta">
+                        v-if="v.meta">
+              <template slot="title">
                 <i :class="v.meta.icon"></i>
                 {{ v.meta.name }}
               </template>
-              <el-menu-item-group v-if="v.meta">
-                <router-link v-for="(route, index) in v.meta.child"
+              <el-menu-item-group>
+                <router-link v-for="(route, index) in v.meta.children"
                              :key="index"
                              :to="{ name: `${route.route}`, query: { aId: `${ route.aId }` } }">
                   <el-menu-item :index="`/${route.aId}`">
@@ -75,9 +75,14 @@
               if (this.userRole.indexOf('admin') > -1) {
                 return true;
               } else if (router.meta && router.meta.roles) {
-                return router.meta.roles.some(role => this.userRole.includes(role));
+                if (router.meta.children) {
+                  router.meta.children = router.meta.children.filter(child =>
+                    this.userRole.indexOf('admin') > -1 || !child.roles || !child.roles.length
+                  )
+                }
+                return !router.meta.roles.length;
               }
-               return true;
+              return true;
             })
           }
           return false;
@@ -89,19 +94,13 @@
           []
         )
       },
-      ...mapState({
-        userRole: state => {
-          // const roles1 = this._localStorage.get(roles);
-          // console.log(roles1)
-          // const roles = state.base.userInfo.roles;
-          const roles = JSON.parse(localStorage.getItem('manualuserinfo')).roles;
-          console.log(roles);
-          if(roles && roles.length){
-            return roles.map(role => role.id);
-          }
-          return [];
-        },
-      }),
+      userRole() {
+        const roles = JSON.parse(localStorage.getItem('manualUserInfo')).roles;
+        if(roles && roles.length){
+          return roles.map(role => role.id);
+        }
+        return [];
+      }
     },
     methods:{
       getScroll() {

@@ -21,12 +21,13 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide">操作说明</el-button>
+                       @click="toguide"
+                       size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
                      @click="addFn"
-                     style="float: right">添加</el-button>
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>

@@ -376,11 +376,24 @@ const createACloudSingleRestorePlan = (id, data) =>
     data
   });
 
+const resultMigrationCloud = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-backup-results/${id}/migration-cloud`
+  });
+
 const modifyACloudRestorePlan = data =>
   baseApi.request({
     method: 'patch',
-    url: `virtual-restore-plans/aCloud-restore-plans/${data.id}`,
+    url: `/virtual-restore-plans/aCloud-restore-plans/${data.id}`,
     data
+  });
+
+const multiplyDeleteResults = ids =>
+  baseApi.request({
+    method: 'delete',
+    url: '/virtual-backup-results/multiply',
+    data: ids
   });
 
 export {
@@ -429,5 +442,7 @@ export {
   fetchACloudPaths,
   createACloudRestorePlan,
   createACloudSingleRestorePlan,
-  modifyACloudRestorePlan
+  modifyACloudRestorePlan,
+  resultMigrationCloud,
+  multiplyDeleteResults
 };

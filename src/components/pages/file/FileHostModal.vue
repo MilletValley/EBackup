@@ -56,7 +56,7 @@
                       :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="存储地址"
+        <!-- <el-form-item label="存储地址"
                       v-if="formData.osName === 'Linux' && formData.storeType === 2"
                       prop="storagePath"
                       :rules="[{ required: true, message: '请输入存储地址', trigger: 'blur' }]">
@@ -69,8 +69,8 @@
             </el-tooltip>
           </span>
           <el-input v-model="formData.storagePath"></el-input>
-        </el-form-item>
-        <el-form-item label="存储盘符"
+        </el-form-item> -->
+        <!-- <el-form-item label="存储盘符"
                       prop="storagePath"
                       v-if="formData.osName === 'Windows' && formData.storeType === 2">
           <span slot="label">
@@ -87,7 +87,7 @@
                       :key="item"
                       :value="item"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="所属业务系统"
                       prop="application">
           <el-input v-model="formData.application"></el-input>
@@ -186,7 +186,7 @@ export default {
         loginName: '',
         password: '',
         storeType: 1,
-        storagePath: 'C'
+        // storagePath: 'C'
       },
       validateCheckPassword,
       storeTypeMapping
@@ -240,20 +240,20 @@ export default {
       this.hiddenPassword1 = true;
     },
     osNameChange(osName) {
-      if (osName === 'Windows' && this.formData.storeType === 2) {
-        this.formData.storagePath = 'C';
-      }
-      if (osName === 'Linux' && this.formData.storeType === 2) {
-        this.formData.storagePath = '\\home';
-      }
+      // if (osName === 'Windows' && this.formData.storeType === 2) {
+      //   this.formData.storagePath = 'C';
+      // }
+      // if (osName === 'Linux' && this.formData.storeType === 2) {
+      //   this.formData.storagePath = '\\home';
+      // }
     },
     storeTypeChange(storeType) {
-      if (storeType === 2 && this.formData.osName === 'Windows') {
-        this.formData.storagePath = 'C';
-      }
-      if (storeType === 2 && this.formData.osName === 'Linux') {
-        this.formData.storagePath = '\\home';
-      }
+      // if (storeType === 2 && this.formData.osName === 'Windows') {
+      //   this.formData.storagePath = 'C';
+      // }
+      // if (storeType === 2 && this.formData.osName === 'Linux') {
+      //   this.formData.storagePath = '\\home';
+      // }
     }
   },
   components: {

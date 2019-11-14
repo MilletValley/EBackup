@@ -3,20 +3,24 @@
     <el-form inline size="medium">
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide">操作说明</el-button>
+                      @click="toguide"
+                      size="small">操作说明</el-button>
         </el-form-item>
       <el-form-item style="float: right">
         <el-button type="info"
-                   @click="$router.push({name: 'versionList'})">版本库</el-button>
+                   @click="$router.push({name: 'versionList'})"
+                   size="small">版本库</el-button>
       </el-form-item>
       <el-form-item style="float: right">
         <el-button @click="refreshAll"
                    type="info"
-                   plain>刷新</el-button>
+                   plain
+                   size="small">刷新</el-button>
       </el-form-item>
       <el-form-item style="float: right">
         <el-button type="primary"
-                   @click="createOne">部署</el-button>
+                   @click="createOne"
+                   size="small">部署</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="processedTableData"

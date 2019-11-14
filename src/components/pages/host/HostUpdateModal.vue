@@ -247,7 +247,8 @@ const useTypesMapping = {
   },
   vm: {
     4: '虚拟机',
-    14: 'aCloud'
+    14: 'aCloud',
+    15: 'VMware主控'
   },
   application: {
     8: '应用服务器'
@@ -330,7 +331,7 @@ export default {
       } else {
         this.formData.storagePath = '';
       }
-    }
+    },
   },
   computed: {
     useType: {
@@ -362,6 +363,9 @@ export default {
     'formData.databaseType': function(newVal, oldVal) {
       if(oldVal === 1) {
         this.formData.oracleVersion = '';
+      }
+      if(newVal === 15) {
+        this.$message.warning('设备IP必须填写本机IP地址');
       }
       this.formData.osName = '';
     },

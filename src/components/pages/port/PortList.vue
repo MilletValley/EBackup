@@ -5,7 +5,8 @@
                size="small">
         <el-form-item style="float: right;">
             <el-button type="success"
-            @click="toguide('port')">操作说明</el-button>
+                       @click="toguide('port')"
+                       size="small">操作说明</el-button>
         </el-form-item>
       </el-form>
     </el-row> 

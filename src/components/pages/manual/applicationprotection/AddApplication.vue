@@ -57,14 +57,12 @@
         methods:{
               onScroll(currentScrollTop){
                 const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
                 const offsetTopArr = [];
                 const offsetHeightArr = [];
                 navContents.forEach(item => {
                     offsetTopArr.push(item.offsetTop);
                     offsetHeightArr.push(item.offsetHeight);
                 })
-                // console.log(offsetHeightArr)
                 let navIndex = 0;
                 for(let n = 0; n < offsetTopArr.length; n++){
                     // 此处是为了减去第一个块的offsetTop偏移量

@@ -13,21 +13,25 @@
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="info"
-                   @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
+                   @click="$router.push({name: `${databaseType}List`})"
+                   size="small">数据库列表</el-button>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="primary"
-                   @click="displayLinkCreateModal">添加</el-button>
+                   @click="displayLinkCreateModal"
+                   size="small">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;"
                     v-show="['oracle', 'sqlserver'].includes(databaseType)">
         <el-button type="primary"
-                   @click="batchSwitch">批量切换</el-button>
+                   @click="batchSwitch"
+                   size="small">批量切换</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
-                   @click="refreshData">刷新</el-button>
+                   @click="refreshData"
+                   size="small">刷新</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">

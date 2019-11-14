@@ -124,7 +124,9 @@ export default {
       get() {
         return this.tab;
       },
-      set() {}
+      set(value) {
+        this.$emit('update:tab', value);
+      }
     }
   },
   // 根据入口激活当前tab页

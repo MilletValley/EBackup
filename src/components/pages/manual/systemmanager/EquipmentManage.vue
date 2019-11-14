@@ -144,15 +144,13 @@
             this.fetchData();
           },
           computed:{
-            ...mapState({
-                userRole: state => {
-                const roles = JSON.parse(localStorage.getItem('manualuserinfo')).roles;
-                if(roles.length){
+            userRole() {
+                const roles = JSON.parse(localStorage.getItem('manualUserInfo')).roles;
+                if(roles && roles.length){
                     return roles.map(role => role.id);
                 }
                 return [];
-                },
-            }),
+            },
             showif(){
                   if(this.userRole.indexOf('admin') > -1){
                       return true;

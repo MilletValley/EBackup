@@ -251,19 +251,18 @@ export default {
         if(roleArray.includes('file admin')){
             nameStr ='fileSystemDeletion';
             idStr = 'fileSystemManual';
-          }else if(roleArray.some(role => ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba',
-            'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'].includes(role))){
-            nameStr ='addDataBase';
-            idStr = 'addDataBase';
-          }else if(roleArray.includes('vm admin')){
+          } else if(roleArray.includes('vm admin')){
             nameStr ='addManagement';
             idStr = 'addManagementManual';
-          }else if(roleArray.includes('application admin')){
+          } else if(roleArray.includes('application admin')){
             nameStr ='addApplication';
             idStr = 'addApplicationManual';
-          }else if(roleArray.includes('admin')){
+          } else if(roleArray.includes('admin')){
             nameStr ='dataDaseTakeOver';
             idStr = 'dataDaseTakeOver';
+          } else {
+            nameStr ='addDataBase';
+            idStr = 'addDataBase';
           }
           let routeData = this.$router.resolve({
             name:nameStr,

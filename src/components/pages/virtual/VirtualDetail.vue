@@ -87,7 +87,7 @@
 
       </div>
     </header>
-    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm">
+    <tab-panels @switchpane="switchPane" :planFilterForm="planFilterForm" :tab.sync="tab">
       <template slot="backupCard">
         <backup-card :id="plan.id"
                      :vm-type="vmType"
@@ -96,7 +96,8 @@
                      :backupPlan="plan"
                      @refresh="refreshSingleBackupPlan"
                      @deletePlan="deleteBackupPlan"
-                     @updatePlan="selectBackupPlan(plan.id)"></backup-card>
+                     @updatePlan="selectBackupPlan(plan.id)"
+                     @show-backup-result="showBackupResult"></backup-card>
       </template>
       <template slot="restoreCard">
         <restore-card :id="plan.id"
@@ -110,8 +111,12 @@
       <template slot="backupResult">
         <backup-result-list :data="results"
                             :vm-type="vmType"
+                            :operation-id.sync="operationId"
                             @single-restore-btn-click="initSingleRestoreModal"
-                            @delete-result="deleteOneResult"></backup-result-list>
+                            @delete-result="deleteOneResult"
+                            @multiply-delete-results="multiplyDeleteResults"
+                            @update-operation-id="updateOperationId"
+                            @result-migration="resultMigration"></backup-result-list>
       </template>
       <template slot="restoreRecord">
         <restore-records :restore-plan="restorePlans"
@@ -120,6 +125,10 @@
                          @restoreinfo:refresh="updateRestorePlanAndRecords"></restore-records>
       </template>
     </tab-panels>
+    <multiply-delete-results-modal :btn-loading="btnLoading"
+                                   :results="readyDeleteResults"
+                                   @confirm="multiplyDeleteResultsConfirm"
+                                   :visible.sync="multiplyDeleteResultsModalVisible"></multiply-delete-results-modal>
     <backup-plan-modal :btn-loading="btnLoading"
                        :visible.sync="backupPlanModalVisible"
                        @confirm="vmCallback"
@@ -141,6 +150,7 @@
                           :vm-type="vmType"
                           :serverData="serverData"
                           :result-id="selectedBackupResultId"
+                          :results="results"
                           :visible.sync="singleRestoreCreateModalVisible"
                           @confirm="singleConfirmCallback"></single-restore-modal>
     <a-cloud-single-restore-plan-modal :btn-loading="btnLoading"
@@ -163,6 +173,7 @@ import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import RestorePlanModal from '@/components/pages/virtual/RestorePlanModal';
 import SingleRestoreModal from '@/components/pages/virtual/SingleRestoreModal';
+import multiplyDeleteResultsModal from '@/components/pages/virtual/multiplyDeleteResultsModal';
 import BackupCard from '@/components/pages/virtual/BackupCard';
 import BackupResultList from '@/components/pages/virtual/BackupResultList';
 import RestoreCard from '@/components/pages/virtual/RestoreCard';
@@ -176,7 +187,9 @@ import {
   updateVirtualBackupPlan,
   createMultipleVirtualBackupPlan,
   deleteVirtualBackupPlan,
-  fetchAll
+  fetchAll,
+  resultMigrationCloud,
+  multiplyDeleteResults
 } from '@/api/virtuals';
 import { fetchServerList } from '@/api/host';
 
@@ -192,15 +205,20 @@ export default {
     RestoreCard,
     RestoreRecords,
     ACloudRestorePlanModal,
-    ACloudSingleRestorePlanModal
+    ACloudSingleRestorePlanModal,
+    multiplyDeleteResultsModal
   },
   data() {
     return {
       type: 'virtual',
+      tab: 'plans',
       serverDatas: [],
       virtuals: [],
       aCloudRestorePlanModalVisible: false,
-      aCloudSingleRestoreCreateModalVisible: false
+      aCloudSingleRestoreCreateModalVisible: false,
+      multiplyDeleteResultsModalVisible: false,
+      operationId: -1, // 根据备份计划id显示备份集
+      readyDeleteResults: []
     };
   },
   computed: {
@@ -229,6 +247,13 @@ export default {
   created() {
     this.fetchVirtualList();
   },
+  watch: {
+    tab(newValue, oldValue) {
+      if(oldValue === 'results') {
+        this.operationId = -1;
+      }
+    }
+  },
   methods: {
     vmCallback(data, type) {
       if (type === 'update') {
@@ -236,6 +261,45 @@ export default {
       } else {
         this.addBackupPlan(data);
       }
+    },
+    resultMigration(id) {
+      resultMigrationCloud(id)
+        .then(res => {
+          const { message } = res.message;
+          this.$message.success(message);
+          this.getBackupResults();
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+    },
+    multiplyDeleteResults(results) {
+      this.readyDeleteResults = results;
+      this.multiplyDeleteResultsModalVisible = true;
+    },
+    multiplyDeleteResultsConfirm(results) {
+      const ids = results.map(result => result.id);
+      this.btnLoading = true;
+      multiplyDeleteResults(ids)
+        .then(res => {
+          const { message } = res.data;
+          this.$message.success(message);
+          this.getBackupResults();
+          this.multiplyDeleteResultsModalVisible = false;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        })
+        .then(() => {
+          this.btnLoading = false;
+        })
+    },
+    showBackupResult(id) {
+      this.tab = 'results';
+      this.operationId = id;
+    },
+    updateOperationId(id) {
+      this.operationId = id;
     },
     fetchServer(){
       fetchServerList().then(res => {

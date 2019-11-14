@@ -29,24 +29,6 @@
           <el-radio v-model="formData.hostType"
                     :label="2">易备环境</el-radio>
         </el-form-item>
-        <el-form-item label="存储方式"
-                      prop="storeType">
-          <el-radio-group v-model.number="formData.storeType"
-                          @change="storeTypeChange">
-            <el-radio v-for="type in Object.keys(storeTypeMapping)"
-                      :key="type"
-                      :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="服务器类型"
-                      prop="cloudType"
-                      v-show="formData.storeType === 2">
-          <el-radio-group v-model.number="formData.cloudType">
-            <el-radio v-for="type in Object.keys(cloudTypeMapping)"
-                      :key="type"
-                      :label="Number(type)">{{ cloudTypeMapping[type] }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
         <el-form-item label="使用类别"
                       prop="useType">
           <el-radio-group v-model="useType">
@@ -67,12 +49,32 @@
           </el-select>
           <el-select v-model="vmType"
                      style="width: 100%"
+                     @change="vmTypeChange"
                      v-else>
             <el-option v-for="vm in Object.keys(vmTypesMapping)"
+                       :disabled="Boolean(vm === 'vmwareMasterControl' && vmwareMasterControlHosts.length)"
                        :key="vm"
                        :value="vm"
-                       :label="vmTypesMapping[vm]"></el-option>
+                       :label="vmTypesMapping[vm].name"></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="存储方式"
+                      prop="storeType">
+          <el-radio-group v-model.number="formData.storeType"
+                          @change="storeTypeChange">
+            <el-radio v-for="type in Object.keys(storeTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ storeTypeMapping[type] }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="服务器类型"
+                      prop="cloudType"
+                      v-show="formData.storeType === 2 && useType === 'db'">
+          <el-radio-group v-model.number="formData.cloudType">
+            <el-radio v-for="type in Object.keys(cloudTypeMapping)"
+                      :key="type"
+                      :label="Number(type)">{{ cloudTypeMapping[type] }}</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-row>
           <el-col :span="12" v-if="formData.databaseType===1">
@@ -237,7 +239,8 @@ const useTypesMapping = {
   },
   vm: {
     4: '虚拟机',
-    14: 'aCloud'
+    14: 'aCloud',
+    15: 'VMware主控'
   },
   application: {
     8: '应用服务器'
@@ -245,10 +248,26 @@ const useTypesMapping = {
 };
 
 const vmTypesMapping = {
-  vmware: 'VMware',
-  hyperV: 'hyper-v',
-  fusionSphere: '华为虚拟机',
-  aCloud: 'aCloud',
+  vmware: {
+    value: 4,
+    name: 'VMware'
+  },
+  vmwareMasterControl: {
+    value: 15,
+    name: 'VMware主控'
+  },
+  hyperV: {
+    value: 4,
+    name: 'hyper-v'
+  },
+  fusionSphere: {
+    value: 4,
+    name: '华为虚拟机'
+  },
+  aCloud: {
+    value: 14,
+    name: 'aCloud'
+  }
 };
 
 export default {
@@ -291,7 +310,7 @@ export default {
           const { databaseType, ...others } = this.formData;
           let type = databaseType;
           if (this.useType === 'vm') {
-            type = this.vmType === 'aCloud' ? 14 : 4;
+            type = vmTypesMapping[this.vmType].value;
           }
           this.$emit('confirm', {
             databaseType: type,
@@ -315,6 +334,11 @@ export default {
       } else {
         this.formData.storagePath = '';
       }
+    },
+    vmTypeChange(type) {
+      if (type === 'vmwareMasterControl') {
+        this.$message.warning('设备IP必须填写本机IP地址');
+      }
     }
   },
   computed: {
@@ -329,6 +353,9 @@ export default {
         const defaultVal = Object.keys(useTypesMapping[type])[0];
         this.formData.databaseType = Number(defaultVal);
       }
+    },
+    vmwareMasterControlHosts() {
+      return this.$store.getters.vmwareMasterControlHosts;
     },
     availableOs() {
       if(this.formData.databaseType === 9) {
@@ -347,6 +374,9 @@ export default {
     'formData.databaseType': function(newVal, oldVal) {
       if(oldVal === 1) {
         this.formData.oracleVersion = '';
+      }
+      if(newVal === 4 && this.vmType === 'vmwareMasterControl') {
+        this.$message.warning('设备IP必须填写本机IP地址');
       }
       this.formData.osName = '';
     },

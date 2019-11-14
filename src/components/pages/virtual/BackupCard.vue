@@ -126,6 +126,14 @@
             <h5>已备份大小</h5>
             <div>{{backupOperation.size || '-'}}</div>
           </li>
+          <li v-if="!(backupConfig.timeStrategy === 0 && [0, 1].includes(backupOperation.state))">
+            <el-button type="text" style="float: right" @click="showBackupResult">
+              <span>
+                查看备份集
+                <i class="el-icon-d-arrow-right"></i>
+              </span>
+            </el-button>
+          </li>
         </ul>
       </el-col>
     </el-row>
@@ -254,6 +262,9 @@ export default {
           this.$emit('deletePlan', this.backupPlan.id, delBackupResults);
         })
         .catch(() => {});
+    },
+    showBackupResult() {
+      this.$emit('show-backup-result', this.backupOperation.id);
     },
     planUpdateBtnClick() {
       this.$emit('updatePlan');

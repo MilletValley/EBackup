@@ -5,16 +5,19 @@
       <el-form-item style="float: right"
                     v-show="!enterFromMenu">
         <el-button type="info"
-                   @click="$router.push({name: 'applicationList'})">应用服务器列表</el-button>
+                   @click="$router.push({name: 'applicationList'})"
+                   size="small">应用服务器列表</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="success"
-                  @click="toguide">操作说明</el-button>
+                  @click="toguide"
+                  size="small">操作说明</el-button>
     </el-form-item>
       <el-form-item style="float: right;"
                     v-show="!enterFromMenu">
         <el-button type="primary"
-                   @click="displayLinkCreateModal">添加</el-button>
+                   @click="displayLinkCreateModal"
+                   size="small">添加</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">

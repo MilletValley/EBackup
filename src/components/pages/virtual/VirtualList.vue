@@ -139,6 +139,7 @@
       </backup-plan-modal>
       <create-link-modal :btn-loading="btnLoading"
                           :selected-virtuals="currentSelectDb"
+                          :vmware-master-control-servers="vmwareMasterControlServers"
                           :vm-type="vmType"
                           :server-data="serverData"
                           @confirm="createLink"
@@ -246,6 +247,21 @@ export default {
       return Number(Object.keys(virtualMapping).find(type =>
         this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
       ));
+    },
+    vmwareMasterControlHost() {
+      const vmwareMasterControlHosts = this.$store.getters.vmwareMasterControlHosts;
+      return this.serverData.find(
+        serverHost => vmwareMasterControlHosts.some(host => host.id === serverHost.hostId)
+      ) || {};
+    },
+    vmwareMasterControlServers() {
+      let ids = [];
+      if (this.vmwareMasterControlHost.serverType === 1) {
+        ids = [this.vmwareMasterControlHost.id, ...this.vmwareMasterControlHost.serverListIds];
+      } if (this.vmwareMasterControlHost.serverType === 2) {
+        ids = [this.vmwareMasterControlHost.id];
+      }
+      return ids;
     },
   },
   created() {

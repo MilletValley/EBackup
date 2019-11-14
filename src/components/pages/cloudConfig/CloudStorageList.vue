@@ -5,12 +5,14 @@
                size="small">
         <el-form-item style="float: right;">
         <el-button type="success"
-                  @click="toguide('CloudStorage')">操作说明</el-button>
+                   @click="toguide('CloudStorage')"
+                   size="small">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="createOne()"
-                    :disabled="items.length > 1">添加</el-button>
+                     @click="createOne()"
+                     :disabled="items.length > 1"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>

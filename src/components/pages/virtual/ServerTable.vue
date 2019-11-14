@@ -35,10 +35,11 @@
                                  :label="host.serverName">
                       <el-card style="margin-top: 5px; margin-bottom: 5px">
                         <div slot="header">
-                          <el-row>
-                            <el-col :span="8" style="text-align: center">所属设备：{{ host.hostName }}</el-col>
-                            <el-col :span="8" style="text-align: center">主机IP：{{ host.serverIp }}</el-col>
-                            <el-col :span="8" style="text-align: center">主机类型：{{ host.serverType | virtualHostServerTypeFilter }}</el-col>
+                          <el-row style="text-align: center">
+                            <el-col :span="6">所属设备：{{ host.hostName }}</el-col>
+                            <el-col :span="6">主机IP：{{ host.serverIp }}</el-col>
+                            <el-col :span="6">主机类型：{{ host.serverType | virtualHostServerTypeFilter }}</el-col>
+                            <el-col :span="6" v-if="vmType === 1">底层: {{ vmwareMasterControlHost.hostId && host.hostId === vmwareMasterControlHost.hostId ? 'vddk' : 'veeam' }}</el-col>
                           </el-row>
                         </div>
                         <mutil-table :tableData="host.vmList"
@@ -50,7 +51,7 @@
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
-                                     :showBootBtn="true"
+                                     :showBootBtn="host.hostId !== vmwareMasterControlHost.hostId"
                                      :vm-type="vmType"
                                      @refresh="refreshOneServer(host)"
                                      @refresh-and-set-power="refreshAndSetPower(host)"></mutil-table>
@@ -90,6 +91,14 @@
               :formatter="serverTypeFormat"
               min-width="100"
               align="left"></el-table-column>
+          <el-table-column label="底层"
+                           min-width="80"
+                           align="left"
+                           v-if="vmType === 1">
+            <template slot-scope="scope">
+              <span>{{ vmwareMasterControlHost.hostId && scope.row.hostId === vmwareMasterControlHost.hostId ? 'vddk' : 'veeam' }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作"
                            width="140"
                            header-align="center"
@@ -123,7 +132,7 @@
                   <el-tooltip content="开机自启"
                               placement="top"
                               effect="light"
-                              v-if="[2, 4].includes(scope.row.serverType)">
+                              v-if="[2, 4].includes(scope.row.serverType) && scope.row.hostId !== vmwareMasterControlHost.hostId">
                       <el-button type="success"
                                  icon="el-icon-switch-button"
                                  circle
@@ -199,7 +208,30 @@ export default {
       return virtualHostServerTypeMapping[value];
     }
   },
+  watch: {
+    vmwareMasterControlServers: {
+      handler(value) {
+        this.$emit('update:vmwareMasterControlServers', value);
+      },
+      deep: true
+    }
+  },
   computed: {
+    vmwareMasterControlHost() {
+      const vmwareMasterControlHosts = this.$store.getters.vmwareMasterControlHosts;
+      return this.serverTableData.find(
+        serverHost => vmwareMasterControlHosts.some(host => host.id === serverHost.hostId)
+      ) || {};
+    },
+    vmwareMasterControlServers() {
+      let ids = [];
+      if (this.vmwareMasterControlHost.serverType === 1) {
+        ids = [this.vmwareMasterControlHost.id, ...this.vmwareMasterControlHost.serverListIds];
+      } if (this.vmwareMasterControlHost.serverType === 2) {
+        ids = [this.vmwareMasterControlHost.id];
+      }
+      return ids;
+    },
     customSize() {
       return this.size ? this.size : '-';
     },
@@ -294,7 +326,10 @@ export default {
       this.$emit('delete', data);
     },
     formatServerData(serverList) { // 主机=>vcenter=>物理主机
-      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce((initArray, item) => initArray.concat(item.serverListIds), []);
+      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce(
+        (initArray, item) => initArray.concat(item.serverListIds),
+        []
+      );
       const results = serverList.reduce(([pass, fail], item) => {
         if (item.serverType === 2 && hostIdsInVcenter.includes(item.id)) {
           return [[...pass, item], fail];

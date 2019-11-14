@@ -4,13 +4,14 @@
       <el-form inline>
           <el-form-item style="float: right;">
               <el-button type="success"
-                        @click="toguide('roleManage')">操作说明</el-button>
+                        @click="toguide('roleManage')"
+                        size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right;">
-          <el-button type="danger" :disabled="delDisabled" @click="delAll()">删除</el-button>
+          <el-button type="danger" :disabled="delDisabled" @click="delAll()" size="small">删除</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
-          <el-button type="primary" @click="handleCreate()">添加</el-button>
+          <el-button type="primary" @click="handleCreate()" size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>

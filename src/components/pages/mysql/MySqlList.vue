@@ -21,15 +21,18 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide">操作说明</el-button>
+                       @click="toguide"
+                       size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="info"
-                    @click="$router.push({name: 'mysqlTakeOver'})">一键接管</el-button>
+                     @click="$router.push({name: 'mysqlTakeOver'})"
+                     size="small">一键接管</el-button>
         </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
-                    @click="addFn">添加</el-button>
+                     @click="addFn"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>

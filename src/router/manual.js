@@ -26,29 +26,33 @@ const router = [
         component: DataBaseTakeOver,
         meta: {
           // roles: ['oracle dba', 'sql server dba', 'mysql dba', 'insql dba', 'vm admin', 'application admin'],
-          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
+          roles: [],
           name: '一键接管',
           icon: 'el-icon-sort',
-          child: [
+          children: [
             {
               route: 'dataDaseTakeOver',
               aId: 'dataDaseTakeOver',
-              name: '数据库'
+              name: '数据库',
+              roles: []
             },
             {
               route: 'dataDaseTakeOver',
               aId: 'virtualTakeOver',
-              name: '虚拟机'
+              name: '虚拟机',
+              roles: []
             },
             {
               route: 'dataDaseTakeOver',
               aId: 'applicationTakeOver',
-              name: '应用服务器'
+              name: '应用服务器',
+              roles: []
             },
             {
               route: 'dataDaseTakeOver',
               aId: 'disasterDrills',
-              name: '灾备演练'
+              name: '灾备演练',
+              roles: []
             }
           ]
         }
@@ -59,29 +63,33 @@ const router = [
         component: FileSystemDeletion,
         meta: {
           // roles: ['file admin'],
-          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
+          roles: [],
           name: '文件系统数据保护',
           icon: 'el-icon-document',
-          child: [
+          children: [
             {
               route: 'fileSystemDeletion',
               aId: 'fileSystemDeletion',
-              name: '编辑服务器'
+              name: '编辑服务器',
+              roles: []
             },
             {
               route: 'fileSystemDeletion',
               aId: 'fileSystemBackup',
-              name: '备份'
+              name: '备份',
+              roles: []
             },
             {
               route: 'fileSystemDeletion',
               aId: 'fileSystemRecover',
-              name: '恢复'
+              name: '恢复',
+              roles: []
             },
             {
               route: 'fileSystemDeletion',
               aId: 'fileSystemTermination',
-              name: '终止计划'
+              name: '终止计划',
+              roles: []
             }
           ]
         }
@@ -91,39 +99,45 @@ const router = [
         name: 'addDataBase',
         component: AddDataBase,
         meta: {
-          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
+          roles: [],
           name: '数据库数据保护',
           icon: 'el-icon-coin',
-          child: [
+          children: [
             {
               route: 'addDataBase',
               aId: 'addDataBase',
-              name: '添加数据库'
+              name: '添加数据库',
+              roles: []
             },
             {
               route: 'addDataBase',
               aId: 'modifyDataBase',
-              name: '编辑数据库'
+              name: '编辑数据库',
+              roles: []
             },
             {
               route: 'addDataBase',
               aId: 'dataBaseBackup',
-              name: '备份'
+              name: '备份',
+              roles: []
             },
             {
               route: 'addDataBase',
               aId: 'dataBaseRecover',
-              name: '恢复'
+              name: '恢复',
+              roles: []
             },
             {
               route: 'addDataBase',
               aId: 'takeOverDataBase',
-              name: '一键接管'
+              name: '一键接管',
+              roles: []
             },
             {
               route: 'addDataBase',
               aId: 'dataBaseMonitor',
-              name: '监控'
+              name: '监控',
+              roles: []
             },
           ]
         }
@@ -134,39 +148,45 @@ const router = [
         component: AddManagement,
         meta: {
           // roles: ['vm admin'],
-          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
+          roles: [],
           name: '虚拟机数据保护',
           icon: 'el-icon-collection',
-          child: [
+          children: [
             {
               route: 'addManagement',
               aId: 'addManagement',
-              name: '添加虚拟机管理设备'
+              name: '添加虚拟机管理设备',
+              roles: []
             },
             {
               route: 'addManagement',
               aId: 'virtualMonitor',
-              name: '虚拟机主机管理'
+              name: '虚拟机主机管理',
+              roles: []
             },
             {
               route: 'addManagement',
               aId: 'virtualBackUp',
-              name: '备份'
+              name: '备份',
+              roles: []
             },
             {
               route: 'addManagement',
               aId: 'virtualRecover',
-              name: '恢复'
+              name: '恢复',
+              roles: []
             },
             {
               route: 'addManagement',
               aId: 'takeOverVirtual',
-              name: '一键接管'
+              name: '一键接管',
+              roles: []
             },
             {
               route: 'addManagement',
               aId: 'virtualStart',
-              name: '虚拟机启动'
+              name: '虚拟机启动',
+              roles: []
             },
           ]
         }
@@ -177,24 +197,27 @@ const router = [
         component: AddApplication,
         meta: {
           // roles: ['application admin'],
-          roles: ['file admin', 'oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin', 'application admin'],
+          roles: [],
           name: '应用服务器保护',
           icon: 'el-icon-suitcase',
-          child: [
+          children: [
             {
               route: 'addApplication',
               aId: 'addApplication',
-              name: '添加应用服务器'
+              name: '添加应用服务器',
+              roles: []
             },
             {
               route: 'addApplication',
               aId: 'applicationDeletion',
-              name: '编辑应用服务器'
+              name: '编辑应用服务器',
+              roles: []
             },
             {
               route: 'addApplication',
               aId: 'takeOverApplication',
-              name: '一键接管'
+              name: '一键接管',
+              roles: []
             },
           ]
         }
@@ -207,21 +230,24 @@ const router = [
           roles: ['admin'],
           name: '智能巡检',
           icon: 'el-icon-odometer',
-          child: [
+          children: [
             {
               route: 'inspectionTask',
               aId: 'inspectionTask',
-              name: '巡检任务'
+              name: '巡检任务',
+              roles: ['admin']
             },
             {
               route: 'inspectionTask',
               aId: 'model',
-              name: '模板'
+              name: '模板',
+              roles: ['admin']
             },
             {
               route: 'inspectionTask',
               aId: 'parameter',
-              name: '参数配置'
+              name: '参数配置',
+              roles: ['admin']
             },
           ]
         }
@@ -231,24 +257,27 @@ const router = [
         name: 'equipmentManage',
         component: EquipmentManage,
         meta: {
-          roles: ['admin'],
+          roles: [],
           name: '系统管理',
           icon: 'el-icon-setting',
-          child: [
+          children: [
             {
               route: 'equipmentManage',
               aId: 'equipmentManage',
-              name: '设备管理'
+              name: '设备管理',
+              roles: []
             },
             {
               route: 'equipmentManage',
               aId: 'configurationManage',
-              name: '配置管理'
+              name: '配置管理',
+              roles: ['admin']
             },
             {
               route: 'equipmentManage',
               aId: 'roleManage',
-              name: '权限管理'
+              name: '权限管理',
+              roles: ['admin']
             }
           ]
         }
@@ -261,16 +290,18 @@ const router = [
           roles: ['admin'],
           name: '自动化部署',
           icon: 'el-icon-help',
-          child: [
+          children: [
             {
               route: 'deploymentManage',
               aId: 'deploymentManage',
-              name: '部署管理'
+              name: '部署管理',
+              roles: ['admin']
             },
             {
               route: 'deploymentManage',
               aId: 'repository',
-              name: '版本库'
+              name: '版本库',
+              roles: ['admin']
             }
           ]
         }

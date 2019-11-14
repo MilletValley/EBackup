@@ -145,7 +145,7 @@ const basicData = {
 
 export default {
   name: 'CreateLinkModal',
-  props: ['visible', 'btnLoading', 'selectedVirtuals', 'serverData', 'vmType'],
+  props: ['visible', 'btnLoading', 'selectedVirtuals', 'serverData', 'vmType', 'vmwareMasterControlServers'],
   data() {
     const weekDaysValidate = (rule, value, callback) => {
       if (this.formData.syncTimeStrategy === 4 && !value) {
@@ -257,11 +257,14 @@ export default {
       });
     },
     modalOpen() {
-      const configs = this.selectedVirtuals.map(virtual => ({
-        vmId: virtual.id,
-        vmName: virtual.vmName,
-        sourceIp: ''
-      }));
+      const configs = this.selectedVirtuals.filter(
+          virtual => !this.vmwareMasterControlServers.includes(virtual.serverId)
+        )
+        .map(virtual => ({
+          vmId: virtual.id,
+          vmName: virtual.vmName,
+          sourceIp: ''
+        }));
       const { ipConfigs, ...others } = basicData;
       this.formData = { ipConfigs: ipConfigs.concat(configs), ...others };
       this.originFormData = cloneDeep(this.formData);

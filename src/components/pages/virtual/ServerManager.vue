@@ -5,6 +5,7 @@
                       :showSelect.sync="isSelect"
                       :showDelete="true"
                       @delete="deleteServer"
+                      @update:vmwareMasterControlServers="vmwareMasterControlServersUpdate"
                       :vm-type="vmType">
           <template slot="other">
             <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
@@ -30,6 +31,7 @@
                       :visible.sync="serverModalVisible"></server-modal>
         <create-link-modal :btn-loading="btnLoading"
                            :selected-virtuals="currentSelect"
+                           :vmware-master-control-servers="vmwareMasterControlServers"
                            :vm-type="vmType"
                            :server-data="serverTableData"
                            @confirm="createLink"
@@ -76,6 +78,7 @@ export default {
       serverModalVisible: false,
       createLinkModalVisile: false,
       refreshBtn: false,
+      vmwareMasterControlServers: [],
     };
   },
   computed: {
@@ -99,6 +102,9 @@ export default {
         query:{aId:'virtualMonitor'}
       });
       window.open(routeData.href,'_blank')
+    },
+    vmwareMasterControlServersUpdate(ids) {
+      this.vmwareMasterControlServers = ids;
     },
     fetchData() {
       fetchServerList()
