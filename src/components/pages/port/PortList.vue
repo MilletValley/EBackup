@@ -5,7 +5,7 @@
                size="small">
         <el-form-item style="float: right;">
             <el-button type="success"
-                       @click="toguide('port')"
+                       @click="toGuide('equipmentManageManual', 'configurationManage')"
                        size="small">操作说明</el-button>
         </el-form-item>
       </el-form>
@@ -56,12 +56,14 @@
 import { portHostTypeMapping } from '@/utils/constant';
 import { fetchAll, deleteOne, createOne, modifyOne } from '@/api/port';
 import OperatePortModal from '@/components/pages/port/OperatePortModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 const OperateOne = {
   create: createOne,
   update: modifyOne
 };
 export default {
   name: 'PortList',
+  mixins: [manualPageMixin],
   data() {
     return {
       ports: [],
@@ -80,16 +82,6 @@ export default {
     }
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'configurationManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

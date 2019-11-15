@@ -119,7 +119,7 @@
                     <h4>功能介绍</h4>
                     <p>参见
                         <router-link 
-                        :to="{ name:'dataDaseTakeOver', query: { aId:'virtualTakeOver'} }"><span>**一键接管_虚拟机**</span>
+                        :to="{ name:'takeoverManual', query: { aId:'virtualTakeOver'} }"><span>**一键接管_虚拟机**</span>
                         </router-link>
                     </p>
                 </div> 
@@ -146,7 +146,9 @@
         </div>
     </template>
     <script>
+    import { manualDetailMixin } from '@/components/mixins/manualMixins';
       export default {
+        mixins: [manualDetailMixin],
         data() {
             return {
                 tableData: [{
@@ -170,58 +172,6 @@
         }]
             }
           },
-          mounted(){
-            this.fetchData();
-          },
-        watch:{
-            '$route':'fetchData',
-        },
-          methods:{
-            fetchData(){
-           // alert(index);
-            let str = '#'+this.$route.query.aId;
-            if(str == '#addManagementManual'){
-                document.querySelector('#addManagement').scrollIntoView({block:"start"});
-            }else {
-                document.querySelector(str).scrollIntoView({block:"start"});
-            }
-            },
-            // toBottom(){
-            //     this.$emit('func','virtualStart')
-            //   },
-              onScroll(currentScrollTop){
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log(offsetHeightArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','addManagement')
-                }else if(navIndex == 1){
-                    this.$emit('func','virtualMonitor')
-                }else if(navIndex == 2){
-                    this.$emit('func','virtualBackUp')
-                }else if(navIndex == 3){
-                    this.$emit('func','virtualRecover')
-                }else if(navIndex == 4){
-                    this.$emit('func','takeOverVirtual')
-                }else if(navIndex == 5){
-                    this.$emit('func','virtualStart')
-                }
-              },
-          }
         }
     </script>
 <style lang="scss" scoped>

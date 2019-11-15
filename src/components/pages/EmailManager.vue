@@ -5,7 +5,7 @@
              size="small">
              <el-form-item style="float: right;">
                 <el-button type="success"
-                          @click="toguide('emilmanage')"
+                          @click="toGuide('equipmentManageManual', 'configurationManage')"
                           size="small">操作说明</el-button>
             </el-form-item>
         <el-form-item style="float: right;">
@@ -99,11 +99,13 @@
   </section>
 </template>
 <script>
-import { fetchAll, createOne, modifyOne, deleteOne } from '../../api/email';
+import { fetchAll, createOne, modifyOne, deleteOne } from '@/api/email';
 import EmailManagerCreateModal from '../modal/EmailManagerCreateModal';
 import EmailManagerUpdateModal from '../modal/EmailManagerUpdateModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'EmailManager',
+  mixins: [manualPageMixin],
   data() {
     return {
       emails: [],
@@ -117,16 +119,6 @@ export default {
     this.fetchData();
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'configurationManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

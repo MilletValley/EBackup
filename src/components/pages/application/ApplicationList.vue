@@ -5,7 +5,7 @@
                size="medium">
         <el-form-item style="float: right;">
           <el-button type="success"
-                    @click="toguide"
+                    @click="toGuide('applicationManual', 'addApplication')"
                     size="small">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right">
@@ -97,9 +97,10 @@ import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { databaseRoleMapping } from '@/utils/constant';
 import OperateModal from '@/components/pages/application/OperateModal';
 import { deleteOne } from '@/api/application';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'ApplicationList',
-  mixins: [paginationMixin, sortMixin],
+  mixins: [paginationMixin, sortMixin, manualPageMixin],
   components: {
     OperateModal
   },
@@ -116,14 +117,6 @@ export default {
     this.fetchData();
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'addApplication', query: { aId:'addApplication' }})
-      let routeData = this.$router.resolve({
-        name:"addApplication",
-        query:{aId:'addApplication'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

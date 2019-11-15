@@ -10,7 +10,7 @@
       </el-form-item>
       <el-form-item style="float: right;">
           <el-button type="success"
-                    @click="toguide">操作说明</el-button>
+                    @click="toGuide('takeoverManual', 'virtualTakeOver')">操作说明</el-button>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
@@ -212,7 +212,7 @@
                         <el-tooltip placement="top" effect="dark">
                             <div slot="content">
                                 一键接管功能操作
-                                <el-button type="text" @click="goto('operation')" >
+                                <el-button type="text" @click="toGuide('takeoverManual', 'virtualTakeOver')" >
                                   <li class="el-icon-question"></li></el-button>
                             </div>
                             <span :class="$style.dropdownLink">
@@ -293,6 +293,7 @@ import FailOverModal from '@/components/pages/virtual/takeover/FailOverModal';
 import FailBackModal from '@/components/pages/virtual/takeover/FailBackModal';
 import UpdateLinkStrategyModal from '@/components/pages/virtual/takeover/UpdateLinkStrategyModal';
 import { sockMixin } from '@/components/mixins/commonMixin';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import {
   fetchLinks,
   deleteLink,
@@ -312,7 +313,7 @@ import {
 
 export default {
   name: 'TakeOver',
-  mixins: [sockMixin],
+  mixins: [sockMixin, manualPageMixin],
   components: {
     IIcon,
     DeleteLinkModal,
@@ -412,24 +413,6 @@ export default {
     }
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
-      let routeData = this.$router.resolve({
-        name:"dataDaseTakeOver",
-        query:{aId:'virtualTakeOver'}
-      });
-      window.open(routeData.href,'_blank')
-    },
-    goto(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'virtualTakeOver' }})
-      let routeData = this.$router.resolve({
-        name:"dataDaseTakeOver",
-        query:{aId:'virtualTakeOver'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchLinks()
         .then(res => {

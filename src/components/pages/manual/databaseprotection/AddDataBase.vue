@@ -135,7 +135,7 @@
                 <p> 目前Oracle、SQL Server、MySql、InSql均有一键接管功能</p>
                 <strong>SQL Server及InSql具体参见
                     <router-link 
-                    :to="{ name:'dataDaseTakeOver', query: { aId:'dataDaseTakeOver'} }"><span>**一键接管_数据库**</span>
+                    :to="{ name:'takeoverManual', query: { aId:'dataDaseTakeOver'} }"><span>**一键接管_数据库**</span>
                     </router-link>
                 </strong>
                 <p><strong>由于Oracle数据库及Mysql数据库相关功能复杂，在此单独解释</strong></p>
@@ -212,9 +212,11 @@
     </div>
 </template>
 <script>
-  export default {
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+export default {
+    mixins: [manualDetailMixin],
     data() {
-      return {
+        return {
         tableData: [{
             options: '类型',
             optional: '备份时间选择',
@@ -247,59 +249,10 @@
                 options: '月',
                 optional: '选择具体一个日期/多个日期，一个/多个时间点恢复',
             }]
-      }
-      },
-      mounted(){
-            this.fetchData();
-          },
-    watch:{
-        '$route':'fetchData',
+        }
     },
-    methods:{
-        fetchData(){
-           // alert(index);
-            let str = '#'+this.$route.query.aId;
-            if(str == '#addDataBaseManual'){
-                document.querySelector('#addDataBase').scrollIntoView({block:"start"});
-            }else{
-                document.querySelector(str).scrollIntoView({block:"start"});
-            }
-        },
-              onScroll(currentScrollTop){
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log(offsetHeightArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','addDataBase')
-                }else if(navIndex == 1){
-                    this.$emit('func','modifyDataBase')
-                }else if(navIndex == 2){
-                    this.$emit('func','dataBaseBackup')
-                }else if(navIndex == 3){
-                    this.$emit('func','dataBaseRecover')
-                }else if(navIndex == 4){
-                    this.$emit('func','takeOverDataBase')
-                }else if(navIndex == 5){
-                    this.$emit('func','dataBaseMonitor')
-                }
-              },
-    }
-    }
+}
 </script>
 <style lang="scss" scoped>
-        @import '@/style/manual.scss';
+    @import '@/style/manual.scss';
 </style>

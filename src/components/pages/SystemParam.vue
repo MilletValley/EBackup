@@ -5,7 +5,7 @@
                size="small">
                <el-form-item style="float: right;">
                   <el-button type="success"
-                            @click="toguide('StoreAddress')">操作说明</el-button>
+                            @click="toGuide('equipmentManageManual', 'configurationManage')">操作说明</el-button>
               </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
@@ -273,9 +273,11 @@ import { sysTypeMapping, windowsTypeMapping, useTypeMapping, systemStateMapping 
 import InputToggle from '@/components/InputToggle';
 import validate from '@/utils/validate';
 import isEqual from 'lodash/isEqual';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 export default {
   name: 'SystemParam',
+  mixins: [manualPageMixin],
   data() {
     const validateCheckPassword = (rule, value, callback) => {
       if (!value) {
@@ -361,16 +363,6 @@ export default {
     this.fetchData();
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'configurationManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

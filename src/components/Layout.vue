@@ -237,39 +237,40 @@ export default {
       } else if (command === 'profile') {
         this.$router.push({ name: 'profile' });
       } else if (command === 'backupPlan') {
-        // this.BackupPlans
         this.$router.push({ name: 'backupPlans' });
       } else if (command === 'inspection') {
         this.updateInspection();
       } else if (command === 'restorePlan') {
         this.$router.push({ name: 'restorePlans' });
       }else if (command === 'toguide') {
-        let idStr = '';
-        let nameStr = '';
-        let roleArray = this.userRole.map(role => role.id);
-        // console.log(roleArray)
-        if(roleArray.includes('file admin')){
-            nameStr ='fileSystemDeletion';
-            idStr = 'fileSystemManual';
-          } else if(roleArray.includes('vm admin')){
-            nameStr ='addManagement';
-            idStr = 'addManagementManual';
-          } else if(roleArray.includes('application admin')){
-            nameStr ='addApplication';
-            idStr = 'addApplicationManual';
-          } else if(roleArray.includes('admin')){
-            nameStr ='dataDaseTakeOver';
-            idStr = 'dataDaseTakeOver';
-          } else {
-            nameStr ='addDataBase';
-            idStr = 'addDataBase';
-          }
-          let routeData = this.$router.resolve({
-            name:nameStr,
-            query:{aId:idStr}
-          });
-          window.open(routeData.href,'_blank')
+        this.selectToGuide();
       }
+    },
+    selectToGuide() {
+      let idStr = '';
+      let nameStr = '';
+      let roleArray = this.userRole.map(role => role.id);
+      if(roleArray.includes('file admin')){
+        nameStr ='fileSystemManual';
+        idStr = 'fileSystemDeletion';
+      } else if(roleArray.includes('vm admin')){
+        nameStr ='addManagementManual';
+        idStr = 'addManagement';
+      } else if(roleArray.includes('application admin')){
+        nameStr ='applicationManual';
+        idStr = 'addApplication';
+      } else if(roleArray.includes('admin')){
+        nameStr ='takeoverManual';
+        idStr = 'dataDaseTakeOver';
+      } else {
+        nameStr ='databaseManual';
+        idStr = 'addDataBase';
+      }
+      let routeData = this.$router.resolve({
+        name: nameStr,
+        query: { aId:idStr }
+      });
+      window.open(routeData.href, '_blank')
     },
     updateTheme(theme) {
       this.$store.commit('SET_THEME', theme);

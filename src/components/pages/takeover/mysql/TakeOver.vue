@@ -10,6 +10,11 @@
           <el-radio label="mysql" border>MySql</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toGuide('takeoverManual', 'dataDaseTakeOver')"
+                    size="small">操作说明</el-button>
+      </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="info"
@@ -204,15 +209,37 @@
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              将业务重新转移到生产环境
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                <i class="el-icon-question"></i></el-button>
+                          </div>
+                      </el-tooltip>
                       <el-button type="text"
                                  :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
                                  @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
-                      <el-button type="text"
-                                 @click="switchHostIp(hostLink)"
-                                 :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
-                      <el-button type="text"
-                                :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                                @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              IP切换操作
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                <i class="el-icon-question"></i></el-button>
+                          </div>
+                          <el-button type="text"
+                          @click="switchHostIp(hostLink)"
+                          :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
+                      </el-tooltip>
+                      
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              生产环境故障时，将业务转移到易备环境
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                <i class="el-icon-question"></i></el-button>
+                          </div>
+                          <el-button type="text"
+                          :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                          @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                      </el-tooltip>
                     </div>
                     <div v-show="!enterFromMenu">
                       <el-button type="text"
@@ -585,6 +612,7 @@ import takeoverMixin from '@/components/mixins/takeoverMixins';
 import batchSwitchMixin from '@/components/mixins/batchSwitchMixins';
 import themeMixin from '@/components/mixins/themeMixins';
 import baseMixin from '@/components/mixins/baseMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -604,7 +632,7 @@ const switchIpMethod = {
 
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin, batchSwitchMixin, themeMixin, baseMixin],
+  mixins: [takeoverMixin, batchSwitchMixin, themeMixin, baseMixin, manualPageMixin],
   components: {
     IIcon,
     Timer,

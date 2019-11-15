@@ -50,35 +50,17 @@ router.beforeEach((to, from, next) => {
       .then(accessedRouters => {
         store.commit(types.SET_TOKEN, { token });
         router.addRoutes(accessedRouters);
-        // const manualpath = ['/addDataBase', '/addManagement', '/fileSystemDeletion', '/dataDaseTakeOver', '/addApplication', '/inspectionTask', '/equipmentManage', '/deploymentManage'];
-        // if (manualpath.includes(to.path)) {
-        //   next();
-        // } else {
-        //   next({ ...to, replace: true });
-        // }
         next({ ...to, replace: true });
       })
       .catch(error => {
         Message.error(error);
         store.commit(types.CLEAR_TOKEN);
         userToken.remove();
-        // const manualpath = ['/addDataBase', '/addManagement', '/fileSystemDeletion', '/dataDaseTakeOver', '/addApplication', '/inspectionTask', '/equipmentManage', '/deploymentManage'];
-        // if (manualpath.includes(to.path)) {
-        //   next();
-        // } else {
-        //   next('/login');
-        // }
         next('/login');
       });
   } else if (to.path === '/login') {
     next();
   } else {
-    // const manualpath = ['/addDataBase', '/addManagement', '/fileSystemDeletion', '/dataDaseTakeOver', '/addApplication', '/inspectionTask', '/equipmentManage', '/deploymentManage'];
-    // if (manualpath.includes(to.path)) {
-    //   next();
-    // } else {
-    //   next('/login');
-    // }
     next('/login');
   }
 });

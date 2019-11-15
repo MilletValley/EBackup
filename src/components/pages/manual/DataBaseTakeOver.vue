@@ -183,72 +183,13 @@
             </div>
         </div>
     </template>
-    <script>
-      export default {
-        data() {
-            return {}
-          },
-          mounted(){
-            this.fetchData();
-            this.getlocal();
-            this.destroyed()
-          },
-          watch:{
-              '$route':'fetchData'
-          },
-          methods:{
-            getlocal(){
-                  let select = localStorage.getItem('id');
-                  let elm = document.getElementById(select);
-                //   console.log(select)
-                  if(select){
-                      elm.scrollIntoView(true);
-                  }
-              },
-              onScroll(currentScrollTop){
-                //   console.log('child'+ currentScrollTop)
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log('offsetTopArr'+offsetTopArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-offsetTopArr[0]+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                // console.log(navIndex)
-                if(navIndex == 0){
-                    this.$emit('func','dataDaseTakeOver')
-                }else if(navIndex == 1){
-                    this.$emit('func','virtualTakeOver');
-                }else if(navIndex == 2){
-                    this.$emit('func','applicationTakeOver')
-                }else if(navIndex == 3){
-                    this.$emit('func','disasterDrills')
-                }
-              },
-              fetchData(){
-                //   alert(this.$route.query.aId);
-                  let str = '#'+this.$route.query.aId;
-                  if(str == '#dataDaseManual'){
-                    document.querySelector('#dataDaseTakeOver').scrollIntoView({block:"start"});
-                  }else{
-                    document.querySelector(str).scrollIntoView({block:"start"});
-                  }
-              },
-              destroyed(){
-              localStorage.setItem('id','')
-          }
-          }
-        }
-    </script>
+<script>
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+    export default {
+    mixins: [manualDetailMixin],
+}
+</script>
 <style lang="scss" scoped>
-        @import '@/style/manual.scss';
+    @import '@/style/manual.scss';
 </style>
     

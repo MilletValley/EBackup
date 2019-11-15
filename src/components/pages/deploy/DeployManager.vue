@@ -3,8 +3,8 @@
     <el-form inline size="medium">
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide"
-                      size="small">操作说明</el-button>
+                       @click="toGuide('deploymentManageManual', 'deploymentManage')"
+                       size="small">操作说明</el-button>
         </el-form-item>
       <el-form-item style="float: right">
         <el-button type="info"
@@ -205,10 +205,11 @@ import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { yesOrNoMapping, switchManualMapping, deployStateMapping } from '@/utils/constant';
 import CreateDeployModal from '@/components/pages/deploy/CreateDeployModal';
 import UpdateDeployModal from '@/components/pages/deploy/UpdateDeployModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import { setTimeout } from 'timers';
 export default {
   name: 'DeployManager',
-  mixins: [paginationMixin, sortMixin],
+  mixins: [paginationMixin, sortMixin, manualPageMixin],
   components: {
     CreateDeployModal,
     UpdateDeployModal
@@ -256,14 +257,6 @@ export default {
     }
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'deploymentManage', query: { aId:'deploymentManage' }})
-      let routeData = this.$router.resolve({
-        name:"deploymentManage",
-        query:{aId:'deploymentManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchPackageRecords()
         .then(res => {

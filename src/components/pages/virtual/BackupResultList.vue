@@ -147,7 +147,7 @@
                        align="center"></el-table-column>
       <el-table-column label="迁移状态"
                        prop="migrationState"
-                       min-width="80px"
+                       min-width="100px"
                        align="center">
         <template slot-scope="scope">
           <span>

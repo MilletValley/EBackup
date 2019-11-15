@@ -42,7 +42,7 @@
             <el-select v-model="formData.diskName"
                        :disabled="!hasHostIp"
                        style="width: 100%"
-                       placeholder="请选择恢复磁盘">
+                       :placeholder="`${showLoading ? '加载中...' : '请选择恢复磁盘'}`">
               <el-option v-for="(disk, index) in disks"
                         :key="index"
                         :label="disk"

@@ -11,7 +11,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide">操作说明</el-button>
+                      @click="toGuide('takeoverManual', 'disasterDrills')">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
@@ -100,9 +100,10 @@ import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 import { fetchLinks as fetchLinksSqlserver } from '../../api/sqlserver'
 import { fetchLinks as fetchLinksOracle } from '../../api/oracle'
 import Timer from '@/components/Timer';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'SwitchList',
-  mixins: [baseMixin, batchSwitchMinxin],
+  mixins: [baseMixin, batchSwitchMinxin, manualPageMixin],
   data() {
     return {
       planList: [],
@@ -138,14 +139,6 @@ export default {
     }
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'disasterDrills' }})
-      let routeData = this.$router.resolve({
-        name:"dataDaseTakeOver",
-        query:{aId:'disasterDrills'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       // fetchNum()
       //   .then(res => {

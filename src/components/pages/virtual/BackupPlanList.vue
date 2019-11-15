@@ -4,7 +4,7 @@
             <el-col style="text-align:right">
                 <el-button type="primary" @click="addPlan" size="small">添加备份计划</el-button>
                 <el-button type="info" @click="stopPlan" :loading="buttonFlag" size="small">一键停止</el-button>
-                <el-button type="success" size="small" @click="toguide">操作说明</el-button>
+                <el-button type="success" size="small" @click="toGuide('addManagementManual', 'virtualBackUp')">操作说明</el-button>
             </el-col>
         </el-row>
         <el-row>
@@ -117,6 +117,7 @@ import {
 import VirtualBackupTable from '@/components/pages/virtual/VirtualBackupTable';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import SelectDeviceModal from '@/components/modal/SelectDeviceModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import {
   backupStrategyMapping,
   timeStrategyMapping,
@@ -125,6 +126,7 @@ import {
   virtualMapping
 } from '@/utils/constant';
 export default {
+  mixins: [manualPageMixin],
   components: {
     VirtualBackupTable,
     BackupPlanModal,
@@ -150,15 +152,6 @@ export default {
     clearInterval(this.intervalObj);
   },
   methods: {
-    toguide(){
-
-      // this.$router.push({ name: 'addManagement', query: { aId:'virtualBackUp' }})
-      let routeData = this.$router.resolve({
-        name:"addManagement",
-        query:{aId:'virtualBackUp'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchAll() {
       fetchVirtualBackupPlanList()
         .then(res => {

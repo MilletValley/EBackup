@@ -21,7 +21,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                       @click="toguide"
+                       @click="toGuide('databaseManual', 'addDatabase')"
                        size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right;">
@@ -206,11 +206,12 @@ import DatabaseModal from '@/components/pages/insql/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
 import BatchDatabaseCreateModal from '@/components/modal/BatchDatabaseCreateModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import { batchCreate } from '@/api/insql';
 
 export default {
   name: 'InSqlList',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'insql',
@@ -250,14 +251,6 @@ export default {
     },
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
-    },
-    toguide(){
-      // this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
-      let routeData = this.$router.resolve({
-        name:"addDataBase",
-        query:{aId:'addDataBaseManual'}
-      });
-      window.open(routeData.href,'_blank')
     },
     // 从服务器获取所有的Oracle数据库
     batchCreateDb(data){

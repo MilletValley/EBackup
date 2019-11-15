@@ -21,7 +21,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="success"
-                    @click="toguide"
+                    @click="toGuide('databaseManual', 'addDataBase')"
                      size="small">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
@@ -98,7 +98,7 @@
           <el-tooltip placement="top" effect="light">
               <div slot="content">
                 <span>监控</span>
-                  <el-button type="text" @click="toDataBaseMonitor" >
+                  <el-button type="text" @click="toGuide('databaseManual', 'dataBaseMonitor')" >
                     <li class="el-icon-question"></li></el-button>
               </div>
               <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
@@ -108,7 +108,7 @@
          <el-tooltip placement="top" effect="light">
             <div slot="content">
                 修改
-                <el-button type="text" @click="toModifyDataBase" >
+                <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')">
                   <li class="el-icon-question"></li></el-button>
             </div>
             <el-button type="primary"
@@ -122,7 +122,7 @@
          <el-tooltip placement="top" effect="light">
             <div slot="content">
               删除数据库
-              <el-button type="text" @click="toModifyDataBase" >
+              <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')" >
                 <li class="el-icon-question"></li></el-button>
             </div>
             <el-button type="danger"
@@ -216,10 +216,11 @@
 import DatabaseModal from '@/components/pages/oracle/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import Vue from 'vue';
 export default {
   name: 'OracleList',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'oracle',
@@ -261,31 +262,6 @@ export default {
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
     },
-    toguide(){
-     // console.log('hh');
-      // this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
-      let routeData = this.$router.resolve({
-        name:"addDataBase",
-        query:{aId:'addDataBaseManual'}
-      });
-      window.open(routeData.href,'_blank')
-    },
-    toModifyDataBase(){
-      // this.$router.push({ name: 'addDataBase', query: { aId:'modifyDataBase' }})
-      let routeData = this.$router.resolve({
-        name:"addDataBase",
-        query:{aId:'modifyDataBase'}
-      });
-      window.open(routeData.href,'_blank')
-    },
-    toDataBaseMonitor(){
-      let routeData = this.$router.resolve({
-        name:"addDataBase",
-        query:{aId:'dataBaseMonitor'}
-      });
-      window.open(routeData.href,'_blank')
-      // this.$router.push({ name: 'addDataBase', query: { aId:'dataBaseMonitor' }})
-    }
   },
   components: {
     DatabaseModal

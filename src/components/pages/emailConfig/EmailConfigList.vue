@@ -4,7 +4,7 @@
              size="small">
              <el-form-item style="float: right;">
                 <el-button type="success"
-                           @click="toguide('emilset')"
+                           @click="toGuide('equipmentManageManual', 'configurationManage')"
                            size="small">操作说明</el-button>
             </el-form-item>
       <el-form-item style="float: right;">
@@ -80,8 +80,10 @@
 import { fetchAll, deleteOne } from '@/api/emailConfig';
 import { weekMapping, emailConfigTimeStrategyMapping } from '@/utils/constant';
 import OperateEmailConfigModal from '@/components/pages/emailConfig/OperateEmailConfigModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'EmailConfigList',
+  mixins: [manualPageMixin],
   components: {
     OperateEmailConfigModal
   },
@@ -98,16 +100,6 @@ export default {
     this.fetchData();
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'configurationManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

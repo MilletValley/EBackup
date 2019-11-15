@@ -25,7 +25,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide">操作说明</el-button>
+                      @click="toGuide('deploymentManageManual', 'equipmentManage')">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
@@ -222,6 +222,7 @@ import { listMixin } from '@/components/mixins/databaseListMixin';
 import { webSocketMixin, paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import HostCreateModal from '@/components/modal/HostCreateModal';
 import HostUpdateModal from '@/components/modal/HostUpdateModal';
 import IIcon from '@/components/IIcon';
@@ -249,12 +250,14 @@ const useTypeIconName = {
   10: 'cacheDB',
   11: 'insql',
   12: 'informix',
-  13: 'postgresql'
+  13: 'postgresql',
+  14: 'vmware',
+  15: 'vmware'
 }
 
 export default {
   name: 'DeviceManager',
-  mixins: [listMixin, paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin],
+  mixins: [listMixin, paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin, manualPageMixin],
   data() {
     return {
       wsuri: '/test',
@@ -323,14 +326,6 @@ export default {
     this.tableData = Object.assign([], this.hostsInVuex);
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'equipmentManage' }})
-      let routeData = this.$router.resolve({
-        name:"deploymentManage",
-        query:{aId:'equipmentManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     judgeHost(data) {
       return hostTypeMapping[data.hostType];
     },

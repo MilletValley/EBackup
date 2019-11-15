@@ -21,7 +21,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                       @click="toguide"
+                       @click="toGuide('fileSystemManual', 'fileSystemDeletion')"
                        size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right;">
@@ -174,6 +174,7 @@ import FileHostModal from '@/components/pages/file/FileHostModal';
 import { applyFilterMethods } from '@/utils/common';
 import { paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
 import { fetchAll, createOne, modifyOne, deleteOne } from '@/api/file';
 import { storeTypeMapping } from '@/utils/constant';
@@ -183,7 +184,7 @@ const OperateFileHost = {
 }
 export default {
   name: 'FileHostList',
-  mixins: [paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin],
+  mixins: [paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin, manualPageMixin],
   data() {
     return {
       tableData: [],
@@ -240,15 +241,6 @@ export default {
       this.action = 'create';
       this.currentSelectData = null;
     },
-    toguide(){
-      // this.$router.push({ name: 'fileSystemDeletion', query: { aId:'fileSystemManual' }})
-      let routeData = this.$router.resolve({
-        name:"fileSystemDeletion",
-        query:{aId:'fileSystemManual'}
-      });
-      window.open(routeData.href,'_blank')
-    },
-
     modifyFn(row) {
       this.modalVisible = true;
       this.action = 'update';

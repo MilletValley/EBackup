@@ -7,7 +7,7 @@
     </el-header>
 
   <el-container style="height: calc(100% - 120px)" class="middle">
-      <el-aside width="220px" >
+      <el-aside width="220px" class="custom-scrollbar">
           <el-menu 
             id="Guide_menu"
             :unique-opened="true"
@@ -23,7 +23,7 @@
               <el-menu-item-group>
                 <router-link v-for="(route, index) in v.meta.children"
                              :key="index"
-                             :to="{ name: `${route.route}`, query: { aId: `${ route.aId }` } }">
+                             :to="{ name: `${v.name}`, query: { aId: `${ route.aId }` } }">
                   <el-menu-item :index="`/${route.aId}`">
                     <i class="el-icon-key"></i>
                     {{ route.name }}
@@ -33,7 +33,7 @@
             </el-submenu>
           </el-menu>
         </el-aside>
-  <el-main class="main-content"
+  <el-main class="main-content custom-scrollbar"
            @scroll.native="getScroll">
      <div class="main">
         <router-view ref='child' @func="isActived" @getR="getRouters"></router-view>
@@ -54,7 +54,7 @@
    export default {
     data() {
       return {
-        defaultAc :'/'+this.$route.query.aId,
+        defaultAc :'/'+this.$route.query.aId
       }
     },
     mounted(){
@@ -105,54 +105,18 @@
     methods:{
       getScroll() {
         const ele = document.querySelector('.main-content');
-        // let isbottom = ele.scrollTop+ele.clientHeight-ele.scrollHeight
-        // if(isbottom >= 0){
-        //   this.$refs.child.toBottom()
-        // }else{
-        //   this.$refs.child.onScroll(ele.scrollTop)
-        // }
         this.$refs.child.onScroll(ele.scrollTop)
       },
       getRouters(){
         return this.routers;
       },
       fetchData(){
-          let index = this.$route.name;
-          let select = localStorage.getItem('pathid');
-          if(select!=null){
-            if(select !=index){
-              document.querySelector('.main').scrollIntoView({block:"start"});
-            }
-          }
-          localStorage.setItem('pathid',index);
-          this.defaultAc = '/'+this.$route.query.aId;
+        this.defaultAc = '/'+this.$route.query.aId;
       },
       isActived(str){
         this.defaultAc = '/'+str;
       },
     },
-    // 无需权限判断
-    // beforeRouteUpdate (to, from, next) {
-    //   // 在渲染该组件的对应路由被 confirm 前调用
-    //   // 不！能！获取组件实例 `this`
-    //   // 因为当守卫执行前，组件实例还没被创建
-    //   // console.log(to.name);
-    //   // let toName = to.name;
-    //   // let flag = false;
-    //   // for(let i=0;i<this.routers.length;i++){
-    //   //   if(toName == this.routers[i].name){
-    //   //     flag = true;
-    //   //   }
-    //   // }
-    //   // if(flag){
-    //   //   next()
-    //   // }else{
-    //   //   next({path:'/noPermissions'});
-    //   //   // alert("没有权限")
-    //   // }
-    //   // console.log(this.routers)
-    //   // console.log('nices')
-    // },
   }
 </script>
 <style lang="scss" scoped>

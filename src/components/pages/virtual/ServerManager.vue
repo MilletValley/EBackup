@@ -19,7 +19,7 @@
             <el-button type="info" @click="takeOverClick" :disabled="disabled" size="small" v-if="[1, 3].includes(vmType)">
               {{isSelect ? '接管初始化' : '一键接管'}}
             </el-button>
-            <el-button type="success" size="small" @click="toguide">操作说明</el-button>
+            <el-button type="success" size="small" @click="toGuide('addManagementManual', 'addManagement')">操作说明</el-button>
           </template>
         </server-table>
         <backup-plan-modal type="vm"
@@ -53,6 +53,7 @@ import ServerTable from '@/components/pages/virtual/ServerTable';
 import ServerModal from '@/components/modal/ServerModal';
 import CreateLinkModal from '@/components/pages/virtual/takeover/CreateLinkModal';
 import MutilTable from '@/components/modal/MutilTable';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import {
   virtualHostServerTypeMapping,
   serverTypeMapping,
@@ -67,7 +68,7 @@ export default {
     CreateLinkModal,
     MutilTable,
   },
-  mixins: [sockMixin],
+  mixins: [sockMixin, manualPageMixin],
   data() {
     return {
       serverTableData: [],
@@ -95,14 +96,6 @@ export default {
     this.fetchData();
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'addManagement', query: { aId:'virtualMonitor' }})
-      let routeData = this.$router.resolve({
-        name:"addManagement",
-        query:{aId:'virtualMonitor'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     vmwareMasterControlServersUpdate(ids) {
       this.vmwareMasterControlServers = ids;
     },

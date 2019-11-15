@@ -4,7 +4,7 @@
       <el-form inline>
           <el-form-item style="float: right;">
               <el-button type="success"
-                        @click="toguide('roleManage')"
+                        @click="toGuide('equipmentManageManual', 'roleManage')"
                         size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right;">
@@ -234,6 +234,7 @@ import {
 
 import {  validateLength } from '../../utils/common';
 import themeMixin from '@/components/mixins/themeMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 const rolesUser = [
   // {
@@ -295,7 +296,7 @@ const rolesUser = [
 ];
 
 export default {
-  mixins: [themeMixin],
+  mixins: [themeMixin, manualPageMixin],
   created() {
     this.getUsers();
   },
@@ -418,16 +419,6 @@ export default {
     }
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'roleManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'roleManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     // 筛选状态
     filterState(value, row) {
       return row.state === value;

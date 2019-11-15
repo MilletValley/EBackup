@@ -10,7 +10,7 @@
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button type="success"
-                  @click="toguide"
+                  @click="toGuide('takeoverManual', 'applicationTakeOver')"
                   size="small">操作说明</el-button>
     </el-form-item>
       <el-form-item style="float: right;"
@@ -337,6 +337,7 @@ import SwitchModal from '@/components/pages/application/SwitchModal';
 import AppLinkCreateModal from '@/components/pages/application/AppLinkCreateModal';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import { fetchLinks, fetchAll, createLinks, deleteLinks } from '@/api/application';
 import {
   createSwitches,
@@ -350,7 +351,7 @@ export default {
     SwitchModal,
     AppLinkCreateModal
   },
-  mixins: [takeoverMixin, themeMixin],
+  mixins: [takeoverMixin, themeMixin, manualPageMixin],
   data() {
     return {
       links: [],
@@ -434,14 +435,6 @@ export default {
     },
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'applicationTakeOver' }})
-      let routeData = this.$router.resolve({
-        name:"dataDaseTakeOver",
-        query:{aId:'applicationTakeOver'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

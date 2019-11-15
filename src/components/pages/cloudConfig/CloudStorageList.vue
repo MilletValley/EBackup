@@ -5,7 +5,7 @@
                size="small">
         <el-form-item style="float: right;">
         <el-button type="success"
-                   @click="toguide('CloudStorage')"
+                   @click="toGuide('equipmentManageManual', 'configurationManage')"
                    size="small">操作说明</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
@@ -63,6 +63,7 @@
 <script>
 import { fetchAll, createOne, modifyOne, deleteOne } from '@/api/cloudConfig';
 import OperateModal from '@/components/pages/cloudConfig/OperateModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 const operateType = {
   create: createOne,
@@ -71,6 +72,7 @@ const operateType = {
 
 export default {
   name: 'CloudStorageList',
+  mixins: [manualPageMixin],
   data() {
     return {
       items: [],
@@ -87,16 +89,6 @@ export default {
     this.fetchData();
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'configurationManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {

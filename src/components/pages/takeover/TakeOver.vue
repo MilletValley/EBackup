@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item style="float: right;">
           <el-button type="success"
-                    @click="toguide"
+                    @click="toGuide('takeoverManual', 'dataDaseTakeOver')"
                     size="small">操作说明</el-button>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
@@ -212,7 +212,7 @@
                         <el-tooltip placement="top" effect="light">
                             <div slot="content">
                                 将业务重新转移到生产环境
-                                <el-button type="text" @click="goto('qiezhu')" >
+                                <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
                                   <li class="el-icon-question"></li></el-button>
                             </div>
                         </el-tooltip>
@@ -223,7 +223,7 @@
                       <el-tooltip placement="top" effect="light">
                           <div slot="content">
                               IP切换操作
-                              <el-button type="text" @click="goto('changeip')" >
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
                                 <li class="el-icon-question"></li></el-button>
                           </div>
                           <el-button type="text"
@@ -234,7 +234,7 @@
                       <el-tooltip placement="top" effect="light">
                           <div slot="content">
                               生产环境故障时，将业务转移到易备环境
-                              <el-button type="text" @click="goto('qiebei')" >
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
                                 <li class="el-icon-question"></li></el-button>
                           </div>
                           <el-button type="text"
@@ -267,7 +267,7 @@
                           <el-tooltip placement="top" effect="light">
                               <div slot="content">
                                   相关操作的验证结果
-                                  <el-button type="text" @click="goto('verification')" >
+                                  <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
                                     <li class="el-icon-question"></li></el-button>
                               </div>
                               <el-dropdown-item @click.native="queryVerifyResult(hostLink)"
@@ -642,6 +642,7 @@ import takeoverMixin from '@/components/mixins/takeoverMixins';
 import batchSwitchMixin from '@/components/mixins/batchSwitchMixins';
 import themeMixin from '@/components/mixins/themeMixins';
 import baseMixin from '@/components/mixins/baseMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -687,7 +688,7 @@ const cutBackMethod = {
 
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin, batchSwitchMixin, themeMixin, baseMixin],
+  mixins: [takeoverMixin, batchSwitchMixin, themeMixin, baseMixin, manualPageMixin],
   components: {
     IIcon,
     Timer,
@@ -843,25 +844,6 @@ export default {
     },
   },
   methods: {
-    //跳转到指南
-    toguide(){
-      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
-      let routeData = this.$router.resolve({
-        name:"dataDaseTakeOver",
-        query:{aId:'dataDaseTakeOver'}
-      });
-      window.open(routeData.href,'_blank')
-    },
-    goto(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'dataDaseTakeOver', query: { aId:'dataDaseTakeOver' }})
-      let routeData = this.$router.resolve({
-        name:"dataDaseTakeOver",
-        query:{aId:'dataDaseTakeOver'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchDatabaseMethod[this.databaseType]()
         .then(res => {

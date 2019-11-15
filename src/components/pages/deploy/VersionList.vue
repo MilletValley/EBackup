@@ -3,7 +3,7 @@
     <el-form inline size="medium" style="overflow: hidden">
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide('repository')"
+                      @click="toGuide('deploymentManageManual', 'repository')"
                       size="small">操作说明</el-button>
         </el-form-item>
       <el-form-item style="float: right">
@@ -169,12 +169,14 @@ import { validatePassword } from '@/api/user';
 import { yesOrNoMapping, useTypeMapping } from '@/utils/constant';
 import OperateVersionModal from '@/components/pages/deploy/OperateVersionModal';
 import UploadPackagesModal from '@/components/pages/deploy/UploadPackagesModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 const operateVerionMethod = {
   create: createVersion,
   update: updateVersion
 };
 export default {
   name: 'VersionList',
+  mixins: [manualPageMixin],
   components: {
     OperateVersionModal,
     UploadPackagesModal
@@ -221,16 +223,6 @@ export default {
     }
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'deploymentManage', query: { aId:'repository' }})
-      let routeData = this.$router.resolve({
-        name:"deploymentManage",
-        query:{aId:'repository'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchVersionTypes()
         .then(res => {

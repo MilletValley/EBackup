@@ -90,85 +90,42 @@
             </div>
         </div>
     </template>
-    <script>
-      export default {
-        data() {
-            return {
-                tableData: [{
-                options: '类型',
-                optional: '备份时间选择',
-            },{
-                options: '单次备份',
-                optional: '单次',
-            },{
-                options: '按分钟循环',
-                optional: '选择备份时间间隔10分钟—60分钟',
-            }, {
-                options: '按小时循环',
-                optional: '选择备份时间间隔1小时—24小时',
-            },{
-                options: '天',
-                optional: '选择每天一个/多个时间点备份',
-            },
-            {
-                options: '周',
-                optional: '周一至周日选择一天/几天，一个/多个时间点备份',
-            },{
-                options: '月',
-                optional: '选择具体一个日期/多个日期，一个/多个时间点备份',
-            },{
-                options: '立即',
-                optional: '选择后点击确定立即开始备份',
-            }],
-            }
-          },
-          mounted(){
-            this.fetchData();
-          },
-          watch:{
-              '$route':'fetchData'
-          },
-          methods:{
-              onScroll(currentScrollTop){
-                //   console.log(currentScrollTop+'是从其他子页面跳转的');
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log(offsetHeightArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','fileSystemDeletion');
-                }else if(navIndex == 1){
-                    this.$emit('func','fileSystemBackup');
-                }else if(navIndex == 2){
-                    this.$emit('func','fileSystemRecover');
-                }else if(navIndex == 3){
-                    this.$emit('func','fileSystemTermination');
-                }
-              },
-              fetchData(){
-                  let str = '#'+this.$route.query.aId;
-                  if(str == '#fileSystemManual'){
-                    document.querySelector('#fileSystemDeletion').scrollIntoView({block:"start"});
-                  }else if(str != null){
-                    document.querySelector(str).scrollIntoView({block:"start"});
-                  }
-              },
-          }
+<script>
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+    export default {
+    mixins: [manualDetailMixin],
+    data() {
+        return {
+            tableData: [{
+            options: '类型',
+            optional: '备份时间选择',
+        },{
+            options: '单次备份',
+            optional: '单次',
+        },{
+            options: '按分钟循环',
+            optional: '选择备份时间间隔10分钟—60分钟',
+        }, {
+            options: '按小时循环',
+            optional: '选择备份时间间隔1小时—24小时',
+        },{
+            options: '天',
+            optional: '选择每天一个/多个时间点备份',
+        },
+        {
+            options: '周',
+            optional: '周一至周日选择一天/几天，一个/多个时间点备份',
+        },{
+            options: '月',
+            optional: '选择具体一个日期/多个日期，一个/多个时间点备份',
+        },{
+            options: '立即',
+            optional: '选择后点击确定立即开始备份',
+        }],
         }
-    </script>
+        },
+    }
+</script>
 <style lang="scss" scoped>
     @import '@/style/manual.scss';
 </style>

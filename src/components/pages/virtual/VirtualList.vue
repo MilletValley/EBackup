@@ -25,7 +25,7 @@
                      @click="jumpToTakeOver">
             一键接管
           </el-button>
-          <el-button type="success" size="small" @click="toguide">操作说明</el-button>
+          <el-button type="success" size="small" @click="toGuide('addManagementManual', 'virtualBackUp')">操作说明</el-button>
         </el-col>
       </el-row>
     </div>
@@ -167,9 +167,10 @@ import {
 import { fetchServerList } from '@/api/host';
 import type from '@/store/type';
 import { sockMixin } from '@/components/mixins/commonMixin';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'VirtualList',
-  mixins: [sockMixin],
+  mixins: [sockMixin, manualPageMixin],
   components: {
     BackupPlanModal,
     CreateLinkModal
@@ -296,14 +297,6 @@ export default {
     }
   },
   methods: {
-    toguide(){
-      // this.$router.push({ name: 'addManagement', query: { aId:'virtualBackUp' }})
-      let routeData = this.$router.resolve({
-        name:"addManagement",
-        query:{aId:'virtualBackUp'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     connectCallback(client) {
       this.stompClient.subscribe('/virtual', msg => {
         let { data: virtual } = JSON.parse(msg.body);

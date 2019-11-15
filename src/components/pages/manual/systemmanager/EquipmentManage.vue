@@ -117,8 +117,9 @@
         </div>
     </template>
     <script>
-      import { mapState, mapActions, mapMutations } from 'vuex';
+      import { manualDetailMixin } from '@/components/mixins/manualMixins';
       export default {
+        mixins: [manualDetailMixin],
         data() {
             return {
                 tableData: [ {
@@ -132,16 +133,6 @@
                     optional: '可选择一个日期和一个发送时间，发送从上个月当日当时到本月此日此时，这段时间内的执行结果统计报告',
                 }]
             }
-          },
-        watch:{
-            '$route':'fetchData',
-        },
-        updated(){
-            //创建时执行跳转锚点位置
-            this.$nextTick(() => {this.getlocal()})
-        },
-          mounted(){
-            this.fetchData();
           },
           computed:{
             userRole() {
@@ -159,54 +150,6 @@
                   }
               },
           },
-          methods:{
-             //从本地找到id
-              getlocal(){
-                  let select = localStorage.getItem('id');
-                  let elm = document.getElementById(select);
-                  if(select){
-                      elm.scrollIntoView(true);
-                  }
-              },
-              onScroll(currentScrollTop){
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log(offsetHeightArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','equipmentManage')
-                }else if(navIndex == 1){
-                    this.$emit('func','configurationManage')
-                }else if(navIndex == 2){
-                    this.$emit('func','roleManage')
-                }
-              },
-              fetchData(){
-                  let str = '#'+this.$route.query.aId;
-                  if(str == '#equipmentManageManual'){
-                    document.querySelector('#equipmentManage').scrollIntoView({block:"start"});
-                  }else if(str != null){
-                    document.querySelector(str).scrollIntoView({block:"start"});
-                  }
-              },
-          },
-          //离开页面进行对localStorage中id的销毁，避免其他入口进来的锚点有问题
-          destroyed(){
-              localStorage.setItem('id','')
-          }
         }
     </script>
 <style lang="scss" scoped>

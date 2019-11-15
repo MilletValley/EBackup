@@ -7,7 +7,6 @@ import AddApplication from '@/components/pages/manual/applicationprotection/AddA
 import InspectionTask from '@/components/pages/manual/inspection/InspectionTask';
 import EquipmentManage from '@/components/pages/manual/systemmanager/EquipmentManage';
 import DeploymentManage from '@/components/pages/manual/autodeployment/DeploymentManage';
-import Nopermissions from '@/components/pages/manual/NoPermissions';
 
 const router = [
   {
@@ -16,13 +15,8 @@ const router = [
     component: Guide,
     children: [
       {
-        path: '/noPermissions',
-        name: 'noPermissions',
-        component: Nopermissions
-      },
-      {
-        path: '/dataDaseTakeOver',
-        name: 'dataDaseTakeOver',
+        path: '/takeover',
+        name: 'takeoverManual',
         component: DataBaseTakeOver,
         meta: {
           // roles: ['oracle dba', 'sql server dba', 'mysql dba', 'insql dba', 'vm admin', 'application admin'],
@@ -31,25 +25,21 @@ const router = [
           icon: 'el-icon-sort',
           children: [
             {
-              route: 'dataDaseTakeOver',
               aId: 'dataDaseTakeOver',
               name: '数据库',
               roles: []
             },
             {
-              route: 'dataDaseTakeOver',
               aId: 'virtualTakeOver',
               name: '虚拟机',
               roles: []
             },
             {
-              route: 'dataDaseTakeOver',
               aId: 'applicationTakeOver',
               name: '应用服务器',
               roles: []
             },
             {
-              route: 'dataDaseTakeOver',
               aId: 'disasterDrills',
               name: '灾备演练',
               roles: []
@@ -58,8 +48,8 @@ const router = [
         }
       },
       {
-        path: '/fileSystemDeletion',
-        name: 'fileSystemDeletion',
+        path: '/fileSystem',
+        name: 'fileSystemManual',
         component: FileSystemDeletion,
         meta: {
           // roles: ['file admin'],
@@ -68,25 +58,21 @@ const router = [
           icon: 'el-icon-document',
           children: [
             {
-              route: 'fileSystemDeletion',
               aId: 'fileSystemDeletion',
               name: '编辑服务器',
               roles: []
             },
             {
-              route: 'fileSystemDeletion',
               aId: 'fileSystemBackup',
               name: '备份',
               roles: []
             },
             {
-              route: 'fileSystemDeletion',
               aId: 'fileSystemRecover',
               name: '恢复',
               roles: []
             },
             {
-              route: 'fileSystemDeletion',
               aId: 'fileSystemTermination',
               name: '终止计划',
               roles: []
@@ -95,8 +81,8 @@ const router = [
         }
       },
       {
-        path: '/addDataBase',
-        name: 'addDataBase',
+        path: '/database',
+        name: 'databaseManual',
         component: AddDataBase,
         meta: {
           roles: [],
@@ -104,37 +90,31 @@ const router = [
           icon: 'el-icon-coin',
           children: [
             {
-              route: 'addDataBase',
               aId: 'addDataBase',
               name: '添加数据库',
               roles: []
             },
             {
-              route: 'addDataBase',
               aId: 'modifyDataBase',
               name: '编辑数据库',
               roles: []
             },
             {
-              route: 'addDataBase',
               aId: 'dataBaseBackup',
               name: '备份',
               roles: []
             },
             {
-              route: 'addDataBase',
               aId: 'dataBaseRecover',
               name: '恢复',
               roles: []
             },
             {
-              route: 'addDataBase',
               aId: 'takeOverDataBase',
               name: '一键接管',
               roles: []
             },
             {
-              route: 'addDataBase',
               aId: 'dataBaseMonitor',
               name: '监控',
               roles: []
@@ -143,8 +123,8 @@ const router = [
         }
       },
       {
-        path: '/addManagement',
-        name: 'addManagement',
+        path: '/management',
+        name: 'addManagementManual',
         component: AddManagement,
         meta: {
           // roles: ['vm admin'],
@@ -153,37 +133,31 @@ const router = [
           icon: 'el-icon-collection',
           children: [
             {
-              route: 'addManagement',
               aId: 'addManagement',
               name: '添加虚拟机管理设备',
               roles: []
             },
             {
-              route: 'addManagement',
               aId: 'virtualMonitor',
               name: '虚拟机主机管理',
               roles: []
             },
             {
-              route: 'addManagement',
               aId: 'virtualBackUp',
               name: '备份',
               roles: []
             },
             {
-              route: 'addManagement',
               aId: 'virtualRecover',
               name: '恢复',
               roles: []
             },
             {
-              route: 'addManagement',
               aId: 'takeOverVirtual',
               name: '一键接管',
               roles: []
             },
             {
-              route: 'addManagement',
               aId: 'virtualStart',
               name: '虚拟机启动',
               roles: []
@@ -192,8 +166,8 @@ const router = [
         }
       },
       {
-        path: '/addApplication',
-        name: 'addApplication',
+        path: '/application',
+        name: 'applicationManual',
         component: AddApplication,
         meta: {
           // roles: ['application admin'],
@@ -202,19 +176,16 @@ const router = [
           icon: 'el-icon-suitcase',
           children: [
             {
-              route: 'addApplication',
               aId: 'addApplication',
               name: '添加应用服务器',
               roles: []
             },
             {
-              route: 'addApplication',
               aId: 'applicationDeletion',
               name: '编辑应用服务器',
               roles: []
             },
             {
-              route: 'addApplication',
               aId: 'takeOverApplication',
               name: '一键接管',
               roles: []
@@ -224,7 +195,7 @@ const router = [
       },
       {
         path: '/inspectionTask',
-        name: 'inspectionTask',
+        name: 'inspectionTaskManual',
         component: InspectionTask,
         meta: {
           roles: ['admin'],
@@ -232,19 +203,16 @@ const router = [
           icon: 'el-icon-odometer',
           children: [
             {
-              route: 'inspectionTask',
               aId: 'inspectionTask',
               name: '巡检任务',
               roles: ['admin']
             },
             {
-              route: 'inspectionTask',
               aId: 'model',
               name: '模板',
               roles: ['admin']
             },
             {
-              route: 'inspectionTask',
               aId: 'parameter',
               name: '参数配置',
               roles: ['admin']
@@ -254,7 +222,7 @@ const router = [
       },
       {
         path: '/equipmentManage',
-        name: 'equipmentManage',
+        name: 'equipmentManageManual',
         component: EquipmentManage,
         meta: {
           roles: [],
@@ -262,19 +230,16 @@ const router = [
           icon: 'el-icon-setting',
           children: [
             {
-              route: 'equipmentManage',
               aId: 'equipmentManage',
               name: '设备管理',
               roles: []
             },
             {
-              route: 'equipmentManage',
               aId: 'configurationManage',
               name: '配置管理',
               roles: ['admin']
             },
             {
-              route: 'equipmentManage',
               aId: 'roleManage',
               name: '权限管理',
               roles: ['admin']
@@ -284,7 +249,7 @@ const router = [
       },
       {
         path: '/deploymentManage',
-        name: 'deploymentManage',
+        name: 'deploymentManageManual',
         component: DeploymentManage,
         meta: {
           roles: ['admin'],
@@ -292,13 +257,11 @@ const router = [
           icon: 'el-icon-help',
           children: [
             {
-              route: 'deploymentManage',
               aId: 'deploymentManage',
               name: '部署管理',
               roles: ['admin']
             },
             {
-              route: 'deploymentManage',
               aId: 'repository',
               name: '版本库',
               roles: ['admin']

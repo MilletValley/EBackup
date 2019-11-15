@@ -87,69 +87,12 @@
         </div>
     </div>
 </template>
-    <script>
-      export default {
-        data() {
-            return {}
-          },
-            watch:{
-                '$route':'fetchData',
-            },
-            mounted(){
-                this.fetchData();
-          },
-          methods:{
-             //从本地找到id
-              getlocal(){
-                  let select = localStorage.getItem('id');
-                  let elm = document.getElementById(select);
-                  if(select){
-                      elm.scrollIntoView(true);
-                  }
-              },
-            //   toBottom(){
-            //     this.$emit('func','repository')
-            //   },
-              onScroll(currentScrollTop){
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log(offsetHeightArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','deploymentManage')
-                }else if(navIndex == 1){
-                    this.$emit('func','repository')
-                }
-              },
-              fetchData(){
-                  let str = '#'+this.$route.query.aId;
-                //   console.log(str)
-                if(str == '#deploymentManageManual'){
-                    document.querySelector('#deploymentManage').scrollIntoView({block:"start"});
-                  }else if(str != null){
-                    document.querySelector(str).scrollIntoView({block:"start"});
-                  }
-              },
-          },
-          //离开页面进行对localStorage中id的销毁，避免其他入口进来的锚点有问题
-          destroyed(){
-              localStorage.setItem('id','')
-          }
-        }
-    </script>
+<script>
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+export default {
+    mixins: [manualDetailMixin]
+}
+</script>
 <style lang="scss" scoped>
     @import '@/style/manual.scss';
 </style>

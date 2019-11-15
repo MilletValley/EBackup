@@ -21,7 +21,7 @@
         </el-form-item>
         <el-form-item style="float: right;">
             <el-button type="success"
-                      @click="toguide"
+                      @click="toGuide('databaseManual', 'addDatabase')"
                       size="small">操作说明</el-button>
           </el-form-item>
         <el-form-item style="float: right;">
@@ -107,7 +107,7 @@
             <el-tooltip placement="top" effect="light">
                 <div slot="content">
                     监控
-                    <el-button type="text" @click="toDataBaseMonitor" >
+                    <el-button type="text" @click="toGuide('databaseManual', 'dataBaseMonitor')">
                       <li class="el-icon-question"></li></el-button>
                 </div>
                 <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
@@ -116,7 +116,7 @@
             <el-tooltip placement="top" effect="light">
                 <div slot="content">
                     修改
-                    <el-button type="text" @click="toModifyDataBase" >
+                    <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')">
                       <li class="el-icon-question"></li></el-button>
                 </div>
                 <el-button type="primary"
@@ -130,7 +130,7 @@
             <el-tooltip placement="top" effect="light">
                 <div slot="content">
                     删除数据库
-                    <el-button type="text" @click="toModifyDataBase" >
+                    <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')">
                       <li class="el-icon-question"></li></el-button>
                 </div>
                 <el-button type="danger"
@@ -225,12 +225,13 @@
 import DatabaseModal from '@/components/pages/sqlserver/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import BatchDatabaseCreateModal from '@/components/modal/BatchDatabaseCreateModal';
 import { batchCreate } from '@/api/sqlserver';
 
 export default {
   name: 'SqlServer',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'sqlserver',
@@ -272,14 +273,6 @@ export default {
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
     },
-    toguide(){
-      // this.$router.push({ name: 'addDataBase', query: { aId:'addDataBaseManual' }})
-      let routeData = this.$router.resolve({
-        name:"addDataBase",
-        query:{aId:'addDataBaseManual'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     // 从服务器获取所有的Oracle数据库
     batchCreateDb(data){
       this.btnLoading = true;
@@ -295,12 +288,6 @@ export default {
           this.btnLoading = false;
         });
     },
-    toModifyDataBase(){
-      this.$router.push({name: 'modifyDataBase'})
-    },
-    toDataBaseMonitor(){
-      this.$router.push({name: 'dataBaseMonitor'})
-    }
   },
   components: {
     DatabaseModal,

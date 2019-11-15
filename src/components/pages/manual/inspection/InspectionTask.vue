@@ -67,55 +67,12 @@
             </div>
         </div>
     </template>
-    <script>
-      export default {
-        data() {
-            return {}
-          },
-          mounted(){
-            this.fetchData();
-          },
-        watch:{
-            '$route':'fetchData',
-        },
-        methods:{
-              onScroll(currentScrollTop){
-                const navContents = document.querySelectorAll('.anchor');
-                // console.log(navContents)
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                // console.log(offsetHeightArr)
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','inspectionTask')
-                }else if(navIndex == 1){
-                    this.$emit('func','model')
-                }else if(navIndex == 2){
-                    this.$emit('func','parameter')
-                }
-              },
-              fetchData(){
-                  let str = '#'+this.$route.query.aId;
-                  if(str == '#inspectionTaskManual'){
-                    document.querySelector('#inspectionTask').scrollIntoView({block:"start"});
-                  }else  if(str != null){
-                    document.querySelector(str).scrollIntoView({block:"start"});
-                  }
-              },
-        }
-        }
-    </script>
+<script>
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+    export default {
+    mixins: [manualDetailMixin]
+}
+</script>
 <style lang="scss" scoped>
     @import '@/style/manual.scss';
 </style>

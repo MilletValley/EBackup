@@ -34,62 +34,19 @@
                 <h4>功能介绍</h4>
                 <p>具体参见
                     <router-link 
-                    :to="{ name:'dataDaseTakeOver', query: { aId:'applicationTakeOver'} }"><span>**一键接管_应用服务器**</span>
+                    :to="{ name:'takeoverManual', query: { aId:'applicationTakeOver'} }"><span>**一键接管_应用服务器**</span>
                     </router-link>
                 </p>
-                
-                
             </div>  
         </div>
     </div>
-    </template>
-    <script>
-      export default {
-        data() {
-            return {}
-        },
-        mounted(){
-            this.fetchData();
-        },
-        watch:{
-            '$route':'fetchData',
-        },
-        methods:{
-              onScroll(currentScrollTop){
-                const navContents = document.querySelectorAll('.anchor');
-                const offsetTopArr = [];
-                const offsetHeightArr = [];
-                navContents.forEach(item => {
-                    offsetTopArr.push(item.offsetTop);
-                    offsetHeightArr.push(item.offsetHeight);
-                })
-                let navIndex = 0;
-                for(let n = 0; n < offsetTopArr.length; n++){
-                    // 此处是为了减去第一个块的offsetTop偏移量
-                    // 若当前页面的scrollTop大于第n个页面对应的scrollTop时，内容应该在第n个锚点块内了
-                    if((currentScrollTop > offsetTopArr[n]-offsetTopArr[0]) && (currentScrollTop < offsetTopArr[n]-62+offsetHeightArr[n])){
-                        navIndex = n;
-                    }
-                }
-                if(navIndex == 0){
-                    this.$emit('func','addApplication')
-                }else if(navIndex == 1){
-                    this.$emit('func','applicationDeletion')
-                }else if(navIndex == 2){
-                    this.$emit('func','takeOverApplication')
-                }
-              },
-              fetchData(){
-                  let str = '#'+this.$route.query.aId;
-                  if(str == '#addApplicationManual'){
-                    document.querySelector('#addApplication').scrollIntoView({block:"start"});
-                }else if(str != null){
-                    document.querySelector(str).scrollIntoView({block:"start"});
-                  }
-              },
-        }
-    }
-    </script>
+</template>
+<script>
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+export default {
+    mixins: [manualDetailMixin]
+}
+</script>
 <style lang="scss" scoped>
 @import '@/style/manual.scss';
 

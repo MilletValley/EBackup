@@ -5,7 +5,7 @@
                size="small">
                <el-form-item style="float: right;">
                   <el-button type="success"
-                             @click="toguide('StoreAddress')"
+                             @click="toGuide('equipmentManageManual', 'configurationManage')"
                              size="small">操作说明</el-button>
               </el-form-item>
         <el-form-item style="float: right;">
@@ -110,12 +110,14 @@ import {
   weekMapping
 } from '@/utils/constant';
 import OperateModal from '@/components/pages/keepStrategy/OperateModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 const OperateOne = {
   create: createOne,
   update: modifyOne
 };
 export default {
   name: 'KeepStrategy',
+  mixins: [manualPageMixin],
   data() {
     return {
       strategys: [],
@@ -134,16 +136,6 @@ export default {
     }
   },
   methods: {
-    toguide(id){
-      let select = id;
-      localStorage.setItem('id',select);
-      // this.$router.push({ name: 'equipmentManage', query: { aId:'configurationManage' }})
-      let routeData = this.$router.resolve({
-        name:"equipmentManage",
-        query:{aId:'configurationManage'}
-      });
-      window.open(routeData.href,'_blank')
-    },
     fetchData() {
       fetchAll()
         .then(res => {
