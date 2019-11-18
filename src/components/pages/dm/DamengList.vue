@@ -31,7 +31,7 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-row class="margin-top20">
+    <el-row>
       <el-table :data="processedTableData"
                 v-show="showType === 'list'">
         <el-table-column label="序号"
@@ -62,7 +62,7 @@
           prop="host.name"
           label="所属设备"
           align="center"
-          min-width="180">
+          min-width="150">
         </el-table-column>
         <el-table-column
           prop="dbPort"

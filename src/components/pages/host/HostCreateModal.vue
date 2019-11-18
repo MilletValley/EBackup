@@ -240,7 +240,7 @@ const useTypesMapping = {
   vm: {
     4: '虚拟机',
     14: 'aCloud',
-    15: 'VMware主控'
+    // 15: 'VMware主控'
   },
   application: {
     8: '应用服务器'
@@ -252,10 +252,10 @@ const vmTypesMapping = {
     value: 4,
     name: 'VMware'
   },
-  vmwareMasterControl: {
-    value: 15,
-    name: 'VMware主控'
-  },
+  // vmwareMasterControl: {
+  //   value: 15,
+  //   name: 'VMware主控'
+  // },
   hyperV: {
     value: 4,
     name: 'hyper-v'

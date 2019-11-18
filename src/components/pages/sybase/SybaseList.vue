@@ -31,7 +31,7 @@
         </el-form-item>
       </el-form>
     </el-row>
-    <el-row style="margin-top: 20px">
+    <el-row>
       <el-table :data="processedTableData"
                 v-show="showType === 'list'">
         <el-table-column label="序号"

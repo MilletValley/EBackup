@@ -270,9 +270,10 @@ export default {
     };
   },
   computed: {
-    // 从vuex中获取hosts列表
+    // 从vuex中获取hosts列表，筛选出VMware主控类型
     hostsInVuex() {
-      return this.$store.state.host.hosts;
+      const hosts = this.$store.state.host.hosts || [];
+      return hosts.filter(host => host.databaseType !== 15)
     },
     selectedHost() {
       return this.$store.getters.selectedHost(this.selectedId);
@@ -287,10 +288,11 @@ export default {
       }))
     },
     databaseTypeFilters() {
-      return Object.keys(databaseTypeMapping).map(db => ({
-        text: databaseTypeMapping[Number(db)],
-        value: Number(db)
-      }))
+      return Object.keys(databaseTypeMapping).filter(type => Number(type) !== 15)
+        .map(db => ({
+          text: databaseTypeMapping[Number(db)],
+          value: Number(db)
+        }))
     },
     configMsg() {
       return this.$store.state.nav.configMsg;

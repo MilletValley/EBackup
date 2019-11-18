@@ -248,7 +248,7 @@ const useTypesMapping = {
   vm: {
     4: '虚拟机',
     14: 'aCloud',
-    15: 'VMware主控'
+    // 15: 'VMware主控'
   },
   application: {
     8: '应用服务器'
