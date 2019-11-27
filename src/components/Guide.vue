@@ -1,5 +1,5 @@
 <template>
-<el-container style="height: 100%; border: 1px solid #eee">
+<el-container style="height: 100%;">
     <el-header style=" font-size: 12px;"> 
       <h3 style="line-height:40px;height:40px;color:white">
         <router-link :to="{ name: 'dashboard'}" style="color: white;font-size: 18px;">
@@ -134,6 +134,7 @@
   }
   .el-menu{
     height: 100%;
+    border: 0;
   }
   .middle{
     @include main-background-color;

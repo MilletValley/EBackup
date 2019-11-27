@@ -12,7 +12,7 @@
                         <p><li>在**系统管理_设备管理**内，添加需要进行灾备接管的生产服务器和备用服务器</li></p>
                         <p>参见步骤
                              <router-link 
-                                :to="{ name:'equipmentManage', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
+                                :to="{ name:'equipmentManageManual', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
                             </router-link>
                         </p>
                         <p><li>添加需要接管的生产数据库/实例</li></p>

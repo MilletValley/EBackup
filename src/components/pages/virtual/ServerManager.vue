@@ -16,7 +16,9 @@
                        v-if="[1, 2, 3].includes(vmType)">
               {{isSelect ? '添加备份计划' : '添加主机'}}
             </el-button>
-            <el-button type="info" @click="takeOverClick" :disabled="disabled" size="small" v-if="[1, 3].includes(vmType)">
+            <el-button type="info" @click="takeOverClick"
+                       :disabled="disabled" size="small"
+                       v-if="(!isSelectedVMwareMasterControlServers && vmType === 1) || vmType === 3">
               {{isSelect ? '接管初始化' : '一键接管'}}
             </el-button>
             <el-button type="success" size="small" @click="toGuide('addManagementManual', 'addManagement')">操作说明</el-button>
@@ -31,7 +33,6 @@
                       :visible.sync="serverModalVisible"></server-modal>
         <create-link-modal :btn-loading="btnLoading"
                            :selected-virtuals="currentSelect"
-                           :vmware-master-control-servers="vmwareMasterControlServers"
                            :vm-type="vmType"
                            :server-data="serverTableData"
                            @confirm="createLink"
@@ -91,6 +92,9 @@ export default {
         this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
       ));
     },
+    isSelectedVMwareMasterControlServers() {
+      return this.currentSelect.some(virtual => this.vmwareMasterControlServers.includes(virtual.serverId));
+    }
   },
   mounted() {
     this.fetchData();

@@ -5,20 +5,22 @@
       以下备份集将同时被删除，请检查
     </span>
     <el-table :data="results">
-      <el-table-column props="fileName"
+      <el-table-column prop="fileName"
                        label="备份文件名"
                        align="left"
                        header-align="center"
-                       width="150"></el-table-column>
-      <el-table-column props="startTime"
+                       width="200"></el-table-column>
+      <el-table-column prop="startTime"
                        label="开始时间"
-                       width="150"></el-table-column>
-      <el-table-column props="endTime"
+                       width="150"
+                       align="center"></el-table-column>
+      <el-table-column prop="endTime"
                        label="结束时间"
-                       width="150"></el-table-column>
+                       width="150"
+                       align="center"></el-table-column>
       <el-table-column label="备份类型"
                        prop="backupType"
-                       min-width="80px"
+                       min-width="60px"
                        align="center">
         <template slot-scope="scope">
           <span>{{scope.row.backupType | backupTypeFilter }}</span>
@@ -26,7 +28,7 @@
       </el-table-column>
       <el-table-column label="状态"
                        prop="state"
-                       min-width="70px"
+                       min-width="50px"
                        align="center">
         <template slot-scope="scope">
           <i v-if="scope.row.state === 0"

@@ -1,14 +1,15 @@
 <template>
   <section>
     <el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-button type="text" :icon="buttonIcon" @click="showFilter = !showFilter">过滤</el-button>
-        </el-col>
-        <el-col :span="12">
-          <el-button type="text" style="float: right" @click="cancelPlanFilter">显示所有</el-button>
-        </el-col>
-      </el-row>
+      <div>
+        <el-button type="text" :icon="buttonIcon" @click="showFilter = !showFilter">过滤</el-button>
+        <div style="float: right">
+          <el-tooltip effect="dark" content="刷新" placement="top">
+            <i class="el-icon-refresh stateRefresh" @click="$emit('resultinfo:refresh')"></i>
+          </el-tooltip>
+          <el-button type="text" @click="cancelPlanFilter">显示所有</el-button>
+        </div>
+      </div>
       <el-row v-show="showFilter">
         <el-form ref="filterForm" :model="filterForm" label-width="150px" size="small">
           <el-form-item label="备份文件名：" prop="fileName"
@@ -88,7 +89,7 @@
                           label="状态">
               <span>
                 <el-tag size="mini"
-                        :type="scope.row.state === 1 ? 'danger' : 'success'">{{ stateConverter(scope.row.state) }}</el-tag>
+                        :type="stateTagStyle(scope.row.state)">{{ stateMapping[scope.row.state] }}</el-tag>
               </span>
             </el-form-item>
             <el-form-item class="detailFormItem"
@@ -98,7 +99,7 @@
             <el-form-item class="detailFormItem"
                           label="迁移状态">
               <span>
-                {{ migrationStateMapping[scope.row.migrationState] ? migrationStateMapping[scope.row.migrationState] : '本地存储' }}
+                {{ migrationStateMapping[scope.row.migrationState] ? migrationStateMapping[scope.row.migrationState] : 'NFS存储' }}
               </span>
             </el-form-item>
             <el-form-item class="detailFormItem"
@@ -153,19 +154,23 @@
           <span>
             <i-icon :name="migrationStateIcon(scope.row.migrationState)"
                     style="vertical-align: -0.3em"></i-icon>
-            {{ migrationStateMapping[scope.row.migrationState] ? migrationStateMapping[scope.row.migrationState] : '本地存储' }}
+            {{ migrationStateMapping[scope.row.migrationState] ? migrationStateMapping[scope.row.migrationState] : 'NFS存储' }}
           </span>
         </template>
       </el-table-column>
       <el-table-column label="状态"
                        prop="state"
-                       min-width="70px"
+                       min-width="90px"
                        align="center">
         <template slot-scope="scope">
           <i v-if="scope.row.state === 0"
              class="el-icon-success successColor"></i>
-          <i v-else
+          <i v-else-if="scope.row.state === 1"
              class="el-icon-error errorColor"></i>
+          <span v-else>
+            <i class="el-icon-loading waitingColor"></i>
+            合并中
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="操作"
@@ -174,7 +179,7 @@
         <template slot-scope="scope">
           <el-button type="text"
                      size="small"
-                     :disabled="scope.row.state === 1"
+                     :disabled="isAfterMergingResult(scope.row) || [1, 2].includes(scope.row.state)"
                      @click="restoreBtnClick(scope.row)">恢复</el-button>
           <el-button type="text"
                      size="small"
@@ -183,6 +188,7 @@
                      v-if="vmType === 1">上云</el-button>
           <el-button type="text"
                      size="small"
+                     :disabled="scope.row.state === 2"
                      @click="deleteSomeResult(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -208,7 +214,12 @@ export default {
   data() {
     return {
       machineType: 3,
-      migrationStateMapping
+      migrationStateMapping,
+      stateMapping: {
+        0: '成功',
+        1: '失败',
+        2: '合并中'
+      }
     }
   },
   filters: {
@@ -235,6 +246,12 @@ export default {
       set(value) {
         this.$emit('update-operation-id', value);
       }
+    },
+    afterMergingResults() { // 处于正在合并中备份集之后、全备备份集之前的备份集集合
+      const mergingResults = this.data.filter(result => result.state === 2);
+      return mergingResults.reduce((flat, next) => {
+        return flat.concat(this.chainResults(next))
+      }, []);
     }
   },
   methods: {
@@ -265,21 +282,38 @@ export default {
       });
     },
     deleteSomeResult(result) {
-      if (result.migrationState !== 2 || vmType !== 1 || result.state !== 0) {
+      if (result.migrationState === 0 || this.vmType !== 1) {
         this.deleteResult(result);
+      } else if (result.state === 1) {
+        this.$emit('multiply-delete-results', [result]);
       } else {
-        const filterResultsByPlanId = this.results
+        this.$emit('multiply-delete-results', this.chainResults(result));
+      }
+    },
+    chainResults(result) { // 与下个全备备份集之间的所有备份集
+      const filterResultsByPlanId = this.data
           .filter(v => v.operationId === result.operationId)
-          .sort((a, b) => dayjs(b.endTime) - dayjs(a.endTime));
+          .sort((a, b) => dayjs(a.endTime) - dayjs(b.endTime));
         const resultIndex = filterResultsByPlanId.findIndex(v => v.id === result.id);
         const fullBackupResultIndex = filterResultsByPlanId
           .slice(result.backupType === 1 ? resultIndex + 1 : resultIndex, filterResultsByPlanId.length)
           .findIndex(v => v.backupType === 1 && v.state === 0);
         if (fullBackupResultIndex === -1) {
-          this.$emit('multiply-delete-results', filterResultsByPlanId.slice(resultIndex, filterResultsByPlanId.length));
+          return filterResultsByPlanId.slice(resultIndex, filterResultsByPlanId.length);
         } else {
-          this.$emit('multiply-delete-results', filterResultsByPlanId.slice(resultIndex, fullBackupResultIndex));
+          return filterResultsByPlanId.slice(resultIndex, fullBackupResultIndex);
         }
+    },
+    isAfterMergingResult(result) {
+      return this.afterMergingResults.findIndex(v => v.id === result.id) > -1;
+    },
+    stateTagStyle(state) {
+      if (state === 0) {
+        return 'success';
+      } else if (state === 1) {
+        return 'danger';
+      } else {
+        return 'warning';
       }
     }
   }
@@ -295,6 +329,14 @@ export default {
   width: 30%;
   &:nth-child(2n) {
     width: 69%;
+  }
+}
+.stateRefresh {
+  cursor: pointer;
+  margin-right: 5px;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
   }
 }
 </style>

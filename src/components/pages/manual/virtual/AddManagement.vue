@@ -7,7 +7,7 @@
                 <div class="content">
                     <p>参见
                         <router-link 
-                        :to="{ name:'equipmentManage', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
+                        :to="{ name:'equipmentManageManual', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
                         </router-link>
                         选择使用类别为<span style="color: red;">虚拟机</span>，然后据实填写相关信息</p>
                 </div> 

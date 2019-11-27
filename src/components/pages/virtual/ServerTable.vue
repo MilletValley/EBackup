@@ -39,7 +39,7 @@
                             <el-col :span="6">所属设备：{{ host.hostName }}</el-col>
                             <el-col :span="6">主机IP：{{ host.serverIp }}</el-col>
                             <el-col :span="6">主机类型：{{ host.serverType | virtualHostServerTypeFilter }}</el-col>
-                            <el-col :span="6" v-if="vmType === 1">底层: {{ vmwareMasterControlHost.hostId && host.hostId === vmwareMasterControlHost.hostId ? 'vddk' : 'veeam' }}</el-col>
+                            <el-col :span="6" v-if="vmType === 1">底层: {{ isVddkServer(host.id) ? 'vddk' : 'veeam' }}</el-col>
                           </el-row>
                         </div>
                         <mutil-table :tableData="host.vmList"
@@ -51,7 +51,7 @@
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
-                                     :showBootBtn="host.hostId !== vmwareMasterControlHost.hostId"
+                                     :showBootBtn="!isVddkServer(host.id)"
                                      :vm-type="vmType"
                                      @refresh="refreshOneServer(host)"
                                      @refresh-and-set-power="refreshAndSetPower(host)"></mutil-table>
@@ -96,7 +96,7 @@
                            align="left"
                            v-if="vmType === 1">
             <template slot-scope="scope">
-              <span>{{ vmwareMasterControlHost.hostId && scope.row.hostId === vmwareMasterControlHost.hostId ? 'vddk' : 'veeam' }}</span>
+              <span>{{ isVddkServer(scope.row.id) ? 'vddk' : 'veeam' }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作"
@@ -132,7 +132,7 @@
                   <el-tooltip content="开机自启"
                               placement="top"
                               effect="light"
-                              v-if="[2, 4].includes(scope.row.serverType) && scope.row.hostId !== vmwareMasterControlHost.hostId">
+                              v-if="[2, 4].includes(scope.row.serverType) && !isVddkServer(scope.row.id)">
                       <el-button type="success"
                                  icon="el-icon-switch-button"
                                  circle
@@ -219,17 +219,19 @@ export default {
   computed: {
     vmwareMasterControlHost() {
       const vmwareMasterControlHosts = this.$store.getters.vmwareMasterControlHosts;
-      return this.serverTableData.find(
+      return this.serverTableData.filter(
         serverHost => vmwareMasterControlHosts.some(host => host.id === serverHost.hostId)
-      ) || {};
+      );
     },
     vmwareMasterControlServers() {
       let ids = [];
-      if (this.vmwareMasterControlHost.serverType === 1) {
-        ids = [this.vmwareMasterControlHost.id, ...this.vmwareMasterControlHost.serverListIds];
-      } if (this.vmwareMasterControlHost.serverType === 2) {
-        ids = [this.vmwareMasterControlHost.id];
-      }
+      this.vmwareMasterControlHost.forEach(serverHost => {
+        if (this.vmwareMasterControlHost.serverType === 1) {
+          ids = ids.concat([serverHost.id, ...serverHost.serverListIds]);
+        } if (serverHost.serverType === 2) {
+          ids = ids.concat([serverHost.id]);
+        }
+      })
       return ids;
     },
     customSize() {
@@ -270,6 +272,9 @@ export default {
     serverTypeFormat(row, column, cellValue, index) {
       return virtualHostServerTypeMapping[cellValue];
     },
+    isVddkServer(id) {
+      return this.vmwareMasterControlServers.includes(id);
+    },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
       getVirtualByServerId(row.id).then(res => {
@@ -281,7 +286,7 @@ export default {
           return true;
         });
         const { data } = res.data;
-        row.vmList = data;
+        row.vmList = Array.isArray(data) ? data : [];
       }).catch(error => {
         this.$message.error(error);
       });
@@ -296,7 +301,7 @@ export default {
           return true;
         });
         const { data } = res.data;
-        row.vmList = data;
+        row.vmList = Array.isArray(data) ? data : [];
         this.settingBootVirtuals = row;
         this.setPowerBootModalVisible = true;
       }).catch(error => {

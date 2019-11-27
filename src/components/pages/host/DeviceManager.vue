@@ -288,8 +288,7 @@ export default {
       }))
     },
     databaseTypeFilters() {
-      return Object.keys(databaseTypeMapping).filter(type => Number(type) !== 15)
-        .map(db => ({
+      return Object.keys(databaseTypeMapping).map(db => ({
           text: databaseTypeMapping[Number(db)],
           value: Number(db)
         }))

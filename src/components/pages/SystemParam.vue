@@ -352,11 +352,11 @@ export default {
     },
     useTypeSelect() {
       return Object.keys(useTypeMapping).map(type => {
-        return {
-          label: useTypeMapping[type],
-          value: Number(type)
-        }
-      })
+          return {
+            label: useTypeMapping[type],
+            value: Number(type)
+          }
+        })
     },
   },
   created() {

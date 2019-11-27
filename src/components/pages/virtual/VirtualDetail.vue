@@ -116,7 +116,8 @@
                             @delete-result="deleteOneResult"
                             @multiply-delete-results="multiplyDeleteResults"
                             @update-operation-id="updateOperationId"
-                            @result-migration="resultMigration"></backup-result-list>
+                            @result-migration="resultMigration"
+                            @resultinfo:refresh="updateResults"></backup-result-list>
       </template>
       <template slot="restoreRecord">
         <restore-records :restore-plan="restorePlans"
@@ -182,6 +183,7 @@ import { virtualHostServerTypeMapping, virtualMapping, vmTypeMapping } from '@/u
 import ACloudRestorePlanModal from '@/components/pages/virtual/ACloudRestorePlanModal';
 import ACloudSingleRestorePlanModal from '@/components/pages/virtual/ACloudSingleRestorePlanModal';
 import { createACloudRestorePlan, modifyACloudRestorePlan, createACloudSingleRestorePlan } from '@/api/virtuals';
+import { fetchBackupResults } from '@/api/backup';
 
 import {
   updateVirtualBackupPlan,
@@ -295,8 +297,16 @@ export default {
         })
     },
     showBackupResult(id) {
-      this.tab = 'results';
-      this.operationId = id;
+      fetchBackupResults(this.type, this.id)
+        .then(res => {
+          const { data: result } = res.data;
+          this.results = Array.isArray(result) ? result : [];
+          this.tab = 'results';
+          this.operationId = id;
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
     },
     updateOperationId(id) {
       this.operationId = id;
@@ -423,7 +433,7 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
-    }
+    },
   },
 };
 </script>

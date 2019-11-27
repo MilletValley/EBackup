@@ -364,9 +364,6 @@ export default {
       if(oldVal === 1) {
         this.formData.oracleVersion = '';
       }
-      if(newVal === 15) {
-        this.$message.warning('设备IP必须填写本机IP地址');
-      }
       this.formData.osName = '';
     },
     'formData.oracleVersion': function(newVal, oldVal) {

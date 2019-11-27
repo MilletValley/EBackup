@@ -8,7 +8,7 @@
                 <h4>前提条件</h4>
                 <p> <li>首先在“系统管理_设备管理”里面，添加<span style="color: red;">数据库生产/易备服务器</span>，详见
                     <router-link 
-                    :to="{ name:'equipmentManage', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
+                    :to="{ name:'equipmentManageManual', query: { aId:'equipmentManage'} }"><span>**系统管理_设备管理**</span>
                     </router-link>
                 </li></p>
                 <p><li>再点击“数据库”，选择数据库类型</li></p>

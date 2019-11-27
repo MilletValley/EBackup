@@ -12,7 +12,7 @@
             </el-button>
             <el-button type="info"
                        size="small"
-                       v-if="[1, 3].includes(vmType)"
+                       v-if="(!isSelectedVMwareMasterControlServers && vmType === 1) || vmType === 3"
                        @click="createTakeOverLink">接管初始化</el-button>
           </template>
         </el-col>
@@ -139,7 +139,6 @@
       </backup-plan-modal>
       <create-link-modal :btn-loading="btnLoading"
                           :selected-virtuals="currentSelectDb"
-                          :vmware-master-control-servers="vmwareMasterControlServers"
                           :vm-type="vmType"
                           :server-data="serverData"
                           @confirm="createLink"
@@ -251,19 +250,24 @@ export default {
     },
     vmwareMasterControlHost() {
       const vmwareMasterControlHosts = this.$store.getters.vmwareMasterControlHosts;
-      return this.serverData.find(
+      return this.serverData.filter(
         serverHost => vmwareMasterControlHosts.some(host => host.id === serverHost.hostId)
-      ) || {};
+      );
     },
     vmwareMasterControlServers() {
       let ids = [];
-      if (this.vmwareMasterControlHost.serverType === 1) {
-        ids = [this.vmwareMasterControlHost.id, ...this.vmwareMasterControlHost.serverListIds];
-      } if (this.vmwareMasterControlHost.serverType === 2) {
-        ids = [this.vmwareMasterControlHost.id];
-      }
+      this.vmwareMasterControlHost.forEach(serverHost => {
+        if (this.vmwareMasterControlHost.serverType === 1) {
+          ids = ids.concat([serverHost.id, ...serverHost.serverListIds]);
+        } if (serverHost.serverType === 2) {
+          ids = ids.concat([serverHost.id]);
+        }
+      })
       return ids;
     },
+    isSelectedVMwareMasterControlServers() {
+      return this.currentSelectDb.some(virtual => this.vmwareMasterControlServers.includes(virtual.serverId));
+    }
   },
   created() {
     this.fetchData();
