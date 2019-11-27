@@ -174,7 +174,7 @@ import { detailPageMixin } from '@/components/mixins/dbDetailsPageMixin';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import RestorePlanModal from '@/components/pages/virtual/RestorePlanModal';
 import SingleRestoreModal from '@/components/pages/virtual/SingleRestoreModal';
-import multiplyDeleteResultsModal from '@/components/pages/virtual/multiplyDeleteResultsModal';
+import MultiplyDeleteResultsModal from '@/components/pages/virtual/MultiplyDeleteResultsModal';
 import BackupCard from '@/components/pages/virtual/BackupCard';
 import BackupResultList from '@/components/pages/virtual/BackupResultList';
 import RestoreCard from '@/components/pages/virtual/RestoreCard';
@@ -208,7 +208,7 @@ export default {
     RestoreRecords,
     ACloudRestorePlanModal,
     ACloudSingleRestorePlanModal,
-    multiplyDeleteResultsModal
+    MultiplyDeleteResultsModal
   },
   data() {
     return {
