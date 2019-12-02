@@ -19,6 +19,7 @@ import systemRouter from './system';
 import applicationServiceRouter from './applicationservice';
 import deployRouter from './deploy';
 import inspection from './inspection';
+import guideRouter from './guide';
 // import overviewRouter from './overview';
 
 Vue.use(Router);
@@ -67,6 +68,7 @@ export const basicRouters = [
   },
   ...homeRouter,
   ...manualRouter,
+  ...guideRouter
 ];
 
 export default new Router({

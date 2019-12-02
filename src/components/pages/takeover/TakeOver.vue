@@ -682,7 +682,7 @@ const switchIpMethod = {
 }
 
 const cutBackMethod = {
-  oralce: cutBackSwitchOracle,
+  oracle: cutBackSwitchOracle,
   sqlserver: cutBackSwitchSqlserver
 }
 

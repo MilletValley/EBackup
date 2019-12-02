@@ -25,6 +25,14 @@ body {
   @include text-color;
   height: 100vh;
 }
+.el-header {
+  @include content-background-color;
+  @include themeify {
+    border-bottom: 1px solid themed('main-background-color');
+  }
+  line-height: 60px;
+  position: relative;
+}
 [v-cloak] {
   display: none;
 }

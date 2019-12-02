@@ -136,7 +136,7 @@
           },
           computed:{
             userRole() {
-                const roles = JSON.parse(localStorage.getItem('manualUserInfo')).roles;
+                const roles = JSON.parse(localStorage.getItem('userInfo')).roles;
                 if(roles && roles.length){
                     return roles.map(role => role.id);
                 }

@@ -1,4 +1,4 @@
-import Guide from '@/components/Guide';
+import Manual from '@/components/pages/manual/Manual';
 import DataBaseTakeOver from '@/components/pages/manual/DataBaseTakeOver';
 import FileSystemDeletion from '@/components/pages/manual/filesystem/FileSystemDeletion';
 import AddDataBase from '@/components/pages/manual/databaseprotection/AddDataBase';
@@ -10,16 +10,15 @@ import DeploymentManage from '@/components/pages/manual/autodeployment/Deploymen
 
 const router = [
   {
-    path: '/guide',
-    name: 'guide',
-    component: Guide,
+    path: '/manual',
+    name: 'manual',
+    component: Manual,
     children: [
       {
         path: '/takeover',
         name: 'takeoverManual',
         component: DataBaseTakeOver,
         meta: {
-          // roles: ['oracle dba', 'sql server dba', 'mysql dba', 'insql dba', 'vm admin', 'application admin'],
           roles: [],
           name: '一键接管',
           icon: 'el-icon-sort',
@@ -52,7 +51,6 @@ const router = [
         name: 'fileSystemManual',
         component: FileSystemDeletion,
         meta: {
-          // roles: ['file admin'],
           roles: [],
           name: '文件系统数据保护',
           icon: 'el-icon-document',
@@ -127,7 +125,6 @@ const router = [
         name: 'addManagementManual',
         component: AddManagement,
         meta: {
-          // roles: ['vm admin'],
           roles: [],
           name: '虚拟机数据保护',
           icon: 'el-icon-collection',
@@ -170,7 +167,6 @@ const router = [
         name: 'applicationManual',
         component: AddApplication,
         meta: {
-          // roles: ['application admin'],
           roles: [],
           name: '应用服务器保护',
           icon: 'el-icon-suitcase',

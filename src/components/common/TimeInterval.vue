@@ -2,6 +2,7 @@
     <el-form size="small"
              label-position="right"
              label-width="100px"
+             :disabled="disable"
              :model="formData"
              :rules="rules"
              ref="timeIntervalForm">
@@ -98,6 +99,10 @@ export default {
       type: Object,
       required: true,
     },
+    disable: {
+      type: Boolean,
+      default: () => false
+    }
   },
   data() {
     const singleTimeValidate = (rule, value, callback) => {
