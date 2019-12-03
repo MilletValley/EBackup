@@ -122,18 +122,16 @@
           </div>
         </div>
       </transition>
-      <transition name="el-zoom-in-center">
-        <div v-show="nextStep === 'confirm'"
-            class="balloons"
-            style="top: 5px; right: -15px; transform: translateX(100%)">
-          <div class="left-arrow-bubble">
-            操作已完成
-            <p class="bubble-btn">
-              <span type="text" @click="cancelStep">我知道了</span>
-            </p>
-          </div>
+      <div v-show="nextStep === 'confirm'"
+          class="balloons"
+          style="top: 5px; right: -15px; transform: translateX(100%)">
+        <div class="left-arrow-bubble">
+          操作已完成
+          <p class="bubble-btn">
+            <span type="text" @click="cancelStep">我知道了</span>
+          </p>
         </div>
-      </transition>
+      </div>
       <transition name="el-zoom-in-center">
         <div v-show="nextStep === 'selectToSingleRestorePlan'"
             class="balloons"
