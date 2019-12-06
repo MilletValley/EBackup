@@ -261,7 +261,7 @@ const dbDetailRouterMapping = {
   2: 'sqlserverDetail',
   5: 'mysqlDetail',
   6: 'db2Detail',
-  7: 'dmDetail',
+  7: 'damengDetail',
   9: 'sybaseDetail',
   10: 'cacheDetail',
   11: 'insqlDetail',

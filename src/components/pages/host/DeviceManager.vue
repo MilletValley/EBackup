@@ -41,7 +41,6 @@
               v-show="showType === 'list'">
       <el-table-column label="序号"
                        min-width="60"
-                       fixed
                        align="center">
         <template slot-scope="scope">
             {{scope.$index+1+(currentPage-1)*pageSize}}
@@ -111,8 +110,7 @@
       <el-table-column label="操作"
                        min-width="150"
                        header-align="center"
-                       align="center"
-                       fixed="right">
+                       align="center">
         <template slot-scope="scope">
           <el-row>
             <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
