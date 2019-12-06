@@ -226,7 +226,7 @@ export default {
     vmwareMasterControlServers() {
       let ids = [];
       this.vmwareMasterControlHost.forEach(serverHost => {
-        if (this.vmwareMasterControlHost.serverType === 1) {
+        if (serverHost.serverType === 1) {
           ids = ids.concat([serverHost.id, ...serverHost.serverListIds]);
         } if (serverHost.serverType === 2) {
           ids = ids.concat([serverHost.id]);
