@@ -10,6 +10,7 @@ import LisenceNotAvail from '@/components/pages/LisenceNotAvail';
 import MoreState from '@/components/pages/MoreState';
 
 import homeRouter from './home';
+import manualRouter from './manual';
 import takeoverRouter from './takeover';
 import fileHostRouter from './fileHost';
 import databaseRouter from './database';
@@ -17,10 +18,16 @@ import vmRouter from './virtuals';
 import systemRouter from './system';
 import applicationServiceRouter from './applicationservice';
 import deployRouter from './deploy';
+import inspection from './inspection';
+import guideRouter from './guide';
 // import overviewRouter from './overview';
 
 Vue.use(Router);
-
+// 跳转到相同路由的地址
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+};
 export const basicRouters = [
   {
     path: '/login',
@@ -55,10 +62,13 @@ export const basicRouters = [
         path: 'morestate',
         name: 'morestate',
         component: MoreState,
-      },
+      }
+
     ],
   },
   ...homeRouter,
+  ...manualRouter,
+  ...guideRouter
 ];
 
 export default new Router({
@@ -73,6 +83,7 @@ export const asyncRouters = [
   ...databaseRouter,
   ...vmRouter,
   ...applicationServiceRouter,
+  ...inspection,
   ...systemRouter,
   ...deployRouter,
   // ...overviewRouter,

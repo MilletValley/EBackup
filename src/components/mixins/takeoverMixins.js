@@ -107,7 +107,7 @@ const takeoverMixin = {
     singleSwitchOriginIp(hostLink) {
       if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
         // 第一次单切
-        if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
+        if (!hostLink.simpleSwitch || !this.hasSimpleSwitch(hostLink.simpleSwitch)) {
           return hostLink.viceHost.hostIp;
         }
         // 非第一次单切
@@ -127,7 +127,7 @@ const takeoverMixin = {
     singleSwitchTargetIp(hostLink) {
       if (this.osType(hostLink.viceHost) === 'Windows') { // Windows下
         // 第一次单切
-        if (!this.hasSimpleSwitch(hostLink.simpleSwitch)) {
+        if (!hostLink.simpleSwitch || !this.hasSimpleSwitch(hostLink.simpleSwitch)) {
           return hostLink.primaryHost.hostIp;
         }
         // 非第一次单切

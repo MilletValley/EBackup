@@ -248,7 +248,9 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini"
+                        v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -399,7 +401,7 @@
         <el-tab-pane label="应用服务器接管"
                      name="appTakeOver"
                      v-if="showTakeOver">
-          <el-table :data="appTakeOver"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     ref="appTakeOver"
                     style="width: 100%">
@@ -439,7 +441,9 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini"
+                        v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -597,7 +601,7 @@
         <el-tab-pane label="虚拟机接管"
                      name="vmTakeOver"
                      v-if="showTakeOver">
-          <el-table :data="vmTakeOver"
+          <el-table :data="processedTableData|NotNullfilter"
                     v-loading="infoLoading"
                     ref="vmTakeOver"
                     style="width: 100%">
@@ -676,22 +680,22 @@
 </template>
 <script>
 import { backupStrategyMapping } from '../../utils/constant';
-import DashboardTab from '../mixins/DashboardTabMixins';
+import dashboardTabMixin from '@/components/mixins/dashboardTabMixins';
 import baseMixin from '../mixins/baseMixins';
 import { paginationMixin, filterMixin } from '../mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
+const activeTab = {
+  'backupSuccess': 'databaseBackup',
+  'backupFail': 'databaseBackup',
+  'restoreSuccess': 'databaseRestore',
+  'restoreFail': 'databaseRestore',
+  'takeoverSuccess': 'databaseTakeOver',
+  'takeoverFail': 'databaseTakeOver'
+}
 export default {
   name: 'MoreState',
-  mixins: [baseMixin, DashboardTab, paginationMixin, filterMixin, themeMixin],
+  mixins: [baseMixin, dashboardTabMixin, paginationMixin, filterMixin, themeMixin],
   data() {
-    const activeTab = {
-      'backupSuccess': 'databaseBackup',
-      'backupFail': 'databaseBackup',
-      'restoreSuccess': 'databaseRestore',
-      'restoreFail': 'databaseRestore',
-      'takeoverSuccess': 'databaseTakeOver',
-      'takeoverFail': 'databaseTakeOver'
-    }
     return {
       checkType: '',
       activeTab,

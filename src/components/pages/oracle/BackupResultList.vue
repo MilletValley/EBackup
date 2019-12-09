@@ -98,6 +98,13 @@
                        min-width="180px"
                        align="left"
                        header-align="center"></el-table-column>
+      <el-table-column  label="备份文件类型"
+                        min-width="150px"
+                        align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.backupType | backupTypeMappingFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="开始时间"
                        prop="startTime"
                        min-width="150px"
@@ -140,6 +147,7 @@
 <script>
 import baseMixin from '@/components/mixins/baseMixins';
 import backupResultMixin from '@/components/mixins/backupResultMixin';
+import { backupTypeMapping } from '@/utils/constant';
 
 export default {
   name: 'BackupResultList',
@@ -147,6 +155,11 @@ export default {
   data() {
     return {
       machineType: 1
+    }
+  },
+  filters: {
+    backupTypeMappingFilter(type) {
+      return backupTypeMapping[type];
     }
   }
 };

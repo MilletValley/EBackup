@@ -3,20 +3,25 @@
     <el-table :data="records"
               :default-sort="{prop: 'switchTime', order: 'descending'}">
       <el-table-column label="操作时间"
-                       width="220"
+                       min-width="150"
                        align="center"
                        prop="switchTime"></el-table-column>
-      <!-- <el-table-column label="类型"
-                       width="150"
+      <el-table-column label="持续时间"
+                       min-width="150"
                        align="center"
-                       prop="type"
-                       :formatter="switchTypeFormatter"></el-table-column> -->
+                       prop="consume">
+        <template slot-scope="scope">
+          <span v-if="!scope.row.consume">-</span>
+          <timer v-else-if="scope.row.state === 1" :val="scope.row.consume"></timer>
+          <span v-else>{{ scope.row.consume | durationFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="切换内容"
                        min-width="200"
                        header-align="center"
                        prop="content"></el-table-column>
       <el-table-column label="切换形式"
-                       width="120"
+                       min-width="120"
                        align="center"
                        :formatter="switchManualFormatter"
                        prop="manual"></el-table-column>
@@ -33,9 +38,14 @@
 </template>
 <script>
 import takeoverMixin from '@/components/mixins/takeoverMixins';
+import baseMixin from '@/components/mixins/baseMixins';
+import Timer from '@/components/Timer';
 export default {
   name: 'LinkDetailTable',
-  mixins: [takeoverMixin],
+  mixins: [takeoverMixin, baseMixin],
+  components: {
+    Timer
+  },
   props: {
     records: {
       type: Array,

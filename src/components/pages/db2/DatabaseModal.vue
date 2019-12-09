@@ -124,8 +124,8 @@ export default {
       instanceName: validate.dbName,
       loginName: validate.dbLoginName,
       password: validate.dbPassword,
-      dbVersion: validate.maxLength100,
-      application: validate.maxLength100
+      dbVersion: validate.dbVersion,
+      application: validate.application
     };
     return {
       type: 'db2',

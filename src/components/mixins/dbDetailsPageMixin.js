@@ -1,5 +1,5 @@
 import throttle from 'lodash/throttle';
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { applyFilterMethods } from '@/utils/common';
 import IIcon from '@/components/IIcon';
 import TabPanels from '@/components/common/TabPanels';
@@ -31,6 +31,7 @@ import {
 import {
   fetchOne
 } from '@/api/database';
+import VerificationResult from '@/components/modal/VerificationResult';
 
 const detailPageMixin = {
   props: ['id'],
@@ -50,7 +51,7 @@ const detailPageMixin = {
       results: [], // 备份集
       backupPlanModalVisible: false,
       restorePlanModalVisible: false,
-
+      verifyResultModalVisible: false,
       selectedBackupPlan: {},
       selectedBackupResultId: -1,
       selectedRestorePlan: {},
@@ -99,17 +100,11 @@ const detailPageMixin = {
         fetchRestoreOperation(this.type, id)
           .then(response => {
             const { data } = response.data;
-            // const { state, startTime, consume } = data;
             Object.assign(
               this.restorePlans.find(
                 plan => plan.id === id
               ),
               data
-              // {
-              //   state,
-              //   startTime,
-              //   consume,
-              // }
             );
           })
           .catch(error => {
@@ -120,6 +115,9 @@ const detailPageMixin = {
   },
   created() {
     this.fetchData();
+    if (this.fetchLinks) {
+      this.fetchLinks();
+    }
   },
   mounted() {
     this.setTimer(this.timer);
@@ -144,7 +142,7 @@ const detailPageMixin = {
       return applyFilterMethods(this.backupPlans, filterMethods);
     },
     filteredRestorePlans() {
-      if (this.planFilterForm.planType !== 'restore') {
+      if (!['restore', 'tblRestore', 'logRestore'].includes(this.planFilterForm.planType)) {
         return [];
       }
       const filterMethods = [];
@@ -152,9 +150,12 @@ const detailPageMixin = {
         filterMethods.push(plan => plan.state !== 2);
       }
       return applyFilterMethods(this.restorePlans, filterMethods);
-    },
+    }
   },
   methods: {
+    queryVerifyResult() {
+      this.verifyResultModalVisible = true;
+    },
     switchPane(name) {
       if (name === 'results') {
         this.updateResults();
@@ -175,6 +176,16 @@ const detailPageMixin = {
       } else if (command === 'restore') {
         this.restorePlanModalVisible = true;
         this.restoreAction = 'create';
+      } else if (command === 'tblRestore') {
+        this.tableLevelRestorePlanModalVisible = true;
+      } else if (command === 'logRestore') {
+        if (!this.details.CDBTime) {
+          this.$message.warning('请先进行CDP连续备份');
+        } else if (!this.firstFullBackupResultEndTime) {
+          this.$message.warning('不存在成功的全备备份集，无法进行日志恢复');
+        } else {
+          this.logRestorePlanModalVisible = true;
+        }
       }
     },
     // 单次恢复弹窗
@@ -214,7 +225,7 @@ const detailPageMixin = {
       clearInterval(this.timer);
     },
     sortPlans(plans) {
-      return plans.slice().sort((a, b) => a.config.startTime < b.config.startTime);
+      return plans.slice().sort((a, b) => dayjs(b.config.startTime) - dayjs(a.config.startTime));
     },
     getDatabaseDetails() {
       fetchOne(this.type, this.id)
@@ -223,7 +234,6 @@ const detailPageMixin = {
           this.details = db;
           if (this.details.role && this.details.role !== 0 && this.fetchLink) {
             this.fetchLink();
-            this.fetchLinks();
           }
           if ([1, 3].includes(this.vmType) && this.fetchServer) {
             this.fetchServer();
@@ -429,6 +439,7 @@ const detailPageMixin = {
   components: {
     IIcon,
     TabPanels,
+    VerificationResult
   },
   filters: {
     linkStateFilter(value) {

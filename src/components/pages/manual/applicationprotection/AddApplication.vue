@@ -1,0 +1,53 @@
+<template>
+    <div class="main">
+        <div id="addApplication" class="anchor">
+            <div class="top">
+                <h3>添加应用服务器</h3>
+            </div>
+            <div class="content">
+                <h4>步骤如下</h4>
+                <p><li>点击“应用服务器”，进入应用服务器列表页，点击“添加”按钮</li></p>
+                <p><li>据实填写弹出框内容</li></p>
+                <p>名称：自定义填写，<span style="color: red">不能包含空格</span></p>
+                <p>所属设备：先在“系统管理_设备管理”内添加数据库所属生产服务器，添加后可进行选择</p>
+            </div>  
+        </div>
+        <div id="applicationDeletion" class="anchor">
+            <div class="top">
+                <h3>编辑应用服务器</h3>
+            </div>
+            <div class="content">
+                <h4>修改</h4>
+                <p><li>点击列表右侧修改图标</li></p>
+                <p><li>对应用服务器的名称进行修改</li></p>
+                <h4>删除</h4>
+                <p><li>点击列表右侧删除图标</li></p>
+                <p><li>弹出确认删除弹框，点击确定，即可完成删除操作</li></p>
+            </div>
+        </div>
+        <div id="takeOverApplication" class="anchor">
+            <div class="top">
+                <h3>应用服务器一键接管</h3>
+            </div>
+            <div class="content">
+                <p>应用服务器一键接管，在主设备发生故障时，通过一键接管，将业务转移到备设备</p>
+                <h4>功能介绍</h4>
+                <p>具体参见
+                    <router-link 
+                    :to="{ name:'takeoverManual', query: { aId:'applicationTakeOver'} }"><span>**一键接管_应用服务器**</span>
+                    </router-link>
+                </p>
+            </div>  
+        </div>
+    </div>
+</template>
+<script>
+import { manualDetailMixin } from '@/components/mixins/manualMixins';
+export default {
+    mixins: [manualDetailMixin]
+}
+</script>
+<style lang="scss" scoped>
+@import '@/style/manual.scss';
+
+</style>

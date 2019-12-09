@@ -3,11 +3,18 @@
     <el-row>
       <el-form inline
                size="small">
+               <el-form-item style="float: right;">
+                  <el-button type="success"
+                             @click="toGuide('equipmentManageManual', 'configurationManage')"
+                             size="small">操作说明</el-button>
+              </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="createStrategy()">添加</el-button>
+                     @click="createStrategy()"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
+      
     </el-row>
     <el-table :data="strategys"
               style="width: 100%">
@@ -103,12 +110,14 @@ import {
   weekMapping
 } from '@/utils/constant';
 import OperateModal from '@/components/pages/keepStrategy/OperateModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 const OperateOne = {
   create: createOne,
   update: modifyOne
 };
 export default {
   name: 'KeepStrategy',
+  mixins: [manualPageMixin],
   data() {
     return {
       strategys: [],

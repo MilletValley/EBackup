@@ -1,5 +1,7 @@
 /* eslint-disable */
+import themeMixin from '@/components/mixins/themeMixins';
 const Donut = {
+  mixins: [themeMixin],
   methods: {
     pieTop(d, rx, ry, ir ){
       if(d.endAngle - d.startAngle == 0 ) return "M 0 0";
@@ -26,21 +28,22 @@ const Donut = {
       return ret.join(" ");
     },
     getPercent(d){
-      return (d.endAngle-d.startAngle > 0.2 ? 
-             Math.round(1000*(d.endAngle-d.startAngle)/(Math.PI*2))/10+'%' : '');
+      // return (d.endAngle-d.startAngle > 0.2 ? d.data.label + '\r\n' +
+      //     Math.round(1000*(d.endAngle-d.startAngle)/(Math.PI*2))/10+'%' : '');
+      return (d.endAngle-d.startAngle > 0.2 ? d.data.label + '\r\n' +
+        d.data.value : '');
     },
-    donut3D(id, type, data, x /*center x*/, y/*center y*/, 
+    donut3D(id, data, x /*center x*/, y/*center y*/, 
       rx/*radius x*/, ry/*radius y*/, h/*height*/, ir/*inner radius*/) {
         var _data = this.$d3.pie().sort(null).value(d => d.value)(data);
       
         var slices = this.$d3.select("#"+id).append("g").attr("transform", "translate(" + x + "," + y + ")")
                              .attr("class", "slices");
-        slices.append('foreignObject')
-              .style('z-index', 99)
-              .append('xhtml:div')
-              .attr('class', `${type}Tooltip`)
-              .attr('style', 'position: absolute; opacity: 0.0;')
-              
+        // slices.append('foreignObject')
+        //       .style('z-index', 99)
+        //       .append('xhtml:div')
+        //       .attr('class', `${type}Tooltip`)
+        //       .attr('style', 'position: absolute; opacity: 0.0;')
         slices.selectAll(".topSlice").data(_data).enter().append('g').append("path").attr("class", d => d.data.label)
               .style("fill", d => d.data.color)
               .style("stroke", d => d.data.color)
@@ -57,37 +60,37 @@ const Donut = {
               .attr("y",d => 0.6*ry*Math.sin(0.5*(d.startAngle+d.endAngle)))
               // .attr("text-anchor","middle")
               .style("font-weight", 700)
-              .style("fill", 'white')
+              .style("fill", this.themeColor.pieLableColor)
               .style('opacity', 0.8)
               .text(this.getPercent).each(d => { this._current=d; });
-        _data.forEach(d => {
-          this.$d3.selectAll(`.${d.data.label}`)
-              .on('click', () => {
+        // _data.forEach(d => {
+        //   this.$d3.selectAll(`.${d.data.label}`)
+        //       .on('click', () => {
                 
-              })
-              .on('mousemove', () => {
-                this.$d3.selectAll(`.${d.data.label}`)
-                        .style("opacity",0.8)
-                this.$d3.selectAll(`.${type}Tooltip`)
-                        .style('left', (this.$d3.event.offsetX-130)+'px')
-                        .style('top', (this.$d3.event.offsetY-130)+'px')
-                        .style('opacity', 0.8)
-                        .style('color', this.$d3.hsl(d.data.color).darker(1.2))
-                        .style('font-size', '14px')
-                        .style('border', `1px solid ${d.data.color}`)
-                        .style('border-radius', '5px')
-                        .style('background-color', '#fff')
-                        .html(d.data.details.map(d => `${d}\n`).join('').split(',').join(''))
-                        .style('padding', '8px')
-                        .style('line-height', '30px');
-              })
-              .on('mouseout', () => {
-                this.$d3.selectAll(`.${d.data.label}`)
-                        .style("opacity",1.0)
-                this.$d3.selectAll(`.${type}Tooltip`)
-                        .style('opacity', 0.0);
-              })
-        })
+        //       })
+        //       .on('mousemove', () => {
+        //         this.$d3.selectAll(`.${d.data.label}`)
+        //                 .style("opacity",0.8)
+        //         this.$d3.selectAll(`.${type}Tooltip`)
+        //                 .style('left', (this.$d3.event.offsetX-130)+'px')
+        //                 .style('top', (this.$d3.event.offsetY-130)+'px')
+        //                 .style('opacity', 0.8)
+        //                 .style('color', this.$d3.hsl(d.data.color).darker(1.2))
+        //                 .style('font-size', '14px')
+        //                 .style('border', `1px solid ${d.data.color}`)
+        //                 .style('border-radius', '5px')
+        //                 .style('background-color', '#fff')
+        //                 .html(d.data.details.map(d => `${d}\n`).join('').split(',').join(''))
+        //                 .style('padding', '8px')
+        //                 .style('line-height', '30px');
+        //       })
+        //       .on('mouseout', () => {
+        //         this.$d3.selectAll(`.${d.data.label}`)
+        //                 .style("opacity",1.0)
+        //         this.$d3.selectAll(`.${type}Tooltip`)
+        //                 .style('opacity', 0.0);
+        //       })
+        // })
     }
   },
 }

@@ -12,10 +12,9 @@ import '@/assets/theme/deepBlue/index.css';
 import '@/assets/theme/yellow/index.css';
 import '@/assets/theme/variable.scss';
 import toggleClass from '@/utils/index';
-import ElementUI, { Message } from '../lib/element-ui.common';
-import '../lib/theme-chalk/index.css';
-import '../lib/theme-chalk/display.css';
-// import '../theme/index.css';
+import ElementUI, { Message } from 'ebackup-element';
+import 'ebackup-element/lib/theme-chalk/index.css';
+import 'ebackup-element/lib/theme-chalk/display.css';
 import types from './store/type';
 import './utils/icon-svg';
 import App from './App';
@@ -36,7 +35,9 @@ Vue.prototype.$d3 = d3;
 dayjs.locale('zh-cn');
 
 router.beforeEach((to, from, next) => {
-  if (store.state.base.token) {
+  if (to.matched.some(match => match && match.name === 'guide')) {
+    next();
+  } else if (store.state.base.token) {
     if (to.path === '/login') {
       next('/');
     } else {

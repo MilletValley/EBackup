@@ -69,6 +69,11 @@
               <span>临时端口：</span>
               <span>{{linkState.tempPort}}</span>
             </p>
+            <div v-if="linkState.initTime">
+              <span>初始化持续时间：</span>
+              <timer v-if="linkState.state === 1" :val="linkState.initTime"></timer>
+              <span v-else>{{ linkState.initTime | durationFilter }}</span>
+            </div>
             <div>
               <div :class="$style.linkMsg">
                 {{linkState.errMsg}}
@@ -129,8 +134,7 @@
       <el-tab-pane v-for="(msg, index) in tabMsgs"
                    :key="index"
                    :name="msg.name"
-                   :label="msg.label"
-                   v-if="!(['sqlserver', 'insql'].includes(databaseType) && [4, 5, 6, 7].includes(Number(msg.name)))">
+                   :label="msg.label">
         <link-detail-table :records="switches|formatType(activeName)"></link-detail-table>
       </el-tab-pane>
     </el-tabs>
@@ -144,31 +148,24 @@ import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabase
 import LinkDetailTable from '@/components/pages/takeover/LinkDetailTable';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import baseMixin from '@/components/mixins/baseMixins';
 import IIcon from '@/components/IIcon';
+import Timer from '@/components/Timer';
 import { switchTypeMapping } from '@/utils/constant';
+// import {
+//   createSwitches,
+// } from '@/api/oracle';
 import {
-  fetchLinkByLinkId as fetchLinkByLinkIdOracle,
-  fetchSwitches as fetchSwitchesOracle,
-  createSwitches,
-} from '@/api/oracle';
-import {
-  fetchLinkByLinkId as fetchLinkByLinkIdSqlserver,
-  fetchSwitches as fetchSwitchesSqlserver,
-} from '@/api/sqlserver';
-import {
-  fetchLinkByLinkId as fetchLinkByLinkIdInSql,
-  fetchSwitches as fetchSwitchesInSql,
-} from '@/api/insql';
-const fetchLinkByLinkIdMethod = {
-  oracle: fetchLinkByLinkIdOracle,
-  sqlserver: fetchLinkByLinkIdSqlserver,
-  insql: fetchLinkByLinkIdInSql,
-};
-const fetchSwitchesMethod = {
-  oracle: fetchSwitchesOracle,
-  sqlserver: fetchSwitchesSqlserver,
-  insql: fetchSwitchesInSql,
-};
+  fetchLinkByLinkId,
+  fetchSwitches,
+  createSwitches
+} from '@/api/common';
+const switchType = {
+  oracle: [1, 2, 3, 4, 5, 6, 7],
+  insql: [1, 2, 3],
+  sqlserver: [1, 2, 3, 5],
+  mysql: [1, 2, 3, 4, 5, 6, 7]
+}
 export default {
   name: 'DatabaseLinkDetail',
   props: {
@@ -176,7 +173,7 @@ export default {
       type: String,
     },
   },
-  mixins: [takeoverMixin, themeMixin],
+  mixins: [takeoverMixin, themeMixin, baseMixin],
   data() {
     return {
       linkState: {},
@@ -221,15 +218,15 @@ export default {
       };
     },
     tabMsgs() {
-      return Object.keys(switchTypeMapping).map(type => ({
-        label: Number(type) === 1 && ['sqlserver', 'insql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
-        name: type
+      return switchType[this.databaseType].map(type => ({
+        label: type === 1 && ['sqlserver', 'insql', 'mysql'].includes(this.databaseType) ? '切换数据库' : switchTypeMapping[type],
+        name: String(type)
       }));
     }
   },
   methods: {
     fetchData() {
-      fetchLinkByLinkIdMethod[this.databaseType](this.id)
+      fetchLinkByLinkId(this.databaseType, this.id)
         .then(res => {
           const {
             primaryDatabase,
@@ -245,10 +242,10 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
-      fetchSwitchesMethod[this.databaseType](this.id)
+      fetchSwitches(this.databaseType, this.id)
         .then(res => {
           const { data: switches } = res.data;
-          this.switches = switches;
+          this.switches = Array.isArray(switches) ? switches : [];
         })
         .catch(error => {
           this.$message.error(error);
@@ -258,7 +255,7 @@ export default {
       this.switchModalVisible = true;
     },
     switchModalConfirm() {
-      createSwitches({
+      createSwitches(this.databaseType, {
         linkIds: [this.id],
       })
         .then(res => {

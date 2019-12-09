@@ -19,9 +19,15 @@
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input> 
         </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="success"
+                     @click="toGuide('databaseManual', 'addDatabase')"
+                     size="small">操作说明</el-button>
+        </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
-                     @click="addFn">添加</el-button>
+                     @click="addFn"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -159,10 +165,11 @@
 import DatabaseModal from '@/components/pages/cache/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 export default {
   name: 'CacheList',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'cache',
@@ -187,7 +194,7 @@ export default {
     },
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
-    }
+    },
   },
   components: {
     DatabaseModal

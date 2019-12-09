@@ -82,6 +82,16 @@
                        width="220"
                        align="center"
                        prop="switchTime"></el-table-column>
+      <el-table-column label="持续时间"
+                       width="220"
+                       align="center"
+                       prop="consume">
+        <template slot-scope="scope">
+          <span v-if="!scope.row.consume">-</span>
+          <timer v-else-if="scope.row.state === 1" :val="scope.row.consume"></timer>
+          <span v-else>{{ scope.row.consume | durationFilter }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="类型"
                        width="150"
                        align="center"
@@ -111,7 +121,9 @@
 import { fetchLinkByLinkId, fetchSwitches } from '@/api/application';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import baseMixin from '@/components/mixins/baseMixins';
 import IIcon from '@/components/IIcon';
+import Timer from '@/components/Timer';
 export default {
   name: 'ApplicationLinkDetail',
   props: {
@@ -119,9 +131,10 @@ export default {
       type: String,
     },
   },
-  mixins: [takeoverMixin, themeMixin],
+  mixins: [takeoverMixin, themeMixin, baseMixin],
   components: {
-    IIcon
+    IIcon,
+    Timer
   },
   data() {
     return {

@@ -19,14 +19,19 @@
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                       @click="toGuide('databaseManual', 'addDataBase')"
+                       size="small">操作说明</el-button>
+          </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
                      @click="addFn"
-                     style="float: right">添加</el-button>
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
-    <el-row style="margin-top: 20px">
+    <el-row>
       <el-table :data="processedTableData"
                 v-show="showType === 'list'">
         <el-table-column label="序号"
@@ -46,7 +51,7 @@
                           class="routerLink">{{scope.row.name}}</router-link>
           </template>
         </el-table-column>
-        <el-table-column prop="dbName"
+        <el-table-column prop="instanceName"
                          label="数据库名"
                          min-width="150"
                          align="center"></el-table-column>
@@ -79,18 +84,32 @@
                          header-align="center"
                          align="center">
           <template slot-scope="scope">
-            <el-button type="primary"
-                      icon="el-icon-edit"
-                      circle
-                      size="mini"
-                      :class="$style.miniCricleIconBtn"
-                      @click="modifyDb(scope.row)"></el-button>
-            <el-button type="danger"
-                      icon="el-icon-delete"
-                      circle
-                      size="mini"
-                      :class="$style.miniCricleIconBtn"
-                      @click="deleteDb(scope.row)"></el-button>
+              <el-tooltip placement="top" effect="light">
+                  <div slot="content">
+                      修改
+                      <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')" >
+                        <li class="el-icon-question"></li></el-button>
+                  </div>
+                  <el-button type="primary"
+                  icon="el-icon-edit"
+                  circle
+                  size="mini"
+                  :class="$style.miniCricleIconBtn"
+                  @click="modifyDb(scope.row)"></el-button>
+              </el-tooltip>
+              <el-tooltip placement="top" effect="light">
+                  <div slot="content">
+                      删除数据库
+                      <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')">
+                        <li class="el-icon-question"></li></el-button>
+                  </div>
+                  <el-button type="danger"
+                  icon="el-icon-delete"
+                  circle
+                  size="mini"
+                  :class="$style.miniCricleIconBtn"
+                  @click="deleteDb(scope.row)"></el-button>
+              </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -128,7 +147,7 @@
                         inline>
                   <el-form-item label="数据库名"
                                 class="formItem">
-                    <span>{{ processedTableData[row * 3 + col].dbName }}</span>
+                    <span>{{ processedTableData[row * 3 + col].instanceName }}</span>
                   </el-form-item>
                   <el-form-item label="主机IP"
                                 class="formItem">
@@ -173,9 +192,10 @@
 import DatabaseModal from '@/components/pages/sybase/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'SybaseList',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data() {
     return {
       databaseType: 'sybase'
@@ -200,7 +220,7 @@ export default {
     },
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
-    }
+    },
   },
   components: {
     DatabaseModal

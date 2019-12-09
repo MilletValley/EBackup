@@ -45,6 +45,29 @@
           </el-card>
         </el-col>
       </el-row>
+      <el-card class="pie-card"
+               style="margin-bottom: 10px"
+               v-if="hasInspectConfig">
+        <div slot="header" class="clearfix">
+          <span class="card-title">智能巡检</span>
+        </div>
+        <div :class="$style.nfsNotUsed" v-if="!Object.keys(inspect).length && !Object.keys(record).length">
+          <span>暂未使用</span>
+        </div>
+        <el-row class="text item"
+                v-else>
+          <el-col :span="8"
+                  v-if="inspect.jobCountByMonth + inspect.jobCountByOne + inspect.jobCountByQuarter">
+            <inspection :inspect="inspect"
+                        id="inspect"></inspection>
+          </el-col>
+          <el-col :span="16"
+                  :offset="Number(`${inspect.jobCountByMonth + inspect.jobCountByOne + inspect.jobCountByQuarter ? 0 : 4}`)">
+            <inspection-records :record="record"
+                                id="inspectRecords"></inspection-records>
+          </el-col>
+        </el-row>
+      </el-card>
       <el-row :gutter="10">
         <el-col :span="12">
           <el-card class="box-card" style="width: 100%">
@@ -58,7 +81,7 @@
                     <cylinder :data="spaceChartData[0]"></cylinder>
                   </div>
                 </el-col>
-                <el-col :span="12" v-if="Object.keys(spaceDetail).length > 1">
+                <el-col :span="12" v-show="Object.keys(spaceDetail).length > 1">
                   <div  ref="space2">
                     <cylinder :data="spaceChartData[1]"></cylinder>
                   </div>
@@ -300,7 +323,9 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini"
+                        v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -468,7 +493,8 @@
                              align="center"
                              min-width="130">
               <template slot-scope="scope">
-                <el-tag size="mini">{{ scope.row.initFinishTime }}</el-tag>
+                <el-tag size="mini" v-if="scope.row.initFinishTime">{{ scope.row.initFinishTime }}</el-tag>
+                <span v-else>-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -687,29 +713,37 @@
 </template>
 <script>
 import { fetchSpaceUse } from '@/api/home';
+import { fetchInspectRecords } from '@/api/inspection';
 import { fmtSizeFn, keepTwoDecimalFull } from '@/utils/common';
 import { useTypeMapping } from '@/utils/constant';
 import baseMixin from '@/components/mixins/baseMixins';
 import themeMixin from '@/components/mixins/themeMixins';
-import DashboardTab from '@/components/mixins/DashboardTabMixins';
+import inspectionMixin from '@/components/mixins/inspectionMixins';
+import dashboardTabMixin from '@/components/mixins/dashboardTabMixins';
 // import echartsLiquidfill from 'echarts-liquidfill';
 // import 'echarts-gl';
 import Cylinder from '@/components/common/Cylinder';
 import DrawPie from '@/components/pages/home/DrawPie';
+import Inspection from '@/components/pages/home/Inspection';
+import InspectionRecords from '@/components/pages/home/InspectionRecords';
 import ThreeDimensionalPie from '@/components/pages/home/ThreeDimensionalPie';
 import ThreeDimensionalBar from '@/components/pages/home/ThreeDimensionalBar';
 export default {
   name: 'Dashboard',
-  mixins: [baseMixin, DashboardTab, themeMixin],
+  mixins: [baseMixin, dashboardTabMixin, themeMixin, inspectionMixin],
   components: {
     Cylinder,
     DrawPie,
+    Inspection,
+    InspectionRecords,
     ThreeDimensionalPie,
     ThreeDimensionalBar
   },
   data() {
     return {
       spaceDetail: {},
+      inspect: {},
+      record: {},
       infoLoading: true, // table动画加载
       spaceData: { // 用于存放空间使用情况的数据，存储二可能不存在
         name: [],
@@ -752,6 +786,11 @@ export default {
   watch: {
     theme() {
       this.drawSpaceChartData();
+    },
+    hasInspectConfig(val) {
+      if (val) {
+        this.fetchInspectData();
+      }
     }
   },
   methods: {
@@ -777,6 +816,17 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+      if (this.hasInspectConfig) {
+        this.fetchInspectData();
+      }
+    },
+    fetchInspectData() {
+      fetchInspectRecords(this.inspectUrl)
+        .then(res => {
+          const { data } = res.data;
+          this.inspect = data.inspect;
+          this.record = data.record;
+        })
     },
     calcPercent(diviver, dividend) {
       if(Number(dividend) === 0) {
@@ -794,14 +844,23 @@ export default {
       }
       return fmtSizeFn(Number(data)*1024*1024);
     },
+    spaceColor(percent) {
+      if (percent < 80) {
+        return '#32b769';
+      } else if (percent < 90) {
+        return '#ca8327';
+      } else if (percent >= 90) {
+        return '#ca3f27';
+      }
+    },
     drawSpaceChartData() {
       if(Object.keys(this.spaceDetail).length) {
         this.spaceChartData = [{
           id: 'canvas1',
           value: this.spaceData.percentData[0]/100 > 1 ? 1 : this.spaceData.percentData[0]/100,
-          width: this.$refs.space1.innerWidth || this.$refs.space1.clientWidth,
+          width: this.$refs.space1 ? (this.$refs.space1.innerWidth || this.$refs.space1.clientWidth) : 0,
           height: 200,
-          color: [this.themeColor.echartsSpaceColor,'#C3E9F5'],
+          color: [this.spaceColor(this.spaceData.percentData[0]), '#C3E9F5'],
           title: {
               show: true,
               text: '存储1',
@@ -814,7 +873,7 @@ export default {
               show: true,
               text: this.spaceData.explain[0],
               style: {
-                color: this.themeColor.echartsSpaceColor,
+                color: this.spaceColor(this.spaceData.percentData[0]),
                 fontSize: '12px',
               }
             }
@@ -823,9 +882,9 @@ export default {
           this.spaceChartData.push({
             id: 'canvas2',
             value: this.spaceData.percentData[1]/100 > 1 ? 1 : this.spaceData.percentData[1]/100,
-            width: this.$refs.space2.innerWidth || this.$refs.space2.clientWidth,
+            width: this.$refs.space2 ? (this.$refs.space2.innerWidth || this.$refs.space2.clientWidth) : 0,
             height: 200,
-            color: ['green', '#D1EBD0'],
+            color: [this.spaceColor(this.spaceData.percentData[1]), '#D1EBD0'],
             title: {
               show: true,
               text: '存储2',
@@ -838,7 +897,7 @@ export default {
               show: true,
               text: this.spaceData.explain[1],
               style: {
-                color: 'green',
+                color: this.spaceColor(this.spaceData.percentData[1]),
                 fontSize: '12px',
               }
             }

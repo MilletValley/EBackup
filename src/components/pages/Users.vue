@@ -2,11 +2,16 @@
   <div id="app">
     <el-row type="flex" class="row-bg" justify="end">
       <el-form inline>
+          <el-form-item style="float: right;">
+              <el-button type="success"
+                        @click="toGuide('equipmentManageManual', 'roleManage')"
+                        size="small">操作说明</el-button>
+          </el-form-item>
         <el-form-item style="float: right;">
-          <el-button type="danger" :disabled="delDisabled" @click="delAll()">删除</el-button>
+          <el-button type="danger" :disabled="delDisabled" @click="delAll()" size="small">删除</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
-          <el-button type="primary" @click="handleCreate()">添加</el-button>
+          <el-button type="primary" @click="handleCreate()" size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -229,6 +234,7 @@ import {
 
 import {  validateLength } from '../../utils/common';
 import themeMixin from '@/components/mixins/themeMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 const rolesUser = [
   // {
@@ -278,11 +284,19 @@ const rolesUser = [
   {
     id: 'insql dba',
     name: 'InSql管理员'
+  },
+  {
+    id: 'informix dba',
+    name: 'Informix管理员'
+  },
+  {
+    id: 'postgresql dba',
+    name: 'PostgreSQL管理员'
   }
 ];
 
 export default {
-  mixins: [themeMixin],
+  mixins: [themeMixin, manualPageMixin],
   created() {
     this.getUsers();
   },

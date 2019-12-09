@@ -1,13 +1,20 @@
 <template>
   <section>
     <el-form inline size="medium" style="overflow: hidden">
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toGuide('deploymentManageManual', 'repository')"
+                      size="small">操作说明</el-button>
+        </el-form-item>
       <el-form-item style="float: right">
         <el-button type="primary"
-                   @click="createVersion">添加</el-button>
+                   @click="createVersion"
+                   size="small">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right">
         <el-button type="info"
-                   @click="scanVersion">扫描</el-button>
+                   @click="scanVersion"
+                   size="small">扫描</el-button>
       </el-form-item>
     </el-form>
     <div style="position: relative"
@@ -162,12 +169,14 @@ import { validatePassword } from '@/api/user';
 import { yesOrNoMapping, useTypeMapping } from '@/utils/constant';
 import OperateVersionModal from '@/components/pages/deploy/OperateVersionModal';
 import UploadPackagesModal from '@/components/pages/deploy/UploadPackagesModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 const operateVerionMethod = {
   create: createVersion,
   update: updateVersion
 };
 export default {
   name: 'VersionList',
+  mixins: [manualPageMixin],
   components: {
     OperateVersionModal,
     UploadPackagesModal

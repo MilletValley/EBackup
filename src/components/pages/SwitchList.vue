@@ -9,6 +9,10 @@
             <el-radio-button label="sqlserver">SQLServer</el-radio-button>
           </el-radio-group>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toGuide('takeoverManual', 'disasterDrills')">操作说明</el-button>
+        </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
                      @click="batchSwitch">添加</el-button>
@@ -96,9 +100,10 @@ import batchSwitchMinxin from '../mixins/batchSwitchMixins'
 import { fetchLinks as fetchLinksSqlserver } from '../../api/sqlserver'
 import { fetchLinks as fetchLinksOracle } from '../../api/oracle'
 import Timer from '@/components/Timer';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'SwitchList',
-  mixins: [baseMixin, batchSwitchMinxin],
+  mixins: [baseMixin, batchSwitchMinxin, manualPageMixin],
   data() {
     return {
       planList: [],

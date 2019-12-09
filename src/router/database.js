@@ -16,7 +16,12 @@ import CacheList from '@/components/pages/cache/CacheList';
 import CacheDetails from '@/components/pages/cache/CacheDetails';
 import InSqlList from '@/components/pages/insql/InSqlList';
 import InSqlDetail from '@/components/pages/insql/InSqlDetail';
+import InformixList from '@/components/pages/informix/InformixList';
+import InformixDetail from '@/components/pages/informix/InformixDetail';
+import PostgreSQLList from '@/components/pages/postgresql/PostgreSQLList';
+import PostgreSQLDetail from '@/components/pages/postgresql/PostgreSQLDetail';
 import DatabaseLinkDetail from '@/components/pages/takeover/DatabaseLinkDetail';
+import MysqlTakeOver from '@/components/pages/takeover/mysql/TakeOver';
 
 const router = [
   {
@@ -25,7 +30,8 @@ const router = [
     meta: {
       title: '数据库',
       icon: 'database',
-      roles: ['oracle dba', 'sql server dba', 'mysql dba', 'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba'],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba',
+        'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba'],
     },
     children: [
       {
@@ -122,6 +128,28 @@ const router = [
         },
       },
       {
+        path: 'mysql/takeover',
+        name: 'mysqlTakeOver',
+        component: MysqlTakeOver,
+        meta: {
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql列表',
+              path: '/db/mysql',
+            },
+            {
+              name: 'MySql一键接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
         path: 'sqlserver/takeover/:id',
         name: 'sqlserverLinkDetail',
         props: true,
@@ -167,6 +195,33 @@ const router = [
             {
               name: 'InSql一键接管',
               path: '/db/insql/takeover',
+            },
+            {
+              name: '连接详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'mysql/takeover/:id',
+        name: 'mysqlLinkDetail',
+        props: true,
+        component: DatabaseLinkDetail,
+        meta: {
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql列表',
+              path: '/db/mysql',
+            },
+            {
+              name: 'MySql一键接管',
+              path: '/db/mysql/takeover',
             },
             {
               name: '连接详情',
@@ -330,6 +385,46 @@ const router = [
             },
             {
               name: 'InSql列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'informix',
+        name: 'informixList',
+        component: InformixList,
+        meta: {
+          title: 'Informix',
+          activeName: 'informix',
+          roles: ['informix dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Informix列表',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'postgresql',
+        name: 'postgresqlList',
+        component: PostgreSQLList,
+        meta: {
+          title: 'PostgreSQL',
+          activeName: 'postgresql',
+          roles: ['postgresql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'PostgreSQL列表',
               path: '',
             },
           ],
@@ -519,6 +614,54 @@ const router = [
             {
               name: 'InSql列表',
               path: '/db/insql',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'informix/:id',
+        props: true,
+        component: InformixDetail,
+        name: 'informixDetail',
+        meta: {
+          activeName: 'informix',
+          roles: ['informix dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'Informix列表',
+              path: '/db/informix',
+            },
+            {
+              name: '数据库详情',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'postgresql/:id',
+        props: true,
+        component: PostgreSQLDetail,
+        name: 'postgresqlDetail',
+        meta: {
+          activeName: 'postgresql',
+          roles: ['postgresql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'PostgreSQL列表',
+              path: '/db/postgresql',
             },
             {
               name: '数据库详情',

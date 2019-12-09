@@ -19,9 +19,20 @@
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                       @click="toGuide('databaseManual', 'addDataBase')"
+                       size="small">操作说明</el-button>
+          </el-form-item>
+        <el-form-item style="float: right;">
+          <el-button type="info"
+                     @click="$router.push({name: 'mysqlTakeOver'})"
+                     size="small">一键接管</el-button>
+        </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
-                    @click="addFn">添加</el-button>
+                     @click="addFn"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -57,6 +68,19 @@
                        label="登录账号"
                        min-width="150"
                        align="center"></el-table-column> -->
+      <el-table-column prop="role"
+                       label="角色"
+                       :filters="roleFilters"
+                       column-key="role"
+                       width="100"
+                       align="center">
+        <template slot-scope="scope">
+          <el-tag :type="roleTagType(scope.row.role)"
+                  size="mini">
+            {{ databaseRole(scope.row.role) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="state"
                        label="状态"
                        width="100"
@@ -105,6 +129,10 @@
             <el-card class="content"
                      ref="content">
               <div class="header">
+                <el-tag :type="roleTagType(processedTableData[row * 3 + col].role)"
+                        size="mini">
+                  {{ databaseRole(processedTableData[row * 3 + col].role) }}
+                </el-tag>
                 <router-link :to="`${processedTableData[row * 3 + col].id}`"
                              class="routerLink title"
                              append>{{processedTableData[row * 3 + col].name}}</router-link>
@@ -159,13 +187,19 @@
 import DatabaseModal from '@/components/pages/mysql/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 export default {
   name: 'MySqlList',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'mysql',
+      roleFilters: [
+        { text: '无连接', value: 0 },
+        { text: '主库', value: 1 },
+        { text: '备库', value: 2 }
+      ]
     }
   },
   watch: {
@@ -187,7 +221,7 @@ export default {
     },
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
-    }
+    },
   },
   components: {
     DatabaseModal

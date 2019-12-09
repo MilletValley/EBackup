@@ -20,8 +20,14 @@
           </el-input>
         </el-form-item>
         <el-form-item style="float: right;">
+            <el-button type="success"
+                       @click="toGuide('fileSystemManual', 'fileSystemDeletion')"
+                       size="small">操作说明</el-button>
+          </el-form-item>
+        <el-form-item style="float: right;">
           <el-button type="primary"
-                      @click="addFn">添加</el-button>
+                     @click="addFn"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -44,16 +50,24 @@
                        align="center"></el-table-column>
       <el-table-column prop="hostIp"
                        label="主机IP"
-                       min-width="200"
+                       min-width="150"
                        align="center"></el-table-column>
       <el-table-column label="操作系统"
-                       min-width="180"
+                       min-width="100"
                        prop="osName"
                        column-key="osName"
                        :filters="Array.from(new Array('Windows', 'Linux'), val => ({text: val, value: val}))"
                        align="center">
         <template slot-scope="scope">
           {{ scope.row.osName+`${scope.row.systemVersion?'-'+scope.row.systemVersion:''}` }}
+        </template>
+      </el-table-column>
+      <el-table-column label="存储方式"
+                      prop="storeType"
+                      min-width="100"
+                      align="center">
+        <template slot-scope="scope">
+          <span>{{ storeTypeMapping[scope.row.storeType] }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建时间"
@@ -148,27 +162,29 @@
                    background
                    layout="total, sizes, prev, pager, next, jumper"
                    :total="total"></el-pagination>
-    <database-modal  :visible.sync="modalVisible"
+    <file-host-modal  :visible.sync="modalVisible"
                      :btn-loading="btnLoading"
                      :action="action"
                      :data="currentSelectData"
-                     @confirm="confirmCall"></database-modal>
+                     @confirm="confirmCall"></file-host-modal>
   </section>
 </template>
 <script>
-import DatabaseModal from '@/components/pages/file/DatabaseModal';
+import FileHostModal from '@/components/pages/file/FileHostModal';
 import { applyFilterMethods } from '@/utils/common';
 import { paginationMixin, filterMixin, sortMixin } from '@/components/mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
 import { fetchAll, createOne, modifyOne, deleteOne } from '@/api/file';
+import { storeTypeMapping } from '@/utils/constant';
 const OperateFileHost = {
   create: createOne,
   update: modifyOne
 }
 export default {
   name: 'FileHostList',
-  mixins: [paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin],
+  mixins: [paginationMixin, filterMixin, sortMixin, switchViewMixins, themeMixin, manualPageMixin],
   data() {
     return {
       tableData: [],
@@ -179,6 +195,7 @@ export default {
       currentSelectData: null,
       btnLoading: false,
       defaultSort: { prop: 'createTime', order: 'descending' },
+      storeTypeMapping
     };
   },
   watch: {
@@ -267,7 +284,7 @@ export default {
     }
   },
   components: {
-    DatabaseModal
+    FileHostModal
   },
 };
 </script>

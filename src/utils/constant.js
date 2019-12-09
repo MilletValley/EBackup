@@ -19,6 +19,7 @@ const backupStrategyMapping = {
   0: '全备',
   1: '全备+增备',
   2: '全备+日志备份',
+  3: 'CDP持续备份'
 };
 
 // 文件备份策略
@@ -132,7 +133,11 @@ const useTypeMapping = {
   8: '应用服务器',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix',
+  13: 'postgresql',
+  14: 'aCloud',
+  // 15: 'VMware主控'
 };
 // 保留策略类型
 const keepStrategyMapping = {
@@ -153,7 +158,11 @@ const portHostTypeMapping = {
   8: '应用服务器',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix',
+  13: 'postgresql',
+  14: 'aCloud',
+  // 15: 'VMware主控'
 };
 
 const keepDateMapping = {
@@ -177,7 +186,11 @@ const databaseTypeMapping = {
   8: '应用服务器',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix',
+  13: 'postgresql',
+  14: 'aCloud',
+  // 15: 'VMware主控'
 };
 
 // 数据库连接状态
@@ -227,7 +240,8 @@ const virtualHostServerTypeMapping = {
   1: 'vCenter',
   2: '物理主机',
   3: 'FusionSphere',
-  4: 'Hyper-V'
+  4: 'Hyper-V',
+  5: 'aCloud'
 };
 
 const backupTypeMapping = {
@@ -247,10 +261,12 @@ const dbDetailRouterMapping = {
   2: 'sqlserverDetail',
   5: 'mysqlDetail',
   6: 'db2Detail',
-  7: 'dmDetail',
+  7: 'damengDetail',
   9: 'sybaseDetail',
   10: 'cacheDetail',
-  11: 'insqlDetail'
+  11: 'insqlDetail',
+  12: 'informixDetail',
+  13: 'postgresqlDetail'
 };
 
 // 数据库类型
@@ -262,7 +278,9 @@ const dbTypeMapping = {
   7: 'dm',
   9: 'sybase',
   10: 'cache',
-  11: 'insql'
+  11: 'insql',
+  12: 'informix',
+  13: 'postgresql'
 };
 
 // 首页数据库一键接管
@@ -270,39 +288,45 @@ const dbTakeOverRouterMapping = {
   1: 'oracleLinkDetail',
   2: 'sqlserverLinkDetail',
   3: 'applicationLinkDetail',
-  4: 'insqlLinkDetail'
+  4: 'insqlLinkDetail',
+  5: 'mysqlLinkDetail'
 };
 
 // 首页虚拟机接管详情路由
 const vmTakeOverRouterMapping = {
   1: 'vmwareLinkDetail',
   2: 'fusionSphereLinkDetail',
-  3: 'hyperVLinkDetail'
+  3: 'hyperVLinkDetail',
+  4: 'aCloudDetail'
 };
 
 // 首页虚拟机详情路由
 const vmDetailRouterMapping = {
   1: 'vmwareDetail',
   2: 'fusionSphereDetail',
-  3: 'hyperVDetail'
+  3: 'hyperVDetail',
+  4: 'aCloudDetail'
 };
 
 const vmTypeMapping = {
   1: 'VMware',
   2: '华为虚拟机',
-  3: 'Hyper-V'
+  3: 'Hyper-V',
+  4: 'aCloud'
 };
 
 const virtualMapping = {
   1: 'vmware',
   2: 'fusionSphere',
-  3: 'hyperV'
+  3: 'hyperV',
+  4: 'aCloud'
 };
 
 const serverTypeMapping = {
   1: [1, 2],
   2: [3],
-  3: [4]
+  3: [4],
+  4: [5]
 };
 
 const syncStragegyMapping = { // 同步策略
@@ -354,6 +378,49 @@ const storeTypeMapping = {
   2: 'CLOUD'
 };
 
+const verificationResultMapping = {
+  inconsistent: '不一致',
+  consistent: '一致'
+};
+
+const bootStateMapping = {
+  0: '关机',
+  1: '开机',
+  2: '未知',
+  starting: '开机中', // 自定义
+  stopping: '关机中' // 自定义
+};
+
+const bootModeMapping = {
+  0: '手动',
+  1: '自动',
+  2: '未知'
+};
+
+const restoreTypeMapping = {
+  1: '全备+增备恢复',
+  2: '日志恢复',
+  3: '表级恢复'
+};
+
+const emailConfigTimeStrategyMapping = {
+  1: '每天',
+  2: '每周',
+  3: '每月'
+};
+
+const cloudTypeMapping = {
+  0: '本地服务器',
+  1: '云服务器'
+};
+
+const migrationStateMapping = {
+  0: 'NFS存储',
+  1: '上传中',
+  2: '上传成功',
+  3: '上传失败'
+};
+
 export {
   operationStateMapping,
   backupStrategyMapping,
@@ -403,5 +470,12 @@ export {
   yesOrNoMapping,
   deployStateMapping,
   storeTypeMapping,
-  syncOperationMapping
+  syncOperationMapping,
+  verificationResultMapping,
+  bootStateMapping,
+  bootModeMapping,
+  restoreTypeMapping,
+  emailConfigTimeStrategyMapping,
+  cloudTypeMapping,
+  migrationStateMapping
 };

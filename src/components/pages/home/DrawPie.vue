@@ -7,7 +7,7 @@
 <script>
 import { useTypeMapping } from '@/utils/constant';
 import { keepTwoDecimalFull } from '@/utils/common';
-import DashboardTab from '@/components/mixins/DashboardTabMixins';
+import dashboardTabMixin from '@/components/mixins/dashboardTabMixins';
 import themeMixin from '@/components/mixins/themeMixins';
 import {
   fetchBackupStatistics,
@@ -35,15 +35,22 @@ export default {
       default: ''
     },
   },
-  mixins: [DashboardTab, themeMixin],
+  mixins: [dashboardTabMixin, themeMixin],
   data() {
     return {
       sourceData: {},
+      position: {},
       chart: null
     }
   },
   created() {
     this.fetchData();
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const ele = document.querySelector(`#${this.id}`);
+      this.position = { left: ele.getBoundingClientRect().left, top: ele.getBoundingClientRect().top };
+    })
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.sizeFun);
@@ -66,7 +73,7 @@ export default {
           res.color = typeof res.color === 'string' ? res.color : '#1abb9c';
           const marker = `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${res.color};"></span>`
           if(total <= 0) {
-            return `<p>${res.marker}无</p>`;
+            return `<p>${marker}无</p>`;
           } else {
             let rootElement = document.createElement('p');
             rootElement.id = 'rootElement';
@@ -74,6 +81,7 @@ export default {
             for (let i = 0, j = details.length; i < j; i++) {
               if (details[i][num] > 0) {
                 let p = document.createElement('p');
+                p.style = "margin: 8px 0"
                 p.innerHTML = `${marker}${useTypeMapping[details[i].type]}: <b>${details[i][num]}</b>`
                 rootElement.appendChild(p);
               }
@@ -362,10 +370,11 @@ export default {
       }
       // boxHeight > pointY 说明鼠标上边放不下提示框
       if (boxHeight > pointY) {
-        y = 5;
+        y = 0;
       } else { // 上边放得下
         y = pointY - boxHeight;
       }
+      // dom.style.position = 'fixed';
       return [x, y];
     },
     draw(option) {

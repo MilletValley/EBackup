@@ -8,6 +8,10 @@
           <el-radio label="hyperV" border>Hyper-V</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toGuide('takeoverManual', 'virtualTakeOver')">操作说明</el-button>
+      </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="info"
@@ -45,7 +49,7 @@
         <div v-for="link in links"
             :key="link.id"
             style="position: relative">
-          <el-row>
+          <el-row style="display: flex">
             <el-col :span="10">
               <div :class="$style.sourceVirtualInfo">
                 <el-row type="flex"
@@ -79,7 +83,7 @@
                 </el-row>
               </div>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="4" style="align-items: center; align-self: center">
               <div :class="$style.virtualSync">
                 <el-popover placement="right"
                             trigger="hover"
@@ -182,10 +186,11 @@
                       <i-icon :name="linkIcon(link)"
                               :class="$style.linkIcon"></i-icon>
                   </div>
-                  <i-icon :name="linkIcon(link)"
-                          slot="reference"
-                          :class="$style.linkIcon"
-                          v-else></i-icon>
+                  <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                       v-else>
+                    <i-icon :name="linkIcon(link)"
+                            :class="$style.linkIcon"></i-icon>
+                  </div>
                 </el-popover>
                 <div v-if="link.latestOperationInfo && link.latestOperationInfo.state === 1"
                      style="color: #666666;font-size: 0.9em; vertical-align: 0.1em;">
@@ -204,9 +209,17 @@
                   </div>
                   <div>
                     <el-dropdown>
-                      <span :class="$style.dropdownLink">
-                        同步操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
-                      </span>
+                        <el-tooltip placement="top" effect="dark">
+                            <div slot="content">
+                                一键接管功能操作
+                                <el-button type="text" @click="toGuide('takeoverManual', 'virtualTakeOver')" >
+                                  <li class="el-icon-question"></li></el-button>
+                            </div>
+                            <span :class="$style.dropdownLink">
+                                同步操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
+                              </span>
+                        </el-tooltip>
+                      
                       <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="failOverLink(link)">故障转移</el-dropdown-item>
                         <el-dropdown-item @click.native="failBackLink(link)">故障恢复</el-dropdown-item>
@@ -222,7 +235,7 @@
               <div :class="$style.targetVirtualInfo">
                 <el-row type="flex"
                         align="middle"
-                        v-if="Object.keys(link.targetVirtual).length">
+                        v-if="link.targetVirtual.vmName">
                   <el-col :span="8"
                           :class="$style.virtualInfoCol">
                     <h4>
@@ -280,6 +293,7 @@ import FailOverModal from '@/components/pages/virtual/takeover/FailOverModal';
 import FailBackModal from '@/components/pages/virtual/takeover/FailBackModal';
 import UpdateLinkStrategyModal from '@/components/pages/virtual/takeover/UpdateLinkStrategyModal';
 import { sockMixin } from '@/components/mixins/commonMixin';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import {
   fetchLinks,
   deleteLink,
@@ -299,7 +313,7 @@ import {
 
 export default {
   name: 'TakeOver',
-  mixins: [sockMixin],
+  mixins: [sockMixin, manualPageMixin],
   components: {
     IIcon,
     DeleteLinkModal,

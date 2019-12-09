@@ -10,7 +10,7 @@
                   class="switchModalIcon"></i-icon>
         </el-col>
         <el-col :span="18">
-          <div style="height: 220px;max-height: 220px;overflow: scroll;">
+          <div style="height: 220px;max-height: 220px;">
             <h4>即将执行以下操作，请检查。</h4>
             <p v-if="Object.keys(readyToFailBackLink).length">
               <span class="targetEnvColor">

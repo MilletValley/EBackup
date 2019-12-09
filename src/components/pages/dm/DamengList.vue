@@ -19,13 +19,19 @@
               <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                       @click="toGuide('databaseManual', 'addDataBase')"
+                       size="small">操作说明</el-button>
+          </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
-                     @click="addFn">添加</el-button>
+                     @click="addFn"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
-    <el-row class="margin-top20">
+    <el-row>
       <el-table :data="processedTableData"
                 v-show="showType === 'list'">
         <el-table-column label="序号"
@@ -56,7 +62,7 @@
           prop="host.name"
           label="所属设备"
           align="center"
-          min-width="180">
+          min-width="150">
         </el-table-column>
         <el-table-column
           prop="dbPort"
@@ -181,9 +187,10 @@
 import DatabaseModal from '@/components/pages/dm/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'DamengList',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'dm',

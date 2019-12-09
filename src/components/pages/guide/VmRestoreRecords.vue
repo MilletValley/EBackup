@@ -1,0 +1,192 @@
+<template>
+  <section>
+    <div>
+      <h4>正在执行的恢复操作
+        <el-tooltip content="刷新"
+                    placement="top"
+                    :open-delay="300">
+          <i  class="el-icon-refresh stateRefresh"
+              @click="$emit('restoreinfo:refresh')"></i>
+        </el-tooltip>
+      </h4>
+      <div v-show="plans.length === 0"
+           class="noRestoreTip">
+        <span>暂无操作</span>
+      </div>
+      <el-row v-show="plans.length > 0"
+              :gutter="20"
+              style="min-height: 144px;">
+        <el-col :span="8"
+                v-for="item in plans"
+                :key="item.id">
+          <el-card shadow="hover"
+                   class="ongoingRestoreCard">
+            <div>
+              <span>
+                <el-tooltip content="进行中"
+                            placement="top"
+                            :open-delay="300">
+                  <i class="el-icon-loading successColor"></i>
+                </el-tooltip>
+                <el-tooltip content="已持续时间"
+                            placement="top"
+                            :open-delay="300">
+                  <timer :val="item.consume"></timer>
+                </el-tooltip>
+              </span>
+              <el-tooltip content="恢复开始时间"
+                            placement="top"
+                            :open-delay="300">
+                <span :class="['restoreStartTime', 'hidden-']">{{item.startTime}}</span>
+              </el-tooltip>
+            </div>
+            <el-row v-if="true" class="margin14">
+              <el-col :span="12">
+                <i-icon name="ip" class="ongoingRestoreIp"></i-icon>
+                <el-tooltip content="恢复主机IP"
+                            placement="right"
+                            :open-delay="300">
+                  <span >{{ item.config.hostIp }}</span>
+                </el-tooltip>
+              </el-col>
+            </el-row>
+            <el-row class="margin14">
+              <el-col :span=18>
+                <el-tooltip content="新虚拟机名"
+                            placement="right"
+                            :open-delay="300">
+                  <div class="wordsOverFlow">
+                    <i-icon name="instance" class="ongoingRestoreInstance"></i-icon>
+                    <span>{{item.config.newName }}</span>
+                  </div>
+                </el-tooltip>
+              </el-col>
+            </el-row>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+    <div>
+      <h4>已完成恢复记录</h4>
+      <el-table :data="records"
+                :default-sort="{ prop: 'startTime', order: 'descending' }">
+        <el-table-column prop="startTime"
+                         label="开始时间"
+                         align="center"
+                         min-width="150px">
+        </el-table-column>
+        <el-table-column prop="endTime"
+                         label="结束时间"
+                         align="center"
+                         min-width="150px">
+        </el-table-column>
+        <el-table-column prop="hostIp"
+                         label="恢复主机IP"
+                         align="center"
+                         min-width="150px">
+        </el-table-column>
+        <el-table-column prop="newName"
+                         label="新虚拟机名"
+                         align="center"
+                         min-width="150px">
+        </el-table-column>
+        <el-table-column prop="diskName"
+                         label="恢复磁盘名"
+                         v-if="[1, 3, 4].includes(vmType)"
+                         align="center"
+                         min-width="150px">
+        </el-table-column>
+        <el-table-column prop="state"
+                         label="状态"
+                         align="center"
+                         min-width="70px">
+          <template slot-scope="scope">
+            <el-tooltip :disabled="scope.row.state === 0"
+                        :content="scope.row.errorMsg"
+                        placement="right"
+                        effect="light">
+              <i v-if="scope.row.state === 0"
+                 class="el-icon-success successColor"></i>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </section>
+</template>
+<script>
+import Timer from '@/components/Timer';
+export default {
+  name: 'VmRestoreRecords',
+  props: {
+    restorePlan: {
+      type: Array,
+      required: true,
+    },
+    records: {
+      type: Array,
+      required: true,
+    },
+    vmType: {
+      type: Number
+    }
+  },
+  data() {
+    return {
+    };
+  },
+  computed: {
+    // 正在进行中的恢复计划
+    plans() {
+      return this.restorePlan.filter(plan => plan.state === 1);
+    }
+  },
+  methods: {
+  },
+  components: {
+    Timer
+  },
+};
+</script>
+<style lang="scss" scoped>
+@import '@/style/guide.scss';
+@import '@/style/color.scss';
+.noRestoreTip {
+  font-size: 4em;
+  color: #c0c4cc;
+  min-height: 144px;
+  margin: auto;
+  width: 280px;
+  span {
+    line-height: 2.2em;
+  }
+}
+.ongoingRestoreCard {
+  font-size: 14px;
+}
+.wordsOverFlow {
+  white-space:nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  display: inline-block;
+  text-overflow: ellipsis;
+}
+.restoreStartTime {
+  font-size: 0.8em;
+  line-height: 1.8em;
+  color: #999999;
+  float: right;
+}
+.stateRefresh {
+  margin-left: 10px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+.margin14{
+  margin-top: 1em;
+  margin-bottom: 1em
+}
+</style>

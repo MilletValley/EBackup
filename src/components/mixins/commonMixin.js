@@ -113,7 +113,8 @@ const sockMixin = {
     return {
       url: '/socket', // 握手时使用的url
       stompClient: '',
-      heartInterval: ''
+      heartInterval: '',
+      socket: null
     };
   },
   mounted() {
@@ -140,9 +141,9 @@ const sockMixin = {
     },
     connection() {
       // 建立连接对象
-      const socket = new SockJS(this.url);
+      this.socket = new SockJS(this.url);
       // 获取STOMP子协议的客户端对象
-      this.stompClient = Stomp.over(socket);
+      this.stompClient = Stomp.over(this.socket);
       this.stompClient.debug = () => {
         // console.warn('不打印日志信息');
       };
@@ -174,7 +175,7 @@ const sockMixin = {
       }, headers);
     },
     disconnect() {
-      if (this.stompClient) {
+      if (this.socket.readState === 1) { // 0-未建立，1-已建立，2-正在关闭，3-已关闭
         this.stompClient.disconnect();
       }
     }

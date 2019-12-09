@@ -1,18 +1,26 @@
 <template>
   <section>
     <el-form inline size="medium">
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                       @click="toGuide('deploymentManageManual', 'deploymentManage')"
+                       size="small">操作说明</el-button>
+        </el-form-item>
       <el-form-item style="float: right">
         <el-button type="info"
-                   @click="$router.push({name: 'versionList'})">版本库</el-button>
+                   @click="$router.push({name: 'versionList'})"
+                   size="small">版本库</el-button>
       </el-form-item>
       <el-form-item style="float: right">
         <el-button @click="refreshAll"
                    type="info"
-                   plain>刷新</el-button>
+                   plain
+                   size="small">刷新</el-button>
       </el-form-item>
       <el-form-item style="float: right">
         <el-button type="primary"
-                   @click="createOne">部署</el-button>
+                   @click="createOne"
+                   size="small">部署</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="processedTableData"
@@ -133,12 +141,14 @@
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
+                     :disabled="scope.row.depPackage.isWrapper === 2"
                      @click="startOne(scope)">
           </el-button>
           <el-button type="danger"
                      circle
                      size="mini"
                      :class="$style.miniCricleIconBtn"
+                     :disabled="scope.row.depPackage.isWrapper === 2"
                      @click="stopOne(scope)"
                      style="padding: 9px!important">
             <div style="height: 8px; width: 8px; background-color: #fff"></div>
@@ -195,10 +205,11 @@ import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { yesOrNoMapping, switchManualMapping, deployStateMapping } from '@/utils/constant';
 import CreateDeployModal from '@/components/pages/deploy/CreateDeployModal';
 import UpdateDeployModal from '@/components/pages/deploy/UpdateDeployModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import { setTimeout } from 'timers';
 export default {
   name: 'DeployManager',
-  mixins: [paginationMixin, sortMixin],
+  mixins: [paginationMixin, sortMixin, manualPageMixin],
   components: {
     CreateDeployModal,
     UpdateDeployModal

@@ -20,16 +20,24 @@
           </el-input>
         </el-form-item>
         <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toGuide('databaseManual', 'addDatabase')"
+                      size="small">操作说明</el-button>
+          </el-form-item>
+        <el-form-item style="float: right;">
           <el-button type="info"
-                    @click="$router.push({name: 'sqlserverTakeOver'})">一键接管</el-button>
+                    @click="$router.push({name: 'sqlserverTakeOver'})"
+                    size="small">一键接管</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="batchCreateModalVisible = true">批量添加</el-button>
+                    @click="batchCreateModalVisible = true"
+                    size="small">批量添加</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="addFn">添加</el-button>
+                    @click="addFn"
+                    size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -96,19 +104,42 @@
                        header-align="center"
                        align="center">
         <template slot-scope="scope">
-          <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="monitorConf"></i-icon>
-          <el-button type="primary"
-                     icon="el-icon-edit"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="modifyDb(scope.row)"></el-button>
-          <el-button type="danger"
-                     icon="el-icon-delete"
-                     circle
-                     size="mini"
-                     :class="$style.miniCricleIconBtn"
-                     @click="deleteDb(scope.row)"></el-button>
+            <el-tooltip placement="top" effect="light">
+                <div slot="content">
+                    监控
+                    <el-button type="text" @click="toGuide('databaseManual', 'dataBaseMonitor')">
+                      <li class="el-icon-question"></li></el-button>
+                </div>
+                <i-icon :name="`${theme}-monitor`" class="monitorClass" @click.native="linkMonitor(scope.row)" v-show="configMsg.monitorWeb"></i-icon>
+            </el-tooltip>
+
+            <el-tooltip placement="top" effect="light">
+                <div slot="content">
+                    修改
+                    <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')">
+                      <li class="el-icon-question"></li></el-button>
+                </div>
+                <el-button type="primary"
+                icon="el-icon-edit"
+                circle
+                size="mini"
+                :class="$style.miniCricleIconBtn"
+                @click="modifyDb(scope.row)"></el-button>
+            </el-tooltip>
+         
+            <el-tooltip placement="top" effect="light">
+                <div slot="content">
+                    删除数据库
+                    <el-button type="text" @click="toGuide('databaseManual', 'modifyDataBase')">
+                      <li class="el-icon-question"></li></el-button>
+                </div>
+                <el-button type="danger"
+                icon="el-icon-delete"
+                circle
+                size="mini"
+                :class="$style.miniCricleIconBtn"
+                @click="deleteDb(scope.row)"></el-button>
+            </el-tooltip>
         </template>
       </el-table-column>
     </el-table>
@@ -146,7 +177,7 @@
                 <el-tooltip content="监控" placement="top" effect="light">
                   <i-icon :name="`${theme}-monitor`"
                           class="monitor"
-                          @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="monitorConf"></i-icon>
+                          @click.native="linkMonitor(processedTableData[row * 3 + col])" v-show="configMsg.monitorWeb"></i-icon>
                 </el-tooltip>
               </div>
               <el-form label-position="right"
@@ -194,12 +225,13 @@
 import DatabaseModal from '@/components/pages/sqlserver/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import BatchDatabaseCreateModal from '@/components/modal/BatchDatabaseCreateModal';
 import { batchCreate } from '@/api/sqlserver';
 
 export default {
   name: 'SqlServer',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data(){
     return {
       databaseType: 'sqlserver',
@@ -255,7 +287,7 @@ export default {
         .then(() => {
           this.btnLoading = false;
         });
-    }
+    },
   },
   components: {
     DatabaseModal,

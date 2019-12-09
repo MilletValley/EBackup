@@ -272,7 +272,7 @@ export default {
         return 'exception';
       }else if(this.restorePlan.state === 0 && this.restorePlan.percentage !== 0){
         return 'success';
-      }else return 'text';
+      }else return 'warning';
     },
     showTxt() {
       return this.isShow?'收起':'查看更多'

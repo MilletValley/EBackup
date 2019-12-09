@@ -91,7 +91,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'sybase', 'cache', 'vm', ''].includes(value);
+        return ['oracle', 'sqlserver', 'mysql', 'db2', 'windows', 'linux', 'sybase', 'cache', 'informix', 'postgresql', 'vm', ''].includes(value);
       },
     },
     backupPlans: {

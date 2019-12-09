@@ -4,6 +4,7 @@ import VirtualTakeOver from '@/components/pages/virtual/takeover/TakeOver';
 import SwitchList from '@/components/pages/SwitchList';
 import SwitchDetail from '@/components/pages/SwitchDetail';
 import AppTakeOver from '@/components/pages/application/TakeOver';
+import MysqlTakeOver from '@/components/pages/takeover/mysql/TakeOver';
 
 const takeoverRouter = [
   {
@@ -12,7 +13,7 @@ const takeoverRouter = [
     meta: {
       title: '一键接管',
       icon: 'takeover',
-      roles: ['oracle dba', 'sql server dba', 'application admin', 'insql dba', 'vm admin'],
+      roles: ['oracle dba', 'sql server dba', 'application admin', 'mysql dba', 'insql dba', 'vm admin'],
     },
     children: [
       {
@@ -22,7 +23,7 @@ const takeoverRouter = [
         meta: {
           title: '数据库',
           activeName: 'overview',
-          roles: ['oracle dba', 'sql server dba'],
+          roles: ['oracle dba', 'sql server dba', 'mysql dba', 'insql dba'],
           breadcrumb: [
             {
               name: '首页',
@@ -49,6 +50,25 @@ const takeoverRouter = [
             },
             {
               name: 'SQLServer接管',
+              path: '',
+            },
+          ],
+        },
+      },
+      {
+        path: 'mysql/takeover',
+        name: 'mysqlTakeOverView',
+        component: MysqlTakeOver,
+        meta: {
+          activeName: 'overview',
+          roles: ['mysql dba'],
+          breadcrumb: [
+            {
+              name: '首页',
+              path: '/',
+            },
+            {
+              name: 'MySql接管',
               path: '',
             },
           ],

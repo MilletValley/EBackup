@@ -3,6 +3,10 @@
     <el-row>
       <el-form inline
                size="small">
+               <el-form-item style="float: right;">
+                  <el-button type="success"
+                            @click="toGuide('equipmentManageManual', 'configurationManage')">操作说明</el-button>
+              </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
                     @click="handleCreate()">添加</el-button>
@@ -269,9 +273,11 @@ import { sysTypeMapping, windowsTypeMapping, useTypeMapping, systemStateMapping 
 import InputToggle from '@/components/InputToggle';
 import validate from '@/utils/validate';
 import isEqual from 'lodash/isEqual';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 export default {
   name: 'SystemParam',
+  mixins: [manualPageMixin],
   data() {
     const validateCheckPassword = (rule, value, callback) => {
       if (!value) {
@@ -346,11 +352,11 @@ export default {
     },
     useTypeSelect() {
       return Object.keys(useTypeMapping).map(type => {
-        return {
-          label: useTypeMapping[type],
-          value: Number(type)
-        }
-      })
+          return {
+            label: useTypeMapping[type],
+            value: Number(type)
+          }
+        })
     },
   },
   created() {

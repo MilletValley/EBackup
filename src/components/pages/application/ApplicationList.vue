@@ -3,13 +3,20 @@
     <el-row>
       <el-form inline
                size="medium">
+        <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toGuide('applicationManual', 'addApplication')"
+                    size="small">操作说明</el-button>
+        </el-form-item>
         <el-form-item style="float: right">
           <el-button type="info"
-                     @click="$router.push({name: 'applicationTakeOver'})">一键接管</el-button>
+                     @click="$router.push({name: 'applicationTakeOver'})"
+                     size="small">一键接管</el-button>
         </el-form-item>
         <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="addFn">添加</el-button>
+                     @click="addFn"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -90,9 +97,10 @@ import { paginationMixin, sortMixin } from '@/components/mixins/commonMixin';
 import { databaseRoleMapping } from '@/utils/constant';
 import OperateModal from '@/components/pages/application/OperateModal';
 import { deleteOne } from '@/api/application';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'ApplicationList',
-  mixins: [paginationMixin, sortMixin],
+  mixins: [paginationMixin, sortMixin, manualPageMixin],
   components: {
     OperateModal
   },

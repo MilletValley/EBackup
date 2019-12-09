@@ -133,9 +133,9 @@
                       <el-tag size="small">{{target|commonTypeFilter}}</el-tag>
                     </el-form-item>
                   </el-col>
-                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql'].includes(target)">
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql', 'informix', 'postgresql'].includes(target)">
                     <el-col :span="8">
-                      <el-form-item  :label="['sqlserver', 'mysql', 'dm', 'sybase', 'cache', 'insql'].includes(target) ? '数据库名：':'实例名：'" >
+                      <el-form-item  :label="['sqlserver', 'mysql', 'dm', 'sybase', 'cache', 'insql', 'informix', 'postgresql'].includes(target) ? '数据库名：':'实例名：'" >
                         <span>{{target === 'dm' ? machine.dbName : machine.instanceName}}</span>
                       </el-form-item>
                     </el-col>
@@ -145,7 +145,7 @@
                       </el-form-item>
                     </el-col>
                   </div>
-                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'vmware', 'hw', 'cache', 'insql'].includes(target)">
+                  <div v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'vmware', 'hw', 'cache', 'insql', 'informix', 'postgresql'].includes(target)">
                     <el-col :span="8">
                       <el-form-item label="所属设备IP：">
                         <span>{{machine.host ? machine.host.hostIp : ''}}</span>
@@ -207,7 +207,7 @@
                     <span>{{ scope.row.sourcePath }}</span>
                   </el-form-item>
                   <el-form-item :class="$style.detailFormItem"
-                                v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'sybase', 'vmware', 'hw'].includes(target)"
+                                 v-if="['oracle', 'sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql', 'informix', 'postgresql', 'vmware', 'hw'].includes(target)"
                                 label="文件名">
                     <span>{{ scope.row.fileName }}</span>
                   </el-form-item>
@@ -265,7 +265,7 @@
                             align="center"
                             header-align="center"></el-table-column>
             <el-table-column  label="备份文件名"
-                              v-if="['oracle','sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql', 'vmware', 'hw'].includes(target)"
+                              v-if="['oracle','sqlserver', 'mysql', 'db2', 'dm', 'sybase', 'cache', 'insql', 'informix', 'postgresql', 'vmware', 'hw'].includes(target)"
                               prop="fileName"
                               min-width="180px"
                               align="left"

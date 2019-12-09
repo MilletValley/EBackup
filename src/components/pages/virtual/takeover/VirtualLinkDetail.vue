@@ -43,7 +43,7 @@
         <el-col :span="10">
           <section class="linkSection">
             <div style="position: relative; height: 3em; display: inline-block"
-                 v-if="link.state === 1">
+                 v-if="link.state === 0 || (link.state === 1 && link.currentSyncStatus === 1)">
               <div class="rightMask"></div>
               <i-icon :name="linkIcon(link)"
                       class="linkIcon"></i-icon>
@@ -68,7 +68,7 @@
               </div>
             </div>
             <el-form size="small"
-                     label-width="100px"
+                     label-width="120px"
                      label-position="right"
                      class="item-info">
               <el-row type="flex"
@@ -97,6 +97,11 @@
                   <el-form-item label="下次同步时间"
                                 v-if="link.strategyConfig.nextSyncTime">
                     <span>{{ link.strategyConfig.nextSyncTime }}</span>
+                  </el-form-item>
+                  <el-form-item label="初始化持续时间"
+                                v-if="link.initTime">
+                    <timer v-if="link.state === 0" :val="link.initTime"></timer>
+                    <span v-else>{{ link.initTime | durationFilter }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -172,6 +177,15 @@
                        prop="time"
                        align="center"
                        min-width="80"></el-table-column>
+      <el-table-column label="持续时间"
+                       align="center"
+                       min-width="80">
+        <template slot-scope="scope">
+          <!-- <span>{{ scope.$index }}</span> -->
+          <span v-if="scope.$index % 2 === 0">-</span>
+          <span v-else>{{ calcTime(records[scope.$index].time, records[scope.$index-1].time) | durationFilter }}</span>
+        </template>
+      </el-table-column>
     </el-table>
   </section>
 </template>
@@ -186,10 +200,17 @@ import {
   syncOperationStateMapping
 } from '@/utils/constant';
 import { fetchOperationRecords, fetchLinks } from '@/api/virtuals';
+import baseMixin from '@/components/mixins/baseMixins';
+import Timer from '@/components/Timer';
+import dayjs from 'dayjs';
 
 export default {
   name: 'VirtualLinkDetail',
   props: ['id'],
+  mixins: [baseMixin],
+  components: {
+    Timer
+  },
   data() {
     return {
       records: [],
@@ -273,7 +294,7 @@ export default {
       fetchOperationRecords(this.linkId)
         .then(res => {
           const { data: records } = res.data;
-          this.records = records.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+          this.records = records.sort((a, b) => this.calcTime(a.time, b.time));
         })
         .catch(error => {
           this.$message.error(error);
@@ -287,11 +308,14 @@ export default {
           this.$message.error(error);
         })
     },
+    calcTime(pre, next) {
+      return dayjs(pre).unix() - dayjs(next).unix();
+    },
     linkIcon(link) {
-      if (link.state === 0) {
-        return 'switch-1';
-      } else if (link.state === 1) {
+      if (link.state === 0 || (link.state === 1 && link.currentSyncStatus === 1)) {
         return 'transportationRight';
+      } else if (link.state === 1 && link.currentSyncStatus === 0) {
+        return 'switch-2';
       } else if (link.state === 2 && link.latestOperationInfo.type === 0 && link.latestOperationInfo.state === 1) {
         return 'link-exchange';
       } else if (link.state === 2) {

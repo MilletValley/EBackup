@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout';
-import DeviceManager from '@/components/pages/DeviceManager';
+import DeviceManager from '@/components/pages/host/DeviceManager';
 import DeviceDetails from '@/components/pages/DeviceDetails';
 import SystemParam from '@/components/pages/SystemParam';
 import EmailManager from '@/components/pages/EmailManager';
@@ -7,6 +7,7 @@ import KeepStrategy from '@/components/pages/keepStrategy/KeepStrategy';
 import PortList from '@/components/pages/port/PortList';
 import CloudStorageList from '@/components/pages/cloudConfig/CloudStorageList';
 import Users from '@/components/pages/Users';
+import EmailConfigList from '@/components/pages/emailConfig/EmailConfigList';
 
 const router = [
   {
@@ -15,7 +16,8 @@ const router = [
     meta: {
       title: '系统管理',
       icon: 'setting',
-      roles: [],
+      roles: ['oracle dba', 'sql server dba', 'mysql dba',
+        'db2 dba', 'dm dba', 'sybase dba', 'cache dba', 'insql dba', 'informix dba', 'postgresql dba', 'vm admin'],
     },
     children: [
       {
@@ -69,6 +71,14 @@ const router = [
               title: '邮箱管理',
               roles: [],
             },
+          },
+          {
+            path: 'email-config',
+            component: EmailConfigList,
+            meta: {
+              title: '邮箱设置',
+              roles: []
+            }
           },
           {
             path: 'systemparam',

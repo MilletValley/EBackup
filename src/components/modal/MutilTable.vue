@@ -2,9 +2,19 @@
 <div>
     <el-row style="margin-bottom:10px;">
         <el-col :span="6">
-            <el-input  placeholder="请输入名称" v-model="inputSearch" @keyup.enter.native="searchByName" class="input-with-select" :size="customSize">
+            <el-input  placeholder="请输入名称"
+                       v-model="inputSearch"
+                       @keyup.enter.native="searchByName"
+                       class="input-with-select"
+                       size="small">
                 <el-button slot="append" icon="el-icon-search" @click="searchByName" :size="customSize"></el-button>
             </el-input>
+        </el-col>
+        <el-col :span="18">
+          <el-button size="small"
+                     v-if="showBootBtn"
+                     style="float: right"
+                     @click="validatePass">开机自启</el-button>
         </el-col>
     </el-row>
     <el-table :data="curTableData" @select="selectDbChangeFn"  :ref="refTable" :size="customSize"
@@ -36,17 +46,45 @@
             </template>
         </el-table-column>
         <el-table-column prop="vmPath"
-                        label="路径"
-                        min-width="150"
-                        align="left">
+                         label="路径"
+                         min-width="150"
+                         align="left">
+        </el-table-column>
+        <el-table-column prop="bootState"
+                         align="center"
+                         v-if="[1, 3, 4].includes(vmType)">
+          <template slot="header">
+            <span>状态</span>
+            <el-tooltip placement="right"
+                        effect="light"
+                        content="点击开机自启验证物理主机身份后可获取最新状态"
+                        v-if="[1, 3].includes(vmType) && config && !config.serverLoginName && !config.serverPassword">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <el-tag size="mini"
+                    :type="scope.row.bootState | bootStateTagFilter">
+                    {{ bootStateMapping[scope.row.bootState] ? bootStateMapping[scope.row.bootState] : '未知' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="bootMode"
+                         label="启动方式"
+                         align="center"
+                         v-if="[1, 3].includes(vmType)">
+          <template slot-scope="scope">
+            <span>{{ bootModeMapping[scope.row.bootMode] ? bootModeMapping[scope.row.bootMode] : '未知' }}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="vmHostName"
-            label="所属物理主机"
-            min-width="150"
-            align="left"></el-table-column>
-        <el-table-column label="操作" v-if="showDelete"
+                         label="所属物理主机"
+                         min-width="150"
+                         align="left"></el-table-column>
+        <el-table-column label="操作"
+                         v-if="showDelete && vmType !== 4"
                          width="100"
-                         align="left">
+                         align="center">
             <template slot-scope="scope">
                 <el-button type="danger"
                            icon="el-icon-delete"
@@ -54,6 +92,27 @@
                            size="mini"
                            :class="$style.miniCricleIconBtn"
                            @click="deleteOne(scope)"></el-button>
+                <el-button type="success"
+                           icon="el-icon-video-play"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           v-if="(!scope.row.bootState || [0, 2].includes(scope.row.bootState) && [1, 3].includes(vmType))"
+                           @click="modifyBootState(scope.row)"></el-button>
+                <el-button type="danger"
+                           icon="el-icon-video-pause"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           v-if="scope.row.bootState === 1 && [1, 3].includes(vmType)"
+                           @click="modifyBootState(scope.row)"></el-button>
+                <el-button type="warning"
+                           disabled
+                           icon="el-icon-loading"
+                           circle
+                           size="mini"
+                           :class="$style.miniCricleIconBtn"
+                           v-if="['starting', 'stopping'].includes(scope.row.bootState) && [1, 3].includes(vmType)"></el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -68,13 +127,19 @@
         v-if="tableData"
         :total="tableData|filterBySearch(filterItem).length">
     </el-pagination>
+    <validate-user-password :visible.sync="validatePassModalVisible"
+                            :id="serverId"
+                            @refresh="refreshAll"></validate-user-password>
 </div>
     
 </template>
 <script>
-import { getVirtualByserverId, deleteVirtualInServerHost } from '@/api/virtuals';
-import { virtualMapping } from '@/utils/constant';
+import { getVirtualByServerId, deleteVirtualInServerHost, ModifyOneStartup } from '@/api/virtuals';
+import { virtualMapping, bootModeMapping, bootStateMapping } from '@/utils/constant';
+import ValidateUserPassword from '@/components/pages/virtual/ValidateUserPassword';
+import { sockMixin } from '@/components/mixins/commonMixin';
 export default {
+  mixins: [sockMixin],
   props: {
     tableData: {
       type: Array,
@@ -94,6 +159,19 @@ export default {
     },
     showDelete: {
       type: Boolean
+    },
+    showBootBtn: {
+      type: Boolean
+    },
+    vmType: {
+      type: Number
+    },
+    serverId: {
+      type: Number
+    },
+    config: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -103,7 +181,11 @@ export default {
       filterItem: '',
       inputSearch: '',
       defaultSort: { prop: 'vmName', order: 'descending' },
-      virtualMapping
+      validatePassModalVisible: false,
+      settingBootVirtuals: [],
+      virtualMapping,
+      bootStateMapping,
+      bootModeMapping,
     };
   },
   mounted() {
@@ -117,6 +199,9 @@ export default {
         });
       });
     });
+  },
+  components: {
+    ValidateUserPassword
   },
   filters: {
     filterBySearch(tableData, arg) {
@@ -133,6 +218,14 @@ export default {
       }
       return data.slice((currentPage - 1) * pagesize, currentPage * pagesize);
     },
+    bootStateTagFilter(state) {
+      if (state === 1) {
+        return 'success';
+      } else if (state === 0) {
+        return 'danger';
+      }
+      return 'warning';
+    }
   },
   watch: {
     selectData(data) {
@@ -210,15 +303,10 @@ export default {
     selectDataIds() {
       return this.selectData.length ? this.selectData.map(v => Number(v.hostId)) : [];
     }
-    // curTableData: {
-    //     get() {
-    //         return this.tableData;
-    //     }
-    // },
   },
   methods: {
     refresh(id) {
-      getVirtualByserverId(id)
+      getVirtualByServerId(id)
         .then(res => {
           const { data } = res.data;
           //更新数据前，去除已选数据。表格刷新后默认清空该表格的选中状态
@@ -237,6 +325,25 @@ export default {
         .catch(error => {
           this.$message.error(error);
         });
+    },
+    connectCallback(client) {
+      this.stompClient.subscribe('/virtual', msg => {
+        let { data: virtual } = JSON.parse(msg.body);
+        const index = this.tableData.findIndex(item => item.id === virtual.id);
+        if (index > -1) {
+          this.tableData.splice(
+            index,
+            1,
+            virtual
+          )
+        }
+      });
+    },
+    refreshAll() {
+      this.$emit('refresh-and-set-power');
+    },
+    validatePass() {
+      this.validatePassModalVisible = true;
     },
     selectDbChangeFn(selectData, row) {
       if (selectData.includes(row)) {
@@ -292,7 +399,7 @@ export default {
             .then(res => {
               const { message } = res.data;
               this.$message.success(message);
-              this.$emit('refresh', row.id);
+              this.$emit('refresh');
             })
             .catch(error => {
               this.$message.error(error);
@@ -303,6 +410,31 @@ export default {
             type: 'info',
             message: '已取消删除',
           });
+        });
+    },
+    modifyBootState(virtual) {
+      const { id, vmName, bootState } = virtual;
+      this.$confirm(`此操作将${bootState === 0 ? '开启' : '关闭'}虚拟机${vmName}, 是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          const state = virtual.bootState;
+          virtual.bootState = state === 0 ? 'starting' : 'stopping';
+          ModifyOneStartup(id)
+            .then(res => {
+              const { message, data } = res.data;
+              this.$message.success(message);
+              this.$emit('refresh');
+            })
+            .catch(error => {
+              virtual.bootState = state;
+              this.$message.error(error);
+            });
+        })
+        .catch(() => {
+          this.$message.info('已取消操作！');
         });
     },
     handleSizeChange: function(size) {

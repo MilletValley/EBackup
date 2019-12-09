@@ -19,12 +19,14 @@
                                  v-if="allVirtuals(props.row).length">
                       <el-card style="margin-top: 5px; margin-bottom: 5px">
                         <mutil-table :tableData="allVirtuals(props.row)"
+                                     :config="props.row"
                                      :ref="props.row.id"
                                      :refTable="props.row.serverName"
                                      :selectData.sync="selectData"
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
+                                     :vm-type="vmType"
                                      @refresh="refreshOneServer(props.row)"></mutil-table>
                       </el-card>
                     </el-tab-pane>
@@ -33,20 +35,26 @@
                                  :label="host.serverName">
                       <el-card style="margin-top: 5px; margin-bottom: 5px">
                         <div slot="header">
-                          <el-row>
-                            <el-col :span="8" style="text-align: center">所属设备：{{ host.hostName }}</el-col>
-                            <el-col :span="8" style="text-align: center">主机IP：{{ host.serverIp }}</el-col>
-                            <el-col :span="8" style="text-align: center">主机类型：{{ host.serverType | virtualHostServerTypeFilter }}</el-col>
+                          <el-row style="text-align: center">
+                            <el-col :span="6">所属设备：{{ host.hostName }}</el-col>
+                            <el-col :span="6">主机IP：{{ host.serverIp }}</el-col>
+                            <el-col :span="6">主机类型：{{ host.serverType | virtualHostServerTypeFilter }}</el-col>
+                            <el-col :span="6" v-if="vmType === 1">底层: {{ isVddkServer(host.id) ? 'vddk' : 'veeam' }}</el-col>
                           </el-row>
                         </div>
                         <mutil-table :tableData="host.vmList"
+                                     :config="host"
                                      :ref="host.id"
+                                     :server-id="host.id"
                                      :refTable="host.serverName"
                                      :selectData.sync="selectData"
                                      :curSelectData="curSelectData"
                                      :size="customSize"
                                      :showDelete="showDelete"
-                                     @refresh="refreshOneServer(host)"></mutil-table>
+                                     :showBootBtn="!isVddkServer(host.id)"
+                                     :vm-type="vmType"
+                                     @refresh="refreshOneServer(host)"
+                                     @refresh-and-set-power="refreshAndSetPower(host)"></mutil-table>
                       </el-card>
                     </el-tab-pane>
                   </el-tabs>
@@ -59,6 +67,7 @@
                                :curSelectData="curSelectData"
                                :size="customSize"
                                :showDelete="showDelete"
+                               :vm-type="vmType"
                                @refresh="refreshOneServer(props.row)"></mutil-table>
                 </template>
               </template>
@@ -82,10 +91,19 @@
               :formatter="serverTypeFormat"
               min-width="100"
               align="left"></el-table-column>
+          <el-table-column label="底层"
+                           min-width="80"
+                           align="left"
+                           v-if="vmType === 1">
+            <template slot-scope="scope">
+              <span>{{ isVddkServer(scope.row.id) ? 'vddk' : 'veeam' }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作"
-                          width="150"
-                          header-align="center"
-                          align="center">
+                           width="140"
+                           header-align="center"
+                           align="left"
+                           v-if="vmType !== 4">
               <template slot-scope="scope">
                   <el-tooltip 
                           content="重新扫描"
@@ -111,10 +129,32 @@
                                   :class="$style.miniCricleIconBtn"
                                   @click="deleteServer(scope)"></el-button>
                   </el-tooltip>
+                  <el-tooltip content="开机自启"
+                              placement="top"
+                              effect="light"
+                              v-if="[2, 4].includes(scope.row.serverType) && !isVddkServer(scope.row.id)">
+                      <el-button type="success"
+                                 icon="el-icon-switch-button"
+                                 circle
+                                 size="mini"
+                                 :class="$style.miniCricleIconBtn"
+                                 @click="setPowerBoot(scope.row)"></el-button>
+                  </el-tooltip>
               </template>
           </el-table-column>
       </el-table>
-      <mutil-table v-show="isSelect" :tableData="selectData" refTable="selectTable" :selectData.sync="selectData" :curSelectData="curSelectData" :size="customSize" :showDelete="false"></mutil-table>
+      <mutil-table v-show="isSelect"
+                   :tableData="selectData"
+                   refTable="selectTable"
+                   :selectData.sync="selectData"
+                   :curSelectData="curSelectData"
+                   :size="customSize"
+                   :vm-type="vmType"
+                   :showDelete="false"></mutil-table>
+      <power-boot-modal :visible.sync="setPowerBootModalVisible"
+                        :virtuals="settingBootVirtuals.vmList"
+                        :id="settingBootVirtuals.id"
+                        @refresh="refreshOneServer(settingBootVirtuals)"></power-boot-modal>
     </div>
     
 </template>
@@ -123,9 +163,10 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVirtualByserverId,
+  getVirtualByServerId,
 } from '@/api/virtuals';
 import MutilTable from '@/components/modal/MutilTable';
+import PowerBootModal from '@/components/pages/virtual/PowerBootModal';
 import { virtualHostServerTypeMapping } from '@/utils/constant';
 export default {
   props: {
@@ -147,13 +188,19 @@ export default {
     },
     showDelete: {
       type: Boolean
+    },
+    vmType: {
+      type: Number
     }
   },
   components: {
     MutilTable,
+    PowerBootModal
   },
   data() {
     return {
+      setPowerBootModalVisible: false,
+      settingBootVirtuals: []
     };
   },
   filters: {
@@ -161,7 +208,32 @@ export default {
       return virtualHostServerTypeMapping[value];
     }
   },
+  watch: {
+    vmwareMasterControlServers: {
+      handler(value) {
+        this.$emit('update:vmwareMasterControlServers', value);
+      },
+      deep: true
+    }
+  },
   computed: {
+    vmwareMasterControlHost() {
+      const vmwareMasterControlHosts = this.$store.getters.vmwareMasterControlHosts;
+      return this.serverTableData.filter(
+        serverHost => vmwareMasterControlHosts.some(host => host.id === serverHost.hostId)
+      );
+    },
+    vmwareMasterControlServers() {
+      let ids = [];
+      this.vmwareMasterControlHost.forEach(serverHost => {
+        if (serverHost.serverType === 1) {
+          ids = ids.concat([serverHost.id, ...serverHost.serverListIds]);
+        } if (serverHost.serverType === 2) {
+          ids = ids.concat([serverHost.id]);
+        }
+      })
+      return ids;
+    },
     customSize() {
       return this.size ? this.size : '-';
     },
@@ -200,9 +272,12 @@ export default {
     serverTypeFormat(row, column, cellValue, index) {
       return virtualHostServerTypeMapping[cellValue];
     },
+    isVddkServer(id) {
+      return this.vmwareMasterControlServers.includes(id);
+    },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
-      getVirtualByserverId(row.id).then(res => {
+      getVirtualByServerId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.selectData = this.selectData.filter(e => {
           if (ids.includes(e.id) && !this.curSelectData.some(n => n.id === e.id)) {
@@ -211,7 +286,24 @@ export default {
           return true;
         });
         const { data } = res.data;
-        row.vmList = data;
+        row.vmList = Array.isArray(data) ? data : [];
+      }).catch(error => {
+        this.$message.error(error);
+      });
+    },
+    refreshAndSetPower(row) {
+      getVirtualByServerId(row.id).then(res => {
+        const ids = row.vmList.map(i => i.id);
+        this.selectData = this.selectData.filter(e => {
+          if (ids.includes(e.id) && !this.curSelectData.some(n => n.id === e.id)) {
+            return false;
+          }
+          return true;
+        });
+        const { data } = res.data;
+        row.vmList = Array.isArray(data) ? data : [];
+        this.settingBootVirtuals = row;
+        this.setPowerBootModalVisible = true;
       }).catch(error => {
         this.$message.error(error);
       });
@@ -239,7 +331,10 @@ export default {
       this.$emit('delete', data);
     },
     formatServerData(serverList) { // 主机=>vcenter=>物理主机
-      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce((initArray, item) => initArray.concat(item.serverListIds), []);
+      const hostIdsInVcenter = serverList.filter(server => server.serverType === 1).reduce(
+        (initArray, item) => initArray.concat(item.serverListIds),
+        []
+      );
       const results = serverList.reduce(([pass, fail], item) => {
         if (item.serverType === 2 && hostIdsInVcenter.includes(item.id)) {
           return [[...pass, item], fail];
@@ -255,6 +350,10 @@ export default {
     },
     allVirtuals(server) {
       return server.hostList.reduce((flat, next) => flat.concat(next.vmList), server.vmList);
+    },
+    setPowerBoot(item) {
+      this.setPowerBootModalVisible = true;
+      this.settingBootVirtuals = item;
     }
   },
 };
@@ -265,6 +364,7 @@ export default {
 <style scoped>
 .serverHost {
   position: relative;
+  margin-left: -55px;
 }
 .serverHost >>> .el-tabs__content {
   margin-left: 150px;

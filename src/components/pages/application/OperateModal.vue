@@ -42,7 +42,7 @@
         <el-button type="primary"
                    @click="confirm"
                    :loading="btnLoading">确定</el-button>
-        <el-button @click="cancelButtonClick()">取消</el-button>
+        <el-button @click="cancelButtonClick">取消</el-button>
       </span>
     </el-dialog>
   </section>

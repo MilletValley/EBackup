@@ -40,7 +40,7 @@ export default {
                     value: 0
                 }
             }
-        })
+        }).filter(item => Number(item.type) !== 14)
     },
     currentNum() {
         return this.types ? this.types.map(v => v.value) : []

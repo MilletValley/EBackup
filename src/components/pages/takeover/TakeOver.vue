@@ -7,26 +7,36 @@
           <el-radio label="oracle" border>Oracle</el-radio>
           <el-radio label="sqlserver" border>SQLServer</el-radio>
           <el-radio label="insql" border>InSql</el-radio>
+          <el-radio label="mysql" border>MySql</el-radio>
         </el-radio-group>
+      </el-form-item>
+      <el-form-item style="float: right;">
+          <el-button type="success"
+                    @click="toGuide('takeoverManual', 'dataDaseTakeOver')"
+                    size="small">操作说明</el-button>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="info"
-                   @click="$router.push({name: `${databaseType}List`})">数据库列表</el-button>
+                   @click="$router.push({name: `${databaseType}List`})"
+                   size="small">数据库列表</el-button>
       </el-form-item>
       <el-form-item v-show="!enterFromMenu"
                     style="float: right;">
         <el-button type="primary"
-                   @click="displayLinkCreateModal">添加</el-button>
+                   @click="displayLinkCreateModal"
+                   size="small">添加</el-button>
       </el-form-item>
       <el-form-item style="float: right;"
                     v-show="['oracle', 'sqlserver'].includes(databaseType)">
         <el-button type="primary"
-                   @click="batchSwitch">批量切换</el-button>
+                   @click="batchSwitch"
+                   size="small">批量切换</el-button>
       </el-form-item>
       <el-form-item style="float: right;">
         <el-button icon="el-icon-refresh"
-                   @click="refreshData">刷新</el-button>
+                   @click="refreshData"
+                   size="small">刷新</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">
@@ -115,7 +125,7 @@
                         <span :class="$style.hostIp">{{ hostLink.primaryHost.hostIp }}</span>
                       </el-col>
                       <el-col :span="8"
-                              v-show="hostLink.serviceIpMark === 1 && osType(hostLink.primaryHost) === 'Linux'">
+                              v-show="hostLink.serviceIpMark === 1 && ['Linux', 'RAC'].includes(osType(hostLink.primaryHost))">
                         <el-tooltip content="提供服务中"
                                     effect="light"
                                     placement="right"
@@ -199,15 +209,39 @@
                   </div>
                   <template v-else>
                     <div style="margin: -3px 0 -6px;">
+                        <el-tooltip placement="top" effect="light">
+                            <div slot="content">
+                                将业务重新转移到生产环境
+                                <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                  <li class="el-icon-question"></li></el-button>
+                            </div>
+                        </el-tooltip>
+
                       <el-button type="text"
                                  :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.primaryDatabase.role === 2)"
                                  @click="switchMultiDatabasesToProduction(hostLink)">切主</el-button>
-                      <el-button type="text"
-                                 @click="switchHostIp(hostLink)"
-                                 :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
-                      <el-button type="text"
-                                :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
-                                @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              IP切换操作
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                <li class="el-icon-question"></li></el-button>
+                          </div>
+                          <el-button type="text"
+                          @click="switchHostIp(hostLink)"
+                          :disabled="osType(hostLink.primaryHost) === 'AIX'">切IP</el-button>
+                      </el-tooltip>
+                
+                      <el-tooltip placement="top" effect="light">
+                          <div slot="content">
+                              生产环境故障时，将业务转移到易备环境
+                              <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                <li class="el-icon-question"></li></el-button>
+                          </div>
+                          <el-button type="text"
+                          :disabled="!hostLink.databaseLinks.some(dbLink => dbLink.viceDatabase.role === 2)"
+                          @click="switchMultiDatabaseToEbackup(hostLink)">切备</el-button>
+                      </el-tooltip>
+                   
                     </div>
                     <div v-show="!enterFromMenu">
                       <el-button type="text"
@@ -223,19 +257,33 @@
                     <i-icon name="host-ebackup"
                             :class="$style.hostIcon"></i-icon>
                     <span>{{ hostLink.viceHost.name }}</span>
-                    <el-dropdown style="position: absolute; right: 0px; top: -9px;"
-                                 v-if="hostLink.primaryHost.databaseType === 1">
+                    <el-dropdown style="position: absolute; right: 0px; top: -9px;" size="small"
+                                 v-if="['oracle', 'sqlserver'].includes(databaseType)">
                       <el-button size="mini">
                         更多操作<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
-                                          @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
-                                          @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
-                                          @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
-                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link))"
+                        <!-- 10g版本无验证结果功能 -->
+                          <el-tooltip placement="top" effect="light">
+                              <div slot="content">
+                                  相关操作的验证结果
+                                  <el-button type="text" @click="toGuide('takeoverManual', 'dataDaseTakeOver')" >
+                                    <li class="el-icon-question"></li></el-button>
+                              </div>
+                              <el-dropdown-item @click.native="queryVerifyResult(hostLink)"
+                                                v-if="!(hostLink.primaryHost.databaseType === 1 && hostLink.primaryHost.oracleVersion === 1)">
+                                验证结果
+                              </el-dropdown-item>
+                          </el-tooltip>
+                        <span v-if="hostLink.primaryHost.databaseType === 1">
+                          <el-dropdown-item :disabled="!availableSingleSwitchIp(hostLink)"
+                                            @click.native="singleSwitchIp(hostLink)">单切IP</el-dropdown-item>
+                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableSingleSwitchDb(hostLink, link))"
+                                            @click.native="singleSwitchMultiDatabases(hostLink)">单切实例</el-dropdown-item>
+                          <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableRestoreSingleSwitch(hostLink, link))"
+                                            @click.native="restoreSingleSwitch(hostLink, true)">单切恢复</el-dropdown-item>
+                        </span>
+                        <el-dropdown-item :disabled="!hostLink.databaseLinks.some(link => availableCutBackSingle(link, hostLink))"
                                           @click.native="readyToCutBack(hostLink, true)">回切初始化</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
@@ -270,7 +318,7 @@
                         <span :class="$style.hostIp">{{ hostLink.viceHost.hostIp }}</span>
                       </el-col>
                       <el-col :span="8"
-                              v-show="hostLink.serviceIpMark === 2 && osType(hostLink.viceHost) === 'Linux'">
+                              v-show="hostLink.serviceIpMark === 2 && ['Linux', 'RAC'].includes(osType(hostLink.viceHost))">
                         <el-tooltip content="提供服务中"
                                     effect="light"
                                     placement="right"
@@ -369,6 +417,12 @@
                         </el-tag>
                       </el-form-item>
                       <el-form-item :class="$style.switchFormItem"
+                                    v-if="dbLink.latestSwitch.consume"
+                                    label="持续时间">
+                        <timer v-if="dbLink.latestSwitch.state === 1" :val="dbLink.latestSwitch.consume"></timer>
+                        <span v-else>{{ dbLink.latestSwitch.consume | durationFilter }}</span>
+                      </el-form-item>
+                      <el-form-item :class="$style.switchFormItem"
                                     v-if="dbLink.latestSwitch.state !== 1"
                                     label="完成时间">
                         <span>{{ dbLink.latestSwitch.switchTime }}</span>
@@ -386,10 +440,11 @@
                       <i-icon name="transportationLeft"
                               :class="$style.transportationIcon"></i-icon>
                     </div>
-                    <i-icon :name="`switch-${dbLink.state}`"
-                            slot="reference"
-                            :class="$style.switchIcon"
-                            v-else></i-icon>
+                    <div slot="reference" style="position: relative; height: 3em; display: inline-block"
+                         v-else>
+                      <i-icon :name="`switch-${dbLink.state}`"
+                              :class="$style.switchIcon"></i-icon>
+                    </div>
                   </el-popover>
                   <div v-if="dbLink.latestSwitch && dbLink.latestSwitch.state === 1 && [1, 4, 5, 6].includes(dbLink.latestSwitch.type)"
                        style="margin-top: 6px;">
@@ -415,18 +470,21 @@
                                  :class="$style.failOver">{{dbLink.failOverState === 1?'关闭故障转移':'开启故障转移'}}</el-button>
                     </div>
                     <div>
-                      <el-dropdown v-if="hostLink.primaryHost.databaseType === 1">
+                      <el-dropdown v-if="[1, 2].includes(hostLink.primaryHost.databaseType)">
                         <span :class="$style.dropdownLink">
                           切换操作<i class="el-icon-arrow-down el-icon--right" style="font-size: 12px; margin-left: 0"></i>
                         </span>
                         <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">切换实例</el-dropdown-item>
-                          <el-dropdown-item @click.native="singleSwitchDatabase(dbLink.id)"
-                                            :disabled="!availableSingleSwitchDb(hostLink, dbLink)">单切实例</el-dropdown-item>
-                          <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
-                                            :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
+                          <el-dropdown-item @click.native="switchDatabase(dbLink.id)">
+                            切换{{instanceName.substring(0, instanceName.length-1)}}</el-dropdown-item>
+                          <span v-if="hostLink.primaryHost.databaseType === 1">
+                            <el-dropdown-item @click.native="singleSwitchDatabase(dbLink.id)"
+                                              :disabled="!availableSingleSwitchDb(hostLink, dbLink)">单切实例</el-dropdown-item>
+                            <el-dropdown-item @click.native="restoreSingleSwitch(hostLink, false, [dbLink])"
+                                              :disabled="!availableRestoreSingleSwitch(hostLink, dbLink)">单切恢复</el-dropdown-item>
+                          </span>
                           <el-dropdown-item @click.native="readyToCutBack(hostLink, false, [dbLink])"
-                                            :disabled="!(availableCutBackSingle(dbLink))">回切初始化</el-dropdown-item>
+                                            :disabled="!(availableCutBackSingle(dbLink, hostLink))">回切初始化</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                       <el-button type="text"
@@ -525,6 +583,7 @@
                         :btn-loading="btnLoading"
                         :databaseType="databaseType"
                         @confirm="addSwitchPlan"></batch-switch-modal>
+    <TakeoverVerificationResult :id="selectLinkId" :visible.sync="verifyResultModalVisible"></TakeoverVerificationResult>
   </section>
 </template>
 <script>
@@ -537,7 +596,9 @@ import SingleSwitchIpModal from '@/components/pages/takeover/SingleSwitchIpModal
 import SwitchIpModal from '@/components/pages/takeover/SwitchIpModal';
 import SwitchDatabaseLinksModal from '@/components/pages/takeover/SwitchDatabaseLinksModal';
 import FailOverModal from '@/components/pages/takeover/FailOverModal';
+import TakeoverVerificationResult from '@/components/modal/TakeoverVerificationResult';
 import IIcon from '@/components/IIcon';
+import Timer from '@/components/Timer';
 import dayjs from 'dayjs';
 import {
   fetchAll as fetchAllOracle,
@@ -554,6 +615,7 @@ import {
   fetchLinks as fetchLinksSqlserver,
   createLinks as createLinksSqlserver,
   createSwitches as switchSqlserver,
+  cutBackSwitch as cutBackSwitchSqlserver
 } from '@/api/sqlserver';
 import {
   fetchAll as fetchAllInSql,
@@ -579,6 +641,8 @@ import {
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import batchSwitchMixin from '@/components/mixins/batchSwitchMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import baseMixin from '@/components/mixins/baseMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 // 模拟数据
 // import { items, links, hosts, hosts2 } from '../../utils/mock-data';
 
@@ -617,11 +681,17 @@ const switchIpMethod = {
   false: switchHostIp
 }
 
+const cutBackMethod = {
+  oracle: cutBackSwitchOracle,
+  sqlserver: cutBackSwitchSqlserver
+}
+
 export default {
   name: 'TakeOver',
-  mixins: [takeoverMixin, batchSwitchMixin, themeMixin],
+  mixins: [takeoverMixin, batchSwitchMixin, themeMixin, baseMixin, manualPageMixin],
   components: {
     IIcon,
+    Timer,
     DatabaseLinkCreateModal,
     BatchSwitchModal,
     CutBackModal,
@@ -632,7 +702,8 @@ export default {
     SwitchDatabaseLinksModal,
     SwitchIpModal,
     RemoveHostLinkModal,
-    FailOverModal
+    FailOverModal,
+    TakeoverVerificationResult
   },
   data() {
     return {
@@ -653,7 +724,9 @@ export default {
       hostLinkSwitchMsg: {}, // 即将切换的设备连接
       dbSwitchMsg: {}, // 即将切换的数据库连接
       multiply: false, // 标记单个或批量操作
-      timer: null
+      timer: null,
+      verifyResultModalVisible: false,
+      selectLinkId: null
     };
   },
   created() {
@@ -828,7 +901,7 @@ export default {
       this.cutBackVisible = true;
       const { databaseLinks, ...other } = hostLink;
       this.multiply = multiply;
-      const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item)) : link;
+      const readyToCutBackLinks = multiply ? databaseLinks.filter(item => this.availableCutBackSingle(item, hostLink)) : link;
       this.hostLinkSwitchMsg = { databaseLinks: readyToCutBackLinks, ...other };
     },
     // 单切恢复（单个、批量）
@@ -888,7 +961,7 @@ export default {
     // 回切初始化
     cutBackConfirm(switchIds) {
       this.btnLoading = true;
-      cutBackSwitchOracle(switchIds)
+      cutBackMethod[this.databaseType](switchIds)
         .then(res => {
           const { data, message } = res.data;
           this.databaseLinks.forEach(link => {
@@ -1035,22 +1108,26 @@ export default {
     },
     // 回切初始化或单切恢复
     readyToCutBack(hostLink, multiply, link = []) {
-      this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.restoreSingleSwitch(hostLink, multiply, link);
+      if (this.databaseType === 'oracle') {
+        this.$confirm('此操作将执行回切初始化，是否先进行单切恢复？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(() => {
-          this.cutBackSwitch(hostLink, multiply, link);
-        });
+          .then(() => {
+            this.restoreSingleSwitch(hostLink, multiply, link);
+          })
+          .catch(() => {
+            this.cutBackSwitch(hostLink, multiply, link);
+          });
+      } else if (this.databaseType === 'sqlserver') {
+        this.cutBackSwitch(hostLink, multiply, link);
+      }
     },
     /**
         可以单切实例的环境：
         1、windows的10g、11g、12c
-        2、linux的11g、12c
+        2、linux的10g、11g、12c
         3、rac的10g、11g
         4、AIX的11g
         生产库-主，易备库-备
@@ -1061,7 +1138,7 @@ export default {
           case 'Windows':
             return [1, 2, 3].includes(primaryHost.oracleVersion);
           case 'Linux':
-            return [2, 3].includes(primaryHost.oracleVersion);
+            return [1, 2, 3].includes(primaryHost.oracleVersion);
           case 'RAC':
             return [1, 2].includes(primaryHost.oracleVersion);
           case 'AIX':
@@ -1075,14 +1152,14 @@ export default {
     /**
      * 可以单切IP的环境：
      * 1、windows的10g、11g、12c
-     * 2、linux的11g、12c
+     * 2、linux的10g、11g、12c
      **/
     availableSingleSwitchIp({ primaryHost }) {
       switch(this.osType(primaryHost)) {
         case 'Windows':
           return [1, 2, 3].includes(primaryHost.oracleVersion);
         case 'Linux':
-          return [2, 3].includes(primaryHost.oracleVersion);
+          return [1, 2, 3].includes(primaryHost.oracleVersion);
         default:
           return false;
       }
@@ -1127,12 +1204,35 @@ export default {
       }
       return false;
     },
-    /** ● 连接：异常不可接管
+    /** Oracle：可以回切初始化的实例
+        ● 连接：异常不可接管
         ● 易备库主，正常
         ● 生产库备，非正常
+        ● Windows、Linux的11g
+        SQL Server：可以回切初始化的实例
+        ● 连接：异常可接管
+        ● 易备库主：正常
+        ● 生产库备，正常
+        ● Windows、Linux
     **/
-    availableCutBackSingle({ state, viceDatabase, primaryDatabase }) {
-      return state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) && (primaryDatabase.role === 2 && primaryDatabase.state !== 1);
+    availableCutBackSingle({ state, viceDatabase, primaryDatabase }, { primaryHost }) {
+      if(this.databaseType === 'oracle') {
+        if (state === 3 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
+          (primaryDatabase.role === 2 && primaryDatabase.state !== 1)) {
+          switch(this.osType(primaryHost)) {
+            case 'Windows':
+            case 'Linux':
+              return primaryHost.oracleVersion === 2;
+            default:
+              return false;
+          }
+        }
+        return false;
+      } else if (this.databaseType === 'sqlserver') {
+        return state === 4 && (viceDatabase.role === 1 && viceDatabase.state === 1) &&
+          (primaryDatabase.role === 2 && primaryDatabase.state === 1);
+      }
+      return false;
     },
     jumpToLinkDetail(linkId) {
       if (this.databaseType === 'oracle') {
@@ -1148,6 +1248,11 @@ export default {
       } else if (this.databaseType === 'insql') {
         this.$router.push({
           name: 'insqlLinkDetail',
+          params: { id: String(linkId) },
+        });
+      } else if (this.databaseType === 'mysql') {
+        this.$router.push({
+          name: 'mysqlLinkDetail',
           params: { id: String(linkId) },
         });
       }
@@ -1229,7 +1334,11 @@ export default {
             return 0;
         }
       });
-    }
+    },
+    queryVerifyResult(obj) {
+      this.selectLinkId = obj.id;
+      this.verifyResultModalVisible = true;
+    },
   }
 };
 </script>

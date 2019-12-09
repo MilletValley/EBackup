@@ -17,6 +17,7 @@
                                      :ref="props.row.id"
                                      :refTable="props.row.serverName"
                                      :selectData.sync="currentSelect"
+                                     :vm-type="vmType"
                                      @refresh="refreshOneServer(props.row)"></mutil-table>
                     </template>
             </el-table-column>
@@ -72,7 +73,11 @@
                 </template>
             </el-table-column>
         </el-table>
-        <mutil-table v-show="isSelect" :tableData="currentSelect" refTable="selectTable" :selectData.sync="currentSelect"></mutil-table>
+        <mutil-table v-show="isSelect"
+                     :tableData="currentSelect"
+                     refTable="selectTable"
+                     :selectData.sync="currentSelect"
+                     :vm-type="vmType"></mutil-table>
         <backup-plan-modal type="vm"
                      :visible.sync="backupPlanCreateModalVisible"
                      :btn-loading="btnLoading"
@@ -89,7 +94,7 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVirtualByserverId,
+  getVirtualByServerId,
 } from '@/api/virtuals';
 import BackupPlanModal from '@/components/pages/vm/BackupPlanModal';
 import ServerModal from '@/components/modal/ServerModal';
@@ -153,10 +158,10 @@ export default {
     },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
-      let vmIds = this.currentSelect.map(e => {
-        return e.id;
-      });
-      plan.vmList = vmIds;
+      // let vmIds = this.currentSelect.map(e => {
+      //   return e.id;
+      // });
+      plan.vmList = this.currentSelect;
       this.btnLoading = true;
       createMultipleVirtualBackupPlan(plan)
         .then(res => {
@@ -264,7 +269,7 @@ export default {
     },
     // 刷新单个主机下的虚拟机列表
     refreshOneServer(row) {
-      getVirtualByserverId(row.id).then(res => {
+      getVirtualByServerId(row.id).then(res => {
         const ids = row.vmList.map(i => i.id);
         this.currentSelect = this.currentSelect.filter(e => {
           if (ids.includes(e.id)) {

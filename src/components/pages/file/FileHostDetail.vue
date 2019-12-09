@@ -68,6 +68,13 @@
                   </el-form-item>
                 </el-col>
               </el-row>
+              <el-row style="margin-right: 5px;">
+                <el-col :span="8">
+                  <el-form-item label="存储方式：">
+                    <span>{{ details.storeType ? storeTypeMapping[details.storeType] : '-' }}</span>
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </el-form>
           </el-col>
         </el-row>
@@ -111,9 +118,7 @@
     <backup-plan-modal :btn-loading="btnLoading"
                        :host-id="hostId"
                        :type="systemType"
-                       :systems="details.systems"
-                       :volumes="details.volumes"
-                       :filePath="details.sourcePath"
+                       :details="details"
                        :visible.sync="backupPlanModalVisible"
                        @confirm="confirmCallback"
                        :action="action"
@@ -141,6 +146,7 @@ import { applyFilterMethods } from '@/utils/common';
 import { sortMixin, sockMixin } from '@/components/mixins/commonMixin';
 import themeMixin from '@/components/mixins/themeMixins';
 import throttle from 'lodash/throttle';
+import { storeTypeMapping } from '@/utils/constant';
 import {
   fetchOne,
   fetchBackupPlans,
@@ -188,6 +194,7 @@ export default {
       action: 'create',
       activeTab: 'plans',
       restoreResults: {},
+      storeTypeMapping,
       singleRestoreCreateModalVisible: false,
       details: {
         host: {}

@@ -19,10 +19,16 @@
             <el-button slot="append" icon="el-icon-search" @click="searchByName"></el-button>
           </el-input>
         </el-form-item>
+        <el-form-item style="float: right;">
+            <el-button type="success"
+                      @click="toGuide('databaseManual', 'addDataBase')"
+                      size="small">操作说明</el-button>
+          </el-form-item>
         <el-form-item style="float: right">
           <el-button type="primary"
                     @click="addFn"
-                    style="float: right">添加</el-button>
+                    style="float: right"
+                    size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -172,9 +178,10 @@
 import DatabaseModal from '@/components/pages/db2/DatabaseModal';
 import tableMixin from '@/components/mixins/databaseTableMixin';
 import switchViewMixins from '@/components/mixins/switchViewMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 export default {
   name: 'DB2List',
-  mixins: [tableMixin, switchViewMixins],
+  mixins: [tableMixin, switchViewMixins, manualPageMixin],
   data() {
     return {
       databaseType: 'db2',
@@ -199,7 +206,7 @@ export default {
     },
     deleteDb(row) {
       this.delete(row, '确认删除此数据库?');
-    }
+    },
   },
   components: {
     DatabaseModal

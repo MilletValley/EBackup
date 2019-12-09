@@ -83,7 +83,7 @@
                 <el-input-number v-model="multiFormData[index].port"></el-input-number>
               </el-form-item>
             </template>
-            <template v-if="['sqlserver', 'insql'].includes(type)">
+            <template v-if="['sqlserver', 'insql', 'mysql'].includes(type)">
               <el-form-item label="备库登录名">
                 <el-input :disabled="keep"
                           v-model="multiFormData[index].viceLoginName"></el-input>
@@ -92,6 +92,31 @@
                 <input-toggle v-model="multiFormData[index].vicePassword"
                               :disabled="keep"
                               :hidden.sync="hiddenPassword"></input-toggle>
+              </el-form-item>
+              <el-form-item label="备库存放路径">
+                <el-row>
+                  <el-radio-group v-model="multiFormData[index].vicePathType">
+                    <el-radio label="default">默认
+                      <el-tooltip content="与主库路径一致"
+                            placement="right">
+                        <i class="el-icon-question"
+                          style="margin-left:0;"></i>
+                      </el-tooltip>
+                    </el-radio>
+                    <el-radio label="custom" v-if="type === 'sqlserver'">自定义路径</el-radio>
+                  </el-radio-group>
+                </el-row>
+              </el-form-item>
+              <el-form-item label="自定义路径" v-if="multiFormData[index].vicePathType === 'custom'">
+                <el-row>
+                  <el-col :span="18">
+                    <el-input :disabled="keep" readonly type="textarea" resize="none" :autosize="true"
+                          v-model="multiFormData[index].assignPath" style="margin-right: 20px;"></el-input>
+                  </el-col>
+                  <el-col :span="6" style="min-width: 80px;">
+                    <el-button type="text" :disabled="!selectedEbackupHostId" @click="openPathModel(multiFormData[index])" style="font-size: 14px;margin-left: 10px;letter-spacing: 5px;">浏览...</el-button>
+                  </el-col>
+                </el-row>
               </el-form-item>
               <el-form-item label="保持锁定">
                 <el-switch :disabled="!multiFormData[0].viceLoginName || !multiFormData[0].vicePassword"
@@ -114,11 +139,16 @@
                  :loading="btnLoading"
                  @click="confirmBtnClick">确定</el-button>
     </span>
+    <path-tree :visible.sync="pathVisible"
+              :dbType="type"
+              :host-id="Number(selectedEbackupHostId)"
+              @selectNodes="selectTargetNodes"></path-tree>
   </el-dialog>
 </template>
 <script>
 import { sortMixin } from '@/components/mixins/commonMixin';
 import InputToggle from '@/components/InputToggle';
+import PathTree from '@/components/pages/takeover/PathTree';
 export default {
   name: 'DatabaseLinkCreateModal',
   mixins: [sortMixin],
@@ -138,7 +168,7 @@ export default {
     type: {
       type: String,
       validator(value) {
-        return ['oracle', 'sqlserver', 'insql'].includes(value);
+        return ['oracle', 'sqlserver', 'insql', 'mysql'].includes(value);
       },
     },
     btnLoading: {
@@ -154,8 +184,20 @@ export default {
       multiFormData: [], // 多个tab页内的表单数据
       originRequestData: [],
       keep: false,
-      hiddenPassword: true
+      hiddenPassword: true,
+      pathVisible: false
     };
+  },
+  directives: {
+    init: {
+      inserted(el, binding) {
+        binding.value.vicePathType = 'custom';
+        // binding.value.primaryDatabaseId = 1;
+        // binding.value = 'custom';
+        // binding.value();
+        // binding.value.primaryDatabaseId = 1;
+      }
+    }
   },
   watch: {
     /**
@@ -166,12 +208,20 @@ export default {
       this.selectedEbackupHostId = '';
     },
     readyToResetTabs(value) {
-      this.multiFormData = this.databaseTabs.map(db => ({
-        primaryDatabaseId: db.id,
-        // primaryLsn: '',
-        // viceLsn: '',
-        // port: '',
-      }));
+      this.multiFormData = this.databaseTabs.map(db => {
+        if (this.type === 'sqlserver') {
+          return {
+            primaryDatabaseId: db.id,
+            vicePathType: 'default'
+          };
+        }
+        return {
+          primaryDatabaseId: db.id,
+          // primaryLsn: '',
+          // viceLsn: '',
+          // port: '',
+        };
+      });
       this.currentTab = String(
         (this.databaseTabs[0] && this.databaseTabs[0].id) || ''
       );
@@ -215,7 +265,7 @@ export default {
     instanceName() {
       if (this.type === 'oracle') {
         return '实例';
-      } else if (['sqlserver', 'insql'].includes(this.type)) {
+      } else if (['sqlserver', 'insql', 'mysql'].includes(this.type)) {
         return '数据库';
       }
     },
@@ -250,12 +300,19 @@ export default {
         const validateProps = {
           oracle: ['primaryLsn', 'viceLsn', 'port'],
           sqlserver: ['viceLoginName', 'vicePassword'],
-          insql: ['viceLoginName', 'vicePassword']
+          insql: ['viceLoginName', 'vicePassword'],
+          mysql: ['viceLoginName', 'vicePassword', 'assignPath']
         };
         let isSuccess = true;
         for (let i = 0, l = multiFormData.length; i < l; ++i) {
           const formData = multiFormData[i];
           let errorProp = validateProps[type].find(prop => {
+            if (prop === 'assignPath') {
+              if (formData['vicePathType'] === 'custom') {
+                return !formData[prop] || formData[prop] === '';
+              }
+              return false;
+            }
             return !formData[prop] || formData[prop] === '';
           });
           if (errorProp) {
@@ -299,21 +356,30 @@ export default {
       this.currentTab = '';
       this.hiddenPassword = true;
     },
+    openPathModel(data) {
+      this.pathVisible = true;
+      this.currentForm = data;
+    },
+    selectTargetNodes(data) {
+      this.currentForm.assignPath = data.map(node => node.sourcePath).concat()[0];
+    }
   },
   components: {
-    InputToggle
+    InputToggle,
+    PathTree
   }
 };
 </script>
 <style lang="scss" module>
+@import '@/assets/theme/variable.scss';
 .configureTabContainer {
-  height: 210px;
+  // height: 260px;
   margin: {
     top: 10px;
   }
 }
 .defaultTabs {
-  height: 221px;
+  // height: 271px;
 }
 .tipInfo {
   width: 310px;
@@ -321,5 +387,10 @@ export default {
   font-size: 3em;
   color: #c0c4cc;
   text-align: center;
+}
+.link{
+  @include primary-color;
+  cursor: pointer;
+  margin-left: 10px;
 }
 </style>

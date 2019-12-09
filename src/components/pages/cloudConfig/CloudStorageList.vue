@@ -4,9 +4,15 @@
       <el-form inline
                size="small">
         <el-form-item style="float: right;">
+        <el-button type="success"
+                   @click="toGuide('equipmentManageManual', 'configurationManage')"
+                   size="small">操作说明</el-button>
+        </el-form-item>
+        <el-form-item style="float: right;">
           <el-button type="primary"
-                    @click="createOne()"
-                    :disabled="items.length > 1">添加</el-button>
+                     @click="createOne()"
+                     :disabled="items.length > 1"
+                     size="small">添加</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -57,6 +63,7 @@
 <script>
 import { fetchAll, createOne, modifyOne, deleteOne } from '@/api/cloudConfig';
 import OperateModal from '@/components/pages/cloudConfig/OperateModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 
 const operateType = {
   create: createOne,
@@ -65,6 +72,7 @@ const operateType = {
 
 export default {
   name: 'CloudStorageList',
+  mixins: [manualPageMixin],
   data() {
     return {
       items: [],

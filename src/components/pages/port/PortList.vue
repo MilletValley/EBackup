@@ -1,14 +1,16 @@
 <template>
   <section>
-    <!-- <el-row>
+    <el-row>
       <el-form inline
                size="small">
         <el-form-item style="float: right;">
-          <el-button type="primary"
-                    @click="createPort()">添加</el-button>
+            <el-button type="success"
+                       @click="toGuide('equipmentManageManual', 'configurationManage')"
+                       size="small">操作说明</el-button>
         </el-form-item>
       </el-form>
-    </el-row> -->
+    </el-row> 
+
     <el-table :data="ports"
               style="width: 100%">
       <el-table-column type="index"
@@ -54,12 +56,14 @@
 import { portHostTypeMapping } from '@/utils/constant';
 import { fetchAll, deleteOne, createOne, modifyOne } from '@/api/port';
 import OperatePortModal from '@/components/pages/port/OperatePortModal';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 const OperateOne = {
   create: createOne,
   update: modifyOne
 };
 export default {
   name: 'PortList',
+  mixins: [manualPageMixin],
   data() {
     return {
       ports: [],

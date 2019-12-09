@@ -1,13 +1,27 @@
 <template>
     <div>
-        <server-table :tableData="serverTableData" :currentSelect.sync="currentSelect" :showSelect.sync="isSelect" :showDelete="true" @delete="deleteServer">
+        <server-table :tableData="serverTableData"
+                      :currentSelect.sync="currentSelect"
+                      :showSelect.sync="isSelect"
+                      :showDelete="true"
+                      @delete="deleteServer"
+                      @update:vmwareMasterControlServers="vmwareMasterControlServersUpdate"
+                      :vm-type="vmType">
           <template slot="other">
-            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small">
+            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
+                       v-if="vmType === 4 && isSelect">添加备份计划</el-button>
+            <el-button type="primary" @click="rescanServerHost" size="small"
+                       v-if="vmType === 4">扫描主机</el-button>
+            <el-button type="primary" @click="buttonClickHandler" :disabled="disabled" size="small"
+                       v-if="[1, 2, 3].includes(vmType)">
               {{isSelect ? '添加备份计划' : '添加主机'}}
             </el-button>
-            <el-button type="info" @click="takeOverClick" :disabled="disabled" size="small" v-if="[1, 3].includes(vmType)">
+            <el-button type="info" @click="takeOverClick"
+                       :disabled="disabled" size="small"
+                       v-if="(!isSelectedVMwareMasterControlServers && vmType === 1) || vmType === 3">
               {{isSelect ? '接管初始化' : '一键接管'}}
             </el-button>
+            <el-button type="success" size="small" @click="toGuide('addManagementManual', 'addManagement')">操作说明</el-button>
           </template>
         </server-table>
         <backup-plan-modal type="vm"
@@ -30,14 +44,17 @@ import { addServer, fetchServerList, deleteServer } from '@/api/host';
 import {
   createMultipleVirtualBackupPlan,
   rescan,
-  getVirtualByserverId,
-  createLinks
+  getVirtualByServerId,
+  createLinks,
+  rescanServerHost
 } from '@/api/virtuals';
+import { sockMixin } from '@/components/mixins/commonMixin';
 import BackupPlanModal from '@/components/pages/virtual/BackupPlanModal';
 import ServerTable from '@/components/pages/virtual/ServerTable';
 import ServerModal from '@/components/modal/ServerModal';
 import CreateLinkModal from '@/components/pages/virtual/takeover/CreateLinkModal';
 import MutilTable from '@/components/modal/MutilTable';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import {
   virtualHostServerTypeMapping,
   serverTypeMapping,
@@ -52,6 +69,7 @@ export default {
     CreateLinkModal,
     MutilTable,
   },
+  mixins: [sockMixin, manualPageMixin],
   data() {
     return {
       serverTableData: [],
@@ -62,6 +80,7 @@ export default {
       serverModalVisible: false,
       createLinkModalVisile: false,
       refreshBtn: false,
+      vmwareMasterControlServers: [],
     };
   },
   computed: {
@@ -73,11 +92,17 @@ export default {
         this.$route.name.toLowerCase().includes(virtualMapping[type].toLowerCase())
       ));
     },
+    isSelectedVMwareMasterControlServers() {
+      return this.currentSelect.some(virtual => this.vmwareMasterControlServers.includes(virtual.serverId));
+    }
   },
   mounted() {
     this.fetchData();
   },
   methods: {
+    vmwareMasterControlServersUpdate(ids) {
+      this.vmwareMasterControlServers = ids;
+    },
     fetchData() {
       fetchServerList()
         .then(res => {
@@ -104,12 +129,33 @@ export default {
           this.serverTableData = this.serverTableData.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
         })
     },
+    connectCallback(client) {
+      this.stompClient.subscribe('/virtual-server-list', msg => {
+        let { data: list } = JSON.parse(msg.body);
+        if (!Array.isArray(list)) {
+            this.serverTableData = [];
+            this.currentSelect = [];
+            return;
+          }
+          let ids = [];
+          let tdata = list.map(e => {
+            let vmList = Array.isArray(e.vmList) ? e.vmList : [];
+            ids = ids.concat(vmList);
+            e.disabled = false;
+            e.icon = 'el-icon-refresh';
+            e.delBtnIcon = 'el-icon-delete';
+            return e;
+          });
+          this.serverTableData = tdata.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
+          this.currentSelect = this.currentSelect.filter(item => ids.includes(item.id));
+      });
+    },
     addBackupPlan(data) {
       let plan = Object.assign({}, data);
-      let vmIds = this.currentSelect.map(e => {
-        return e.id;
-      });
-      plan.vmList = vmIds;
+      // let vmIds = this.currentSelect.map(e => {
+      //   return e.id;
+      // });
+      plan.vmList = this.currentSelect;
       this.btnLoading = true;
       createMultipleVirtualBackupPlan(plan)
         .then(res => {
@@ -239,6 +285,29 @@ export default {
           this.$message.error(error);
         });
     },
+    rescanServerHost() {
+      rescanServerHost()
+        .then(res => {
+          const { data, message } = res.data;
+          if (!Array.isArray(data)) {
+            this.serverTableData = [];
+            this.currentSelect = [];
+            return;
+          }
+          let tdata = data.map(e => {
+            e.disabled = false;
+            e.icon = 'el-icon-refresh';
+            e.delBtnIcon = 'el-icon-delete';
+            return e;
+          });
+          this.serverTableData = tdata.filter(item => serverTypeMapping[this.vmType].includes(item.serverType));
+          this.currentSelect = [];
+          this.$message.success(message);
+        })
+        .catch(error => {
+          this.$message.error(error);
+        });
+    },
     buttonClickHandler() {
       if (this.isSelect) {
         this.backupPlanCreateModalVisible = true;
@@ -264,7 +333,7 @@ export default {
       setTimeout(() => {
         rescan(scope.row)
           .then(res => {
-            getVirtualByserverId(scope.row.id).then(res => {
+            getVirtualByServerId(scope.row.id).then(res => {
               const ids = scope.row.vmList.map(i => i.id);
               this.currentSelect = this.currentSelect.filter(e => {
                 if (ids.includes(e.id)) {

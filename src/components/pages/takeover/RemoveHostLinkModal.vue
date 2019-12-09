@@ -10,7 +10,7 @@
                   :class="$style.switchModalIcon"></i-icon>
         </el-col>
         <el-col :span="18">
-          <div style="height: 220px;max-height: 220px;overflow: scroll;">
+          <div style="height: 220px;max-height: 220px;overflow: auto;">
             <h4>即将执行以下操作，请检查。</h4>
             <p>
               <span :class="$style.productionEnvColor">

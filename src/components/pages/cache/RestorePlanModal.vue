@@ -134,7 +134,7 @@ export default {
       // originFormData: Object.assign({}, baseFormData), // 原始数据
       rules: {
         name: validate.planName,
-        // hostIp: validate.selectHost,
+        hostIp: validate.selectHost,
         detailInfo: validate.dbName,
         dbPort: validate.dbPort,
         loginName: validate.dbLoginName,

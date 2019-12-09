@@ -28,8 +28,8 @@ const tableMixin = {
     };
   },
   computed: {
-    monitorConf() {
-      return this.$store.state.nav.monitorconf;
+    configMsg() {
+      return this.$store.state.nav.configMsg;
     }
   },
   mounted() {

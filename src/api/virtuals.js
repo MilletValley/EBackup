@@ -204,7 +204,7 @@ const getVirtualsBackupResult = id =>
     url: `/virtual-backup-plans/virtuals/details/${id}`
   });
 
-const getVirtualByserverId = id =>
+const getVirtualByServerId = id =>
   baseApi.request({
     method: 'get',
     url: `/virtuals/hosts/server/vmList/${id}`
@@ -303,6 +303,99 @@ const fetchTimePoints = id =>
     url: `/virtual-links/${id}/timePoints`
   });
 
+// 启动单个虚拟机
+const ModifyOneStartup = id =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtuals/${id}/modify-startup-state`,
+  });
+
+// 验证物理主机用户名、密码
+const validatePassword = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtuals/hosts/server/list/${id}/validate-password`,
+    data
+  });
+
+// 批量虚拟机开机自启
+const multiBootPower = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtuals/hosts/server/list/${id}/boot-power`,
+    data
+  });
+
+// 发送rsa密码
+const sendRSAPassword = data =>
+  baseApi.request({
+    method: 'post',
+    url: '/send-rsa-encryption',
+    data
+  });
+
+// 扫描主机
+const rescanServerHost = () =>
+  baseApi.request({
+    method: 'get',
+    url: '/virtuals/hosts/server/rescan'
+  });
+
+// 根据备份集id获取aCloud存储位置
+const fetchACloudStorages = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-backup-results/${id}/aCloud-recovery-storages`
+  });
+
+// 根据aCloud存储位置获取主机列表
+const fetchServerHostsByStorage = (id, hostId) =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtuals/aCloud-recovery-storages/${id}/host-servers?hostId=${hostId}`
+  });
+
+// 根据主机id获取aCloud分组列表
+const fetchACloudPaths = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtuals/hosts/${id}/aCloud-paths`
+  });
+
+const createACloudRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtuals/${id}/aCloud-restore-plans`,
+    data
+  });
+
+const createACloudSingleRestorePlan = (id, data) =>
+  baseApi.request({
+    method: 'post',
+    url: `/virtual-backup-results/${id}/aCloud-restore-plans`,
+    data
+  });
+
+const resultMigrationCloud = id =>
+  baseApi.request({
+    method: 'get',
+    url: `/virtual-backup-results/${id}/migration-cloud`
+  });
+
+const modifyACloudRestorePlan = data =>
+  baseApi.request({
+    method: 'patch',
+    url: `/virtual-restore-plans/aCloud-restore-plans/${data.id}`,
+    data
+  });
+
+const multiplyDeleteResults = ids =>
+  baseApi.request({
+    method: 'delete',
+    url: '/virtual-backup-results/multiply',
+    data: ids
+  });
+
 export {
   fetchAll,
   fetchOne,
@@ -324,7 +417,7 @@ export {
   rescan,
   fetchVirtualBackupPlanList,
   getVirtualsBackupResult,
-  getVirtualByserverId,
+  getVirtualByServerId,
   deletePlan,
   stopAllBackupPlan,
   deleteVirtualInServerHost,
@@ -338,5 +431,18 @@ export {
   failBackLink,
   modifyLinkStrategy,
   fetchOperationRecords,
-  fetchTimePoints
+  fetchTimePoints,
+  ModifyOneStartup,
+  validatePassword,
+  multiBootPower,
+  sendRSAPassword,
+  rescanServerHost,
+  fetchACloudStorages,
+  fetchServerHostsByStorage,
+  fetchACloudPaths,
+  createACloudRestorePlan,
+  createACloudSingleRestorePlan,
+  modifyACloudRestorePlan,
+  resultMigrationCloud,
+  multiplyDeleteResults
 };

@@ -2,6 +2,7 @@
     <el-form size="small"
              label-position="right"
              label-width="100px"
+             :disabled="disable"
              :model="formData"
              :rules="rules"
              ref="timeIntervalForm">
@@ -14,14 +15,30 @@
                     :key="s">{{ strategys[s] }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="恢复时间" class="is-required"
-                    prop="singleTime"
-                    v-show="formData.timeStrategy == 1">
-        <el-date-picker type="datetime"
-                        format="yyyy-MM-dd HH:mm:ss"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        v-model="formData.singleTime"></el-date-picker>
-      </el-form-item>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item :label="type === 'postgresql' ? '计划时间' : '恢复时间'" class="is-required"
+                        prop="singleTime"
+                        v-show="formData.timeStrategy == 1">
+            <el-date-picker type="datetime"
+                            format="yyyy-MM-dd HH:mm:ss"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            v-model="formData.singleTime"
+                            style="width: 100%"></el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="恢复至" class="is-required"
+                        prop="restoreTimePoint"
+                        v-show="formData.timeStrategy === 1 && type === 'postgresql'">
+            <el-date-picker type="datetime"
+                            format="yyyy-MM-dd HH:mm:ss"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            v-model="formData.restoreTimePoint"
+                            style="width: 100%"></el-date-picker>
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-form-item label="计划时间" class="is-required"
                     prop="startTime"
                     v-show="[2,3].indexOf(formData.timeStrategy) !== -1">
@@ -33,7 +50,8 @@
       <el-form-item label="选择星期" class="is-required"
                     prop="weekPoints"
                     v-show="formData.timeStrategy == 2">
-        <el-checkbox-group v-model="formData.weekPoints">
+        <el-checkbox-group v-model="formData.weekPoints"
+                           @change="sortWeekPoints">
           <el-checkbox-button v-for="w in Object.keys(weekMapping)"
                               :label="w"
                               :key="w">{{ weekMapping[w] }}</el-checkbox-button>
@@ -43,6 +61,7 @@
                     prop="datePoints"
                     v-show="formData.timeStrategy == 3">
         <el-select v-model="formData.datePoints"
+                   @change="sortDatePoints"
                    multiple
                    style="width: 60%;">
           <el-option v-for="day in Array.from(new Array(31), (val, index) => String(index + 1))"
@@ -80,11 +99,15 @@ export default {
       type: Object,
       required: true,
     },
+    disable: {
+      type: Boolean,
+      default: () => false
+    }
   },
   data() {
     const singleTimeValidate = (rule, value, callback) => {
       if (this.formData.timeStrategy === 1 && !value) {
-        callback(new Error('请输入恢复时间'));
+        callback(new Error(`${this.type === 'postgresql' ? '请输入计划恢复时间' : '请输入恢复时间'}`));
       } else {
         callback();
       }
@@ -92,6 +115,13 @@ export default {
     const startTimeValidate = (rule, value, callback) => {
       if ([2, 3].indexOf(this.formData.timeStrategy) !== -1 && !value) {
         callback(new Error('请输入计划时间'));
+      } else {
+        callback();
+      }
+    };
+    const restoreTimePointValidate = (rule, value, callback) => {
+      if (this.formData.timeStrategy === 1 && this.type === 'postgresql' && !value) {
+        callback(new Error('请选择恢复时间点'));
       } else {
         callback();
       }
@@ -133,6 +163,12 @@ export default {
             trigger: ['blur']
           },
         ],
+        restoreTimePoint: [
+          {
+            validator: restoreTimePointValidate,
+            trigger: ['blur']
+          }
+        ],
         weekPoints: [
           {
             validator: weekPointsValidate,
@@ -169,12 +205,20 @@ export default {
       return new Promise((resolve, reject) => {
         if (timeStrategy === 1) {
           if (dayjs(singleTime) < dayjs()) reject('单次时间必须晚于当前时间');
+          if (this.type === 'postgresql' && dayjs(this.formData.restoreTimePoint) > dayjs())
+            reject('恢复时间点必须早于当前时间');
         } else {
           if (dayjs(startTime) < dayjs()) reject('计划时间必须晚于当前时间');
         }
         resolve(true);
       });
     },
+    sortWeekPoints() {
+      this.formData.weekPoints = this.formData.weekPoints.sort((pre, next) => pre - next);
+    },
+    sortDatePoints() {
+      this.formData.datePoints = this.formData.datePoints.sort((pre, next) => pre - next);
+    }
   },
 };
 </script>

@@ -54,10 +54,12 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="cancelButtonClick()">取消</el-button>
+        <el-button @click="cancelButtonClick"
+                   size="small">取消</el-button>
         <el-button type="primary"
                    :loading="btnLoading"
-                   @click="confirmBtnClick">确定</el-button>
+                   @click="confirmBtnClick"
+                   size="small">确定</el-button>
       </span>
     </el-dialog>
   </section>

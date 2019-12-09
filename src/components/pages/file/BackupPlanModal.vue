@@ -63,7 +63,7 @@
           </el-popover>
         </el-form-item>
         <el-form-item label="备份排除文件"
-                      v-if="formData.backupType === 1">
+                      v-if="formData.backupType === 1 && unCloudHost">
           <el-tag :key="tag.id"
                   :class="$style.tags"
                   type="danger"
@@ -94,7 +94,7 @@
             <el-radio :label="systems">{{ systems }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-row v-if="formData.backupType === 1">
+        <el-row v-if="formData.backupType === 1 && unCloudHost">
           <el-col :span="12">
             <el-form-item label="限速"
                           prop="bwlimit">
@@ -129,7 +129,7 @@
 						<el-radio v-for="(backupStrategy, index) in backupStrategySelect"
                       :key="index"
                       :label="backupStrategy.label"
-                      v-if="formData.backupType === 1">
+                      v-if="formData.backupType === 1 && (unCloudHost || (!unCloudHost && backupStrategy.label !== 2))">
               {{ backupStrategy.text }}
             </el-radio>
             <el-radio v-if="formData.backupType !== 1"
@@ -202,23 +202,9 @@ export default {
     backupPlan: {
       type: Object
     },
-    systems: {
-      type: String,
-      default: function() {
-        return '';
-      }
-    },
-    volumes: {
-      type: Array,
-      default: function() {
-        return [];
-      }
-    },
-    filePath: {
-      type: Array,
-      default: function() {
-        return [];
-      }
+    details: {
+      type: Object,
+      default: () => {}
     },
     hostId: {
       type: Number
@@ -268,6 +254,30 @@ export default {
         return '查看备份计划';
       }
       return '添加备份计划';
+    },
+    systems() {
+      const { systems } = this.details;
+      if(systems) {
+        return systems;
+      }
+      return '';
+    },
+    volumes() {
+      const { volumes } = this.details;
+      if(Array.isArray(volumes)) {
+        return volumes;
+      }
+      return [];
+    },
+    filePath() {
+      const { sourcePath: filePath } = this.details;
+      if(Array.isArray(filePath)) {
+        return filePath;
+      }
+      return [];
+    },
+    unCloudHost() {
+      return !this.details.storeType || this.details.storeType === 1;
     },
     modalVisible: {
       get() {

@@ -71,7 +71,7 @@
       </el-row>
     </div>
     <div>
-      <h4>已完成恢复记录</h4>
+      <h4>已完成恢复记录<slot name="verify"></slot></h4>
       <el-table :data="records"
                 :default-sort="{ prop: 'startTime', order: 'descending' }">
         <el-table-column prop="startTime"

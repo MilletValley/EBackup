@@ -5,12 +5,19 @@
       <el-form-item style="float: right"
                     v-show="!enterFromMenu">
         <el-button type="info"
-                   @click="$router.push({name: 'applicationList'})">应用服务器列表</el-button>
+                   @click="$router.push({name: 'applicationList'})"
+                   size="small">应用服务器列表</el-button>
       </el-form-item>
+      <el-form-item style="float: right;">
+        <el-button type="success"
+                  @click="toGuide('takeoverManual', 'applicationTakeOver')"
+                  size="small">操作说明</el-button>
+    </el-form-item>
       <el-form-item style="float: right;"
                     v-show="!enterFromMenu">
         <el-button type="primary"
-                   @click="displayLinkCreateModal">添加</el-button>
+                   @click="displayLinkCreateModal"
+                   size="small">添加</el-button>
       </el-form-item>
     </el-form>
     <section style="clear: both;">
@@ -330,6 +337,7 @@ import SwitchModal from '@/components/pages/application/SwitchModal';
 import AppLinkCreateModal from '@/components/pages/application/AppLinkCreateModal';
 import takeoverMixin from '@/components/mixins/takeoverMixins';
 import themeMixin from '@/components/mixins/themeMixins';
+import { manualPageMixin } from '@/components/mixins/manualMixins';
 import { fetchLinks, fetchAll, createLinks, deleteLinks } from '@/api/application';
 import {
   createSwitches,
@@ -343,7 +351,7 @@ export default {
     SwitchModal,
     AppLinkCreateModal
   },
-  mixins: [takeoverMixin, themeMixin],
+  mixins: [takeoverMixin, themeMixin, manualPageMixin],
   data() {
     return {
       links: [],
